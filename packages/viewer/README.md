@@ -1,0 +1,204 @@
+# @gravity-ui/markdown-viewer &middot; [![npm package](https://img.shields.io/npm/v/@gravity-ui/markdown-viewer)](https://www.npmjs.com/package/@gravity-ui/markdown-viewer)
+
+Render prepared HTML with React 18 or 19. Supports server rendering and hydration. Prepare HTML, styles, and runtimes in your application.
+
+## Installation
+
+```bash
+npm install @gravity-ui/markdown-viewer @gravity-ui/uikit react react-dom
+```
+
+## Usage
+
+```tsx
+import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
+
+export function Document({html}: {html: string}) {
+  return <MarkdownViewer html={html} />;
+}
+```
+
+> [!NOTE]
+> The viewer does not sanitize HTML. Sanitize untrusted content before passing it to `html`.
+
+### YFM styles
+
+For YFM content, install `@diplodoc/transform` and import its CSS. `cnYFM()` adds the `yfm` class:
+
+```tsx
+import {MarkdownViewer, cnYFM} from '@gravity-ui/markdown-viewer';
+
+import '@diplodoc/transform/dist/css/yfm.css';
+
+export function Document({html}: {html: string}) {
+  return <MarkdownViewer html={html} className={cnYFM()} />;
+}
+```
+
+<details>
+<summary>YFM options</summary>
+
+`cnYFM(mods?, mix?)` returns the `yfm` class, modifier classes, and extra classes from `mix`. The package also exports the `YFMMods` type.
+
+| Modifier          | Effect                               |
+| ----------------- | ------------------------------------ |
+| `no-list-reset`   | Keep list counters from being reset. |
+| `no-stripe-table` | Turn off striped table rows.         |
+
+</details>
+
+<details>
+<summary>Viewer props and HTML updates</summary>
+
+`ref`, `className`, `style`, `qa`, and other HTML attributes apply to the `div` with the HTML. The outer wrapper is not part of the public API.
+
+The package exports the `MarkdownViewerProps` type.
+
+| Prop       | Type                             | Description                                              |
+| ---------- | -------------------------------- | -------------------------------------------------------- |
+| `html`     | `string`                         | Required. Prepared HTML.                                 |
+| `children` | `ReactNode`                      | React content outside the HTML that the viewer replaces. |
+| `ref`      | `Ref<HTMLDivElement>`            | Ref to the `div` with the HTML.                          |
+| `qa`       | `string`                         | Sets `data-qa` on this `div`.                            |
+| `...props` | `HTMLAttributes<HTMLDivElement>` | HTML attributes, except `dangerouslySetInnerHTML`.       |
+
+#### HTML updates
+
+- A new `html` value replaces the HTML content. React children keep their state.
+- The same `html` string keeps the current DOM, including changes made by extensions.
+- Use `key={documentId}` to reset the viewer and its children. Keep the key stable to keep child state across HTML updates.
+
+</details>
+
+### Add an extension
+
+Add a child component with `useViewerEffect` to work with the HTML root. This example tracks clicks and removes its listener during cleanup:
+
+```tsx
+import {MarkdownViewer, useViewerEffect} from '@gravity-ui/markdown-viewer';
+
+export function Document({html, onClick}: {html: string; onClick: () => void}) {
+  return (
+    <MarkdownViewer html={html}>
+      <DocumentClicks onClick={onClick} />
+    </MarkdownViewer>
+  );
+}
+
+function DocumentClicks({onClick}: {onClick: () => void}) {
+  useViewerEffect(
+    ({root}) => {
+      root.addEventListener('click', onClick);
+      return () => root.removeEventListener('click', onClick);
+    },
+    [onClick],
+  );
+
+  return null;
+}
+```
+
+Setup runs after the HTML is in the DOM. It runs again when HTML or dependencies change. Cleanup runs before each restart and on unmount. Use `root` for DOM searches so each viewer stays independent.
+
+<details>
+<summary>Effect lifecycle and types</summary>
+
+Pass both `setup` and `dependencies`. Setup must return a cleanup function or nothing, not a Promise.
+
+| Event                        | Behavior                                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------------ |
+| Mount                        | Run setup after the HTML is in the DOM.                                                    |
+| HTML changes                 | Abort all old signals, run cleanup before replacing HTML, then run setup for the new HTML. |
+| Dependencies change          | Abort and clean up the affected effect, then run its new setup. Keep the HTML DOM.         |
+| Extension or viewer unmounts | Abort its active signals and run cleanup.                                                  |
+
+If HTML and dependencies change together, setup runs once. A new setup function alone does not restart the effect; list its reactive values in `dependencies`.
+
+Effects only run on the client. Each run gets a new signal.
+
+Separate extensions have no fixed execution order. Put steps that need a fixed order in one extension. If one cleanup throws, other cleanup functions still run. Handle expected errors and release resources if setup fails. The hook throws an error outside a viewer.
+
+The package exports these types:
+
+```ts
+interface ViewerEffectContext {
+  readonly root: HTMLDivElement;
+  readonly signal: AbortSignal;
+}
+
+type ViewerEffectCleanup = () => void;
+type ViewerEffect = (context: ViewerEffectContext) => void | ViewerEffectCleanup;
+```
+
+Configure React Hooks dependency linting to check `useViewerEffect`.
+
+</details>
+
+<details>
+<summary>Async work and cancellation</summary>
+
+Keep setup synchronous and start async work inside it. Check `signal.aborted` after each async wait and before changing the DOM. Use the library's cancellation API when it has one: an aborted signal alone does not stop third-party code.
+
+Here, `load` creates a resource without changing the DOM. `attach` adds it to the current root. A resource that arrives after cancellation is disposed without being attached.
+
+```tsx
+import {useViewerEffect} from '@gravity-ui/markdown-viewer';
+
+type Resource = {
+  attach(root: HTMLDivElement): void;
+  dispose(): void;
+};
+
+type AsyncExtensionProps = {
+  load(signal: AbortSignal): Promise<Resource>;
+  onError(error: unknown): void;
+};
+
+export function AsyncExtension({load, onError}: AsyncExtensionProps) {
+  useViewerEffect(
+    ({root, signal}) => {
+      let resource: Resource | undefined;
+
+      void load(signal)
+        .then((loaded) => {
+          if (signal.aborted) {
+            loaded.dispose();
+            return;
+          }
+          resource = loaded;
+          resource.attach(root);
+        })
+        .catch((error: unknown) => {
+          resource?.dispose();
+          resource = undefined;
+          if (!signal.aborted) {
+            onError(error);
+          }
+        });
+
+      return () => resource?.dispose();
+    },
+    [load, onError],
+  );
+
+  return null;
+}
+```
+
+</details>
+
+## Development
+
+Run from the repository root:
+
+```bash
+pnpm --filter @gravity-ui/markdown-viewer test
+pnpm --filter @gravity-ui/markdown-viewer typecheck
+pnpm --filter @gravity-ui/markdown-viewer lint
+```
+
+- Tests and public API type checks run on React 18 and 19.
+
+## License
+
+MIT
