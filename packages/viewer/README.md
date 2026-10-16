@@ -187,6 +187,134 @@ export function AsyncExtension({load, onError}: AsyncExtensionProps) {
 
 </details>
 
+### Add React content to HTML
+
+Use `ViewerTargets` to add React components inside the HTML. It finds matching HTML elements in the current viewer and adds a slot to each one. The original content stays in place. Each slot uses a React portal, so its components can read your application's React context.
+
+```tsx
+import {useState} from 'react';
+import {MarkdownViewer, ViewerTargets} from '@gravity-ui/markdown-viewer';
+
+export function Document({html, label}: {html: string; label: string}) {
+  return (
+    <MarkdownViewer html={html}>
+      <ViewerTargets selector="h2[id]">
+        {(heading) => <HeadingAction heading={heading} label={label} />}
+      </ViewerTargets>
+    </MarkdownViewer>
+  );
+}
+
+function HeadingAction({heading, label}: {heading: HTMLElement; label: string}) {
+  const [count, setCount] = useState(0);
+  return (
+    <button aria-label={`${label} ${heading.id}`} onClick={() => setCount(count + 1)}>
+      {label} {count}
+    </button>
+  );
+}
+```
+
+Put hooks in a component such as `HeadingAction`. The callback only returns React content. Changing `label` updates the button and keeps its count. With the same HTML, selector, and `as`, a new callback does not repeat the search or replace slots.
+
+<details>
+<summary>Target props and selectors</summary>
+
+Use `ViewerTargets` inside `MarkdownViewer`. The package exports the `ViewerTargetsProps` type.
+
+| Prop       | Type                                 | Description                                                              |
+| ---------- | ------------------------------------ | ------------------------------------------------------------------------ |
+| `selector` | `string`                             | CSS selector for HTML elements inside this viewer.                       |
+| `as`       | `'span' \| 'div'`                    | Slot tag. Default: `span`. Choose a tag that is valid inside the target. |
+| `children` | `(target: HTMLElement) => ReactNode` | Returns React content for each target.                                   |
+
+Use a stable selector, such as `h2[id]` or `[data-grid-id]`. Adding a slot must not change whether the target matches. Avoid selectors such as `h2:empty`.
+
+Searches skip slots and their content. Elements added later by an external runtime are not detected automatically.
+
+Several extensions can add separate slots to the same target. Each extension must keep the other slots and the original content. Their order in the React tree must not affect how they work. Put DOM steps that need a fixed order in one extension.
+
+</details>
+
+<details>
+<summary>Slot state and cleanup</summary>
+
+- A target keeps its slot and React state during ordinary rerenders.
+- After a selector change, targets that still match keep their slots. Other slots are added or removed as needed.
+- Changing `as` may replace the slot and reset its state.
+- Replacing HTML creates new DOM elements, even if their IDs stay the same. To keep state across HTML updates, store it above `ViewerTargets` and use a stable, unique ID for each target.
+- Removing an extension removes its slots and portal content. Other extensions' slots and the original HTML stay in place.
+
+Portal children unmount before React removes their slot. The target may already be detached from the document. Do not rely on an attached target in `useEffect` cleanup or on a fixed cleanup order between extensions.
+
+On the server, the viewer renders the prepared HTML and its regular React children. `ViewerTargets` adds no slots or portal content. It adds them on the client after hydration.
+
+</details>
+
+<details>
+<summary>React blocks and fallback content</summary>
+
+For a React block, prepare an empty target element (the host). Put fallback content beside it:
+
+```html
+<section>
+  <p data-grid-fallback>Grid is unavailable.</p>
+  <div data-grid-id="grid-42"></div>
+</section>
+```
+
+Use `as="div"` to add a block slot:
+
+```tsx
+<ViewerTargets selector="[data-grid-id]" as="div">
+  {(host) => <GridAdapter host={host} />}
+</ViewerTargets>
+```
+
+`GridAdapter` is your component. It reads the grid ID, renders the grid, and hides or shows the fallback. `ViewerTargets` does not manage the fallback.
+
+The result inside the host is:
+
+```html
+<div data-grid-id="grid-42">
+  <div data-markdown-viewer-slot>
+    <div class="grid">...</div>
+  </div>
+</div>
+```
+
+</details>
+
+<details>
+<summary>Use slots with DOM extensions</summary>
+
+The viewer marks each slot with `data-markdown-viewer-slot`. Import `VIEWER_SLOT_ATTRIBUTE` to use this attribute name. Its value is not part of the API. Do not add the attribute to prepared HTML or change it in an extension.
+
+React owns each slot and its content. Before a DOM extension replaces an element's content, check that the element is outside slots and contains no slots:
+
+```ts
+import {VIEWER_SLOT_ATTRIBUTE} from '@gravity-ui/markdown-viewer';
+
+function canReplaceContent(element: Element): boolean {
+  const slotSelector = `[${VIEWER_SLOT_ATTRIBUTE}]`;
+  return !element.closest(slotSelector) && !element.querySelector(slotSelector);
+}
+```
+
+Check immediately before each content replacement. After async work, check again: another extension may have added a slot while you waited. Also check the effect's signal:
+
+```ts
+const result = await prepareContent();
+if (signal.aborted || !canReplaceContent(element)) return;
+element.replaceChildren(result);
+```
+
+During cleanup, repeat the slot check and undo only your own changes. Do not restore saved `innerHTML` over another extension's slots.
+
+This check does not make it safe for two extensions to replace the same content. If a runtime needs full control of a subtree, put other extensions' controls in a separate host outside it.
+
+</details>
+
 ## Development
 
 Run from the repository root:
