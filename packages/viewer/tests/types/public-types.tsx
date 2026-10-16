@@ -8,6 +8,8 @@ import {
     type ViewerEffect,
     type ViewerEffectCleanup,
     type ViewerEffectContext,
+    ViewerTargets,
+    type ViewerTargetsProps,
     type YFMMods,
     cnYFM,
     useViewerEffect,
@@ -21,7 +23,11 @@ export function Consumer() {
             ref={createRef<HTMLDivElement>()}
             className={cnYFM(mods)}
             qa="document"
-        />
+        >
+            <ViewerTargets selector="h2[id]" as="span">
+                {(target) => <button>{target.id}</button>}
+            </ViewerTargets>
+        </MarkdownViewer>
     );
 }
 
@@ -40,9 +46,17 @@ export const raw = <MarkdownViewer html="" dangerouslySetInnerHTML={{__html: ''}
 // @ts-expect-error Async setup cannot return synchronous cleanup.
 export const asyncSetup: ViewerEffect = async () => undefined;
 
+export const invalidSlot = (
+    // @ts-expect-error Only span and div slots are supported.
+    <ViewerTargets selector="h2" as="button">
+        {() => null}
+    </ViewerTargets>
+);
 expectTypeOf<MarkdownViewerProps['html']>().toEqualTypeOf<string>();
 expectTypeOf<ViewerEffectContext['root']>().toEqualTypeOf<HTMLDivElement>();
 expectTypeOf<ViewerEffectContext['signal']>().toEqualTypeOf<AbortSignal>();
 expectTypeOf<ReturnType<ViewerEffect>>().toEqualTypeOf<void | ViewerEffectCleanup>();
 expectTypeOf(useViewerEffect).parameters.toEqualTypeOf<[ViewerEffect, DependencyList]>();
 expectTypeOf(cnYFM).parameter(0).toEqualTypeOf<YFMMods | null | undefined>();
+expectTypeOf<ViewerTargetsProps['children']>().parameter(0).toEqualTypeOf<HTMLElement>();
+expectTypeOf<keyof ViewerTargetsProps>().toEqualTypeOf<'selector' | 'as' | 'children'>();
