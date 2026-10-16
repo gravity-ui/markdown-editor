@@ -1,0 +1,11 @@
+{
+  "name": "@markdown-viewer-tests/react19",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@types/react": "catalog:react19",
+    "@types/react-dom": "catalog:react19",
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19"
+  }
+}
