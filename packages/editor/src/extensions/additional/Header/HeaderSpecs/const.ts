@@ -102,9 +102,25 @@ export const HeaderText = {
     Primary: 'primary',
     Brand: 'brand',
     Blue: 'blue',
+    Grey: 'grey',
+    YellowLight: 'yellow-light',
+    Yellow: 'yellow',
+    RedLight: 'red-light',
+    Red: 'red',
+    PurpleLight: 'purple-light',
+    Purple: 'purple',
+    BlueLight: 'blue-light',
+    GreenLight: 'green-light',
+    Green: 'green',
 } as const;
 
 export const HeaderFill = {
+    Grey: 'grey',
+    YellowLight: 'yellow-light',
+    RedLight: 'red-light',
+    PurpleLight: 'purple-light',
+    BlueLight: 'blue-light',
+    GreenLight: 'green-light',
     Blue: 'blue',
     Indigo: 'indigo',
     Purple: 'purple',
@@ -134,19 +150,17 @@ export type HeaderFillValue = (typeof HeaderFill)[keyof typeof HeaderFill];
 
 /** Порядок задаёт и палитру тулбара, и выбор цвета генератором. Синхронно с `$header-fills` в fills.scss. */
 export const HEADER_FILLS: readonly HeaderFillValue[] = [
-    HeaderFill.Blue,
-    HeaderFill.Indigo,
-    HeaderFill.Purple,
-    HeaderFill.Violet,
-    HeaderFill.Teal,
-    HeaderFill.Green,
-    HeaderFill.Sky,
-    HeaderFill.LightBlue,
-    HeaderFill.Amber,
+    HeaderFill.YellowLight,
+    HeaderFill.RedLight,
+    HeaderFill.PurpleLight,
+    HeaderFill.BlueLight,
+    HeaderFill.GreenLight,
+    HeaderFill.Grey,
     HeaderFill.Yellow,
-    HeaderFill.Sand,
     HeaderFill.Red,
-    HeaderFill.Navy,
+    HeaderFill.Purple,
+    HeaderFill.Blue,
+    HeaderFill.Green,
 ];
 
 /** Полный оборот: угол приводится по модулю, потому что 523° и 163° — один и тот же наклон. */

@@ -109,5 +109,13 @@
   "action_link": "Ссылка",
   "action_page": "Другая страница",
   "text_blue": "Синий",
-  "color_light-blue": "Голубой"
+  "color_light-blue": "Голубой",
+  "palette": "палитра",
+  "no_color": "Без цвета",
+  "color_grey": "Серый",
+  "color_yellow-light": "Светло-жёлтый",
+  "color_red-light": "Светло-красный",
+  "color_purple-light": "Светло-фиолетовый",
+  "color_blue-light": "Голубой",
+  "color_green-light": "Светло-зелёный"
 }

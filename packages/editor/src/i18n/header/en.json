@@ -109,5 +109,13 @@
   "action_link": "Link",
   "action_page": "Other page",
   "text_blue": "Blue",
-  "color_light-blue": "Light blue"
+  "color_light-blue": "Light blue",
+  "palette": "palette",
+  "no_color": "No color",
+  "color_grey": "Grey",
+  "color_yellow-light": "Light yellow",
+  "color_red-light": "Light red",
+  "color_purple-light": "Light purple",
+  "color_blue-light": "Light blue",
+  "color_green-light": "Light green"
 }

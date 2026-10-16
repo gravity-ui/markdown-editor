@@ -1,62 +1,32 @@
-@use 'sass:color';
-@use 'sass:math';
+@use '../../../styles/yc-table-cell-bg' as table;
+@use 'sass:map';
 
-// Палитра обложки: насыщенные и светлые поверхности вперемешку, цвет текста выводится из яркости.
-// Значения держать синхронно с `HEADER_FILLS` в HeaderSpecs/const.ts.
-$header-fills: (
-    'blue': #5282ff,
-    'indigo': #5c4fdb,
-    'purple': #9457eb,
-    'violet': #b796ff,
-    'teal': #20928b,
-    'green': #2c9661,
-    'sky': #a5e5f4,
-    'light-blue': #8caeff,
-    'amber': #b87614,
-    'yellow': #ffd500,
-    'sand': #ffe597,
-    'red': #eb475d,
-    'navy': #292657,
+// Сохранённые варианты обложки используют те же цвета темы, что и палитра таблиц.
+$header-fills: map.merge(
+    table.$cell-bg-colors,
+    (
+        'indigo': var(--g-color-base-utility-medium),
+        'violet': var(--g-color-base-utility-light),
+        'teal': var(--g-color-base-positive-medium),
+        'sky': var(--g-color-base-info-light),
+        'light-blue': var(--g-color-base-info-light),
+        'amber': var(--g-color-base-warning-medium),
+        'sand': var(--g-color-base-warning-light),
+        'navy': var(--g-color-base-info-medium),
+    )
 );
 
-$header-text-light: #f1f0f3;
-$header-text-dark: #213061;
+$header-text-colors: map.merge(
+    table.$cell-bg-colors,
+    (
+        'grey': var(--g-color-text-secondary),
+        'yellow': var(--g-color-text-warning),
+        'red': var(--g-color-text-danger),
+        'purple': var(--g-color-text-utility),
+        'blue': var(--g-color-text-info),
+        'green': var(--g-color-text-positive),
+    )
+);
 
-@function channel-luminance($value) {
-    $srgb: math.div($value, 255);
-
-    @return if(
-        $srgb <= 0.03928,
-        math.div($srgb, 12.92),
-        math.pow(math.div($srgb + 0.055, 1.055), 2.4)
-    );
-}
-
-@function luminance($fill) {
-    @return 0.2126 * channel-luminance(color.channel($fill, 'red', $space: rgb)) + 0.7152 *
-        channel-luminance(color.channel($fill, 'green', $space: rgb)) + 0.0722 *
-        channel-luminance(color.channel($fill, 'blue', $space: rgb));
-}
-
-@function contrast($one, $two) {
-    $first: luminance($one);
-    $second: luminance($two);
-
-    @return math.div(math.max($first, $second) + 0.05, math.min($first, $second) + 0.05);
-}
-
-/** Цвет текста выбирается по контрасту с заливкой, а не подбирается для каждого цвета вручную. */
-
-@function text-on($fill) {
-    @return if(
-        contrast($fill, $header-text-light) >= contrast($fill, $header-text-dark),
-        $header-text-light,
-        $header-text-dark
-    );
-}
-
-/** Фигуры и точки узора — тот же тон, что и текст: на светлой заливке белое пятно не видно. */
-
-@function ink-on($fill, $alpha) {
-    @return color.change(text-on($fill), $alpha: $alpha);
-}
+$header-text-light: var(--g-color-text-light-primary);
+$header-text-dark: var(--g-color-text-dark-primary);

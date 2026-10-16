@@ -1,6 +1,3 @@
-@use 'sass:map';
-@use '../../fills' as fills;
-
 $block: '.g-md-header-settings';
 
 #{$block} {
@@ -124,34 +121,6 @@ $block: '.g-md-header-settings';
         box-sizing: border-box;
 
         border: 1px solid var(--g-color-line-generic);
-        @each $name, $color in fills.$header-fills {
-            &_fill_#{$name} {
-                background: $color;
-            }
-        }
-        &_fill_surface {
-            background: var(--g-color-base-modal);
-        }
-        &_text_auto {
-            background: linear-gradient(
-                135deg,
-                var(--g-color-text-primary) 50%,
-                var(--g-color-base-background) 50%
-            );
-        }
-        &_text_blue {
-            background: #{map.get(fills.$header-fills, 'blue')};
-        }
-        &_text_primary {
-            background: var(--g-color-text-primary);
-        }
-        &_text_light {
-            background: #{fills.$header-text-light};
-        }
-        &_text_dark {
-            background: #{fills.$header-text-dark};
-        }
-        &_text_brand,
         &_style_brand {
             background: var(--g-color-base-brand);
         }

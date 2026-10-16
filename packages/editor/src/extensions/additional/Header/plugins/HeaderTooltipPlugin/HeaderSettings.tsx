@@ -30,16 +30,16 @@ import {i18n} from 'src/i18n/header';
 import type {FileUploadHandler} from 'src/utils/upload';
 
 import {
-    HEADER_FILLS,
     HeaderAttr,
     type HeaderAttrs,
     HeaderBackground,
     HeaderLayer,
-    HeaderText,
     normalizeHeaderAttrs,
 } from '../../HeaderSpecs';
 import {headerAt, setHeaderAction, setHeaderAttrs} from '../../commands';
 import {uploadHeaderImage} from '../imageUpload';
+
+import {HeaderColorControl} from './HeaderColorControl';
 
 import './HeaderSettings.scss';
 
@@ -241,16 +241,11 @@ export function HeaderSettings({
                     {toggle(HeaderAttr.Description, 'description')}
                     {row(
                         i18n('text'),
-                        <Select
-                            size="m"
-                            width="max"
-                            aria-label={i18n('text')}
-                            value={[attrs.text]}
-                            renderSelectedOption={(option) => <>{option.content}</>}
-                            options={Object.values(HeaderText).map((value) =>
-                                colorOption(value, i18n(`text_${value}` as Label), 'text'),
-                            )}
-                            onUpdate={([text]) => patch({text})}
+                        <HeaderColorControl
+                            kind="text"
+                            label={i18n('text')}
+                            value={attrs.text}
+                            onUpdate={(text) => patch({text: text || 'auto'})}
                         />,
                     )}
                 </SettingsSection>
@@ -351,23 +346,15 @@ export function HeaderSettings({
                 <SettingsSection label={i18n('background')}>
                     {row(
                         i18n('color'),
-                        <Select
-                            size="m"
-                            width="max"
-                            aria-label={i18n('color')}
-                            value={[attrs.bg === HeaderBackground.Surface ? 'surface' : attrs.fill]}
-                            renderSelectedOption={(option) => <>{option.content}</>}
-                            options={[
-                                colorOption('surface', i18n('bg_surface')),
-                                ...HEADER_FILLS.map((value) =>
-                                    colorOption(value, i18n(`color_${value}` as Label)),
-                                ),
-                            ]}
-                            onUpdate={([value]) =>
+                        <HeaderColorControl
+                            kind="fill"
+                            label={i18n('color')}
+                            value={attrs.bg === HeaderBackground.Surface ? '' : attrs.fill}
+                            onUpdate={(fill) =>
                                 patch(
-                                    value === 'surface'
-                                        ? {bg: HeaderBackground.Surface}
-                                        : {fill: value, bg: HeaderBackground.Fill},
+                                    fill
+                                        ? {fill, bg: HeaderBackground.Fill}
+                                        : {bg: HeaderBackground.Surface},
                                 )
                             }
                         />,

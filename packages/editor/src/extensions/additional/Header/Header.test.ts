@@ -145,6 +145,28 @@ describe('Header extension', () => {
 });
 
 describe('Header layout persistence', () => {
+    it('should preserve table palette colors for both text and background', () => {
+        for (const color of [
+            'grey',
+            'yellow-light',
+            'red-light',
+            'purple-light',
+            'blue-light',
+            'green-light',
+            'yellow',
+            'red',
+            'purple',
+            'blue',
+            'green',
+        ]) {
+            const markup = `:::header[Title]{bg="fill" fill="${color}" text="${color}"}\n\n:::`;
+            const doc = parser.parse(markup);
+            expect(doc.firstChild?.attrs).toMatchObject({fill: color, text: color});
+            expect(parser.parse(serializer.serialize(doc)).eq(doc)).toBe(true);
+            parseDOM(schema, new MarkdownIt().use(headerDirective).render(markup), doc);
+        }
+    });
+
     it('should preserve disabled buttons and image metadata in Markdown and HTML', () => {
         const markup =
             ':::header[Title]{image="https://example.com/cover.png" image-name="My cover.png" image-enabled="false" layer="left"}\n\n::action[First](/one){enabled="false"}\n\n::action[Second](/two)\n\n:::';

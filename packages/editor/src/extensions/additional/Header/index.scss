@@ -22,9 +22,9 @@ $scale: (
 .g-md-header {
     --g-md-header-fill: #{map.get(fills.$header-fills, 'blue')};
     --g-md-header-fill-2: #{map.get(fills.$header-fills, 'purple')};
-    --g-md-header-fill-text: #{fills.text-on(map.get(fills.$header-fills, 'blue'))};
-    --g-md-header-shape: #{fills.ink-on(map.get(fills.$header-fills, 'blue'), 0.9)};
-    --g-md-header-dot: #{fills.ink-on(map.get(fills.$header-fills, 'blue'), 0.19)};
+    --g-md-header-fill-text: var(--g-color-text-primary);
+    --g-md-header-shape: color-mix(in sRGB, var(--g-color-text-primary) 90%, transparent);
+    --g-md-header-dot: color-mix(in sRGB, var(--g-color-text-primary) 19%, transparent);
     --g-md-header-text: var(--g-md-header-fill-text);
     --g-md-header-decor: none;
     --g-md-header-decor-size: auto;
@@ -58,9 +58,6 @@ $scale: (
     @each $name, $color in fills.$header-fills {
         &[data-fill='#{$name}'] {
             --g-md-header-fill: #{$color};
-            --g-md-header-fill-text: #{fills.text-on($color)};
-            --g-md-header-shape: #{fills.ink-on($color, 0.9)};
-            --g-md-header-dot: #{fills.ink-on($color, 0.19)};
         }
         &[data-fill2='#{$name}'] {
             --g-md-header-fill-2: #{$color};
@@ -76,6 +73,12 @@ $scale: (
     @each $name, $value in $focus {
         &[data-focus='#{$name}'] {
             --g-md-header-image-position: #{$value};
+        }
+    }
+
+    @each $name, $color in fills.$header-text-colors {
+        &[data-text='#{$name}'] {
+            --g-md-header-text: #{$color};
         }
     }
 
@@ -155,10 +158,6 @@ $scale: (
 
     &[data-text='primary'] {
         --g-md-header-text: var(--g-color-text-primary);
-    }
-
-    &[data-text='blue'] {
-        --g-md-header-text: #{map.get(fills.$header-fills, 'blue')};
     }
 
     &[data-text='brand'] {

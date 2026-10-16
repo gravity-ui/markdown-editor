@@ -12,21 +12,7 @@ import './HeaderPalette.scss';
 const b = cn('header-palette');
 const placement: PopupPlacement = ['bottom-start', 'top-start'];
 
-const FILL_LABEL: Record<HeaderFillValue, () => string> = {
-    blue: () => i18n('color_blue'),
-    indigo: () => i18n('color_indigo'),
-    purple: () => i18n('color_purple'),
-    violet: () => i18n('color_violet'),
-    teal: () => i18n('color_teal'),
-    green: () => i18n('color_green'),
-    sky: () => i18n('color_sky'),
-    'light-blue': () => i18n('color_light-blue'),
-    amber: () => i18n('color_amber'),
-    yellow: () => i18n('color_yellow'),
-    sand: () => i18n('color_sand'),
-    red: () => i18n('color_red'),
-    navy: () => i18n('color_navy'),
-};
+const fillLabel = (fill: HeaderFillValue) => i18n(`color_${fill}` as Parameters<typeof i18n>[0]);
 
 export type HeaderFillAttr = typeof HeaderAttr.Fill | typeof HeaderAttr.Fill2;
 
@@ -89,7 +75,7 @@ export function HeaderPalette({
                     value={[target]}
                     options={HEADER_FILLS.map((fill) => ({
                         value: fill,
-                        title: FILL_LABEL[fill](),
+                        title: fillLabel(fill),
                         content: <span className={b('swatch')} data-fill={fill} />,
                     }))}
                     onUpdate={([fill]) => {
