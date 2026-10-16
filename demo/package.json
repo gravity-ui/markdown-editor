@@ -82,14 +82,12 @@
     "targets": {
       "playwright": {
         "dependsOn": [
-          "^clean",
-          "^build"
+          "prepare-deps"
         ]
       },
       "sb:build": {
         "dependsOn": [
-          "^clean",
-          "^build"
+          "prepare-deps"
         ],
         "outputs": [
           "{projectRoot}/demo/storybook-static"
@@ -99,10 +97,24 @@
       "sb:start": {
         "continuous": true,
         "dependsOn": [
-          "^clean",
           "^build",
           "watch-deps"
         ]
+      },
+      "clean-deps": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pnpm run clean"
+        }
+      },
+      "prepare-deps": {
+        "dependsOn": [
+          "clean-deps"
+        ],
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pnpm exec nx build-deps @markdown-editor/demo"
+        }
       },
       "build-deps": {
         "dependsOn": [

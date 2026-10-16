@@ -1,32 +1,18 @@
-import {type HTMLAttributes, type PropsWithChildren, forwardRef} from 'react';
+import {forwardRef, useImperativeHandle, useRef} from 'react';
 
-import type {QAProps} from '@gravity-ui/uikit';
+import {type MarkdownViewerProps, ViewerContent} from './ViewerContent';
 
-import {cn} from '../../utils/classname';
-
-const b = cn('viewer');
-
-export type MarkdownViewerProps = PropsWithChildren<
-    Omit<HTMLAttributes<HTMLDivElement>, 'dangerouslySetInnerHTML'> &
-        QAProps & {
-            /** Pre-transformed HTML string. The component does not sanitize it — make sure to sanitize before passing. */
-            html: string;
-        }
->;
+export type {MarkdownViewerProps} from './ViewerContent';
 
 export const MarkdownViewer = forwardRef<HTMLDivElement, MarkdownViewerProps>(
-    function MarkdownViewer({html, className, qa, children, ...restProps}, ref) {
-        return (
-            <div className={b()}>
-                <div
-                    {...restProps}
-                    ref={ref}
-                    data-qa={qa}
-                    className={b('content', className)}
-                    dangerouslySetInnerHTML={{__html: html}}
-                />
-                {children}
-            </div>
+    function MarkdownViewer(props, ref) {
+        const contentRef = useRef<HTMLDivElement>(null);
+        useImperativeHandle<HTMLDivElement | null, HTMLDivElement | null>(
+            ref,
+            () => contentRef.current,
+            [],
         );
+
+        return <ViewerContent {...props} contentRef={contentRef} />;
     },
 );

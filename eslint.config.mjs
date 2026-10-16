@@ -11,6 +11,12 @@ export default defineConfig(
     ]),
     common,
     {
+        files: ['**/src/**/*.{ts,tsx}'],
+        rules: {
+            'react-hooks/exhaustive-deps': ['warn', {additionalHooks: '^useViewerEffect$'}],
+        },
+    },
+    {
         files: ['./packages/**/src/**/*'],
         rules: {
             'new-cap': [
