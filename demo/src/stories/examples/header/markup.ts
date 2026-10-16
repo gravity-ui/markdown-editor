@@ -16,6 +16,11 @@ const cover = (title: string, attrs: string, content = '') =>
 const covers = (...items: string[]) => items.join('\n\n');
 
 export const markup = {
+    designSettings: cover(
+        'Your title',
+        `bg="fill" fill="light-blue" image="${designImage}" image-name="abstract-dark-blue-black-gradients.png" text="blue"`,
+        `${designText}\n\n::action[Button](https://example.com){color="brand"}`,
+    ),
     design: cover(
         'Your title',
         `bg="surface" image="${designImage}" layer="right"`,

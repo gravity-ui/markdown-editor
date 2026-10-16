@@ -25,6 +25,8 @@ export const HeaderAttr = {
     Scale: 'scale',
     Effect: 'effect',
     Image: 'image',
+    ImageEnabled: 'image-enabled',
+    ImageName: 'image-name',
     Layer: 'layer',
     Fit: 'fit',
     Focus: 'focus',
@@ -99,6 +101,7 @@ export const HeaderText = {
     Dark: 'dark',
     Primary: 'primary',
     Brand: 'brand',
+    Blue: 'blue',
 } as const;
 
 export const HeaderFill = {
@@ -109,6 +112,7 @@ export const HeaderFill = {
     Teal: 'teal',
     Green: 'green',
     Sky: 'sky',
+    LightBlue: 'light-blue',
     Amber: 'amber',
     Yellow: 'yellow',
     Sand: 'sand',
@@ -137,6 +141,7 @@ export const HEADER_FILLS: readonly HeaderFillValue[] = [
     HeaderFill.Teal,
     HeaderFill.Green,
     HeaderFill.Sky,
+    HeaderFill.LightBlue,
     HeaderFill.Amber,
     HeaderFill.Yellow,
     HeaderFill.Sand,
@@ -160,6 +165,8 @@ export const HeaderDefaults = {
     [HeaderAttr.Scale]: HeaderScale.Medium,
     [HeaderAttr.Effect]: HeaderEffect.None,
     [HeaderAttr.Image]: '',
+    [HeaderAttr.ImageEnabled]: 'true',
+    [HeaderAttr.ImageName]: '',
     [HeaderAttr.Layer]: HeaderLayer.Full,
     [HeaderAttr.Fit]: HeaderFit.Crop,
     [HeaderAttr.Focus]: HeaderFocus.Center,

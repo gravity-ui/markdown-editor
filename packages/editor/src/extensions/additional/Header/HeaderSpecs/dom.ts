@@ -46,7 +46,7 @@ export function headerDomAttrs(attrs: HeaderAttrs): Record<string, string> {
     const image = toCssUrl(attrs[HeaderAttr.Image]);
     if (image) {
         dom['data-image'] = attrs[HeaderAttr.Image];
-        dom.style = `--g-md-header-image:${image}`;
+        if (attrs[HeaderAttr.ImageEnabled] === 'true') dom.style = `--g-md-header-image:${image}`;
     }
     return dom;
 }
@@ -92,5 +92,5 @@ export function renderHeaderAction(token: Token, escape: (value: string) => stri
     const href = attrs.href ?? '';
     const type = attrs['data-type'] ?? 'button';
     const color = attrs['data-color'] ?? 'default';
-    return `<a class="g-md-header__action" href="${escape(href)}" data-type="${escape(type)}" data-color="${escape(color)}">${escape(token.content)}</a>`;
+    return `<a class="g-md-header__action" href="${escape(href)}" data-type="${escape(type)}" data-color="${escape(color)}" data-enabled="${attrs['data-enabled'] === 'false' ? 'false' : 'true'}">${escape(token.content)}</a>`;
 }

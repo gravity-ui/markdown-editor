@@ -14,6 +14,7 @@ export class HeaderActionView implements NodeView {
     constructor(node: Node, view: EditorView) {
         this.node = node;
         this.dom.contentEditable = 'false';
+        this.dom.hidden = node.attrs.enabled === false;
         this.renderItem = getReactRendererFromState(view.state).createItem('header-action', () => (
             <Portal container={this.dom}>
                 <Button
@@ -23,6 +24,7 @@ export class HeaderActionView implements NodeView {
                     size="l"
                     data-type={this.node.attrs.type}
                     data-color={this.node.attrs.color}
+                    data-enabled={String(this.node.attrs.enabled)}
                     onClick={(event: MouseEvent<HTMLAnchorElement>) => event.preventDefault()}
                 >
                     {this.node.textContent}
@@ -38,6 +40,7 @@ export class HeaderActionView implements NodeView {
     update(node: Node) {
         if (node.type !== this.node.type) return false;
         this.node = node;
+        this.dom.hidden = node.attrs.enabled === false;
         this.renderItem.rerender();
         return true;
     }

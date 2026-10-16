@@ -21,6 +21,7 @@ const choices = {
     [HeaderAttr.Align]: ['left', 'center', 'right'],
     [HeaderAttr.Vertical]: ['top', 'center', 'bottom'],
     [HeaderAttr.Fixed]: ['true', 'false'],
+    [HeaderAttr.ImageEnabled]: ['true', 'false'],
     [HeaderAttr.Title]: ['true', 'false'],
     [HeaderAttr.Description]: ['true', 'false'],
     [HeaderAttr.Background]: Object.values(HeaderBackground),
@@ -50,6 +51,8 @@ const ATTR_ORDER = [
     HeaderAttr.Shapes,
     HeaderAttr.Scale,
     HeaderAttr.Image,
+    HeaderAttr.ImageEnabled,
+    HeaderAttr.ImageName,
     HeaderAttr.Layer,
     HeaderAttr.Fit,
     HeaderAttr.Focus,
@@ -60,7 +63,7 @@ const ATTR_ORDER = [
 export function normalizeHeaderAttrs(raw: Readonly<Record<string, unknown>> = {}): HeaderAttrs {
     const attrs = {...HeaderDefaults} as HeaderAttrs;
     for (const name of ATTR_ORDER) {
-        if (name === HeaderAttr.Image) {
+        if (name === HeaderAttr.Image || name === HeaderAttr.ImageName) {
             attrs[name] = typeof raw[name] === 'string' ? raw[name].trim() : '';
         } else {
             const value = raw[name];

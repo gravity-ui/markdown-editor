@@ -145,6 +145,16 @@ describe('Header extension', () => {
 });
 
 describe('Header layout persistence', () => {
+    it('should preserve disabled buttons and image metadata in Markdown and HTML', () => {
+        const markup =
+            ':::header[Title]{image="https://example.com/cover.png" image-name="My cover.png" image-enabled="false" layer="left"}\n\n::action[First](/one){enabled="false"}\n\n::action[Second](/two)\n\n:::';
+        const doc = parser.parse(markup);
+        expect(parser.parse(serializer.serialize(doc)).eq(doc)).toBe(true);
+        const html = new MarkdownIt().use(headerDirective).render(markup);
+        expect(html).toContain('data-enabled="false"');
+        expect(html).not.toContain('--g-md-header-image:');
+        parseDOM(schema, html, doc);
+    });
     it('should preserve layout and hidden content through Markdown and DOM round trips', () => {
         const markup =
             ':::header[Title]{format="large" align="right" vertical="bottom" fixed="false" title="false" description="false" image="https://example.com/image.png" layer="left"}\n\nDescription\n\n::action[Button](/page)\n\n:::';

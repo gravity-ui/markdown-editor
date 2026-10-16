@@ -90,6 +90,8 @@ export async function uploadHeaderImage(
 
     setHeaderAttrs(pos, {
         [HeaderAttr.Image]: url,
+        [HeaderAttr.ImageName]: file.name,
+        [HeaderAttr.ImageEnabled]: 'true',
         ...(onCover ? {[HeaderAttr.Text]: tone} : {}),
     })(view.state, view.dispatch);
 

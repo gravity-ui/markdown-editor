@@ -131,6 +131,22 @@ describe('Header commands', () => {
 });
 
 describe('Header action editing', () => {
+    it('should keep button slots and content when toggled independently', () => {
+        const view = viewWith(doc(cover('Title')), 2);
+        const action = {text: 'Third', href: '/third', type: 'link', color: 'default'};
+        expect(setHeaderAction(0, 2, action)(view.state, view.dispatch)).toBe(true);
+        expect(view.state.doc.firstChild?.child(2).child(0).attrs.enabled).toBe(false);
+        setHeaderAction(0, 2, {...action, enabled: false})(view.state, view.dispatch);
+        setHeaderAction(0, 0, {...action, text: 'First'})(view.state, view.dispatch);
+        expect(view.state.doc.firstChild?.child(2).child(2).textContent).toBe('Third');
+        expect(view.state.doc.firstChild?.child(2).child(2).attrs.enabled).toBe(false);
+        setHeaderAction(0, 2, action)(view.state, view.dispatch);
+        expect(view.state.doc.firstChild?.child(2).child(2).attrs).toMatchObject({
+            enabled: true,
+            href: '/third',
+        });
+        view.destroy();
+    });
     it('should add, edit and remove actions without changing the title', () => {
         const view = viewWith(doc(cover('Title')), 2);
         for (let index = 0; index < 3; index++) {

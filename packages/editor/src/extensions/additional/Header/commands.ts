@@ -91,6 +91,7 @@ export const generateHeaderLook =
 export const removeHeaderImage = (pos: number): Command =>
     setHeaderAttrs(pos, {
         [HeaderAttr.Image]: '',
+        [HeaderAttr.ImageName]: '',
         [HeaderAttr.Layer]: HeaderLayer.Full,
         [HeaderAttr.Fit]: HeaderFit.Crop,
         [HeaderAttr.Focus]: HeaderFocus.Center,
@@ -193,7 +194,7 @@ export const setHeaderAction =
     (
         pos: number,
         index: number,
-        action: {text: string; href: string; type: string; color: string} | null,
+        action: {text: string; href: string; type: string; color: string; enabled?: boolean} | null,
     ): Command =>
     (state, dispatch) => {
         const node = headerAt(state.doc, pos);
@@ -207,17 +208,20 @@ export const setHeaderAction =
             }
         }
         const actions = node.child(2);
-        if (index > actions.childCount || (!action && index === actions.childCount)) return false;
+        if (!action && index >= actions.childCount) return false;
         if (dispatch) {
             const children: Node[] = [];
             actions.forEach((child) => children.push(child));
             if (action) {
-                const {text, href, type, color} = action;
+                const {text, href, type, color, enabled = true} = action;
+                while (children.length < index) {
+                    children.push(state.schema.nodes.header_action.create({enabled: false}));
+                }
                 children.splice(
                     index,
                     index < children.length ? 1 : 0,
                     state.schema.nodes.header_action.create(
-                        {href, type, color},
+                        {href, type, color, enabled},
                         text ? state.schema.text(text) : null,
                     ),
                 );

@@ -74,7 +74,12 @@ export const headerActionSpec: NodeSpec = {
     content: 'text*',
     marks: '',
     group: 'block',
-    attrs: {href: {default: ''}, type: {default: 'button'}, color: {default: 'default'}},
+    attrs: {
+        href: {default: ''},
+        type: {default: 'button'},
+        color: {default: 'default'},
+        enabled: {default: true},
+    },
     parseDOM: [
         {
             tag: 'a.g-md-header__action',
@@ -82,6 +87,7 @@ export const headerActionSpec: NodeSpec = {
                 href: (dom as Element).getAttribute('href') ?? '',
                 type: (dom as Element).getAttribute('data-type') ?? 'button',
                 color: (dom as Element).getAttribute('data-color') ?? 'default',
+                enabled: (dom as Element).getAttribute('data-enabled') !== 'false',
             }),
         },
     ],
@@ -92,6 +98,7 @@ export const headerActionSpec: NodeSpec = {
             href: node.attrs.href,
             'data-type': node.attrs.type,
             'data-color': node.attrs.color,
+            'data-enabled': String(node.attrs.enabled),
         },
         0,
     ],

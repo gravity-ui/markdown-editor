@@ -135,3 +135,183 @@ test('should stack the image below the text on narrow screens', async ({mount, p
     await mount(<HeaderDemo markupKey="design" />, {width: 340});
     await expect(page.locator('.g-md-header')).toHaveCSS('flex-direction', 'column');
 });
+
+for (const theme of ['light', 'dark'] as const) {
+    test(`should render every block setting in the ${theme} theme`, async ({
+        mount,
+        page,
+        expectScreenshot,
+    }) => {
+        await page.emulateMedia({colorScheme: theme});
+        await page.setViewportSize({width: 1440, height: 1600});
+        await mount(<HeaderDemo markupKey="designSettings" />, {width: 1100});
+        await page.locator('.g-md-header').hover();
+        await page
+            .getByTestId('g-md-toolbar-header')
+            .getByRole('button', {name: 'Block settings'})
+            .click();
+        const settings = page.getByRole('dialog', {name: 'Block settings'});
+        await expect(settings).toHaveCSS('width', '320px');
+        await expect(settings.locator('.g-md-header-settings__row').first()).toHaveCSS(
+            'grid-template-columns',
+            '120px 158px',
+        );
+        await expect(settings.getByRole('combobox')).toHaveCount(5);
+        await expect(settings.locator('.g-md-header-settings__swatch')).toHaveCount(3);
+        await expect(settings.getByRole('switch')).toHaveCount(7);
+        await expect(
+            settings.getByRole('combobox', {name: 'Button 1: Link', exact: true}),
+        ).toHaveText('Other page');
+        await expect(
+            settings.getByRole('button', {
+                name: 'File: abstract-dark-blue-black-gradients.png',
+                exact: true,
+            }),
+        ).toBeVisible();
+        await expectScreenshot({component: settings, themes: [theme]});
+        for (const name of ['Block text', 'Buttons', 'Background and image']) {
+            await settings.getByRole('button', {name, exact: true}).click();
+            await expect(settings.getByRole('button', {name, exact: true})).toHaveAttribute(
+                'aria-expanded',
+                'false',
+            );
+        }
+        await expect(settings.getByRole('switch')).toHaveCount(1);
+        await expectScreenshot({component: settings, themes: [theme], nameSuffix: 'collapsed'});
+    });
+}
+
+test('should apply every layout and text setting', async ({mount, page}) => {
+    await page.setViewportSize({width: 1440, height: 1600});
+    await mount(<HeaderDemo markupKey="designSettings" />, {width: 1100});
+    const header = page.locator('.g-md-header');
+    await header.hover();
+    await page
+        .getByTestId('g-md-toolbar-header')
+        .getByRole('button', {name: 'Block settings'})
+        .click();
+    const settings = page.getByRole('dialog', {name: 'Block settings'});
+    for (const [size, value] of [
+        ['S', 'small'],
+        ['M', 'medium'],
+        ['L', 'large'],
+    ]) {
+        await settings.getByRole('radio', {name: size, exact: true}).check();
+        await expect(header).toHaveAttribute('data-format', value);
+    }
+    await settings.getByRole('switch', {name: 'Fixed width', exact: true}).press('Space');
+    await expect(header).toHaveAttribute('data-fixed', 'false');
+    await settings
+        .getByRole('radiogroup', {name: 'Vertical', exact: true})
+        .getByRole('radio', {name: 'Bottom', exact: true})
+        .check();
+    await expect(header).toHaveCSS('align-items', 'flex-end');
+    await settings
+        .getByRole('radiogroup', {name: 'Horizontal', exact: true})
+        .getByRole('radio', {name: 'Right', exact: true})
+        .check();
+    await expect(header).toHaveCSS('text-align', 'right');
+    for (const [label, selector] of [
+        ['Title', '.g-md-header__title'],
+        ['Description', '.header_content'],
+    ]) {
+        await settings.getByRole('switch', {name: label, exact: true}).press('Space');
+        await expect(header.locator(selector)).toBeHidden();
+        await settings.getByRole('switch', {name: label, exact: true}).press('Space');
+        await expect(header.locator(selector)).toBeVisible();
+    }
+    await settings.getByRole('combobox', {name: 'Text color', exact: true}).click();
+    await page.getByRole('option', {name: 'Dark', exact: true}).click();
+    await expect(header).toHaveAttribute('data-text', 'dark');
+});
+
+test('should preserve independent button slots and their settings when toggled', async ({
+    mount,
+    page,
+}) => {
+    await page.setViewportSize({width: 1440, height: 1600});
+    await mount(<HeaderDemo markupKey="designSettings" />, {width: 1100});
+    const header = page.locator('.g-md-header');
+    await header.hover();
+    await page
+        .getByTestId('g-md-toolbar-header')
+        .getByRole('button', {name: 'Block settings'})
+        .click();
+    const settings = page.getByRole('dialog', {name: 'Block settings'});
+    await settings.getByRole('switch', {name: 'Button 3', exact: true}).press('Space');
+    await settings.getByRole('textbox', {name: 'Button 3: Text', exact: true}).fill('Third');
+    await settings
+        .getByRole('textbox', {name: 'Button 3: Link address', exact: true})
+        .fill('/third');
+    await settings.getByRole('combobox', {name: 'Button 3: Style', exact: true}).click();
+    await page.getByRole('option', {name: 'Flat', exact: true}).click();
+    await settings.getByRole('switch', {name: 'Button 1', exact: true}).press('Space');
+    await expect(header.locator('.g-md-header__action:visible')).toHaveText(['Third']);
+    await settings.getByRole('switch', {name: 'Button 3', exact: true}).press('Space');
+    await expect(header.locator('.header_actions')).toBeHidden();
+    await settings.getByRole('switch', {name: 'Button 3', exact: true}).press('Space');
+    await expect(settings.getByRole('textbox', {name: 'Button 3: Text', exact: true})).toHaveValue(
+        'Third',
+    );
+    await expect(header.locator('.g-md-header__action:visible')).toHaveAttribute('href', '/third');
+    await expect(header.locator('.g-md-header__action:visible')).toHaveAttribute(
+        'data-type',
+        'link',
+    );
+    await settings.getByRole('switch', {name: 'Button 1', exact: true}).press('Space');
+    await expect(header.locator('.g-md-header__action:visible')).toHaveText(['Button', 'Third']);
+    await expect(settings.getByRole('switch', {name: 'Button 2', exact: true})).not.toBeChecked();
+    await settings.getByRole('switch', {name: 'Button 2', exact: true}).press('Space');
+    await expect(header.locator('.g-md-header__action:visible')).toHaveText([
+        'Button',
+        'Button',
+        'Third',
+    ]);
+});
+
+test('should toggle, position, replace and remove the image', async ({mount, page}) => {
+    await page.setViewportSize({width: 1440, height: 1600});
+    await mount(<HeaderDemo markupKey="designSettings" />, {width: 1100});
+    const header = page.locator('.g-md-header');
+    await header.hover();
+    await page
+        .getByTestId('g-md-toolbar-header')
+        .getByRole('button', {name: 'Block settings'})
+        .click();
+    const settings = page.getByRole('dialog', {name: 'Block settings'});
+    for (const [label, layer] of [
+        ['Left half', 'left'],
+        ['Right half', 'right'],
+        ['Full width', 'full'],
+    ]) {
+        await settings.getByRole('combobox', {name: 'Placement', exact: true}).click();
+        await page.getByRole('option', {name: label, exact: true}).click();
+        await expect(header).toHaveAttribute('data-layer', layer);
+    }
+    const image = await header.getAttribute('data-image');
+    if (!image) throw new Error('Cover image is missing');
+    await settings.getByRole('switch', {name: 'Image', exact: true}).press('Space');
+    await expect(header).toHaveAttribute('data-image-enabled', 'false');
+    await expect(header).not.toHaveAttribute('style', /--g-md-header-image:/);
+    await settings.getByRole('switch', {name: 'Image', exact: true}).press('Space');
+    await expect(header).toHaveAttribute('data-image', image);
+    await expect(header).toHaveAttribute('style', /--g-md-header-image:/);
+    const chooserPromise = page.waitForEvent('filechooser');
+    await settings.getByRole('button', {name: /^File:/}).click();
+    await (
+        await chooserPromise
+    ).setFiles({
+        name: 'new-cover.svg',
+        mimeType: 'image/svg+xml',
+        buffer: Buffer.from(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="blue"/></svg>',
+        ),
+    });
+    await expect(
+        settings.getByRole('button', {name: 'File: new-cover.svg', exact: true}),
+    ).toBeVisible();
+    await expect(header).toHaveAttribute('data-image-name', 'new-cover.svg');
+    await settings.getByRole('button', {name: 'Remove image', exact: true}).click();
+    await expect(header).not.toHaveAttribute('data-image');
+    await expect(settings.getByRole('button', {name: 'Upload image', exact: true})).toBeVisible();
+});

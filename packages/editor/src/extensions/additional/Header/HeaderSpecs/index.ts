@@ -55,7 +55,12 @@ export const HeaderSpecs: ExtensionAuto = (builder) => {
             noCloseToken: true,
             getAttrs: (token) => {
                 const attrs = Object.fromEntries(token.attrs ?? []);
-                return {href: attrs.href, type: attrs['data-type'], color: attrs['data-color']};
+                return {
+                    href: attrs.href,
+                    type: attrs['data-type'],
+                    color: attrs['data-color'],
+                    enabled: attrs['data-enabled'] !== 'false',
+                };
             },
         }))
         .addNodeSerializerSpec(headerNodeName, () => (state, node) => {
@@ -77,7 +82,8 @@ export const HeaderSpecs: ExtensionAuto = (builder) => {
             const title = escapeHeaderTitle(node.textContent);
             const type = String(node.attrs.type ?? 'button');
             const color = String(node.attrs.color ?? 'default');
-            state.write(`::action[${title}](${href}){type="${type}" color="${color}"}`);
+            const enabled = node.attrs.enabled === false ? ' enabled="false"' : '';
+            state.write(`::action[${title}](${href}){type="${type}" color="${color}"${enabled}}`);
             state.closeBlock(node);
         });
 };

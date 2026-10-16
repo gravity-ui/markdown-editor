@@ -20,6 +20,7 @@ const FILL_LABEL: Record<HeaderFillValue, () => string> = {
     teal: () => i18n('color_teal'),
     green: () => i18n('color_green'),
     sky: () => i18n('color_sky'),
+    'light-blue': () => i18n('color_light-blue'),
     amber: () => i18n('color_amber'),
     yellow: () => i18n('color_yellow'),
     sand: () => i18n('color_sand'),

@@ -40,6 +40,7 @@ export const headerDirective = (md: MarkdownIt) => {
         token.attrSet('href', md.validateLink(href) ? md.normalizeLink(href) : '');
         token.attrSet('data-type', params.attrs?.type === 'link' ? 'link' : 'button');
         token.attrSet('data-color', params.attrs?.color === 'brand' ? 'brand' : 'default');
+        token.attrSet('data-enabled', params.attrs?.enabled === 'false' ? 'false' : 'true');
         return true;
     });
 
