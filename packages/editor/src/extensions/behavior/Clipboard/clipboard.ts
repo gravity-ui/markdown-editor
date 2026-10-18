@@ -110,7 +110,10 @@ export const clipboard = ({
                                 const slice = getSliceFromMarkupFragment(docNode.content);
                                 view.dispatch(
                                     trackTransactionMetrics(
-                                        view.state.tr.replaceSelection(slice),
+                                        view.state.tr
+                                            .replaceSelection(slice)
+                                            .setMeta('paste', true)
+                                            .setMeta('uiEvent', 'paste'),
                                         'paste',
                                         {clipboardDataFormat: DataTransferType.Html},
                                     ),
@@ -177,7 +180,10 @@ export const clipboard = ({
                                 });
                                 view.dispatch(
                                     trackTransactionMetrics(
-                                        view.state.tr.replaceSelection(slice),
+                                        view.state.tr
+                                            .replaceSelection(slice)
+                                            .setMeta('paste', true)
+                                            .setMeta('uiEvent', 'paste'),
                                         'paste',
                                         {clipboardDataFormat: dataFormat},
                                     ),
