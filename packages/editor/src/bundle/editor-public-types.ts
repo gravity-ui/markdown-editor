@@ -2,6 +2,7 @@ import type {EditorView as PMEditorView} from 'prosemirror-view';
 
 import type {CommonEditor, MarkupString} from '../common';
 import type {Logger2} from '../logger';
+import type {ResourceReplacementControl} from '../modules/resource-replacement';
 import type {Receiver} from '../utils';
 
 import type {EventMap} from './events';
@@ -13,7 +14,8 @@ export type ChangeEditorModeOptions = {
     emit?: boolean;
 };
 
-export interface MarkdownEditorInstance extends Receiver<EventMap>, CommonEditor {
+export interface MarkdownEditorInstance
+    extends Receiver<EventMap>, CommonEditor, ResourceReplacementControl {
     readonly logger: Logger2.LogReceiver;
     readonly currentMode: MarkdownEditorMode;
     readonly toolbarVisible: boolean;

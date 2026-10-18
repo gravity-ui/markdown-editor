@@ -40,3 +40,6 @@ export {getChildrenOfNode, getLastChildOfNode} from './utils/nodes';
 export {serializeForClipboard} from './utils/serialize-for-clipboard';
 
 export * from './utils/event-emitter';
+
+export {isCodeMirrorHistoryLocked} from './markup/codemirror/history-lock';
+export {isProseMirrorHistoryLocked} from './extensions/behavior/ResourceReplacement/history-lock';

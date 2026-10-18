@@ -101,6 +101,7 @@ export function useMarkdownEditor(
         editor.on('toolbar-action', onToolbarAction);
         return () => {
             editor.off('toolbar-action', onToolbarAction);
+            // StrictMode reuses this facade; the next view access creates a fresh lifecycle.
             editor.destroy();
         };
     }, [editor]);
