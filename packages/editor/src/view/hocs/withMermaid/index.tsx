@@ -3,12 +3,12 @@ import {
     type RefAttributes,
     type RefObject,
     forwardRef,
-    useCallback,
     useEffect,
     useRef,
 } from 'react';
 
 import {useMermaid} from '@diplodoc/mermaid-extension/react';
+import {useForkRef} from '@gravity-ui/uikit';
 
 import type {PluginRuntime, TransformMeta} from './types';
 import {useMermaidRuntime} from './useMermaidRuntime';
@@ -36,21 +36,8 @@ export function withMermaid(opts: WithMermaidOptions) {
     ) =>
         forwardRef<HTMLDivElement, T & WithMermaidProps>(function WithMermaid(props, ref) {
             const {meta, html, mermaidConfig} = props;
-            const domRef = useRef<HTMLDivElement | null>(null);
-            const componentRef = useCallback(
-                (node: HTMLDivElement | null) => {
-                    domRef.current = node;
-                    if (typeof ref === 'function') {
-                        return ref(node);
-                    }
-                    if (ref) {
-                        const objectRef = ref;
-                        objectRef.current = node;
-                    }
-                    return undefined;
-                },
-                [ref],
-            );
+            const domRef = useRef<HTMLDivElement>(null);
+            const componentRef = useForkRef(ref, domRef);
 
             return (
                 <>
