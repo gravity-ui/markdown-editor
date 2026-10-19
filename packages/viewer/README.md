@@ -222,11 +222,13 @@ Put hooks in a component such as `HeadingAction`. The callback only returns Reac
 
 Use `ViewerTargets` inside `MarkdownViewer`. The package exports the `ViewerTargetsProps` type.
 
-| Prop       | Type                                 | Description                                                              |
-| ---------- | ------------------------------------ | ------------------------------------------------------------------------ |
-| `selector` | `string`                             | CSS selector for HTML elements inside this viewer.                       |
-| `as`       | `'span' \| 'div'`                    | Slot tag. Default: `span`. Choose a tag that is valid inside the target. |
-| `children` | `(target: HTMLElement) => ReactNode` | Returns React content for each target.                                   |
+| Prop        | Type                                 | Description                                                              |
+| ----------- | ------------------------------------ | ------------------------------------------------------------------------ |
+| `selector`  | `string`                             | CSS selector for HTML elements inside this viewer.                       |
+| `as`        | `'span' \| 'div'`                    | Slot tag. Default: `span`. Choose a tag that is valid inside the target. |
+| `className` | `string`                             | CSS class for each slot.                                                 |
+| `style`     | `CSSProperties`                      | Inline styles for each slot.                                             |
+| `children`  | `(target: HTMLElement) => ReactNode` | Returns React content for each target.                                   |
 
 Use a stable selector, such as `h2[id]` or `[data-grid-id]`. Adding a slot must not change whether the target matches. Avoid selectors such as `h2:empty`.
 

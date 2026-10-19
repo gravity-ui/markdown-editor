@@ -24,7 +24,12 @@ export function Consumer() {
             className={cnYFM(mods)}
             qa="document"
         >
-            <ViewerTargets selector="h2[id]" as="span">
+            <ViewerTargets
+                selector="h2[id]"
+                as="span"
+                className="actions"
+                style={{display: 'flex'}}
+            >
                 {(target) => <button>{target.id}</button>}
             </ViewerTargets>
         </MarkdownViewer>
@@ -59,4 +64,4 @@ expectTypeOf<ReturnType<ViewerEffect>>().toEqualTypeOf<void | ViewerEffectCleanu
 expectTypeOf(useViewerEffect).parameters.toEqualTypeOf<[ViewerEffect, DependencyList]>();
 expectTypeOf(cnYFM).parameter(0).toEqualTypeOf<YFMMods | null | undefined>();
 expectTypeOf<ViewerTargetsProps['children']>().parameter(0).toEqualTypeOf<HTMLElement>();
-expectTypeOf<keyof ViewerTargetsProps>().toEqualTypeOf<'selector' | 'as' | 'children'>();
+expectTypeOf<ViewerTargetsProps['className']>().toEqualTypeOf<string | undefined>();

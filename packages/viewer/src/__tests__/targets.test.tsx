@@ -71,6 +71,36 @@ describe('ViewerTargets', () => {
         expect(slot?.textContent).toBe('Next: 1');
     });
 
+    it('should update slot class and style without resetting its content', () => {
+        function render(className?: string, color?: string) {
+            act(() =>
+                root.render(
+                    <MarkdownViewer html='<h2 id="title">Title</h2>'>
+                        <ViewerTargets selector="h2" className={className} style={{color}}>
+                            {() => <Counter label="Count" />}
+                        </ViewerTargets>
+                    </MarkdownViewer>,
+                ),
+            );
+        }
+        render('first', 'red');
+        const slot = container.querySelector<HTMLElement>('[data-markdown-viewer-slot]');
+        assert(slot);
+        expect(slot.className).toBe('first');
+        expect(slot.style.color).toBe('red');
+        act(() => slot.querySelector('button')?.click());
+
+        render('second', 'blue');
+        expect(container.querySelector('[data-markdown-viewer-slot]')).toBe(slot);
+        expect(slot.className).toBe('second');
+        expect(slot.style.color).toBe('blue');
+        expect(slot.textContent).toBe('Count: 1');
+
+        render();
+        expect(slot.getAttribute('class')).toBeNull();
+        expect(slot.style.color).toBe('');
+    });
+
     it('should keep intersecting hosts and release only departed slots after a selector change', () => {
         const html = '<h2 id="a">A</h2><h2 id="b">B</h2><h2 id="c">C</h2>';
         function render(selector: string) {
