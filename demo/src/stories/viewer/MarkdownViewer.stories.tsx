@@ -1,9 +1,15 @@
 import type {StoryObj} from '@storybook/react';
 
 import {MarkdownViewerDemo} from './MarkdownViewerDemo';
+import {codeBlockDocuments} from './content';
 
 export const Story: StoryObj<typeof MarkdownViewerDemo> = {};
 Story.storyName = 'Markdown Viewer';
+
+export const CodeBlockActions: StoryObj<typeof MarkdownViewerDemo> = {
+    name: 'Code block actions',
+    args: {documents: codeBlockDocuments, showFeedbackToggle: false},
+};
 
 export default {
     title: 'Viewer / Markdown Viewer',
