@@ -4,6 +4,8 @@ const introduction = dd`
     # MarkdownViewer playground
 
     One document, three versions. Open a few sections, then switch versions to keep reading with the same sections expanded.
+
+    Sections keep their open or closed state when their title or position changes. Heading help marks preserve opening counts by ID across versions. Hide feedback to see its fallback text.
 `;
 
 const readingGuide = dd`
@@ -102,5 +104,54 @@ export const documents = [
     {
         label: 'Version 3',
         source: [introduction, codeExample, reference, nextSteps, feedback].join('\n\n'),
+    },
+];
+
+const codeBlockIntroduction = dd`
+    # Code block actions
+
+    Copy code without line numbers, or turn wrapping on and off for a long line. Switch versions to attach the actions to new code blocks.
+`;
+
+export const codeBlockDocuments = [
+    {
+        label: 'Version 1',
+        source: dd`
+            ${codeBlockIntroduction}
+
+            ~~~ts showLineNumbers
+            const language = 'TypeScript';
+            console.log(language, 'This long line shows how code wrapping keeps a complete example readable inside a narrow document without changing the text copied to the clipboard.');
+            ~~~
+        `,
+    },
+    {
+        label: 'Version 2',
+        source: dd`
+            ${codeBlockIntroduction}
+
+            ~~~ts showLineNumbers
+            const version = 2;
+            console.log(version, 'The HTML now contains a different code block. Copy this version to check that the actions use its current text and turn wrapping on to read this long line.');
+            ~~~
+
+            ~~~sh
+            echo 'Code without line numbers also supports copy and wrapping.'
+            ~~~
+        `,
+    },
+    {
+        label: 'Version 3',
+        source: dd`
+            ${codeBlockIntroduction}
+
+            ## Legacy YFM markup
+
+            <div class="yfm-clipboard">
+            <pre><code>const legacy = true;
+            console.log(legacy, 'Legacy code blocks use the same copy and wrap actions. This line is long enough to show the difference when wrapping is enabled.');</code></pre>
+            <button class="yfm-clipboard-button" type="button">Copy</button>
+            </div>
+        `,
     },
 ];
