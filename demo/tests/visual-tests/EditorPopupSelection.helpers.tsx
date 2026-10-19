@@ -1,6 +1,7 @@
 import {useLayoutEffect, useRef, useState} from 'react';
 
 import {MarkdownEditorView, useMarkdownEditor} from '@gravity-ui/markdown-editor';
+import {getCodeBlockLangsState} from '@gravity-ui/markdown-editor/extensions/markdown/CodeBlock/CodeBlockHighlight/plugins/codeBlockLangsPlugin.js';
 import {NodeSelection, Plugin, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {MobileProvider, ThemeProvider, Toaster, ToasterProvider} from '@gravity-ui/uikit';
@@ -15,6 +16,7 @@ type Probe = {
     destroyed: boolean;
     updatesAfterDestroy: number;
     settled: boolean;
+    langsLoaded: boolean;
     publish: () => void;
 };
 
@@ -55,6 +57,7 @@ function SelectionEditor(props: {probe: Probe; startsWithNote: boolean}) {
                                         return updateState.call(this, state);
                                     } finally {
                                         probe.depth -= 1;
+                                        probe.langsLoaded = getCodeBlockLangsState(state).loaded;
                                         probe.publish();
                                     }
                                 };
@@ -85,6 +88,7 @@ function SelectionApp({startsWithNote}: {startsWithNote: boolean}) {
         destroyed: false,
         updatesAfterDestroy: 0,
         settled: false,
+        langsLoaded: false,
         publish() {
             if (output.current) {
                 const {view: _view, publish: _publish, ...data} = probe;
@@ -92,6 +96,8 @@ function SelectionApp({startsWithNote}: {startsWithNote: boolean}) {
             }
         },
     }).current;
+
+    useLayoutEffect(() => probe.publish(), [probe]);
 
     function selectThen(action: 'move' | 'destroy') {
         const view = probe.view;
