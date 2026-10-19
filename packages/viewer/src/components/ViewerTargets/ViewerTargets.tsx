@@ -1,12 +1,13 @@
 import {type ReactElement, type ReactNode, useState} from 'react';
 
+import type {DOMProps} from '@gravity-ui/uikit';
 import {createPortal} from 'react-dom';
 
 import {useViewerEffect} from '../../hooks/use-viewer-effect';
 
 import {VIEWER_SLOT_ATTRIBUTE} from './constants';
 
-export interface ViewerTargetsProps {
+export interface ViewerTargetsProps extends DOMProps {
     selector: string;
     as?: 'span' | 'div';
     children: (target: HTMLElement) => ReactNode;
@@ -15,6 +16,8 @@ export interface ViewerTargetsProps {
 export function ViewerTargets({
     selector,
     as: Slot = 'span',
+    className,
+    style,
     children,
 }: ViewerTargetsProps): ReactElement | null {
     const [{targets}, setState] = useState(() => ({
@@ -47,7 +50,9 @@ export function ViewerTargets({
         <>
             {Array.from(targets, ([target, key]) =>
                 createPortal(
-                    <Slot {...{[VIEWER_SLOT_ATTRIBUTE]: ''}}>{children(target)}</Slot>,
+                    <Slot {...{[VIEWER_SLOT_ATTRIBUTE]: ''}} className={className} style={style}>
+                        {children(target)}
+                    </Slot>,
                     target,
                     String(key),
                 ),
