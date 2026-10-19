@@ -2,8 +2,8 @@ import {useEffect, useMemo, useRef, useState} from 'react';
 
 import {getStyles} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
-import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
-import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
+import {Code, Eye, Pencil, TrashBin} from '@gravity-ui/icons';
+import {Button, Icon, Label} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
@@ -12,7 +12,7 @@ import {SharedStateKey} from 'src/extensions/behavior/SharedState';
 import {TextAreaFixed as TextArea} from 'src/forms/TextInput';
 import {i18n} from 'src/i18n/common';
 import {debounce} from 'src/lodash';
-import {useAutoSave, useBooleanState, useElementState} from 'src/react-utils/hooks';
+import {useAutoSave} from 'src/react-utils/hooks';
 import {useSharedEditingState} from 'src/react-utils/useSharedEditingState';
 import {removeNode} from 'src/utils/remove-node';
 
@@ -26,6 +26,68 @@ export const cnYfmHtmlBlock = cn('yfm-html-block');
 export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
 
 const b = cnYfmHtmlBlock;
+
+type ViewMode = 'preview' | 'editor' | 'code';
+
+const ModeSwitcher: React.FC<{
+    mode: ViewMode;
+    onModeChange: (mode: ViewMode) => void;
+    onRemove: () => void;
+}> = ({mode, onModeChange, onRemove}) => {
+    const modes = [
+        {value: 'preview', icon: Eye, label: i18n('preview'), disabled: false},
+        {value: 'editor', icon: Pencil, label: i18n('editor'), disabled: true},
+        {value: 'code', icon: Code, label: i18n('code'), disabled: false},
+    ] as const;
+    return (
+        <div className={`${b('toolbar')} ${STOP_EVENT_CLASSNAME}`}>
+            <div
+                className={b('modes')}
+                role="radiogroup"
+                aria-label={i18n('view_mode')}
+                tabIndex={-1}
+                onKeyDown={(event) => {
+                    let nextMode: ViewMode | undefined;
+                    if (event.key === 'ArrowRight' || event.key === 'End') nextMode = 'code';
+                    if (event.key === 'ArrowLeft' || event.key === 'Home') nextMode = 'preview';
+                    if (!nextMode) return;
+                    event.preventDefault();
+                    if (nextMode !== mode) onModeChange(nextMode);
+                }}
+            >
+                {modes.map(({value, icon, label, ...option}) => (
+                    <Button
+                        key={value}
+                        view={mode === value ? 'normal' : 'flat'}
+                        size="m"
+                        selected={mode === value}
+                        disabled={option.disabled}
+                        role="radio"
+                        aria-checked={mode === value}
+                        aria-label={label}
+                        tabIndex={mode === value ? 0 : -1}
+                        title={label}
+                        className={STOP_EVENT_CLASSNAME}
+                        onClick={() => onModeChange(value)}
+                    >
+                        <Icon data={icon} size={16} />
+                    </Button>
+                ))}
+            </div>
+            <span className={b('toolbar-separator')} aria-hidden="true" />
+            <Button
+                view="flat-danger"
+                size="m"
+                className={STOP_EVENT_CLASSNAME}
+                aria-label={i18n('remove')}
+                title={i18n('remove')}
+                onClick={onRemove}
+            >
+                <Icon data={TrashBin} size={16} />
+            </Button>
+        </div>
+    );
+};
 
 interface YfmHtmlBlockViewProps {
     html: string;
@@ -194,17 +256,30 @@ const CodeEditMode: React.FC<{
     initialText: string;
     onSave: (v: string) => void;
     onCancel: () => void;
+    onRemove: () => void;
     options: YfmHtmlBlockOptions;
-}> = ({initialText, onSave, onCancel, options: {autoSave}}) => {
-    const {value, handleChange, handleManualSave, isSaveDisabled, isAutoSaveEnabled} = useAutoSave({
-        initialValue: initialText || '\n',
-        onSave,
-        onClose: onCancel,
-        autoSave,
-    });
+}> = ({initialText, onSave, onCancel, onRemove, options: {autoSave}}) => {
+    const {
+        value,
+        handleChange,
+        handleManualSave,
+        hasUnsavedChanges,
+        isSaveDisabled,
+        isAutoSaveEnabled,
+    } = useAutoSave({initialValue: initialText || '\n', onSave, onClose: onCancel, autoSave});
 
     return (
         <div className={b({editing: true})}>
+            <ModeSwitcher
+                mode="code"
+                onModeChange={(mode) => {
+                    if (mode === 'preview') {
+                        if (hasUnsavedChanges) handleManualSave();
+                        else onCancel();
+                    }
+                }}
+                onRemove={onRemove}
+            />
             <div className={b('editor')}>
                 <TextArea
                     controlProps={{
@@ -255,8 +330,17 @@ export const YfmHtmlBlockView: React.FC<{
     const config = useConfig?.();
 
     const [editing, setEditing, unsetEditing] = useSharedEditingState(view, entityKey);
-    const [menuOpen, _openMenu, closeMenu, toggleMenuOpen] = useBooleanState(false);
-    const [anchorElement, setAnchorElement] = useElementState();
+
+    const onRemove = () => {
+        const pos = getPos();
+        if (pos === undefined) return;
+        removeNode({
+            node,
+            pos,
+            tr: view.state.tr,
+            dispatch: view.dispatch,
+        });
+    };
 
     if (editing) {
         return (
@@ -266,6 +350,7 @@ export const YfmHtmlBlockView: React.FC<{
                 onSave={(v) => {
                     onChange({[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: v});
                 }}
+                onRemove={onRemove}
                 options={options}
             />
         );
@@ -295,48 +380,13 @@ export const YfmHtmlBlockView: React.FC<{
             </Label>
             <YfmHtmlBlockPreview html={resultHtml} onClick={setEditing} config={config} />
 
-            <div className={b('menu')}>
-                <Button
-                    onClick={toggleMenuOpen}
-                    ref={setAnchorElement}
-                    size="s"
-                    className={STOP_EVENT_CLASSNAME}
-                    aria-label={i18n('actions')}
-                >
-                    <Icon data={DotsIcon} className={STOP_EVENT_CLASSNAME} />
-                </Button>
-                <Popup
-                    anchorElement={anchorElement}
-                    open={menuOpen}
-                    onOpenChange={closeMenu}
-                    placement="bottom-end"
-                >
-                    <Menu>
-                        <Menu.Item
-                            onClick={() => {
-                                setEditing();
-                                closeMenu();
-                            }}
-                        >
-                            {i18n('edit')}
-                        </Menu.Item>
-                        <Menu.Item
-                            onClick={() => {
-                                const pos = getPos();
-                                if (pos === undefined) return;
-                                removeNode({
-                                    node,
-                                    pos,
-                                    tr: view.state.tr,
-                                    dispatch: view.dispatch,
-                                });
-                            }}
-                        >
-                            {i18n('remove')}
-                        </Menu.Item>
-                    </Menu>
-                </Popup>
-            </div>
+            <ModeSwitcher
+                mode="preview"
+                onModeChange={(mode) => {
+                    if (mode === 'code') setEditing();
+                }}
+                onRemove={onRemove}
+            />
         </div>
     );
 };
