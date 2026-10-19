@@ -31,7 +31,7 @@ catalogs:
   peer-gravity:
     '@gravity-ui/components': 4.10.0
     '@gravity-ui/page-constructor': ^7.0.0
-    '@gravity-ui/uikit': ^7.13.1
+    '@gravity-ui/uikit': ^7.34.0
 
   ts:
     tslib: ^2.3.1
