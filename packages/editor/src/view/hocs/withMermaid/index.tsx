@@ -75,12 +75,17 @@ function MermaidRenderer({containerRef, html, meta, mermaidConfig, runtime}: Mer
     useMermaidRuntime(meta, runtime);
 
     useEffect(() => {
-        // Diagrams inside the editor are managed by its node views.
-        const nodes = containerRef.current?.querySelectorAll<HTMLElement>(
-            '.mermaid:not(.g-md-wysiwyg-editor .mermaid)',
-        );
+        const container = containerRef.current;
+        if (!container) return;
 
-        if (nodes?.length) {
+        // Diagrams inside the editor are managed by its node views.
+        const selector = '.mermaid:not(.g-md-wysiwyg-editor .mermaid)';
+        const nodes = Array.from(container.querySelectorAll<HTMLElement>(selector));
+        if (container.matches(selector)) {
+            nodes.unshift(container);
+        }
+
+        if (nodes.length) {
             renderMermaid(mermaidConfig, {nodes});
         }
     }, [containerRef, html, mermaidConfig, renderMermaid]);
