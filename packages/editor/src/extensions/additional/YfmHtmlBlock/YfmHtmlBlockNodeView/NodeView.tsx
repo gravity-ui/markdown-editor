@@ -8,7 +8,8 @@ import {generateEntityId, isInvalidEntityId} from 'src/utils/entity-id';
 import {YfmHtmlBlockConsts, defaultYfmHtmlBlockEntityId} from '../YfmHtmlBlockSpecs/const';
 import type {YfmHtmlBlockOptions} from '../index';
 
-import {STOP_EVENT_CLASSNAME, YfmHtmlBlockView} from './YfmHtmlBlockView';
+import {YfmHtmlBlockView} from './YfmHtmlBlockView';
+import {STOP_EVENT_CLASSNAME} from './const';
 
 export class WYfmHtmlBlockNodeView implements NodeView {
     readonly dom: HTMLElement;
