@@ -18,5 +18,5 @@ expectTypeOf<BuiltRoot.YFMMods>().toEqualTypeOf<SourceRoot.YFMMods>();
 expectTypeOf<typeof BuiltExtensions>().toEqualTypeOf<typeof SourceExtensions>();
 expectTypeOf<BuiltExtensions.FilesGalleryItemType>().toEqualTypeOf<SourceExtensions.FilesGalleryItemType>();
 expectTypeOf<BuiltExtensions.FilesGalleryProps>().toEqualTypeOf<SourceExtensions.FilesGalleryProps>();
-expectTypeOf<BuiltExtensions.GalleryItemPropsWithUrl>().toEqualTypeOf<SourceExtensions.GalleryItemPropsWithUrl>();
+expectTypeOf<BuiltExtensions.FilesGallerySource>().toEqualTypeOf<SourceExtensions.FilesGallerySource>();
 expectTypeOf<BuiltExtensions.YfmCodeBlockActionsProps>().toEqualTypeOf<SourceExtensions.YfmCodeBlockActionsProps>();

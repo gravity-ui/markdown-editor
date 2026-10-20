@@ -1,3 +1,3 @@
 export default {
-    link_copied: 'Ссылка скопирована',
+    copy_link: 'Скопировать ссылку',
 };

@@ -39,3 +39,51 @@ test.describe('MarkdownViewer files gallery', () => {
         await expect(file).toBeFocused();
     });
 });
+
+test.describe('MarkdownViewer files gallery resources', () => {
+    test.beforeEach(async ({page}) => {
+        await page.route('**/gallery-*.svg', (route) =>
+            route.fulfill({
+                contentType: 'image/svg+xml',
+                body: '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="blue"/></svg>',
+            }),
+        );
+    });
+
+    test('should open the current picture and srcset resource after resizing', async ({
+        mount,
+        page,
+    }) => {
+        await page.setViewportSize({width: 900, height: 700});
+        await mount(
+            <ViewerStories.FilesGallery
+                documents={[
+                    {
+                        label: 'Responsive image',
+                        source: '<picture><source media="(min-width: 600px)" srcset="/gallery-large.svg"><img src="/gallery-fallback.svg" srcset="/gallery-small.svg 1x" alt="Responsive"></picture>',
+                    },
+                ]}
+            />,
+        );
+        const image = page.getByTestId('demo-markdown-viewer').getByRole('img');
+
+        for (const [width, file] of [
+            [900, 'large'],
+            [500, 'small'],
+        ] as const) {
+            await page.setViewportSize({width, height: 700});
+            await expect
+                .poll(() => image.evaluate((element: HTMLImageElement) => element.currentSrc))
+                .toContain(`/gallery-${file}.svg`);
+            await image.click();
+            await expect(page.getByRole('dialog').locator('img').first()).toHaveAttribute(
+                'src',
+                new RegExp(`/gallery-${file}\\.svg$`),
+            );
+            await page
+                .getByRole('dialog')
+                .getByRole('button', {name: 'Close', exact: true})
+                .click();
+        }
+    });
+});
