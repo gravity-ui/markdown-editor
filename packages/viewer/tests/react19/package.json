@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@gravity-ui/components": "catalog:peer-gravity",
     "@gravity-ui/uikit": "catalog:peer-gravity",
     "@types/react": "catalog:react19",
     "@types/react-dom": "catalog:react19",
