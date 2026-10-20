@@ -170,21 +170,18 @@ export function getHeaderExamples(cover: string): Record<string, Record<string, 
                     '**Bold**, _italic_, ++underline++, ~~strike~~, ##monospace##, `code`, [link](https://example.com), ==highlight== and {red}(color).',
                 ),
             ),
-            'Heading, list and quote': header(
+            'Heading and quote': header(
                 'bg="fill" fill="purple-light" format="large"',
                 title('Release notes'),
-                content(
-                    '## What is new',
-                    '- Faster search\n- Dark theme\n- Offline mode',
-                    '1. Install\n2. Sign in',
-                    '> Short words are best.',
-                ),
+                content('## What is new', '> Short words are best.'),
             ),
-            'Dropped table and code': header(
+            'Dropped lists, table and code': header(
                 'bg="fill" fill="yellow-light"',
                 title('Only text remains'),
                 content(
-                    'The table and the code block below are not shown.',
+                    'The lists, the table and the code block below are not shown.',
+                    '- Faster search\n- Dark theme\n- Offline mode',
+                    '1. Install\n2. Sign in',
                     '| Column | Column |\n| --- | --- |\n| Cell | Cell |',
                     '```\nconst hidden = true;\n```',
                 ),

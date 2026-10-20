@@ -312,8 +312,6 @@ $scale: (
         line-height: var(--g-text-body-2-line-height);
 
         p,
-        ul,
-        ol,
         blockquote {
             margin: 0 0 var(--g-spacing-2);
         }
@@ -331,15 +329,6 @@ $scale: (
             line-height: var(--g-text-subheader-3-line-height);
 
             color: inherit;
-        }
-
-        ul,
-        ol {
-            padding-inline-start: 1.25em;
-        }
-
-        li + li {
-            margin-top: var(--g-spacing-1);
         }
 
         blockquote {
@@ -361,15 +350,6 @@ $scale: (
 
         & > :last-child {
             margin-bottom: 0;
-        }
-    }
-
-    &[data-align='center'] .g-md-header__body {
-        ul,
-        ol {
-            padding-inline-start: 0;
-
-            list-style-position: inside;
         }
     }
 

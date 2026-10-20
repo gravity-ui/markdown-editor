@@ -192,13 +192,38 @@ describe('Header preview', () => {
         expect(html).toContain('<h2>Heading</h2>');
         expect(html).toContain('<strong>Bold</strong> <s>strike</s> <a href="/link">link</a>');
         expect(html).toContain('<code>code</code>');
-        expect(html).toContain('<li>Item</li>');
         expect(html).toContain('<blockquote>');
+        expect(html).not.toContain('Item');
         expect(html).not.toContain('<img');
         expect(html).not.toContain('<table');
         expect(html).not.toContain('<pre');
         expect(html).not.toContain('<hr');
         expect(html).not.toContain('Outside a slot');
+    });
+
+    it.each([
+        ['bulleted', '- First\n- Second', '> - Nested'],
+        ['numbered', '1. First\n2. Second', '> 1. Nested'],
+    ])('should drop a %s list', (_name, list, nested) => {
+        const html = render(
+            ':::header',
+            '',
+            ':::header-content',
+            '',
+            'Text',
+            '',
+            list,
+            '',
+            nested,
+            '',
+            ':::',
+            '',
+            ':::',
+        );
+
+        expect(html).toContain('<div class="g-md-header__body">\n<p>Text</p>\n</div>');
+        expect(html).not.toMatch(/<(ul|ol|li|blockquote)/);
+        expect(html).not.toMatch(/First|Second|Nested/);
     });
 
     it('should keep at most three actions', () => {

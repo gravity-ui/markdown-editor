@@ -37,14 +37,7 @@ import {
     toSafeUrl,
 } from '../dom';
 
-const BLOCKS = new Set([
-    'paragraph',
-    'heading',
-    'bullet_list',
-    'ordered_list',
-    'list_item',
-    'blockquote',
-]);
+const BLOCKS = new Set(['paragraph', 'heading', 'blockquote']);
 const LEAF_BLOCKS = new Set(['paragraph', 'heading']);
 const MARKS = ['strong', 'em', 'ins', 's', 'monospace', 'link', 'mark', 'color'];
 const INLINE = new Set([
