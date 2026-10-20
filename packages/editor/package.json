@@ -93,6 +93,16 @@
         "default": "./build/cjs/extensions/*"
       }
     },
+    "./toolbars": {
+      "import": {
+        "types": "./build/esm/modules/toolbars/index.d.ts",
+        "default": "./build/esm/modules/toolbars/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/modules/toolbars/index.d.ts",
+        "default": "./build/cjs/modules/toolbars/index.js"
+      }
+    },
     "./view": {
       "import": {
         "types": "./build/esm/view/index.d.ts",

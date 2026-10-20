@@ -9,7 +9,7 @@ import {markup} from './content';
 const meta: Meta<PlaygroundMiniProps> = {
     title: 'Extensions / YFM',
     component: PlaygroundMini,
-    args: args,
+    args,
     parameters: {
         controls: {
             exclude: excludedControls,

@@ -1,13 +1,8 @@
-import {composeStories} from '@storybook/react';
-
 import * as DefaultPresetsStories from '../../src/stories/presets/Presets.stories';
 
-type Stories = ReturnType<typeof composeStories<typeof DefaultPresetsStories>>;
+import {composeStories} from './utils/compose-stories';
 
-export const PresetsStories: Stories = composeStories(DefaultPresetsStories, {
-    argsEnhancers: [
-        () => ({
-            stickyToolbar: false,
-        }),
-    ],
+export const PresetsStories = composeStories(DefaultPresetsStories, {
+    stickyToolbar: false,
+    devTools: false,
 });

@@ -3,14 +3,20 @@ root = true
 [*]
 indent_style = space
 indent_size = 4
+max_line_length = 100
 end_of_line = lf
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[{*.json,*.yml,*.md}]
+[{*.json,*.yml,*.yaml,*.md}]
 indent_style = space
 indent_size = 2
+
+# Two trailing spaces are a hard line break
+[*.md]
+max_line_length = 0
+trim_trailing_whitespace = false
 
 [GNUmakefile]
 indent_style = tab

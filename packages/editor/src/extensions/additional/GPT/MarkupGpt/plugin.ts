@@ -159,10 +159,10 @@ export function mGptPlugin<
 
             _onApplyResult(changedMarkup: string) {
                 const {from, to} = this.selectedPosition;
-                const changes = [{from: from, to: to, insert: changedMarkup}];
+                const changes = [{from, to, insert: changedMarkup}];
 
                 const transaction = this._view.state.update({
-                    changes: changes,
+                    changes,
                     effects: [HideMarkupGptEffect.of(null)],
                 });
 

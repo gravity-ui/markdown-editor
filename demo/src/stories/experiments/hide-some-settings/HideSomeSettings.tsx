@@ -8,8 +8,7 @@ import {
 import type {SettingItems} from '@gravity-ui/markdown-editor/_/bundle/settings/index.js';
 
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
-import {SplitModePreview} from '../../../components/SplitModePreview';
-import {plugins} from '../../../defaults/md-plugins';
+import {SplitModePreviewLazy} from '../../../components/SplitModePreviewLazy';
 
 type HideSomeSettingsDemoProps = {
     settingsVisilbe: SettingItems[];
@@ -20,14 +19,13 @@ export const HideSomeSettingsDemo = memo<HideSomeSettingsDemoProps>((props) => {
 
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md}) => (
-            <SplitModePreview
+            <SplitModePreviewLazy
                 getValue={getValue}
                 allowHTML={md.html}
                 linkify={md.linkify}
                 linkifyTlds={md.linkifyTlds}
                 breaks={md.breaks}
                 needToSanitizeHtml
-                plugins={plugins}
             />
         ),
         [],

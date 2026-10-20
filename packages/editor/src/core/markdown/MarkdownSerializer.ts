@@ -1,7 +1,7 @@
 // ::- A specification for serializing a ProseMirror document as
 // Markdown/CommonMark text.
 // prettier-ignore
-import type {Mark, Node} from "prosemirror-model";
+import {Mark, type Node} from "prosemirror-model";
 
 import {isEmptyString} from 'src/utils/nodes';
 
@@ -53,7 +53,7 @@ function optionsEqual(a: Partial<SerializerOptions>, b: Partial<SerializerOption
     );
 }
 
-const blankMark: SerializerMarkToken = {open: '', close: '', mixable: false};
+const blankMark: SerializerMarkToken = {open: '', close: '', mixable: true};
 
 interface MarkMap {
     [markName: string]: SerializerMarkToken;
@@ -245,7 +245,7 @@ export class MarkdownSerializerState {
     // content of the block.
     wrapBlock(delim: string, firstDelim: string | null, node: Node, f: () => void) {
         const old = this.delim;
-        this.write(firstDelim || delim);
+        this.write(firstDelim ?? delim);
         this.delim += delim;
         f();
         this.delim = old;
@@ -359,6 +359,7 @@ export class MarkdownSerializerState {
     }
 
     // Render the contents of `parent` as inline content.
+    // TODO(major): Fix link marks around spaces: https://github.com/gravity-ui/markdown-editor/issues/1263.
     renderInline(parent: Node, fromBlockStart = true) {
         this.atBlockStart = fromBlockStart;
         const active: Mark[] = [];
@@ -380,33 +381,6 @@ export class MarkdownSerializerState {
                         (m.isInSet(next.marks) && (!next.isText || /\S/.test(next.text ?? '')))
                     );
                 });
-            }
-
-            let leading = trailing;
-            trailing = '';
-            // If whitespace has to be expelled from the node, adjust
-            // leading and trailing accordingly.
-            if (node && node.isText && marks.some((mark) => {
-                const info = this.getMark(mark.type.name);
-                return info && info.expelEnclosingWhitespace && !mark.isInSet(active);
-            })) {
-                const [_, lead, rest] = /^(\s*)(.*)$/m.exec(node.text!)!;
-                if (lead) {
-                    leading += lead;
-                    node = rest ? (node as any).withText(rest) : null;
-                    if (!node) marks = active;
-                }
-            }
-            if (node && node.isText && marks.some((mark) => {
-                const info = this.getMark(mark.type.name);
-                return info && info.expelEnclosingWhitespace && !this.isMarkAhead(parent, index + 1, mark);
-            })) {
-                const [_, rest, trail] = /^(.*?)(\s*)$/m.exec(node.text!)!;
-                if (trail) {
-                    trailing = trail;
-                    node = rest ? (node as any).withText(rest) : null;
-                    if (!node) marks = active;
-                }
             }
 
             const inner = marks.length && marks[marks.length - 1];
@@ -441,8 +415,40 @@ export class MarkdownSerializerState {
             let keep = 0;
             while (keep < Math.min(active.length, len) && marks[keep].eq(active[keep])) ++keep;
 
+            let leading = trailing;
+            trailing = '';
+            // If whitespace has to be expelled from the node, adjust
+            // leading and trailing accordingly.
+            if (node && node.isText && marks.some((mark) => {
+                const info = this.getMark(mark.type.name);
+                return info && info.expelEnclosingWhitespace && !active.some((m, i) => i < keep && m.eq(mark));
+            })) {
+                const [_, lead, rest] = /^(\s*)(.*)$/m.exec(node.text!)!;
+                if (lead) {
+                    leading += lead;
+                    node = rest ? (node as any).withText(rest) : null;
+                    if (!node) marks = active;
+                }
+            }
+
+            if (node && node.isText && marks.some((mark, i) => {
+                const info = this.getMark(mark.type.name);
+                return info && info.expelEnclosingWhitespace && !this.isMarkAhead(parent, index + 1, marks.slice(0, i + 1));
+            })) {
+                const [_, rest, trail] = /^(.*?)(\s*)$/m.exec(node.text!)!;
+                if (trail) {
+                    trailing = trail;
+                    node = rest ? (node as any).withText(rest) : null;
+                    if (!node) marks = active;
+                }
+            }
+
             // Close the marks that need to be closed
             while (keep < active.length) {
+                if (!node && index < parent.childCount && (
+                    !active.slice(keep).some(mark => this.getMark(mark.type.name).expelEnclosingWhitespace) ||
+                    this.isMarkAhead(parent, index + 1, active)
+                )) break;
                 this.text(this.markString(active.pop()!, false, parent, index), false)
             }
 
@@ -514,17 +520,25 @@ export class MarkdownSerializerState {
             // Compose the escape regexp from default, options, and extra characters
             new RegExp(defaultEsc.source + (extraChars ? `|[${extraChars}]` : ''), 'g');
 
+        // TODO(major): Use CommonMark escaping for ATX headings and ordered lists.
         const startOfLineEscRegexp = this.options?.startOfLineEscape || /^[:#\-*+>]/;
 
-        str = str.replace(escRegexp, '\\$&');
+        const escaper = new MarkdownTextEscaper(str, this.options.escapeExtraCharacters);
+        escaper.escape(escRegexp);
         // Smart underscore: don't escape _ between word characters (e.g. foo_bar)
-        str = str.replace(/_/g, (m, i) =>
-            i > 0 && i + 1 < str.length && /\w/.test(str[i - 1]) && /\w/.test(str[i + 1])
-                ? m
-                : '\\' + m
+        escaper.escape(/_/g, (_, offset, text) =>
+            offset > 0 && offset < text.length - 1 && /\w/.test(text[offset - 1]) && /\w/.test(text[offset + 1])
+                ? null
+                : 0
         );
-        if (startOfLine) str = str.replace(startOfLineEscRegexp, '\\$&').replace(/^(\s*\d+)\./, '$1\\.');
-        return str;
+        if (startOfLine) {
+            escaper.escape(startOfLineEscRegexp);
+            escaper.escape(/^(\s*\d+)\./, match => match.length - 1);
+            if (!this.options.startOfLineEscape) {
+                escaper.escape(/^(\s*)(#{1,6})(\s|$)/, match => match.indexOf('#'));
+            }
+        }
+        return escaper.result();
     }
 
     escWhitespace(str: string): string {
@@ -564,11 +578,13 @@ export class MarkdownSerializerState {
         };
     }
 
-    private isMarkAhead(parent: Node, index: number, mark: Mark): boolean {
+    private isMarkAhead(parent: Node, index: number, marks: readonly Mark[]): boolean {
         for (;; index++) {
             if (index >= parent.childCount) return false;
             const next = parent.child(index);
-            if (!next.type.spec.isBreak) return Boolean(mark.isInSet(next.marks));
+            if (!next.type.spec.isBreak) {
+                return next.marks.length >= marks.length && Mark.sameSet(next.marks.slice(0, marks.length), marks);
+            }
         }
     }
 
@@ -650,4 +666,57 @@ export class MarkdownSerializerDynamicModifier {
             });
         }
     }
+}
+
+class MarkdownTextEscaper {
+    private text: string;
+    private origins?: number[];
+    private extraEscapePositions = new Set<number>();
+
+    constructor(text: string, extraCharacters?: RegExp) {
+        this.text = text;
+        if (extraCharacters) {
+            this.origins = Array.from({length: text.length + 1}, (_, index) => index);
+            text.replace(extraCharacters, (match, ...args: unknown[]) => {
+                this.extraEscapePositions.add(replacementOffset(args));
+                return match;
+            });
+        }
+    }
+
+    escape(
+        regexp: RegExp,
+        position: (match: string, offset: number, text: string) => number | null = () => 0,
+    ) {
+        const insertions = this.origins ? new Set<number>() : undefined;
+        this.text = this.text.replace(regexp, (match, ...args: unknown[]) => {
+            const offset = replacementOffset(args);
+            const relative = position(match, offset, this.text);
+            if (relative === null) return match;
+            insertions?.add(offset + relative);
+            return match.slice(0, relative) + '\\' + match.slice(relative);
+        });
+        if (this.origins && insertions?.size) {
+            this.origins = this.origins.flatMap((origin, index) =>
+                insertions.has(index) ? [-1, origin] : [origin],
+            );
+        }
+    }
+
+    result() {
+        if (!this.origins) return this.text;
+        let result = '';
+        this.origins.forEach((origin, index, origins) => {
+            if (this.extraEscapePositions.has(origin) && origins[index - 1] !== -1) {
+                result += '\\';
+            }
+            if (index < this.text.length) result += this.text[index];
+        });
+        return result;
+    }
+}
+
+function replacementOffset(args: unknown[]): number {
+    const hasNamedGroups = typeof args[args.length - 1] === 'object';
+    return args[args.length - (hasNamedGroups ? 3 : 2)] as number;
 }

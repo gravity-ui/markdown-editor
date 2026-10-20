@@ -7,8 +7,7 @@ import {
 } from '@gravity-ui/markdown-editor';
 
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
-import {SplitModePreview} from '../../../components/SplitModePreview';
-import {plugins} from '../../../defaults/md-plugins';
+import {SplitModePreviewLazy} from '../../../components/SplitModePreviewLazy';
 import {useMarkdownEditorValue} from '../../../hooks/useMarkdownEditorValue';
 
 const initialMarkup = `
@@ -87,14 +86,13 @@ export const StoreRawMarkupDemo = memo<StoreRawMarkupDemoProps>((props) => {
 
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md}) => (
-            <SplitModePreview
+            <SplitModePreviewLazy
                 getValue={getValue}
                 allowHTML={md.html}
                 linkify={md.linkify}
                 linkifyTlds={md.linkifyTlds}
                 breaks={md.breaks}
                 needToSanitizeHtml
-                plugins={plugins}
             />
         ),
         [],

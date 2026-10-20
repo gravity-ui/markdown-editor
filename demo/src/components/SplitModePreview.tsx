@@ -16,10 +16,12 @@ import {useThemeValue} from '@gravity-ui/uikit';
 import type MarkdownIt from 'markdown-it';
 
 import {
+    type GetPluginsOptions,
     LATEX_RUNTIME,
     MERMAID_RUNTIME,
     PAGE_CONSTRUCTOR_RUNTIME,
     YFM_HTML_BLOCK_RUNTIME,
+    getPlugins,
 } from '../defaults/md-plugins';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 
@@ -35,7 +37,9 @@ const Preview = withMermaid({runtime: MERMAID_RUNTIME})(
 );
 
 export type SplitModePreviewProps = {
-    plugins: MarkdownIt.PluginSimple[];
+    pluginsOptions?: GetPluginsOptions;
+    /** Appended to the default plugin set */
+    extraPlugins?: MarkdownIt.PluginSimple[];
     getValue: () => MarkupString;
     allowHTML?: boolean;
     breaks?: boolean;
@@ -48,7 +52,8 @@ export type SplitModePreviewProps = {
 
 export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
     const {
-        plugins,
+        pluginsOptions,
+        extraPlugins,
         getValue,
         allowHTML,
         breaks,
@@ -58,6 +63,25 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
         htmlRuntimeConfig,
         disableMarkdownItAttrs,
     } = props;
+    const {
+        directiveSyntax,
+        table_ignoreSplittersInBlockMath: ignoreSplittersInBlockMath,
+        table_ignoreSplittersInInlineMath: ignoreSplittersInInlineMath,
+    } = pluginsOptions ?? {};
+
+    // Deps are the option fields, not the options object: callers build it inline on every render,
+    // and a new plugin array would recreate `render` and retrigger the transform effect.
+    const mdPlugins = useMemo(
+        () => [
+            ...getPlugins({
+                directiveSyntax,
+                table_ignoreSplittersInBlockMath: ignoreSplittersInBlockMath,
+                table_ignoreSplittersInInlineMath: ignoreSplittersInInlineMath,
+            }),
+            ...(extraPlugins ?? []),
+        ],
+        [directiveSyntax, ignoreSplittersInBlockMath, ignoreSplittersInInlineMath, extraPlugins],
+    );
     const [html, setHtml] = useState('');
     const [meta, setMeta] = useState<object | undefined>({});
     const divRef = useRef<HTMLDivElement>(null);
@@ -76,7 +100,7 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
                     linkAttrs: [[ML_ATTR, true]],
                     defaultClassName: colorClassName,
                     plugins: [
-                        ...plugins,
+                        ...mdPlugins,
                         ...(disableMarkdownItAttrs
                             ? [(md: MarkdownIt) => md.core.ruler.disable('curly_attributes')]
                             : []),
@@ -85,7 +109,17 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
                 setHtml(res.html);
                 setMeta(res.meta);
             }, 200),
-        [getValue, allowHTML, breaks, plugins, linkify, linkifyTlds, needToSanitizeHtml, theme],
+        [
+            getValue,
+            allowHTML,
+            breaks,
+            mdPlugins,
+            disableMarkdownItAttrs,
+            linkify,
+            linkifyTlds,
+            needToSanitizeHtml,
+            theme,
+        ],
     );
 
     useEffect(() => {
