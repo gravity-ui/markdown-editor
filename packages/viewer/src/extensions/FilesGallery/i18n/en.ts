@@ -1,3 +1,3 @@
 export default {
-    link_copied: 'The link copied',
+    copy_link: 'Copy link',
 };

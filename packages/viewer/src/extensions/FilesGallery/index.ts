@@ -1,2 +1,2 @@
 export {FilesGallery} from './FilesGallery';
-export type {FilesGalleryProps, GalleryItemPropsWithUrl, FilesGalleryItemType} from './types';
+export type {FilesGalleryProps, FilesGallerySource, FilesGalleryItemType} from './types';

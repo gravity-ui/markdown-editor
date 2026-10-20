@@ -3,7 +3,11 @@ import {useMemo, useState} from 'react';
 import transform from '@diplodoc/transform';
 import {type GalleryItemProps, GalleryProvider} from '@gravity-ui/components';
 import {MarkdownViewer, cnYFM} from '@gravity-ui/markdown-viewer';
-import {FilesGallery, YfmCodeBlockActions} from '@gravity-ui/markdown-viewer/extensions';
+import {
+    FilesGallery,
+    type FilesGallerySource,
+    YfmCodeBlockActions,
+} from '@gravity-ui/markdown-viewer/extensions';
 import {Button, Flex, SegmentedRadioGroup, Text, sp} from '@gravity-ui/uikit';
 
 import {cn} from './cn';
@@ -76,8 +80,8 @@ export function MarkdownViewerDemo({
                     <TargetHelp />
                     <YfmCodeBlockActions />
                     <FilesGallery
-                        copyUrl={getGalleryUrl}
-                        download={getGalleryUrl}
+                        getCopyUrl={getGalleryUrl}
+                        getDownloadUrl={getGalleryUrl}
                         resolveCustomItem={resolveCustomFile}
                     />
                     {showFeedback && <Feedback />}
@@ -87,17 +91,15 @@ export function MarkdownViewerDemo({
     );
 }
 
-function getGalleryUrl(url: string) {
+function getGalleryUrl({url}: FilesGallerySource) {
     return url;
 }
 
-function resolveCustomFile(
-    _url: string,
-    _type: 'file',
-    _element: Element,
-    {name, mimetype}: {name?: string | null; mimetype?: string | null},
-): GalleryItemProps | undefined {
-    if (mimetype !== galleryCustomFile.mimetype) return undefined;
+function resolveCustomFile({
+    name,
+    mimeType,
+}: FilesGallerySource & {type: 'file'}): GalleryItemProps | undefined {
+    if (mimeType !== galleryCustomFile.mimetype) return undefined;
 
     return {
         name,

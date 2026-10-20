@@ -1,23 +1,25 @@
 import type {GalleryItemProps} from '@gravity-ui/components';
 
-export type GalleryItemPropsWithUrl = GalleryItemProps & {url?: string};
-
 export type FilesGalleryItemType = 'image' | 'video' | 'file';
 
+export interface FilesGallerySource {
+    readonly url: string;
+    readonly type: FilesGalleryItemType;
+    readonly element: Element;
+    readonly name?: string;
+    readonly mimeType?: string;
+}
+
 export interface FilesGalleryProps {
-    customFiles?: GalleryItemPropsWithUrl[];
-    download?: (url: string, type: FilesGalleryItemType, element: Element) => string | undefined;
-    copyUrl?: (url: string, type: FilesGalleryItemType, element: Element) => string | undefined;
-    overrideItemProps?: (
-        url: string,
-        type: FilesGalleryItemType,
-        element: Element,
-        currentProps: GalleryItemProps,
-    ) => GalleryItemProps;
+    additionalItems?: readonly GalleryItemProps[];
+    getDownloadUrl?: (source: FilesGallerySource) => string | undefined;
+    getCopyUrl?: (source: FilesGallerySource) => string | undefined;
+    onLinkCopied?: (url: string) => void;
+    transformItem?: (
+        item: Readonly<GalleryItemProps>,
+        source: FilesGallerySource,
+    ) => GalleryItemProps | null;
     resolveCustomItem?: (
-        url: string,
-        type: 'file',
-        element: Element,
-        linkObj: {name?: string | null; mimetype?: string | null},
+        source: FilesGallerySource & {readonly type: 'file'},
     ) => GalleryItemProps | undefined;
 }
