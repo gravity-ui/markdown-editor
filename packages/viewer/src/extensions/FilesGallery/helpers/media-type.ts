@@ -3,12 +3,15 @@ const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif', 'bm
 const videoExtensions = ['mp4', 'webm', 'ogg'];
 const imageMimeTypes = [
     'image/jpeg',
+    'image/jpg',
     'image/png',
+    'image/x-png',
     'image/gif',
     'image/webp',
     'image/svg+xml',
     'image/avif',
     'image/bmp',
+    'image/x-ms-bmp',
 ];
 const videoMimeTypes = ['video/mp4', 'video/webm', 'video/ogg'];
 
