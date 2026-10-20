@@ -11,14 +11,12 @@ export type HeaderDemoProps = {
     markupKey: keyof typeof markup;
 };
 
-const fileUploadHandler = async (file: File) => ({url: URL.createObjectURL(file), name: file.name});
-
 export const HeaderDemo = memo<HeaderDemoProps>(function HeaderDemo({markupKey}) {
     const editor = useMarkdownEditor(
         {
             initial: {mode: 'wysiwyg', markup: markup[markupKey]},
             wysiwygConfig: {
-                extensions: (builder) => builder.use(Header, {fileUploadHandler}),
+                extensions: (builder) => builder.use(Header),
             },
         },
         [markupKey],

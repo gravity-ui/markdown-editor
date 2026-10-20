@@ -6,8 +6,18 @@ export const headerTokenName = 'header';
 export const headerTitleName = 'header_title';
 export const headerContentName = 'header_content';
 export const headerActionsName = 'header_actions';
+export const headerMarkupAttr = 'markup';
 
 export const headerType = nodeTypeFactory(headerNodeName);
+
+export const HeaderSlot = {
+    Title: 'header-title',
+    Content: 'header-content',
+    Image: 'header-image',
+    Actions: 'header-actions',
+} as const;
+
+export const headerActionName = 'action';
 
 /** Порядок повторяет порядок сериализации: так таблицу атрибутов проще сверять с разметкой. */
 export const HeaderAttr = {
@@ -194,4 +204,7 @@ export const HeaderClassName = {
     Content: 'g-md-header__content',
     Title: 'g-md-header__title',
     Actions: 'g-md-header__actions',
+    Stub: 'g-md-header-stub',
+    StubMessage: 'g-md-header-stub__message',
+    StubMarkup: 'g-md-header-stub__markup',
 } as const;

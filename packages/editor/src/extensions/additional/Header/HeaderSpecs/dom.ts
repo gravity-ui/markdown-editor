@@ -1,7 +1,6 @@
 import type Token from 'markdown-it/lib/token';
-import type {DOMOutputSpec, Node} from 'prosemirror-model';
 
-import {type HeaderAttrs, normalizeHeaderAttrs} from './attrs';
+import type {HeaderAttrs} from './attrs';
 import {HeaderAttr, HeaderClassName} from './const';
 import {type HeaderShape, getHeaderShapes} from './decor';
 
@@ -52,16 +51,6 @@ export function headerDomAttrs(attrs: HeaderAttrs): Record<string, string> {
 }
 
 const decorAttrs = {class: HeaderClassName.Decor, 'aria-hidden': 'true', contenteditable: 'false'};
-
-export function headerToDOM(node: Node): DOMOutputSpec {
-    const attrs = normalizeHeaderAttrs(node.attrs);
-    const shapes: DOMOutputSpec[] = getHeaderShapes(attrs).map((shape) => [
-        'span',
-        shapeDomAttrs(shape),
-    ]);
-    const decor: DOMOutputSpec = ['span', decorAttrs, ...shapes];
-    return ['div', headerDomAttrs(attrs), decor, ['div', {class: HeaderClassName.Content}, 0]];
-}
 
 const renderAttrs = (attrs: Record<string, string>, escape: (value: string) => string) =>
     Object.entries(attrs)
