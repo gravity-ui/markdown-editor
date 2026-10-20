@@ -35,7 +35,7 @@ export const gptWidgetProps = (
         answerRender: (data) => <div>{data.rawText}</div>,
         customPromptPlaceholder: 'Ask GPT to edit the text highlighted text',
         disabledPromptPlaceholder: 'Ask GPT to generate the text',
-        gptAlertProps: gptAlertProps,
+        gptAlertProps,
         promptPresets: [
             {
                 hotKey: 'control+3',

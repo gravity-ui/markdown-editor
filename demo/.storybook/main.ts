@@ -3,11 +3,6 @@ import {createRequire} from 'node:module';
 import type {StorybookConfig} from '@storybook/react-webpack5';
 import webpack from 'webpack';
 
-import {generateDocs} from './generateDocs';
-
-// generate documentation before initialization
-await generateDocs();
-
 const require = createRequire(import.meta.url);
 
 import pkg from '../../packages/editor/package.json' with {type: 'json'};

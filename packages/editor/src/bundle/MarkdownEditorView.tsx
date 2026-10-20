@@ -78,7 +78,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             };
         }, [editor, editorMode]);
 
-        useLayoutEffect(() => {
+        useEffect(() => {
             if (editorMode !== 'wysiwyg' || editor.mobile) return;
             const {view} = editor.wysiwygEditor;
             const current = contextualToolbarsKey.getState(view.state);

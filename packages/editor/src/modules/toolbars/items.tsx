@@ -9,6 +9,7 @@ import {WToolbarTextSelect} from '../../bundle/toolbar/wysiwyg/WToolbarTextSelec
 import {showMarkupGpt} from '../../extensions/additional/GPT';
 import {gptHotKeys} from '../../extensions/additional/GPT/constants';
 import {headingType, pType} from '../../extensions/specs';
+import {i18n as i18nGpt} from '../../i18n/gpt/extension';
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n} from '../../i18n/menubar';
 import {
@@ -800,11 +801,12 @@ export const colorifyItemMarkup: ToolbarItemMarkup<ToolbarDataType.ReactComponen
 // ---- GPT ----
 export const gptItemView: ToolbarItemView = {
     type: ToolbarDataType.SingleButton,
-    title: i18n.bind(null, 'gpt'),
+    title: i18nGpt.bind(null, 'help-with-text'),
     hotkey: gptHotKeys.openGptKeyTooltip,
     icon: icons.gpt,
 };
 export const gptItemWysiwyg: ToolbarItemWysiwyg = {
+    hintWhenDisabled: false,
     exec: (e) => e.actions.addGptWidget.run({}),
     isActive: (e) => e.actions.addGptWidget.isActive(),
     isEnable: (e) => e.actions.addGptWidget.isEnable(),

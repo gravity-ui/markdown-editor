@@ -162,6 +162,7 @@ test.describe('Link', () => {
         await actions.fillFocused('gravity-ui.com');
 
         await page.mouse.move(0, 0);
+        await wait.tooltipsHidden();
         await expectScreenshot({nameSuffix: 'form-with-url'});
 
         await page.mouse.click(0, 0);

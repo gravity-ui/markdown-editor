@@ -1,6 +1,6 @@
 import type {Command} from 'prosemirror-state';
 
-import {getLoggerFromState} from '../core';
+import {getLoggerFromState} from '../core/utils/logger';
 import {globalLogger} from '../logger';
 
 export function withLogAction(action: string, command: Command): Command {

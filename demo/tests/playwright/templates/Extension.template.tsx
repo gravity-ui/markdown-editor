@@ -1,6 +1,5 @@
-/* eslint-disable */
 // @ts-nocheck
-/* TODO: delete eslint-disable and @ts-nocheck */
+/* TODO: delete @ts-nocheck */
 import dd from 'ts-dedent';
 
 import {expect, test} from 'playwright/core';
@@ -13,7 +12,7 @@ test.describe('%%name%%', () => {
          /* TODO: add initialMarkup */
       `;
 
-        await mount(<Playground initial={initialMarkup} />);
+        await mount(<Playground initial={initialMarkup} syncMarkupToUrl={false} />);
     });
 
     test.describe('insert', () => {

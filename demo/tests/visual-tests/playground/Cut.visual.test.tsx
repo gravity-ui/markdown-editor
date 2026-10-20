@@ -122,7 +122,7 @@ test.describe('Cut', () => {
     });
 
     test.describe('specific', () => {
-        test.beforeEach(async ({editor}) => {
+        test.beforeEach(async ({editor, wait}) => {
             const markup = dd`
                 ## YFM Cut
 
@@ -145,6 +145,8 @@ test.describe('Cut', () => {
                 text
             `;
             await editor.fill(markup);
+            // The markup preview lags the editor by 500 ms and is part of the screenshot
+            await wait.markupPreview('{% endcut %}');
         });
 
         test('should open second cut @wysiwyg', async ({expectScreenshot, page, wait}) => {

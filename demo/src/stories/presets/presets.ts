@@ -1,7 +1,7 @@
 import type {ToolbarsPreset} from '@gravity-ui/markdown-editor';
-import {ActionName as Action} from '@gravity-ui/markdown-editor/_/bundle/config/action-names.js';
-import {ToolbarName as Toolbar} from '@gravity-ui/markdown-editor/_/modules/toolbars/constants.js';
 import {
+    ActionName as Action,
+    ToolbarName as Toolbar,
     boldItemView,
     boldItemWysiwyg,
     colorifyItemMarkup,
@@ -26,7 +26,7 @@ import {
     undoItemMarkup,
     undoItemView,
     undoItemWysiwyg,
-} from '@gravity-ui/markdown-editor/_/modules/toolbars/items.js';
+} from '@gravity-ui/markdown-editor/toolbars';
 
 export const toolbarPresets: Record<string, ToolbarsPreset> = {
     custom: {

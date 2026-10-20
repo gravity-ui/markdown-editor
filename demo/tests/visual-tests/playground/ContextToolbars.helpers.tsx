@@ -2,8 +2,8 @@ import {type ToolbarsPreset, wysiwygToolbarConfigs} from '@gravity-ui/markdown-e
 import {
     ActionName as Action,
     ToolbarName as Toolbar,
-} from '@gravity-ui/markdown-editor/_/modules/toolbars/constants.js';
-import {full} from '@gravity-ui/markdown-editor/_/modules/toolbars/presets.js';
+    full,
+} from '@gravity-ui/markdown-editor/toolbars';
 
 import {Playground} from './Playground.helpers';
 
@@ -16,6 +16,14 @@ const {
     wStrikethroughItemData,
     wTextItemData,
 } = wysiwygToolbarConfigs;
+
+// The extension options apply only while the preset omits the contextual orders
+const {
+    [Toolbar.wysiwygSelection]: _selection,
+    [Toolbar.wysiwygSlash]: _slash,
+    ...mainOrders
+} = full.orders;
+const mainOnlyPreset: ToolbarsPreset = {items: full.items, orders: mainOrders};
 
 const toolbarsPreset: ToolbarsPreset = {
     items: full.items,
@@ -41,6 +49,7 @@ export function SelectionToolbarPlayground() {
     return (
         <Playground
             initial="Select this text"
+            toolbarsPreset={mainOnlyPreset}
             wysiwygConfig={{
                 extensionOptions: {
                     selectionContext: {config: [[wItalicItemData, wBoldItemData]]},
@@ -54,6 +63,7 @@ export function CommandMenuPlayground() {
     return (
         <Playground
             initial=""
+            toolbarsPreset={mainOnlyPreset}
             wysiwygConfig={{
                 extensionOptions: {
                     commandMenu: {
