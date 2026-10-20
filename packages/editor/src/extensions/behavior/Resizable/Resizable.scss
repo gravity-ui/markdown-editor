@@ -1,4 +1,5 @@
 // A shadow root cannot select the outer `body`, so the host carries the cursor.
+// Firefox does not match `:host:has()`, so there the cursor does not change inside a shadow root.
 
 body :has(.g-md-resizable_resizing),
 :host:has(.g-md-resizable_resizing) {

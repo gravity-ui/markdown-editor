@@ -107,3 +107,5 @@ export function ShadowEditor({markup}: {markup: string}) {
 ### Scope of the export
 
 The subpath provides CSS only; it does not confirm that every editor feature works inside a shadow root.
+
+Firefox does not match `:host:has()`. While an image is resized, the host keeps its cursor there; Chromium and WebKit switch it to `col-resize`.
