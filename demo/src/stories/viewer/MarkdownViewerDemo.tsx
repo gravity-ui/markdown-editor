@@ -1,12 +1,13 @@
 import {useMemo, useState} from 'react';
 
 import transform from '@diplodoc/transform';
+import {type GalleryItemProps, GalleryProvider} from '@gravity-ui/components';
 import {MarkdownViewer, cnYFM} from '@gravity-ui/markdown-viewer';
-import {YfmCodeBlockActions} from '@gravity-ui/markdown-viewer/extensions';
+import {FilesGallery, YfmCodeBlockActions} from '@gravity-ui/markdown-viewer/extensions';
 import {Button, Flex, SegmentedRadioGroup, Text, sp} from '@gravity-ui/uikit';
 
 import {cn} from './cn';
-import {documents as defaultDocuments} from './content';
+import {documents as defaultDocuments, galleryCustomFile} from './content';
 import {Feedback} from './extensions/Feedback';
 import {PreserveCutState} from './extensions/PreserveCutState';
 import {TargetHelp} from './extensions/TargetHelp';
@@ -32,47 +33,75 @@ export function MarkdownViewerDemo({
     );
 
     return (
-        <Flex className={cn(null, sp({p: 6}))} direction="column" gap={3}>
-            <Flex
-                className={cn('toolbar')}
-                alignItems="center"
-                justifyContent="space-between"
-                gap={4}
-            >
-                <Text variant="subheader-2">MarkdownViewer</Text>
-                <SegmentedRadioGroup
-                    aria-label="Document version"
-                    value={String(documentIndex)}
-                    onUpdate={(value) => setDocumentIndex(Number(value))}
-                    options={documents.map(({label}, index) => ({
-                        value: String(index),
-                        content: label,
-                    }))}
-                />
-                {showFeedbackToggle && (
-                    <Button
-                        className={cn('feedback-toggle')}
-                        onClick={() => setShowFeedback((value) => !value)}
-                    >
-                        {showFeedback ? 'Hide feedback' : 'Show feedback'}
-                    </Button>
-                )}
+        <GalleryProvider>
+            <Flex className={cn(null, sp({p: 6}))} direction="column" gap={3}>
+                <Flex
+                    className={cn('toolbar')}
+                    alignItems="center"
+                    justifyContent="space-between"
+                    gap={4}
+                >
+                    <Text variant="subheader-2">MarkdownViewer</Text>
+                    {documents.length > 1 && (
+                        <SegmentedRadioGroup
+                            aria-label="Document version"
+                            value={String(documentIndex)}
+                            onUpdate={(value) => setDocumentIndex(Number(value))}
+                            options={documents.map(({label}, index) => ({
+                                value: String(index),
+                                content: label,
+                            }))}
+                        />
+                    )}
+                    {showFeedbackToggle && (
+                        <Button
+                            className={cn('feedback-toggle')}
+                            onClick={() => setShowFeedback((value) => !value)}
+                        >
+                            {showFeedback ? 'Hide feedback' : 'Show feedback'}
+                        </Button>
+                    )}
+                </Flex>
+                <MarkdownViewer
+                    html={result.html}
+                    className={cnYFM(
+                        {'no-list-reset': true, 'no-stripe-table': true},
+                        cn('content', sp({p: 6})),
+                    )}
+                    qa="demo-markdown-viewer"
+                    role="region"
+                    aria-label="MarkdownViewer playground"
+                >
+                    <PreserveCutState />
+                    <TargetHelp />
+                    <YfmCodeBlockActions />
+                    <FilesGallery
+                        copyUrl={getGalleryUrl}
+                        download={getGalleryUrl}
+                        resolveCustomItem={resolveCustomFile}
+                    />
+                    {showFeedback && <Feedback />}
+                </MarkdownViewer>
             </Flex>
-            <MarkdownViewer
-                html={result.html}
-                className={cnYFM(
-                    {'no-list-reset': true, 'no-stripe-table': true},
-                    cn('content', sp({p: 6})),
-                )}
-                qa="demo-markdown-viewer"
-                role="region"
-                aria-label="MarkdownViewer playground"
-            >
-                <PreserveCutState />
-                <TargetHelp />
-                <YfmCodeBlockActions />
-                {showFeedback && <Feedback />}
-            </MarkdownViewer>
-        </Flex>
+        </GalleryProvider>
     );
+}
+
+function getGalleryUrl(url: string) {
+    return url;
+}
+
+function resolveCustomFile(
+    _url: string,
+    _type: 'file',
+    _element: Element,
+    {name, mimetype}: {name?: string | null; mimetype?: string | null},
+): GalleryItemProps | undefined {
+    if (mimetype !== galleryCustomFile.mimetype) return undefined;
+
+    return {
+        name,
+        view: <Text className={sp({p: 6})}>{galleryCustomFile.preview}</Text>,
+        thumbnail: <Text>MD</Text>,
+    };
 }
