@@ -114,52 +114,66 @@ Disabling the button or removing the extension keeps the current wrapping state.
 
 ### Files gallery
 
-Add `FilesGallery` to open images, video links, and YFM file links in a gallery. Wrap the viewer in `GalleryProvider` and `ToasterProvider`:
+Add `FilesGallery` to open images, video links, and YFM file links. Wrap the viewer in `GalleryProvider`:
 
 ```tsx
 import {GalleryProvider} from '@gravity-ui/components';
 import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
 import {FilesGallery} from '@gravity-ui/markdown-viewer/extensions';
-import {Toaster, ToasterComponent, ToasterProvider} from '@gravity-ui/uikit';
 
 import '@gravity-ui/uikit/styles/styles.css';
 
-const toaster = new Toaster();
-
 export function Document({html}: {html: string}) {
   return (
-    <ToasterProvider toaster={toaster}>
-      <GalleryProvider>
-        <MarkdownViewer html={html}>
-          <FilesGallery copyUrl={(url) => url} download={(url) => url} />
-        </MarkdownViewer>
-      </GalleryProvider>
-      <ToasterComponent />
-    </ToasterProvider>
+    <GalleryProvider>
+      <MarkdownViewer html={html}>
+        <FilesGallery getCopyUrl={({url}) => url} getDownloadUrl={({url}) => url} />
+      </MarkdownViewer>
+    </GalleryProvider>
   );
 }
 ```
 
-Ctrl/Meta-click and images inside links keep their normal behavior.
+Images support `picture` and `srcset`. Ctrl/Meta/Shift/Alt-click and images inside links keep their normal behavior. Copy shows feedback in the button tooltip.
 
 <details>
 <summary>Gallery props and HTML updates</summary>
 
-The entry point also exports `FilesGalleryProps`, `GalleryItemPropsWithUrl`, and `FilesGalleryItemType` (`'image' | 'video' | 'file'`).
+The entry point exports `FilesGalleryProps`, `FilesGallerySource`, and `FilesGalleryItemType` (`'image' | 'video' | 'file'`).
+
+Callbacks receive `source` with `url`, `type`, `element`, and optional `name` and `mimeType`. Callback inputs, including the item passed to `transformItem`, are shallow readonly in TypeScript.
+
+Image URLs use `currentSrc` (absolute), then the HTML `src` value. Links use the HTML `href` value. MIME values are lowercase without parameters. A supported MIME takes priority; otherwise, the URL path extension is used, ignoring query and fragment. An `img` always has type `image`.
 
 | Prop | Description |
 | ---- | ----------- |
-| `customFiles` | Extra gallery items. A matching `url` replaces the item from HTML. |
-| `copyUrl` | Return a URL for the copy action. |
-| `download` | Return a URL for the download action. |
-| `overrideItemProps` | Change the final item props. |
-| `resolveCustomItem` | Return `GalleryItemProps` for another file type, or `undefined` to skip it. |
+| `additionalItems` | Readonly list of ready items placed before HTML items. Callbacks do not change them. |
+| `getCopyUrl(source)` | Return a URL for the copy action, or `undefined` to skip it. |
+| `getDownloadUrl(source)` | Return a URL for the download action, or `undefined` to skip it. |
+| `resolveCustomItem(source)` | Create an item for a source with type `file`, or return `undefined` to skip it. |
+| `transformItem(item, source)` | Replace the final item, or return `null` to exclude it. |
+| `onLinkCopied(url)` | Called only after a successful copy, with the copied URL. |
 
-Copy and download actions are added to the resolver's actions. `overrideItemProps` runs last. Custom files are used as provided.
+For each HTML item, a standard item or `resolveCustomItem` result gets copy/download actions, then passes through `transformItem`. Resolver actions are kept. The transform result replaces the whole item.
 
-Callbacks receive the file URL, type, and HTML element when the gallery opens. Do not keep DOM elements in returned props or action callbacks.
+The clicked item is built first; if skipped, collection stops. Callbacks run once per discovered item on opening. Do not change the HTML from callbacks or keep DOM elements in returned items or actions.
 
-An open gallery keeps its files when HTML changes or `FilesGallery` unmounts. The next opening uses the current HTML.
+An open gallery keeps its items when HTML changes or `FilesGallery` unmounts. The next opening reads the current HTML. Items with the same URL stay separate; the clicked element sets the initial item.
+
+To cancel gallery opening, call `preventDefault()` in `onClickCapture`. A regular React `onClick` runs after the gallery's native listener. This also cancels native link navigation:
+
+```tsx
+<MarkdownViewer
+  html={html}
+  onClickCapture={(event) => {
+    if (event.target instanceof Element && event.target.closest('[data-no-gallery]')) {
+      event.preventDefault();
+    }
+  }}
+>
+  <FilesGallery />
+</MarkdownViewer>
+```
 
 </details>
 

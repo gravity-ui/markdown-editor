@@ -2,6 +2,6 @@ export {YfmCodeBlockActions, type YfmCodeBlockActionsProps} from './extensions/Y
 export {
     FilesGallery,
     type FilesGalleryProps,
-    type GalleryItemPropsWithUrl,
+    type FilesGallerySource,
     type FilesGalleryItemType,
 } from './extensions/FilesGallery';

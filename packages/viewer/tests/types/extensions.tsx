@@ -6,14 +6,14 @@ import {
     FilesGallery,
     type FilesGalleryItemType,
     type FilesGalleryProps,
-    type GalleryItemPropsWithUrl,
+    type FilesGallerySource,
     YfmCodeBlockActions,
     type YfmCodeBlockActionsProps,
 } from '@gravity-ui/markdown-viewer/extensions';
 
 export function Consumer() {
-    const customFiles: GalleryItemPropsWithUrl[] = [
-        {url: 'image.png', ...getGalleryItemImage({src: 'image.png', name: 'Image'})},
+    const additionalItems: readonly GalleryItemProps[] = [
+        getGalleryItemImage({src: 'image.png', name: 'Image'}),
     ];
 
     return (
@@ -26,24 +26,37 @@ export function Consumer() {
                     getCodeBlockText={(element) => element.dataset.code || ''}
                 />
                 <FilesGallery
-                    customFiles={customFiles}
-                    copyUrl={(url, type, element) => {
-                        expectTypeOf(type).toEqualTypeOf<FilesGalleryItemType>();
-                        expectTypeOf(element).toEqualTypeOf<Element>();
-                        return url;
+                    additionalItems={additionalItems}
+                    getCopyUrl={(source) => {
+                        expectTypeOf(source).toEqualTypeOf<FilesGallerySource>();
+                        const input = source;
+                        // @ts-expect-error Sources are read-only.
+                        input.url = '/other.png';
+                        return source.url;
                     }}
-                    download={(url) => url}
-                    overrideItemProps={(_url, _type, _element, currentProps) => {
-                        expectTypeOf(currentProps).toEqualTypeOf<GalleryItemProps>();
-                        return currentProps;
+                    getDownloadUrl={(source) => {
+                        expectTypeOf(source).toEqualTypeOf<FilesGallerySource>();
+                        return source.url;
                     }}
-                    resolveCustomItem={(_url, type, _element, file) => {
-                        expectTypeOf(type).toEqualTypeOf<'file'>();
-                        expectTypeOf(file).toEqualTypeOf<{
-                            name?: string | null;
-                            mimetype?: string | null;
-                        }>();
+                    transformItem={(item, source) => {
+                        expectTypeOf(item).toEqualTypeOf<Readonly<GalleryItemProps>>();
+                        expectTypeOf(source).toEqualTypeOf<FilesGallerySource>();
+                        const input = item;
+                        // @ts-expect-error Transform inputs are read-only.
+                        input.name = 'Other';
+                        return source.name ? {...item, name: source.name} : null;
+                    }}
+                    resolveCustomItem={(source) => {
+                        expectTypeOf(source).toEqualTypeOf<
+                            FilesGallerySource & {readonly type: 'file'}
+                        >();
+                        const input = source;
+                        // @ts-expect-error Narrowed sources are read-only too.
+                        input.type = 'file';
                         return undefined;
+                    }}
+                    onLinkCopied={(url) => {
+                        expectTypeOf(url).toEqualTypeOf<string>();
                     }}
                 />
             </MarkdownViewer>
@@ -56,9 +69,19 @@ expectTypeOf<NonNullable<YfmCodeBlockActionsProps['getCodeBlockText']>>()
     .toEqualTypeOf<HTMLElement>();
 
 expectTypeOf<FilesGalleryItemType>().toEqualTypeOf<'image' | 'video' | 'file'>();
-expectTypeOf<FilesGalleryProps['customFiles']>().toEqualTypeOf<
-    GalleryItemPropsWithUrl[] | undefined
+expectTypeOf<FilesGallerySource>().toEqualTypeOf<{
+    readonly url: string;
+    readonly type: FilesGalleryItemType;
+    readonly element: Element;
+    readonly name?: string;
+    readonly mimeType?: string;
+}>();
+expectTypeOf<FilesGalleryProps['additionalItems']>().toEqualTypeOf<
+    readonly GalleryItemProps[] | undefined
 >();
 expectTypeOf<NonNullable<FilesGalleryProps['resolveCustomItem']>>().returns.toEqualTypeOf<
     GalleryItemProps | undefined
 >();
+expectTypeOf<
+    NonNullable<FilesGalleryProps['transformItem']>
+>().returns.toEqualTypeOf<GalleryItemProps | null>();
