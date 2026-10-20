@@ -7,7 +7,23 @@ import {ExtensionsManager} from '../../../core';
 import {FullSpecsPreset} from '../../../presets/full-specs';
 
 import {
+    HeaderAlign,
+    type HeaderAttrs,
+    HeaderBorder,
+    HeaderDecor,
+    HeaderDirection,
+    HeaderEdges,
+    HeaderFill,
+    HeaderFit,
+    HeaderFocus,
+    HeaderFormat,
+    HeaderLayout,
+    HeaderScale,
+    HeaderShape,
+    HeaderSide,
     HeaderSpecs,
+    HeaderText,
+    HeaderVertical,
     headerDirective,
     normalizeHeaderActionAttrs,
     normalizeHeaderAttrs,
@@ -26,23 +42,67 @@ const {markupParser: parser, serializer} = new ExtensionsManager({
 const md = new MarkdownIt().use(headerDirective);
 const render = (...lines: string[]) => md.render(lines.join('\n'));
 
-const examples = Object.entries(getHeaderExamples('cover.png')).flatMap(([group, items]) =>
+const catalogue = getHeaderExamples('cover.png');
+const examples = Object.entries(catalogue).flatMap(([group, items]) =>
     Object.entries(items).map(([name, markup]) => ({name: `${group} / ${name}`, markup})),
 );
 
-describe('Header markup stub', () => {
-    it('should cover between 30 and 45 examples', () => {
-        expect(examples.length).toBeGreaterThanOrEqual(30);
-        expect(examples.length).toBeLessThanOrEqual(45);
+describe('Header examples', () => {
+    it('should keep the groups in the catalogue order', () => {
+        expect(Object.keys(catalogue)).toEqual([
+            'Alignment',
+            'Height',
+            'Width',
+            'Border',
+            'Fill',
+            'Background image',
+            'Decor layer',
+            'Text color',
+            'Content image',
+            'Title',
+            'Content',
+            'Actions',
+            'Edge cases',
+        ]);
     });
 
+    const html = examples.map(({markup}) => render(markup)).join('\n');
+    const values = (attr: string, list: Record<string, string>) =>
+        Object.values(list).map((value) => ({attr, value}));
+
+    it.each([
+        ...values('format', HeaderFormat),
+        ...values('edges', HeaderEdges),
+        ...values('fixed', {True: 'true', False: 'false'}),
+        ...values('align', HeaderAlign),
+        ...values('vertical', HeaderVertical),
+        ...values('border', HeaderBorder),
+        ...values('layout', HeaderLayout),
+        ...values('fit', HeaderFit),
+        ...values('focus', HeaderFocus),
+        ...values('fill', HeaderFill),
+        ...values('decor', HeaderDecor),
+        ...values('direction', HeaderDirection),
+        ...values('shape', HeaderShape),
+        ...values('scale', HeaderScale),
+        ...values('text', HeaderText),
+        ...values('side', HeaderSide),
+        ...values('type', {Button: 'button', Link: 'link'}),
+        ...values('color', HeaderFill),
+    ])('should show $attr="$value" in the catalogue', ({attr, value}) => {
+        expect(examples.some(({markup}) => markup.includes(`${attr}="${value}"`))).toBe(true);
+        expect(html).toContain(`data-${attr}="${value}"`);
+    });
+});
+
+describe('Header markup stub', () => {
     it.each(examples)('should restore "$name" byte for byte', ({markup}) => {
         expect(serializer.serialize(parser.parse(markup))).toBe(markup);
     });
 
     it('should parse a cover into one atomic node with its source markup', () => {
         const markup = [
-            ':::header{fill="sky"}',
+            ':::header{fill="blue-light"}',
             '',
             '::header-title[Title]',
             '',
@@ -232,7 +292,7 @@ describe('Header preview', () => {
             '',
             ':::header-actions',
             '',
-            '::action[One](/1){type="link" color="brand"}',
+            '::action[One](/1){type="link" color="green"}',
             '',
             'Text between actions',
             '',
@@ -249,7 +309,7 @@ describe('Header preview', () => {
 
         expect(html.match(/class="g-md-header__action"/g)).toHaveLength(3);
         expect(html).toContain(
-            '<a class="g-md-header__action" href="/1" data-type="link" data-color="brand">One</a>',
+            '<a class="g-md-header__action" href="/1" data-type="link" data-color="green">One</a>',
         );
         expect(html).not.toContain('Four');
         expect(html).not.toContain('Text between actions');
@@ -257,7 +317,7 @@ describe('Header preview', () => {
 
     it('should render a background image and a content image together', () => {
         const html = render(
-            ':::header{image="/background.png" effect="darken"}',
+            ':::header{bg="image" image="/background.png" decor="darken"}',
             '',
             '::header-image[Picture](/picture.png){side="left" fit="whole" focus="top"}',
             '',
@@ -273,7 +333,7 @@ describe('Header preview', () => {
 
     it('should replace unknown values and drop unknown parameters', () => {
         const html = render(
-            ':::header{format="huge" bg="rainbow" fill="magenta" layer="left" color="red"}',
+            ':::header{format="huge" bg="rainbow" fill="indigo" decor="effect" layer="left" effect="fade"}',
             '',
             '::header-image[Picture](/picture.png){side="top"}',
             '',
@@ -281,10 +341,10 @@ describe('Header preview', () => {
         );
 
         expect(html).toContain('data-format="medium"');
-        expect(html).toContain('data-bg="shapes"');
-        expect(html).toContain('data-fill="blue"');
-        expect(html).toContain('data-layer="full"');
-        expect(html).not.toContain('data-color');
+        expect(html).toContain('data-bg="fill"');
+        expect(html).toContain('data-fill="system"');
+        expect(html).toContain('data-decor="none"');
+        expect(html).not.toMatch(/data-(layer|effect)/);
         expect(html).toContain('data-side="right"');
     });
 
@@ -336,7 +396,7 @@ describe('Header preview', () => {
     it('should reject unsafe addresses', () => {
         const unsafe = ['java', 'script:alert(1)'].join('');
         const html = render(
-            `:::header{image="${unsafe}"}`,
+            `:::header{bg="image" image="${unsafe}"}`,
             '',
             `::header-image[Picture](${unsafe})`,
             '',
@@ -357,58 +417,138 @@ describe('Header preview', () => {
 
 describe('Header parameters', () => {
     it('should fill in defaults for missing and unknown values', () => {
-        expect(normalizeHeaderAttrs({format: 'small', fill: 'magenta', title: 'false'})).toEqual({
+        expect(normalizeHeaderAttrs({format: 'small', fill: 'sky', title: 'false'})).toEqual({
             format: 'small',
+            edges: 'rounded',
+            fixed: 'true',
             align: 'left',
             vertical: 'center',
-            fixed: 'true',
-            bg: 'shapes',
-            fill: 'blue',
-            fill2: 'purple',
-            direction: 'diagonal',
-            shapes: 'diagonal',
-            scale: 'medium',
+            border: 'none',
+            bg: 'fill',
             image: '',
-            layer: 'full',
+            layout: 'cover',
             fit: 'crop',
             focus: 'center',
-            effect: 'none',
-            text: 'auto',
+            fill: 'system',
+            fill2: 'blue',
+            decor: 'none',
+            direction: 'diagonal',
+            shape: 'diagonal',
+            scale: 'medium',
+            text: 'system',
         });
+    });
+
+    it.each([
+        ['bg', ['surface', 'shapes', 'gradient', 'mesh', 'pattern']],
+        ['fill', ['indigo', 'violet', 'teal', 'sky', 'light-blue', 'amber', 'sand', 'navy']],
+        ['fill2', ['system', 'sky']],
+        ['text', ['auto', 'light', 'dark', 'primary', 'brand', 'blue-light', 'yellow-light']],
+        ['layout', ['full', 'left', 'right']],
+        ['decor', ['fade', 'blobs']],
+    ])('should replace removed values of %s with the default', (attr, removed) => {
+        const key = attr as keyof HeaderAttrs;
+        const defaults = normalizeHeaderAttrs({image: '/a.png'});
+        for (const value of removed) {
+            expect(normalizeHeaderAttrs({image: '/a.png', [key]: value})[key]).toBe(defaults[key]);
+        }
+    });
+
+    it('should accept every color of the table cell palette', () => {
+        const palette = [
+            'grey',
+            'yellow-light',
+            'yellow',
+            'red-light',
+            'red',
+            'purple-light',
+            'purple',
+            'blue-light',
+            'blue',
+            'green-light',
+            'green',
+        ];
+        for (const color of palette) {
+            expect(normalizeHeaderAttrs({fill: color, fill2: color})).toMatchObject({
+                fill: color,
+                fill2: color,
+            });
+            expect(normalizeHeaderActionAttrs({color}).color).toBe(color);
+        }
+    });
+
+    it('should fall back to the fill when the image address is empty', () => {
+        expect(normalizeHeaderAttrs({bg: 'image'}).bg).toBe('fill');
+        expect(normalizeHeaderAttrs({bg: 'image', image: ' '}).bg).toBe('fill');
+        expect(normalizeHeaderAttrs({bg: 'image', image: '/a.png'}).bg).toBe('image');
     });
 
     it('should serialize only applicable parameters with non-default values', () => {
         expect(
             serializeHeaderAttrs({
-                bg: 'fill',
-                fill: 'sky',
+                fill: 'blue-light',
                 fill2: 'red',
+                image: '/a.png',
+                layout: 'tile',
                 direction: 'down',
-                shapes: 'corner',
-                fit: 'whole',
-                effect: 'blur',
-                text: 'dark',
-            }),
-        ).toBe('{bg="fill" fill="sky" text="dark"}');
-        expect(
-            serializeHeaderAttrs({
-                image: ' /tile.png ',
-                layer: 'tile',
+                shape: 'corner',
                 scale: 'large',
                 fit: 'whole',
+                text: 'blue',
             }),
-        ).toBe('{fill="blue" scale="large" image="/tile.png" layer="tile"}');
+        ).toBe('{fill="blue-light" text="blue"}');
         expect(
-            serializeHeaderAttrs({bg: 'gradient', fill2: 'red', image: '/a.png', effect: 'fade'}),
-        ).toBe('{bg="gradient" fill="blue" fill2="red" image="/a.png" effect="fade"}');
+            serializeHeaderAttrs({
+                bg: 'image',
+                image: ' /tile.png ',
+                layout: 'tile',
+                scale: 'large',
+                fit: 'whole',
+                focus: 'top',
+            }),
+        ).toBe('{bg="image" image="/tile.png" layout="tile" scale="large"}');
+        expect(
+            serializeHeaderAttrs({
+                bg: 'image',
+                image: '/a.png',
+                fill2: 'red',
+                decor: 'gradient',
+                direction: 'down',
+                shape: 'corner',
+            }),
+        ).toBe('{bg="image" image="/a.png" fill2="red" decor="gradient" direction="down"}');
+        expect(serializeHeaderAttrs({decor: 'mesh', shape: 'edges', scale: 'small'})).toBe(
+            '{decor="mesh" shape="edges"}',
+        );
+        expect(serializeHeaderAttrs({decor: 'pattern', scale: 'small'})).toBe(
+            '{decor="pattern" scale="small"}',
+        );
     });
 
-    it('should always print the fill color', () => {
-        expect(serializeHeaderAttrs({})).toBe('{fill="blue"}');
+    it('should print the geometry parameters in model order', () => {
+        expect(
+            serializeHeaderAttrs({
+                border: 'dashed',
+                vertical: 'top',
+                align: 'right',
+                fixed: 'false',
+                edges: 'bleed',
+                format: 'large',
+            }),
+        ).toBe(
+            '{format="large" edges="bleed" fixed="false" align="right" vertical="top" border="dashed"}',
+        );
+    });
+
+    it('should print nothing for a block with default parameters', () => {
+        expect(serializeHeaderAttrs({})).toBe('');
+        expect(serializeHeaderAttrs({fill: 'system', text: 'system', decor: 'none'})).toBe('');
     });
 
     it('should escape quotes in values', () => {
-        expect(serializeHeaderAttrs({image: '/a"b.png'})).toBe('{fill="blue" image="/a\\"b.png"}');
+        expect(serializeHeaderAttrs({bg: 'image', image: '/a"b.png'})).toBe(
+            '{bg="image" image="/a\\"b.png"}',
+        );
     });
 
     it('should normalize slot parameters', () => {
@@ -419,9 +559,9 @@ describe('Header parameters', () => {
             fit: 'crop',
             focus: 'top-left',
         });
-        expect(normalizeHeaderActionAttrs({type: 'link', color: 'red'})).toEqual({
+        expect(normalizeHeaderActionAttrs({type: 'link', color: 'brand'})).toEqual({
             type: 'link',
-            color: 'default',
+            color: 'system',
         });
     });
 });

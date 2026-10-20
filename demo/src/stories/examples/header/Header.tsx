@@ -30,32 +30,47 @@ const catalogue = Object.entries(examples).map(([group, items]) => ({
     items: Object.entries(items).map(([name, markup]) => ({name, markup, html: render(markup)})),
 }));
 
-export const HeaderCatalogue = memo(function HeaderCatalogue() {
+type HeaderGroupProps = {group: (typeof catalogue)[number]};
+
+const HeaderGroup = memo(function HeaderGroup({group: {group, items}}: HeaderGroupProps) {
+    return (
+        <section>
+            <h2 className={b('group')}>{group}</h2>
+            {items.map(({name, markup, html}) => (
+                <article key={name} className={b('example')}>
+                    <h3 className={b('name')}>{name}</h3>
+                    <div className={b('card')}>
+                        <pre className={b('markup')}>{markup}</pre>
+                        <YfmStaticView className={b('preview')} html={html} noListReset />
+                    </div>
+                </article>
+            ))}
+        </section>
+    );
+});
+
+type HeaderCatalogueProps = {
+    /** Имя группы. Без него показываются все группы подряд. */
+    group?: string;
+};
+
+export const HeaderCatalogue = memo(function HeaderCatalogue({group}: HeaderCatalogueProps) {
     return (
         <div className={b()}>
-            {catalogue.map(({group, items}) => (
-                <section key={group}>
-                    <h2 className={b('group')}>{group}</h2>
-                    {items.map(({name, markup, html}) => (
-                        <article key={name} className={b('example')}>
-                            <h3 className={b('name')}>{name}</h3>
-                            <div className={b('card')}>
-                                <pre className={b('markup')}>{markup}</pre>
-                                <YfmStaticView className={b('preview')} html={html} noListReset />
-                            </div>
-                        </article>
-                    ))}
-                </section>
-            ))}
+            {catalogue
+                .filter((item) => !group || item.group === group)
+                .map((item) => (
+                    <HeaderGroup key={item.group} group={item} />
+                ))}
         </div>
     );
 });
 
 const editorMarkup = [
-    examples.Layout['Medium, centered'],
-    examples['Content image']['Right, small, aligned left'],
-    examples['Background image'].Darken,
-    examples.Slots['Shuffled order'],
+    examples.Alignment['Left, center'],
+    examples['Content image']['Right, crop'],
+    examples['Decor layer']['Mesh over fill'],
+    examples['Background image']['Focus bottom'],
     examples['Edge cases']['Inside a cut'],
 ].join('\n\n');
 
