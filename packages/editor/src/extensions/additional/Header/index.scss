@@ -23,28 +23,38 @@ $title: (
 );
 
 $scale: (
-    'small': 16px,
-    'medium': 32px,
-    'large': 64px,
+    'small': 24px,
+    'medium': 48px,
+    'large': 96px,
 );
 
+$directions: (
+    'diagonal': 135deg,
+    'right': 90deg,
+    'down': 180deg,
+);
+
+// Слои снизу вверх: заливка блока, фоновое изображение `::before`, дополнительный слой `::after`,
+// фигуры `__decor`, содержимое. Системные значения не задают цвет: виден фон страницы и цвет текста темы.
+
 .g-md-header {
-    --g-md-header-fill: #{map.get(fills.$header-fills, 'blue')};
-    --g-md-header-fill-2: #{map.get(fills.$header-fills, 'purple')};
-    --g-md-header-fill-text: var(--g-color-text-primary);
+    --g-md-header-fill: transparent;
+    --g-md-header-fill-2: #{map.get(fills.$header-fills, 'blue')};
+    --g-md-header-text: initial;
+    --g-md-header-line: var(--g-color-line-generic);
     --g-md-header-shape: color-mix(in sRGB, var(--g-color-text-primary) 90%, transparent);
     --g-md-header-dot: color-mix(in sRGB, var(--g-color-text-primary) 19%, transparent);
-    --g-md-header-text: var(--g-md-header-fill-text);
-    --g-md-header-decor: none;
-    --g-md-header-decor-size: auto;
     --g-md-header-image: none;
+    --g-md-header-image-inset: 0px;
     --g-md-header-image-size: cover;
     --g-md-header-image-position: center;
     --g-md-header-image-repeat: no-repeat;
-    --g-md-header-scrim: none;
     --g-md-header-filter: none;
-    --g-md-header-bleed: 0px;
-    --g-md-header-step: 32px;
+    --g-md-header-angle: 135deg;
+    --g-md-header-decor: none;
+    --g-md-header-decor-size: auto;
+    --g-md-header-decor-opacity: 1;
+    --g-md-header-step: 48px;
     --g-md-header-min-height: 280px;
     --g-md-header-padding: var(--g-spacing-8);
     --g-md-header-justify: flex-start;
@@ -68,9 +78,16 @@ $scale: (
     @each $name, $color in fills.$header-fills {
         &[data-fill='#{$name}'] {
             --g-md-header-fill: #{$color};
+            --g-md-header-line: #{fills.line-color(map.get(fills.$header-hues, $name))};
         }
         &[data-fill2='#{$name}'] {
             --g-md-header-fill-2: #{$color};
+        }
+    }
+
+    @each $name, $color in fills.$header-text-colors {
+        &[data-text='#{$name}'] {
+            --g-md-header-text: #{$color};
         }
     }
 
@@ -86,9 +103,9 @@ $scale: (
         }
     }
 
-    @each $name, $color in fills.$header-text-colors {
-        &[data-text='#{$name}'] {
-            --g-md-header-text: #{$color};
+    @each $name, $value in $directions {
+        &[data-direction='#{$name}'] {
+            --g-md-header-angle: #{$value};
         }
     }
 
@@ -102,23 +119,22 @@ $scale: (
 
     &::before {
         z-index: 0;
-        inset: 0;
+        inset: var(--g-md-header-image-inset);
 
-        background-image: var(--g-md-header-decor);
-        background-size: var(--g-md-header-decor-size);
+        background-image: var(--g-md-header-image);
+        background-repeat: var(--g-md-header-image-repeat);
+        background-position: var(--g-md-header-image-position);
+        background-size: var(--g-md-header-image-size);
+        filter: var(--g-md-header-filter);
     }
 
     &::after {
-        z-index: 2;
-        inset: calc(-1 * var(--g-md-header-bleed));
+        z-index: 1;
+        inset: 0;
 
-        background-image: var(--g-md-header-scrim), var(--g-md-header-image);
-        background-repeat: no-repeat, var(--g-md-header-image-repeat);
-        background-position: center, var(--g-md-header-image-position);
-        background-size:
-            100% 100%,
-            var(--g-md-header-image-size);
-        filter: var(--g-md-header-filter);
+        opacity: var(--g-md-header-decor-opacity);
+        background-image: var(--g-md-header-decor);
+        background-size: var(--g-md-header-decor-size);
     }
 
     &[data-format='small'] {
@@ -127,6 +143,24 @@ $scale: (
 
     &[data-format='large'] {
         --g-md-header-min-height: 420px;
+    }
+
+    &[data-edges='bleed'] {
+        border-radius: 0;
+    }
+
+    &[data-border='solid'],
+    &[data-border='dashed'],
+    &[data-border='dotted'] {
+        border: 2px solid var(--g-md-header-line);
+    }
+
+    &[data-border='dashed'] {
+        border-style: dashed;
+    }
+
+    &[data-border='dotted'] {
+        border-style: dotted;
     }
 
     &[data-fixed='true'] .g-md-header__text {
@@ -153,83 +187,58 @@ $scale: (
         --g-md-header-items: flex-end;
     }
 
-    &[data-text='primary'] {
-        --g-md-header-text: var(--g-color-text-primary);
+    &[data-layout='object'] {
+        --g-md-header-image-inset: var(--g-md-header-padding);
     }
 
-    &[data-text='brand'] {
-        --g-md-header-text: var(--g-color-text-brand);
-    }
-
-    &[data-bg='surface'] {
-        --g-md-header-fill: var(--g-color-base-modal);
-        --g-md-header-fill-text: var(--g-color-text-primary);
-    }
-
-    &[data-bg='gradient'] {
-        --g-md-header-decor: linear-gradient(
-            135deg,
-            var(--g-md-header-fill),
-            var(--g-md-header-fill-2)
-        );
-        &[data-direction='right'] {
-            --g-md-header-decor: linear-gradient(
-                90deg,
-                var(--g-md-header-fill),
-                var(--g-md-header-fill-2)
-            );
-        }
-        &[data-direction='down'] {
-            --g-md-header-decor: linear-gradient(
-                180deg,
-                var(--g-md-header-fill),
-                var(--g-md-header-fill-2)
-            );
-        }
-    }
-
-    &[data-bg='pattern'] {
-        --g-md-header-decor: radial-gradient(circle, var(--g-md-header-dot) 3px, transparent 3px);
-        --g-md-header-decor-size: var(--g-md-header-step) var(--g-md-header-step);
-    }
-
-    &[data-layer='object'] {
-        --g-md-header-image-size: auto 100%;
-    }
     &[data-fit='whole'] {
         --g-md-header-image-size: contain;
     }
-    &[data-layer='tile'] {
+
+    &[data-layout='tile'] {
         --g-md-header-image-size: var(--g-md-header-step);
         --g-md-header-image-repeat: repeat;
         --g-md-header-image-position: left top;
     }
 
-    &[data-image][data-layer='full'][data-effect='darken'] {
-        --g-md-header-scrim: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
-        --g-md-header-text: #{fills.$header-text-light};
-    }
-    &[data-image][data-layer='full'][data-effect='fade'] {
-        --g-md-header-scrim: linear-gradient(90deg, var(--g-md-header-fill), transparent 62%);
-        --g-md-header-text: var(--g-md-header-fill-text);
-    }
-    &[data-image][data-layer='full'][data-effect='blur'] {
-        --g-md-header-filter: blur(19px);
-        --g-md-header-bleed: 24px;
-        --g-md-header-text: #{fills.$header-text-light};
+    &[data-decor='darken'] {
+        --g-md-header-decor: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35));
     }
 
-    &[data-text='light'] {
-        --g-md-header-text: #{fills.$header-text-light};
+    &[data-decor='lighten'] {
+        --g-md-header-decor: linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45));
     }
-    &[data-text='dark'] {
-        --g-md-header-text: #{fills.$header-text-dark};
+
+    // Размывается только слой изображения. Слой выходит за края блока, чтобы размытие не светлело у границ.
+    &[data-decor='blur'] {
+        --g-md-header-filter: blur(12px);
+
+        &:not([data-layout='object']) {
+            --g-md-header-image-inset: -24px;
+        }
+    }
+
+    &[data-decor='gradient'] {
+        --g-md-header-decor: linear-gradient(
+            var(--g-md-header-angle),
+            var(--g-md-header-fill),
+            var(--g-md-header-fill-2)
+        );
+
+        &[data-bg='image'] {
+            --g-md-header-decor-opacity: 0.75;
+        }
+    }
+
+    &[data-decor='pattern'] {
+        --g-md-header-decor: radial-gradient(circle, var(--g-md-header-dot) 3px, transparent 3px);
+        --g-md-header-decor-size: var(--g-md-header-step) var(--g-md-header-step);
     }
 }
 
 .g-md-header__decor {
     position: absolute;
-    z-index: 1;
+    z-index: 2;
     inset: 0;
 
     pointer-events: none;
@@ -246,12 +255,15 @@ $scale: (
     animation: g-md-header-drift var(--g-md-header-shape-duration, 28s) ease-in-out
         var(--g-md-header-shape-delay, 0s) infinite alternate;
 
-    @each $name, $color in fills.$header-fills {
-        &[data-fill='#{$name}'] {
-            background-color: #{$color};
-        }
+    &[data-tone='fill'] {
+        background-color: var(--g-md-header-fill);
     }
-    [data-bg='mesh'] & {
+
+    &[data-tone='fill2'] {
+        background-color: var(--g-md-header-fill-2);
+    }
+
+    [data-decor='mesh'] & {
         filter: blur(75px);
     }
 }
@@ -269,7 +281,7 @@ $scale: (
     min-width: 0;
     overflow-wrap: anywhere;
 
-    color: var(--g-md-header-text);
+    color: var(--g-md-header-text, inherit);
 }
 
 .g-md-header__text {
@@ -378,6 +390,21 @@ $scale: (
         color: inherit;
         border-radius: var(--g-border-radius-l);
 
+        // Кнопка берёт заливку палитры, ссылка — цвет текста того же оттенка.
+        @each $name, $color in fills.$header-fills {
+            &[data-type='button'][data-color='#{$name}'] {
+                background: #{$color};
+
+                &:hover {
+                    box-shadow: inset 0 0 0 100vmax var(--g-color-base-simple-hover);
+                }
+            }
+
+            &[data-type='link'][data-color='#{$name}'] {
+                color: #{fills.text-color(map.get(fills.$header-hues, $name))};
+            }
+        }
+
         &[data-type='button'] {
             background: var(--g-color-base-generic);
 
@@ -386,21 +413,8 @@ $scale: (
             }
         }
 
-        &[data-type='button'][data-color='brand'] {
-            color: var(--g-color-text-brand-contrast);
-            background: var(--g-color-base-brand);
-
-            &:hover {
-                background: var(--g-color-base-brand-hover);
-            }
-        }
-
         &[data-type='link']:hover {
             text-decoration: underline;
-        }
-
-        &[data-type='link'][data-color='brand'] {
-            color: var(--g-color-text-brand);
         }
     }
 

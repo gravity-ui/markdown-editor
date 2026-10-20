@@ -1,6 +1,7 @@
 import type {HeaderActionAttrs, HeaderAttrs, HeaderImageAttrs} from './attrs';
+import {hasImage} from './attrs';
 import {HeaderAttr, HeaderClassName} from './const';
-import {type HeaderShape, getHeaderShapes} from './decor';
+import {type HeaderShapeItem, getHeaderShapes} from './decor';
 
 type Escape = (value: string) => string;
 
@@ -30,7 +31,7 @@ export function toCssUrl(raw: string): string | null {
 
 const percent = (value: number) => `${Number((value * 100).toFixed(2))}%`;
 
-function shapeDomAttrs(shape: HeaderShape): Record<string, string> {
+function shapeDomAttrs(shape: HeaderShapeItem): Record<string, string> {
     const style = [
         `width:${percent(shape.size)}`,
         `left:${percent(shape.x)}`,
@@ -40,7 +41,7 @@ function shapeDomAttrs(shape: HeaderShape): Record<string, string> {
         `--g-md-header-shape-delay:${shape.delay}s`,
     ].join(';');
     const attrs: Record<string, string> = {class: HeaderClassName.Shape, style};
-    if (shape.fill) attrs['data-fill'] = shape.fill;
+    if (shape.tone) attrs['data-tone'] = shape.tone;
     return attrs;
 }
 
@@ -49,7 +50,7 @@ export function headerDomAttrs(attrs: HeaderAttrs): Record<string, string> {
     for (const [name, value] of Object.entries(attrs)) {
         if (name !== HeaderAttr.Image) dom[`data-${name}`] = value;
     }
-    const image = toCssUrl(attrs[HeaderAttr.Image]);
+    const image = hasImage(attrs) ? toCssUrl(attrs[HeaderAttr.Image]) : null;
     if (image) {
         dom['data-image'] = attrs[HeaderAttr.Image];
         dom.style = `--g-md-header-image:${image}`;
