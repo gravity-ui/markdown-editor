@@ -5,7 +5,7 @@ Render prepared HTML with React 18 or 19. Supports server rendering and hydratio
 ## Installation
 
 ```bash
-npm install @gravity-ui/markdown-viewer @gravity-ui/uikit react react-dom
+npm install @gravity-ui/markdown-viewer @gravity-ui/components @gravity-ui/uikit react react-dom
 ```
 
 ## Usage
@@ -109,6 +109,57 @@ The `@gravity-ui/markdown-viewer/extensions` entry point also exports the `YfmCo
 Use a stable selector for containers with `pre code`. The wrapping button toggles the `wrap` class on `pre code`.
 
 Disabling the button or removing the extension keeps the current wrapping state. Removing the extension also restores the built-in controls.
+
+</details>
+
+### Files gallery
+
+Add `FilesGallery` to open images, video links, and YFM file links in a gallery. Wrap the viewer in `GalleryProvider` and `ToasterProvider`:
+
+```tsx
+import {GalleryProvider} from '@gravity-ui/components';
+import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
+import {FilesGallery} from '@gravity-ui/markdown-viewer/extensions';
+import {Toaster, ToasterComponent, ToasterProvider} from '@gravity-ui/uikit';
+
+import '@gravity-ui/uikit/styles/styles.css';
+
+const toaster = new Toaster();
+
+export function Document({html}: {html: string}) {
+  return (
+    <ToasterProvider toaster={toaster}>
+      <GalleryProvider>
+        <MarkdownViewer html={html}>
+          <FilesGallery copyUrl={(url) => url} download={(url) => url} />
+        </MarkdownViewer>
+      </GalleryProvider>
+      <ToasterComponent />
+    </ToasterProvider>
+  );
+}
+```
+
+Ctrl/Meta-click and images inside links keep their normal behavior.
+
+<details>
+<summary>Gallery props and HTML updates</summary>
+
+The entry point also exports `FilesGalleryProps`, `GalleryItemPropsWithUrl`, and `FilesGalleryItemType` (`'image' | 'video' | 'file'`).
+
+| Prop | Description |
+| ---- | ----------- |
+| `customFiles` | Extra gallery items. A matching `url` replaces the item from HTML. |
+| `copyUrl` | Return a URL for the copy action. |
+| `download` | Return a URL for the download action. |
+| `overrideItemProps` | Change the final item props. |
+| `resolveCustomItem` | Return `GalleryItemProps` for another file type, or `undefined` to skip it. |
+
+Copy and download actions are added to the resolver's actions. `overrideItemProps` runs last. Custom files are used as provided.
+
+Callbacks receive the file URL, type, and HTML element when the gallery opens. Do not keep DOM elements in returned props or action callbacks.
+
+An open gallery keeps its files when HTML changes or `FilesGallery` unmounts. The next opening uses the current HTML.
 
 </details>
 
