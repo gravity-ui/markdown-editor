@@ -10,6 +10,9 @@ $colors: (
     'violet': #f0f,
 );
 
+// A shadow root is matched by `:host`, not by `:root`.
+
+:host,
 :root {
     @each $name, $value in $colors {
         --yfm-colorify-#{$name}: #{$value};

@@ -60,6 +60,7 @@ function Editor({onSubmit}) {
 - [Как создать собственное расширение](https://gravity-ui.github.io/markdown-editor/develop/extension-creation.html)
 - [Как добавить расширение GPT](https://gravity-ui.github.io/markdown-editor/extensions/gpt.html)
 - [Как добавить расширение привязки текста в Markdown](https://gravity-ui.github.io/markdown-editor/develop/extension-with-popup.html)
+- [Как подключить стили редактора в теневом дереве](https://gravity-ui.github.io/markdown-editor/getting-started/shadow-dom-styles.html)
 
 
 ### Разработка
