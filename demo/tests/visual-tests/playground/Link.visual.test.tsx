@@ -18,7 +18,9 @@ test.describe('Link', () => {
         await editor.press('ControlOrMeta+End');
         await actions.pressFocused('ArrowLeft', ' after'.length);
         await actions.pressFocused('Shift+ArrowLeft');
-        await expect.poll(() => page.evaluate(() => getSelection()?.toString())).toBe('a');
+        await expect(page.locator('.playground__pm-selection')).toHaveText(
+            /TextSelection\s*From: 8\s*To: 9/,
+        );
         await actions.pressFocused('ControlOrMeta+k');
 
         await expect(page.locator('.g-md-link-tooltip-view')).toBeVisible();
@@ -40,7 +42,9 @@ test.describe('Link', () => {
         await editor.press('ControlOrMeta+End');
         await actions.pressFocused('ArrowLeft', ' after'.length);
         await actions.pressFocused('Shift+ArrowLeft');
-        await expect.poll(() => page.evaluate(() => getSelection()?.toString())).toBe('a');
+        await expect(page.locator('.playground__pm-selection')).toHaveText(
+            /TextSelection\s*From: 8\s*To: 9/,
+        );
         await actions.pressFocused('ControlOrMeta+k');
         await expect(page.locator('.g-md-link-tooltip-view')).toBeVisible();
         await actions.pressFocused('Escape');
