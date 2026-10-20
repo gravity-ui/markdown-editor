@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest';
 
 import {normalizeHeaderAttrs} from './attrs';
-import {headerDomAttrs, headerHtml, toCssUrl} from './dom';
+import {headerDomAttrs, headerHtmlOpen, toCssUrl} from './dom';
 
 const image = 'https://example.com/hero.png';
 const domAttrs = (patch: Record<string, unknown>) => headerDomAttrs(normalizeHeaderAttrs(patch));
@@ -31,9 +31,11 @@ describe('header dom', () => {
     });
 
     it('should include decorative shapes beneath the content', () => {
-        const html = headerHtml(normalizeHeaderAttrs({bg: 'mesh'}), 'Заголовок', (value) => value);
+        const html = headerHtmlOpen(normalizeHeaderAttrs({bg: 'mesh'}), (value) => value);
         expect(html).toContain('g-md-header__shape');
-        expect(html.indexOf('g-md-header__shape')).toBeLessThan(html.indexOf('g-md-header__title'));
+        expect(html.indexOf('g-md-header__shape')).toBeLessThan(
+            html.indexOf('g-md-header__content'),
+        );
     });
 
     it('should encode unsafe characters in CSS URLs', () => {

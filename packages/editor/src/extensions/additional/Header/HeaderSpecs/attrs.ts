@@ -1,4 +1,9 @@
 import {
+    HEADER_TITLE_SIZES,
+    HeaderActionColor,
+    type HeaderActionColorValue,
+    HeaderActionType,
+    type HeaderActionTypeValue,
     HeaderAttr,
     HeaderBackground,
     HeaderDefaults,
@@ -6,24 +11,31 @@ import {
     HeaderEffect,
     HeaderFill,
     HeaderFit,
+    type HeaderFitValue,
     HeaderFocus,
+    type HeaderFocusValue,
     HeaderFormat,
     HeaderLayer,
     HeaderScale,
     HeaderShapes,
+    HeaderSide,
+    type HeaderSideValue,
     HeaderText,
 } from './const';
 
 export type HeaderAttrs = {-readonly [K in keyof typeof HeaderDefaults]: string};
+
+type RawAttrs = Readonly<Record<string, unknown>>;
+
+function choose<T extends string>(value: unknown, values: readonly T[], fallback: T): T {
+    return values.includes(value as T) ? (value as T) : fallback;
+}
 
 const choices = {
     [HeaderAttr.Format]: Object.values(HeaderFormat),
     [HeaderAttr.Align]: ['left', 'center', 'right'],
     [HeaderAttr.Vertical]: ['top', 'center', 'bottom'],
     [HeaderAttr.Fixed]: ['true', 'false'],
-    [HeaderAttr.ImageEnabled]: ['true', 'false'],
-    [HeaderAttr.Title]: ['true', 'false'],
-    [HeaderAttr.Description]: ['true', 'false'],
     [HeaderAttr.Background]: Object.values(HeaderBackground),
     [HeaderAttr.Fill]: Object.values(HeaderFill),
     [HeaderAttr.Fill2]: Object.values(HeaderFill),
@@ -37,37 +49,16 @@ const choices = {
     [HeaderAttr.Text]: Object.values(HeaderText),
 };
 
-const ATTR_ORDER = [
-    HeaderAttr.Format,
-    HeaderAttr.Align,
-    HeaderAttr.Vertical,
-    HeaderAttr.Fixed,
-    HeaderAttr.Title,
-    HeaderAttr.Description,
-    HeaderAttr.Background,
-    HeaderAttr.Fill,
-    HeaderAttr.Fill2,
-    HeaderAttr.Direction,
-    HeaderAttr.Shapes,
-    HeaderAttr.Scale,
-    HeaderAttr.Image,
-    HeaderAttr.ImageEnabled,
-    HeaderAttr.ImageName,
-    HeaderAttr.Layer,
-    HeaderAttr.Fit,
-    HeaderAttr.Focus,
-    HeaderAttr.Effect,
-    HeaderAttr.Text,
-] as const;
+const ATTR_ORDER = Object.values(HeaderAttr);
 
-export function normalizeHeaderAttrs(raw: Readonly<Record<string, unknown>> = {}): HeaderAttrs {
+export function normalizeHeaderAttrs(raw: RawAttrs = {}): HeaderAttrs {
     const attrs = {...HeaderDefaults} as HeaderAttrs;
     for (const name of ATTR_ORDER) {
-        if (name === HeaderAttr.Image || name === HeaderAttr.ImageName) {
-            attrs[name] = typeof raw[name] === 'string' ? raw[name].trim() : '';
+        const value = raw[name];
+        if (name === HeaderAttr.Image) {
+            attrs[name] = typeof value === 'string' ? value.trim() : '';
         } else {
-            const value = raw[name];
-            if ((choices[name] as readonly unknown[]).includes(value)) attrs[name] = String(value);
+            attrs[name] = choose(value, choices[name] as readonly string[], HeaderDefaults[name]);
         }
     }
     return attrs;
@@ -115,27 +106,44 @@ export function isAttrUsed(attr: keyof HeaderAttrs, attrs: HeaderAttrs): boolean
 
 const quote = (value: string): string => `"${value.replace(/[\\"]/g, '\\$&')}"`;
 
-export function serializeHeaderAttrs(raw: Readonly<Record<string, unknown>>): string {
+export function serializeHeaderAttrs(raw: RawAttrs): string {
     const attrs = normalizeHeaderAttrs(raw);
     const pairs: string[] = [];
     for (const name of ATTR_ORDER) {
         if (!isAttrUsed(name, attrs)) continue;
-        const value = String(attrs[name]);
+        const value = attrs[name];
         if (!value || (name !== HeaderAttr.Fill && value === HeaderDefaults[name])) continue;
         pairs.push(`${name}=${quote(value)}`);
     }
     return pairs.length ? `{${pairs.join(' ')}}` : '';
 }
 
-const TITLE_ENTITIES: Record<string, string> = {
-    '&': '&amp;',
-    '\\': '&#92;',
-    '[': '&#91;',
-    ']': '&#93;',
-    '\r': '&#13;',
-    '\n': '&#10;',
+export function normalizeHeaderTitleSize(raw: RawAttrs = {}): number {
+    return Number(choose(raw.size, HEADER_TITLE_SIZES, '1'));
+}
+
+export type HeaderImageAttrs = {
+    side: HeaderSideValue;
+    fit: HeaderFitValue;
+    focus: HeaderFocusValue;
 };
 
-export function escapeHeaderTitle(value: string): string {
-    return value.replace(/[&\\[\]\r\n]/g, (char) => TITLE_ENTITIES[char]);
+export function normalizeHeaderImageAttrs(raw: RawAttrs = {}): HeaderImageAttrs {
+    return {
+        side: choose(raw.side, Object.values(HeaderSide), HeaderSide.Right),
+        fit: choose(raw.fit, Object.values(HeaderFit), HeaderFit.Crop),
+        focus: choose(raw.focus, Object.values(HeaderFocus), HeaderFocus.Center),
+    };
+}
+
+export type HeaderActionAttrs = {
+    type: HeaderActionTypeValue;
+    color: HeaderActionColorValue;
+};
+
+export function normalizeHeaderActionAttrs(raw: RawAttrs = {}): HeaderActionAttrs {
+    return {
+        type: choose(raw.type, Object.values(HeaderActionType), HeaderActionType.Button),
+        color: choose(raw.color, Object.values(HeaderActionColor), HeaderActionColor.Default),
+    };
 }

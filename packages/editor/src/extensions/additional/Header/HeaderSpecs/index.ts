@@ -7,7 +7,7 @@ import {headerStubSpec} from './schema';
 export * from './attrs';
 export * from './const';
 export * from './decor';
-export {headerHtml, toCssUrl} from './dom';
+export {toCssUrl, toSafeUrl} from './dom';
 export {headerDirective} from './md/header';
 export {headerStubPlugin} from './md/stub';
 

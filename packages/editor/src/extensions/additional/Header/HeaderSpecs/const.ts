@@ -1,14 +1,7 @@
-import {nodeTypeFactory} from 'src/utils/schema';
-
 export const headerNodeName = 'header';
 export const headerDirectiveName = 'header';
 export const headerTokenName = 'header';
-export const headerTitleName = 'header_title';
-export const headerContentName = 'header_content';
-export const headerActionsName = 'header_actions';
 export const headerMarkupAttr = 'markup';
-
-export const headerType = nodeTypeFactory(headerNodeName);
 
 export const HeaderSlot = {
     Title: 'header-title',
@@ -19,27 +12,33 @@ export const HeaderSlot = {
 
 export const headerActionName = 'action';
 
+/** Токены превью, из которых собирается HTML блока. */
+export const HeaderToken = {
+    Text: 'header_text',
+    Title: 'header_title',
+    Body: 'header_body',
+    Actions: 'header_actions',
+    Action: 'header_action',
+    Image: 'header_image',
+} as const;
+
 /** Порядок повторяет порядок сериализации: так таблицу атрибутов проще сверять с разметкой. */
 export const HeaderAttr = {
     Format: 'format',
     Align: 'align',
     Vertical: 'vertical',
     Fixed: 'fixed',
-    Title: 'title',
-    Description: 'description',
     Background: 'bg',
     Fill: 'fill',
     Fill2: 'fill2',
     Direction: 'direction',
     Shapes: 'shapes',
     Scale: 'scale',
-    Effect: 'effect',
     Image: 'image',
-    ImageEnabled: 'image-enabled',
-    ImageName: 'image-name',
     Layer: 'layer',
     Fit: 'fit',
     Focus: 'focus',
+    Effect: 'effect',
     Text: 'text',
 } as const;
 
@@ -59,11 +58,9 @@ export const HeaderBackground = {
     Pattern: 'pattern',
 } as const;
 
-/** Какой слой занимает файл автора: нижний на всю площадь, объект поверх основы, повтор поверх основы. */
+/** Какой слой занимает фоновое изображение: нижний на всю площадь, объект поверх основы, повтор поверх основы. */
 export const HeaderLayer = {
     Full: 'full',
-    Left: 'left',
-    Right: 'right',
     Object: 'object',
     Tile: 'tile',
 } as const;
@@ -146,6 +143,15 @@ export const HeaderFill = {
     Navy: 'navy',
 } as const;
 
+/** Сторона изображения-содержимого относительно текста. */
+export const HeaderSide = {Left: 'left', Right: 'right'} as const;
+
+export const HeaderActionType = {Button: 'button', Link: 'link'} as const;
+export const HeaderActionColor = {Default: 'default', Brand: 'brand'} as const;
+
+export const HEADER_TITLE_SIZES = ['1', '2', '3', '4', '5', '6'] as const;
+export const HEADER_MAX_ACTIONS = 3;
+
 export type HeaderFormatValue = (typeof HeaderFormat)[keyof typeof HeaderFormat];
 export type HeaderBackgroundValue = (typeof HeaderBackground)[keyof typeof HeaderBackground];
 export type HeaderLayerValue = (typeof HeaderLayer)[keyof typeof HeaderLayer];
@@ -157,30 +163,15 @@ export type HeaderScaleValue = (typeof HeaderScale)[keyof typeof HeaderScale];
 export type HeaderEffectValue = (typeof HeaderEffect)[keyof typeof HeaderEffect];
 export type HeaderTextValue = (typeof HeaderText)[keyof typeof HeaderText];
 export type HeaderFillValue = (typeof HeaderFill)[keyof typeof HeaderFill];
+export type HeaderSideValue = (typeof HeaderSide)[keyof typeof HeaderSide];
+export type HeaderActionTypeValue = (typeof HeaderActionType)[keyof typeof HeaderActionType];
+export type HeaderActionColorValue = (typeof HeaderActionColor)[keyof typeof HeaderActionColor];
 
-/** Порядок задаёт и палитру тулбара, и выбор цвета генератором. Синхронно с `$header-fills` в fills.scss. */
-export const HEADER_FILLS: readonly HeaderFillValue[] = [
-    HeaderFill.YellowLight,
-    HeaderFill.RedLight,
-    HeaderFill.PurpleLight,
-    HeaderFill.BlueLight,
-    HeaderFill.GreenLight,
-    HeaderFill.Grey,
-    HeaderFill.Yellow,
-    HeaderFill.Red,
-    HeaderFill.Purple,
-    HeaderFill.Blue,
-    HeaderFill.Green,
-];
-
-/** Полный оборот: угол приводится по модулю, потому что 523° и 163° — один и тот же наклон. */
 export const HeaderDefaults = {
     [HeaderAttr.Format]: HeaderFormat.Medium,
     [HeaderAttr.Align]: 'left',
     [HeaderAttr.Vertical]: 'center',
     [HeaderAttr.Fixed]: 'true',
-    [HeaderAttr.Title]: 'true',
-    [HeaderAttr.Description]: 'true',
     [HeaderAttr.Background]: HeaderBackground.Shapes,
     [HeaderAttr.Fill]: HeaderFill.Blue,
     [HeaderAttr.Fill2]: HeaderFill.Purple,
@@ -189,8 +180,6 @@ export const HeaderDefaults = {
     [HeaderAttr.Scale]: HeaderScale.Medium,
     [HeaderAttr.Effect]: HeaderEffect.None,
     [HeaderAttr.Image]: '',
-    [HeaderAttr.ImageEnabled]: 'true',
-    [HeaderAttr.ImageName]: '',
     [HeaderAttr.Layer]: HeaderLayer.Full,
     [HeaderAttr.Fit]: HeaderFit.Crop,
     [HeaderAttr.Focus]: HeaderFocus.Center,
@@ -202,8 +191,13 @@ export const HeaderClassName = {
     Decor: 'g-md-header__decor',
     Shape: 'g-md-header__shape',
     Content: 'g-md-header__content',
+    Text: 'g-md-header__text',
     Title: 'g-md-header__title',
+    Body: 'g-md-header__body',
     Actions: 'g-md-header__actions',
+    Action: 'g-md-header__action',
+    Media: 'g-md-header__media',
+    Image: 'g-md-header__image',
     Stub: 'g-md-header-stub',
     StubMessage: 'g-md-header-stub__message',
     StubMarkup: 'g-md-header-stub__markup',
