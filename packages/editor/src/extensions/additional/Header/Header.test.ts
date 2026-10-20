@@ -29,7 +29,7 @@ import {
     normalizeHeaderActionAttrs,
     normalizeHeaderAttrs,
     normalizeHeaderImageAttrs,
-    normalizeHeaderTitleSize,
+    normalizeHeaderTitleLevel,
     serializeHeaderAttrs,
 } from './HeaderSpecs';
 
@@ -127,15 +127,13 @@ describe('Header markup stub', () => {
 
     it('should parse a cover into one atomic node with its source markup', () => {
         const markup = [
-            ':::header{fill="blue-light"}',
-            '',
-            '::header-title[Title]',
-            '',
-            ':::header-content',
+            ':::header[Title]{h="2" bg="/cover.png" fill="blue-light"}',
             '',
             'Text',
             '',
-            ':::',
+            '::image[Picture](/picture.png)',
+            '',
+            '::action[Go](/go)',
             '',
             ':::',
         ].join('\n');
@@ -148,42 +146,32 @@ describe('Header markup stub', () => {
         expect(doc.lastChild?.textContent).toBe('After');
     });
 
-    it('should keep slot directives outside a cover as markup', () => {
-        const doc = parser.parse('::action[More](/more)\n\n::header-title[Lost]');
+    it('should keep block directives outside a cover as markup', () => {
+        const doc = parser.parse('::action[More](/more)\n\n::image[Lost](/lost.png)');
 
         expect(doc.childCount).toBe(2);
         expect(doc.firstChild?.attrs.markup).toBe('::action[More](/more)');
-        expect(doc.lastChild?.attrs.markup).toBe('::header-title[Lost]');
+        expect(doc.lastChild?.attrs.markup).toBe('::image[Lost](/lost.png)');
     });
 
     it.each([
-        ['list', '- Item\n\n  :::header\n\n  ::header-title[Title]\n\n  :::\n\n- Next'],
-        ['quote', '> Quote\n>\n> :::header\n>\n> ::header-title[Title]\n>\n> :::'],
+        ['list', '- Item\n\n  :::header[Title]\n\n  Text\n\n  :::\n\n- Next'],
+        ['quote', '> Quote\n>\n> :::header[Title]\n>\n> Text\n>\n> :::'],
     ])('should restore a cover inside a %s', (_name, markup) => {
         expect(serializer.serialize(parser.parse(markup))).toBe(markup);
     });
 });
 
 describe('Header preview', () => {
-    it('should render slots in a fixed order regardless of their order in markup', () => {
+    it('should render parts in a fixed order regardless of their order in the body', () => {
         const html = render(
-            ':::header',
-            '',
-            ':::header-actions',
+            ':::header[Title]',
             '',
             '::action[Go](/go)',
             '',
-            ':::',
-            '',
-            '::header-image[Picture](/picture.png)',
-            '',
-            ':::header-content',
+            '::image[Picture](/picture.png)',
             '',
             'Body',
-            '',
-            ':::',
-            '',
-            '::header-title[Title]',
             '',
             ':::',
         );
@@ -199,55 +187,62 @@ describe('Header preview', () => {
         expect([...order].sort((a, b) => a - b)).toEqual(order);
     });
 
-    it('should render the title as a heading of the given level', () => {
-        expect(render(':::header', '', '::header-title[Title]{size="3"}', '', ':::')).toContain(
-            '<h3 class="g-md-header__title">Title</h3>',
+    it('should keep the order of content blocks around directives', () => {
+        const html = render(
+            ':::header',
+            '',
+            'One',
+            '',
+            '::action[Go](/go)',
+            '',
+            '> Two',
+            '',
+            '::image[Picture](/picture.png)',
+            '',
+            'Three',
+            '',
+            ':::',
         );
-        expect(render(':::header', '', '::header-title[Title]{size="9"}', '', ':::')).toContain(
-            '<h1 class="g-md-header__title">Title</h1>',
+
+        expect(html).toContain(
+            '<div class="g-md-header__body">\n<p>One</p>\n<blockquote>\n<p>Two</p>\n</blockquote>\n<p>Three</p>\n</div>',
         );
     });
 
+    it('should render the title as a heading of the given level', () => {
+        expect(render(':::header[Title]{h="3"}', '', ':::')).toContain(
+            '<h3 class="g-md-header__title">Title</h3>',
+        );
+        expect(render(':::header[Title]{h="9"}', '', ':::')).toContain(
+            '<h1 class="g-md-header__title">Title</h1>',
+        );
+        expect(render(':::header[Title]{h="2"}', '', ':::')).not.toContain('data-h');
+    });
+
     it('should keep the title as plain text', () => {
-        expect(render(':::header', '', '::header-title[**A** &amp; \\[B\\]]', '', ':::')).toContain(
+        expect(render(':::header[**A** &amp; \\[B\\]]', '', ':::')).toContain(
             '>**A** &amp; [B]</h1>',
         );
     });
 
-    it('should keep only the first slot of each name', () => {
+    it('should keep only the first content image', () => {
         const html = render(
             ':::header',
             '',
-            '::header-title[First]',
+            '::image[First](/first.png)',
             '',
-            '::header-title[Second]',
-            '',
-            ':::header-content',
-            '',
-            'One',
-            '',
-            ':::',
-            '',
-            ':::header-content',
-            '',
-            'Two',
-            '',
-            ':::',
+            '::image[Second](/second.png)',
             '',
             ':::',
         );
 
-        expect(html).toContain('First');
+        expect(html).toContain('alt="First"');
         expect(html).not.toContain('Second');
-        expect(html).toContain('One');
-        expect(html).not.toContain('Two');
     });
 
     it('should drop unsupported content blocks and marks', () => {
         const html = render(
             ':::header',
-            '',
-            ':::header-content',
             '',
             '## Heading',
             '',
@@ -267,9 +262,7 @@ describe('Header preview', () => {
             '',
             '---',
             '',
-            ':::',
-            '',
-            'Outside a slot',
+            '> ::action[Nested](/nested)',
             '',
             ':::',
         );
@@ -283,28 +276,14 @@ describe('Header preview', () => {
         expect(html).not.toContain('<table');
         expect(html).not.toContain('<pre');
         expect(html).not.toContain('<hr');
-        expect(html).not.toContain('Outside a slot');
+        expect(html).not.toContain('Nested');
     });
 
     it.each([
         ['bulleted', '- First\n- Second', '> - Nested'],
         ['numbered', '1. First\n2. Second', '> 1. Nested'],
     ])('should drop a %s list', (_name, list, nested) => {
-        const html = render(
-            ':::header',
-            '',
-            ':::header-content',
-            '',
-            'Text',
-            '',
-            list,
-            '',
-            nested,
-            '',
-            ':::',
-            '',
-            ':::',
-        );
+        const html = render(':::header', '', 'Text', '', list, '', nested, '', ':::');
 
         expect(html).toContain('<div class="g-md-header__body">\n<p>Text</p>\n</div>');
         expect(html).not.toMatch(/<(ul|ol|li|blockquote)/);
@@ -314,8 +293,6 @@ describe('Header preview', () => {
     it('should keep at most three actions', () => {
         const html = render(
             ':::header',
-            '',
-            ':::header-actions',
             '',
             '::action[One](/1){type="link" color="green"}',
             '',
@@ -328,8 +305,6 @@ describe('Header preview', () => {
             '::action[Four](/4)',
             '',
             ':::',
-            '',
-            ':::',
         );
 
         expect(html.match(/class="g-md-header__action"/g)).toHaveLength(3);
@@ -337,18 +312,19 @@ describe('Header preview', () => {
             '<a class="g-md-header__action" href="/1" data-type="link" data-color="green">One</a>',
         );
         expect(html).not.toContain('Four');
-        expect(html).not.toContain('Text between actions');
+        expect(html).toContain('<p>Text between actions</p>');
     });
 
     it('should render a background image and a content image together', () => {
         const html = render(
-            ':::header{bg="image" image="/background.png" decor="darken"}',
+            ':::header{bg="/background.png" decor="darken"}',
             '',
-            '::header-image[Picture](/picture.png){side="left" fit="whole" focus="top"}',
+            '::image[Picture](/picture.png){side="left" fit="whole" focus="top"}',
             '',
             ':::',
         );
 
+        expect(html).toContain('data-bg="image"');
         expect(html).toContain('data-image="/background.png"');
         expect(html).toContain('style="--g-md-header-image:url(&quot;/background.png&quot;)"');
         expect(html).toContain(
@@ -356,11 +332,21 @@ describe('Header preview', () => {
         );
     });
 
+    it('should treat bg="fill" as the fill and any other value as an image address', () => {
+        const fill = render(':::header{bg="fill"}', '', ':::');
+        const misspelled = render(':::header{bg="fil"}', '', ':::');
+
+        expect(fill).toContain('data-bg="fill"');
+        expect(fill).not.toContain('data-image');
+        expect(misspelled).toContain('data-bg="image"');
+        expect(misspelled).toContain('data-image="fil"');
+    });
+
     it('should replace unknown values and drop unknown parameters', () => {
         const html = render(
-            ':::header{format="huge" bg="rainbow" fill="indigo" decor="effect" layer="left" effect="fade"}',
+            ':::header{format="huge" fill="indigo" decor="effect" layer="left" image="/image.png"}',
             '',
-            '::header-image[Picture](/picture.png){side="top"}',
+            '::image[Picture](/picture.png){side="top"}',
             '',
             ':::',
         );
@@ -369,25 +355,17 @@ describe('Header preview', () => {
         expect(html).toContain('data-bg="fill"');
         expect(html).toContain('data-fill="system"');
         expect(html).toContain('data-decor="none"');
-        expect(html).not.toMatch(/data-(layer|effect)/);
+        expect(html).not.toMatch(/data-(layer|image)/);
         expect(html).toContain('data-side="right"');
     });
 
-    it('should not render slot directives outside a cover', () => {
+    it('should not render block directives outside a cover', () => {
         const html = render(
             'Before',
             '',
-            '::header-title[Title]',
-            '',
-            '::header-image[Picture](/picture.png)',
+            '::image[Picture](/picture.png)',
             '',
             '::action[Go](/go)',
-            '',
-            ':::header-content',
-            '',
-            'Content',
-            '',
-            ':::',
             '',
             'After',
         );
@@ -395,24 +373,8 @@ describe('Header preview', () => {
         expect(html).toBe('<p>Before</p>\n<p>After</p>\n');
     });
 
-    it('should omit empty slots', () => {
-        const html = render(
-            ':::header',
-            '',
-            '::header-title[]',
-            '',
-            ':::header-content',
-            '',
-            ':::',
-            '',
-            ':::header-actions',
-            '',
-            ':::',
-            '',
-            '::header-image[Picture]()',
-            '',
-            ':::',
-        );
+    it('should omit empty parts', () => {
+        const html = render(':::header[]', '', '::image[Picture]()', '', ':::');
 
         expect(html).toContain('<div class="g-md-header__text"></div>');
         expect(html).not.toMatch(/g-md-header__(title|body|actions|media)/);
@@ -421,15 +383,11 @@ describe('Header preview', () => {
     it('should reject unsafe addresses', () => {
         const unsafe = ['java', 'script:alert(1)'].join('');
         const html = render(
-            `:::header{bg="image" image="${unsafe}"}`,
+            `:::header{bg="${unsafe}"}`,
             '',
-            `::header-image[Picture](${unsafe})`,
-            '',
-            ':::header-actions',
+            `::image[Picture](${unsafe})`,
             '',
             `::action[Go](${unsafe})`,
-            '',
-            ':::',
             '',
             ':::',
         );
@@ -464,7 +422,6 @@ describe('Header parameters', () => {
     });
 
     it.each([
-        ['bg', ['surface', 'shapes', 'gradient', 'mesh', 'pattern']],
         ['fill', ['indigo', 'violet', 'teal', 'sky', 'light-blue', 'amber', 'sand', 'navy']],
         ['fill2', ['system', 'sky']],
         ['text', ['auto', 'light', 'dark', 'primary', 'brand', 'blue-light', 'yellow-light']],
@@ -472,9 +429,9 @@ describe('Header parameters', () => {
         ['decor', ['fade', 'blobs', 'pattern']],
     ])('should replace removed values of %s with the default', (attr, removed) => {
         const key = attr as keyof HeaderAttrs;
-        const defaults = normalizeHeaderAttrs({image: '/a.png'});
+        const defaults = normalizeHeaderAttrs({bg: '/a.png'});
         for (const value of removed) {
-            expect(normalizeHeaderAttrs({image: '/a.png', [key]: value})[key]).toBe(defaults[key]);
+            expect(normalizeHeaderAttrs({bg: '/a.png', [key]: value})[key]).toBe(defaults[key]);
         }
     });
 
@@ -506,11 +463,24 @@ describe('Header parameters', () => {
         }
     });
 
-    it('should fall back to the fill when the image address is empty', () => {
-        expect(normalizeHeaderAttrs({bg: 'image'}).bg).toBe('fill');
-        expect(normalizeHeaderAttrs({bg: 'image', image: ' '}).bg).toBe('fill');
-        expect(normalizeHeaderAttrs({bg: 'image', image: '/a.png'}).bg).toBe('image');
+    it('should read a background image address from bg', () => {
+        expect(normalizeHeaderAttrs({bg: ' /cover.png '})).toMatchObject({
+            bg: 'image',
+            image: '/cover.png',
+        });
+        expect(normalizeHeaderAttrs({bg: 'fill', image: '/cover.png'})).toMatchObject({
+            bg: 'fill',
+            image: '',
+        });
+        expect(normalizeHeaderAttrs({bg: ' '})).toMatchObject({bg: 'fill', image: ''});
     });
+
+    it.each(['surface', 'shapes', 'gradient', 'mesh', 'pattern', 'image'])(
+        'should read the removed background name bg="%s" as an image address',
+        (bg) => {
+            expect(normalizeHeaderAttrs({bg})).toMatchObject({bg: 'image', image: bg});
+        },
+    );
 
     it('should serialize only applicable parameters with non-default values', () => {
         expect(
@@ -527,29 +497,27 @@ describe('Header parameters', () => {
         ).toBe('{fill="blue-light" text="blue"}');
         expect(
             serializeHeaderAttrs({
-                bg: 'image',
-                image: ' /photo.jpg ',
+                bg: ' /photo.jpg ',
                 layout: 'object',
                 fit: 'whole',
                 focus: 'top',
             }),
-        ).toBe('{bg="image" image="/photo.jpg" layout="object" fit="whole" focus="top"}');
+        ).toBe('{bg="/photo.jpg" layout="object" fit="whole" focus="top"}');
         expect(
             serializeHeaderAttrs({
-                bg: 'image',
-                image: '/a.png',
+                bg: '/a.png',
                 fill2: 'red',
                 decor: 'gradient',
                 direction: 'down',
                 shape: 'corner',
             }),
-        ).toBe('{bg="image" image="/a.png" fill2="red" decor="gradient" direction="down"}');
+        ).toBe('{bg="/a.png" fill2="red" decor="gradient" direction="down"}');
         expect(serializeHeaderAttrs({decor: 'mesh', shape: 'edges', direction: 'down'})).toBe(
             '{decor="mesh" shape="edges"}',
         );
     });
 
-    it('should print the geometry parameters in model order', () => {
+    it('should print the title level first and the geometry parameters in model order', () => {
         expect(
             serializeHeaderAttrs({
                 border: 'dashed',
@@ -558,26 +526,34 @@ describe('Header parameters', () => {
                 fixed: 'false',
                 edges: 'bleed',
                 format: 'large',
+                h: '3',
             }),
         ).toBe(
-            '{format="large" edges="bleed" fixed="false" align="right" vertical="top" border="dashed"}',
+            '{h="3" format="large" edges="bleed" fixed="false" align="right" vertical="top" border="dashed"}',
         );
     });
 
     it('should print nothing for a block with default parameters', () => {
         expect(serializeHeaderAttrs({})).toBe('');
-        expect(serializeHeaderAttrs({fill: 'system', text: 'system', decor: 'none'})).toBe('');
+        expect(
+            serializeHeaderAttrs({
+                h: '1',
+                bg: 'fill',
+                fill: 'system',
+                text: 'system',
+                decor: 'none',
+            }),
+        ).toBe('');
     });
 
     it('should escape quotes in values', () => {
-        expect(serializeHeaderAttrs({bg: 'image', image: '/a"b.png'})).toBe(
-            '{bg="image" image="/a\\"b.png"}',
-        );
+        expect(serializeHeaderAttrs({bg: '/a"b.png'})).toBe('{bg="/a\\"b.png"}');
     });
 
-    it('should normalize slot parameters', () => {
-        expect(normalizeHeaderTitleSize({size: '6'})).toBe(6);
-        expect(normalizeHeaderTitleSize({size: '0'})).toBe(1);
+    it('should normalize the title level and directive parameters', () => {
+        expect(normalizeHeaderTitleLevel({h: '6'})).toBe(6);
+        expect(normalizeHeaderTitleLevel({h: '0'})).toBe(1);
+        expect(normalizeHeaderTitleLevel({size: '3'})).toBe(1);
         expect(normalizeHeaderImageAttrs({side: 'left', fit: 'cover', focus: 'top-left'})).toEqual({
             side: 'left',
             fit: 'crop',
