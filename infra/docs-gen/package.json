@@ -17,6 +17,7 @@
     "build": "node src/generate-docs.mjs && yfm -i ../../tmp/docs-src -o ../../dist/docs",
     "generate:extensions": "node src/generate-extension-pages.mjs",
     "extract:metadata": "node src/extract-extension-metadata.mjs",
+    "render:extensions": "pnpm run extract:metadata && node src/render-extension-pages.mjs",
     "test": "vitest run src/*.test.mjs"
   },
   "dependencies": {
