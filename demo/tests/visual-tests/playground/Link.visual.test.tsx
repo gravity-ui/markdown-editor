@@ -33,6 +33,35 @@ test.describe('Link', () => {
         await expect(page.locator('.g-md-link-tooltip-view')).toBeHidden();
     });
 
+    test('should save a link with a trailing line break and spaces @wysiwyg', async ({
+        editor,
+        actions,
+        page,
+    }) => {
+        await editor.fill('before word');
+        await editor.press('ControlOrMeta+End');
+        await editor.press('Shift+Enter');
+        await editor.pressSequentially('   after');
+        await actions.pressFocused('ArrowLeft', 'after'.length);
+        await actions.pressFocused('Shift+ArrowLeft', 'word'.length + 1 + 3);
+        await expect(page.locator('.playground__pm-selection')).toHaveText(
+            /TextSelection\s*From: 8\s*To: 16/,
+        );
+        await actions.pressFocused('ControlOrMeta+k');
+
+        await expect(page.locator('.g-md-link-tooltip-view')).toBeVisible();
+        await page.locator('.g-md-link-tooltip-view input').fill('https://example.com');
+        await actions.pressFocused('Enter');
+
+        const link = editor.getBySelectorInContenteditable('a').filter({hasText: 'word'});
+        await expect(link).toHaveText('word');
+        await expect(link).toHaveAttribute('href', 'https://example.com');
+        await editor.switchMode('markup');
+        await expect(
+            editor.getByTextInContenteditable('[word](https://example.com)'),
+        ).toBeVisible();
+    });
+
     test('should cancel a single-character link without leaving an empty link @wysiwyg', async ({
         editor,
         actions,
