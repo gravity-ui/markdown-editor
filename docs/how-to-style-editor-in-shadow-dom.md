@@ -44,7 +44,66 @@ The YFM theme selectors are built as `.g-root_theme_* .yfm`, so the editor needs
 </ThemeProvider>
 ```
 
+### Render popups inside the shadow root
+
+UIKit `Portal` picks its container in this order: an explicit `container` prop, then the container from `PortalProvider`, then `document.body`. In `document.body` a popup is outside the shadow root, and the editor CSS does not reach it. The editor renders `Portal` without a container in the YFM table controls: `FloatingPopup` holds the table menus and insert buttons, `InsertCursor` draws the insert line. UIKit popups of the toolbar take the container the same way.
+
+Put a `<div>` inside the shadow root, outside the scrollable area of the editor, and pass a ref to it to `PortalProvider`. The full integration:
+
+```tsx
+import {useEffect, useRef, useState} from 'react';
+
+import {MarkdownEditorView, useMarkdownEditor} from '@gravity-ui/markdown-editor';
+import {createStyleSheet} from '@gravity-ui/markdown-editor/shadow-styles';
+import {PortalProvider, ThemeProvider} from '@gravity-ui/uikit';
+import {createPortal} from 'react-dom';
+
+const editorStyleSheet = createStyleSheet();
+
+export function ShadowEditor({markup}: {markup: string}) {
+    const hostRef = useRef<HTMLDivElement>(null);
+    const portalContainerRef = useRef<HTMLDivElement>(null);
+    const [shadowRoot, setShadowRoot] = useState<ShadowRoot | null>(null);
+    const editor = useMarkdownEditor({initial: {markup, mode: 'wysiwyg'}});
+
+    useEffect(() => {
+        const host = hostRef.current;
+        if (!host) return;
+        const root = host.shadowRoot ?? host.attachShadow({mode: 'open'});
+        root.adoptedStyleSheets = [editorStyleSheet];
+        setShadowRoot(root);
+    }, []);
+
+    return (
+        <div ref={hostRef}>
+            {shadowRoot &&
+                createPortal(
+                    <ThemeProvider theme="light" scoped>
+                        <PortalProvider container={portalContainerRef}>
+                            <div style={{height: 400, overflow: 'auto'}}>
+                                <MarkdownEditorView editor={editor} stickyToolbar />
+                            </div>
+                            <div ref={portalContainerRef} />
+                        </PortalProvider>
+                    </ThemeProvider>,
+                    shadowRoot,
+                )}
+        </div>
+    );
+}
+```
+
+`PortalProvider` does not control the following:
+
+- elements that code appends to `document.body` directly, such as the drag preview of table rows and columns;
+- separate React roots, which do not receive the provider context;
+- portals with an explicit `container`.
+
 ### What `cssText` leaves out
 
 - **`@gravity-ui/uikit` styles.** Attach `@gravity-ui/uikit/styles/styles.css` to the shadow root the same way, in the version the application uses.
 - **LaTeX CSS.** `@diplodoc/latex-extension/runtime/styles` is loaded on demand by the extension; attach it separately where LaTeX is enabled.
+
+### Scope of the export
+
+The subpath provides CSS only; it does not confirm that every editor feature works inside a shadow root.
