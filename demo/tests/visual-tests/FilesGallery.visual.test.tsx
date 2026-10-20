@@ -13,14 +13,6 @@ test.describe('MarkdownViewer files gallery', () => {
         await mount(<ViewerStories.FilesGallery />, {width: 700});
     });
 
-    test('should show a pointer over gallery images', async ({page}) => {
-        const image = page.getByRole('img', {name: 'Minion', exact: true});
-
-        await image.hover();
-
-        await expect(image).toHaveCSS('cursor', 'pointer');
-    });
-
     test('should open a file with Enter and restore focus after Escape', async ({page}) => {
         const file = page
             .getByTestId('demo-markdown-viewer')
@@ -47,6 +39,35 @@ test.describe('MarkdownViewer files gallery resources', () => {
                 contentType: 'image/svg+xml',
                 body: '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="blue"/></svg>',
             }),
+        );
+    });
+
+    test('should show a pointer over viewer images without overriding slot cursors', async ({
+        mount,
+        page,
+    }) => {
+        await mount(
+            <div data-markdown-viewer-slot="">
+                <ViewerStories.FilesGallery
+                    documents={[
+                        {
+                            label: 'Slot images',
+                            source: '<img src="/gallery-small.svg" alt="Content"><span data-markdown-viewer-slot><img src="/gallery-small.svg" alt="Slot"></span>',
+                        },
+                    ]}
+                />
+            </div>,
+        );
+        await page.addStyleTag({content: '[data-markdown-viewer-slot] { cursor: help; }'});
+
+        const viewer = page.getByTestId('demo-markdown-viewer');
+        await expect(viewer.getByRole('img', {name: 'Content', exact: true})).toHaveCSS(
+            'cursor',
+            'pointer',
+        );
+        await expect(viewer.getByRole('img', {name: 'Slot', exact: true})).toHaveCSS(
+            'cursor',
+            'help',
         );
     });
 
