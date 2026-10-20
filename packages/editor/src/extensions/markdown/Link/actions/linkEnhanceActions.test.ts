@@ -119,6 +119,22 @@ describe('addEmptyLink', () => {
         ]);
     });
 
+    it('should anchor text before a trailing line break and spaces', () => {
+        const document = doc(p('before <from>word', br(), '   <to>after'));
+        let state = EditorState.create({
+            schema,
+            doc: document,
+            selection: TextSelection.create(document, document.tag.from, document.tag.to),
+        });
+
+        expect(
+            addEmptyLink(state, (tr) => {
+                state = state.apply(tr);
+            }),
+        ).toBe(true);
+        expect(decorations(state)).toEqual([expect.objectContaining({from: 8, to: 12})]);
+    });
+
     it('should anchor a new single-character link next to an existing link', () => {
         const document = doc(p(link('existing'), '<from>a<to> after'));
         let state = EditorState.create({

@@ -42,8 +42,10 @@ export const addEmptyLink: Command = (state, dispatch) => {
             tr.setMeta(imageRendererKey, meta);
         }
     } else {
-        // Preserve inline objects so whitespace before them is not counted as trailing.
-        const selectedText = state.doc.textBetween($from.pos, $to.pos, '', '\uFFFC');
+        // Keep leaf offsets intact while treating trailing line breaks as whitespace.
+        const selectedText = state.doc.textBetween($from.pos, $to.pos, '', (node) =>
+            node.type.spec.isBreak ? '\n' : '\uFFFC',
+        );
         const countOfWhitespacesAtEnd = selectedText.length - selectedText.trimEnd().length;
         tr.setSelection(TextSelection.create(tr.doc, $to.pos - countOfWhitespacesAtEnd - 1));
     }
