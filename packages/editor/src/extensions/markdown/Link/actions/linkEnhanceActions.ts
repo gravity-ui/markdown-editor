@@ -60,22 +60,10 @@ export const linkActionSpec2 = (deps: ExtensionDeps): ActionSpec => ({
     run: addLinkCmd2(deps),
 });
 
-function isWhitespaceOnlySelection(selection: TextSelection): boolean {
-    const {from, to, $from} = selection;
-    let whitespaceOnly = true;
-
-    $from.doc.nodesBetween(from, to, (node, pos) => {
-        if (!whitespaceOnly) return false;
-        if (node.isText) {
-            const text = node.textContent.slice(Math.max(0, from - pos), to - pos);
-            if (text.trim()) whitespaceOnly = false;
-        } else if (node.isInline) {
-            // Inline objects have content even when textBetween() returns an empty string.
-            if (!node.type.spec.isBreak) whitespaceOnly = false;
-            return false;
-        }
-        return undefined;
-    });
-
-    return whitespaceOnly;
+function isWhitespaceOnlySelection({from, to, $from}: TextSelection): boolean {
+    // Inline objects count as content; line breaks do not.
+    const text = $from.doc.textBetween(from, to, '', (node) =>
+        node.type.spec.isBreak ? '' : '\uFFFC',
+    );
+    return !text.trim();
 }
