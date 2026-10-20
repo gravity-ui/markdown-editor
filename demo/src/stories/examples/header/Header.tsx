@@ -1,4 +1,4 @@
-import {memo} from 'react';
+import {type MouseEvent, memo} from 'react';
 
 import transform from '@diplodoc/transform';
 import {type ExtensionAuto, colorClassName} from '@gravity-ui/markdown-editor';
@@ -27,15 +27,18 @@ const render = (markup: string) =>
 
 const catalogue = Object.entries(examples).map(([group, items]) => ({
     group,
+    id: `header-catalogue-${group.toLowerCase().replace(/\s+/g, '-')}`,
     items: Object.entries(items).map(([name, markup]) => ({name, markup, html: render(markup)})),
 }));
 
 type HeaderGroupProps = {group: (typeof catalogue)[number]};
 
-const HeaderGroup = memo(function HeaderGroup({group: {group, items}}: HeaderGroupProps) {
+const HeaderGroup = memo(function HeaderGroup({group: {group, id, items}}: HeaderGroupProps) {
     return (
         <section>
-            <h2 className={b('group')}>{group}</h2>
+            <h2 id={id} className={b('group')}>
+                {group}
+            </h2>
             {items.map(({name, markup, html}) => (
                 <article key={name} className={b('example')}>
                     <h3 className={b('name')}>{name}</h3>
@@ -49,6 +52,29 @@ const HeaderGroup = memo(function HeaderGroup({group: {group, items}}: HeaderGro
     );
 });
 
+// В Storybook история живёт в своём документе, поэтому переход по `href` дублируется прокруткой.
+const scrollToGroup = (event: MouseEvent<HTMLAnchorElement>) => {
+    const {hash} = event.currentTarget;
+    const target = event.currentTarget.closest(`.${b()}`)?.querySelector(hash);
+    if (!target) return;
+
+    event.preventDefault();
+    target.scrollIntoView({behavior: 'smooth', block: 'start'});
+    history.replaceState(null, '', hash);
+};
+
+const HeaderNav = memo(function HeaderNav() {
+    return (
+        <nav className={b('nav')}>
+            {catalogue.map(({group, id}) => (
+                <a key={id} className={b('nav-link')} href={`#${id}`} onClick={scrollToGroup}>
+                    {group}
+                </a>
+            ))}
+        </nav>
+    );
+});
+
 type HeaderCatalogueProps = {
     /** Имя группы. Без него показываются все группы подряд. */
     group?: string;
@@ -57,6 +83,7 @@ type HeaderCatalogueProps = {
 export const HeaderCatalogue = memo(function HeaderCatalogue({group}: HeaderCatalogueProps) {
     return (
         <div className={b()}>
+            {!group && <HeaderNav />}
             {catalogue
                 .filter((item) => !group || item.group === group)
                 .map((item) => (

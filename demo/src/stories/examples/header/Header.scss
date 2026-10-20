@@ -5,7 +5,25 @@
 
     padding: var(--g-spacing-6);
 
+    &__nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--g-spacing-1) var(--g-spacing-4);
+    }
+
+    &__nav-link {
+        text-decoration: none;
+
+        color: var(--g-color-text-link);
+
+        &:hover {
+            color: var(--g-color-text-link-hover);
+        }
+    }
+
     &__group {
+        scroll-margin-top: var(--g-spacing-4);
+
         margin: var(--g-spacing-6) 0 var(--g-spacing-2);
 
         font-size: var(--g-text-header-1-font-size);
