@@ -1,6 +1,7 @@
 import {useMemo, useState} from 'react';
 
 import {transform as latex} from '@diplodoc/latex-extension';
+import {transform as mermaid} from '@diplodoc/mermaid-extension';
 import {transform as pageConstructor} from '@diplodoc/page-constructor-extension/plugin/csr';
 import transform from '@diplodoc/transform';
 import defaultPlugins from '@diplodoc/transform/lib/plugins';
@@ -16,10 +17,12 @@ import {Button, Flex, SegmentedRadioGroup, Text, sp} from '@gravity-ui/uikit';
 import {cn} from './cn';
 import {documents as defaultDocuments, galleryCustomFile} from './content';
 import {DiplodocLatex} from './extensions/DiplodocLatex';
+import {DiplodocMermaid} from './extensions/DiplodocMermaid';
 import {DiplodocPageConstructor} from './extensions/DiplodocPageConstructor';
 import {Feedback} from './extensions/Feedback';
 import {PreserveCutState} from './extensions/PreserveCutState';
 import {TargetHelp} from './extensions/TargetHelp';
+import type {DiplodocMermaidOptions} from './extensions/types';
 
 import './MarkdownViewerDemo.scss';
 import '@diplodoc/transform/dist/css/yfm.css';
@@ -28,16 +31,19 @@ const plugins = [
     ...defaultPlugins,
     latex({bundle: false, validate: false}),
     pageConstructor({bundle: false}),
+    mermaid({bundle: false}),
 ];
 
 interface MarkdownViewerDemoProps {
     documents?: readonly {label: string; source: string}[];
     showFeedbackToggle?: boolean;
+    mermaidOptions?: DiplodocMermaidOptions;
 }
 
 export function MarkdownViewerDemo({
     documents = defaultDocuments,
     showFeedbackToggle = true,
+    mermaidOptions,
 }: MarkdownViewerDemoProps) {
     const [documentIndex, setDocumentIndex] = useState(0);
     const [showFeedback, setShowFeedback] = useState(true);
@@ -92,6 +98,7 @@ export function MarkdownViewerDemo({
                     <YfmCodeBlockActions />
                     <DiplodocLatex meta={result.meta} />
                     <DiplodocPageConstructor meta={result.meta} />
+                    <DiplodocMermaid meta={result.meta} options={mermaidOptions} />
                     <FilesGallery
                         getCopyUrl={getGalleryUrl}
                         getDownloadUrl={getGalleryUrl}
