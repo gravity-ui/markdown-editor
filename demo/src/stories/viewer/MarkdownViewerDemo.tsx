@@ -1,5 +1,6 @@
 import {useMemo, useState} from 'react';
 
+import {buildYfmHtmlBlockOptions, transform as htmlBlock} from '@diplodoc/html-extension';
 import {transform as latex} from '@diplodoc/latex-extension';
 import {transform as mermaid} from '@diplodoc/mermaid-extension';
 import {transform as pageConstructor} from '@diplodoc/page-constructor-extension/plugin/csr';
@@ -14,8 +15,11 @@ import {
 } from '@gravity-ui/markdown-viewer/extensions';
 import {Button, Flex, SegmentedRadioGroup, Text, sp} from '@gravity-ui/uikit';
 
+import useYfmHtmlBlockStyles from '../../hooks/useYfmHtmlBlockStyles';
+
 import {cn} from './cn';
 import {documents as defaultDocuments, galleryCustomFile} from './content';
+import {DiplodocHtml} from './extensions/DiplodocHtml';
 import {DiplodocLatex} from './extensions/DiplodocLatex';
 import {DiplodocMermaid} from './extensions/DiplodocMermaid';
 import {DiplodocPageConstructor} from './extensions/DiplodocPageConstructor';
@@ -32,7 +36,10 @@ const plugins = [
     latex({bundle: false, validate: false}),
     pageConstructor({bundle: false}),
     mermaid({bundle: false}),
+    htmlBlock({bundle: false}),
 ];
+// Keep the iframe content created by HTML blocks after the outer sanitizer runs.
+const sanitizeOptions = buildYfmHtmlBlockOptions({allowedAttributes: {iframe: ['srcdoc']}});
 
 interface MarkdownViewerDemoProps {
     documents?: readonly {label: string; source: string}[];
@@ -47,9 +54,16 @@ export function MarkdownViewerDemo({
 }: MarkdownViewerDemoProps) {
     const [documentIndex, setDocumentIndex] = useState(0);
     const [showFeedback, setShowFeedback] = useState(true);
+    const htmlBlockConfig = useYfmHtmlBlockStyles();
     const document = documents[documentIndex];
     const result = useMemo(
-        () => transform(document.source, {allowHTML: true, codeLineWrapping: true, plugins}).result,
+        () =>
+            transform(document.source, {
+                allowHTML: true,
+                codeLineWrapping: true,
+                plugins,
+                sanitizeOptions,
+            }).result,
         [document.source],
     );
 
@@ -99,6 +113,7 @@ export function MarkdownViewerDemo({
                     <DiplodocLatex meta={result.meta} />
                     <DiplodocPageConstructor meta={result.meta} />
                     <DiplodocMermaid meta={result.meta} options={mermaidOptions} />
+                    <DiplodocHtml meta={result.meta} config={htmlBlockConfig} />
                     <FilesGallery
                         getCopyUrl={getGalleryUrl}
                         getDownloadUrl={getGalleryUrl}
