@@ -40,7 +40,6 @@ export const HeaderAttr = {
     Decor: 'decor',
     Direction: 'direction',
     Shape: 'shape',
-    Scale: 'scale',
     Text: 'text',
 } as const;
 
@@ -58,8 +57,8 @@ export const HeaderBorder = {
 /** Фон: заливка `fill` или фоновое изображение из `image`. */
 export const HeaderBackground = {Fill: 'fill', Image: 'image'} as const;
 
-/** Раскладка фонового изображения: на всю площадь, объектом внутри отступов, повтором. */
-export const HeaderLayout = {Cover: 'cover', Object: 'object', Tile: 'tile'} as const;
+/** Раскладка фонового изображения: на всю площадь или объектом внутри отступов. */
+export const HeaderLayout = {Cover: 'cover', Object: 'object'} as const;
 
 /** Масштаб кадра. */
 export const HeaderFit = {Crop: 'crop', Whole: 'whole'} as const;
@@ -86,7 +85,6 @@ export const HeaderDecor = {
     Gradient: 'gradient',
     Mesh: 'mesh',
     Shapes: 'shapes',
-    Pattern: 'pattern',
 } as const;
 
 export const HeaderDirection = {Diagonal: 'diagonal', Right: 'right', Down: 'down'} as const;
@@ -99,8 +97,6 @@ export const HeaderShape = {
     Bottom: 'bottom',
     Scatter: 'scatter',
 } as const;
-
-export const HeaderScale = {Small: 'small', Medium: 'medium', Large: 'large'} as const;
 
 /** Значение без цвета: цвет приходит из темы. */
 export const HEADER_SYSTEM_COLOR = 'system';
@@ -167,7 +163,6 @@ export const HeaderDefaults = {
     [HeaderAttr.Decor]: HeaderDecor.None,
     [HeaderAttr.Direction]: HeaderDirection.Diagonal,
     [HeaderAttr.Shape]: HeaderShape.Diagonal,
-    [HeaderAttr.Scale]: HeaderScale.Medium,
     [HeaderAttr.Text]: HeaderText.System,
 } as const;
 

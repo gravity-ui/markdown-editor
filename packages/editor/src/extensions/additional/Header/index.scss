@@ -22,12 +22,6 @@ $title: (
     'h6': 'body-2',
 );
 
-$scale: (
-    'small': 24px,
-    'medium': 48px,
-    'large': 96px,
-);
-
 $directions: (
     'diagonal': 135deg,
     'right': 90deg,
@@ -43,18 +37,14 @@ $directions: (
     --g-md-header-text: initial;
     --g-md-header-line: var(--g-color-line-generic);
     --g-md-header-shape: color-mix(in sRGB, var(--g-color-text-primary) 90%, transparent);
-    --g-md-header-dot: color-mix(in sRGB, var(--g-color-text-primary) 19%, transparent);
     --g-md-header-image: none;
     --g-md-header-image-inset: 0px;
     --g-md-header-image-size: cover;
     --g-md-header-image-position: center;
-    --g-md-header-image-repeat: no-repeat;
     --g-md-header-filter: none;
     --g-md-header-angle: 135deg;
     --g-md-header-decor: none;
-    --g-md-header-decor-size: auto;
     --g-md-header-decor-opacity: 1;
-    --g-md-header-step: 48px;
     --g-md-header-min-height: 280px;
     --g-md-header-padding: var(--g-spacing-8);
     --g-md-header-justify: flex-start;
@@ -91,12 +81,6 @@ $directions: (
         }
     }
 
-    @each $name, $value in $scale {
-        &[data-scale='#{$name}'] {
-            --g-md-header-step: #{$value};
-        }
-    }
-
     @each $name, $value in $focus {
         &[data-focus='#{$name}'] {
             --g-md-header-image-position: #{$value};
@@ -122,7 +106,7 @@ $directions: (
         inset: var(--g-md-header-image-inset);
 
         background-image: var(--g-md-header-image);
-        background-repeat: var(--g-md-header-image-repeat);
+        background-repeat: no-repeat;
         background-position: var(--g-md-header-image-position);
         background-size: var(--g-md-header-image-size);
         filter: var(--g-md-header-filter);
@@ -134,7 +118,6 @@ $directions: (
 
         opacity: var(--g-md-header-decor-opacity);
         background-image: var(--g-md-header-decor);
-        background-size: var(--g-md-header-decor-size);
     }
 
     &[data-format='small'] {
@@ -195,12 +178,6 @@ $directions: (
         --g-md-header-image-size: contain;
     }
 
-    &[data-layout='tile'] {
-        --g-md-header-image-size: var(--g-md-header-step);
-        --g-md-header-image-repeat: repeat;
-        --g-md-header-image-position: left top;
-    }
-
     &[data-decor='darken'] {
         --g-md-header-decor: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35));
     }
@@ -228,11 +205,6 @@ $directions: (
         &[data-bg='image'] {
             --g-md-header-decor-opacity: 0.75;
         }
-    }
-
-    &[data-decor='pattern'] {
-        --g-md-header-decor: radial-gradient(circle, var(--g-md-header-dot) 3px, transparent 3px);
-        --g-md-header-decor-size: var(--g-md-header-step) var(--g-md-header-step);
     }
 }
 

@@ -20,7 +20,6 @@ import {
     HeaderFormat,
     HeaderLayout,
     HeaderPalette,
-    HeaderScale,
     HeaderShape,
     HeaderSide,
     HeaderSpecs,
@@ -89,7 +88,6 @@ describe('Header examples', () => {
         ...values('decor', HeaderDecor),
         ...values('direction', HeaderDirection),
         ...values('shape', HeaderShape),
-        ...values('scale', HeaderScale),
         ...values('text', HeaderText),
         ...values('side', HeaderSide),
         ...values('type', {Button: 'button', Link: 'link'}),
@@ -456,7 +454,6 @@ describe('Header parameters', () => {
             decor: 'none',
             direction: 'diagonal',
             shape: 'diagonal',
-            scale: 'medium',
             text: 'system',
         });
     });
@@ -466,14 +463,19 @@ describe('Header parameters', () => {
         ['fill', ['indigo', 'violet', 'teal', 'sky', 'light-blue', 'amber', 'sand', 'navy']],
         ['fill2', ['system', 'sky']],
         ['text', ['auto', 'light', 'dark', 'primary', 'brand', 'blue-light', 'yellow-light']],
-        ['layout', ['full', 'left', 'right']],
-        ['decor', ['fade', 'blobs']],
+        ['layout', ['full', 'left', 'right', 'tile']],
+        ['decor', ['fade', 'blobs', 'pattern']],
     ])('should replace removed values of %s with the default', (attr, removed) => {
         const key = attr as keyof HeaderAttrs;
         const defaults = normalizeHeaderAttrs({image: '/a.png'});
         for (const value of removed) {
             expect(normalizeHeaderAttrs({image: '/a.png', [key]: value})[key]).toBe(defaults[key]);
         }
+    });
+
+    it('should drop the removed scale parameter', () => {
+        expect(normalizeHeaderAttrs({scale: 'large'})).not.toHaveProperty('scale');
+        expect(serializeHeaderAttrs({fill: 'blue', scale: 'large'})).toBe('{fill="blue"}');
     });
 
     it('should accept every color of the table cell palette', () => {
@@ -511,10 +513,9 @@ describe('Header parameters', () => {
                 fill: 'blue-light',
                 fill2: 'red',
                 image: '/a.png',
-                layout: 'tile',
+                layout: 'object',
                 direction: 'down',
                 shape: 'corner',
-                scale: 'large',
                 fit: 'whole',
                 text: 'blue',
             }),
@@ -522,13 +523,12 @@ describe('Header parameters', () => {
         expect(
             serializeHeaderAttrs({
                 bg: 'image',
-                image: ' /tile.png ',
-                layout: 'tile',
-                scale: 'large',
+                image: ' /photo.jpg ',
+                layout: 'object',
                 fit: 'whole',
                 focus: 'top',
             }),
-        ).toBe('{bg="image" image="/tile.png" layout="tile" scale="large"}');
+        ).toBe('{bg="image" image="/photo.jpg" layout="object" fit="whole" focus="top"}');
         expect(
             serializeHeaderAttrs({
                 bg: 'image',
@@ -539,11 +539,8 @@ describe('Header parameters', () => {
                 shape: 'corner',
             }),
         ).toBe('{bg="image" image="/a.png" fill2="red" decor="gradient" direction="down"}');
-        expect(serializeHeaderAttrs({decor: 'mesh', shape: 'edges', scale: 'small'})).toBe(
+        expect(serializeHeaderAttrs({decor: 'mesh', shape: 'edges', direction: 'down'})).toBe(
             '{decor="mesh" shape="edges"}',
-        );
-        expect(serializeHeaderAttrs({decor: 'pattern', scale: 'small'})).toBe(
-            '{decor="pattern" scale="small"}',
         );
     });
 

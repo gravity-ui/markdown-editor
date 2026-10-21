@@ -20,7 +20,6 @@ import {
     HeaderFormat,
     HeaderLayout,
     HeaderPalette,
-    HeaderScale,
     HeaderShape,
     HeaderSide,
     type HeaderSideValue,
@@ -52,7 +51,6 @@ const choices: Record<Exclude<keyof HeaderAttrs, 'image'>, readonly string[]> = 
     [HeaderAttr.Decor]: Object.values(HeaderDecor),
     [HeaderAttr.Direction]: Object.values(HeaderDirection),
     [HeaderAttr.Shape]: Object.values(HeaderShape),
-    [HeaderAttr.Scale]: Object.values(HeaderScale),
     [HeaderAttr.Text]: Object.values(HeaderText),
 };
 
@@ -77,10 +75,6 @@ export function hasImage(attrs: HeaderAttrs): boolean {
     return attrs[HeaderAttr.Background] === HeaderBackground.Image;
 }
 
-export function isTiled(attrs: HeaderAttrs): boolean {
-    return hasImage(attrs) && attrs[HeaderAttr.Layout] === HeaderLayout.Tile;
-}
-
 const hasDecor = (attrs: HeaderAttrs, ...values: string[]) =>
     values.includes(attrs[HeaderAttr.Decor]);
 
@@ -93,18 +87,15 @@ export function isAttrUsed(attr: keyof HeaderAttrs, attrs: HeaderAttrs): boolean
     switch (attr) {
         case HeaderAttr.Image:
         case HeaderAttr.Layout:
-            return hasImage(attrs);
         case HeaderAttr.Fit:
         case HeaderAttr.Focus:
-            return hasImage(attrs) && !isTiled(attrs);
+            return hasImage(attrs);
         case HeaderAttr.Fill2:
             return hasDecor(attrs, HeaderDecor.Gradient, HeaderDecor.Mesh);
         case HeaderAttr.Direction:
             return hasDecor(attrs, HeaderDecor.Gradient);
         case HeaderAttr.Shape:
             return hasShapes(attrs);
-        case HeaderAttr.Scale:
-            return isTiled(attrs) || hasDecor(attrs, HeaderDecor.Pattern);
         default:
             return true;
     }

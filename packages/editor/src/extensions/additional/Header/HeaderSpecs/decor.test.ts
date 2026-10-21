@@ -6,7 +6,7 @@ import {getHeaderShapes} from './decor';
 const shapes = (attrs: Record<string, unknown>) => getHeaderShapes(normalizeHeaderAttrs(attrs));
 
 describe('header shapes', () => {
-    it.each(['none', 'darken', 'lighten', 'blur', 'gradient', 'pattern'])(
+    it.each(['none', 'darken', 'lighten', 'blur', 'gradient'])(
         'should omit shapes for decor="%s"',
         (decor) => {
             expect(shapes({decor})).toHaveLength(0);

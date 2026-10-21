@@ -68,18 +68,17 @@ Everything ~~that~~ you [dreamed](https://example.com) of can be brought to life
 
 ### Фон
 
-| Параметр | Значения                                                 | По умолчанию | Применяется                        |
-| -------- | -------------------------------------------------------- | ------------ | ---------------------------------- |
-| `bg`     | `fill`, `image`                                          | `fill`       | всегда                             |
-| `image`  | адрес фонового изображения                               | пусто        | `bg="image"`                       |
-| `layout` | `cover`, `object`, `tile`                                | `cover`      | `bg="image"`                       |
-| `fit`    | `crop`, `whole`                                          | `crop`       | `layout` — `cover` или `object`    |
-| `focus`  | `center`, `top`, `right`, `bottom`, `left` и четыре угла | `center`     | `layout` — `cover` или `object`    |
-| `scale`  | `small`, `medium`, `large`                               | `medium`     | `layout="tile"`, `decor="pattern"` |
+| Параметр | Значения                                                 | По умолчанию | Применяется  |
+| -------- | -------------------------------------------------------- | ------------ | ------------ |
+| `bg`     | `fill`, `image`                                          | `fill`       | всегда       |
+| `image`  | адрес фонового изображения                               | пусто        | `bg="image"` |
+| `layout` | `cover`, `object`                                        | `cover`      | `bg="image"` |
+| `fit`    | `crop`, `whole`                                          | `crop`       | `bg="image"` |
+| `focus`  | `center`, `top`, `right`, `bottom`, `left` и четыре угла | `center`     | `bg="image"` |
 
 `bg="image"` без адреса в `image` заменяется на `bg="fill"`. При `bg="fill"` параметр `image` не применяется.
 
-`cover` — изображение на всю площадь блока. `object` — изображение внутри отступов блока, вокруг виден `fill`. `tile` — повтор изображения, размер плитки задаёт `scale`. Для `object` и `tile` подходит файл с прозрачным фоном.
+`cover` — изображение на всю площадь блока. `object` — изображение внутри отступов блока, вокруг виден `fill`.
 
 `fit="crop"` заполняет площадь и обрезает лишнее. `fit="whole"` показывает изображение целиком. `focus` сдвигает кадр только по той оси, где изображение больше площади.
 
@@ -96,7 +95,6 @@ Everything ~~that~~ you [dreamed](https://example.com) of can be brought to life
 | `gradient` | линейный градиент от `fill` к `fill2`          | `direction`    |
 | `mesh`     | мягкие размытые пятна цветами `fill2` и `fill` | `shape`        |
 | `shapes`   | крупные полупрозрачные фигуры                  | `shape`        |
-| `pattern`  | точечный узор                                  | `scale`        |
 
 `direction`: `diagonal`, `right`, `down`, по умолчанию `diagonal`. `shape`: `diagonal`, `corner`, `edges`, `bottom`, `scatter`, по умолчанию `diagonal`.
 

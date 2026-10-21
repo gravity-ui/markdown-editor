@@ -1,7 +1,5 @@
 const badge =
     "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'><circle cx='120' cy='120' r='108' fill='royalblue'/><circle cx='120' cy='120' r='64' fill='gold'/></svg>";
-const tile =
-    "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M16 4 L28 16 L16 28 L4 16Z' fill='royalblue' fill-opacity='0.35'/></svg>";
 const landscape =
     "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 600' fill='seagreen'><rect width='1200' height='600' fill='lightsteelblue'/><circle cx='900' cy='120' r='90' fill='gold'/><path d='M0 600V420Q600 260 1200 420V600Z'/></svg>";
 /** Шире любого блока: кадр сдвигается по горизонтали. В адресе ссылки пробелы заменяются на `%20`. */
@@ -74,10 +72,9 @@ const focuses = [
 const isVertical = (focus: string) => ['center', 'top', 'bottom'].includes(focus);
 const focusName = (focus: string) =>
     focus.includes('-') ? `Focus ${focus}, horizontal shift` : `Focus ${focus}`;
-const decors = ['none', 'darken', 'lighten', 'blur', 'gradient', 'mesh', 'shapes', 'pattern'];
+const decors = ['none', 'darken', 'lighten', 'blur', 'gradient', 'mesh', 'shapes'];
 const directions = ['diagonal', 'right', 'down'];
 const shapes = ['diagonal', 'corner', 'edges', 'bottom', 'scatter'];
-const scales = ['small', 'medium', 'large'];
 
 /** Поверх изображения заливку видно только у слоёв `gradient` и `mesh`. */
 const decorAttrs = (decor: string) =>
@@ -162,15 +159,6 @@ export function getHeaderExamples(cover: string): Record<string, Record<string, 
                     ]),
                 ),
             ),
-            ...each(
-                scales,
-                (scale) => `Layout tile, scale ${scale}`,
-                (scale) =>
-                    header(
-                        `format="small" bg="image" image="${tile}" layout="tile" fill="blue-light" scale="${scale}"`,
-                        title('Your title'),
-                    ),
-            ),
             ...each(focuses, focusName, (focus) =>
                 header(
                     `format="small" bg="image" image="${isVertical(focus) ? landscape : panorama}" focus="${focus}"`,
@@ -179,7 +167,7 @@ export function getHeaderExamples(cover: string): Record<string, Record<string, 
             ),
         },
         'Decor layer': {
-            // `blur` на заливке не виден, а `gradient`, `mesh` и `pattern` показаны рядами своих параметров.
+            // `blur` на заливке не виден, а `gradient` и `mesh` показаны рядами своих параметров.
             ...each(
                 ['none', 'darken', 'lighten', 'shapes'],
                 (decor) => `Decor ${decor} over fill`,
@@ -230,15 +218,6 @@ export function getHeaderExamples(cover: string): Record<string, Record<string, 
                 (shape) =>
                     header(
                         `format="small" fill="blue" decor="shapes" shape="${shape}"`,
-                        title('Your title'),
-                    ),
-            ),
-            ...each(
-                scales,
-                (scale) => `Decor pattern, scale ${scale}`,
-                (scale) =>
-                    header(
-                        `format="small" fill="blue-light" decor="pattern" scale="${scale}"`,
                         title('Your title'),
                     ),
             ),
