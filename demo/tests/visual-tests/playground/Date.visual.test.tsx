@@ -3,6 +3,7 @@ import dd from 'ts-dedent';
 
 import {expect, test} from 'playwright/core';
 
+import {LabelPlayground} from './Label.helpers';
 import {Playground} from './Playground.helpers';
 
 // Days of past months, so the mark of the current day does not appear in the calendar.
@@ -16,7 +17,7 @@ const markup = dd`
 
 test.describe('Date', () => {
     test.beforeEach(async ({mount, page, editor}) => {
-        await mount(<Playground initial={markup} width="100%" style={{width: 812}} />);
+        await mount(<LabelPlayground initial={markup} />);
         await page.setViewportSize({height: 760, width: 812});
         await editor.switchMode('wysiwyg');
     });
@@ -73,6 +74,26 @@ test.describe('Date', () => {
 
     const measure = (root: Locator) =>
         root.evaluate((element) => {
+            // Geometry and typography of the UIKit Label, without the theme colors.
+            const getLabelStyle = (label: HTMLElement) => {
+                const style = getComputedStyle(label);
+                const textStyle = getComputedStyle(
+                    label.querySelector('.g-label__text') as HTMLElement,
+                );
+
+                return {
+                    height: label.getBoundingClientRect().height,
+                    borderWidth: style.borderTopWidth,
+                    borderRadius: style.borderRadius,
+                    verticalAlign: style.verticalAlign,
+                    margin: textStyle.margin,
+                    fontFamily: textStyle.fontFamily,
+                    fontSize: textStyle.fontSize,
+                    fontWeight: textStyle.fontWeight,
+                    lineHeight: textStyle.lineHeight,
+                };
+            };
+
             const [plain, withDate] = Array.from(element.querySelectorAll('p'));
             const date = withDate.querySelector('.g-md-date') as HTMLElement;
             const dateRect = date.getBoundingClientRect();
@@ -81,11 +102,11 @@ test.describe('Date', () => {
             return {
                 plainHeight: plain.getBoundingClientRect().height,
                 lineHeightWithDate: lineRect.height,
-                dateHeight: dateRect.height,
                 dateTopGap: dateRect.top - lineRect.top,
                 dateBottomGap: lineRect.bottom - dateRect.bottom,
-                dateRadius: getComputedStyle(date).borderTopLeftRadius,
-                labelHeight: element.querySelector('.g-md-label')?.getBoundingClientRect().height,
+                dateStyle: getLabelStyle(date),
+                labelStyle: getLabelStyle(element.querySelector('.g-md-label') as HTMLElement),
+                nativeStyle: getLabelStyle(document.querySelector('.native-label') as HTMLElement),
                 texts: Array.from(element.querySelectorAll('.g-md-date')).map(
                     (node) => node.textContent,
                 ),
@@ -99,11 +120,13 @@ test.describe('Date', () => {
             'Dec 31, 2025',
             'Jan 15, 2025',
         ]);
-        expect(metrics.dateHeight).toBe(18);
-        expect(metrics.labelHeight).toBe(18);
         expect(metrics.lineHeightWithDate).toBe(metrics.plainHeight);
-        expect(Math.abs(metrics.dateTopGap - metrics.dateBottomGap)).toBeLessThanOrEqual(1);
-        expect(metrics.dateRadius).toBe('9px');
+        expect(metrics.dateTopGap).toBeGreaterThanOrEqual(0);
+        expect(metrics.dateBottomGap).toBeGreaterThanOrEqual(0);
+        // The date and the label keep the look of the UIKit Label of the same size.
+        expect(metrics.dateStyle).toEqual(metrics.nativeStyle);
+        expect(metrics.labelStyle).toEqual(metrics.nativeStyle);
+        expect(metrics.dateStyle.height).toBe(20);
     };
 
     test('should render dates in the WYSIWYG mode @wysiwyg', async ({editor, expectScreenshot}) => {
