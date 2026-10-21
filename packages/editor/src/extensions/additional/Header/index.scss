@@ -362,7 +362,8 @@ $directions: (
         color: inherit;
         border-radius: var(--g-border-radius-l);
 
-        // Кнопка берёт заливку палитры, ссылка — цвет текста того же оттенка.
+        // Кнопка берёт заливку палитры, ссылка — цвет текста того же оттенка. У светлого и обычного оттенка
+        // один цвет текста, поэтому ссылка светлого оттенка ещё получает его заливку подложкой.
         @each $name, $color in fills.$header-fills {
             &[data-type='button'][data-color='#{$name}'] {
                 background: #{$color};
@@ -374,16 +375,20 @@ $directions: (
 
             &[data-type='link'][data-color='#{$name}'] {
                 color: #{fills.text-color(map.get(fills.$header-hues, $name))};
+
+                @if fills.is-light($name) {
+                    background: #{$color};
+                }
             }
         }
 
-        &[data-type='button'] {
-            background: var(--g-color-base-generic);
-        }
+        // Кнопка без цвета — контурная: заливка `grey` совпадает с `--g-color-base-generic`.
+        &[data-type='button'][data-color='system'] {
+            box-shadow: inset 0 0 0 1px var(--g-color-line-generic);
 
-        // Серая подсветка — только у кнопки без цвета, иначе она перекрывает заливку палитры.
-        &[data-type='button'][data-color='system']:hover {
-            background: var(--g-color-base-generic-hover);
+            &:hover {
+                background: var(--g-color-base-simple-hover);
+            }
         }
 
         &[data-type='link']:hover {

@@ -1,3 +1,4 @@
+@use 'sass:string';
 @use '../../../styles/yc-table-cell-bg' as table;
 
 // Заливка — та же палитра, что у ячеек таблицы.
@@ -23,6 +24,10 @@ $header-hues: (
         @return var(--g-color-text-secondary);
     }
     @return var(--g-color-text-#{$hue});
+}
+
+@function is-light($name) {
+    @return string.index($name, '-light') != null;
 }
 
 @function line-color($hue) {
