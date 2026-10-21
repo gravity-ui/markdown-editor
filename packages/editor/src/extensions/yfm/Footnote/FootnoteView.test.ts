@@ -1,4 +1,4 @@
-import {EditorState} from 'prosemirror-state';
+import {EditorState, NodeSelection} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 import {afterEach, describe, expect, it} from 'vitest';
 
@@ -112,5 +112,40 @@ describe('Footnote view', () => {
         marker.click();
         expect(document.querySelector<HTMLElement>('[role="tooltip"]')?.hidden).toBe(false);
         expect(storage.getItems()[0].render()).toBeNull();
+    });
+
+    it('should show the explanation without opening the form when keyboard selects a reference', () => {
+        const {view: editor, storage} = mount('A[*](*note)b\n\n[*note]: Text');
+        editor.focus();
+        editor.dispatch(editor.state.tr.setSelection(NodeSelection.create(editor.state.doc, 2)));
+        const tooltip = document.querySelector<HTMLElement>('[role="tooltip"]')!;
+        expect(tooltip.hidden).toBe(false);
+        expect(storage.getItems()[0].render()).toBeNull();
+        const enter = new KeyboardEvent('keydown', {key: 'Enter', bubbles: true, cancelable: true});
+        editor.dom.dispatchEvent(enter);
+        expect(enter.defaultPrevented).toBe(true);
+        expect(storage.getItems()[0].render()).not.toBeNull();
+        expect(editor.state.doc.childCount).toBe(2);
+    });
+
+    it('should not open the form with Enter in read-only mode', () => {
+        const {view: editor, storage} = mount('A[*](*note)b\n\n[*note]: Text', false);
+        editor.dispatch(editor.state.tr.setSelection(NodeSelection.create(editor.state.doc, 2)));
+        editor.dom.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}));
+        expect(storage.getItems()[0].render()).toBeNull();
+    });
+
+    it('should render nested references as text and report a missing definition', () => {
+        mount(
+            '[*](*note) [label](*missing)\n\n[*note]: See [inner](*other)\n\n[*other]: Inner text',
+        );
+        const notes = document.querySelectorAll<HTMLElement>('.g-md-footnote');
+        const nested = notes[0].querySelector('.g-md-footnote__term');
+        expect(nested?.textContent).toBe('inner');
+        expect(notes[0].querySelector('a')).toBeNull();
+        expect(notes[1].classList.contains('g-md-footnote_unresolved')).toBe(true);
+        expect(notes[1].querySelector('[role="tooltip"]')?.textContent).toMatch(
+            /definition|определения/,
+        );
     });
 });

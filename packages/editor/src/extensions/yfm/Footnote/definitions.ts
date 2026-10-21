@@ -16,11 +16,16 @@ export function footnoteDefinitions(doc: Node) {
 
 export function footnoteDecorations(doc: Node) {
     const definitions = footnoteDefinitions(doc);
+    // Native term environment: definitions are keyed by `:key`.
+    const footnoteTerms: Record<string, string> = {};
+    for (const [termKey, {node}] of definitions) footnoteTerms[`:${termKey}`] = node.attrs.content;
     const decorations: Decoration[] = [];
     doc.descendants((node, pos) => {
         if (node.type.name !== footnoteNodeName) return;
-        const content = definitions.get(node.attrs.key)?.node.attrs.content ?? '';
-        decorations.push(Decoration.node(pos, pos + node.nodeSize, {}, {footnoteContent: content}));
+        const footnoteContent = definitions.get(node.attrs.key)?.node.attrs.content ?? null;
+        decorations.push(
+            Decoration.node(pos, pos + node.nodeSize, {}, {footnoteContent, footnoteTerms}),
+        );
     });
     return DecorationSet.create(doc, decorations);
 }

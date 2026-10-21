@@ -70,9 +70,28 @@ export default function footnote(md: MarkdownIt) {
                 const sources = [
                     ...token.content.matchAll(/\[((?:\\.|[^[\]])+)\]\(\*([^\n)]+)\)/g),
                 ];
+                const findRaw = (key: string, label: string) => {
+                    const sourceIndex = sources.findIndex(
+                        (source) =>
+                            source[2] === key && source[1].replace(/\\(.)/g, '$1') === label,
+                    );
+                    return sourceIndex < 0 ? null : sources.splice(sourceIndex, 1)[0][0];
+                };
+                const createNote = (key: string, label: string, raw: string) => {
+                    const note = new state.Token(footnoteTokenName, '', 0);
+                    note.meta = {key, label, raw};
+                    return note;
+                };
+                let linkDepth = 0;
                 for (let child = 0; child < token.children.length; child++) {
                     const open = token.children[child];
                     if (open.type === '__yfm_lint') continue;
+                    if (open.type === 'link_open') linkDepth++;
+                    if (open.type === 'link_close') linkDepth--;
+                    if (open.type === 'text' && !linkDepth) {
+                        children.push(...splitUnresolved(open, state.Token, findRaw, createNote));
+                        continue;
+                    }
                     if (open.type !== 'term_open') {
                         children.push(open);
                         continue;
@@ -80,14 +99,9 @@ export default function footnote(md: MarkdownIt) {
                     const key = open.attrGet('term-key')!.slice(1);
                     const label = token.children[++child].content;
                     child++;
-                    const sourceIndex = sources.findIndex(
-                        (source) =>
-                            source[2] === key && source[1].replace(/\\(.)/g, '$1') === label,
-                    );
-                    const raw = sourceIndex < 0 ? null : sources.splice(sourceIndex, 1)[0][0];
-                    const note = new state.Token(footnoteTokenName, '', 0);
-                    note.meta = {key, label, raw};
-                    children.push(note);
+                    // An escaped source has no match here, but native output still renders it as a term.
+                    const raw = findRaw(key, label) ?? footnoteReference(label, key);
+                    children.push(createNote(key, label, raw));
                 }
                 token.children = children;
             }
@@ -95,6 +109,37 @@ export default function footnote(md: MarkdownIt) {
         }
         state.tokens = result;
     });
+}
+
+/**
+ * Keep references without a definition in this document as references.
+ * Their definition may come from an include, and native lint reports them as undefined terms.
+ */
+function splitUnresolved(
+    text: Token,
+    TokenType: typeof Token,
+    findRaw: (key: string, label: string) => string | null,
+    createNote: (key: string, label: string, raw: string) => Token,
+) {
+    const result: Token[] = [];
+    let pos = 0;
+    for (const match of text.content.matchAll(/\[([^[\]]+)\]\(\*([^\n)]+)\)/g)) {
+        const raw = findRaw(match[2], match[1]);
+        if (raw === null) continue;
+        if (match.index > pos)
+            result.push(textToken(TokenType, text.content.slice(pos, match.index)));
+        result.push(createNote(match[2], match[1], raw));
+        pos = match.index + match[0].length;
+    }
+    if (!pos) return [text];
+    if (pos < text.content.length) result.push(textToken(TokenType, text.content.slice(pos)));
+    return result;
+}
+
+function textToken(TokenType: typeof Token, content: string) {
+    const token = new TokenType('text', '', 0);
+    token.content = content;
+    return token;
 }
 
 export function footnoteReference(label: string, key: string) {

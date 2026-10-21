@@ -16,6 +16,12 @@ Another reference[*](*rate).
 
 All visible labels, including text and `*`, render as superscript footnote markers in WYSIWYG and preview. References sharing a key use the same explanation. Editing the explanation updates every reference. Labels use plain text; uniformly formatted selections retain their outer formatting. Mixed formatting, links and code cannot be converted into a term label.
 
-Hover or focus a reference in WYSIWYG to read the explanation; Escape closes the tooltip. Cancel restores the original selection. Definitions, including unused and duplicate definitions, are preserved during Markdown conversion; the first definition of a key is used. Definitions follow the native parser's default rules: a blank line ends the explanation.
+Hover, focus or select a reference with the arrow keys in WYSIWYG to read the explanation; Escape closes the tooltip. Enter on a selected reference opens the form. Cancel and Escape in the form return focus to the editor; Cancel also restores the original selection of a new footnote.
+
+Definitions, including unused and duplicate definitions, are preserved during Markdown conversion; the first definition of a key is used. Definitions follow the native parser's default rules: a blank line ends the explanation, and keys are case sensitive. An explanation can reference another definition; the tooltip shows its visible text.
+
+A reference without a definition in the document stays a reference in Markdown, because its definition can come from an include. WYSIWYG marks it and reports the missing definition; saving an explanation adds the definition. Native preview shows such a reference as plain text. A backslash does not prevent a reference to a defined key in native output; use inline code to show the syntax.
+
+Storybook shows grouped examples with their Markdown and native output in **Examples / Footnote**, and a live editor with a preview.
 
 For a custom WYSIWYG preset, register `Footnote` from `@gravity-ui/markdown-editor/extensions`. For a preview, register the native Diplodoc term plugin with its runtime and styles. The preview uses the native click and Enter interaction, with Escape returning focus to the reference.

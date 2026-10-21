@@ -46,13 +46,51 @@ describe('Footnote', () => {
         expect(paragraph.lastChild!.text).toBe('after');
     });
 
-    it('should preserve missing and empty definitions as ordinary text', () => {
-        for (const markup of ['[label](*missing)', '[*empty]:']) {
-            const doc = parser.parse(markup);
-            expect(doc.firstChild!.childCount).toBe(1);
-            expect(doc.firstChild!.firstChild!.isText).toBe(true);
-            expect(doc.textContent).toBe(markup);
-        }
+    it('should keep an empty definition as ordinary text', () => {
+        const doc = parser.parse('[*empty]:');
+        expect(doc.firstChild!.childCount).toBe(1);
+        expect(doc.firstChild!.firstChild!.isText).toBe(true);
+        expect(doc.textContent).toBe('[*empty]:');
+    });
+
+    it.each([
+        '[label](*missing)',
+        'Text [label](*missing) and *em*',
+        '[*](*Note)\n\n[*note]: Keys are case sensitive',
+    ])('should keep a reference without a definition unescaped: %s', (markup) => {
+        const doc = parser.parse(markup);
+        let references = 0;
+        doc.descendants((node) => {
+            if (node.type === footnoteType(schema)) references++;
+        });
+        expect(references).toBe(1);
+        expect(serializer.serialize(doc)).toBe(markup);
+        expect(parser.parse(markup).eq(doc)).toBe(true);
+    });
+
+    it.each([
+        ['[link [*](*note)](https://example.com)\n\n[*note]: Text', 1],
+        ['[a](https://example.com/*note) [b](*note)\n\n[*note]: Text', 1],
+        ['`[*](*note)`\n\n[*note]: Text', 0],
+        ['\\[label\\](\\*missing)', 0],
+    ])('should match native term boundaries: %s', (markup, count) => {
+        const doc = parser.parse(markup);
+        let references = 0;
+        doc.descendants((node) => {
+            if (node.type === footnoteType(schema)) references++;
+        });
+        expect(references).toBe(count);
+        const html = new MarkdownIt().use(term, {}).render(markup);
+        expect(html.match(/yfm-term_title/g)?.length ?? 0).toBe(count);
+        expect(parser.parse(serializer.serialize(doc)).eq(doc)).toBe(true);
+    });
+
+    it('should keep an escaped reference to a defined term as a native term', () => {
+        const markup = 'a\\[*\\](\\*note)\n\n[*note]: Text';
+        const doc = parser.parse(markup);
+        expect(doc.firstChild!.lastChild!.type).toBe(footnoteType(schema));
+        expect(new MarkdownIt().use(term, {}).render(markup)).toContain('yfm-term_title');
+        expect(parser.parse(serializer.serialize(doc)).eq(doc)).toBe(true);
     });
 
     it('should preserve references and definitions when copying a document through DOM', () => {
