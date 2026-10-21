@@ -144,18 +144,8 @@ export const HEADER_MAX_ACTIONS = 3;
 
 type ValueOf<T> = T[keyof T];
 
-export type HeaderFormatValue = ValueOf<typeof HeaderFormat>;
-export type HeaderBackgroundValue = ValueOf<typeof HeaderBackground>;
-export type HeaderLayoutValue = ValueOf<typeof HeaderLayout>;
 export type HeaderFitValue = ValueOf<typeof HeaderFit>;
 export type HeaderFocusValue = ValueOf<typeof HeaderFocus>;
-export type HeaderDecorValue = ValueOf<typeof HeaderDecor>;
-export type HeaderDirectionValue = ValueOf<typeof HeaderDirection>;
-export type HeaderShapeValue = ValueOf<typeof HeaderShape>;
-export type HeaderScaleValue = ValueOf<typeof HeaderScale>;
-export type HeaderPaletteValue = ValueOf<typeof HeaderPalette>;
-export type HeaderFillValue = ValueOf<typeof HeaderFill>;
-export type HeaderTextValue = ValueOf<typeof HeaderText>;
 export type HeaderSideValue = ValueOf<typeof HeaderSide>;
 export type HeaderActionTypeValue = ValueOf<typeof HeaderActionType>;
 export type HeaderActionColorValue = ValueOf<typeof HeaderActionColor>;

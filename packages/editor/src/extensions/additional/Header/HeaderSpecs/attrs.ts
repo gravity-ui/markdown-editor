@@ -112,6 +112,7 @@ export function isAttrUsed(attr: keyof HeaderAttrs, attrs: HeaderAttrs): boolean
 
 const quote = (value: string): string => `"${value.replace(/[\\"]/g, '\\$&')}"`;
 
+/** Для будущего ВИЗИВИГ: пока заглушка печатает исходную разметку блока. */
 export function serializeHeaderAttrs(raw: RawAttrs): string {
     const attrs = normalizeHeaderAttrs(raw);
     const pairs: string[] = [];
