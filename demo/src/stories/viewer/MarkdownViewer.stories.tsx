@@ -4,6 +4,7 @@ import {MarkdownViewerDemo} from './MarkdownViewerDemo';
 import {
     codeBlockDocuments,
     galleryDocuments,
+    htmlDocuments,
     latexDocuments,
     mermaidDocuments,
     pageConstructorDocuments,
@@ -38,6 +39,27 @@ export const Mermaid: StoryObj<typeof MarkdownViewerDemo> = {
         documents: mermaidDocuments,
         showFeedbackToggle: false,
         mermaidOptions: {zoom: {showMenu: true, maximumScale: 2}},
+    },
+};
+
+export const HtmlBlocks: StoryObj<typeof MarkdownViewerDemo> = {
+    name: 'HTML blocks',
+    args: {documents: htmlDocuments, showFeedbackToggle: false},
+    parameters: {
+        docs: {
+            description: {
+                story: `Uses the shared Diplodoc HTML controller. It searches the full document,
+including other viewers and React slots. Keep HTML block hosts outside React slots.
+
+Config applies only to new blocks. Existing iframes keep their classes and styles
+when config or the theme changes. Runtime policy applies when the shared controller
+is first created. Shadow mode is disabled by default, as in the editor preview.
+
+Removing the adapter does not dispose the shared controller or its block resources.
+It skips initialization after a cancelled lazy import, but cannot cancel iframe
+work that the SDK has already started.`,
+            },
+        },
     },
 };
 

@@ -80,6 +80,14 @@ const formulas = dd`
     $$
 `;
 
+const htmlBlocks = dd`
+    {% cut "HTML blocks" %}{#cut-html-blocks}
+
+    ${markup.yfmHtmlBlock}
+
+    {% endcut %}
+`;
+
 const nextSteps = dd`
     ## Next steps
 
@@ -116,6 +124,7 @@ export const documents = [
             formulas,
             markup.yfmPageConstructor,
             markup.mermaidDiagram,
+            htmlBlocks,
             feedback,
         ].join('\n\n'),
     },
@@ -129,6 +138,7 @@ export const documents = [
             formulas,
             markup.yfmPageConstructor,
             markup.mermaidDiagram,
+            htmlBlocks,
             feedback,
         ].join('\n\n'),
     },
@@ -170,6 +180,17 @@ export const mermaidDocuments = [
     {label: 'Updated diagram', source: markup.mermaidDiagram.replaceAll('Alice', 'Carol')},
     {label: 'Plain text', source: '## Plain text\n\nThis document has no diagrams.'},
     {label: 'Invalid diagram', source: '```mermaid\nnot a diagram\n```'},
+];
+
+const shortHtmlBlock = `${markup.yfmHtmlBlock.split('</p>', 1)[0]}</p>\n\n:::`;
+
+export const htmlDocuments = [
+    {label: 'HTML blocks', source: shortHtmlBlock},
+    {
+        label: 'Updated block',
+        source: shortHtmlBlock.replace('Duis faucibus dignissim posuere', 'Updated HTML block'),
+    },
+    {label: 'Plain text', source: '## Plain text\n\nThis document has no HTML blocks.'},
 ];
 
 const codeBlockIntroduction = dd`

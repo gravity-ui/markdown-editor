@@ -1,3 +1,4 @@
+import type {PluginOptions as HtmlPluginOptions} from '@diplodoc/html-extension';
 import type {transform} from '@diplodoc/latex-extension';
 import type {useLatex} from '@diplodoc/latex-extension/react';
 import type {transform as mermaid} from '@diplodoc/mermaid-extension';
@@ -6,6 +7,8 @@ import type {transform as pageConstructor} from '@diplodoc/page-constructor-exte
 import type {ThemeType} from '@gravity-ui/uikit';
 
 export type TransformMeta = {script?: string[]; style?: string[]} | undefined;
+
+export type DiplodocHtmlRuntime = HtmlPluginOptions['runtimeJsPath'];
 
 export type DiplodocLatexRuntime = NonNullable<
     NonNullable<Parameters<typeof transform>[0]>['runtime']
