@@ -407,10 +407,11 @@ $directions: (
 
         &[data-type='button'] {
             background: var(--g-color-base-generic);
+        }
 
-            &:hover {
-                background: var(--g-color-base-generic-hover);
-            }
+        // Серая подсветка — только у кнопки без цвета, иначе она перекрывает заливку палитры.
+        &[data-type='button'][data-color='system']:hover {
+            background: var(--g-color-base-generic-hover);
         }
 
         &[data-type='link']:hover {
