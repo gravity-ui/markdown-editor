@@ -1,0 +1,11 @@
+{
+  "button": "Label",
+  "placeholder": "Caption",
+  "default_caption": "Label",
+  "color_gray": "Gray",
+  "color_green": "Green",
+  "color_yellow": "Yellow",
+  "color_blue": "Blue",
+  "color_red": "Red",
+  "color_purple": "Purple"
+}

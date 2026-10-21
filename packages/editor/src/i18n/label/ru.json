@@ -1,0 +1,11 @@
+{
+  "button": "Метка",
+  "placeholder": "Подпись",
+  "default_caption": "Метка",
+  "color_gray": "Серый",
+  "color_green": "Зелёный",
+  "color_yellow": "Жёлтый",
+  "color_blue": "Синий",
+  "color_red": "Красный",
+  "color_purple": "Фиолетовый"
+}

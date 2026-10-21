@@ -1,0 +1,14 @@
+.g-md-label-tooltip {
+    padding: 12px;
+
+    &__colors {
+        margin-top: 8px;
+    }
+
+    &__swatch.g-label {
+        width: 16px;
+        height: 16px;
+
+        border-radius: 50%;
+    }
+}

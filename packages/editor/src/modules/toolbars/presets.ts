@@ -60,6 +60,8 @@ import {
     italicItemMarkup,
     italicItemView,
     italicItemWysiwyg,
+    labelItemView,
+    labelItemWysiwyg,
     liftListItemMarkup,
     liftListItemView,
     liftListItemWysiwyg,
@@ -91,8 +93,6 @@ import {
     sinkListItemMarkup,
     sinkListItemView,
     sinkListItemWysiwyg,
-    statusItemView,
-    statusItemWysiwyg,
     strikethroughItemMarkup,
     strikethroughItemView,
     strikethroughItemWysiwyg,
@@ -614,9 +614,9 @@ export const full: ToolbarsPreset = {
             wysiwyg: emojiItemWysiwyg,
             markup: emojiItemMarkup,
         },
-        [Action.status]: {
-            view: statusItemView,
-            wysiwyg: statusItemWysiwyg,
+        [Action.label]: {
+            view: labelItemView,
+            wysiwyg: labelItemWysiwyg,
         },
     },
     orders: {
@@ -659,7 +659,7 @@ export const full: ToolbarsPreset = {
                 Action.emoji,
                 Action.file,
                 Action.tabs,
-                Action.status,
+                Action.label,
             ],
         ],
         [Toolbar.wysiwygMain]: [
@@ -697,7 +697,7 @@ export const full: ToolbarsPreset = {
                     items: [Action.codeInline, Action.codeBlock],
                 },
             ],
-            [Action.image, Action.file, Action.table, Action.checkbox, Action.status],
+            [Action.image, Action.file, Action.table, Action.checkbox, Action.label],
         ],
         [Toolbar.markupMain]: [
             [Action.undo, Action.redo],
