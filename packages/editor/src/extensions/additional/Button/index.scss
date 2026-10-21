@@ -1,0 +1,26 @@
+// Вид `action` размера L кнопки uikit.
+.g-md-button {
+    margin: 0 0 15px;
+
+    &__action {
+        display: inline-flex;
+        align-items: center;
+
+        box-sizing: border-box;
+        height: 36px;
+        padding: 0 var(--g-spacing-4);
+
+        font-size: var(--g-text-body-1-font-size);
+        line-height: var(--g-text-body-1-line-height);
+        text-decoration: none;
+
+        color: var(--g-color-text-brand-contrast);
+        border-radius: var(--g-border-radius-l);
+        background-color: var(--g-color-base-brand);
+
+        &:hover {
+            color: var(--g-color-text-brand-contrast);
+            background-color: var(--g-color-base-brand-hover);
+        }
+    }
+}
