@@ -1,6 +1,7 @@
 import {useMemo, useState} from 'react';
 
 import {transform as latex} from '@diplodoc/latex-extension';
+import {transform as pageConstructor} from '@diplodoc/page-constructor-extension/plugin/csr';
 import transform from '@diplodoc/transform';
 import defaultPlugins from '@diplodoc/transform/lib/plugins';
 import {type GalleryItemProps, GalleryProvider} from '@gravity-ui/components';
@@ -15,6 +16,7 @@ import {Button, Flex, SegmentedRadioGroup, Text, sp} from '@gravity-ui/uikit';
 import {cn} from './cn';
 import {documents as defaultDocuments, galleryCustomFile} from './content';
 import {DiplodocLatex} from './extensions/DiplodocLatex';
+import {DiplodocPageConstructor} from './extensions/DiplodocPageConstructor';
 import {Feedback} from './extensions/Feedback';
 import {PreserveCutState} from './extensions/PreserveCutState';
 import {TargetHelp} from './extensions/TargetHelp';
@@ -22,7 +24,11 @@ import {TargetHelp} from './extensions/TargetHelp';
 import './MarkdownViewerDemo.scss';
 import '@diplodoc/transform/dist/css/yfm.css';
 
-const plugins = [...defaultPlugins, latex({bundle: false, validate: false})];
+const plugins = [
+    ...defaultPlugins,
+    latex({bundle: false, validate: false}),
+    pageConstructor({bundle: false}),
+];
 
 interface MarkdownViewerDemoProps {
     documents?: readonly {label: string; source: string}[];
@@ -85,6 +91,7 @@ export function MarkdownViewerDemo({
                     <TargetHelp />
                     <YfmCodeBlockActions />
                     <DiplodocLatex meta={result.meta} />
+                    <DiplodocPageConstructor meta={result.meta} />
                     <FilesGallery
                         getCopyUrl={getGalleryUrl}
                         getDownloadUrl={getGalleryUrl}

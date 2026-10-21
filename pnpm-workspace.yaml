@@ -8,6 +8,7 @@ catalog:
   '@types/markdown-it': ^13.0.0
   '@types/node': ^24.12.2
   gulp-cli: 3.1.0
+  react-error-boundary: ^3.1.4
   react-use: ^17.3.2
 
 catalogs:

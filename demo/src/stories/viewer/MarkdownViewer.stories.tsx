@@ -1,7 +1,12 @@
 import type {StoryObj} from '@storybook/react';
 
 import {MarkdownViewerDemo} from './MarkdownViewerDemo';
-import {codeBlockDocuments, galleryDocuments, latexDocuments} from './content';
+import {
+    codeBlockDocuments,
+    galleryDocuments,
+    latexDocuments,
+    pageConstructorDocuments,
+} from './content';
 
 export const Story: StoryObj<typeof MarkdownViewerDemo> = {};
 Story.storyName = 'Markdown Viewer';
@@ -19,6 +24,11 @@ export const FilesGallery: StoryObj<typeof MarkdownViewerDemo> = {
 export const Latex: StoryObj<typeof MarkdownViewerDemo> = {
     name: 'LaTeX',
     args: {documents: latexDocuments, showFeedbackToggle: false},
+};
+
+export const PageConstructor: StoryObj<typeof MarkdownViewerDemo> = {
+    name: 'Page Constructor',
+    args: {documents: pageConstructorDocuments, showFeedbackToggle: false},
 };
 
 export default {

@@ -1,6 +1,7 @@
 import dd from 'ts-dedent';
 
 import {galleryMarkup} from '../view/gallery/markup';
+import {markup} from '../yfm/content';
 
 const introduction = dd`
     # MarkdownViewer playground
@@ -107,9 +108,15 @@ const feedback = dd`
 export const documents = [
     {
         label: 'Version 1',
-        source: [introduction, readingGuide, codeExample, reference, formulas, feedback].join(
-            '\n\n',
-        ),
+        source: [
+            introduction,
+            readingGuide,
+            codeExample,
+            reference,
+            formulas,
+            markup.yfmPageConstructor,
+            feedback,
+        ].join('\n\n'),
     },
     {
         label: 'Version 2',
@@ -119,6 +126,7 @@ export const documents = [
             updatedReadingGuide,
             codeExample,
             formulas,
+            markup.yfmPageConstructor,
             feedback,
         ].join('\n\n'),
     },
@@ -144,6 +152,15 @@ export const latexDocuments = [
             $$
         `,
     },
+];
+
+export const pageConstructorDocuments = [
+    {label: 'Page Constructor', source: markup.yfmPageConstructor},
+    {
+        label: 'Updated block',
+        source: markup.yfmPageConstructor.replace("title: 'Title'", "title: 'Updated title'"),
+    },
+    {label: 'Plain text', source: '## Plain text\n\nThis document has no Page Constructor blocks.'},
 ];
 
 const codeBlockIntroduction = dd`

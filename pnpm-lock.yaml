@@ -15,6 +15,9 @@ catalogs:
     gulp-cli:
       specifier: 3.1.0
       version: 3.1.0
+    react-error-boundary:
+      specifier: ^3.1.4
+      version: 3.1.4
     react-use:
       specifier: ^17.3.2
       version: 17.4.0
@@ -220,6 +223,9 @@ importers:
       markdown-it:
         specifier: catalog:peers
         version: 13.0.2
+      react-error-boundary:
+        specifier: 'catalog:'
+        version: 3.1.4(react@18.2.0)
     devDependencies:
       '@babel/preset-env':
         specifier: 7.29.7
@@ -583,7 +589,7 @@ importers:
         specifier: ^1.38.0
         version: 1.39.1
       react-error-boundary:
-        specifier: ^3.1.4
+        specifier: 'catalog:'
         version: 3.1.4(react@18.2.0)
       react-hotkeys-hook:
         specifier: ^4.5.0
@@ -786,7 +792,7 @@ importers:
         specifier: ^2.12.0
         version: 2.13.0(react@18.2.0)
       react-error-boundary:
-        specifier: ^3.1.4
+        specifier: 'catalog:'
         version: 3.1.4(react@18.2.0)
       tslib:
         specifier: catalog:ts
