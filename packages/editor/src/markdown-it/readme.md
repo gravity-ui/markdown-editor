@@ -1,5 +1,9 @@
 ## Markdown-it submodule
 
+### Own Markdown-it plugins:
+
+- `block-content-slots` — routes the token groups of a block body into slots; an unmatched group is dropped or kept as source markup
+
 ### Re-exports Markdown-it plugins:
 
 - [@diplodoc/color-extension](https://github.com/diplodoc-platform/color-extension)
