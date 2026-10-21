@@ -25,21 +25,24 @@ const measureSelectedSwatch = (palette: Locator) =>
         const swatchRect = swatch.getBoundingClientRect();
         const checkRect = check.getBoundingClientRect();
         const swatchStyle = getComputedStyle(swatch);
+        // Fractional positions of a popup give sizes like 25.99998 px.
+        const round = (value: number) => Math.round(value * 100) / 100;
+        const size = (rect: DOMRect) => ({width: round(rect.width), height: round(rect.height)});
         const center = (rect: DOMRect) => ({
             x: rect.x + rect.width / 2,
             y: rect.y + rect.height / 2,
         });
 
         return {
-            item: {width: itemRect.width, height: itemRect.height},
+            item: size(itemRect),
             itemPadding: getComputedStyle(item).padding,
             itemRadius: getComputedStyle(item).borderRadius,
-            swatch: {width: swatchRect.width, height: swatchRect.height},
+            swatch: size(swatchRect),
             swatchBorder: swatchStyle.borderTopWidth,
             swatchRadius: swatchStyle.borderRadius,
-            check: {width: checkRect.width, height: checkRect.height},
-            offsetX: center(checkRect).x - center(swatchRect).x,
-            offsetY: center(checkRect).y - center(swatchRect).y,
+            check: size(checkRect),
+            offsetX: round(center(checkRect).x - center(swatchRect).x),
+            offsetY: round(center(checkRect).y - center(swatchRect).y),
         };
     });
 
