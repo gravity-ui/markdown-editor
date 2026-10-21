@@ -1,6 +1,7 @@
 export * from './Checkbox';
 export * from './Color';
 export * from './Emoji';
+export * from './Footnote';
 export * from './ImgSize';
 export * from './Monospace';
 export * from './Video';

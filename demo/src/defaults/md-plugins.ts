@@ -18,6 +18,7 @@ import notes from '@diplodoc/transform/lib/plugins/notes';
 import sup from '@diplodoc/transform/lib/plugins/sup';
 import yfmTable from '@diplodoc/transform/lib/plugins/table';
 import type {YfmTablePluginOptions} from '@diplodoc/transform/lib/plugins/table/types';
+import term from '@diplodoc/transform/lib/plugins/term';
 import video from '@diplodoc/transform/lib/plugins/video';
 import {type RenderPreviewParams, colorClassName} from '@gravity-ui/markdown-editor';
 import {emojiDefs} from '@gravity-ui/markdown-editor/_/bundle/emoji.js';
@@ -89,6 +90,7 @@ export function getPlugins({
         ins,
         latex({bundle: false, validate: false, runtime: LATEX_RUNTIME}),
         mark,
+        term,
         mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
         yfmPageConstructor({bundle: false, runtime: PAGE_CONSTRUCTOR_RUNTIME}),
         sub,

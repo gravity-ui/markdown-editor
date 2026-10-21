@@ -14,6 +14,7 @@ const names = [
     'file',
     'filePopup',
     'foldingHeading',
+    'footnote',
     'gpt',
     'heading1',
     'heading2',
