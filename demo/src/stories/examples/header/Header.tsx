@@ -15,6 +15,7 @@ export const HeaderEditor = memo(function HeaderEditor() {
             initial={markup}
             initialEditor="wysiwyg"
             initialSplitModeEnabled
+            splitModeOrientation="horizontal"
             renderPreviewDefined
             settingsVisible
             wysiwygConfig={{extensions}}
