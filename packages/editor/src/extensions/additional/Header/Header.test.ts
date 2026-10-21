@@ -7,6 +7,7 @@ import {ExtensionsManager} from '../../../core';
 import {FullSpecsPreset} from '../../../presets/full-specs';
 
 import {
+    HEADER_TITLE_LEVEL_ATTR,
     HeaderAlign,
     HeaderAttr,
     type HeaderAttrs,
@@ -83,8 +84,6 @@ describe('Header examples', () => {
         ...values('align', HeaderAlign),
         ...values('vertical', HeaderVertical),
         ...values('border', HeaderBorder),
-        // `bg="fill"` — значение по умолчанию, отдельного примера у него нет.
-        ...values('bg', {Image: 'image'}),
         ...values('layout', HeaderLayout),
         ...values('fit', HeaderFit),
         ...values('focus', HeaderFocus),
@@ -104,9 +103,16 @@ describe('Header examples', () => {
         expect(explicit.some(({html}) => html.includes(`data-${attr}="${value}"`))).toBe(true);
     });
 
-    const order: string[] = Object.values(HeaderAttr);
+    // `bg="fill"` — значение по умолчанию, отдельного примера у него нет.
+    it('should show a background image address in bg', () => {
+        const explicit = rendered.filter(({markup}) => markup.includes('bg="landscape.jpg"'));
+        expect(explicit.length).toBeGreaterThan(0);
+        expect(explicit.every(({html}) => html.includes('data-bg="image"'))).toBe(true);
+    });
+
+    const order: string[] = [HEADER_TITLE_LEVEL_ATTR, ...Object.values(HeaderAttr)];
     const attrNames = (markup: string) =>
-        Array.from(markup.matchAll(/^:::header\{(.*)\}$/gm), ([, attrs]) =>
+        Array.from(markup.matchAll(/^:::header(?:\[.*\])?\{(.*)\}$/gm), ([, attrs]) =>
             Array.from(attrs.matchAll(/([\w-]+)="(?:[^"\\]|\\.)*"/g), ([, name]) => name).filter(
                 (name) => order.includes(name),
             ),
