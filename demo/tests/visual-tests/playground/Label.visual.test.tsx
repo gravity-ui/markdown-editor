@@ -14,6 +14,38 @@ const markup = dd`
     :label[Gray] :label[Green]{color=green} :label[Yellow]{color=yellow} :label[Blue]{color=blue} :label[Red]{color=red} :label[Purple]{color=purple}
 `;
 
+/** Geometry of the selected swatch of a color palette and the offset of its check mark. */
+const measureSelectedSwatch = (palette: Locator) =>
+    palette.locator('[aria-pressed=true]').evaluate((item) => {
+        const swatch = item.querySelector('.g-md-color-palette__swatch > *');
+        const check = item.querySelector('.g-md-color-palette__check svg');
+        if (!swatch || !check) throw new Error('No swatch or check mark');
+
+        const itemRect = item.getBoundingClientRect();
+        const swatchRect = swatch.getBoundingClientRect();
+        const checkRect = check.getBoundingClientRect();
+        const swatchStyle = getComputedStyle(swatch);
+        // Fractional positions of a popup give sizes like 25.99998 px.
+        const round = (value: number) => Math.round(value * 100) / 100;
+        const size = (rect: DOMRect) => ({width: round(rect.width), height: round(rect.height)});
+        const center = (rect: DOMRect) => ({
+            x: rect.x + rect.width / 2,
+            y: rect.y + rect.height / 2,
+        });
+
+        return {
+            item: size(itemRect),
+            itemPadding: getComputedStyle(item).padding,
+            itemRadius: getComputedStyle(item).borderRadius,
+            swatch: size(swatchRect),
+            swatchBorder: swatchStyle.borderTopWidth,
+            swatchRadius: swatchStyle.borderRadius,
+            check: size(checkRect),
+            offsetX: round(center(checkRect).x - center(swatchRect).x),
+            offsetY: round(center(checkRect).y - center(swatchRect).y),
+        };
+    });
+
 test.describe('Label', () => {
     test.beforeEach(async ({mount, page, editor}) => {
         await mount(<LabelPlayground initial={markup} />);
@@ -217,35 +249,8 @@ test.describe('Label', () => {
         wait,
         expectScreenshot,
     }) => {
-        const measureSelected = () =>
-            getPopup(page)
-                .locator('[aria-pressed=true]')
-                .evaluate((item) => {
-                    const swatch = item.querySelector('.g-md-color-palette__swatch > *');
-                    const check = item.querySelector('.g-md-color-palette__check svg');
-                    if (!swatch || !check) throw new Error('No swatch or check mark');
-
-                    const itemRect = item.getBoundingClientRect();
-                    const swatchRect = swatch.getBoundingClientRect();
-                    const checkRect = check.getBoundingClientRect();
-                    const center = (rect: DOMRect) => ({
-                        x: rect.x + rect.width / 2,
-                        y: rect.y + rect.height / 2,
-                    });
-
-                    return {
-                        item: {width: itemRect.width, height: itemRect.height},
-                        swatch: {width: swatchRect.width, height: swatchRect.height},
-                        offsetX: center(checkRect).x - center(swatchRect).x,
-                        offsetY: center(checkRect).y - center(swatchRect).y,
-                    };
-                });
-
         const expectCentered = async () => {
-            const metrics = await measureSelected();
-            expect(metrics.swatch).toEqual({width: 24, height: 24});
-            expect(metrics.item.width).toBeGreaterThanOrEqual(32);
-            expect(metrics.item.height).toBeGreaterThanOrEqual(32);
+            const metrics = await measureSelectedSwatch(getPopup(page));
             expect(Math.abs(metrics.offsetX)).toBeLessThanOrEqual(1);
             expect(Math.abs(metrics.offsetY)).toBeLessThanOrEqual(1);
         };
@@ -377,5 +382,44 @@ test.describe('Label, former markup', () => {
         await expect(labels).toHaveCount(1);
         await expect(labels.first()).toHaveText('Old');
         await expect(labels.first()).toHaveAttribute('data-color', 'blue');
+    });
+});
+
+test.describe('Label, palette of the table', () => {
+    test('should use the swatch geometry of the table palette @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+    }) => {
+        const initial = dd`
+            Before :label[Draft] after
+
+            #|
+            || one   | two  ||
+            || three | four ||
+            |#
+        `;
+        await mount(<Playground initial={initial} width="100%" style={{width: 812}} />);
+        await page.setViewportSize({height: 500, width: 812});
+        await editor.switchMode('wysiwyg');
+
+        const contenteditable = editor.locators.contenteditable;
+        await contenteditable.locator('.g-md-label').click();
+        const labelPalette = page.locator('.g-md-label-tooltip .g-md-color-palette');
+        await expect(labelPalette).toBeVisible();
+        const label = await measureSelectedSwatch(labelPalette);
+        await page.keyboard.press('Escape');
+
+        const table = (await editor.yfmTable.getTable(contenteditable)).first();
+        await editor.yfmTable.focusFirstCell(table);
+        await (await editor.yfmTable.getCells(table)).first().hover();
+        await (await editor.yfmTable.getRowButtons(table)).first().click();
+        await editor.yfmTable.openCellBgPalette('row');
+        const tablePalette = page.locator('.g-md-yfm-table-cell-bg-palette');
+        const tableSwatch = await measureSelectedSwatch(tablePalette);
+
+        expect(label).toEqual(tableSwatch);
+        expect(Math.abs(label.offsetX)).toBeLessThanOrEqual(1);
+        expect(Math.abs(label.offsetY)).toBeLessThanOrEqual(1);
     });
 });
