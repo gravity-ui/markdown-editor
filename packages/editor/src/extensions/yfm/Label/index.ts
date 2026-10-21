@@ -12,8 +12,6 @@ import {labelEditPlugin} from './edit-state';
 import {removeEmptyLabelPlugin} from './remove-empty-plugin';
 
 import './index.scss';
-// Styles of the fake cursor, shared with the Code extension.
-import '../../markdown/Code/code.scss';
 
 export * from './LabelSpecs';
 export {insertLabel, removeEmptyLabel, updateLabel} from './commands';

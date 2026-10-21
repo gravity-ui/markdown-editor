@@ -6,6 +6,7 @@ import {
     type EmojiSpecsOptions,
     LabelSpecs,
     MarkSpecs,
+    YfmDateSpecs,
 } from '../extensions/specs';
 
 import {YfmSpecsPreset, type YfmSpecsPresetOptions} from './yfm-specs';
@@ -18,7 +19,7 @@ export type FullSpecsPresetOptions = YfmSpecsPresetOptions & {
 export const FullSpecsPreset: ExtensionAuto<FullSpecsPresetOptions> = (builder, opts) => {
     builder.use(YfmSpecsPreset, opts);
 
-    builder.use(MarkSpecs).use(ColorSpecs, opts.color).use(LabelSpecs);
+    builder.use(MarkSpecs).use(ColorSpecs, opts.color).use(LabelSpecs).use(YfmDateSpecs);
 
     if (opts.emoji) {
         builder.use(EmojiSpecs, opts.emoji);

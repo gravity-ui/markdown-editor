@@ -10,6 +10,7 @@ const names = [
     'code_inline',
     'codeInline',
     'colorify',
+    'date',
     'emoji',
     'file',
     'filePopup',

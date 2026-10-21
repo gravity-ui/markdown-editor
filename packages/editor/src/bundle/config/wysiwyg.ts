@@ -8,6 +8,7 @@ import type {
     SelectionContextConfig,
     SelectionContextItemData,
 } from '../../extensions/behavior/SelectionContext';
+import {i18n as i18nDate} from '../../i18n/date';
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n as i18nLabel} from '../../i18n/label';
 import {i18n} from '../../i18n/menubar';
@@ -241,6 +242,15 @@ export const wLabelItemData: WToolbarSingleItemData = {
     isActive: (e) => e.actions.addLabel?.isActive() ?? false,
     isEnable: (e) => e.actions.addLabel?.isEnable() ?? false,
 };
+export const wDateItemData: WToolbarSingleItemData = {
+    id: ActionName.date,
+    type: ToolbarDataType.SingleButton,
+    title: i18nDate.bind(null, 'button'),
+    icon: icons.date,
+    exec: (e) => e.actions.addDate.run(),
+    isActive: (e) => e.actions.addDate?.isActive() ?? false,
+    isEnable: (e) => e.actions.addDate?.isEnable() ?? false,
+};
 /** @deprecated Use wLatexInlineItemData from `@gravity-ui/markdown-editor-latex-extension` */
 export const wMathInlineItemData: WToolbarSingleItemData = {
     id: ActionName.math_inline,
@@ -450,6 +460,7 @@ export const wCommandMenuConfig: WToolbarItemData[] = [
     wFileItemData,
     wTabsItemData,
     wLabelItemData,
+    wDateItemData,
 ];
 export const wHiddenData = wCommandMenuConfig;
 
@@ -518,7 +529,14 @@ export const wToolbarConfig: WToolbarData = [
             data: [wCodeItemData, wCodeBlockItemData],
         },
     ],
-    [wImageItemData, wFileItemData, wTableItemData, wCheckboxItemData, wLabelItemData],
+    [
+        wImageItemData,
+        wFileItemData,
+        wTableItemData,
+        wCheckboxItemData,
+        wLabelItemData,
+        wDateItemData,
+    ],
 ];
 
 export const wSelectionMenuConfig: SelectionContextConfig = [
@@ -778,6 +796,7 @@ export const wCommandMenuConfigByPreset: Record<MarkdownEditorPreset, WToolbarIt
         wFileItemData,
         wTabsItemData,
         wLabelItemData,
+        wDateItemData,
     ],
 };
 export const wHiddenDataByPreset: Record<MarkdownEditorPreset, WToolbarItemData[]> = {

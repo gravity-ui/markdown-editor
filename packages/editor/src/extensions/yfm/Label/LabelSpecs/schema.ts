@@ -16,6 +16,8 @@ export const labelNodeSpec: NodeSpec = {
     group: 'inline',
     selectable: true,
     allowSelection: true,
+    // Draws the fake cursor at the edges, see the InlineAtom plugins.
+    fakeCursor: true,
     attrs: {
         [LabelAttr.Text]: {default: ''},
         [LabelAttr.Color]: {default: defaultLabelColor},

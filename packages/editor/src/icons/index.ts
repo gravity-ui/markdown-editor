@@ -36,6 +36,7 @@ export {
     Scissors as CutIcon,
     Sticker as NoteIcon,
     Tag as LabelIcon,
+    Calendar as DateIcon,
     Paperclip as FileIcon,
     Minus as HRuleIcon,
     //

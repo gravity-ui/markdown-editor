@@ -1,0 +1,5 @@
+@use '../../../styles/mixins' as editor;
+
+.g-md-date.g-label {
+    @include editor.inline-label();
+}

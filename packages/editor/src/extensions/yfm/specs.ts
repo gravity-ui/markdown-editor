@@ -5,6 +5,7 @@ export * from './ImgSize/ImgSizeSpecs';
 export * from './Label/LabelSpecs';
 export * from './Monospace/MonospaceSpecs';
 export * from './Video/VideoSpecs';
+export * from './YfmDate/YfmDateSpecs';
 export * from './YfmConfigs/YfmConfigsSpecs';
 export * from './YfmCut/YfmCutSpecs';
 export * from './YfmFile/YfmFileSpecs';

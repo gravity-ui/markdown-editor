@@ -19,7 +19,12 @@ import sup from '@diplodoc/transform/lib/plugins/sup';
 import yfmTable from '@diplodoc/transform/lib/plugins/table';
 import type {YfmTablePluginOptions} from '@diplodoc/transform/lib/plugins/table/types';
 import video from '@diplodoc/transform/lib/plugins/video';
-import {type RenderPreviewParams, colorClassName, labelPlugin} from '@gravity-ui/markdown-editor';
+import {
+    type RenderPreviewParams,
+    colorClassName,
+    datePlugin,
+    labelPlugin,
+} from '@gravity-ui/markdown-editor';
 import {emojiDefs} from '@gravity-ui/markdown-editor/_/bundle/emoji.js';
 import color from '@gravity-ui/markdown-editor/markdown-it/color';
 import {bare as emoji} from '@gravity-ui/markdown-editor/markdown-it/emoji';
@@ -92,6 +97,7 @@ export function getPlugins({
         mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
         yfmPageConstructor({bundle: false, runtime: PAGE_CONSTRUCTOR_RUNTIME}),
         labelPlugin,
+        datePlugin,
         sub,
         yfmHtmlBlock({
             bundle: false,
