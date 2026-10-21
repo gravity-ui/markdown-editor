@@ -1,14 +1,30 @@
+@use '../../../../styles/mixins' as editor;
+
+// Background colors of the UIKit Label themes, see `labelThemes`.
+$swatch-colors: (
+    'gray': var(--g-color-base-neutral-light),
+    'green': var(--g-color-base-positive-light),
+    'yellow': var(--g-color-base-warning-light),
+    'blue': var(--g-color-base-info-light),
+    'red': var(--g-color-base-danger-light),
+    'purple': var(--g-color-base-utility-light),
+);
+
 .g-md-label-tooltip {
     padding: 12px;
 
     &__colors {
-        justify-content: space-between;
-
         margin-top: 8px;
     }
 
-    // An empty Label of the `s` size: a 24 px square with the corner radius of this size.
-    &__swatch.g-label {
-        width: 24px;
+    &__swatch {
+        @include editor.color-swatch();
+
+        @each $name, $color in $swatch-colors {
+            &_color_#{$name} {
+                border-color: $color;
+                background-color: $color;
+            }
+        }
     }
 }

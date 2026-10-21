@@ -6,3 +6,17 @@
         border-color: var(--g-color-line-generic);
     }
 }
+
+// A color swatch of the color palette: a 16 px square with a 1 px border.
+
+@mixin color-swatch() {
+    display: block;
+
+    width: 16px;
+    height: 16px;
+    padding: 0;
+
+    border: 1px solid var(--g-color-line-generic);
+    border-radius: var(--g-border-radius-xs);
+    background-color: transparent;
+}

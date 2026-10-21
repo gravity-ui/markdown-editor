@@ -1,6 +1,6 @@
 import {useEffect, useRef} from 'react';
 
-import {Label, TextInput} from '@gravity-ui/uikit';
+import {TextInput} from '@gravity-ui/uikit';
 
 import type {Node} from '#pm/model';
 import {TextSelection} from '#pm/state';
@@ -9,7 +9,7 @@ import {cn} from 'src/classname';
 import {i18n} from 'src/i18n/label';
 import {ColorPalette} from 'src/react-utils/components/ColorPalette';
 
-import {LabelAttr, labelColors, labelThemes, normalizeLabelColor} from '../LabelSpecs';
+import {LabelAttr, labelColors, normalizeLabelColor} from '../LabelSpecs';
 import {updateLabel} from '../commands';
 
 import './LabelTooltip.scss';
@@ -49,7 +49,7 @@ export function LabelTooltip({node, pos, view, edited}: LabelTooltipProps) {
     const items = labelColors.map((itemColor) => ({
         value: itemColor,
         title: i18n(`color_${itemColor}`),
-        swatch: <Label className={b('swatch')} theme={labelThemes[itemColor]} size="s" />,
+        swatch: <span className={b('swatch', {color: itemColor})} />,
     }));
 
     return (
