@@ -8,6 +8,7 @@ import {FullSpecsPreset} from '../../../presets/full-specs';
 
 import {
     HeaderAlign,
+    HeaderAttr,
     type HeaderAttrs,
     HeaderBorder,
     HeaderDecor,
@@ -18,6 +19,7 @@ import {
     HeaderFocus,
     HeaderFormat,
     HeaderLayout,
+    HeaderPalette,
     HeaderScale,
     HeaderShape,
     HeaderSide,
@@ -66,7 +68,7 @@ describe('Header examples', () => {
         ]);
     });
 
-    const html = examples.map(({markup}) => render(markup)).join('\n');
+    const rendered = examples.map(({markup}) => ({markup, html: render(markup)}));
     const values = (attr: string, list: Record<string, string>) =>
         Object.values(list).map((value) => ({attr, value}));
 
@@ -77,10 +79,13 @@ describe('Header examples', () => {
         ...values('align', HeaderAlign),
         ...values('vertical', HeaderVertical),
         ...values('border', HeaderBorder),
+        // `bg="fill"` — значение по умолчанию, отдельного примера у него нет.
+        ...values('bg', {Image: 'image'}),
         ...values('layout', HeaderLayout),
         ...values('fit', HeaderFit),
         ...values('focus', HeaderFocus),
         ...values('fill', HeaderFill),
+        ...values('fill2', HeaderPalette),
         ...values('decor', HeaderDecor),
         ...values('direction', HeaderDirection),
         ...values('shape', HeaderShape),
@@ -90,8 +95,25 @@ describe('Header examples', () => {
         ...values('type', {Button: 'button', Link: 'link'}),
         ...values('color', HeaderFill),
     ])('should show $attr="$value" in the catalogue', ({attr, value}) => {
-        expect(examples.some(({markup}) => markup.includes(`${attr}="${value}"`))).toBe(true);
-        expect(html).toContain(`data-${attr}="${value}"`);
+        // Корень выводит все нормализованные значения, поэтому HTML проверяется только там, где значение задано явно.
+        const explicit = rendered.filter(({markup}) => markup.includes(`${attr}="${value}"`));
+        expect(explicit.length).toBeGreaterThan(0);
+        expect(explicit.some(({html}) => html.includes(`data-${attr}="${value}"`))).toBe(true);
+    });
+
+    const order: string[] = Object.values(HeaderAttr);
+    const attrNames = (markup: string) =>
+        Array.from(markup.matchAll(/^:::header\{(.*)\}$/gm), ([, attrs]) =>
+            Array.from(attrs.matchAll(/([\w-]+)="(?:[^"\\]|\\.)*"/g), ([, name]) => name).filter(
+                (name) => order.includes(name),
+            ),
+        );
+
+    it.each(examples)('should keep the serialization order in "$name"', ({markup}) => {
+        for (const names of attrNames(markup)) {
+            const sorted = [...names].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+            expect(names).toEqual(sorted);
+        }
     });
 });
 
