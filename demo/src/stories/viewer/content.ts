@@ -69,6 +69,16 @@ const reference = dd`
     {% endcut %}
 `;
 
+const formulas = dd`
+    ## Formulas
+
+    An inline formula $a^2 + b^2 = c^2$ stays in the text.
+
+    $$
+    c = \\sqrt{a^2 + b^2}
+    $$
+`;
+
 const nextSteps = dd`
     ## Next steps
 
@@ -97,15 +107,42 @@ const feedback = dd`
 export const documents = [
     {
         label: 'Version 1',
-        source: [introduction, readingGuide, codeExample, reference, feedback].join('\n\n'),
+        source: [introduction, readingGuide, codeExample, reference, formulas, feedback].join(
+            '\n\n',
+        ),
     },
     {
         label: 'Version 2',
-        source: [introduction, reference, updatedReadingGuide, codeExample, feedback].join('\n\n'),
+        source: [
+            introduction,
+            reference,
+            updatedReadingGuide,
+            codeExample,
+            formulas,
+            feedback,
+        ].join('\n\n'),
     },
     {
         label: 'Version 3',
         source: [introduction, codeExample, reference, nextSteps, feedback].join('\n\n'),
+    },
+];
+
+export const latexDocuments = [
+    {label: 'Formulas', source: formulas},
+    {label: 'Updated formulas', source: '## Formulas\n\nThe new formula is $E = mc^2$.'},
+    {label: 'Plain text', source: '## Plain text\n\nThis document has no formulas.'},
+    {
+        label: 'Invalid formulas',
+        source: dd`
+            ## Invalid formulas
+
+            An invalid inline formula $\\frac{$ stays visible with an error color.
+
+            $$
+            \\sqrt{
+            $$
+        `,
     },
 ];
 
