@@ -8,3 +8,4 @@ export const toggleStrikethrough = toggleInlineMarkupFactory('~~');
 export const toggleUnderline = toggleInlineMarkupFactory('++');
 export const toggleMonospace = toggleInlineMarkupFactory('##');
 export const toggleMarked = toggleInlineMarkupFactory('==');
+export const toggleSpoiler = toggleInlineMarkupFactory({before: ':spoiler[', after: ']'});

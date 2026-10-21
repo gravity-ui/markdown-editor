@@ -25,6 +25,7 @@ import color from '@gravity-ui/markdown-editor/markdown-it/color';
 import {bare as emoji} from '@gravity-ui/markdown-editor/markdown-it/emoji';
 import ins from '@gravity-ui/markdown-editor/markdown-it/ins';
 import mark from '@gravity-ui/markdown-editor/markdown-it/mark';
+import spoiler from '@gravity-ui/markdown-editor/markdown-it/spoiler';
 import sub from '@gravity-ui/markdown-editor/markdown-it/sub';
 import type {PluginWithParams} from 'markdown-it/lib';
 
@@ -89,6 +90,7 @@ export function getPlugins({
         ins,
         latex({bundle: false, validate: false, runtime: LATEX_RUNTIME}),
         mark,
+        spoiler,
         mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
         yfmPageConstructor({bundle: false, runtime: PAGE_CONSTRUCTOR_RUNTIME}),
         sub,

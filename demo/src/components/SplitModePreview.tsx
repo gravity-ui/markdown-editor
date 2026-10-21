@@ -11,6 +11,7 @@ import {
     withMermaid,
 } from '@gravity-ui/markdown-editor/view/hocs/withMermaid/index.js';
 import {withYfmHtmlBlock} from '@gravity-ui/markdown-editor/view/hocs/withYfmHtml/index.js';
+import {useYfmSpoiler} from '@gravity-ui/markdown-editor/view/hooks/useYfmSpoiler/index.js';
 import {withYfmPageConstructor} from '@gravity-ui/markdown-editor-page-constructor-extension/view';
 import {useThemeValue} from '@gravity-ui/uikit';
 import type MarkdownIt from 'markdown-it';
@@ -127,6 +128,8 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
     }, [props, render]);
 
     const yfmHtmlBlockConfig = useYfmHtmlBlockStyles();
+
+    useYfmSpoiler(divRef);
 
     return (
         <Preview

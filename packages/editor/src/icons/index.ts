@@ -13,6 +13,7 @@ export {
     Strikethrough as StrikethroughIcon,
     LetterM as MonoIcon,
     FontCursor as MarkIcon,
+    EyeSlash as SpoilerIcon,
     //
     Text as TextIcon,
     Heading as HeadingIcon,

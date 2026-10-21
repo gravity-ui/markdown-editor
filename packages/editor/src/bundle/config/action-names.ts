@@ -45,6 +45,7 @@ const names = [
     'quoteLink',
     'redo',
     'sinkListItem',
+    'spoiler',
     'strike',
     'table',
     'tabs',

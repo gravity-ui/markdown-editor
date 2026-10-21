@@ -32,6 +32,7 @@ import {
     QuoteLinkIcon,
     RedoIcon,
     SinkIcon,
+    SpoilerIcon,
     StrikethroughIcon,
     TableIcon,
     TabsIcon,
@@ -52,6 +53,7 @@ type Icon =
     | 'strikethrough'
     | 'mono'
     | 'mark'
+    | 'spoiler'
     | 'textColor'
     | 'text'
     | 'headline'
@@ -98,6 +100,7 @@ export const icons: Icons = {
     strikethrough: {data: StrikethroughIcon},
     mono: {data: MonoIcon},
     mark: {data: MarkIcon},
+    spoiler: {data: SpoilerIcon},
 
     textColor: {data: TextColorIcon},
 

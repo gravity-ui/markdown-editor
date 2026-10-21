@@ -72,6 +72,11 @@ export const YfmTable: Story = {
     args: {initial: markup.yfmTable},
 };
 
+export const YfmSpoiler: Story = {
+    name: 'YFM Spoiler',
+    args: {initial: markup.yfmSpoiler},
+};
+
 export const LaTeXFormulas: Story = {
     name: 'LaTeX Formulas',
     args: {initial: markup.latexFormulas},
