@@ -108,13 +108,19 @@ test.describe('Spoiler', () => {
             await editor.clearContent();
             await editor.fill(markup);
             await editor.switchMode('wysiwyg');
-            await editor.blur();
             await page.mouse.move(-1, -1);
 
             // The markup panel updates with a delay, so the screenshots skip it
             const editorArea = page.getByTestId('g-md-editor-mode');
             const content = editor.getBySelectorInContenteditable('.yfm-spoiler__content');
-            for (const elem of await content.all()) await expect(elem).toHaveCSS('opacity', '0');
+
+            // The editor can get the focus after the mode switch, so blur it until all text is hidden
+            await expect(async () => {
+                await editor.blur();
+                for (const elem of await content.all()) {
+                    await expect(elem).toHaveCSS('opacity', '0', {timeout: 500});
+                }
+            }).toPass();
 
             await expectScreenshot({component: editorArea, nameSuffix: 'hidden'});
 
