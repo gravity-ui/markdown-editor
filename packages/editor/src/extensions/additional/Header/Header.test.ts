@@ -43,7 +43,7 @@ const {markupParser: parser, serializer} = new ExtensionsManager({
 const md = new MarkdownIt().use(headerDirective);
 const render = (...lines: string[]) => md.render(lines.join('\n'));
 
-const catalogue = getHeaderExamples('cover.png');
+const catalogue = getHeaderExamples('cover.png', 'landscape.jpg');
 const examples = Object.entries(catalogue).flatMap(([group, items]) =>
     Object.entries(items).map(([name, markup]) => ({name: `${group} / ${name}`, markup})),
 );
@@ -65,6 +65,10 @@ describe('Header examples', () => {
             'Actions',
             'Edge cases',
         ]);
+    });
+
+    it('should use no data: addresses for images', () => {
+        expect(examples.filter(({markup}) => markup.includes('data:'))).toEqual([]);
     });
 
     const rendered = examples.map(({markup}) => ({markup, html: render(markup)}));

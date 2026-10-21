@@ -12,15 +12,16 @@ import {block} from '../../../utils/cn';
 import {getHeaderExamples} from './markup';
 
 import cover from './cover.png';
+import landscape from './landscape.jpg';
 
 import './Header.scss';
 
 const b = block('header-catalogue');
 
-const examples = getHeaderExamples(cover);
+const examples = getHeaderExamples(cover, landscape);
 const plugins = getPlugins();
 
-// Примеры содержат `data:`-адреса изображений, а санитайзер по умолчанию их удаляет.
+// Санитайзер по умолчанию удаляет из стилей фигур положение и прозрачность.
 const render = (markup: string) =>
     transform(markup, {plugins, needToSanitizeHtml: false, defaultClassName: colorClassName}).result
         .html;

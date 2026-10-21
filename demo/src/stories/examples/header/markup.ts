@@ -1,11 +1,3 @@
-const badge =
-    "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'><circle cx='120' cy='120' r='108' fill='royalblue'/><circle cx='120' cy='120' r='64' fill='gold'/></svg>";
-const landscape =
-    "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 600' fill='seagreen'><rect width='1200' height='600' fill='lightsteelblue'/><circle cx='900' cy='120' r='90' fill='gold'/><path d='M0 600V420Q600 260 1200 420V600Z'/></svg>";
-/** Шире любого блока: кадр сдвигается по горизонтали. В адресе ссылки пробелы заменяются на `%20`. */
-const panorama =
-    "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 200' fill='seagreen'><rect width='1600' height='200' fill='lightsteelblue'/><circle cx='120' cy='100' r='70' fill='gold'/><path d='M1100 200L1350 40L1600 200Z'/></svg>";
-
 const text =
     'Everything that you dreamed of can be brought to life exactly at the moment when you decide to win.';
 const longText = [
@@ -68,8 +60,13 @@ const focuses = [
     'bottom-right',
     'bottom-left',
 ];
-/** Кадр выходит за край блока только по одной оси, поэтому у угла виден сдвиг по одной оси. */
+/**
+ * Кадр выходит за край блока только по одной оси, поэтому у угла виден сдвиг по одной оси.
+ * Низкий блок шире фотографии и сдвигает кадр по вертикали, высокий — по горизонтали.
+ * Фон высокого блока сдвигается по горизонтали, только если превью уже 750 пикселей.
+ */
 const isVertical = (focus: string) => ['center', 'top', 'bottom'].includes(focus);
+const focusFormat = (focus: string) => (isVertical(focus) ? 'small' : 'large');
 const focusName = (focus: string) =>
     focus.includes('-') ? `Focus ${focus}, horizontal shift` : `Focus ${focus}`;
 const decors = ['none', 'darken', 'lighten', 'blur', 'gradient', 'mesh', 'shapes'];
@@ -85,9 +82,12 @@ const decorAttrs = (decor: string) =>
 /**
  * Примеры сгруппированы по темам: группа → имя примера → разметка.
  * Имена групп и примеров совпадают с каталогом варианта с плоским телом: по ним сравнивают синтаксисы.
- * Адрес `cover.png` передаёт история: так примеры читаются и в юнит-тестах без сборщика.
+ * Адреса `cover.png` и `landscape.jpg` передаёт история: так примеры читаются и в юнит-тестах без сборщика.
  */
-export function getHeaderExamples(cover: string): Record<string, Record<string, string>> {
+export function getHeaderExamples(
+    cover: string,
+    landscape: string,
+): Record<string, Record<string, string>> {
     return {
         Alignment: Object.fromEntries(
             verticals.flatMap((vertical) =>
@@ -152,7 +152,7 @@ export function getHeaderExamples(cover: string): Record<string, Record<string, 
                             // Заливку видно только там, где изображение не закрывает блок целиком.
                             layout === 'cover' && fit === 'crop'
                                 ? `bg="image" image="${landscape}" layout="cover" fit="${fit}"`
-                                : `bg="image" image="${layout === 'cover' ? landscape : badge}" layout="${layout}" fit="${fit}" fill="blue-light"`,
+                                : `bg="image" image="${landscape}" layout="${layout}" fit="${fit}" fill="blue-light"`,
                             title('Your title'),
                             content(text),
                         ),
@@ -161,7 +161,7 @@ export function getHeaderExamples(cover: string): Record<string, Record<string, 
             ),
             ...each(focuses, focusName, (focus) =>
                 header(
-                    `format="small" bg="image" image="${isVertical(focus) ? landscape : panorama}" focus="${focus}"`,
+                    `format="${focusFormat(focus)}" bg="image" image="${landscape}" focus="${focus}"`,
                     title('Your title'),
                 ),
             ),
@@ -251,11 +251,11 @@ export function getHeaderExamples(cover: string): Record<string, Record<string, 
             ),
             ...each(focuses.slice(1), focusName, (focus) =>
                 header(
-                    'format="small" fill="blue-light"',
+                    `format="${focusFormat(focus)}" fill="blue-light"`,
                     title('Your title'),
                     isVertical(focus)
                         ? image('Abstract waves', cover, `focus="${focus}"`)
-                        : image('Landscape', panorama.replace(/ /g, '%20'), `focus="${focus}"`),
+                        : image('Mountain lake', landscape, `focus="${focus}"`),
                 ),
             ),
             'With a background image': header(
