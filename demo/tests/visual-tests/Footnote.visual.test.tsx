@@ -1,6 +1,13 @@
 import {expect, test} from 'playwright/core';
 
-import {FootnoteEditor, FootnotePreview} from './Footnote.helpers';
+import {footnoteEditorMarkup, footnoteExamples} from '../../src/stories/examples/footnote/markup';
+
+import {
+    FootnoteCatalogueCheck,
+    FootnoteEditor,
+    FootnoteLiveEditor,
+    FootnotePreview,
+} from './Footnote.helpers';
 
 test.describe('Footnote', () => {
     for (const theme of ['light', 'dark'] as const) {
@@ -135,5 +142,150 @@ test.describe('Footnote', () => {
         await expect(tooltip).toBeHidden();
         await page.emulateMedia({media: 'print'});
         await expect(page.locator('.ProseMirror .g-md-footnote__content').first()).toBeVisible();
+    });
+});
+
+/** Nested references inside a definition are not separate nodes in the editor. */
+const countOutsideDefinitions = (elements: Element[]) =>
+    elements.filter((element) => !element.closest('dfn')).length;
+
+test.describe('Footnote catalogue', () => {
+    const examples = Object.values(footnoteExamples).flatMap((group) => Object.entries(group));
+
+    test('should use unique definition keys across the catalogue', () => {
+        const keys = examples.flatMap(([, markup]) => [
+            ...new Set([...markup.matchAll(/^\[\*([^\]]+)\]:/gm)].map((match) => match[1])),
+        ]);
+        expect(new Set(keys).size).toBe(keys.length);
+    });
+
+    test('should match native terms and keep the markup of every example in WYSIWYG', async ({
+        mount,
+        page,
+    }) => {
+        await mount(<FootnoteCatalogueCheck />);
+        const cards = page.getByTestId('footnote-example');
+        await expect(cards).toHaveCount(examples.length);
+        for (const [index, [name, markup]] of examples.entries()) {
+            const nativeTerms = await cards
+                .nth(index)
+                .locator('.yfm-term_title')
+                .evaluateAll(countOutsideDefinitions);
+            const result = await page.evaluate((value) => {
+                const editor = window.mdEditor!;
+                editor.replace(value);
+                const notes = document.querySelectorAll('.ProseMirror .g-md-footnote');
+                const unresolved = document.querySelectorAll(
+                    '.ProseMirror .g-md-footnote_unresolved',
+                );
+                return {
+                    markup: editor.getValue(),
+                    resolved: notes.length - unresolved.length,
+                };
+            }, markup);
+            expect(result.markup, name).toBe(markup);
+            expect(result.resolved, name).toBe(nativeTerms);
+        }
+    });
+
+    test('should open nested native definitions in the catalogue', async ({mount, page}) => {
+        await mount(<FootnoteCatalogueCheck group="Explanation Markdown" />);
+        const card = page.getByTestId('footnote-example').filter({hasText: 'Nested reference'});
+        await card.locator('.yfm-term_title').first().click();
+        const outer = page.locator('[id=":md-api_element"]');
+        await expect(outer).toBeVisible();
+        await outer.locator('.yfm-term_title').click();
+        await expect(page.locator('[id=":md-gateway_element"]')).toBeVisible();
+    });
+
+    for (const theme of ['light', 'dark'] as const) {
+        test(`should display the basic group with an open definition in ${theme} theme`, async ({
+            mount,
+            page,
+            expectScreenshot,
+        }) => {
+            await mount(<FootnoteCatalogueCheck group="Basic" />);
+            await page.locator('.yfm-term_title').first().click();
+            await expect(page.locator('[id=":basic-rate_element"]')).toBeVisible();
+            await expectScreenshot({
+                component: page.locator('.footnote-catalogue'),
+                themes: [theme],
+            });
+        });
+    }
+
+    for (const theme of ['light', 'dark'] as const) {
+        test(`should display nested and missing definitions in WYSIWYG in ${theme} theme`, async ({
+            mount,
+            page,
+            expectScreenshot,
+        }) => {
+            const markup = [
+                footnoteExamples['Explanation Markdown']['Nested reference'],
+                footnoteExamples['Edge cases']['Reference without a definition'],
+            ].join('\n\n');
+            await mount(<FootnoteEditor theme={theme} markup={markup} />);
+            const markers = page.locator('.ProseMirror .g-md-footnote__marker');
+            await markers.first().focus();
+            const tooltip = page.getByRole('tooltip').filter({visible: true});
+            await expect(tooltip.locator('.g-md-footnote__term')).toHaveText('gateway');
+            await expectScreenshot({fullPage: true, themes: [theme]});
+            await markers.last().focus();
+            await expect(tooltip).toHaveText(/no definition/);
+        });
+    }
+
+    test('should keep the markup after editing a footnote in the live editor', async ({
+        mount,
+        page,
+        editor,
+    }) => {
+        await mount(<FootnoteLiveEditor />);
+        await expect
+            .poll(() =>
+                editor.locators.previewContent
+                    .locator('.yfm-term_title')
+                    .evaluateAll(countOutsideDefinitions),
+            )
+            .toBe(9);
+        await editor.switchMode('wysiwyg');
+        const notes = page.locator('.ProseMirror .g-md-footnote');
+        await expect(notes).toHaveCount(10);
+        await expect(page.locator('.ProseMirror .g-md-footnote_unresolved')).toHaveCount(1);
+        await notes.filter({hasText: 'release notes'}).locator('button').click();
+        const form = page.locator('.g-md-footnote-editor');
+        await form.locator('textarea').fill('The notes list **every** change.');
+        await form.getByRole('button', {name: /Save|Сохранить/}).click();
+        await editor.switchMode('markup');
+        const value = await page.evaluate(() => window.mdEditor!.getValue());
+        expect(value).toBe(
+            footnoteEditorMarkup.replace(
+                '[*basic-notes]: The notes list every change in this version.',
+                '[*basic-notes]: The notes list **every** change.',
+            ),
+        );
+    });
+
+    test('should open the form with Enter and return focus on Escape', async ({mount, page}) => {
+        await mount(<FootnoteEditor markup={'A[*](*key)b\n\n[*key]: Text'} />);
+        const editor = page.locator('.ProseMirror');
+        await editor.click();
+        // The editor focuses itself after mounting, which can reset an early selection.
+        await expect(async () => {
+            await editor.press('End');
+            await editor.press('ArrowLeft');
+            await editor.press('ArrowLeft');
+            await expect(page.locator('.g-md-footnote_selected')).toBeVisible({timeout: 1000});
+        }).toPass();
+        await expect(page.getByRole('tooltip')).toBeVisible();
+        const form = page.locator('.g-md-footnote-editor');
+        await expect(form).toBeHidden();
+        await editor.press('Enter');
+        await expect(form.locator('textarea')).toBeFocused();
+        await page.keyboard.press('Escape');
+        await expect(form).toBeHidden();
+        await expect(editor).toBeFocused();
+        await page.getByRole('button', {name: 'Save document'}).click();
+        await expect(page.getByTestId('footnote-markup')).toHaveText('A[*](*key)b\n\n[*key]: Text');
     });
 });
