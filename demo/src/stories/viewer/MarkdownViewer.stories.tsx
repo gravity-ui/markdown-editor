@@ -5,6 +5,7 @@ import {
     codeBlockDocuments,
     galleryDocuments,
     latexDocuments,
+    mermaidDocuments,
     pageConstructorDocuments,
 } from './content';
 
@@ -29,6 +30,15 @@ export const Latex: StoryObj<typeof MarkdownViewerDemo> = {
 export const PageConstructor: StoryObj<typeof MarkdownViewerDemo> = {
     name: 'Page Constructor',
     args: {documents: pageConstructorDocuments, showFeedbackToggle: false},
+};
+
+export const Mermaid: StoryObj<typeof MarkdownViewerDemo> = {
+    name: 'Mermaid',
+    args: {
+        documents: mermaidDocuments,
+        showFeedbackToggle: false,
+        mermaidOptions: {zoom: {showMenu: true, maximumScale: 2}},
+    },
 };
 
 export default {
