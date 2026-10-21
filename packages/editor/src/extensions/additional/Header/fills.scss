@@ -1,5 +1,6 @@
 @use '../../../styles/yc-table-cell-bg' as table;
 @use 'sass:map';
+@use '../../../styles/yc-colors' as text;
 
 // Сохранённые варианты обложки используют те же цвета темы, что и палитра таблиц.
 $header-fills: map.merge(
@@ -19,6 +20,10 @@ $header-fills: map.merge(
 $header-text-colors: map.merge(
     table.$cell-bg-colors,
     (
+        'primary': var(--g-color-text-primary),
+        'brand': var(--g-color-text-brand),
+        'light': var(--g-color-text-light-primary),
+        'dark': var(--g-color-text-dark-primary),
         'grey': var(--g-color-text-secondary),
         'yellow': var(--g-color-text-warning),
         'red': var(--g-color-text-danger),
@@ -27,6 +32,10 @@ $header-text-colors: map.merge(
         'green': var(--g-color-text-positive),
     )
 );
+
+@each $name, $_ in text.$colors {
+    $header-text-colors: map.set($header-text-colors, $name, var(--yfm-colorify-#{$name}));
+}
 
 $header-text-light: var(--g-color-text-light-primary);
 $header-text-dark: var(--g-color-text-dark-primary);

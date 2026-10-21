@@ -159,7 +159,10 @@ for (const theme of ['light', 'dark'] as const) {
             'grid-template-columns',
             '120px 158px',
         );
-        await expect(settings.getByRole('combobox')).toHaveCount(3);
+        await expect(settings.getByRole('combobox')).toHaveCount(4);
+        await expect(settings.getByRole('combobox', {name: 'Theme', exact: true})).toHaveText(
+            'System',
+        );
         await expect(settings.locator('.g-md-header-color__swatch')).toHaveCount(2);
         await expect(settings.getByRole('switch')).toHaveCount(7);
         await expect(
@@ -323,7 +326,7 @@ test('should toggle, position, replace and remove the image', async ({mount, pag
 });
 
 for (const theme of ['light', 'dark'] as const) {
-    test(`should use table palettes and live theme colors in the ${theme} theme`, async ({
+    test(`should use standard text palettes and live theme colors in the ${theme} theme`, async ({
         mount,
         page,
         expectScreenshot,
@@ -340,18 +343,18 @@ for (const theme of ['light', 'dark'] as const) {
         const settings = page.getByRole('dialog', {name: 'Block settings', exact: true});
         await settings.getByRole('button', {name: 'Text color', exact: true}).click();
         const textPalette = page.getByRole('dialog', {name: 'Text color palette', exact: true});
-        await expect(textPalette.getByRole('button')).toHaveCount(12);
+        await expect(textPalette.getByRole('button')).toHaveCount(8);
         await expect(textPalette.getByRole('button', {name: 'Blue', exact: true})).toHaveAttribute(
             'aria-pressed',
             'true',
         );
-        await expect(textPalette.locator('.g-md-yfm-table-cell-bg-palette')).toHaveCSS(
-            'grid-template-columns',
-            /^(\S+\s+){5}\S+$/,
-        );
         await page.mouse.move(1400, 1500);
         await expectScreenshot({component: textPalette, themes: [theme], nameSuffix: 'text'});
-        await textPalette.getByRole('button', {name: 'Red', exact: true}).press('Space');
+        await textPalette.getByRole('button', {name: 'No color', exact: true}).press('ArrowRight');
+        await page.keyboard.press('ArrowRight');
+        await page.keyboard.press('ArrowRight');
+        await page.keyboard.press('ArrowRight');
+        await page.keyboard.press('Space');
         await expect(textPalette).toHaveCount(0);
         await expect(header).toHaveAttribute('data-text', 'red');
         const textColor = await header.evaluate((element) => {
@@ -391,7 +394,7 @@ for (const theme of ['light', 'dark'] as const) {
                 .getByRole('button', {name: 'Color', exact: true})
                 .locator('.g-md-header-color__swatch'),
         ).toHaveCSS('background-color', 'rgb(44, 55, 66)');
-        await themeOverride.evaluate((element) => element.remove());
+        await themeOverride.evaluate((element) => element.parentNode?.removeChild(element));
         await expect(header).not.toHaveCSS('background-color', 'rgb(44, 55, 66)');
         await settings.getByRole('button', {name: 'Color', exact: true}).click();
         await expect(fillPalette.getByRole('button', {name: 'Blue', exact: true})).toHaveAttribute(

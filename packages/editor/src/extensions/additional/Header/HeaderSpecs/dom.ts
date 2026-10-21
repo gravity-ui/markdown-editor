@@ -2,7 +2,7 @@ import type Token from 'markdown-it/lib/token';
 import type {DOMOutputSpec, Node} from 'prosemirror-model';
 
 import {type HeaderAttrs, normalizeHeaderAttrs} from './attrs';
-import {HeaderAttr, HeaderClassName} from './const';
+import {HeaderAttr, HeaderClassName, HeaderImageTheme, HeaderLayer} from './const';
 import {type HeaderShape, getHeaderShapes} from './decor';
 
 const SAFE_SCHEMES = ['http:', 'https:', 'blob:', 'data:image/'];
@@ -51,6 +51,21 @@ export function headerDomAttrs(attrs: HeaderAttrs): Record<string, string> {
     return dom;
 }
 
+function headerContentAttrs(attrs: HeaderAttrs): Record<string, string> {
+    const theme = attrs[HeaderAttr.BackgroundImageTheme];
+    const hasBackgroundImage =
+        attrs[HeaderAttr.ImageEnabled] === 'true' &&
+        attrs[HeaderAttr.Layer] === HeaderLayer.Full &&
+        Boolean(toCssUrl(attrs[HeaderAttr.Image]));
+    const className = HeaderClassName.Content;
+    return {
+        class:
+            hasBackgroundImage && theme !== HeaderImageTheme.System
+                ? `${className} g-root g-root_theme_${theme}`
+                : className,
+    };
+}
+
 const decorAttrs = {class: HeaderClassName.Decor, 'aria-hidden': 'true', contenteditable: 'false'};
 
 export function headerToDOM(node: Node): DOMOutputSpec {
@@ -60,7 +75,7 @@ export function headerToDOM(node: Node): DOMOutputSpec {
         shapeDomAttrs(shape),
     ]);
     const decor: DOMOutputSpec = ['span', decorAttrs, ...shapes];
-    return ['div', headerDomAttrs(attrs), decor, ['div', {class: HeaderClassName.Content}, 0]];
+    return ['div', headerDomAttrs(attrs), decor, ['div', headerContentAttrs(attrs), 0]];
 }
 
 const renderAttrs = (attrs: Record<string, string>, escape: (value: string) => string) =>
@@ -72,7 +87,7 @@ export function headerHtmlOpen(attrs: HeaderAttrs, escape: (value: string) => st
     const shapes = getHeaderShapes(attrs)
         .map((shape) => `<span${renderAttrs(shapeDomAttrs(shape), escape)}></span>`)
         .join('');
-    return `<div${renderAttrs(headerDomAttrs(attrs), escape)}><span${renderAttrs(decorAttrs, escape)}>${shapes}</span><div class="${HeaderClassName.Content}">`;
+    return `<div${renderAttrs(headerDomAttrs(attrs), escape)}><span${renderAttrs(decorAttrs, escape)}>${shapes}</span><div${renderAttrs(headerContentAttrs(attrs), escape)}>`;
 }
 
 export function headerHtmlClose(): string {

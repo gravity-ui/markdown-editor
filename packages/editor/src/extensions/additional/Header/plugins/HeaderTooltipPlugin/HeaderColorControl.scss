@@ -64,3 +64,19 @@
         }
     }
 }
+
+.g-md-header-color__text-swatch {
+    display: block;
+
+    width: 28px;
+    height: 28px;
+
+    border-radius: var(--g-border-radius-xs);
+    background: var(--g-color-text-primary);
+
+    @each $name, $color in fills.$header-text-colors {
+        &[data-color='#{$name}'] {
+            background: #{$color};
+        }
+    }
+}

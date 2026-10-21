@@ -195,3 +195,45 @@ describe('Header layout persistence', () => {
         parseDOM(schema, new MarkdownIt().use(headerDirective).render(markup), doc);
     });
 });
+
+describe('Header image text theme', () => {
+    it.each(['system', 'light', 'dark'])(
+        'should preserve the %s image text theme in Markdown and HTML',
+        (theme) => {
+            const markup = `:::header[Title]{image="https://example.com/cover.png" bg-image-theme="${theme}"}\n\nText\n\n:::`;
+            const doc = parser.parse(markup);
+            expect(doc.firstChild?.attrs['bg-image-theme']).toBe(theme);
+            const serialized = serializer.serialize(doc);
+            expect(parser.parse(serialized).eq(doc)).toBe(true);
+            const html = new MarkdownIt().use(headerDirective).render(markup);
+            parseDOM(schema, html, doc);
+            if (theme === 'system') {
+                expect(serialized).not.toContain('bg-image-theme');
+                expect(html).not.toContain('g-root_theme_');
+            } else {
+                expect(html).toContain(`g-md-header__content g-root g-root_theme_${theme}`);
+            }
+        },
+    );
+
+    it('should fall back to the system theme for an unknown value', () => {
+        const markup = ':::header[Title]{bg-image-theme="unknown"}\n\n:::';
+        const doc = parser.parse(markup);
+        expect(doc.firstChild?.attrs['bg-image-theme']).toBe('system');
+        expect(serializer.serialize(doc)).not.toContain('bg-image-theme');
+    });
+
+    it.each([
+        '',
+        'image="https://example.com/cover.png" image-enabled="false"',
+        'image="https://example.com/cover.png" layer="left"',
+        'image="javascript:alert(1)"',
+    ])('should keep the theme preference inactive for %s', (attrs) => {
+        const markup = `:::header[Title]{${attrs} bg-image-theme="dark"}\n\n:::`;
+        const doc = parser.parse(markup);
+        expect(parser.parse(serializer.serialize(doc)).eq(doc)).toBe(true);
+        expect(new MarkdownIt().use(headerDirective).render(markup)).not.toContain(
+            'g-root_theme_dark',
+        );
+    });
+});

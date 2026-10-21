@@ -33,6 +33,7 @@ import {
     HeaderAttr,
     type HeaderAttrs,
     HeaderBackground,
+    HeaderImageTheme,
     HeaderLayer,
     normalizeHeaderAttrs,
 } from '../../HeaderSpecs';
@@ -418,6 +419,34 @@ export function HeaderSettings({
                                     )}
                                 </div>,
                             )}
+                            {attrs.image &&
+                                attrs.layer === HeaderLayer.Full &&
+                                row(
+                                    i18n('image_theme'),
+                                    <Select
+                                        size="m"
+                                        width="max"
+                                        aria-label={i18n('image_theme')}
+                                        value={[attrs[HeaderAttr.BackgroundImageTheme]]}
+                                        options={[
+                                            {
+                                                value: HeaderImageTheme.System,
+                                                content: i18n('image_theme_system'),
+                                            },
+                                            {
+                                                value: HeaderImageTheme.Light,
+                                                content: i18n('image_theme_light'),
+                                            },
+                                            {
+                                                value: HeaderImageTheme.Dark,
+                                                content: i18n('image_theme_dark'),
+                                            },
+                                        ]}
+                                        onUpdate={([theme]) =>
+                                            patch({[HeaderAttr.BackgroundImageTheme]: theme})
+                                        }
+                                    />,
+                                )}
                             {row(
                                 i18n('layer'),
                                 <Select

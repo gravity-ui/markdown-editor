@@ -117,5 +117,9 @@
   "color_red-light": "Светло-красный",
   "color_purple-light": "Светло-фиолетовый",
   "color_blue-light": "Голубой",
-  "color_green-light": "Светло-зелёный"
+  "color_green-light": "Светло-зелёный",
+  "image_theme": "Тема",
+  "image_theme_system": "Системная",
+  "image_theme_light": "Светлая",
+  "image_theme_dark": "Тёмная"
 }

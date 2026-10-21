@@ -8,6 +8,7 @@ import {
     HeaderFit,
     HeaderFocus,
     HeaderFormat,
+    HeaderImageTheme,
     HeaderLayer,
     HeaderScale,
     HeaderShapes,
@@ -35,6 +36,7 @@ const choices = {
     [HeaderAttr.Fit]: Object.values(HeaderFit),
     [HeaderAttr.Focus]: Object.values(HeaderFocus),
     [HeaderAttr.Text]: Object.values(HeaderText),
+    [HeaderAttr.BackgroundImageTheme]: Object.values(HeaderImageTheme),
 };
 
 const ATTR_ORDER = [
@@ -58,6 +60,7 @@ const ATTR_ORDER = [
     HeaderAttr.Focus,
     HeaderAttr.Effect,
     HeaderAttr.Text,
+    HeaderAttr.BackgroundImageTheme,
 ] as const;
 
 export function normalizeHeaderAttrs(raw: Readonly<Record<string, unknown>> = {}): HeaderAttrs {

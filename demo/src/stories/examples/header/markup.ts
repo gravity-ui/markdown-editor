@@ -15,7 +15,21 @@ const cover = (title: string, attrs: string, content = '') =>
     `:::header[${title}]{${attrs}}\n\n${content}\n\n:::`;
 const covers = (...items: string[]) => items.join('\n\n');
 
+const textPalette = ['gray', 'yellow', 'orange', 'red', 'green', 'blue', 'violet']
+    .map((color) => `{${color}}(${color})`)
+    .join(' · ');
+
 export const markup = {
+    imageThemes: covers(
+        `Outside the cover: ${textPalette} · [Link](/page)`,
+        ...['system', 'light', 'dark'].map((theme) =>
+            cover(
+                `${theme} text theme`,
+                `bg="fill" fill="blue-light" image="${designImage}" bg-image-theme="${theme}"`,
+                `Plain text · ${textPalette} · [Link](/page)\n\n${designActions}`,
+            ),
+        ),
+    ),
     designSettings: cover(
         'Your title',
         `bg="fill" fill="light-blue" image="${designImage}" image-name="abstract-dark-blue-black-gradients.png" text="blue"`,

@@ -1,5 +1,7 @@
 @use 'sass:map';
 @use './fills' as fills;
+@use '@diplodoc/themes/lib/gravity/light.scss' as yfm-light;
+@use '@diplodoc/themes/lib/gravity/dark.scss' as yfm-dark;
 
 $focus: (
     'center': center,
@@ -428,4 +430,27 @@ $scale: (
 
 .g-md-header__action[data-enabled='false'] {
     display: none;
+}
+
+// Theme and palette variables must resolve inside the content, not on the cover's background.
+
+.g-md-header[data-image]:not([data-image-enabled='false'])[data-layer='full'] {
+    @each $name, $color in fills.$header-text-colors {
+        &[data-text='#{$name}'] > .g-md-header__content {
+            --g-md-header-text: #{$color};
+        }
+    }
+    > .g-md-header__content {
+        --g-md-header-text: var(--g-color-text-primary);
+
+        background: transparent;
+    }
+}
+
+.g-md-header__content.g-root_theme_light {
+    @include yfm-light.gravity-colors-for-diplodoc-light();
+}
+
+.g-md-header__content.g-root_theme_dark {
+    @include yfm-dark.gravity-colors-for-diplodoc-dark();
 }

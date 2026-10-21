@@ -1,12 +1,14 @@
 import {useRef, useState} from 'react';
 
 import {ChevronDown} from '@gravity-ui/icons';
-import {Button, Icon, Popup} from '@gravity-ui/uikit';
+import {Button, Icon, Palette, Popup} from '@gravity-ui/uikit';
 
 import {cn} from 'src/classname';
+import {Colors} from 'src/extensions/yfm/Color/const';
 import {CellBgPalette} from 'src/extensions/yfm/YfmTable/plugins/YfmTableControls/components/CellBgPalette';
 import {CELL_BG_SWATCHES} from 'src/extensions/yfm/YfmTable/plugins/YfmTableControls/components/CellBgPalette/colors';
 import {i18n} from 'src/i18n/header';
+import {i18n as menubarI18n} from 'src/i18n/menubar';
 import {i18n as tableI18n} from 'src/i18n/yfm-table';
 
 import './HeaderColorControl.scss';
@@ -36,11 +38,21 @@ export function HeaderColorControl({
 }) {
     const anchor = useRef<HTMLButtonElement>(null);
     const [open, setOpen] = useState(false);
-    const paletteValue = value === 'auto' || value === 'primary' ? '' : (aliases[value] ?? value);
+    const textColors = Object.values(Colors).map((color) => ({
+        value: color,
+        title: menubarI18n(`colorify__color_${color}`),
+    }));
+    const colorAliases: Record<string, string> =
+        kind === 'text' ? {grey: 'gray', purple: 'violet'} : aliases;
+    const paletteValue =
+        value === 'auto' || value === 'primary' ? '' : (colorAliases[value] ?? value);
     const swatch = CELL_BG_SWATCHES.find((item) => item.value === paletteValue);
-    const name = swatch
-        ? tableI18n(swatch.i18nKey)
-        : i18n(`text_${value}` as Parameters<typeof i18n>[0]);
+    const name =
+        kind === 'text'
+            ? (textColors.find((color) => color.value === paletteValue)?.title ?? i18n('text_auto'))
+            : swatch
+              ? tableI18n(swatch.i18nKey)
+              : i18n(`text_${value}` as Parameters<typeof i18n>[0]);
     const paletteLabel = `${label} ${i18n('palette')}`;
 
     return (
@@ -72,13 +84,37 @@ export function HeaderColorControl({
                 onOpenChange={setOpen}
             >
                 <div className={b('palette', {kind})} role="dialog" aria-label={paletteLabel}>
-                    <CellBgPalette
-                        value={paletteValue}
-                        onSelect={(color) => {
-                            setOpen(false);
-                            onUpdate(color);
-                        }}
-                    />
+                    {kind === 'text' ? (
+                        <Palette
+                            multiple={false}
+                            columns={4}
+                            value={[paletteValue]}
+                            options={[{value: '', title: i18n('no_color')}, ...textColors].map(
+                                ({value: color, title}) => ({
+                                    value: color,
+                                    title,
+                                    content: (
+                                        <span
+                                            className={b('text-swatch')}
+                                            data-color={color || 'default'}
+                                        />
+                                    ),
+                                }),
+                            )}
+                            onUpdate={([color]) => {
+                                setOpen(false);
+                                onUpdate(color || null);
+                            }}
+                        />
+                    ) : (
+                        <CellBgPalette
+                            value={paletteValue}
+                            onSelect={(color) => {
+                                setOpen(false);
+                                onUpdate(color);
+                            }}
+                        />
+                    )}
                 </div>
             </Popup>
         </>

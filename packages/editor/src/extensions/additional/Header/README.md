@@ -22,7 +22,7 @@
 | ----------- | ---------------------------------------------------------- | ------------ | ---------------------------- |
 | `format`    | `small`, `medium`, `large`                                 | `medium`     | всегда                       |
 | `bg`        | `surface`, `fill`, `shapes`, `gradient`, `mesh`, `pattern` | `shapes`     | всегда                       |
-| `fill`      | 11 цветов палитры таблиц                                          | `blue`       | всегда                       |
+| `fill`      | 11 цветов палитры таблиц                                   | `blue`       | всегда                       |
 | `fill2`     | те же цвета                                                | `purple`     | `gradient`, `mesh`           |
 | `direction` | `diagonal`, `right`, `down`                                | `diagonal`   | `gradient`                   |
 | `shapes`    | `diagonal`, `corner`, `edges`, `bottom`, `scatter`         | `diagonal`   | `shapes`, `mesh`             |
@@ -32,7 +32,7 @@
 | `fit`       | `crop`, `whole`                                            | `crop`       | задано `image`, кроме `tile` |
 | `focus`     | `center`, `top`, `right`, `bottom`, `left` и четыре угла   | `center`     | задано `image`, кроме `tile` |
 | `effect`    | `none`, `darken`, `blur`, `fade`                           | `none`       | `layer="full"`               |
-| `text`      | `auto`, `light`, `dark`, `primary`, `brand`, `blue`                | `auto`       | всегда                       |
+| `text`      | `auto`, `light`, `dark`, `primary`, `brand`, `blue`        | `auto`       | всегда                       |
 
 Цвет `fill` записывается всегда. Другие значения по умолчанию и неприменимые параметры не сериализуются. Неизвестный параметр отбрасывается, неизвестное значение заменяется значением по умолчанию.
 
@@ -72,4 +72,8 @@ Enter в заголовке переводит курсор в подзагол�
 `image-name` сохраняет имя загруженного файла.
 `enabled="false"` у действия скрывает кнопку, сохраняя её позицию, текст, ссылку и стиль.
 
-Цвета текста и фона используют переменные темы Gravity UI. Палитра повторяет сетку цветов таблицы.
+Text uses the standard editor palette and CSS theme variables. Background colors use the table palette.
+
+`bg-image-theme="system|light|dark"` selects the text theme for an enabled full-background image. The default `system` follows the editor theme. `light` and `dark` retain the selected palette theme. The preference is preserved when the image is disabled or removed.
+
+[Implementation and verification](../../../../../../docs/header-image-text-theme.md).

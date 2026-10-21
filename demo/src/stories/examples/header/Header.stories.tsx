@@ -4,6 +4,8 @@ import {HeaderDemo as component} from './Header';
 
 type Story = StoryObj<typeof component>;
 
+export const ImageThemes: Story = {args: {markupKey: 'imageThemes'}};
+
 export const Design: Story = {args: {markupKey: 'design'}};
 export const DesignSizes: Story = {args: {markupKey: 'designSizes'}};
 export const DesignLayouts: Story = {args: {markupKey: 'designLayouts'}};

@@ -117,5 +117,9 @@
   "color_red-light": "Light red",
   "color_purple-light": "Light purple",
   "color_blue-light": "Light blue",
-  "color_green-light": "Light green"
+  "color_green-light": "Light green",
+  "image_theme": "Theme",
+  "image_theme_system": "System",
+  "image_theme_light": "Light",
+  "image_theme_dark": "Dark"
 }

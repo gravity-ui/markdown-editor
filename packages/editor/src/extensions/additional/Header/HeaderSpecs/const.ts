@@ -31,6 +31,7 @@ export const HeaderAttr = {
     Fit: 'fit',
     Focus: 'focus',
     Text: 'text',
+    BackgroundImageTheme: 'bg-image-theme',
 } as const;
 
 export const HeaderFormat = {
@@ -95,7 +96,12 @@ export const HeaderShapes = {
 } as const;
 export const HeaderScale = {Small: 'small', Medium: 'medium', Large: 'large'} as const;
 
+export const HeaderImageTheme = {System: 'system', Light: 'light', Dark: 'dark'} as const;
+
 export const HeaderText = {
+    Gray: 'gray',
+    Orange: 'orange',
+    Violet: 'violet',
     Auto: 'auto',
     Light: 'light',
     Dark: 'dark',
@@ -185,6 +191,7 @@ export const HeaderDefaults = {
     [HeaderAttr.Fit]: HeaderFit.Crop,
     [HeaderAttr.Focus]: HeaderFocus.Center,
     [HeaderAttr.Text]: HeaderText.Auto,
+    [HeaderAttr.BackgroundImageTheme]: HeaderImageTheme.System,
 } as const;
 
 export const HeaderClassName = {
