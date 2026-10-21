@@ -1,27 +1,8 @@
-@use 'sass:math';
-
 @mixin block-border-hover() {
     border: 1px dashed transparent;
     border-radius: var(--g-border-radius-s);
 
     &:hover {
         border-color: var(--g-color-line-generic);
-    }
-}
-
-// The UIKit Label of the `xs` size, 18 px high and fully rounded, inside a line of text.
-
-@mixin inline-label() {
-    $height: 18px;
-
-    height: $height;
-
-    vertical-align: middle;
-
-    border-radius: math.div($height, 2);
-
-    .g-label__text {
-        // The horizontal margin of the 18 px Label in newer UIKit versions.
-        margin: 0 6px;
     }
 }

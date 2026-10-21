@@ -8,8 +8,6 @@ import {YfmDateSpecs, dateType, getTodayIsoDate} from './YfmDateSpecs';
 import {dateKeymap, insertDate} from './commands';
 import {dateEditPlugin} from './edit-state';
 
-import './index.scss';
-
 export * from './YfmDateSpecs';
 export {insertDate, updateDate} from './commands';
 
