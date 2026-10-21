@@ -1,8 +1,8 @@
-// Высоты из макета: обложки 236, 260 и 300 px.
+// S и M — из макета. Высоты L в макете нет, 360 px — временное значение.
 $heights: (
     's': 236px,
-    'm': 260px,
-    'l': 300px,
+    'm': 300px,
+    'l': 360px,
 );
 
 .g-md-header {
@@ -10,7 +10,7 @@ $heights: (
     width: 100%;
     margin: 0 0 15px;
 
-    border-radius: var(--g-border-radius-xl);
+    border-radius: 24px;
     background-color: var(--g-color-base-generic);
 
     @each $name, $height in $heights {
