@@ -115,6 +115,7 @@ export const documents = [
             reference,
             formulas,
             markup.yfmPageConstructor,
+            markup.mermaidDiagram,
             feedback,
         ].join('\n\n'),
     },
@@ -127,6 +128,7 @@ export const documents = [
             codeExample,
             formulas,
             markup.yfmPageConstructor,
+            markup.mermaidDiagram,
             feedback,
         ].join('\n\n'),
     },
@@ -161,6 +163,13 @@ export const pageConstructorDocuments = [
         source: markup.yfmPageConstructor.replace("title: 'Title'", "title: 'Updated title'"),
     },
     {label: 'Plain text', source: '## Plain text\n\nThis document has no Page Constructor blocks.'},
+];
+
+export const mermaidDocuments = [
+    {label: 'Diagram', source: markup.mermaidDiagram},
+    {label: 'Updated diagram', source: markup.mermaidDiagram.replaceAll('Alice', 'Carol')},
+    {label: 'Plain text', source: '## Plain text\n\nThis document has no diagrams.'},
+    {label: 'Invalid diagram', source: '```mermaid\nnot a diagram\n```'},
 ];
 
 const codeBlockIntroduction = dd`
