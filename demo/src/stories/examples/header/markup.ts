@@ -3,7 +3,10 @@ const badge =
 const tile =
     "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M16 4 L28 16 L16 28 L4 16Z' fill='royalblue' fill-opacity='0.35'/></svg>";
 const landscape =
-    "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 600'><rect width='1200' height='600' fill='lightsteelblue'/><circle cx='900' cy='180' r='90' fill='gold'/><path d='M0 420 Q300 260 600 400 T1200 360 V600 H0Z' fill='seagreen'/><path d='M0 500 Q400 380 800 480 T1200 470 V600 H0Z' fill='darkgreen'/></svg>";
+    "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 600' fill='seagreen'><rect width='1200' height='600' fill='lightsteelblue'/><circle cx='900' cy='120' r='90' fill='gold'/><path d='M0 600V420Q600 260 1200 420V600Z'/></svg>";
+/** Шире любого блока: кадр сдвигается по горизонтали. В адресе ссылки пробелы заменяются на `%20`. */
+const panorama =
+    "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 200' fill='seagreen'><rect width='1600' height='200' fill='lightsteelblue'/><circle cx='120' cy='100' r='70' fill='gold'/><path d='M1100 200L1350 40L1600 200Z'/></svg>";
 
 const text =
     'Everything that you dreamed of can be brought to life exactly at the moment when you decide to win.';
@@ -30,8 +33,8 @@ const secondary = action('Learn more');
 const page = (attrs: string) =>
     header(attrs, title('Your title'), content(text), actions(primary, secondary));
 
-/** `yellow-light` → `Yellow light`. */
-const label = (value: string) => value[0].toUpperCase() + value.slice(1).replace(/-/g, ' ');
+/** `button` → `Button`. */
+const label = (value: string) => value[0].toUpperCase() + value.slice(1);
 const each = (
     values: string[],
     name: (value: string) => string,
@@ -67,14 +70,20 @@ const focuses = [
     'bottom-right',
     'bottom-left',
 ];
+/** Кадр выходит за край блока только по одной оси, поэтому у угла виден сдвиг по одной оси. */
+const isVertical = (focus: string) => ['center', 'top', 'bottom'].includes(focus);
+const focusName = (focus: string) =>
+    focus.includes('-') ? `Focus ${focus}, horizontal shift` : `Focus ${focus}`;
 const decors = ['none', 'darken', 'lighten', 'blur', 'gradient', 'mesh', 'shapes', 'pattern'];
 const directions = ['diagonal', 'right', 'down'];
 const shapes = ['diagonal', 'corner', 'edges', 'bottom', 'scatter'];
 const scales = ['small', 'medium', 'large'];
 
-/** Второй цвет нужен только слоям `gradient` и `mesh`. */
+/** Поверх изображения заливку видно только у слоёв `gradient` и `mesh`. */
 const decorAttrs = (decor: string) =>
-    ['gradient', 'mesh'].includes(decor) ? `fill2="purple" decor="${decor}"` : `decor="${decor}"`;
+    ['gradient', 'mesh'].includes(decor)
+        ? `fill="blue-light" fill2="purple" decor="${decor}"`
+        : `decor="${decor}"`;
 
 /**
  * Примеры сгруппированы по темам: группа → имя примера → разметка.
@@ -86,18 +95,22 @@ export function getHeaderExamples(cover: string): Record<string, Record<string, 
         Alignment: Object.fromEntries(
             verticals.flatMap((vertical) =>
                 aligns.map((align) => [
-                    `${label(align)}, ${vertical}`,
-                    page(`fill="blue-light" align="${align}" vertical="${vertical}"`),
+                    `Align ${align}, vertical ${vertical}`,
+                    page(`align="${align}" vertical="${vertical}" fill="blue-light"`),
                 ]),
             ),
         ),
         Height: {
-            ...each(formats, label, (format) => page(`format="${format}" fill="blue-light"`)),
-            'Small, short content': header(
+            ...each(
+                formats,
+                (format) => `Format ${format}`,
+                (format) => page(`format="${format}" fill="blue-light"`),
+            ),
+            'Format small, short content': header(
                 'format="small" fill="blue-light"',
                 title('Only a title'),
             ),
-            'Small, long content': header(
+            'Format small, long content': header(
                 'format="small" fill="blue-light"',
                 title('Your title'),
                 content(...longText),
@@ -107,9 +120,9 @@ export function getHeaderExamples(cover: string): Record<string, Record<string, 
         Width: Object.fromEntries(
             ['true', 'false'].flatMap((fixed) =>
                 ['rounded', 'bleed'].map((edges) => [
-                    `${fixed === 'true' ? 'Fixed' : 'Full width'}, ${edges}`,
+                    `Edges ${edges}, fixed ${fixed}`,
                     header(
-                        `fixed="${fixed}" edges="${edges}" fill="blue-light"`,
+                        `edges="${edges}" fixed="${fixed}" fill="blue-light"`,
                         title('Your title'),
                         content(`${text} ${text}`),
                     ),
@@ -119,28 +132,31 @@ export function getHeaderExamples(cover: string): Record<string, Record<string, 
         Border: Object.fromEntries(
             borders.flatMap((border) =>
                 ['system', 'blue-light'].map((fill) => [
-                    `${label(border)}, ${fill} fill`,
+                    `Border ${border}, fill ${fill}`,
                     header(
                         `format="small" border="${border}" fill="${fill}"`,
-                        title(`border="${border}"`),
+                        title('Your title'),
                         content(text),
                     ),
                 ]),
             ),
         ),
-        Fill: each(['system', ...palette], label, (fill) =>
-            header(`format="small" fill="${fill}"`, title(`fill="${fill}"`), content(text)),
+        Fill: each(
+            ['system', ...palette],
+            (fill) => `Fill ${fill}`,
+            (fill) => header(`format="small" fill="${fill}"`, title('Your title'), content(text)),
         ),
         'Background image': {
             ...Object.fromEntries(
                 ['cover', 'object'].flatMap((layout) =>
                     ['crop', 'whole'].map((fit) => [
-                        `${label(layout)}, ${fit}`,
+                        `Layout ${layout}, fit ${fit}`,
                         header(
-                            layout === 'cover'
-                                ? `fill="blue-light" bg="image" image="${landscape}" layout="cover" fit="${fit}"`
-                                : `fill="blue-light" bg="image" image="${badge}" layout="object" fit="${fit}" focus="right"`,
-                            title(`layout="${layout}" fit="${fit}"`),
+                            // Заливку видно только там, где изображение не закрывает блок целиком.
+                            layout === 'cover' && fit === 'crop'
+                                ? `bg="image" image="${landscape}" layout="cover" fit="${fit}"`
+                                : `bg="image" image="${layout === 'cover' ? landscape : badge}" layout="${layout}" fit="${fit}" fill="blue-light"`,
+                            title('Your title'),
                             content(text),
                         ),
                     ]),
@@ -148,88 +164,92 @@ export function getHeaderExamples(cover: string): Record<string, Record<string, 
             ),
             ...each(
                 scales,
-                (scale) => `Tile, ${scale}`,
+                (scale) => `Layout tile, scale ${scale}`,
                 (scale) =>
                     header(
-                        `format="small" fill="blue-light" bg="image" image="${tile}" layout="tile" scale="${scale}"`,
-                        title(`layout="tile" scale="${scale}"`),
+                        `format="small" bg="image" image="${tile}" layout="tile" fill="blue-light" scale="${scale}"`,
+                        title('Your title'),
                     ),
             ),
-            ...each(
-                focuses,
-                (focus) => `Focus ${focus}`,
-                (focus) =>
-                    header(
-                        `format="small" bg="image" image="${landscape}" focus="${focus}"`,
-                        title(`focus="${focus}"`),
-                    ),
+            ...each(focuses, focusName, (focus) =>
+                header(
+                    `format="small" bg="image" image="${isVertical(focus) ? landscape : panorama}" focus="${focus}"`,
+                    title('Your title'),
+                ),
             ),
         },
         'Decor layer': {
+            // `blur` на заливке не виден, а `gradient`, `mesh` и `pattern` показаны рядами своих параметров.
             ...each(
-                decors,
-                (decor) => `${label(decor)} over fill`,
+                ['none', 'darken', 'lighten', 'shapes'],
+                (decor) => `Decor ${decor} over fill`,
                 (decor) =>
                     header(
-                        `format="small" fill="blue-light" ${decorAttrs(decor)}`,
-                        title(`decor="${decor}"`),
+                        `format="small" fill="blue-light" decor="${decor}"`,
+                        title('Your title'),
                         content(text),
                     ),
             ),
             ...each(
                 decors,
-                (decor) => `${label(decor)} over image`,
+                (decor) => `Decor ${decor} over image`,
                 (decor) =>
                     header(
-                        `format="small" bg="image" image="${landscape}" fill="blue-light" ${decorAttrs(decor)}`,
-                        title(`decor="${decor}"`),
+                        `format="small" bg="image" image="${landscape}" ${decorAttrs(decor)}`,
+                        title('Your title'),
                         content(text),
                     ),
+            ),
+            ...each(
+                palette,
+                (fill2) => `Fill2 ${fill2}`,
+                (fill2) =>
+                    header(`format="small" fill2="${fill2}" decor="gradient"`, title('Your title')),
             ),
             ...each(
                 directions,
-                (direction) => `Gradient, ${direction}`,
+                (direction) => `Decor gradient, direction ${direction}`,
                 (direction) =>
                     header(
                         `format="small" fill="blue-light" fill2="purple" decor="gradient" direction="${direction}"`,
-                        title(`direction="${direction}"`),
+                        title('Your title'),
                     ),
             ),
             ...each(
                 shapes,
-                (shape) => `Mesh, ${shape}`,
+                (shape) => `Decor mesh, shape ${shape}`,
                 (shape) =>
                     header(
                         `format="small" fill="blue-light" fill2="purple" decor="mesh" shape="${shape}"`,
-                        title(`shape="${shape}"`),
+                        title('Your title'),
                     ),
             ),
             ...each(
                 shapes,
-                (shape) => `Shapes, ${shape}`,
+                (shape) => `Decor shapes, shape ${shape}`,
                 (shape) =>
                     header(
                         `format="small" fill="blue" decor="shapes" shape="${shape}"`,
-                        title(`shape="${shape}"`),
+                        title('Your title'),
                     ),
             ),
             ...each(
                 scales,
-                (scale) => `Pattern, ${scale}`,
+                (scale) => `Decor pattern, scale ${scale}`,
                 (scale) =>
                     header(
                         `format="small" fill="blue-light" decor="pattern" scale="${scale}"`,
-                        title(`scale="${scale}"`),
+                        title('Your title'),
                     ),
             ),
         },
         'Text color': Object.fromEntries(
             ['blue-light', 'blue'].flatMap((fill) =>
                 textColors.map((color) => [
-                    `${label(color)} on ${fill === 'blue' ? 'a dark' : 'a light'} fill`,
+                    `Text ${color}, fill ${fill}`,
                     header(
                         `format="small" fill="${fill}" text="${color}"`,
-                        title(`text="${color}"`),
+                        title('Your title'),
                         content(text),
                     ),
                 ]),
@@ -239,7 +259,7 @@ export function getHeaderExamples(cover: string): Record<string, Record<string, 
             ...Object.fromEntries(
                 ['right', 'left'].flatMap((side) =>
                     ['crop', 'whole'].map((fit) => [
-                        `${label(side)}, ${fit}`,
+                        `Side ${side}, fit ${fit}`,
                         header(
                             'fill="blue-light"',
                             title('Your title'),
@@ -250,15 +270,14 @@ export function getHeaderExamples(cover: string): Record<string, Record<string, 
                     ]),
                 ),
             ),
-            ...each(
-                focuses.slice(1),
-                (focus) => `Focus ${focus}`,
-                (focus) =>
-                    header(
-                        'format="small" fill="blue-light"',
-                        title(`focus="${focus}"`),
-                        image('Abstract waves', cover, `focus="${focus}"`),
-                    ),
+            ...each(focuses.slice(1), focusName, (focus) =>
+                header(
+                    'format="small" fill="blue-light"',
+                    title('Your title'),
+                    isVertical(focus)
+                        ? image('Abstract waves', cover, `focus="${focus}"`)
+                        : image('Landscape', panorama.replace(/ /g, '%20'), `focus="${focus}"`),
+                ),
             ),
             'With a background image': header(
                 `bg="image" image="${landscape}"`,
@@ -331,7 +350,7 @@ export function getHeaderExamples(cover: string): Record<string, Record<string, 
                 (type) =>
                     header(
                         'format="small" fill="blue-light"',
-                        title(`type="${type}"`),
+                        title('Your title'),
                         actions(action(label(type), `type="${type}"`)),
                     ),
             ),
@@ -341,9 +360,9 @@ export function getHeaderExamples(cover: string): Record<string, Record<string, 
                 (color) =>
                     header(
                         'format="small" border="solid"',
-                        title(`color="${color}"`),
+                        title('Your title'),
                         actions(
-                            action('Button', `type="button" color="${color}"`),
+                            action('Button', `color="${color}"`),
                             action('Link', `type="link" color="${color}"`),
                         ),
                     ),

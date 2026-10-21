@@ -94,9 +94,9 @@ export const HeaderCatalogue = memo(function HeaderCatalogue({group}: HeaderCata
 });
 
 const editorMarkup = [
-    examples.Alignment['Left, center'],
-    examples['Content image']['Right, crop'],
-    examples['Decor layer']['Mesh over fill'],
+    examples.Alignment['Align left, vertical center'],
+    examples['Content image']['Side right, fit crop'],
+    examples['Decor layer']['Decor mesh, shape diagonal'],
     examples['Background image']['Focus bottom'],
     examples['Edge cases']['Inside a cut'],
 ].join('\n\n');
