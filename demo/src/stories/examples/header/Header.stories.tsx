@@ -18,6 +18,7 @@ export const ContentImage = group('Content image');
 export const Title = group('Title');
 export const Content = group('Content');
 export const Actions = group('Actions');
+export const Combinations = group('Combinations');
 export const EdgeCases = group('Edge cases');
 
 /** Все группы подряд. */

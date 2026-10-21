@@ -347,6 +347,104 @@ export function getHeaderExamples(
                     ),
             ),
         },
+        Combinations: {
+            'Travel guide': header(
+                `format="large" vertical="top" bg="image" image="${landscape}" decor="lighten" text="green"`,
+                title('Northern lakes'),
+                content(
+                    'Six quiet routes through the mountains, with places to stay along the shore.',
+                ),
+                actions(
+                    action('Plan a trip', 'color="green"'),
+                    action('See the map', 'type="link" color="green"'),
+                ),
+            ),
+            'Photo essay': header(
+                `format="large" align="center" bg="image" image="${landscape}" decor="blur"`,
+                title('A week without a signal'),
+                content('Notes and pictures from a walk around the lake.'),
+                actions(action('Read the story', 'color="blue"')),
+            ),
+            'Field notes': header(
+                `bg="image" image="${landscape}" focus="bottom" fill="green-light" fill2="blue-light" decor="gradient" direction="right"`,
+                title('Field notes', 'size="2"'),
+                content('Weather, water level and trail conditions, updated every morning.'),
+                image('Abstract waves', cover, 'side="left"'),
+                actions(action('Open the log', 'color="green"'), secondary),
+            ),
+            'Spring release': header(
+                'fill="green-light"',
+                title('Spring release'),
+                content('Offline mode, faster search and a new dark theme.'),
+                image('Abstract waves', cover),
+                actions(
+                    action('Update now', 'color="green"'),
+                    action('Release notes', 'type="link" color="green"'),
+                ),
+            ),
+            'Developer portal': header(
+                'format="large" edges="bleed" fixed="false" fill="blue" fill2="purple" decor="mesh" shape="corner"',
+                title('Build on our platform'),
+                content('Guides, API reference and examples for every language we support.'),
+                actions(
+                    action('Get an API key', 'color="purple-light"'),
+                    action('Browse the docs', 'type="link"'),
+                ),
+            ),
+            'Team handbook': header(
+                'border="dashed" fill="yellow-light"',
+                title('Team handbook', 'size="2"'),
+                content('How we plan, review and ship. **Start here** if you joined this month.'),
+                actions(action('Open the handbook', 'color="yellow"'), secondary),
+            ),
+            'Security notice': header(
+                'format="small" border="solid" fill="red-light" text="red"',
+                title('Rotate your access tokens', 'size="3"'),
+                content('Tokens created before March stop working on Monday.'),
+                actions(action('How to rotate', 'type="link" color="red"')),
+            ),
+            'Weekly digest': header(
+                'format="small" align="right" vertical="top" fill="grey" decor="shapes" shape="scatter"',
+                title('Weekly digest', 'size="4"'),
+                content('Twelve merged changes, three new pages, one fixed outage.'),
+            ),
+            'Research lab': header(
+                'fill="purple" fill2="blue" decor="gradient" direction="right"',
+                title('Research lab', 'size="2"'),
+                content('> We publish every experiment, including the ones that failed.'),
+                image('Abstract waves', cover, 'side="left"'),
+                actions(action('Read the papers', 'color="purple-light"')),
+            ),
+            'Photo of the month': header(
+                `edges="bleed" align="right" vertical="bottom" border="solid" bg="image" image="${landscape}" layout="object" focus="top" fill="blue-light"`,
+                actions(action('Photo of the month', 'color="blue"')),
+            ),
+            'Evening webinar': header(
+                'align="center" fill="purple" decor="shapes" shape="edges"',
+                title('Evening webinar'),
+                content('Thursday, 19:00. Questions from the audience at the end.'),
+                actions(
+                    action('Register', 'color="yellow"'),
+                    action('Add to calendar', 'type="link" color="purple-light"'),
+                ),
+            ),
+            'Getting started': header(
+                'align="center" border="dotted"',
+                title('Getting started'),
+                content('Install the package, connect the editor and write your first page.'),
+                actions(
+                    action('Install', 'color="blue"'),
+                    secondary,
+                    action('Ask a question', 'type="link" color="blue"'),
+                ),
+            ),
+            Changelog: header(
+                'format="small" edges="bleed" align="right" vertical="bottom" fill="green"',
+                title('Version 2.4', 'size="5"'),
+                content('Released on 14 October. Fixes for tables, lists and the toolbar.'),
+                actions(action('All versions', 'type="link"')),
+            ),
+        },
         'Edge cases': {
             'Empty block': header(''),
             'No title': header('fill="green-light"', content(text), actions(primary)),

@@ -63,6 +63,7 @@ describe('Header examples', () => {
             'Title',
             'Content',
             'Actions',
+            'Combinations',
             'Edge cases',
         ]);
     });
