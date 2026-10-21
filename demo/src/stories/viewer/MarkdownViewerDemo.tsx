@@ -1,6 +1,8 @@
 import {useMemo, useState} from 'react';
 
+import {transform as latex} from '@diplodoc/latex-extension';
 import transform from '@diplodoc/transform';
+import defaultPlugins from '@diplodoc/transform/lib/plugins';
 import {type GalleryItemProps, GalleryProvider} from '@gravity-ui/components';
 import {MarkdownViewer, cnYFM} from '@gravity-ui/markdown-viewer';
 import {
@@ -12,12 +14,15 @@ import {Button, Flex, SegmentedRadioGroup, Text, sp} from '@gravity-ui/uikit';
 
 import {cn} from './cn';
 import {documents as defaultDocuments, galleryCustomFile} from './content';
+import {DiplodocLatex} from './extensions/DiplodocLatex';
 import {Feedback} from './extensions/Feedback';
 import {PreserveCutState} from './extensions/PreserveCutState';
 import {TargetHelp} from './extensions/TargetHelp';
 
 import './MarkdownViewerDemo.scss';
 import '@diplodoc/transform/dist/css/yfm.css';
+
+const plugins = [...defaultPlugins, latex({bundle: false, validate: false})];
 
 interface MarkdownViewerDemoProps {
     documents?: readonly {label: string; source: string}[];
@@ -32,7 +37,7 @@ export function MarkdownViewerDemo({
     const [showFeedback, setShowFeedback] = useState(true);
     const document = documents[documentIndex];
     const result = useMemo(
-        () => transform(document.source, {allowHTML: true, codeLineWrapping: true}).result,
+        () => transform(document.source, {allowHTML: true, codeLineWrapping: true, plugins}).result,
         [document.source],
     );
 
@@ -79,6 +84,7 @@ export function MarkdownViewerDemo({
                     <PreserveCutState />
                     <TargetHelp />
                     <YfmCodeBlockActions />
+                    <DiplodocLatex meta={result.meta} />
                     <FilesGallery
                         getCopyUrl={getGalleryUrl}
                         getDownloadUrl={getGalleryUrl}
