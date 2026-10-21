@@ -3,6 +3,8 @@ import {EditorSelection, EditorState, type StateCommand} from '@codemirror/state
 import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
+import spoiler from '../../markdown-it/spoiler';
+
 import {wrapToInlineCode} from './code';
 import {toggleInlineMarkupFactory} from './helpers';
 import {
@@ -11,6 +13,7 @@ import {
     toggleItalic,
     toggleMarked,
     toggleMonospace,
+    toggleSpoiler,
     toggleStrikethrough,
     toggleUnderline,
 } from './marks';
@@ -221,6 +224,27 @@ describe('inline paragraph formatting', () => {
 
         editor.run(command);
         expect(editor.state.doc.toString()).toBe('First\n\nSecond');
+    });
+
+    it('should toggle spoiler directive for each paragraph', () => {
+        const editor = createEditor('First\n\nSecond');
+        editor.run(toggleSpoiler);
+        expect(editor.state.doc.toString()).toBe(':spoiler[First]\n\n:spoiler[Second]');
+        expect(new MarkdownIt().use(spoiler).render(editor.state.doc.toString())).toBe(
+            '<p><span class="yfm-spoiler"><span class="yfm-spoiler__content">First</span></span></p>\n' +
+                '<p><span class="yfm-spoiler"><span class="yfm-spoiler__content">Second</span></span></p>\n',
+        );
+
+        editor.run(toggleSpoiler);
+        expect(editor.state.doc.toString()).toBe('First\n\nSecond');
+    });
+
+    it('should insert spoiler directive at the cursor', () => {
+        const editor = createEditor('Text ', EditorSelection.single(5));
+        editor.run(toggleSpoiler);
+
+        expect(editor.state.doc.toString()).toBe('Text :spoiler[]');
+        expect(editor.state.selection.main).toEqual(EditorSelection.cursor(14));
     });
 
     it('should keep Windows line separators', () => {

@@ -1,0 +1,96 @@
+// Inline spoiler: noise over hidden text.
+// The noise is a masked background, so the text keeps its size and line breaks.
+// The noise uses the text color, so it follows the light and dark themes.
+// The mask comes from an SVG noise filter.
+$noise-size: 128px;
+$noise-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 9 0 0 0 -5.6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+@keyframes yfm-spoiler-noise {
+    from {
+        mask-position: 0 0;
+    }
+
+    // The shift equals the tile size, so the loop has no visible jump
+    to {
+        mask-position: $noise-size $noise-size;
+    }
+}
+
+.yfm-spoiler {
+    border-radius: 4px;
+    background-color: color-mix(in sRGB, currentColor 70%, transparent);
+    box-decoration-break: clone;
+    forced-color-adjust: none;
+    mask-image: $noise-mask;
+    mask-size: $noise-size $noise-size;
+    // A few steps per second are enough for the noise effect
+    animation: yfm-spoiler-noise 4s steps(24) infinite;
+
+    &__content {
+        opacity: 0;
+
+        transition: opacity 0.2s ease-out;
+    }
+
+    &[role='button'] {
+        cursor: pointer;
+    }
+
+    // The mask hides the outline, so the focused spoiler has no noise
+    &:focus-visible {
+        outline: 2px solid var(--g-color-line-focus, currentColor);
+        outline-offset: 1px;
+        background-color: color-mix(in sRGB, currentColor 15%, transparent);
+        mask: none;
+
+        animation: none;
+    }
+
+    &_revealed {
+        background: none;
+        mask: none;
+
+        animation: none;
+    }
+
+    &_revealed > &__content {
+        opacity: 1;
+    }
+}
+
+.ProseMirror-focused .yfm-spoiler:has(.yfm-spoiler__editing) {
+    // The editor shows the text of the spoiler that the selection touches
+    background-color: color-mix(in sRGB, currentColor 7%, transparent);
+    mask: none;
+
+    animation: none;
+
+    > .yfm-spoiler__content {
+        opacity: 1;
+
+        transition: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .yfm-spoiler {
+        animation: none;
+
+        &__content {
+            transition: none;
+        }
+    }
+}
+
+@media print {
+    .yfm-spoiler {
+        background: none;
+        mask: none;
+
+        animation: none;
+
+        &__content {
+            opacity: 1;
+        }
+    }
+}

@@ -39,6 +39,10 @@ test.describe('Extensions, YFM', () => {
         await mount(<YFMStories.YfmTable />);
         await expectScreenshot();
     });
+    test('YFM Spoiler', async ({mount, expectScreenshot}) => {
+        await mount(<YFMStories.YfmSpoiler />);
+        await expectScreenshot();
+    });
     test('LaTeX Formulas', async ({mount, expectScreenshot, wait}) => {
         await mount(<YFMStories.LaTeXFormulas />);
         await wait.loadersHidden();

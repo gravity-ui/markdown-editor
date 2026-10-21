@@ -36,6 +36,7 @@ import {
     toggleItalic,
     toggleMarked,
     toggleMonospace,
+    toggleSpoiler,
     toggleStrikethrough,
     toggleUnderline,
     undo,
@@ -201,6 +202,23 @@ export const markedItemWysiwyg: ToolbarItemWysiwyg = {
 };
 export const markedItemMarkup: ToolbarItemMarkup = {
     exec: (e) => toggleMarked(e.cm),
+    isActive: inactive,
+    isEnable: enable,
+};
+
+// ---- Spoiler ----
+export const spoilerItemView: ToolbarItemView = {
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'spoiler'),
+    icon: icons.spoiler,
+};
+export const spoilerItemWysiwyg: ToolbarItemWysiwyg = {
+    exec: (e) => e.actions.spoiler.run(),
+    isActive: (e) => e.actions.spoiler.isActive(),
+    isEnable: (e) => e.actions.spoiler.isEnable(),
+};
+export const spoilerItemMarkup: ToolbarItemMarkup = {
+    exec: (e) => toggleSpoiler(e.cm),
     isActive: inactive,
     isEnable: enable,
 };
