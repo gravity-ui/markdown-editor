@@ -111,10 +111,12 @@ test.describe('Spoiler', () => {
             await editor.blur();
             await page.mouse.move(-1, -1);
 
+            // The markup panel updates with a delay, so the screenshots skip it
+            const editorArea = page.getByTestId('g-md-editor-mode');
             const content = editor.getBySelectorInContenteditable('.yfm-spoiler__content');
             for (const elem of await content.all()) await expect(elem).toHaveCSS('opacity', '0');
 
-            await expectScreenshot({nameSuffix: 'hidden'});
+            await expectScreenshot({component: editorArea, nameSuffix: 'hidden'});
 
             // The cursor inside the spoiler shows its text
             await content.nth(1).locator('strong').click();
@@ -123,7 +125,7 @@ test.describe('Spoiler', () => {
             await expect(content.nth(0)).toHaveCSS('opacity', '0');
             await wait.timeout(300);
 
-            await expectScreenshot({nameSuffix: 'editing'});
+            await expectScreenshot({component: editorArea, nameSuffix: 'editing'});
 
             // The text stays editable and keeps the marks
             await editor.press('End');
