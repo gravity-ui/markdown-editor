@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "sb:start": "storybook dev -p 8888 -c .storybook",
     "sb:build": "storybook build -c .storybook -o storybook-static",
@@ -60,7 +61,9 @@
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "@markdown-editor/tsconfig": "workspace:*",
+    "@markdown-editor/vitest-config": "workspace:*",
     "eslint": "catalog:linters",
+    "jsdom": "catalog:testing",
     "lowlight": "catalog:peers",
     "npm-run-all": "^4.1.5",
     "path-browserify": "1.0.1",
@@ -75,6 +78,7 @@
     "stylelint": "catalog:linters",
     "ts-dedent": "2.3.0",
     "typescript": "catalog:ts",
+    "vitest": "catalog:testing",
     "url": "0.11.4",
     "webpack": "^5.111.1"
   },

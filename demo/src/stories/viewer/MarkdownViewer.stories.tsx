@@ -1,7 +1,7 @@
 import type {StoryObj} from '@storybook/react';
 
 import {MarkdownViewerDemo} from './MarkdownViewerDemo';
-import {codeBlockDocuments, galleryDocuments} from './content';
+import {codeBlockDocuments, galleryDocuments, latexDocuments} from './content';
 
 export const Story: StoryObj<typeof MarkdownViewerDemo> = {};
 Story.storyName = 'Markdown Viewer';
@@ -14,6 +14,11 @@ export const CodeBlockActions: StoryObj<typeof MarkdownViewerDemo> = {
 export const FilesGallery: StoryObj<typeof MarkdownViewerDemo> = {
     name: 'Files gallery',
     args: {documents: galleryDocuments, showFeedbackToggle: false},
+};
+
+export const Latex: StoryObj<typeof MarkdownViewerDemo> = {
+    name: 'LaTeX',
+    args: {documents: latexDocuments, showFeedbackToggle: false},
 };
 
 export default {
