@@ -49,7 +49,7 @@ export function LabelTooltip({node, pos, view, edited}: LabelTooltipProps) {
     const items = labelColors.map((itemColor) => ({
         value: itemColor,
         title: i18n(`color_${itemColor}`),
-        swatch: <Label className={b('swatch')} theme={labelThemes[itemColor]} />,
+        swatch: <Label className={b('swatch')} theme={labelThemes[itemColor]} size="s" />,
     }));
 
     return (

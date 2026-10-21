@@ -57,10 +57,10 @@ Every color is a `theme` of the UIKit `Label`, so the label follows the light an
 | `red`    | `danger`  |
 | `purple` | `utility` |
 
-The label is the `xs` size of `Label`, 18 px high, fully rounded and without a border. It is
-vertically centered in the line and does not increase the height of a 20 px line. The styles of
-`Label` come with the UIKit `Label` component, which the extension imports; a preview without the
-extension needs the UIKit styles and the extension stylesheet.
+The label is the `xs` size of `Label` without changes: 20 px high, with the corner radius and
+the text margins of this size. It stands on the baseline of the line like the UIKit `Label`. The
+styles come with the UIKit `Label` component, which the extension imports; a preview without the
+extension needs the UIKit styles.
 
 ### Editor
 

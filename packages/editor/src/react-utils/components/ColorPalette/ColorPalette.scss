@@ -34,7 +34,9 @@
     &__swatch {
         position: relative;
 
-        display: block;
+        // A flex container makes an inline swatch a flex item, so no line box adds height below it
+        // and the check mark is centered on the swatch itself.
+        display: flex;
     }
 
     &__check {

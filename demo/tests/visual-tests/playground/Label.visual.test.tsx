@@ -3,6 +3,7 @@ import dd from 'ts-dedent';
 
 import {expect, test} from 'playwright/core';
 
+import {LabelPlayground} from './Label.helpers';
 import {Playground} from './Playground.helpers';
 
 const markup = dd`
@@ -15,7 +16,7 @@ const markup = dd`
 
 test.describe('Label', () => {
     test.beforeEach(async ({mount, page, editor}) => {
-        await mount(<Playground initial={markup} width="100%" style={{width: 812}} />);
+        await mount(<LabelPlayground initial={markup} />);
         await page.setViewportSize({height: 500, width: 812});
         await editor.switchMode('wysiwyg');
     });
@@ -44,8 +45,30 @@ test.describe('Label', () => {
 
     const measure = (root: Locator) =>
         root.evaluate((element) => {
+            const getLabelStyle = (label: HTMLElement) => {
+                const style = getComputedStyle(label);
+                const textStyle = getComputedStyle(
+                    label.querySelector('.g-label__text') as HTMLElement,
+                );
+
+                return {
+                    height: label.getBoundingClientRect().height,
+                    borderWidth: style.borderTopWidth,
+                    borderRadius: style.borderRadius,
+                    verticalAlign: style.verticalAlign,
+                    color: style.color,
+                    backgroundColor: style.backgroundColor,
+                    margin: textStyle.margin,
+                    fontFamily: textStyle.fontFamily,
+                    fontSize: textStyle.fontSize,
+                    fontWeight: textStyle.fontWeight,
+                    lineHeight: textStyle.lineHeight,
+                };
+            };
+
             const [plain, withLabel] = Array.from(element.querySelectorAll('p'));
             const label = withLabel.querySelector('.g-md-label') as HTMLElement;
+            const native = document.querySelector('.native-label') as HTMLElement;
             const style = getComputedStyle(plain);
             const labelRect = label.getBoundingClientRect();
             const lineRect = withLabel.getBoundingClientRect();
@@ -55,12 +78,11 @@ test.describe('Label', () => {
                 lineHeight: style.lineHeight,
                 plainHeight: plain.getBoundingClientRect().height,
                 lineHeightWithLabel: lineRect.height,
-                labelHeight: labelRect.height,
                 labelTopGap: labelRect.top - lineRect.top,
                 labelBottomGap: lineRect.bottom - labelRect.bottom,
-                labelBorder: getComputedStyle(label).borderTopWidth,
-                labelRadius: getComputedStyle(label).borderTopLeftRadius,
                 labelCount: element.querySelectorAll('.g-md-label').length,
+                labelStyle: getLabelStyle(label),
+                nativeStyle: getLabelStyle(native),
             };
         });
 
@@ -68,13 +90,12 @@ test.describe('Label', () => {
         expect(metrics.labelCount).toBe(7);
         expect(metrics.fontSize).toBe('15px');
         expect(metrics.lineHeight).toBe('20px');
-        expect(metrics.labelHeight).toBe(18);
         expect(metrics.lineHeightWithLabel).toBe(metrics.plainHeight);
         expect(metrics.labelTopGap).toBeGreaterThanOrEqual(0);
         expect(metrics.labelBottomGap).toBeGreaterThanOrEqual(0);
-        expect(Math.abs(metrics.labelTopGap - metrics.labelBottomGap)).toBeLessThanOrEqual(1);
-        expect(metrics.labelBorder).toBe('0px');
-        expect(metrics.labelRadius).toBe('9px');
+        // The label keeps the look of the UIKit Label of the same theme and size.
+        expect(metrics.labelStyle).toEqual(metrics.nativeStyle);
+        expect(metrics.labelStyle.height).toBe(20);
     };
 
     test('should render the palette in the WYSIWYG mode @wysiwyg', async ({
@@ -189,6 +210,68 @@ test.describe('Label', () => {
         await wait.tooltipsHidden();
         await wait.markupPreview(':label[Draft]{color=green}');
         await expectScreenshot({nameSuffix: 'edit popover'});
+    });
+
+    test('should center the check mark on the selected swatch @wysiwyg', async ({
+        page,
+        wait,
+        expectScreenshot,
+    }) => {
+        const measureSelected = () =>
+            getPopup(page)
+                .locator('[aria-pressed=true]')
+                .evaluate((item) => {
+                    const swatch = item.querySelector('.g-md-color-palette__swatch > *');
+                    const check = item.querySelector('.g-md-color-palette__check svg');
+                    if (!swatch || !check) throw new Error('No swatch or check mark');
+
+                    const itemRect = item.getBoundingClientRect();
+                    const swatchRect = swatch.getBoundingClientRect();
+                    const checkRect = check.getBoundingClientRect();
+                    const center = (rect: DOMRect) => ({
+                        x: rect.x + rect.width / 2,
+                        y: rect.y + rect.height / 2,
+                    });
+
+                    return {
+                        item: {width: itemRect.width, height: itemRect.height},
+                        swatch: {width: swatchRect.width, height: swatchRect.height},
+                        offsetX: center(checkRect).x - center(swatchRect).x,
+                        offsetY: center(checkRect).y - center(swatchRect).y,
+                    };
+                });
+
+        const expectCentered = async () => {
+            const metrics = await measureSelected();
+            expect(metrics.swatch).toEqual({width: 24, height: 24});
+            expect(metrics.item.width).toBeGreaterThanOrEqual(32);
+            expect(metrics.item.height).toBeGreaterThanOrEqual(32);
+            expect(Math.abs(metrics.offsetX)).toBeLessThanOrEqual(1);
+            expect(Math.abs(metrics.offsetY)).toBeLessThanOrEqual(1);
+        };
+
+        await getLabels(page).first().click();
+        await expect(getPopup(page)).toBeVisible();
+
+        for (const color of ['Gray', 'Green', 'Yellow', 'Blue', 'Red', 'Purple']) {
+            const swatch = getPopup(page).getByLabel(color, {exact: true});
+            await swatch.click();
+            await expect(swatch).toHaveAttribute('aria-pressed', 'true');
+            await expectCentered();
+        }
+
+        await getPopup(page).getByLabel('Yellow', {exact: true}).click();
+        await getPopup(page).getByLabel('Yellow', {exact: true}).hover();
+        await expectCentered();
+
+        await getPopup(page).getByLabel('Yellow', {exact: true}).focus();
+        await page.keyboard.press('Shift');
+        await expect(getPopup(page).getByLabel('Yellow', {exact: true})).toBeFocused();
+        await expectCentered();
+
+        await page.mouse.move(0, 0);
+        await wait.tooltipsHidden();
+        await expectScreenshot({component: getPopup(page), nameSuffix: 'focused swatch'});
     });
 
     test('should clear the caption and keep the popover for typing @wysiwyg', async ({

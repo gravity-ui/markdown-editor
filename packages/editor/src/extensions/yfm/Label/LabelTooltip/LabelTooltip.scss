@@ -2,13 +2,13 @@
     padding: 12px;
 
     &__colors {
+        justify-content: space-between;
+
         margin-top: 8px;
     }
 
+    // An empty Label of the `s` size: a 24 px square with the corner radius of this size.
     &__swatch.g-label {
-        width: 16px;
-        height: 16px;
-
-        border-radius: 50%;
+        width: 24px;
     }
 }
