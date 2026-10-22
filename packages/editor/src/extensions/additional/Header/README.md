@@ -25,7 +25,7 @@ Read more
 
 Only the first direct `header-image`, `header-title` and `header-content` and the first three direct `button` containers are used. Other direct nodes and excess containers are ignored entirely. The `header-*` containers require a `header` parent; `button` also works independently.
 
-The title and button labels contain plain text. Description content supports paragraphs and standard text formatting. Nested headings, images, buttons, HTML and other blocks are excluded from the description. The title is a `div` and does not enter the document outline.
+The title and button labels contain plain text. Description content supports paragraphs, H1–H6 headings and standard text formatting. Images, buttons, HTML and other blocks are excluded from the description. The title is a `div` and does not enter the document outline.
 
 The editor uses a fixed internal slot order. Markdown serialization emits the content image, title, description and buttons in that order. Missing title and description containers become empty slots. Ignored content is discarded when switching to visual editing.
 
@@ -37,7 +37,7 @@ Your title
 :::
 ```
 
-`size` accepts `1` through `6`, using the corresponding YFM heading typography without adding a heading to the document outline. The default is `2` (24 px in the standard theme). `color` accepts `auto` and the seven standard text colors listed below. `auto` inherits the cover text color. Invalid values use defaults; default attributes are omitted from Markdown. Both attributes are editable in the cover settings and survive HTML and Markdown round trips.
+`size` accepts `1` through `6`, using the corresponding YFM heading typography without adding a heading to the document outline. The default is `2` (24 px in the standard theme). `color` accepts `auto` and the seven standard text colors listed below. `auto` inherits the cover text color. Invalid values use defaults; default attributes are omitted from Markdown. Both attributes are editable in the cover settings and in the toolbar shown when title text is selected. These controls update the whole title while keeping it a named container. The usual heading shortcuts (`Mod-Alt-1` through `Mod-Alt-6`) change its size. Attributes survive HTML and Markdown round trips.
 
 ## Appearance
 

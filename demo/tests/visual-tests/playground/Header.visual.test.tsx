@@ -361,3 +361,74 @@ test('should edit title size and color independently and preserve them in previe
     await expect(preview).toHaveCSS('font-size', '32px');
     await expect(preview).toHaveCSS('color', color);
 });
+
+test('should change description headings from the standard selection menu and preserve them', async ({
+    mount,
+    page,
+    editor,
+}) => {
+    await mount(<HeaderDemo markupKey="design" />, {width: 1100});
+    const content = page.locator('.g-md-header .header_content');
+    for (const level of [1, 2, 3, 4, 5, 6]) {
+        await editor.focus();
+        await editor.press('ArrowRight');
+        await expect(page.locator('.playground__pm-selection')).toContainText('CursorSelection');
+        await editor.selectTextIn('.header_content :is(p, h1, h2, h3, h4, h5, h6)');
+        await page
+            .getByTestId('g-md-toolbar-selection')
+            .getByTestId('g-md-toolbar-text-select')
+            .click();
+        await page.getByRole('option', {name: `Heading ${level}`, exact: true}).click();
+        await expect(content.locator(`h${level}`)).toHaveCount(1);
+        await expect(content).toContainText('A short description of the page');
+        await expect(page.getByTestId('g-md-toolbar-selection')).toBeHidden();
+    }
+    await expect(content.locator('h6')).toHaveCSS('font-size', '13px');
+    await editor.switchMode('markup');
+    await expect(page.locator('.cm-content')).toContainText('###### A short description');
+    await editor.switchMode('wysiwyg');
+    await editor.switchPreview('visible');
+    await expect(page.getByTestId('demo-md-preview').locator('.header_content h6')).toHaveCount(1);
+    await editor.switchMode('wysiwyg');
+    await editor.selectTextIn('.header_content h6');
+    await page
+        .getByTestId('g-md-toolbar-selection')
+        .getByTestId('g-md-toolbar-text-select')
+        .click();
+    await page.getByRole('option', {name: 'Text', exact: true}).click();
+    await expect(content.locator('p')).toHaveCount(1);
+    await expect(content.locator('h6')).toHaveCount(0);
+});
+
+test('should offer title sizes and colors when its text is selected', async ({
+    mount,
+    page,
+    editor,
+    expectScreenshot,
+}) => {
+    await mount(<HeaderDemo markupKey="design" />, {width: 1100});
+    await editor.selectTextIn('.g-md-header__title');
+    const toolbar = page.getByTestId('g-md-toolbar-header-title');
+    await expect(toolbar).toBeVisible();
+    await expect(page.getByTestId('g-md-toolbar-selection')).toHaveCount(0);
+    await toolbar.getByRole('combobox', {name: 'Title size', exact: true}).click();
+    await page.getByRole('option', {name: 'Heading 1', exact: true}).click();
+    const title = page.locator('.g-md-header__title');
+    await expect(title).toHaveCSS('font-size', '32px');
+    await expect(title).toHaveText('Your title');
+    await toolbar.getByRole('combobox', {name: 'Title color', exact: true}).click();
+    await page.getByRole('option', {name: 'Red', exact: true}).click();
+    await expect(title).toHaveAttribute('data-color', 'red');
+    await expectScreenshot({component: toolbar});
+    await title.click();
+    await page.keyboard.press('Control+Alt+3');
+    await expect(title).toHaveAttribute('data-size', '3');
+    await expect(title).toHaveCSS('font-size', '20px');
+    await editor.switchMode('markup');
+    await expect(page.locator('.cm-content')).toContainText(
+        ':::header-title{size="3" color="red"}',
+    );
+    await editor.switchMode('wysiwyg');
+    await expect(title).toHaveAttribute('data-size', '3');
+    await expect(title).toHaveAttribute('data-color', 'red');
+});

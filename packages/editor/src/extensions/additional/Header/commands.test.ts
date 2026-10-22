@@ -20,6 +20,7 @@ import {
     setHeaderAttrs,
     setHeaderButton,
     setHeaderMedia,
+    setSelectedHeaderTitleSize,
     toHeader,
 } from './commands';
 
@@ -28,6 +29,12 @@ const schema = new Schema({
         doc: {content: 'block+'},
         text: {group: 'inline'},
         paragraph: {group: 'block', content: 'inline*', toDOM: () => ['p', 0]},
+        heading: {
+            group: 'block',
+            content: 'inline*',
+            attrs: {level: {default: 1}},
+            toDOM: (node) => ['h' + node.attrs.level, 0],
+        },
         header: getHeaderSchemaSpec(),
         header_title: getHeaderTitleSpec(),
         header_content: headerContentSpec,
@@ -51,6 +58,18 @@ const viewWith = (node = cover()) => {
 };
 
 describe('Header commands', () => {
+    it('should change title size from its selection without replacing the title node', () => {
+        const view = viewWith(cover('Title', {}));
+        for (const size of ['1', '2', '3', '4', '5', '6']) {
+            expect(setSelectedHeaderTitleSize(size)(view.state, view.dispatch)).toBe(true);
+            expect(view.state.doc.firstChild?.firstChild?.type.name).toBe('header_title');
+            expect(view.state.doc.firstChild?.firstChild?.attrs.size).toBe(size);
+            expect(view.state.doc.firstChild?.firstChild?.textContent).toBe('Title');
+        }
+        view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, 10)));
+        expect(setSelectedHeaderTitleSize('1')(view.state, view.dispatch)).toBe(false);
+        view.destroy();
+    });
     it('should change normalized attributes and leave unchanged documents untouched', () => {
         const view = viewWith();
         expect(setHeaderAttrs(0, {height: 'm'})(view.state, view.dispatch)).toBe(true);

@@ -1,4 +1,4 @@
-import {Plugin, PluginKey} from 'prosemirror-state';
+import {type EditorState, Plugin, PluginKey} from 'prosemirror-state';
 
 import type {Serializer} from '#core';
 import type {Node} from '#pm/model';
@@ -18,6 +18,7 @@ type ActiveHeader = {pos: number; node: Node; dom: HTMLElement};
 class HeaderHoverView {
     private current: ActiveHeader | null = null;
     private settingsOpen = false;
+    private titleMenuOpen = false;
     private hideTimer: ReturnType<typeof setTimeout> | undefined;
     private readonly renderItem: RendererItem;
     private readonly view: EditorView;
@@ -42,6 +43,7 @@ class HeaderHoverView {
                         serializer={serializer}
                         onClose={this.hide}
                         onSettingsOpenChange={this.setSettingsOpen}
+                        onTitleMenuOpenChange={this.setTitleMenuOpen}
                     />
                 ),
         );
@@ -50,7 +52,7 @@ class HeaderHoverView {
         this.update(view);
     }
 
-    update(view: EditorView) {
+    update(view: EditorView, previous?: EditorState) {
         const pos = activeHeaderKey.getState(view.state);
         if (pos === null || pos === undefined || !view.editable) {
             if (this.current) this.hide();
@@ -63,7 +65,8 @@ class HeaderHoverView {
         } else if (
             pos !== this.current?.pos ||
             node !== this.current.node ||
-            dom !== this.current.dom
+            dom !== this.current.dom ||
+            (previous && !view.state.selection.eq(previous.selection))
         ) {
             this.current = {pos, node, dom};
             this.renderItem.rerender();
@@ -87,6 +90,7 @@ class HeaderHoverView {
         clearTimeout(this.hideTimer);
         this.current = null;
         this.settingsOpen = false;
+        this.titleMenuOpen = false;
         this.renderItem.rerender();
     };
 
@@ -95,12 +99,17 @@ class HeaderHoverView {
         if (!open && !this.isInside(this.pointerTarget)) this.scheduleHide();
     };
 
+    private setTitleMenuOpen = (open: boolean) => {
+        this.titleMenuOpen = open;
+        if (!open && !this.isInside(this.pointerTarget)) this.scheduleHide();
+    };
+
     private isInside(target: Element | null) {
         return Boolean(
             target &&
             (this.current?.dom.contains(target) ||
                 target.closest(
-                    '.g-md-header-toolbar, .g-md-header-settings, .g-md-button-settings',
+                    '.g-md-header-toolbar, .g-md-header-title-toolbar, .g-md-header-settings, .g-md-button-settings',
                 )),
         );
     }
@@ -111,12 +120,13 @@ class HeaderHoverView {
             const focused = this.view.dom.ownerDocument.activeElement;
             if (
                 !this.settingsOpen &&
+                !this.titleMenuOpen &&
                 !(
                     this.view.hasFocus() &&
                     findHeaderPos(this.view.state.selection) === this.current?.pos
                 ) &&
                 !this.isInside(this.pointerTarget) &&
-                !focused?.closest('.g-md-header-toolbar')
+                !focused?.closest('.g-md-header-toolbar, .g-md-header-title-toolbar')
             )
                 this.hide();
         }, 120);
@@ -127,7 +137,7 @@ class HeaderHoverView {
         const target = event.target instanceof Element ? event.target : null;
         this.pointerTarget = target;
         clearTimeout(this.hideTimer);
-        if (this.settingsOpen) return;
+        if (this.settingsOpen || this.titleMenuOpen) return;
         const dom = target?.closest<HTMLElement>(`.${HeaderClassName.Root}`);
         if (dom && this.view.dom.contains(dom)) {
             const $pos = this.view.state.doc.resolve(this.view.posAtDOM(dom, 0));

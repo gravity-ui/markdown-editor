@@ -54,6 +54,23 @@ function roundTrip(markup: string) {
 }
 
 describe('Header containers', () => {
+    it('should preserve headings and formatted paragraphs inside the description', () => {
+        const doc = roundTrip(
+            cover(
+                slot(
+                    'header-content',
+                    '# First\n\n## Second\n\nParagraph with **bold**.\n\n###### Last',
+                ),
+            ),
+        );
+        expect(doc.firstChild?.child(1).content.content.map((node) => node.type.name)).toEqual([
+            'heading',
+            'heading',
+            'paragraph',
+            'heading',
+        ]);
+        expect(doc.firstChild?.child(1).child(3).attrs.level).toBe(6);
+    });
     it('should preserve all six title sizes and standard colors through Markdown and HTML', () => {
         for (const size of ['1', '2', '3', '4', '5', '6']) {
             for (const color of [
@@ -128,7 +145,7 @@ describe('Header containers', () => {
             ),
         );
         expect(doc.firstChild?.child(2).childCount).toBe(0);
-        expect(doc.firstChild?.child(1).textContent).not.toContain('Heading');
+        expect(doc.firstChild?.child(1).textContent).toContain('Heading');
         expect(
             md.render(cover(slot('header-content', '<img src=x onerror=alert(1)>'))),
         ).not.toContain('<img src=x');

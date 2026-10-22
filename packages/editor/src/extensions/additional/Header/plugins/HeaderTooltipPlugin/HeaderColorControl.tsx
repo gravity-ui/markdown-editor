@@ -14,16 +14,19 @@ export function HeaderColorControl({
     label,
     value,
     onUpdate,
+    onOpenChange,
 }: {
     label: string;
     value: string;
     onUpdate: (value: string | null) => void;
+    onOpenChange?: (open: boolean) => void;
 }) {
     return (
         <Select
             width="max"
             aria-label={label}
             value={[value]}
+            onOpenChange={onOpenChange}
             options={['auto', ...Object.values(Colors)].map((color) => ({
                 value: color,
                 text:

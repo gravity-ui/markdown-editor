@@ -11,6 +11,7 @@ import {
     createHeaderCommand,
     enterHeaderContent,
     exitHeaderForward,
+    setSelectedHeaderTitleSize,
 } from './commands';
 import {headerTooltipPlugin} from './plugins/HeaderTooltipPlugin';
 import {headerEditingPlugin} from './plugins/editing';
@@ -57,6 +58,12 @@ export const Header: ExtensionAuto<HeaderOptions> = (builder, opts) => {
             Enter: enterHeaderContent,
             'Mod-Enter': exitHeaderForward,
             Backspace: backspaceInHeader,
+            ...Object.fromEntries(
+                ['1', '2', '3', '4', '5', '6'].map((size) => [
+                    `Mod-Alt-${size}`,
+                    setSelectedHeaderTitleSize(size),
+                ]),
+            ),
             ...(opts.headerKey ? {[opts.headerKey]: toHeader} : {}),
         }),
         builder.Priority.VeryHigh,

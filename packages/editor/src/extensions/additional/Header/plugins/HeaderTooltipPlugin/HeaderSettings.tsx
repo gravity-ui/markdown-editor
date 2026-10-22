@@ -36,9 +36,15 @@ import type {FileUploadHandler} from 'src/utils/upload';
 
 import {ButtonFields} from '../../../Button/ButtonFields';
 import {type ButtonAttrs, normalizeButtonAttrs} from '../../../Button/ButtonSpecs';
-import {type HeaderAttrs, normalizeHeaderAttrs, normalizeHeaderTitleAttrs} from '../../HeaderSpecs';
+import {type HeaderAttrs, normalizeHeaderAttrs} from '../../HeaderSpecs';
 import {safeImageUrl} from '../../HeaderSpecs/dom';
-import {headerAt, setHeaderAttrs, setHeaderButton, setHeaderMedia} from '../../commands';
+import {
+    headerAt,
+    setHeaderAttrs,
+    setHeaderButton,
+    setHeaderMedia,
+    setHeaderTitle,
+} from '../../commands';
 import {uploadHeaderImage} from '../imageUpload';
 
 import {HeaderBackgroundPreview} from './HeaderBackgroundPreview';
@@ -241,13 +247,7 @@ export function HeaderSettings({
     const media = current.child(3);
     const title = current.child(0);
     const patchTitle = (next: Record<string, unknown>) => {
-        editorView.dispatch(
-            editorView.state.tr.setNodeMarkup(
-                pos + 1,
-                null,
-                normalizeHeaderTitleAttrs({...title.attrs, ...next}),
-            ),
-        );
+        setHeaderTitle(pos, next)(editorView.state, editorView.dispatch);
         refresh();
     };
     const patch = (next: Partial<HeaderAttrs>) => {

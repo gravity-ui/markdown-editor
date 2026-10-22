@@ -20,6 +20,7 @@ import {
     headerType,
     normalizeHeaderAttrs,
     normalizeHeaderImageAttrs,
+    normalizeHeaderTitleAttrs,
 } from './HeaderSpecs';
 
 export type HeaderPatch = Partial<HeaderAttrs>;
@@ -96,6 +97,28 @@ export const setHeaderMedia =
         const offset = 1 + node.child(0).nodeSize + node.child(1).nodeSize + node.child(2).nodeSize;
         dispatch?.(state.tr.setNodeMarkup(pos + offset, null, attrs));
         return true;
+    };
+
+export const setHeaderTitle =
+    (pos: number, patch: Record<string, unknown>): Command =>
+    (state, dispatch) => {
+        const node = headerAt(state.doc, pos);
+        if (!node) return false;
+        const title = node.child(0);
+        const attrs = normalizeHeaderTitleAttrs({...title.attrs, ...patch});
+        if (dispatch && Object.entries(attrs).some(([key, value]) => title.attrs[key] !== value)) {
+            dispatch(state.tr.setNodeMarkup(pos + 1, null, attrs));
+        }
+        return true;
+    };
+
+export const setSelectedHeaderTitleSize =
+    (size: string): Command =>
+    (state, dispatch) => {
+        const {$from, $to} = state.selection;
+        if ($from.parent.type.name !== headerTitleName || !$from.sameParent($to)) return false;
+        const pos = findHeaderPos(state.selection);
+        return pos !== null && setHeaderTitle(pos, {size})(state, dispatch);
     };
 
 export const removeHeader =

@@ -11,9 +11,11 @@ import {cn} from 'src/classname';
 import {i18n} from 'src/i18n/header';
 import type {FileUploadHandler} from 'src/utils/upload';
 
+import {headerTitleName} from '../../HeaderSpecs';
 import {headerAt, removeHeader} from '../../commands';
 
 import {HeaderSettings} from './HeaderSettings';
+import {HeaderTitleToolbar} from './HeaderTitleToolbar';
 
 import './HeaderToolbar.scss';
 
@@ -27,6 +29,7 @@ export type HeaderToolbarProps = {
     fileUploadHandler?: FileUploadHandler;
     serializer: Serializer;
     onSettingsOpenChange: (open: boolean) => void;
+    onTitleMenuOpenChange: (open: boolean) => void;
     onClose: () => void;
 };
 
@@ -38,15 +41,22 @@ export function HeaderToolbar({
     fileUploadHandler,
     serializer,
     onSettingsOpenChange,
+    onTitleMenuOpenChange,
     onClose,
 }: HeaderToolbarProps) {
     const [settingsAnchor, setSettingsAnchor] = useState<HTMLButtonElement | null>(null);
+    const {selection} = editorView.state;
+    const titleSelected =
+        !selection.empty &&
+        selection.$from.parent.type.name === headerTitleName &&
+        selection.$from.sameParent(selection.$to) &&
+        selection.$from.before() === pos + 1;
     const toaster = useToaster();
     const context = useFloatingRootContext({
         open: true,
         elements: {reference: editorView.dom, floating: null},
         onOpenChange: (open) => {
-            if (!open && !settingsAnchor) onClose();
+            if (!open && !settingsAnchor && !titleSelected) onClose();
         },
     });
 
@@ -83,71 +93,82 @@ export function HeaderToolbar({
     };
 
     return (
-        <Popup
-            open
-            className={b('popup')}
-            floatingContext={context}
-            hasArrow={false}
-            placement={['bottom', 'top']}
-            offset={8}
-            onOpenChange={(open) => {
-                if (!open && !settingsAnchor) onClose();
-            }}
-        >
-            <div
-                className={b()}
-                role="toolbar"
-                aria-label={i18n('block_actions')}
-                data-qa="g-md-toolbar-header"
+        <>
+            {titleSelected && (
+                <HeaderTitleToolbar
+                    key={`${selection.from}:${selection.to}`}
+                    node={node.child(0)}
+                    pos={pos}
+                    editorView={editorView}
+                    onMenuOpenChange={onTitleMenuOpenChange}
+                />
+            )}
+            <Popup
+                open
+                className={b('popup')}
+                floatingContext={context}
+                hasArrow={false}
+                placement={['bottom', 'top']}
+                offset={8}
+                onOpenChange={(open) => {
+                    if (!open && !settingsAnchor && !titleSelected) onClose();
+                }}
             >
-                <Button
-                    view="flat"
-                    size="m"
-                    selected={Boolean(settingsAnchor)}
-                    title={i18n('settings')}
-                    aria-label={i18n('settings')}
-                    onClick={(event: MouseEvent<HTMLButtonElement>) => {
-                        const next = settingsAnchor ? null : event.currentTarget;
-                        setSettingsAnchor(next);
-                        onSettingsOpenChange(Boolean(next));
-                    }}
+                <div
+                    className={b()}
+                    role="toolbar"
+                    aria-label={i18n('block_actions')}
+                    data-qa="g-md-toolbar-header"
                 >
-                    <Icon data={Gear} size={16} />
-                </Button>
-                <Button
-                    view="flat"
-                    size="m"
-                    title={i18n('copy')}
-                    aria-label={i18n('copy')}
-                    onClick={copy}
-                >
-                    <Icon data={Copy} size={16} />
-                </Button>
-                <span className={b('separator')} aria-hidden="true" />
-                <Button
-                    view="flat"
-                    size="m"
-                    className={b('remove')}
-                    title={i18n('remove')}
-                    aria-label={i18n('remove')}
-                    onClick={() => {
-                        removeHeader(pos)(editorView.state, editorView.dispatch);
-                        editorView.focus();
-                    }}
-                >
-                    <Icon data={TrashBin} size={16} />
-                </Button>
-                {settingsAnchor && (
-                    <HeaderSettings
-                        node={node}
-                        pos={pos}
-                        editorView={editorView}
-                        anchorElement={anchorElement}
-                        hide={closeSettings}
-                        fileUploadHandler={fileUploadHandler}
-                    />
-                )}
-            </div>
-        </Popup>
+                    <Button
+                        view="flat"
+                        size="m"
+                        selected={Boolean(settingsAnchor)}
+                        title={i18n('settings')}
+                        aria-label={i18n('settings')}
+                        onClick={(event: MouseEvent<HTMLButtonElement>) => {
+                            const next = settingsAnchor ? null : event.currentTarget;
+                            setSettingsAnchor(next);
+                            onSettingsOpenChange(Boolean(next));
+                        }}
+                    >
+                        <Icon data={Gear} size={16} />
+                    </Button>
+                    <Button
+                        view="flat"
+                        size="m"
+                        title={i18n('copy')}
+                        aria-label={i18n('copy')}
+                        onClick={copy}
+                    >
+                        <Icon data={Copy} size={16} />
+                    </Button>
+                    <span className={b('separator')} aria-hidden="true" />
+                    <Button
+                        view="flat"
+                        size="m"
+                        className={b('remove')}
+                        title={i18n('remove')}
+                        aria-label={i18n('remove')}
+                        onClick={() => {
+                            removeHeader(pos)(editorView.state, editorView.dispatch);
+                            editorView.focus();
+                        }}
+                    >
+                        <Icon data={TrashBin} size={16} />
+                    </Button>
+                    {settingsAnchor && (
+                        <HeaderSettings
+                            node={node}
+                            pos={pos}
+                            editorView={editorView}
+                            anchorElement={anchorElement}
+                            hide={closeSettings}
+                            fileUploadHandler={fileUploadHandler}
+                        />
+                    )}
+                </div>
+            </Popup>
+        </>
     );
 }

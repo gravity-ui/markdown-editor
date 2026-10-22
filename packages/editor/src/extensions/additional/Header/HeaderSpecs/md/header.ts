@@ -55,10 +55,10 @@ export const headerDirective = (md: MarkdownIt) => {
         state.push(`${headerContentName}_open`, 'div', 1).attrSet('class', HeaderClassName.Body);
         const start = state.tokens.length;
         tokenizeBlockContent(state, params.content, 'header-content');
-        const paragraphs = groups(state.tokens.splice(start)).filter(
-            ([token]) => token.type === 'paragraph_open',
+        const blocks = groups(state.tokens.splice(start)).filter(
+            ([token]) => token.type === 'paragraph_open' || token.type === 'heading_open',
         );
-        for (const paragraph of paragraphs) state.tokens.push(...paragraph);
+        for (const block of blocks) state.tokens.push(...block);
         state.push(`${headerContentName}_close`, 'div', -1);
         return true;
     });

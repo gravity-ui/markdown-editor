@@ -1,4 +1,5 @@
 import type {ExtensionAuto} from '#core';
+import {HeadingSpecs} from 'src/extensions/markdown/Heading/HeadingSpecs';
 import {writeDirectiveLines} from 'src/utils/directive-container';
 
 import {ButtonSpecs, escapePlainContent, serializeAttrs} from '../../Button/ButtonSpecs';
@@ -38,6 +39,7 @@ export type HeaderSpecsOptions = {
 };
 
 export const HeaderSpecs: ExtensionAuto<HeaderSpecsOptions> = (builder, options = {}) => {
+    if (!builder.hasNodeSpec('heading')) builder.use(HeadingSpecs, {});
     builder.use(ButtonSpecs).configureMd((md) => md.use(headerDirective));
     builder
         .addNodeSpec(headerNodeName, getHeaderSchemaSpec)

@@ -68,7 +68,7 @@ export const getHeaderTitleSpec = (placeholder?: PlaceholderOptions): NodeSpec =
     complex: 'inner',
 });
 export const getHeaderContentSpec = (placeholder?: () => string): NodeSpec => ({
-    content: 'paragraph+',
+    content: '(paragraph | heading)+',
     parseDOM: [{tag: `div.${HeaderClassName.Body}`}],
     toDOM: () => ['div', {class: HeaderClassName.Body}, 0],
     selectable: false,
