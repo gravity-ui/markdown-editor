@@ -1,0 +1,19 @@
+:is(h1, h2, h3, h4, h5, h6):has(> .markdown-viewer-demo__heading-edit-slot) {
+    position: relative;
+}
+
+.markdown-viewer-demo__heading-edit-slot {
+    position: absolute;
+    inset-block-end: calc((1lh - 24px) / 2);
+
+    display: inline-flex;
+
+    margin-inline-start: var(--g-spacing-1);
+
+    opacity: 0;
+
+    :is(h1, h2, h3, h4, h5, h6):hover > &,
+    &:focus-within {
+        opacity: 1;
+    }
+}
