@@ -11,6 +11,74 @@ const introduction = dd`
     Use heading help to check its state across versions. Hide feedback to see its fallback text.
 `;
 
+export const headingDocuments = [
+    {
+        label: 'Headings',
+        source: dd`
+            - # Heading 1
+
+            - ## Heading 2
+
+            - ### Heading 3
+
+            - #### Heading 4
+
+            - ##### Heading 5
+
+            - ###### Heading 6
+        `,
+    },
+    {
+        label: 'Folding headings',
+        source: dd`
+            - #+ Heading 1
+
+              Section 1.
+
+            - ##+ Heading 2
+
+              Section 2.
+
+            - ###+ Heading 3
+
+              Section 3.
+
+            - ####+ Heading 4
+
+              Section 4.
+
+            - #####+ Heading 5
+
+              Section 5.
+
+            - ######+ Heading 6
+
+              Section 6.
+        `,
+    },
+    {
+        label: 'Backgrounds',
+        source: dd`
+            This example sets \`--g-md-heading-anchor-background-color\` in the demo CSS for the note and table cell.
+            Background colors are not detected automatically.
+
+            {% note info %}
+
+            - ### Heading in a note
+
+            {% endnote %}
+
+            #|
+            ||::{bg="green-light"}
+
+            - ### Heading in a table
+
+            ||
+            |#
+        `,
+    },
+];
+
 const codeExample = dd`
     {% cut "Code actions" %}{#cut-code-example}
 

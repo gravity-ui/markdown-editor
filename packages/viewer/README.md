@@ -177,6 +177,51 @@ To cancel gallery opening, call `preventDefault()` in `onClickCapture`. A regula
 
 </details>
 
+### Heading anchors
+
+Add `HeadingAnchors` to show a `#` copy button for headings with unique IDs. The application provides links and handles navigation.
+
+```tsx
+import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
+import {HeadingAnchors} from '@gravity-ui/markdown-viewer/extensions';
+
+import '@gravity-ui/uikit/styles/styles.css';
+
+export function Document({html}: {html: string}) {
+  return (
+    <MarkdownViewer html={html}>
+      <HeadingAnchors
+        getHref={({id}) => `https://example.com/page#${encodeURIComponent(id)}`}
+        onClick={(_event, {id}) => {
+          window.history.pushState(window.history.state, '', `#${encodeURIComponent(id)}`);
+        }}
+      />
+    </MarkdownViewer>
+  );
+}
+```
+
+<details>
+<summary>Heading props and cleanup</summary>
+
+The extensions entry point exports `HeadingAnchorsProps` and `HeadingAnchorTarget`.
+
+Both callbacks receive `{id, element}` with the current ID and heading element.
+
+Keep focus on the button in `onClick` to show copy feedback.
+
+| Prop                      | Description                                                 |
+| ------------------------- | ----------------------------------------------------------- |
+| `getHref(heading)`        | Required. Return the link to copy. Called on click.         |
+| `onClick(event, heading)` | Optional. Handle navigation. Copy runs after this callback. |
+| `selector`                | Default: `h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]`.  |
+
+The extension hides the built-in Diplodoc heading controls while mounted. Heading IDs and content stay unchanged.
+
+The button uses the page background. Set `--g-md-heading-anchor-background-color` on a colored container to use another opaque color.
+
+</details>
+
 ### Add an extension
 
 Add a child component with `useViewerEffect` to work with the HTML root. This example tracks clicks and removes its listener during cleanup:

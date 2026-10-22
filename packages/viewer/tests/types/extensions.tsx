@@ -7,6 +7,9 @@ import {
     type FilesGalleryItemType,
     type FilesGalleryProps,
     type FilesGallerySource,
+    type HeadingAnchorTarget,
+    HeadingAnchors,
+    type HeadingAnchorsProps,
     YfmCodeBlockActions,
     type YfmCodeBlockActionsProps,
 } from '@gravity-ui/markdown-viewer/extensions';
@@ -19,6 +22,17 @@ export function Consumer() {
     return (
         <GalleryProvider>
             <MarkdownViewer html="">
+                <HeadingAnchors
+                    selector="h2[id]"
+                    getHref={(heading) => {
+                        expectTypeOf(heading).toEqualTypeOf<HeadingAnchorTarget>();
+                        return `https://example.com/#${heading.id}`;
+                    }}
+                    onClick={(event, heading) => {
+                        expectTypeOf(heading).toEqualTypeOf<HeadingAnchorTarget>();
+                        event.preventDefault();
+                    }}
+                />
                 <YfmCodeBlockActions
                     copyButton
                     lineWrappingButton
@@ -63,6 +77,12 @@ export function Consumer() {
         </GalleryProvider>
     );
 }
+
+expectTypeOf<NonNullable<HeadingAnchorsProps['getHref']>>().returns.toEqualTypeOf<string>();
+expectTypeOf<HeadingAnchorTarget>().toEqualTypeOf<{
+    readonly id: string;
+    readonly element: HTMLElement;
+}>();
 
 expectTypeOf<NonNullable<YfmCodeBlockActionsProps['getCodeBlockText']>>()
     .parameter(0)
