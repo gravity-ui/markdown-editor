@@ -844,6 +844,9 @@ importers:
         specifier: catalog:ts
         version: 2.8.1
     devDependencies:
+      '@gravity-ui/components':
+        specifier: catalog:peer-gravity
+        version: 4.21.0(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
         version: 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -892,6 +895,9 @@ importers:
 
   packages/viewer/tests/react19:
     dependencies:
+      '@gravity-ui/components':
+        specifier: catalog:peer-gravity
+        version: 4.21.0(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
         version: 7.39.0(@babel/runtime@7.29.2)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -11240,6 +11246,17 @@ snapshots:
       lodash: 4.18.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+      universal-cookie: 7.2.2
+
+  '@gravity-ui/components@4.21.0(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+    dependencies:
+      '@bem-react/classname': 1.8.0
+      '@gravity-ui/date-utils': 2.5.6
+      '@gravity-ui/icons': 2.23.0(react@19.3.1)
+      '@gravity-ui/uikit': 7.39.0(@babel/runtime@7.29.2)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      lodash: 4.18.1
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
       universal-cookie: 7.2.2
 
   '@gravity-ui/date-components@3.4.2(@gravity-ui/date-utils@2.5.6)(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
