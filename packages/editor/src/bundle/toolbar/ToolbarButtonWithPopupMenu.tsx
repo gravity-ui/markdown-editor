@@ -47,6 +47,7 @@ export type ToolbarButtonWithPopupMenuProps = Pick<
         /** @default 'classic' */
         _selectionType?: 'classic' | 'light';
         qaMenu?: string;
+        onOpenChange?: (open: boolean) => void;
     };
 
 export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProps> = ({
@@ -62,6 +63,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
     _selectionType,
     qa,
     qaMenu,
+    onOpenChange,
     ...props
 }) => {
     const [anchorElement, setAnchorElement] = useElementState();
@@ -82,6 +84,10 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
     const everyDisabled = menuItems.every((item) => item.action.isEnable() === false);
 
     const popupOpen = everyDisabled ? false : open;
+    useEffect(() => {
+        onOpenChange?.(popupOpen);
+    }, [onOpenChange, popupOpen]);
+    useEffect(() => () => onOpenChange?.(false), [onOpenChange]);
     const shouldForceHide = open && !popupOpen;
     useEffect(() => {
         if (shouldForceHide) {

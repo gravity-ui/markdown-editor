@@ -1,5 +1,5 @@
 import {cn} from '../../../classname';
-import {Colors} from '../../../extensions';
+import {Colors} from '../../../extensions/yfm/Color/const';
 import {i18n} from '../../../i18n/menubar';
 import type {ToolbarBaseProps} from '../../../toolbar';
 import {icons} from '../../config/icons';
@@ -15,7 +15,7 @@ const b = cn('toolbar-colors');
 const textColorIcon = icons.textColor;
 
 export type ToolbarColorsProps = Omit<ToolbarBaseProps<never>, 'editor'> &
-    Pick<ToolbarButtonWithPopupMenuProps, 'disablePortal'> & {
+    Pick<ToolbarButtonWithPopupMenuProps, 'disablePortal' | 'onOpenChange'> & {
         active?: boolean;
         enable?: boolean;
         currentColor?: string;
@@ -81,6 +81,8 @@ export const ToolbarColors: React.FC<ToolbarColorsProps> = (props) => {
             onClick={props.onClick}
             className={props.className}
             qaMenu="g-md-toolbar-menu"
+            disablePortal={props.disablePortal}
+            onOpenChange={props.onOpenChange}
             title={i18n('colorify')}
             menuItems={items}
             icon={textColorIcon}
