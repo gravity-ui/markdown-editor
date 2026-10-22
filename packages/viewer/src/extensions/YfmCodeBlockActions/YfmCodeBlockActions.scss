@@ -1,0 +1,36 @@
+.g-md-yfm-code-block {
+    position: relative;
+
+    pre code.wrap {
+        white-space: pre-wrap;
+    }
+
+    &,
+    &.yfm-clipboard,
+    &.yfm-code-floating-container {
+        .yfm-code-floating,
+        .yfm-clipboard-button {
+            display: none;
+        }
+    }
+
+    &__actions {
+        position: absolute;
+        z-index: 1;
+        top: 8px;
+        right: 8px;
+
+        display: flex;
+        flex-wrap: nowrap;
+        gap: var(--g-spacing-1);
+
+        opacity: 0;
+
+        transition: opacity 0.2s ease-in-out;
+    }
+
+    &:hover &__actions,
+    &:focus-within &__actions {
+        opacity: 1;
+    }
+}

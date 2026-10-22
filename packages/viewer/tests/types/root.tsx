@@ -13,7 +13,7 @@ import {
     type YFMMods,
     cnYFM,
     useViewerEffect,
-} from '../../src';
+} from '@gravity-ui/markdown-viewer';
 
 export function Consumer() {
     const mods: YFMMods = {'no-list-reset': true};

@@ -70,6 +70,48 @@ The package exports the `MarkdownViewerProps` type.
 
 </details>
 
+### YFM code block actions
+
+Add `YfmCodeBlockActions` to show UIKit copy and text wrapping buttons in Diplodoc code blocks. Copy keeps code whitespace and skips line numbers. The extension replaces the built-in YFM controls and does not load a Diplodoc runtime.
+
+The extension imports its styles. Import your content styles and use the application's UIKit `ThemeProvider` to set the language (`en` or `ru`).
+
+For server rendering with this extension, configure your bundler to handle CSS imports.
+
+```tsx
+import {MarkdownViewer, cnYFM} from '@gravity-ui/markdown-viewer';
+import {YfmCodeBlockActions} from '@gravity-ui/markdown-viewer/extensions';
+
+import '@gravity-ui/uikit/styles/styles.css';
+import '@diplodoc/transform/dist/css/yfm.css';
+
+export function Document({html}: {html: string}) {
+  return (
+    <MarkdownViewer html={html} className={cnYFM()}>
+      <YfmCodeBlockActions />
+    </MarkdownViewer>
+  );
+}
+```
+
+<details>
+<summary>Code block props and cleanup</summary>
+
+The `@gravity-ui/markdown-viewer/extensions` entry point also exports the `YfmCodeBlockActionsProps` type.
+
+| Prop                 | Default                                          | Description                                        |
+| -------------------- | ------------------------------------------------ | -------------------------------------------------- |
+| `copyButton`         | `true`                                           | Show the copy button.                              |
+| `lineWrappingButton` | `true`                                           | Show the text wrapping button.                     |
+| `codeBlockSelector`  | `'.yfm-clipboard, .yfm-code-floating-container'` | Select code block containers inside this viewer.   |
+| `getCodeBlockText`   | Text from `pre code` without line numbers        | Read the text to copy from the selected container. |
+
+Use a stable selector for containers with `pre code`. The wrapping button toggles the `wrap` class on `pre code`.
+
+Disabling the button or removing the extension keeps the current wrapping state. Removing the extension also restores the built-in controls.
+
+</details>
+
 ### Add an extension
 
 Add a child component with `useViewerEffect` to work with the HTML root. This example tracks clicks and removes its listener during cleanup:

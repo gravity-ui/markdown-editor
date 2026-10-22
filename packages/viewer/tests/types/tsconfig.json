@@ -5,5 +5,5 @@
     "types": [],
     "skipLibCheck": false
   },
-  "include": ["public-types.tsx"]
+  "include": ["root.tsx", "extensions.tsx"]
 }

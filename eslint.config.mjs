@@ -3,6 +3,7 @@ import {defineConfig, globalIgnores} from 'eslint/config';
 
 export default defineConfig(
     globalIgnores([
+        '**/dist',
         '**/build',
         '**/coverage',
         '**/node_modules',
@@ -31,6 +32,15 @@ export default defineConfig(
                     allowDeclarations: true,
                 },
             ],
+        },
+    },
+    {
+        files: ['./packages/viewer/tests/**/*'],
+        settings: {
+            // CI failed import/order checks in these public API tests. Viewer imports
+            // are external before a build and internal after it. Keep their group fixed
+            // so lint works both in a clean checkout and after a local build.
+            'import/internal-regex': '^@gravity-ui/markdown-viewer(?:/|$)',
         },
     },
     {

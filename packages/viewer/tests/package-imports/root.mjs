@@ -21,13 +21,11 @@ for (const api of [
             {html: '<p>Prepared HTML</p>'},
             createElement(api.ViewerTargets, {
                 selector: 'p',
-                children: () => {
-                    assert.fail('Portal children must not render on the server');
-                },
+                children: () => assert.fail('Portal children must not render on the server'),
             }),
         ),
     );
     assert.match(result, /<p>Prepared HTML<\/p>/);
 }
 
-console.info('Built ESM and CJS exports support SSR without a DOM.');
+console.info('Built ESM and CJS root exports support SSR without a DOM.');

@@ -10,10 +10,6 @@
     background: var(--g-color-base-background);
 }
 
-.markdown-viewer-demo__content .yfm-code-floating-container .yfm-code-floating {
-    display: none;
-}
-
 @media (width <= 560px) {
     .markdown-viewer-demo__toolbar {
         flex-direction: column;
