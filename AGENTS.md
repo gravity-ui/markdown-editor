@@ -8,6 +8,14 @@ Unit tests use Vitest. Import `describe`, `it`, `expect`, hooks, and `vi` explic
 
 Test names (`it`, `test`, and parameterized cases) must start with `should `, followed by a base-form verb.
 
+Type contract tests follow the same rules in every package:
+
+- Store them in the package's `tests/types/` directory as `*.types.ts`.
+- Include them in the package's TypeScript configuration and check them with its `typecheck` command. Vitest does not run these files.
+- Use explicit type assignments to check result types, methods, and overloads.
+- Use `@ts-expect-error` for inputs or assignments that must be rejected. The check must fail if the expected error disappears.
+- Keep each contract check in a small function or type alias. These files are checked without execution; runtime behavior belongs in Vitest tests.
+
 ### Prerequisites
 
 Before each visual test run, start the Podman machine:
@@ -67,6 +75,7 @@ Project docs live in `docs/`. Read the relevant file before working on the corre
 |--------------------------|------|
 | Visual / Playwright tests | [`docs/how-to-add-visual-test.md`](docs/how-to-add-visual-test.md) |
 | Creating a new extension | [`docs/how-to-create-extension.md`](docs/how-to-create-extension.md) |
+| Core exporters | [`docs/core-exporters.md`](docs/core-exporters.md) |
 | Adding Markdown text bindings | [`docs/how-to-add-text-binding-extension-in-markdown.md`](docs/how-to-add-text-binding-extension-in-markdown.md) |
 | Customizing toolbars | [`docs/how-to-customize-toolbars.md`](docs/how-to-customize-toolbars.md) |
 | Customizing the editor | [`docs/how-to-customize-the-editor.md`](docs/how-to-customize-the-editor.md) |
