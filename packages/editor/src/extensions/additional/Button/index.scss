@@ -33,7 +33,6 @@
         transition: background-color 0.15s linear;
         @include colors.button-colors;
 
-        &:hover,
         &:focus,
         &:active {
             text-decoration: none;
@@ -42,6 +41,9 @@
         }
 
         &:hover {
+            text-decoration: none;
+
+            color: var(--g-md-button-text-hover);
             background-color: var(--g-color-base-simple-hover);
         }
 
