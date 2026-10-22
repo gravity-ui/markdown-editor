@@ -97,7 +97,7 @@ describe('Button', () => {
         ['an unknown color', '{color=pink}', {view: ButtonView.Action, color: ButtonColor.Default}],
         [
             'a color the view lacks',
-            '{view=normal color=orange}',
+            '{view=normal color=default}',
             {view: ButtonView.Normal, color: ButtonColor.Gray},
         ],
     ])('should normalize %s', (_name, attrs, style) => {

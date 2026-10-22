@@ -29,17 +29,16 @@ export const ButtonColor = {
     Blue: 'blue',
     Green: 'green',
     Yellow: 'yellow',
-    Orange: 'orange',
     Red: 'red',
     Violet: 'violet',
 } as const;
 export type ButtonColorValue = (typeof ButtonColor)[keyof typeof ButtonColor];
 
-const {Default, Gray, Blue, Green, Yellow, Orange, Red, Violet} = ButtonColor;
+const {Default, Gray, Blue, Green, Yellow, Red, Violet} = ButtonColor;
 
 /** Цвета каждого вида по макету; первый — значение по умолчанию. */
 export const buttonViewColors: Record<ButtonViewValue, readonly ButtonColorValue[]> = {
-    [ButtonView.Action]: [Default, Blue, Green, Yellow, Orange, Red, Violet],
+    [ButtonView.Action]: [Default, Blue, Green, Yellow, Red, Violet],
     [ButtonView.Normal]: [Gray, Blue, Green, Yellow, Red, Violet],
     [ButtonView.Outlined]: [Gray, Blue, Green, Yellow, Red, Violet],
     [ButtonView.Flat]: [Default, Gray, Blue, Green, Yellow, Red, Violet],

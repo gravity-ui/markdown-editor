@@ -6,8 +6,6 @@ $semantic: (
     'violet': 'utility',
 );
 
-$orange: #ff9168;
-
 /// Цвета кнопки по атрибуту `data-color` из макета: заливки, текст и обводка для каждого вида.
 
 @mixin button-colors {
@@ -46,12 +44,5 @@ $orange: #ff9168;
 
     &[data-color='yellow'] {
         --g-md-button-contrast: var(--g-color-text-dark-primary);
-    }
-
-    // В палитре Gravity такого оттенка нет, цвет взят из макета.
-    &[data-color='orange'] {
-        --g-md-button-heavy: #{$orange};
-        --g-md-button-heavy-hover: #{color-mix(in srgb, $orange 88%, #000)};
-        --g-md-button-contrast: var(--g-color-text-light-primary);
     }
 }

@@ -8,12 +8,12 @@
 
 Подпись — в `[]`, адрес — в `()`. Адрес проверяется `md.validateLink`: запрещённый адрес заменяется пустой строкой.
 
-| `view`            | Стиль          | `color`                                                                  |
-| ----------------- | -------------- | ------------------------------------------------------------------------ |
-| `action` (умолч.) | Акцентные      | `default` (умолч.), `blue`, `green`, `yellow`, `orange`, `red`, `violet` |
-| `normal`          | Второстепенная | `gray`, `blue`, `green`, `yellow`, `red`, `violet`                       |
-| `outlined`        | С обводкой     | `gray`, `blue`, `green`, `yellow`, `red`, `violet`                       |
-| `flat`            | Без фона       | `default`, `gray`, `blue`, `green`, `yellow`, `red`, `violet`            |
+| `view`            | Стиль          | `color`                                                        |
+| ----------------- | -------------- | -------------------------------------------------------------- |
+| `action` (умолч.) | Акцентные      | `default` (умолч.), `blue`, `green`, `yellow`, `red`, `violet` |
+| `normal`          | Второстепенная | `gray`, `blue`, `green`, `yellow`, `red`, `violet`             |
+| `outlined`        | С обводкой     | `gray`, `blue`, `green`, `yellow`, `red`, `violet`             |
+| `flat`            | Без фона       | `default`, `gray`, `blue`, `green`, `yellow`, `red`, `violet`  |
 
 Неизвестный вид заменяется на `action`, недоступный виду цвет — на первый цвет вида. `target=_blank` открывает ссылку в новой вкладке, другие значения `target` отбрасываются.
 
