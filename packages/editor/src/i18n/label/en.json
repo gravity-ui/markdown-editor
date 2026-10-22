@@ -1,0 +1,13 @@
+{
+  "button": "Label",
+  "placeholder": "Caption",
+  "default_caption": "Set status",
+  "color_gray": "Gray",
+  "color_green": "Green",
+  "color_yellow": "Yellow",
+  "color_blue": "Blue",
+  "color_red": "Red",
+  "color_purple": "Purple",
+  "color": "Color",
+  "existing_labels": "Labels on this page"
+}

@@ -11,8 +11,8 @@ import {gptHotKeys} from '../../extensions/additional/GPT/constants';
 import {headingType, pType} from '../../extensions/specs';
 import {i18n as i18nGpt} from '../../i18n/gpt/extension';
 import {i18n as i18nHint} from '../../i18n/hints';
+import {i18n as i18nLabel} from '../../i18n/label';
 import {i18n} from '../../i18n/menubar';
-import {i18n as i18nStatus} from '../../i18n/status';
 import {
     insertBlockquoteLink,
     insertHRule,
@@ -736,17 +736,17 @@ export const liftListItemMarkup: ToolbarItemMarkup = {
     isEnable: enable,
 };
 
-// ---- Status ----
-export const statusItemView: ToolbarItemView = {
+// ---- Label ----
+export const labelItemView: ToolbarItemView = {
     type: ToolbarDataType.SingleButton,
-    title: i18nStatus.bind(null, 'button'),
-    icon: icons.status,
-    aliases: ['badge', 'label'],
+    title: i18nLabel.bind(null, 'button'),
+    icon: icons.label,
+    aliases: ['badge', 'status', 'tag'],
 };
-export const statusItemWysiwyg: ToolbarItemWysiwyg = {
-    isActive: (editor) => editor.actions.addStatus?.isActive() ?? false,
-    isEnable: (editor) => editor.actions.addStatus?.isEnable() ?? false,
-    exec: (editor) => editor.actions.addStatus.run(),
+export const labelItemWysiwyg: ToolbarItemWysiwyg = {
+    isActive: (editor) => editor.actions.addLabel?.isActive() ?? false,
+    isEnable: (editor) => editor.actions.addLabel?.isEnable() ?? false,
+    exec: (editor) => editor.actions.addLabel.run(),
 };
 
 // ---- Toggle Heading Folding ----

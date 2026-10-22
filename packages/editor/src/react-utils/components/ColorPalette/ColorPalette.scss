@@ -1,0 +1,53 @@
+.g-md-color-palette {
+    display: grid;
+    justify-content: start;
+    gap: 0;
+
+    &__item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        font: inherit;
+        cursor: pointer;
+
+        color: inherit;
+        border: 0;
+        border-radius: var(--g-border-radius-m);
+        background: transparent;
+
+        appearance: none;
+
+        &:hover {
+            background: var(--g-color-base-generic);
+        }
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            outline: 1px solid var(--g-color-line-focus);
+            outline-offset: -1px;
+        }
+    }
+
+    &__swatch {
+        position: relative;
+
+        // A flex container makes an inline swatch a flex item, so no line box adds height below it
+        // and the check mark is centered on the swatch itself.
+        display: flex;
+    }
+
+    &__check {
+        position: absolute;
+        inset: 0;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        color: var(--g-color-text-primary);
+    }
+}

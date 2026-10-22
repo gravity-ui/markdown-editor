@@ -1,0 +1,89 @@
+@use '../../../../styles/mixins' as editor;
+
+// Background colors of the UIKit Label themes, see `labelThemes`.
+$swatch-colors: (
+    'gray': var(--g-color-base-neutral-light),
+    'green': var(--g-color-base-positive-light),
+    'yellow': var(--g-color-base-warning-light),
+    'blue': var(--g-color-base-info-light),
+    'red': var(--g-color-base-danger-light),
+    'purple': var(--g-color-base-utility-light),
+);
+
+.g-md-label-tooltip {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    box-sizing: border-box;
+    width: 180px;
+    min-width: 0;
+    max-width: calc(100vw - 16px);
+    padding: 12px;
+
+    &__input {
+        display: block;
+
+        box-sizing: border-box;
+        width: 100%;
+        min-width: 0;
+    }
+
+    &__suggestions {
+        display: flex;
+        overflow: auto;
+        overscroll-behavior-y: none;
+        flex-direction: column;
+        gap: 4px;
+
+        min-height: 0;
+        max-height: min(160px, calc(100vh - 124px));
+        padding-top: 8px;
+        padding-bottom: 8px;
+
+        border-top: 1px solid var(--g-color-line-generic);
+        scrollbar-width: thin;
+    }
+
+    &__suggestion {
+        --g-button-background-color-hover: transparent;
+        --g-button-border-width: 1px;
+        --g-button-border-color: transparent;
+        --g-button-focus-outline-offset: -2px;
+        flex-shrink: 0;
+        justify-content: flex-start;
+        align-self: flex-start;
+
+        min-width: 0;
+        max-width: 100%;
+        padding-inline: 4px;
+
+        &:hover {
+            --g-button-border-color: var(--g-color-line-generic);
+        }
+
+        .g-button__text {
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .g-label {
+            max-width: 100%;
+        }
+    }
+
+    &__swatch {
+        @include editor.color-swatch();
+
+        @each $name, $color in $swatch-colors {
+            &_color_#{$name} {
+                border-color: $color;
+                background-color: $color;
+            }
+        }
+    }
+}
+
+.g-md-label-popup {
+    border-radius: var(--g-border-radius-l);
+}

@@ -9,8 +9,8 @@ import type {
     SelectionContextItemData,
 } from '../../extensions/behavior/SelectionContext';
 import {i18n as i18nHint} from '../../i18n/hints';
+import {i18n as i18nLabel} from '../../i18n/label';
 import {i18n} from '../../i18n/menubar';
-import {i18n as i18nStatus} from '../../i18n/status';
 import {Action as A, formatter as f} from '../../shortcuts';
 import type {MarkdownEditorPreset} from '../preset-base-types';
 import {ToolbarDataType} from '../toolbar/types';
@@ -232,14 +232,14 @@ export const wTabsItemData: WToolbarSingleItemData = {
     isActive: (e) => e.actions.toYfmTabs.isActive(),
     isEnable: (e) => e.actions.toYfmTabs.isEnable(),
 };
-export const wStatusItemData: WToolbarSingleItemData = {
-    id: ActionName.status,
+export const wLabelItemData: WToolbarSingleItemData = {
+    id: ActionName.label,
     type: ToolbarDataType.SingleButton,
-    title: i18nStatus.bind(null, 'button'),
-    icon: icons.status,
-    exec: (e) => e.actions.addStatus.run(),
-    isActive: (e) => e.actions.addStatus?.isActive() ?? false,
-    isEnable: (e) => e.actions.addStatus?.isEnable() ?? false,
+    title: i18nLabel.bind(null, 'button'),
+    icon: icons.label,
+    exec: (e) => e.actions.addLabel.run(),
+    isActive: (e) => e.actions.addLabel?.isActive() ?? false,
+    isEnable: (e) => e.actions.addLabel?.isEnable() ?? false,
 };
 /** @deprecated Use wLatexInlineItemData from `@gravity-ui/markdown-editor-latex-extension` */
 export const wMathInlineItemData: WToolbarSingleItemData = {
@@ -449,7 +449,7 @@ export const wCommandMenuConfig: WToolbarItemData[] = [
     wEmojiItemData,
     wFileItemData,
     wTabsItemData,
-    wStatusItemData,
+    wLabelItemData,
 ];
 export const wHiddenData = wCommandMenuConfig;
 
@@ -518,7 +518,7 @@ export const wToolbarConfig: WToolbarData = [
             data: [wCodeItemData, wCodeBlockItemData],
         },
     ],
-    [wImageItemData, wFileItemData, wTableItemData, wCheckboxItemData, wStatusItemData],
+    [wImageItemData, wFileItemData, wTableItemData, wCheckboxItemData, wLabelItemData],
 ];
 
 export const wSelectionMenuConfig: SelectionContextConfig = [
@@ -777,7 +777,7 @@ export const wCommandMenuConfigByPreset: Record<MarkdownEditorPreset, WToolbarIt
         wEmojiItemData,
         wFileItemData,
         wTabsItemData,
-        wStatusItemData,
+        wLabelItemData,
     ],
 };
 export const wHiddenDataByPreset: Record<MarkdownEditorPreset, WToolbarItemData[]> = {
