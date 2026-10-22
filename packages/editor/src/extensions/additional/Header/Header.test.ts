@@ -10,6 +10,7 @@ import {BlockquoteSpecs, blockquoteNodeName} from '../../markdown/specs';
 import {
     HeaderAttr,
     HeaderHeight,
+    type HeaderHeightValue,
     HeaderSpecs,
     headerDirective,
     headerNodeName,
@@ -25,7 +26,8 @@ const {doc, p, bq} = builders<'doc' | 'p' | 'bq'>(schema, {
     bq: {nodeType: blockquoteNodeName},
 });
 
-const header = (height: HeaderHeight) => schema.node(headerNodeName, {[HeaderAttr.Height]: height});
+const header = (height: HeaderHeightValue) =>
+    schema.node(headerNodeName, {[HeaderAttr.Height]: height});
 
 const {same, parse} = createMarkupChecker({parser: markupParser, serializer});
 

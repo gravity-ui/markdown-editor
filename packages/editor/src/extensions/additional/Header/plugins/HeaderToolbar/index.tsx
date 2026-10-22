@@ -12,8 +12,8 @@ export const headerToolbarPlugin = () =>
                 idPrefix: 'header-toolbar',
                 nodeType: view.state.schema.nodes[headerNodeName],
                 popupPlacement: ['bottom', 'top'],
-                content: (view, {node, pos}) => (
-                    <HeaderToolbar node={node} pos={pos} editorView={view} />
+                content: (editorView, {node, pos}) => (
+                    <HeaderToolbar node={node} pos={pos} editorView={editorView} />
                 ),
             });
         },

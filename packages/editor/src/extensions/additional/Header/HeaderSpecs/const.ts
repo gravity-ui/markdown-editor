@@ -13,6 +13,6 @@ export const HeaderHeight = {
     M: 'm',
     L: 'l',
 } as const;
-export type HeaderHeight = (typeof HeaderHeight)[keyof typeof HeaderHeight];
+export type HeaderHeightValue = (typeof HeaderHeight)[keyof typeof HeaderHeight];
 
-export const HEADER_DEFAULT_HEIGHT: HeaderHeight = HeaderHeight.S;
+export const HEADER_DEFAULT_HEIGHT: HeaderHeightValue = HeaderHeight.S;
