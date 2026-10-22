@@ -13,7 +13,11 @@ export const removeEmptyLabelPlugin = () =>
             const empty: {pos: number; size: number}[] = [];
 
             state.doc.descendants((node, pos) => {
-                if (node.type === type && !node.attrs[LabelAttr.Text] && pos !== selectedPos) {
+                if (
+                    node.type === type &&
+                    !node.attrs[LabelAttr.Text].trim() &&
+                    pos !== selectedPos
+                ) {
                     empty.push({pos, size: node.nodeSize});
                 }
             });

@@ -11,10 +11,55 @@ $swatch-colors: (
 );
 
 .g-md-label-tooltip {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    box-sizing: border-box;
+    width: 180px;
+    min-width: 0;
+    max-width: calc(100vw - 16px);
     padding: 12px;
 
-    &__colors {
-        margin-top: 8px;
+    &__input {
+        display: block;
+
+        box-sizing: border-box;
+        width: 100%;
+        min-width: 0;
+    }
+
+    &__suggestions {
+        display: flex;
+        overflow: auto;
+        overscroll-behavior-y: none;
+        flex-direction: column;
+        gap: 4px;
+
+        min-height: 0;
+        max-height: min(160px, calc(100vh - 124px));
+        padding-top: 8px;
+        padding-bottom: 8px;
+
+        border-top: 1px solid var(--g-color-line-generic);
+        scrollbar-width: thin;
+    }
+
+    &__suggestion {
+        flex-shrink: 0;
+        justify-content: flex-start;
+
+        min-width: 0;
+        padding-inline: 4px;
+
+        .g-button__text {
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .g-label {
+            max-width: 100%;
+        }
     }
 
     &__swatch {
@@ -27,4 +72,8 @@ $swatch-colors: (
             }
         }
     }
+}
+
+.g-md-label-popup {
+    border-radius: var(--g-border-radius-l);
 }

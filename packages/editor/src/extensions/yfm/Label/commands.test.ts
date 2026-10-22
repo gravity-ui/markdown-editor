@@ -38,6 +38,7 @@ const schema = new Schema({
         },
         [labelNodeName]: labelNodeSpec,
     },
+    marks: {code: {code: true, toDOM: () => ['code', 0]}},
 });
 
 const {doc, paragraph: p, code_block: code, label} = builders(schema);
@@ -317,8 +318,8 @@ describe('Label virtual cursor', () => {
     };
 
     it.each([
-        ['before', 2, 0],
-        ['after', 3, -1],
+        ['before', 2, -1],
+        ['after', 3, 0],
     ])('should draw the cursor %s the label', (_edge, pos, side) => {
         const state = stateWithCursor(pmDoc, pos, [plugin]);
         const widgets = getWidgets(state);
@@ -369,5 +370,72 @@ describe('Empty label plugin', () => {
         const tr = state.tr.setSelection(TextSelection.create(state.doc, 1));
 
         expect(state.apply(tr).doc).toMatchNode(doc(p('text')));
+    });
+});
+
+describe('Label editing regressions', () => {
+    it('should preserve selected text as the inserted caption', () => {
+        const pmDoc = doc(p('hello world'));
+        const state = EditorState.create({
+            schema,
+            doc: pmDoc,
+            selection: TextSelection.create(pmDoc, 7, 12),
+            plugins: [labelEditPlugin()],
+        });
+        const {tr} = applyCommand(state, insertLabel('Label'));
+        expect(tr.doc).toMatchNode(doc(p('hello ', label(grayLabel('world')))));
+        expect(isLabelEdited(state.apply(tr))).toBe(true);
+    });
+
+    it('should insert typing after a passively selected label', () => {
+        const plugin = labelEditPlugin();
+        const pmDoc = doc(p('a', label(grayLabel('Draft')), 'b'));
+        const view = createView(stateWithSelectedLabel(pmDoc, 2, [plugin]));
+        const handled = plugin.props.handleTextInput?.call(plugin, view, 2, 3, 'Q');
+        expect(handled).toBe(true);
+        expect(view.state.doc).toMatchNode(doc(p('a', label(grayLabel('Draft')), 'Qb')));
+    });
+
+    it('should defer the inside code boundary to Code before selecting a label', () => {
+        const pmDoc = doc(
+            p(schema.text('code', [schema.marks.code.create()]), label(grayLabel('Draft'))),
+        );
+        const inside = stateWithCursor(pmDoc, 5);
+        expect(selectLabelOnRight(inside)).toBe(false);
+        const outside = inside.apply(inside.tr.removeStoredMark(schema.marks.code));
+        expect(selectLabelOnRight(outside)).toBe(true);
+        expect(getLabelCursorState(outside)).toBeNull();
+    });
+
+    it('should leave a label outside the neighboring code mark', () => {
+        const pmDoc = doc(
+            p(schema.text('code', [schema.marks.code.create()]), label(grayLabel('Draft'))),
+        );
+        const {tr} = applyCommand(stateWithSelectedLabel(pmDoc, 5), leaveLabelToLeft);
+        expect(tr.selection.from).toBe(5);
+        expect(tr.storedMarks).toEqual([]);
+    });
+
+    it('should remove a whitespace caption on closing', () => {
+        const pmDoc = doc(p(label(grayLabel('  '))));
+        const {res, tr} = applyCommand(stateWithSelectedLabel(pmDoc, 1), removeEmptyLabel(1));
+        expect(res).toBe(true);
+        expect(tr.doc).toMatchNode(doc(p()));
+    });
+});
+
+describe('Label next to Unicode code', () => {
+    it.each(['😀', 'é'])('should enter the first complete grapheme %s after a label', (first) => {
+        const pmDoc = doc(
+            p(label(grayLabel('Draft')), schema.text(first + 'rest', [schema.marks.code.create()])),
+        );
+        const initial = stateWithCursor(pmDoc, 2);
+        const view = createView(
+            initial.apply(initial.tr.addStoredMark(schema.marks.code.create())),
+        );
+        expect(
+            keydownHandler(labelKeymap)(view, new KeyboardEvent('keydown', {key: 'ArrowRight'})),
+        ).toBe(true);
+        expect(view.state.selection.from).toBe(2 + first.length);
     });
 });

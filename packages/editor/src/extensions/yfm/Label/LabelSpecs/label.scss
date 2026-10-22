@@ -1,0 +1,7 @@
+.g-md-label {
+    max-width: min(180px, 100%);
+
+    .g-label__content:empty::before {
+        content: attr(data-placeholder);
+    }
+}

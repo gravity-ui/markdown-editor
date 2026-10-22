@@ -200,3 +200,39 @@ describe('Label extension', () => {
         );
     });
 });
+
+describe('Label caption round trip', () => {
+    it.each(['[', '[x]', 'a [b', 'a [b] c', 'a] \\ [b]'])(
+        'should preserve the caption %s',
+        (caption) => {
+            const pmDoc = doc(p(label(attrs(caption, LabelColor.Green))));
+            const markup = serializer.serialize(pmDoc);
+            expect(parser.parse(markup)).toMatchNode(pmDoc);
+            expect(new MarkdownIt().use(labelPlugin).renderInline(markup)).toContain(
+                'g-label_theme_success',
+            );
+        },
+    );
+});
+
+describe('Empty label serialization', () => {
+    it.each(['', '  '])('should omit an unfinished empty caption %j when saving', (caption) => {
+        serialize(doc(p('a', label(attrs(caption, LabelColor.Blue)), 'b')), 'ab');
+    });
+});
+
+describe('Label placeholder', () => {
+    it('should keep the visual placeholder out of attributes and copied text', () => {
+        const node = label(attrs('', LabelColor.Gray));
+        const dom = DOMSerializer.fromSchema(schema).serializeNode(node) as HTMLElement;
+        expect(dom.textContent).toBe('');
+        expect(dom.querySelector('[data-placeholder]')).not.toBeNull();
+        parseDOM(schema, `<p>${dom.outerHTML}</p>`, doc(p(node)));
+    });
+    it('should preserve a real caption equal to the placeholder', () => {
+        const node = label(attrs('Set status', LabelColor.Gray));
+        const dom = DOMSerializer.fromSchema(schema).serializeNode(node) as HTMLElement;
+        expect(dom.querySelector('[data-placeholder]')).toBeNull();
+        parseDOM(schema, `<p>${dom.outerHTML}</p>`, doc(p(node)));
+    });
+});

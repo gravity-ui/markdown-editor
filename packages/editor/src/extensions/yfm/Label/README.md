@@ -1,6 +1,6 @@
 ## Label
 
-An inline label: a short caption in a colored pill inside the text.
+An inline label: a short caption in a colored UIKit Label inside the text.
 
 ### Markup
 
@@ -12,7 +12,7 @@ The `label` text (inline) directive. The caption is the content in square bracke
 the `color` attribute. Available colors: `gray`, `green`, `yellow`, `blue`, `red`, `purple`.
 
 The default `gray` color is omitted on serialization: `:label[In progress]`. A missing or unknown
-color becomes `gray`. `\` and `]` in the caption are escaped.
+color becomes `gray`. `\`, `[` and `]` in the caption are escaped.
 
 #### Former markup
 
@@ -59,8 +59,7 @@ Every color is a `theme` of the UIKit `Label`, so the label follows the light an
 
 The label is the `xs` size of `Label` without changes: 20 px high, with the corner radius and
 the text margins of this size. It stands on the baseline of the line like the UIKit `Label`. The
-styles come with the UIKit `Label` component, which the extension imports; a preview without the
-extension needs the UIKit styles.
+styles use the UIKit stylesheet, which must also be loaded for a standalone preview.
 
 ### Editor
 
@@ -77,7 +76,9 @@ selected swatch has a check mark and `aria-pressed`.
 - A label with an empty caption lives only while it is selected and its popover is open. Closing
   the popover or moving the selection out of the label removes it.
 
-The `addLabel` action inserts a gray label with the caption from the `label` keyset.
+The `addLabel` action inserts an empty gray label. A visual Set status placeholder is shown until a caption is entered; it is never saved as the caption. Typing updates the label immediately.
+
+The popover lists up to twenty other labels from the current document, nearest first. Equivalent captions and colors are deduplicated; the current pair and blank captions are excluded. Selecting a suggestion copies its caption and color. The list scrolls independently of the caption and palette.
 
 `ArrowLeft` and `ArrowRight` step through three positions around a label: the edge before it, the
 label itself, the edge after it. At both edges the editor draws the fake cursor of the Code
@@ -86,7 +87,6 @@ extension instead of the native caret, and typed text goes outside the label.
 ### Limitations
 
 - The caption is plain text: markdown inside it is not parsed.
-- An unbalanced `[` in the caption makes the directive unreadable, and the line stays plain text.
 - Attributes other than `color` are dropped on parsing.
 - The extension is part of the `full` preset; the toolbar button inserts a label in the WYSIWYG
   mode, in the markup mode the directive is written by hand.
