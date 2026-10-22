@@ -34,7 +34,9 @@ test.describe('Date', () => {
             document.querySelector('.g-md-date-tooltip')?.contains(document.activeElement),
         );
     const expectCursor = (page: Page, pos: number) =>
-        expect(page.locator('.playground__pm-selection')).toContainText(`Cursor: ${pos}`);
+        expect(page.locator('.playground__pm-selection')).toContainText(
+            new RegExp(`Cursor: ${pos}$`),
+        );
 
     /** Puts the cursor before the date of the second paragraph: `Before |[Mar 14, 2025] after`. */
     const placeCursorBeforeDate = async (
@@ -55,7 +57,7 @@ test.describe('Date', () => {
         const point = await page.evaluate(() => {
             const editor = document.querySelector('[data-qa=g-md-editor-mode]');
             const popup = document.querySelector('.g-md-date-tooltip');
-            for (let y = window.innerHeight - 2; y > 0; y -= 10) {
+            for (let y = 20; y < document.documentElement.clientHeight - 20; y += 10) {
                 for (let x = 2; x < window.innerWidth; x += 50) {
                     const target = document.elementFromPoint(x, y);
                     if (target && !editor?.contains(target) && !popup?.contains(target)) {
@@ -168,6 +170,15 @@ test.describe('Date', () => {
         await editor.press('ArrowRight');
         await expect(getPopup(page)).toBeVisible();
         await expect(getPopup(page).locator('[aria-selected=true]')).toHaveText('14');
+        await expect
+            .poll(async () => {
+                const [popup, date] = await Promise.all([
+                    getPopup(page).boundingBox(),
+                    getDates(page).first().boundingBox(),
+                ]);
+                return popup && date ? Math.abs(popup.x - date.x) : Infinity;
+            })
+            .toBeLessThanOrEqual(1);
         expect(await isEditorFocused(page)).toBe(true);
 
         await expectScreenshot({nameSuffix: 'passive popover', fullPage: true});
@@ -222,6 +233,15 @@ test.describe('Date', () => {
         await expect(getPopup(page)).toBeVisible();
         await expect.poll(() => isCalendarFocused(page)).toBe(true);
         await expect(getPopup(page).locator('[aria-selected=true]')).toHaveText('14');
+        await expect
+            .poll(async () => {
+                const [popup, date] = await Promise.all([
+                    getPopup(page).boundingBox(),
+                    getDates(page).first().boundingBox(),
+                ]);
+                return popup && date ? Math.abs(popup.x - date.x) : Infinity;
+            })
+            .toBeLessThanOrEqual(1);
 
         await page.mouse.move(0, 0);
         await wait.tooltipsHidden();

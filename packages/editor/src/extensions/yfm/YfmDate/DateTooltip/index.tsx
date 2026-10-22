@@ -13,7 +13,7 @@ export const dateTooltipPlugin = () =>
             return new InlineAtomTooltipView(view, {
                 idPrefix: 'date-tooltip',
                 nodeType: dateType(view.state.schema),
-                popupPlacement: ['bottom', 'top'],
+                popupPlacement: ['bottom-start', 'top-start', 'bottom-end', 'top-end'],
                 getEditId: getDateEditId,
                 content: (tooltipView, {node, pos}) => (
                     <DateTooltip
