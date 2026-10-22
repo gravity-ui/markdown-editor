@@ -21,8 +21,8 @@
     }
 }
 
-// The gap is painted with the popover background.
 .status-ring_shadow .g-md-status_swatch {
+    // The gap is painted with the popover background.
     &:hover {
         box-shadow:
             0 0 0 2px var(--g-color-base-float),
