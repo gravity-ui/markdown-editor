@@ -1,8 +1,12 @@
-// Вид `action` размера L кнопки uikit.
+@use './colors';
+
+// Размер L кнопки uikit, стили и цвета — из макета.
 .g-md-button {
     margin: 0 0 15px;
 
     &__action {
+        @include colors.button-colors;
+
         display: inline-flex;
         align-items: center;
 
@@ -14,13 +18,40 @@
         line-height: var(--g-text-body-1-line-height);
         text-decoration: none;
 
-        color: var(--g-color-text-brand-contrast);
+        color: var(--g-md-button-text);
         border-radius: var(--g-border-radius-l);
-        background-color: var(--g-color-base-brand);
+
+        &[data-view='action'] {
+            color: var(--g-md-button-contrast);
+            background-color: var(--g-md-button-heavy);
+
+            &:hover {
+                color: var(--g-md-button-contrast);
+                background-color: var(--g-md-button-heavy-hover);
+            }
+        }
+
+        &[data-view='normal'] {
+            background-color: var(--g-md-button-light);
+
+            &:hover {
+                background-color: var(--g-md-button-light-hover);
+            }
+        }
+
+        &[data-view='outlined'] {
+            box-shadow: inset 0 0 0 1px var(--g-md-button-line);
+        }
+
+        &[data-view='outlined'],
+        &[data-view='flat'] {
+            &:hover {
+                background-color: var(--g-color-base-simple-hover);
+            }
+        }
 
         &:hover {
-            color: var(--g-color-text-brand-contrast);
-            background-color: var(--g-color-base-brand-hover);
+            color: var(--g-md-button-text);
         }
     }
 }

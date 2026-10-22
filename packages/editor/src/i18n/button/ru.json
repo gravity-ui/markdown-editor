@@ -1,0 +1,20 @@
+{
+  "close": "Закрыть",
+  "color_blue": "Синяя",
+  "color_default": "Стандартная",
+  "color_gray": "Серая",
+  "color_green": "Зелёная",
+  "color_orange": "Оранжевая",
+  "color_red": "Красная",
+  "color_violet": "Фиолетовая",
+  "color_yellow": "Жёлтая",
+  "duplicate": "Дублировать",
+  "remove": "Удалить",
+  "settings": "Настройки",
+  "settings_title": "Настройки кнопки",
+  "style": "Стиль",
+  "view_action": "Акцентные",
+  "view_flat": "Без фона",
+  "view_normal": "Второстепенная",
+  "view_outlined": "С обводкой"
+}

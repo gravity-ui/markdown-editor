@@ -1,0 +1,65 @@
+@use '../../colors';
+
+// Размеры из макета: панель 320 px, подпись 120 px.
+.g-md-button-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    box-sizing: border-box;
+    width: 320px;
+    padding: 16px;
+
+    &__title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__label {
+        flex: 0 0 120px;
+    }
+
+    &__control {
+        flex: 1;
+    }
+
+    &__option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    &__swatch {
+        @include colors.button-colors;
+
+        display: inline-flex;
+        flex: 0 0 16px;
+        justify-content: center;
+        align-items: center;
+
+        box-sizing: border-box;
+        height: 16px;
+
+        color: var(--g-md-button-text);
+        border-radius: 4px;
+
+        &[data-view='action'] {
+            background-color: var(--g-md-button-heavy);
+        }
+
+        &[data-view='normal'] {
+            background-color: var(--g-md-button-light);
+        }
+
+        &[data-view='outlined'] {
+            box-shadow: inset 0 0 0 1.5px var(--g-md-button-line);
+        }
+    }
+}

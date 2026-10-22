@@ -6,7 +6,14 @@ import {Header} from '@gravity-ui/markdown-editor/extensions/additional/Header/i
 
 import {Playground} from '../../../components/Playground';
 
-const markup = ':::header{height=s}\n\n:::\n\n::button[Открыть](https://gravity-ui.com)';
+const markup = [
+    ':::header{height=s}\n\n:::',
+    '::button[Акцентная](https://gravity-ui.com)',
+    '::button[Зелёная](https://gravity-ui.com){color=green}',
+    '::button[Второстепенная](https://gravity-ui.com){view=normal color=blue}',
+    '::button[С обводкой](https://gravity-ui.com){view=outlined color=red}',
+    '::button[Без фона](https://gravity-ui.com){view=flat color=violet}',
+].join('\n\n');
 
 const extensions: ExtensionAuto = (builder) => builder.use(Header).use(Button);
 

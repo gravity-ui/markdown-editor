@@ -1,0 +1,45 @@
+$semantic: (
+    'blue': 'info',
+    'green': 'positive',
+    'yellow': 'warning',
+    'red': 'danger',
+    'violet': 'utility',
+);
+
+/// Цвета кнопки по атрибуту `data-color`: заливки, текст и обводка.
+@mixin button-colors {
+    --g-md-button-heavy: var(--g-color-base-brand);
+    --g-md-button-heavy-hover: var(--g-color-base-brand-hover);
+    --g-md-button-contrast: var(--g-color-text-brand-contrast);
+    --g-md-button-light: var(--g-color-base-generic);
+    --g-md-button-light-hover: var(--g-color-base-generic-hover);
+    --g-md-button-text: var(--g-color-text-primary);
+    --g-md-button-line: var(--g-color-line-generic-accent);
+
+    @each $color, $name in $semantic {
+        &[data-color='#{$color}'] {
+            --g-md-button-heavy: var(--g-color-base-#{$name}-heavy);
+            --g-md-button-heavy-hover: var(--g-color-base-#{$name}-heavy-hover);
+            --g-md-button-contrast: var(--g-color-text-light-primary);
+            --g-md-button-light: var(--g-color-base-#{$name}-light);
+            --g-md-button-light-hover: var(--g-color-base-#{$name}-light-hover);
+            --g-md-button-text: var(--g-color-text-#{$name});
+            --g-md-button-line: var(--g-color-line-#{$name});
+        }
+    }
+
+    &[data-color='yellow'] {
+        --g-md-button-contrast: var(--g-color-text-dark-primary);
+    }
+
+    // Оранжевого цвета нет среди семантических, есть только у акцентной кнопки.
+    &[data-color='orange'] {
+        --g-md-button-heavy: var(--g-color-private-orange-550-solid);
+        --g-md-button-heavy-hover: var(--g-color-private-orange-600-solid);
+        --g-md-button-contrast: var(--g-color-text-light-primary);
+    }
+
+    &[data-view='flat'][data-color='gray'] {
+        --g-md-button-text: var(--g-color-text-secondary);
+    }
+}

@@ -1,0 +1,20 @@
+{
+  "close": "Close",
+  "color_blue": "Blue",
+  "color_default": "Standard",
+  "color_gray": "Gray",
+  "color_green": "Green",
+  "color_orange": "Orange",
+  "color_red": "Red",
+  "color_violet": "Violet",
+  "color_yellow": "Yellow",
+  "duplicate": "Duplicate",
+  "remove": "Remove",
+  "settings": "Settings",
+  "settings_title": "Button settings",
+  "style": "Style",
+  "view_action": "Accent",
+  "view_flat": "No background",
+  "view_normal": "Secondary",
+  "view_outlined": "Outlined"
+}

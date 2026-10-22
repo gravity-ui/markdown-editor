@@ -7,7 +7,15 @@ import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {BlockquoteSpecs, blockquoteNodeName} from '../../markdown/specs';
 
-import {ButtonAttr, ButtonSpecs, buttonDirective, buttonNodeName} from './ButtonSpecs';
+import {
+    ButtonAttr,
+    ButtonColor,
+    ButtonSpecs,
+    type ButtonStyle,
+    ButtonView,
+    buttonDirective,
+    buttonNodeName,
+} from './ButtonSpecs';
 
 const {schema, markupParser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(BlockquoteSpecs).use(ButtonSpecs),
@@ -19,8 +27,17 @@ const {doc, p, bq} = builders<'doc' | 'p' | 'bq'>(schema, {
     bq: {nodeType: blockquoteNodeName},
 });
 
-const button = (label: string, href: string) =>
-    schema.node(buttonNodeName, {[ButtonAttr.Label]: label, [ButtonAttr.Href]: href});
+const button = (
+    label: string,
+    href: string,
+    {view, color}: ButtonStyle = {view: ButtonView.Action, color: ButtonColor.Default},
+) =>
+    schema.node(buttonNodeName, {
+        [ButtonAttr.Label]: label,
+        [ButtonAttr.Href]: href,
+        [ButtonAttr.View]: view,
+        [ButtonAttr.Color]: color,
+    });
 
 const {same, parse} = createMarkupChecker({parser: markupParser, serializer});
 
@@ -51,9 +68,40 @@ describe('Button', () => {
         same('::button[Open](/a)\n\nText', doc(button('Open', '/a'), p('Text')));
     });
 
-    it('should render a link with the escaped label', () => {
-        expect(md.render('::button[<b>](/а)')).toBe(
-            '<div class="g-md-button"><a class="g-md-button__action" href="/%D0%B0">&lt;b&gt;</a></div>\n',
+    it.each([
+        ['::button[Open](/a){color=green}', {view: ButtonView.Action, color: ButtonColor.Green}],
+        [
+            '::button[Open](/a){view=normal color=gray}',
+            {view: ButtonView.Normal, color: ButtonColor.Gray},
+        ],
+        [
+            '::button[Open](/a){view=outlined color=red}',
+            {view: ButtonView.Outlined, color: ButtonColor.Red},
+        ],
+        ['::button[Open](/a){view=flat}', {view: ButtonView.Flat, color: ButtonColor.Default}],
+    ])('should keep the style of %s', (markup, style) => {
+        same(markup, doc(button('Open', '/a', style)));
+    });
+
+    it.each([
+        [
+            'an unknown view',
+            '{view=link color=red}',
+            {view: ButtonView.Action, color: ButtonColor.Red},
+        ],
+        ['an unknown color', '{color=pink}', {view: ButtonView.Action, color: ButtonColor.Default}],
+        [
+            'a color the view lacks',
+            '{view=normal color=orange}',
+            {view: ButtonView.Normal, color: ButtonColor.Gray},
+        ],
+    ])('should normalize %s', (_name, attrs, style) => {
+        parse(`::button[Open](/a)${attrs}`, doc(button('Open', '/a', style)));
+    });
+
+    it('should render a link with the style and the escaped label', () => {
+        expect(md.render('::button[<b>](/а){view=outlined color=blue}')).toBe(
+            '<div class="g-md-button"><a class="g-md-button__action" data-view="outlined" data-color="blue" href="/%D0%B0">&lt;b&gt;</a></div>\n',
         );
     });
 });
