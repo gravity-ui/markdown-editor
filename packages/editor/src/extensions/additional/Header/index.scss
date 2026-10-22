@@ -319,6 +319,17 @@
     z-index: 1;
     inset-block-start: 8px;
     inset-inline-end: 8px;
+
+    pointer-events: none;
+
+    opacity: 0;
+}
+
+.g-md-header .g-md-header__media:hover .g-md-header__media-remove,
+.g-md-header .g-md-header__media-remove:focus-visible {
+    pointer-events: auto;
+
+    opacity: 1;
 }
 
 .g-md-header .g-md-header__media-placeholder {

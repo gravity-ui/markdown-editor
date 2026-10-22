@@ -317,7 +317,8 @@ test('should add an image by link and keep the loaded photo passive', async ({
     await expect(imageForm).toHaveCount(0);
     await page.mouse.move(0, 0);
     const remove = media.getByRole('button', {name: 'Remove content image', exact: true});
-    await expect(remove).toBeVisible();
+    await expect(remove).toHaveCSS('opacity', '0');
+    await expect(remove).toHaveCSS('pointer-events', 'none');
     await expect(media.getByRole('button')).toHaveCount(1);
     let fileChoosers = 0;
     page.on('filechooser', () => {
@@ -327,7 +328,7 @@ test('should add an image by link and keep the loaded photo passive', async ({
     await image.click();
     await expect(imageForm).toHaveCount(0);
     expect(fileChoosers).toBe(0);
-    await expect(remove).toBeVisible();
+    await expect(remove).toHaveCSS('opacity', '1');
     await editor.switchMode('markup');
     await expect(page.locator('.cm-content')).toContainText(
         ':::header-image{src="/assets/test-image.jpg"',
@@ -348,7 +349,9 @@ test('should remove only the content image and restore it with undo', async ({
     const background = await header.getAttribute('data-image');
     await page.mouse.move(0, 0);
     const remove = media.getByRole('button', {name: 'Remove content image', exact: true});
-    await expect(remove).toBeVisible();
+    await expect(remove).toHaveCSS('opacity', '0');
+    await media.hover();
+    await expect(remove).toHaveCSS('opacity', '1');
     await expectScreenshot({component: media});
     await remove.click();
     await expect(media.locator('img')).toHaveCount(0);
@@ -362,14 +365,13 @@ test('should remove only the content image and restore it with undo', async ({
     await expect(remove).toBeVisible();
 });
 
-test('should keep the image delete control legible in both editor themes', async ({
+test('should show a legible image delete control on hover and keyboard focus in both themes', async ({
     mount,
     page,
 }) => {
     await mount(<HeaderDemo markupKey="design" />, {width: 1100});
-    const remove = page
-        .locator('.g-md-header__media')
-        .getByRole('button', {name: 'Remove content image', exact: true});
+    const media = page.locator('.g-md-header__media');
+    const remove = media.getByRole('button', {name: 'Remove content image', exact: true});
     const contrast = () =>
         remove.evaluate((button) => {
             const rgba = (color: string) => (color.match(/[\d.]+/g) ?? []).map(Number);
@@ -401,12 +403,26 @@ test('should keep the image delete control legible in both editor themes', async
         await page.emulateMedia({colorScheme: theme});
         await expect(page.locator('body')).toHaveClass(new RegExp(`g-root_theme_${theme}`));
         await page.mouse.move(0, 0);
-        await expect(remove).toBeVisible();
+        await expect(remove).toHaveCSS('opacity', '0');
+        await expect(remove).toHaveCSS('pointer-events', 'none');
+        await media.hover();
+        await expect(remove).toHaveCSS('opacity', '1');
         expect((await contrast()).alpha).toBe(1);
         await expect.poll(async () => (await contrast()).ratio).toBeGreaterThanOrEqual(3);
         await remove.hover();
         expect((await contrast()).alpha).toBe(1);
         await expect.poll(async () => (await contrast()).ratio).toBeGreaterThanOrEqual(3);
+        await page.mouse.move(0, 0);
+        await expect(remove).toHaveCSS('opacity', '0');
+        await remove.focus();
+        await page.keyboard.press('Tab');
+        await page.keyboard.press('Shift+Tab');
+        await expect(remove).toBeFocused();
+        await expect(remove).toHaveCSS('opacity', '1');
+        expect((await contrast()).alpha).toBe(1);
+        await expect.poll(async () => (await contrast()).ratio).toBeGreaterThanOrEqual(3);
+        await page.locator('.g-md-header__title').click();
+        await expect(remove).toHaveCSS('opacity', '0');
     }
 });
 

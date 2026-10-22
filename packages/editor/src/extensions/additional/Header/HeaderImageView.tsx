@@ -1,7 +1,8 @@
 import {useState} from 'react';
+import {createPortal} from 'react-dom';
 
 import {Picture, TrashBin} from '@gravity-ui/icons';
-import {Button, Icon, Portal} from '@gravity-ui/uikit';
+import {Button, Icon} from '@gravity-ui/uikit';
 
 import type {Node} from '#pm/model';
 import type {EditorView, NodeView} from '#pm/view';
@@ -100,15 +101,14 @@ export class HeaderImageView implements NodeView {
         this.renderItem = getReactRendererFromState(view.state).createItem('header-media', () => {
             const attrs = mediaDomAttrs(this.node.attrs);
             for (const [key, value] of Object.entries(attrs)) this.dom.setAttribute(key, value);
-            return (
-                <Portal container={this.dom}>
-                    <ImageControls
-                        node={this.node}
-                        editorView={view}
-                        getHeaderPos={getHeaderPos}
-                        fileUploadHandler={handler}
-                    />
-                </Portal>
+            return createPortal(
+                <ImageControls
+                    node={this.node}
+                    editorView={view}
+                    getHeaderPos={getHeaderPos}
+                    fileUploadHandler={handler}
+                />,
+                this.dom,
             );
         });
     }
