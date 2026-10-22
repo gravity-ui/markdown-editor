@@ -16,12 +16,12 @@ export const labelDomSpec = (color: unknown, text: string): DOMOutputSpec => [
             'span',
             {
                 class: 'g-label__content',
-                ...(!text
-                    ? {
+                ...(text
+                    ? {}
+                    : {
                           'data-placeholder': i18n('default_caption'),
                           'aria-label': i18n('default_caption'),
-                      }
-                    : {}),
+                      }),
             },
             text,
         ],
