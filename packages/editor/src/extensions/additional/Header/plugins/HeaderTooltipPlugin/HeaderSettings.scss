@@ -1,6 +1,14 @@
+@use '../../fills' as fills;
+
 $block: '.g-md-header-settings';
 
 #{$block} {
+    --g-md-button-label-width: 120px;
+    position: fixed;
+    z-index: 1000;
+    top: 60px;
+    right: 20px;
+
     display: flex;
     overflow: auto;
     flex-direction: column;
@@ -9,13 +17,13 @@ $block: '.g-md-header-settings';
     box-sizing: border-box;
     width: 320px;
     max-width: calc(100vw - 32px);
-    max-height: calc(100dvh - 32px);
+    max-height: calc(100dvh - 80px);
     padding: var(--g-spacing-4);
 
     font-family: var(--g-text-body-font-family);
-    font-size: var(--g-text-body-1-font-size);
+    font-size: 14px;
     font-weight: var(--g-text-body-font-weight);
-    line-height: var(--g-text-body-1-line-height);
+    line-height: 20px;
 
     color: var(--g-color-text-primary);
     border: 1px solid var(--g-color-line-generic);
@@ -31,9 +39,9 @@ $block: '.g-md-header-settings';
 
         min-height: 28px;
 
-        font-size: var(--g-text-subheader-3-font-size);
+        font-size: 16px;
         font-weight: var(--g-text-subheader-font-weight);
-        line-height: var(--g-text-subheader-3-line-height);
+        line-height: 24px;
     }
     &__row {
         display: grid;
@@ -164,4 +172,46 @@ $block: '.g-md-header-settings';
     border-radius: 16px;
     background: transparent;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
+}
+
+.g-md-header-settings__background-popup {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    box-sizing: border-box;
+    width: 325px;
+    max-width: calc(100vw - 32px);
+    padding: 16px;
+
+    border-radius: 16px;
+    background: var(--g-color-base-float);
+}
+
+.g-md-header-settings__background-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.g-md-header-settings__background-preview {
+    width: 100%;
+    height: 120px;
+
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.g-md-header-settings__upload-hint {
+    text-align: center;
+
+    color: var(--g-color-text-secondary);
+}
+
+.g-md-header-settings__swatch {
+    @each $name, $color in fills.$header-fills {
+        &[data-fill='#{$name}'] {
+            background-color: $color;
+        }
+    }
 }

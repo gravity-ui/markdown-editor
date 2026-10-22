@@ -1,16 +1,26 @@
 import type {Action, ExtensionAuto} from '#core';
+import {i18n} from 'src/i18n/header';
 import type {FileUploadHandler} from 'src/utils/upload';
 
-import {HeaderActionView} from './HeaderActionView';
+import {Button} from '../Button';
+
+import {HeaderImageView} from './HeaderImageView';
 import {HeaderSpecs} from './HeaderSpecs';
-import {backspaceInHeader, enterHeaderContent, exitHeaderForward, toHeader} from './commands';
+import {
+    backspaceInHeader,
+    createHeaderCommand,
+    enterHeaderContent,
+    exitHeaderForward,
+} from './commands';
 import {headerTooltipPlugin} from './plugins/HeaderTooltipPlugin';
+import {headerEditingPlugin} from './plugins/editing';
+import {headerImageUploadPlugin} from './plugins/imageUpload';
 
 import './index.scss';
 
 export * from './HeaderSpecs';
 export * from './commands';
-export {wHeaderItemData} from './toolbar';
+export {wHeaderItemData, headerItemView, headerItemWysiwyg} from './toolbar';
 
 export type HeaderOptions = {
     fileUploadHandler?: FileUploadHandler;
@@ -20,10 +30,21 @@ export type HeaderOptions = {
 const headerAction = 'toHeader';
 
 export const Header: ExtensionAuto<HeaderOptions> = (builder, opts) => {
-    builder.use(HeaderSpecs);
-    builder.addNodeView('header_action', () => (node, view) => new HeaderActionView(node, view));
+    builder.use(HeaderSpecs, {
+        titlePlaceholder: () => i18n('placeholder'),
+        contentPlaceholder: () => i18n('description_placeholder'),
+    });
+    builder.use(Button);
+    builder.addNodeView(
+        'header_image',
+        () => (node, view, getPos) =>
+            new HeaderImageView(node, view, getPos, opts.fileUploadHandler),
+    );
+    builder.addPlugin(headerImageUploadPlugin);
+    builder.addPlugin(headerEditingPlugin);
+    const toHeader = createHeaderCommand(() => i18n('action'));
 
-    builder.addPlugin(() => headerTooltipPlugin(opts.fileUploadHandler));
+    builder.addPlugin(({serializer}) => headerTooltipPlugin(opts.fileUploadHandler, serializer));
 
     builder.addAction(headerAction, () => ({
         isActive: () => false,

@@ -1,97 +1,161 @@
 import {
     directiveParser,
     registerContainerDirective,
-    registerLeafBlockDirective,
+    tokenizeBlockContent,
 } from '@diplodoc/directive';
 import type MarkdownIt from 'markdown-it';
+import type Token from 'markdown-it/lib/token';
 
-import {slotsTokenizer} from 'src/utils/directive-slots';
-
-import {normalizeHeaderAttrs} from '../attrs';
+import {buttonDirective} from '../../../Button/ButtonSpecs/md';
+import {normalizeHeaderAttrs, normalizeHeaderImageAttrs} from '../attrs';
 import {
     HeaderClassName,
+    HeaderImageDefaults,
     headerActionsName,
     headerContentName,
-    headerDirectiveName,
+    headerImageName,
     headerTitleName,
-    headerTokenName,
 } from '../const';
-import {headerHtmlClose, headerHtmlOpen, renderHeaderAction} from '../dom';
+import {headerHtmlClose, headerHtmlOpen, mediaDomAttrs} from '../dom';
 
-const TITLE_PUNCTUATION = new Set('\\`*_{}[]()#+.!>|~-<');
+function groups(tokens: Token[]): Token[][] {
+    const result: Token[][] = [];
+    for (let start = 0; start < tokens.length; ) {
+        let end = start + 1;
+        for (let depth = tokens[start].nesting; depth > 0 && end < tokens.length; end++)
+            depth += tokens[end].nesting;
+        result.push(tokens.slice(start, end));
+        start = end;
+    }
+    return result;
+}
 
 export const headerDirective = (md: MarkdownIt) => {
-    md.use(directiveParser());
-
-    const tokenizeSlots = slotsTokenizer(
-        {
-            [headerContentName]: ['paragraph_open'],
-            [headerActionsName]: ['action'],
-        },
-        {[headerActionsName]: 3},
-    );
-
-    registerLeafBlockDirective(md, 'action', (state, params) => {
-        const token = state.push('action', 'a', 0);
-        token.map = [params.startLine, params.endLine];
-        token.block = true;
-        token.content = md.utils.unescapeAll(params.inlineContent?.raw ?? '');
-        const href = params.dests?.link ?? '';
-        token.attrSet('href', md.validateLink(href) ? md.normalizeLink(href) : '');
-        token.attrSet('data-type', params.attrs?.type === 'link' ? 'link' : 'button');
-        token.attrSet('data-color', params.attrs?.color === 'brand' ? 'brand' : 'default');
-        token.attrSet('data-enabled', params.attrs?.enabled === 'false' ? 'false' : 'true');
+    md.use(directiveParser()).use(buttonDirective);
+    const plainSlot = (name: string, className: string) =>
+        registerContainerDirective(md, name.replace(/_/g, '-'), (state, params) => {
+            if (String(state.parentType) !== 'header-directive') return false;
+            state.push(`${name}_open`, 'div', 1).attrSet('class', className);
+            state.push('text', '', 0).content = md.utils.unescapeAll(params.content.raw.trim());
+            state.push(`${name}_close`, 'div', -1);
+            return true;
+        });
+    plainSlot(headerTitleName, HeaderClassName.Title);
+    registerContainerDirective(md, 'header-image', (state, params) => {
+        if (String(state.parentType) !== 'header-directive') return false;
+        const attrs = normalizeHeaderImageAttrs(params.attrs ?? {});
+        const token = state.push(headerImageName, 'div', 0);
+        token.attrs = Object.entries(attrs);
         return true;
     });
-
-    registerContainerDirective(md, {
-        name: headerDirectiveName,
-        match: () => true,
-        container: {
-            tag: 'div',
-            token: headerTokenName,
-            attrs: (params) =>
-                Object.fromEntries(
-                    Object.entries(normalizeHeaderAttrs(params.attrs ?? {})).map(
-                        ([name, value]) => [`data-${name}`, value],
-                    ),
-                ),
-        },
-        inlineContent: {
-            tag: 'div',
-            token: headerTitleName,
-            required: false,
-            attrs: {class: HeaderClassName.Title},
-        },
-        contentTokenizer: (state, content, params) => {
-            const titleInline = state.tokens[state.tokens.length - 2];
-            if (titleInline?.type === 'inline') {
-                const raw = params.inlineContent?.raw ?? '';
-                titleInline.content = [...raw]
-                    .map((char, index) =>
-                        TITLE_PUNCTUATION.has(char) && !(char === '#' && raw[index - 1] === '&')
-                            ? `&#${char.charCodeAt(0)};`
-                            : char,
-                    )
-                    .join('');
-            }
-            tokenizeSlots(state, content);
-        },
+    registerContainerDirective(md, 'header-content', (state, params) => {
+        if (String(state.parentType) !== 'header-directive') return false;
+        state.push(`${headerContentName}_open`, 'div', 1).attrSet('class', HeaderClassName.Body);
+        const start = state.tokens.length;
+        tokenizeBlockContent(state, params.content, 'header-content');
+        const paragraphs = groups(state.tokens.splice(start)).filter(
+            ([token]) => token.type === 'paragraph_open',
+        );
+        for (const paragraph of paragraphs) state.tokens.push(...paragraph);
+        state.push(`${headerContentName}_close`, 'div', -1);
+        return true;
     });
-
-    const rules = md.renderer.rules;
-    rules[`${headerTokenName}_open`] = (tokens, idx) =>
+    registerContainerDirective(md, 'header', (state, params) => {
+        if (
+            String(state.parentType) === 'header-directive' ||
+            String(state.parentType) === 'header-content'
+        )
+            return false;
+        const open = state.push('header_open', 'div', 1);
+        open.attrs = Object.entries(normalizeHeaderAttrs(params.attrs ?? {}));
+        open.map = [params.startLine, params.endLine];
+        const start = state.tokens.length;
+        tokenizeBlockContent(state, params.content, 'header-directive');
+        const children = groups(state.tokens.splice(start));
+        for (const [name, className] of [
+            [headerTitleName, HeaderClassName.Title],
+            [headerContentName, HeaderClassName.Body],
+        ]) {
+            const slot = children.find(([token]) => token.type === `${name}_open`);
+            if (slot) state.tokens.push(...slot);
+            else {
+                state.push(`${name}_open`, 'div', 1).attrSet('class', className);
+                state.push(`${name}_close`, 'div', -1);
+            }
+        }
+        state.push(`${headerActionsName}_open`, 'div', 1).attrSet('class', HeaderClassName.Actions);
+        for (const button of children.filter(([token]) => token.type === 'button').slice(0, 3))
+            state.tokens.push(...button);
+        state.push(`${headerActionsName}_close`, 'div', -1);
+        const media = children.find(([token]) => token.type === headerImageName);
+        if (media) state.tokens.push(...media);
+        else state.push(headerImageName, 'div', 0).attrs = Object.entries(HeaderImageDefaults);
+        state.push('header_close', 'div', -1);
+        return true;
+    });
+    md.core.ruler.after('inline', 'header-safe-inline', (state) => {
+        let inContent = false;
+        const allowed = new Set([
+            'text',
+            'text_special',
+            'softbreak',
+            'hardbreak',
+            'strong_open',
+            'strong_close',
+            'em_open',
+            'em_close',
+            's_open',
+            's_close',
+            'link_open',
+            'link_close',
+            'code_inline',
+            'color_open',
+            'color_close',
+            'underline_open',
+            'underline_close',
+            'ins_open',
+            'ins_close',
+            'u_open',
+            'u_close',
+            'mark_open',
+            'mark_close',
+            'sub_open',
+            'sub_close',
+            'sup_open',
+            'sup_close',
+        ]);
+        for (let index = 0; index < state.tokens.length; index++) {
+            const token = state.tokens[index];
+            if (token.type === `${headerContentName}_open`) inContent = true;
+            else if (token.type === `${headerContentName}_close`) inContent = false;
+            else if (inContent && token.children) {
+                token.children = token.children.filter((child) => allowed.has(child.type));
+                if (
+                    !token.children.length &&
+                    state.tokens[index - 1]?.type === 'paragraph_open' &&
+                    state.tokens[index + 1]?.type === 'paragraph_close'
+                ) {
+                    state.tokens.splice(index - 1, 3);
+                    index -= 2;
+                }
+            }
+        }
+    });
+    md.renderer.rules[`${headerTitleName}_open`] = () => `<div class="${HeaderClassName.Title}">`;
+    md.renderer.rules[`${headerTitleName}_close`] = () => '</div>';
+    md.renderer.rules.header_open = (tokens, idx) =>
         headerHtmlOpen(
-            normalizeHeaderAttrs(
-                Object.fromEntries(
-                    (tokens[idx].attrs ?? []).map(([name, value]) => [
-                        name.replace(/^data-/, ''),
-                        value,
-                    ]),
-                ),
-            ),
+            normalizeHeaderAttrs(Object.fromEntries(tokens[idx].attrs ?? [])),
             md.utils.escapeHtml,
         );
-    rules[`${headerTokenName}_close`] = () => headerHtmlClose();
-    rules.action = (tokens, idx) => renderHeaderAction(tokens[idx], md.utils.escapeHtml);
+    md.renderer.rules.header_close = () => headerHtmlClose();
+    md.renderer.rules[headerImageName] = (tokens, idx) => {
+        const attrs = normalizeHeaderImageAttrs(Object.fromEntries(tokens[idx].attrs ?? []));
+        const dom = mediaDomAttrs(attrs);
+        const htmlAttrs = Object.entries(dom)
+            .map(([name, value]) => ` ${name}="${md.utils.escapeHtml(value)}"`)
+            .join('');
+        const src = dom['data-src'];
+        return `<div${htmlAttrs}>${src ? `<img class="${HeaderClassName.Image}" src="${md.utils.escapeHtml(src)}" alt="${md.utils.escapeHtml(attrs.alt)}" />` : ''}</div>`;
+    };
 };

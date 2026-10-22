@@ -2,7 +2,7 @@
     box-sizing: border-box;
 
     border: 1px solid var(--g-color-line-generic);
-    border-radius: var(--g-border-radius-l);
+    border-radius: 10px;
     background: var(--g-color-base-float);
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
 }
@@ -13,9 +13,9 @@
     gap: 2px;
 
     box-sizing: border-box;
-    width: 124px;
-    height: 34px;
-    padding: 3px;
+    width: auto;
+    height: 36px;
+    padding: 4px;
 
     &__separator {
         flex-shrink: 0;

@@ -42,15 +42,6 @@
                 background-color: $color;
             }
         }
-        &_kind_text#{&}_color_brand {
-            background-color: var(--g-color-text-brand);
-        }
-        &_kind_text#{&}_color_light {
-            background-color: var(--g-color-text-light-primary);
-        }
-        &_kind_text#{&}_color_dark {
-            background-color: var(--g-color-text-dark-primary);
-        }
     }
     &__palette {
         padding: var(--g-spacing-2);

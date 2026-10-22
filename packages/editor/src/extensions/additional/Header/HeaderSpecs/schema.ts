@@ -1,35 +1,39 @@
 import type {NodeSpec} from '#pm/model';
 import type {PlaceholderOptions} from 'src/utils/placeholder';
 
-import {normalizeHeaderAttrs} from './attrs';
+import {normalizeHeaderAttrs, normalizeHeaderImageAttrs} from './attrs';
 import {
-    HeaderAttr,
     HeaderClassName,
     HeaderDefaults,
+    HeaderImageDefaults,
     headerActionsName,
     headerContentName,
+    headerImageName,
     headerNodeName,
     headerTitleName,
 } from './const';
-import {headerToDOM} from './dom';
-
-const attrsSpec: NodeSpec['attrs'] = Object.fromEntries(
-    Object.entries(HeaderDefaults).map(([name, value]) => [name, {default: value}]),
-);
-
-const readDomAttrs = (element: Element) =>
-    normalizeHeaderAttrs(
-        Object.fromEntries(
-            Object.values(HeaderAttr).map((attr) => [attr, element.getAttribute(`data-${attr}`)]),
-        ),
-    );
+import {headerToDOM, mediaToDOM} from './dom';
 
 export const getHeaderSchemaSpec = (): NodeSpec => ({
-    content: `${headerTitleName} ${headerContentName} ${headerActionsName}`,
+    content: `${headerTitleName} ${headerContentName} ${headerActionsName} ${headerImageName}`,
     group: 'block',
-    attrs: attrsSpec,
+    dnd: {props: {offset: [8, 1]}},
+    attrs: Object.fromEntries(
+        Object.entries(HeaderDefaults).map(([key, value]) => [key, {default: value}]),
+    ),
     parseDOM: [
-        {tag: `div.${HeaderClassName.Root}`, getAttrs: (dom) => readDomAttrs(dom as Element)},
+        {
+            tag: `div.${HeaderClassName.Root}`,
+            getAttrs: (dom) =>
+                normalizeHeaderAttrs(
+                    Object.fromEntries(
+                        Object.keys(HeaderDefaults).map((key) => [
+                            key,
+                            (dom as Element).getAttribute(`data-${key}`),
+                        ]),
+                    ),
+                ),
+        },
     ],
     toDOM: headerToDOM,
     selectable: true,
@@ -38,70 +42,58 @@ export const getHeaderSchemaSpec = (): NodeSpec => ({
     complex: 'root',
     commandMenu: false,
 });
-
 export const getHeaderTitleSpec = (placeholder?: PlaceholderOptions): NodeSpec => ({
     content: 'text*',
     marks: '',
-    parseDOM: [{tag: `div.${HeaderClassName.Title}`}],
+    parseDOM: [{tag: `div.${HeaderClassName.Title}`, preserveWhitespace: 'full'}],
     toDOM: () => ['div', {class: HeaderClassName.Title}, 0],
     selectable: false,
-    allowSelection: true,
+    allowSelection: false,
     selectionContext: false,
-    placeholder: {
-        content: placeholder?.[headerNodeName] ?? 'Header title',
-        alwaysVisible: true,
-    },
+    placeholder: {content: placeholder?.[headerNodeName] ?? 'Your title', alwaysVisible: true},
     complex: 'inner',
 });
-
-export const headerContentSpec: NodeSpec = {
-    content: 'paragraph*',
-    parseDOM: [{tag: `div.${headerContentName}`}],
-    toDOM: () => ['div', {class: headerContentName}, 0],
+export const getHeaderContentSpec = (placeholder?: () => string): NodeSpec => ({
+    content: 'paragraph+',
+    parseDOM: [{tag: `div.${HeaderClassName.Body}`}],
+    toDOM: () => ['div', {class: HeaderClassName.Body}, 0],
     selectable: false,
     complex: 'inner',
-};
-
-export const headerActionsSpec: NodeSpec = {
-    content: 'header_action*',
-    parseDOM: [{tag: `div.${headerActionsName}`}],
-    toDOM: () => ['div', {class: headerActionsName}, 0],
-    selectable: false,
-    complex: 'inner',
-};
-
-export const headerActionSpec: NodeSpec = {
-    content: 'text*',
-    marks: '',
-    group: 'block',
-    attrs: {
-        href: {default: ''},
-        type: {default: 'button'},
-        color: {default: 'default'},
-        enabled: {default: true},
+    placeholder: {
+        content:
+            placeholder ??
+            'A short description of the page: what it covers and who it is for. Readers will see these lines first.',
+        alwaysVisible: true,
     },
+});
+export const headerContentSpec = getHeaderContentSpec();
+export const headerActionsSpec: NodeSpec = {
+    content: 'button{0,3}',
+    parseDOM: [{tag: `div.${HeaderClassName.Actions}`}],
+    toDOM: () => ['div', {class: HeaderClassName.Actions}, 0],
+    selectable: false,
+    complex: 'inner',
+};
+export const headerImageSpec: NodeSpec = {
+    atom: true,
+    attrs: Object.fromEntries(
+        Object.entries(HeaderImageDefaults).map(([key, value]) => [key, {default: value}]),
+    ),
     parseDOM: [
         {
-            tag: 'a.g-md-header__action',
-            getAttrs: (dom) => ({
-                href: (dom as Element).getAttribute('href') ?? '',
-                type: (dom as Element).getAttribute('data-type') ?? 'button',
-                color: (dom as Element).getAttribute('data-color') ?? 'default',
-                enabled: (dom as Element).getAttribute('data-enabled') !== 'false',
-            }),
+            tag: `div.${HeaderClassName.Media}`,
+            getAttrs: (dom) =>
+                normalizeHeaderImageAttrs(
+                    Object.fromEntries(
+                        Object.keys(HeaderImageDefaults).map((key) => [
+                            key,
+                            (dom as Element).getAttribute(`data-${key}`),
+                        ]),
+                    ),
+                ),
         },
     ],
-    toDOM: (node) => [
-        'a',
-        {
-            class: 'g-md-header__action',
-            href: node.attrs.href,
-            'data-type': node.attrs.type,
-            'data-color': node.attrs.color,
-            'data-enabled': String(node.attrs.enabled),
-        },
-        0,
-    ],
+    toDOM: (node) => mediaToDOM(node.attrs),
     selectable: false,
     complex: 'leaf',
 };

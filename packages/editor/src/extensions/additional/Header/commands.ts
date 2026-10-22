@@ -1,24 +1,25 @@
 import type {Node} from 'prosemirror-model';
-import {type Command, NodeSelection, type Selection, TextSelection} from 'prosemirror-state';
+import {
+    type Command,
+    NodeSelection,
+    type Selection,
+    TextSelection,
+    type Transaction,
+} from 'prosemirror-state';
 
 import {pType} from '../../base/BaseSchema/BaseSchemaSpecs';
+import {type ButtonAttrs, normalizeButtonAttrs} from '../Button/ButtonSpecs';
 
 import {
-    HEADER_FILLS,
-    HeaderAttr,
     type HeaderAttrs,
-    HeaderEffect,
-    type HeaderFillValue,
-    HeaderFit,
-    HeaderFocus,
-    HeaderLayer,
-    HeaderText,
     headerActionsName,
     headerContentName,
+    headerImageName,
     headerNodeName,
     headerTitleName,
     headerType,
     normalizeHeaderAttrs,
+    normalizeHeaderImageAttrs,
 } from './HeaderSpecs';
 
 export type HeaderPatch = Partial<HeaderAttrs>;
@@ -43,6 +44,23 @@ export function findHeaderPos(selection: Selection): number | null {
     return null;
 }
 
+/** Keep a reference to a cover through edits, but discard complete replacements. */
+export function mapHeaderPos(tr: Transaction, start: number): number | null {
+    let pos = start;
+    for (const [index, map] of tr.mapping.maps.entries()) {
+        const node = headerAt(tr.docs[index], pos);
+        if (!node) return null;
+        let deleted = false;
+        const currentPos = pos;
+        map.forEach((from, to) => {
+            if (from <= currentPos && to >= currentPos + node.nodeSize) deleted = true;
+        });
+        if (deleted) return null;
+        pos = map.map(pos, 1);
+    }
+    return headerAt(tr.doc, pos) ? pos : null;
+}
+
 export const setHeaderAttrs =
     (pos: number, patch: HeaderPatch): Command =>
     (state, dispatch) => {
@@ -63,41 +81,22 @@ export const setHeaderAttrs =
         return true;
     };
 
-const pickFrom = <T>(values: readonly T[], exclude: T): T => {
-    const rest = values.filter((value) => value !== exclude);
-    return rest[Math.floor(Math.random() * rest.length)];
-};
+/** Remove the background without changing text or theme preferences. */
+export const removeHeaderImage = (pos: number): Command =>
+    setHeaderAttrs(pos, {image: '', 'image-name': ''});
 
-/** Новая раскладка выбирается из именованных вариантов. */
-export const generateHeaderLook =
-    (pos: number): Command =>
+export const setHeaderMedia =
+    (pos: number, patch: Record<string, unknown>): Command =>
     (state, dispatch) => {
         const node = headerAt(state.doc, pos);
         if (!node) return false;
-
-        const fill = pickFrom(HEADER_FILLS, node.attrs[HeaderAttr.Fill] as HeaderFillValue);
-        const fill2 = pickFrom(HEADER_FILLS, fill);
-        const layouts = ['diagonal', 'corner', 'edges', 'bottom', 'scatter'];
-        const shapes = pickFrom(layouts, String(node.attrs[HeaderAttr.Shapes]));
-
-        return setHeaderAttrs(pos, {
-            [HeaderAttr.Fill]: fill,
-            [HeaderAttr.Fill2]: fill2,
-            [HeaderAttr.Shapes]: shapes,
-        })(state, dispatch);
+        const media = node.child(3);
+        const attrs = normalizeHeaderImageAttrs({...media.attrs, ...patch});
+        if (Object.entries(attrs).every(([key, value]) => media.attrs[key] === value)) return false;
+        const offset = 1 + node.child(0).nodeSize + node.child(1).nodeSize + node.child(2).nodeSize;
+        dispatch?.(state.tr.setNodeMarkup(pos + offset, null, attrs));
+        return true;
     };
-
-/** Снимает слой файла целиком: слой, кадр, дополнение и замеренный тон относятся только к снимку. */
-export const removeHeaderImage = (pos: number): Command =>
-    setHeaderAttrs(pos, {
-        [HeaderAttr.Image]: '',
-        [HeaderAttr.ImageName]: '',
-        [HeaderAttr.Layer]: HeaderLayer.Full,
-        [HeaderAttr.Fit]: HeaderFit.Crop,
-        [HeaderAttr.Focus]: HeaderFocus.Center,
-        [HeaderAttr.Effect]: HeaderEffect.None,
-        [HeaderAttr.Text]: HeaderText.Auto,
-    });
 
 export const removeHeader =
     (pos: number): Command =>
@@ -113,26 +112,46 @@ export const removeHeader =
         return true;
     };
 
-export const toHeader: Command = (state, dispatch) => {
-    if (findHeaderPos(state.selection) !== null) return false;
+export const createHeaderCommand =
+    (defaultButtonLabel: string | (() => string) = 'Button'): Command =>
+    (state, dispatch) => {
+        if (findHeaderPos(state.selection) !== null) return false;
 
-    const type = headerType(state.schema);
-    const {$from} = state.selection;
-    const depth = $from.depth;
-    const insertAt = $from.node(depth).isTextblock ? $from.after(depth) : $from.pos;
-    const $insert = state.doc.resolve(insertAt);
-    if (!$insert.parent.canReplaceWith($insert.index(), $insert.index(), type)) return false;
+        const type = headerType(state.schema);
+        const {$from} = state.selection;
+        const depth = $from.depth;
+        const insertAt = $from.node(depth).isTextblock ? $from.after(depth) : $from.pos;
+        const $insert = state.doc.resolve(insertAt);
+        if (!$insert.parent.canReplaceWith($insert.index(), $insert.index(), type)) return false;
 
-    if (dispatch) {
-        const title = state.schema.nodes[headerTitleName].create();
-        const content = state.schema.nodes[headerContentName].create();
-        const actions = state.schema.nodes[headerActionsName].create();
-        const tr = state.tr.insert(insertAt, type.create(null, [title, content, actions]));
-        tr.setSelection(TextSelection.near(tr.doc.resolve(insertAt + 2)));
-        dispatch(tr.scrollIntoView());
-    }
-    return true;
-};
+        if (dispatch) {
+            const title = state.schema.nodes[headerTitleName].create();
+            const content = state.schema.nodes[headerContentName].create(
+                null,
+                pType(state.schema).create(),
+            );
+            const actions = state.schema.nodes[headerActionsName].create(
+                null,
+                state.schema.nodes.button.create({
+                    label:
+                        typeof defaultButtonLabel === 'function'
+                            ? defaultButtonLabel()
+                            : defaultButtonLabel,
+                }),
+            );
+            const image = state.schema.nodes[headerImageName].create({enabled: 'true'});
+            const tr = state.tr.insert(
+                insertAt,
+                type.create(null, [title, content, actions, image]),
+            );
+            tr.setSelection(TextSelection.near(tr.doc.resolve(insertAt + 2)));
+            dispatch(tr.scrollIntoView());
+        }
+        return true;
+    };
+
+export const toHeader: Command = (state, dispatch, view) =>
+    createHeaderCommand()(state, dispatch, view);
 
 /** Enter в заголовке переводит курсор в первый абзац подзаголовка. */
 export const enterHeaderContent: Command = (state, dispatch) => {
@@ -180,7 +199,8 @@ export const backspaceInHeader: Command = (state, dispatch) => {
     const node = headerAt(state.doc, pos);
     if (!node || selection.from !== pos + 2) return false;
 
-    if (node.textContent) return true;
+    if (node.textContent || node.attrs.image || node.child(3).attrs.src || node.child(2).childCount)
+        return true;
 
     if (dispatch) {
         const tr = state.tr.replaceWith(pos, pos + node.nodeSize, pType(state.schema).create());
@@ -190,52 +210,32 @@ export const backspaceInHeader: Command = (state, dispatch) => {
     return true;
 };
 
-export const setHeaderAction =
-    (
-        pos: number,
-        index: number,
-        action: {text: string; href: string; type: string; color: string; enabled?: boolean} | null,
-    ): Command =>
+export const setHeaderButton =
+    (pos: number, index: number, button: Partial<ButtonAttrs> | null): Command =>
     (state, dispatch) => {
         const node = headerAt(state.doc, pos);
         if (!node || index < 0 || index > 2) return false;
-        if (action && !/^https?:[/]*$/i.test(action.href.trim())) {
-            try {
-                const {protocol} = new URL(action.href, 'https://example.com');
-                if (!['http:', 'https:', 'mailto:', 'tel:'].includes(protocol)) return false;
-            } catch {
-                return false;
-            }
-        }
-        const actions = node.child(2);
-        if (!action && index >= actions.childCount) return false;
-        if (dispatch) {
-            const children: Node[] = [];
-            actions.forEach((child) => children.push(child));
-            if (action) {
-                const {text, href, type, color, enabled = true} = action;
-                while (children.length < index) {
-                    children.push(state.schema.nodes.header_action.create({enabled: false}));
-                }
-                children.splice(
-                    index,
-                    index < children.length ? 1 : 0,
-                    state.schema.nodes.header_action.create(
-                        {href, type, color, enabled},
-                        text ? state.schema.text(text) : null,
-                    ),
-                );
-            } else {
-                children.splice(index, 1);
-            }
-            const start = pos + 1 + node.child(0).nodeSize + node.child(1).nodeSize;
-            dispatch(
-                state.tr.replaceWith(
-                    start,
-                    start + actions.nodeSize,
-                    actions.type.create(null, children),
-                ),
+        const buttons = node.child(2);
+        if (!button && index >= buttons.childCount) return false;
+        const children: Node[] = [];
+        buttons.forEach((child) => children.push(child));
+        if (button) {
+            const attrs = normalizeButtonAttrs({...children[index]?.attrs, ...button});
+            while (children.length < index)
+                children.push(state.schema.nodes.button.create({enabled: false}));
+            children.splice(
+                index,
+                index < children.length ? 1 : 0,
+                state.schema.nodes.button.create(attrs),
             );
-        }
+        } else children.splice(index, 1);
+        const start = pos + 1 + node.child(0).nodeSize + node.child(1).nodeSize;
+        dispatch?.(
+            state.tr.replaceWith(
+                start,
+                start + buttons.nodeSize,
+                buttons.type.create(null, children),
+            ),
+        );
         return true;
     };

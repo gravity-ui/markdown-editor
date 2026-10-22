@@ -14,17 +14,6 @@ import {i18n as tableI18n} from 'src/i18n/yfm-table';
 import './HeaderColorControl.scss';
 
 const b = cn('header-color');
-const aliases: Record<string, string> = {
-    'light-blue': 'blue-light',
-    sky: 'blue-light',
-    indigo: 'purple',
-    violet: 'purple-light',
-    teal: 'green',
-    amber: 'yellow',
-    sand: 'yellow-light',
-    navy: 'blue',
-};
-
 export function HeaderColorControl({
     kind,
     label,
@@ -42,17 +31,14 @@ export function HeaderColorControl({
         value: color,
         title: menubarI18n(`colorify__color_${color}`),
     }));
-    const colorAliases: Record<string, string> =
-        kind === 'text' ? {grey: 'gray', purple: 'violet'} : aliases;
-    const paletteValue =
-        value === 'auto' || value === 'primary' ? '' : (colorAliases[value] ?? value);
+    const paletteValue = value === 'auto' ? '' : value;
     const swatch = CELL_BG_SWATCHES.find((item) => item.value === paletteValue);
     const name =
         kind === 'text'
             ? (textColors.find((color) => color.value === paletteValue)?.title ?? i18n('text_auto'))
             : swatch
               ? tableI18n(swatch.i18nKey)
-              : i18n(`text_${value}` as Parameters<typeof i18n>[0]);
+              : i18n('no_background');
     const paletteLabel = `${label} ${i18n('palette')}`;
 
     return (
@@ -83,7 +69,14 @@ export function HeaderColorControl({
                 placement={['bottom-end', 'top-end']}
                 onOpenChange={setOpen}
             >
-                <div className={b('palette', {kind})} role="dialog" aria-label={paletteLabel}>
+                <div
+                    className={b('palette', {kind})}
+                    role="dialog"
+                    aria-label={paletteLabel}
+                    onMouseDownCapture={
+                        kind === 'text' ? (event) => event.preventDefault() : undefined
+                    }
+                >
                     {kind === 'text' ? (
                         <Palette
                             multiple={false}
@@ -102,8 +95,8 @@ export function HeaderColorControl({
                                 }),
                             )}
                             onUpdate={([color]) => {
-                                setOpen(false);
                                 onUpdate(color || null);
+                                setOpen(false);
                             }}
                         />
                     ) : (

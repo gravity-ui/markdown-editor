@@ -1,35 +1,60 @@
-# Image background text themes
+# Scoped image text themes
 
-An image background can use the editor's text theme or keep a light or dark text palette while the editor theme changes.
+A cover uses the standard editor text palette. Its colors follow the editor theme unless an author chooses a fixed palette for a background image.
 
 ```md
-:::header[Cover]{image="cover.jpg" bg-image-theme="dark"}
+:::header{image="/cover.jpg" bg-image-theme="dark"}
 
-Plain text, {red}(red text) and [a link](/page).
+:::header-title
+Your title
+:::
+
+:::header-content
+Plain text, {red}(colored text) and [a link](/page).
+:::
+
+:::button{href="/page"}
+Read more
+:::
 
 :::
 ```
 
-`bg-image-theme` accepts `system`, `light` and `dark`. The default `system` is omitted from Markdown. Unknown values normalize to `system`.
+`bg-image-theme` accepts `system`, `light` and `dark`. System is the default and is omitted during serialization. Invalid values use system. A fixed palette is active only for a nonempty safe background URL with the background enabled. The preference remains stored after removing or disabling the image. The separate content image does not activate it.
 
-The preference applies to an enabled image with `layer="full"`. It stays in the document while the image is disabled, removed or placed beside the text, so enabling a background image restores the selection.
+## CSS inheritance
 
-## Implementation
+The editor theme defines custom properties on its root. Text and buttons consume those properties with `var(...)`.
 
-The content wrapper receives `g-root g-root_theme_light` or `g-root g-root_theme_dark`. The cover's outer background and decorative layers remain outside this scope. The wrapper has a transparent background so the UIKit root background does not obscure the image.
+```html
+<body class="g-root g-root_theme_light">
+  <div class="g-md-header">
+    <!-- Background and shapes remain outside the local theme. -->
+    <div class="g-md-header__container">
+      <div class="g-md-header__content g-root g-root_theme_dark">
+        <!-- Text, buttons and the independent content image. -->
+      </div>
+    </div>
+  </div>
+</body>
+```
 
-`g-root` recalculates the editor's standard color aliases inside the selected theme. The matching Diplodoc theme mixin also recalculates YFM text and link variables there. Reusing values inherited from the page would retain the page theme's already resolved colors.
+The inner element declares the same theme properties with dark values. Its own declarations replace inherited values; overriding the specificity of the body selector is unnecessary. Changing the editor theme changes the properties on the outer root while the inner root keeps its own values. In system mode the local root classes are absent, so normal inheritance applies.
 
-The same DOM helper creates the editor and rendered Markdown wrappers. The resulting HTML works with the default sanitizer and requires no client-side script to apply the theme.
+Dependent properties require special care:
 
-Text settings use the standard seven-color editor palette. Image upload preserves the selected theme and text color instead of estimating a text color from image brightness.
+```css
+--yfm-colorify-red: var(--g-color-text-danger);
+```
 
-## Why a local theme
+A custom property reference resolves on the element where it is declared. A descendant inherits the resolved value. Changing only `--g-color-text-danger` on that descendant does not recalculate an inherited `--yfm-colorify-red`.
 
-An explicit light or dark primary text token covers only one text role. Those tokens can themselves have different opacity in different themes, and do not select the remaining standard palette or link colors. Local theme classes use the same theme definitions as UIKit and preserve the named text roles.
+The local `g-root` therefore redeclares standard editor palette aliases. The cover also applies the official Diplodoc theme mixins for link variables and declares its text color inside the scope. All dependencies resolve against the selected local palette. Choosing explicit light or dark primary-text tokens alone would not freeze the entire palette, and their values also vary between themes.
 
-Theme customization should target the shared `.g-root_theme_light` and `.g-root_theme_dark` classes. Overrides restricted to `body` cannot define values for a nested theme scope. CSS scoping does not change React theme context; the settings popup keeps the editor's theme.
+The inner background stays transparent so it does not obscure the background image. Theme scope includes text and buttons, including button backgrounds. Cover background and shapes keep the outer theme. React theme context remains unchanged, so settings retain the editor theme.
+
+This works through CSS without a theme-change listener, both in visual editing and sanitized static preview. Custom host palettes must declare overrides on `.g-root_theme_light` and `.g-root_theme_dark` usable in a nested scope; rules limited to `body` cannot supply nested theme values.
 
 ## Verification
 
-The `Examples / Header / Image Themes` story compares system, light and dark covers with every standard text color and a link. Browser tests switch the editor theme, compare computed colors, check transparent content backgrounds, exercise the settings control, and compare editor rendering with sanitized preview. Unit tests cover Markdown and HTML persistence, invalid values and inactive image preferences.
+Unit coverage includes container parsing, Markdown and HTML round trips, palette values, inactive preferences, sanitizer-compatible shape geometry and unsafe URLs. Browser coverage switches the editor theme, compares all seven colors and links, checks independent covers and verifies sanitized preview and visual editing.

@@ -1,4 +1,4 @@
-import {type ReactNode, useReducer, useState} from 'react';
+import {type ReactNode, useEffect, useReducer, useRef, useState} from 'react';
 
 import {
     ChevronDown,
@@ -14,8 +14,10 @@ import {
 } from '@gravity-ui/icons';
 import {
     Button,
+    Checkbox,
     Icon,
     Popup,
+    Portal,
     SegmentedRadioGroup,
     Select,
     Switch,
@@ -26,18 +28,16 @@ import {
 import type {Node} from '#pm/model';
 import type {EditorView} from '#pm/view';
 import {cn} from 'src/classname';
+import {CELL_BG_SWATCHES} from 'src/extensions/yfm/YfmTable/plugins/YfmTableControls/components/CellBgPalette/colors';
 import {i18n} from 'src/i18n/header';
+import {i18n as tableI18n} from 'src/i18n/yfm-table';
 import type {FileUploadHandler} from 'src/utils/upload';
 
-import {
-    HeaderAttr,
-    type HeaderAttrs,
-    HeaderBackground,
-    HeaderImageTheme,
-    HeaderLayer,
-    normalizeHeaderAttrs,
-} from '../../HeaderSpecs';
-import {headerAt, setHeaderAction, setHeaderAttrs} from '../../commands';
+import {ButtonFields} from '../../../Button/ButtonFields';
+import {type ButtonAttrs, normalizeButtonAttrs} from '../../../Button/ButtonSpecs';
+import {type HeaderAttrs, normalizeHeaderAttrs} from '../../HeaderSpecs';
+import {safeImageUrl} from '../../HeaderSpecs/dom';
+import {headerAt, setHeaderAttrs, setHeaderButton, setHeaderMedia} from '../../commands';
 import {uploadHeaderImage} from '../imageUpload';
 
 import {HeaderColorControl} from './HeaderColorControl';
@@ -45,11 +45,25 @@ import {HeaderColorControl} from './HeaderColorControl';
 import './HeaderSettings.scss';
 
 const b = cn('header-settings');
-const horizontalIcons = [ObjectsAlignLeft, ObjectsAlignCenterHorizontal, ObjectsAlignRight];
-const verticalIcons = [ObjectsAlignTop, ObjectsAlignCenterVertical, ObjectsAlignBottom];
-type Label = Parameters<typeof i18n>[0];
-
-function SettingsSection({label, children}: {label: string; children: ReactNode}) {
+const horizontal = [
+    {value: 'left', key: 'left', icon: ObjectsAlignLeft},
+    {value: 'center', key: 'center', icon: ObjectsAlignCenterHorizontal},
+    {value: 'right', key: 'right', icon: ObjectsAlignRight},
+] as const;
+const vertical = [
+    {value: 'top', key: 'top', icon: ObjectsAlignTop},
+    {value: 'center', key: 'center', icon: ObjectsAlignCenterVertical},
+    {value: 'bottom', key: 'bottom', icon: ObjectsAlignBottom},
+] as const;
+const shapes = [
+    {value: 'none', key: 'shapes_none'},
+    {value: 'diagonal', key: 'shapes_diagonal'},
+    {value: 'corner', key: 'shapes_corner'},
+    {value: 'edges', key: 'shapes_edges'},
+    {value: 'bottom', key: 'shapes_bottom'},
+    {value: 'scatter', key: 'shapes_scatter'},
+] as const;
+function Section({label, children}: {label: string; children: ReactNode}) {
     const [open, setOpen] = useState(true);
     return (
         <section className={b('section')}>
@@ -67,42 +81,137 @@ function SettingsSection({label, children}: {label: string; children: ReactNode}
         </section>
     );
 }
-
-const colorOption = (value: string, label: string, kind = 'fill') => ({
-    value,
-    text: label,
-    content: (
-        <span className={b('select-value')}>
-            <span aria-hidden className={b('swatch', {[kind]: value})} />
-            <span>{label}</span>
-        </span>
-    ),
-});
-
-function imageFileName(url: string) {
-    try {
-        return (
-            decodeURIComponent(
-                new URL(url, 'https://example.com').pathname.split('/').pop() ?? '',
-            ) || i18n('image')
-        );
-    } catch {
-        return i18n('image');
-    }
+const row = (label: string, control: ReactNode) => (
+    <div className={b('row')}>
+        <span className={b('label')}>{label}</span>
+        <div className={b('control')}>{control}</div>
+    </div>
+);
+function BackgroundControl({
+    attrs,
+    patch,
+    upload,
+    canUpload,
+}: {
+    attrs: HeaderAttrs;
+    patch: (next: Partial<HeaderAttrs>) => void;
+    upload: () => Promise<void>;
+    canUpload: boolean;
+}) {
+    const [open, setOpen] = useState(false);
+    const [tab, setTab] = useState(attrs.image ? 'image' : 'color');
+    const anchor = useRef<HTMLButtonElement>(null);
+    const fill = CELL_BG_SWATCHES.find((item) => item.value === attrs.fill);
+    const backgroundLabel = fill ? tableI18n(fill.i18nKey) : i18n('no_background');
+    return (
+        <>
+            <Button
+                ref={anchor}
+                view="outlined"
+                width="max"
+                className={b('file-name')}
+                aria-label={i18n('background_field')}
+                aria-expanded={open}
+                onClick={() => setOpen(!open)}
+            >
+                {safeImageUrl(attrs.image) && (
+                    <img className={b('thumbnail')} src={attrs.image} alt="" />
+                )}
+                {!attrs.image && attrs.fill !== 'none' && (
+                    <span aria-hidden className={b('swatch')} data-fill={attrs.fill} />
+                )}
+                <span>
+                    {attrs.image
+                        ? attrs['image-name'] || attrs.image.split('/').pop()
+                        : backgroundLabel}
+                </span>
+            </Button>
+            <Popup
+                open={open}
+                anchorElement={anchor.current}
+                placement={['bottom-end', 'top-end']}
+                onOpenChange={setOpen}
+            >
+                <div
+                    className={b('background-popup')}
+                    role="dialog"
+                    aria-label={i18n('background_field')}
+                    data-qa="g-md-header-background"
+                >
+                    <div className={b('background-heading')}>
+                        <SegmentedRadioGroup
+                            value={tab}
+                            aria-label={i18n('background_type')}
+                            options={[
+                                {value: 'color', content: i18n('color')},
+                                {value: 'image', content: i18n('image')},
+                            ]}
+                            onUpdate={setTab}
+                        />
+                        <Button
+                            view="flat-secondary"
+                            onClick={() => {
+                                patch({fill: 'none', image: '', 'image-name': ''});
+                                setOpen(false);
+                            }}
+                        >
+                            {i18n('reset')}
+                        </Button>
+                    </div>
+                    {tab === 'color' ? (
+                        <HeaderColorControl
+                            kind="fill"
+                            label={i18n('color')}
+                            value={attrs.fill === 'none' ? '' : attrs.fill}
+                            onUpdate={(fill) => {
+                                patch({fill: fill || 'none', image: '', 'image-name': ''});
+                                setOpen(false);
+                            }}
+                        />
+                    ) : (
+                        <>
+                            {safeImageUrl(attrs.image) && (
+                                <>
+                                    <img
+                                        className={b('background-preview')}
+                                        src={attrs.image}
+                                        alt=""
+                                    />
+                                    <Button
+                                        view="flat-danger"
+                                        onClick={() => patch({image: '', 'image-name': ''})}
+                                    >
+                                        {i18n('image_remove')}
+                                    </Button>
+                                </>
+                            )}
+                            <Button
+                                view="outlined"
+                                width="max"
+                                disabled={!canUpload}
+                                onClick={upload}
+                            >
+                                {i18n('image_add')}
+                            </Button>
+                            <span className={b('upload-hint')}>{i18n('image_size')}</span>
+                        </>
+                    )}
+                </div>
+            </Popup>
+        </>
+    );
 }
-
 export function HeaderSettings({
     node,
     pos,
     editorView,
-    anchorElement,
     hide,
     fileUploadHandler,
 }: {
     node: Node;
     pos: number;
     editorView: EditorView;
-    anchorElement: HTMLElement | null;
+    anchorElement?: HTMLElement | null;
     hide: () => void;
     fileUploadHandler?: FileUploadHandler;
 }) {
@@ -110,136 +219,123 @@ export function HeaderSettings({
     const [, refresh] = useReducer((value: number) => value + 1, 0);
     const current = headerAt(editorView.state.doc, pos) ?? node;
     const attrs = normalizeHeaderAttrs(current.attrs);
-    const [imageControlsVisible, setImageControlsVisible] = useState(
-        Boolean(attrs.image) && attrs['image-enabled'] === 'true',
-    );
+    const media = current.child(3);
     const patch = (next: Partial<HeaderAttrs>) => {
         setHeaderAttrs(pos, next)(editorView.state, editorView.dispatch);
         refresh();
     };
-    const row = (label: string, control: ReactNode) => (
-        <div className={b('row')}>
-            <span className={b('label')}>{label}</span>
-            <div className={b('control')}>{control}</div>
-        </div>
-    );
-    const toggle = (attr: keyof HeaderAttrs, label: Label) =>
-        row(
-            i18n(label),
-            <Switch
-                size="m"
-                checked={attrs[attr] === 'true'}
-                controlProps={{'aria-label': i18n(label)}}
-                onUpdate={(checked) => patch({[attr]: String(checked)})}
-            />,
-        );
-    const actions = current.child(2);
-    const updateAction = (
-        index: number,
-        next: Partial<{text: string; href: string; type: string; color: string; enabled: boolean}>,
-    ) => {
-        const action = index < actions.childCount ? actions.child(index) : null;
-        setHeaderAction(pos, index, {
-            text: action?.textContent || i18n('action'),
-            href: String(action?.attrs.href ?? ''),
-            type: String(action?.attrs.type ?? 'button'),
-            color: String(action?.attrs.color ?? 'brand'),
-            enabled: action?.attrs.enabled !== false,
-            ...next,
-        })(editorView.state, editorView.dispatch);
+    const patchMedia = (next: Record<string, unknown>) => {
+        setHeaderMedia(pos, next)(editorView.state, editorView.dispatch);
         refresh();
     };
-    const uploadImage = async () => {
+    const upload = async (target: 'background' | 'media' = 'background') => {
         if (!fileUploadHandler) return;
-        const result = await uploadHeaderImage(editorView, pos, fileUploadHandler);
+        const result = await uploadHeaderImage(editorView, pos, fileUploadHandler, target);
         if (result === 'failed')
             toaster.add({name: 'header-image-upload', theme: 'danger', title: i18n('image_error')});
         refresh();
     };
-    const fileName = attrs['image-name'] || imageFileName(attrs.image);
-
+    const toggle = (key: 'title' | 'description', label: string) =>
+        row(
+            label,
+            <Switch
+                checked={attrs[key] === 'true'}
+                controlProps={{'aria-label': label}}
+                onUpdate={(checked) => patch({[key]: String(checked)})}
+            />,
+        );
+    useEffect(() => {
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && !event.defaultPrevented) {
+                event.stopPropagation();
+                hide();
+            }
+        };
+        document.addEventListener('keydown', onKeyDown);
+        return () => document.removeEventListener('keydown', onKeyDown);
+    }, [hide]);
+    const buttons = current.child(2);
     return (
-        <Popup
-            className={b('popup')}
-            open
-            anchorElement={anchorElement}
-            placement={['right-start', 'left-start']}
-            onOpenChange={hide}
-        >
-            <div className={b()} role="dialog" aria-label={i18n('settings')}>
+        <Portal>
+            <div
+                className={b()}
+                role="dialog"
+                tabIndex={-1}
+                aria-label={i18n('settings')}
+                data-qa="g-md-header-settings"
+            >
                 <div className={b('heading')}>
                     <span>{i18n('settings')}</span>
-                    <Button view="flat" size="m" aria-label={i18n('close')} onClick={hide}>
+                    <Button view="flat" aria-label={i18n('close')} onClick={hide}>
                         <Icon data={Xmark} size={16} />
                     </Button>
                 </div>
                 {row(
-                    i18n('format'),
-                    <SegmentedRadioGroup
-                        size="m"
+                    i18n('height'),
+                    <Select
                         width="max"
-                        value={attrs.format}
-                        aria-label={i18n('format')}
-                        options={['small', 'medium', 'large'].map((value, index) => ({
+                        aria-label={i18n('height')}
+                        value={[attrs.height]}
+                        options={['s', 'm', 'l'].map((value) => ({
                             value,
-                            content: ['S', 'M', 'L'][index],
+                            content: value.toUpperCase(),
                         }))}
-                        onUpdate={(format) => patch({format})}
+                        onUpdate={([height]) => patch({height})}
                     />,
                 )}
-                {toggle(HeaderAttr.Fixed, 'fixed')}
-                <span>{i18n('alignment')}</span>
-                <div className={b('alignment')}>
-                    {row(
-                        i18n('vertical'),
-                        <SegmentedRadioGroup
-                            size="m"
-                            width="max"
-                            value={attrs.vertical}
-                            aria-label={i18n('vertical')}
-                            options={['top', 'center', 'bottom'].map((value, index) => ({
-                                value,
-                                title: i18n(value as Label),
-                                content: (
-                                    <span
-                                        className={b('alignment-icon')}
-                                        role="img"
-                                        aria-label={i18n(value as Label)}
-                                    >
-                                        <Icon data={verticalIcons[index]} size={16} />
-                                    </span>
-                                ),
-                            }))}
-                            onUpdate={(vertical) => patch({vertical})}
-                        />,
-                    )}
+                {row(
+                    i18n('width'),
+                    <Select
+                        width="max"
+                        aria-label={i18n('width')}
+                        value={[attrs.width]}
+                        options={['s', 'm', 'l', 'full'].map((value) => ({
+                            value,
+                            content: value === 'full' ? i18n('full_width') : value.toUpperCase(),
+                        }))}
+                        onUpdate={([width]) => patch({width})}
+                    />,
+                )}
+                <Section label={i18n('content')}>
+                    {toggle('title', i18n('title'))}
+                    {toggle('description', i18n('description'))}
+                    <span>{i18n('alignment')}</span>
                     {row(
                         i18n('align'),
                         <SegmentedRadioGroup
-                            size="m"
                             width="max"
                             value={attrs.align}
                             aria-label={i18n('align')}
-                            options={['left', 'center', 'right'].map((value, index) => ({
+                            options={horizontal.map(({value, key, icon}) => ({
                                 value,
-                                title: i18n(value as Label),
+                                title: i18n(key),
                                 content: (
-                                    <span
-                                        className={b('alignment-icon')}
-                                        role="img"
-                                        aria-label={i18n(value as Label)}
-                                    >
-                                        <Icon data={horizontalIcons[index]} size={16} />
+                                    <span role="img" aria-label={i18n(key)}>
+                                        <Icon data={icon} size={16} />
                                     </span>
                                 ),
                             }))}
                             onUpdate={(align) => patch({align})}
                         />,
                     )}
-                </div>
-                <SettingsSection label={i18n('content')}>
-                    {toggle(HeaderAttr.Title, 'title')}
-                    {toggle(HeaderAttr.Description, 'description')}
+                    {row(
+                        i18n('vertical'),
+                        <SegmentedRadioGroup
+                            width="max"
+                            value={attrs.vertical}
+                            aria-label={i18n('vertical')}
+                            options={vertical.map(({value, key, icon}) => ({
+                                value,
+                                title: i18n(key),
+                                content: (
+                                    <span role="img" aria-label={i18n(key)}>
+                                        <Icon data={icon} size={16} />
+                                    </span>
+                                ),
+                            }))}
+                            onUpdate={(vertical) => patch({vertical})}
+                        />,
+                    )}
                     {row(
                         i18n('text'),
                         <HeaderColorControl
@@ -249,226 +345,135 @@ export function HeaderSettings({
                             onUpdate={(text) => patch({text: text || 'auto'})}
                         />,
                     )}
-                </SettingsSection>
-                <SettingsSection label={i18n('actions')}>
+                </Section>
+                <Section label={i18n('actions')}>
                     {[0, 1, 2].map((index) => {
-                        const action = index < actions.childCount ? actions.child(index) : null;
+                        const button = index < buttons.childCount ? buttons.child(index) : null;
                         const label = `${i18n('action')} ${index + 1}`;
-                        const enabled = Boolean(action) && action?.attrs.enabled !== false;
-                        const buttonStyle = action?.attrs.color === 'brand' ? 'brand' : 'normal';
+                        const enabled = button?.attrs.enabled === true;
+                        const update = (next: Partial<ButtonAttrs>) => {
+                            setHeaderButton(pos, index, {
+                                ...(button?.attrs ?? {label: i18n('action')}),
+                                ...next,
+                            })(editorView.state, editorView.dispatch);
+                            refresh();
+                        };
                         return (
                             <div key={index} className={b('action')}>
                                 {row(
                                     label,
                                     <Switch
-                                        size="m"
                                         checked={enabled}
                                         controlProps={{'aria-label': label}}
-                                        onUpdate={(checked) =>
-                                            updateAction(index, {enabled: checked})
-                                        }
+                                        onUpdate={(checked) => update({enabled: checked})}
                                     />,
                                 )}
-                                {enabled && action && (
-                                    <>
-                                        {row(
-                                            i18n('action_style'),
-                                            <Select
-                                                size="m"
-                                                width="max"
-                                                aria-label={`${label}: ${i18n('action_style')}`}
-                                                renderSelectedOption={(option) => (
-                                                    <>{option.content}</>
-                                                )}
-                                                value={[
-                                                    action.attrs.type === 'link'
-                                                        ? 'flat'
-                                                        : buttonStyle,
-                                                ]}
-                                                options={['brand', 'normal', 'flat'].map((value) =>
-                                                    colorOption(
-                                                        value,
-                                                        i18n(`action_${value}` as Label),
-                                                        'style',
-                                                    ),
-                                                )}
-                                                onUpdate={([value]) =>
-                                                    updateAction(index, {
-                                                        type: value === 'flat' ? 'link' : 'button',
-                                                        color:
-                                                            value === 'brand' ? 'brand' : 'default',
-                                                    })
-                                                }
-                                            />,
-                                        )}
-                                        {row(
-                                            i18n('action_text'),
-                                            <TextInput
-                                                size="m"
-                                                value={action.textContent}
-                                                controlProps={{
-                                                    'aria-label': `${label}: ${i18n('action_text')}`,
-                                                }}
-                                                onUpdate={(text) => updateAction(index, {text})}
-                                            />,
-                                        )}
-                                        {row(
-                                            i18n('action_link'),
-                                            <div className={b('link')}>
-                                                <Select
-                                                    size="m"
-                                                    width="max"
-                                                    aria-label={`${label}: ${i18n('action_link')}`}
-                                                    value={['page']}
-                                                    options={[
-                                                        {
-                                                            value: 'page',
-                                                            content: i18n('action_page'),
-                                                        },
-                                                    ]}
-                                                />
-                                                <TextInput
-                                                    size="m"
-                                                    value={String(action.attrs.href)}
-                                                    placeholder={i18n('action_href')}
-                                                    controlProps={{
-                                                        'aria-label': `${label}: ${i18n('action_href')}`,
-                                                    }}
-                                                    onUpdate={(href) => updateAction(index, {href})}
-                                                />
-                                            </div>,
-                                        )}
-                                    </>
+                                {enabled && (
+                                    <ButtonFields
+                                        panel
+                                        label={label}
+                                        attrs={normalizeButtonAttrs(button?.attrs)}
+                                        onUpdate={update}
+                                    />
                                 )}
                             </div>
                         );
                     })}
-                </SettingsSection>
-                <SettingsSection label={i18n('background')}>
+                </Section>
+                <Section label={i18n('background')}>
                     {row(
-                        i18n('color'),
-                        <HeaderColorControl
-                            kind="fill"
-                            label={i18n('color')}
-                            value={attrs.bg === HeaderBackground.Surface ? '' : attrs.fill}
-                            onUpdate={(fill) =>
-                                patch(
-                                    fill
-                                        ? {fill, bg: HeaderBackground.Fill}
-                                        : {bg: HeaderBackground.Surface},
-                                )
-                            }
+                        i18n('background_field'),
+                        <BackgroundControl
+                            attrs={attrs}
+                            patch={patch}
+                            upload={() => upload()}
+                            canUpload={Boolean(fileUploadHandler)}
                         />,
                     )}
-                    {row(
-                        i18n('image'),
-                        <Switch
-                            size="m"
-                            checked={imageControlsVisible}
-                            controlProps={{'aria-label': i18n('image')}}
-                            onUpdate={(checked) => {
-                                setImageControlsVisible(checked);
-                                patch({[HeaderAttr.ImageEnabled]: String(checked)});
-                            }}
-                        />,
-                    )}
-                    {imageControlsVisible && (
+                    {Boolean(attrs.image) && attrs['image-enabled'] === 'true' && (
                         <>
                             {row(
-                                i18n('file'),
-                                <div className={b('file')}>
-                                    {attrs.image ? (
-                                        <>
-                                            <Button
-                                                className={b('file-name')}
-                                                view="outlined"
-                                                width="max"
-                                                size="m"
-                                                title={fileName}
-                                                aria-label={`${i18n('file')}: ${fileName}`}
-                                                disabled={!fileUploadHandler}
-                                                onClick={uploadImage}
-                                            >
-                                                <img
-                                                    className={b('thumbnail')}
-                                                    src={attrs.image}
-                                                    alt=""
-                                                />
-                                                <span>{fileName}</span>
-                                            </Button>
-                                            <Button
-                                                view="flat"
-                                                size="m"
-                                                aria-label={i18n('image_remove')}
-                                                onClick={() =>
-                                                    patch({image: '', [HeaderAttr.ImageName]: ''})
-                                                }
-                                            >
-                                                <Icon data={TrashBin} size={16} />
-                                            </Button>
-                                        </>
-                                    ) : (
-                                        <Button
-                                            size="m"
-                                            width="max"
-                                            disabled={!fileUploadHandler}
-                                            onClick={uploadImage}
-                                        >
-                                            {i18n('image_add')}
-                                        </Button>
-                                    )}
-                                </div>,
+                                '',
+                                <Checkbox
+                                    checked={attrs.effect === 'blur'}
+                                    onUpdate={(checked) =>
+                                        patch({effect: checked ? 'blur' : 'none'})
+                                    }
+                                >
+                                    {i18n('blur')}
+                                </Checkbox>,
                             )}
-                            {attrs.image &&
-                                attrs.layer === HeaderLayer.Full &&
-                                row(
-                                    i18n('image_theme'),
-                                    <Select
-                                        size="m"
-                                        width="max"
-                                        aria-label={i18n('image_theme')}
-                                        value={[attrs[HeaderAttr.BackgroundImageTheme]]}
-                                        options={[
-                                            {
-                                                value: HeaderImageTheme.System,
-                                                content: i18n('image_theme_system'),
-                                            },
-                                            {
-                                                value: HeaderImageTheme.Light,
-                                                content: i18n('image_theme_light'),
-                                            },
-                                            {
-                                                value: HeaderImageTheme.Dark,
-                                                content: i18n('image_theme_dark'),
-                                            },
-                                        ]}
-                                        onUpdate={([theme]) =>
-                                            patch({[HeaderAttr.BackgroundImageTheme]: theme})
-                                        }
-                                    />,
-                                )}
                             {row(
-                                i18n('layer'),
+                                i18n('image_theme'),
                                 <Select
-                                    size="m"
                                     width="max"
-                                    aria-label={i18n('layer')}
-                                    value={[attrs.layer]}
+                                    aria-label={i18n('image_theme')}
+                                    value={[attrs['bg-image-theme']]}
                                     options={[
-                                        HeaderLayer.Full,
-                                        HeaderLayer.Left,
-                                        HeaderLayer.Right,
-                                    ].map((value) => ({
-                                        value,
-                                        content: i18n(`layer_${value}` as Label),
-                                    }))}
-                                    onUpdate={([layer]) => patch({layer})}
+                                        {value: 'system', content: i18n('image_theme_system')},
+                                        {value: 'light', content: i18n('image_theme_light')},
+                                        {value: 'dark', content: i18n('image_theme_dark')},
+                                    ]}
+                                    onUpdate={([theme]) => patch({'bg-image-theme': theme})}
                                 />,
                             )}
                         </>
                     )}
-                </SettingsSection>
+                    {row(
+                        i18n('media'),
+                        <Switch
+                            checked={attrs.align !== 'center' && media.attrs.enabled === 'true'}
+                            disabled={attrs.align === 'center'}
+                            controlProps={{'aria-label': i18n('media')}}
+                            onUpdate={(checked) => patchMedia({enabled: String(checked)})}
+                        />,
+                    )}
+                    {attrs.align !== 'center' && media.attrs.enabled === 'true' && (
+                        <>
+                            {row(
+                                i18n('file'),
+                                <div className={b('file')}>
+                                    <Button
+                                        width="max"
+                                        disabled={!fileUploadHandler}
+                                        onClick={() => upload('media')}
+                                    >
+                                        {media.attrs.name || i18n('image_add')}
+                                    </Button>
+                                    {media.attrs.src && (
+                                        <Button
+                                            view="flat"
+                                            aria-label={i18n('media_remove')}
+                                            onClick={() => patchMedia({src: '', name: ''})}
+                                        >
+                                            <Icon data={TrashBin} size={16} />
+                                        </Button>
+                                    )}
+                                </div>,
+                            )}
+                            {media.attrs.src &&
+                                row(
+                                    i18n('alt'),
+                                    <TextInput
+                                        value={media.attrs.alt}
+                                        controlProps={{'aria-label': i18n('alt')}}
+                                        onUpdate={(alt) => patchMedia({alt})}
+                                    />,
+                                )}
+                        </>
+                    )}
+                    {row(
+                        i18n('shapes'),
+                        <Select
+                            width="max"
+                            aria-label={i18n('shapes')}
+                            value={[attrs.shapes]}
+                            options={shapes.map(({value, key}) => ({value, content: i18n(key)}))}
+                            onUpdate={([value]) => patch({shapes: value})}
+                        />,
+                    )}
+                </Section>
             </div>
-        </Popup>
+        </Portal>
     );
 }

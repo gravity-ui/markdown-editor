@@ -3,23 +3,23 @@ import {EditorState, TextSelection} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 import {describe, expect, it} from 'vitest';
 
-import {headerNodeName} from './HeaderSpecs/const';
+import {buttonSpec} from '../Button/ButtonSpecs';
+
 import {
     getHeaderSchemaSpec,
     getHeaderTitleSpec,
-    headerActionSpec,
     headerActionsSpec,
     headerContentSpec,
+    headerImageSpec,
 } from './HeaderSpecs/schema';
 import {
     backspaceInHeader,
     enterHeaderContent,
     exitHeaderForward,
-    generateHeaderLook,
-    removeHeader,
     removeHeaderImage,
-    setHeaderAction,
     setHeaderAttrs,
+    setHeaderButton,
+    setHeaderMedia,
     toHeader,
 } from './commands';
 
@@ -28,192 +28,107 @@ const schema = new Schema({
         doc: {content: 'block+'},
         text: {group: 'inline'},
         paragraph: {group: 'block', content: 'inline*', toDOM: () => ['p', 0]},
-        [headerNodeName]: getHeaderSchemaSpec(),
+        header: getHeaderSchemaSpec(),
         header_title: getHeaderTitleSpec(),
         header_content: headerContentSpec,
         header_actions: headerActionsSpec,
-        header_action: headerActionSpec,
+        header_image: headerImageSpec,
+        button: buttonSpec,
     },
 });
-
-const cover = (title = '', attrs: Record<string, unknown> = {}) =>
+const cover = (title = '', attrs = {}) =>
     schema.nodes.header.create(attrs, [
         schema.nodes.header_title.create(null, title ? schema.text(title) : null),
         schema.nodes.header_content.create(),
         schema.nodes.header_actions.create(),
+        schema.nodes.header_image.create(),
     ]);
-const doc = (...nodes: ReturnType<typeof cover>[]) => schema.nodes.doc.create(null, nodes);
-const paragraph = (text = '') =>
-    schema.nodes.paragraph.create(null, text ? schema.text(text) : null);
-
-const viewWith = (pmDoc: ReturnType<typeof doc>, pos: number) =>
-    new EditorView(null, {
-        state: EditorState.create({
-            schema,
-            doc: pmDoc,
-            selection: TextSelection.create(pmDoc, pos),
-        }),
+const viewWith = (node = cover()) => {
+    const doc = schema.nodes.doc.create(null, node);
+    return new EditorView(null, {
+        state: EditorState.create({schema, doc, selection: TextSelection.create(doc, 2)}),
     });
+};
 
 describe('Header commands', () => {
-    it('should change and normalize attributes', () => {
-        const view = viewWith(doc(cover('Заголовок')), 2);
-        expect(setHeaderAttrs(0, {format: 'small', fill: 'red'})(view.state, view.dispatch)).toBe(
-            true,
-        );
-        expect(view.state.doc.firstChild?.attrs.fill).toBe('red');
-        expect(setHeaderAttrs(0, {fill: 'unknown'})(view.state, view.dispatch)).toBe(true);
-        expect(view.state.doc.firstChild?.attrs.fill).toBe('blue');
+    it('should change normalized attributes and leave unchanged documents untouched', () => {
+        const view = viewWith();
+        expect(setHeaderAttrs(0, {height: 'm'})(view.state, view.dispatch)).toBe(true);
+        expect(setHeaderAttrs(0, {height: 'm'})(view.state, view.dispatch)).toBe(false);
+        expect(setHeaderAttrs(100, {height: 'm'})(view.state, view.dispatch)).toBe(false);
+        expect(view.state.doc.firstChild?.attrs.height).toBe('m');
+        view.destroy();
     });
-
-    it('should generate a named layout', () => {
-        const view = viewWith(doc(cover('Заголовок')), 2);
-        expect(generateHeaderLook(0)(view.state, view.dispatch)).toBe(true);
-        expect(view.state.doc.firstChild?.attrs.fill).not.toBe('blue');
-        expect(view.state.doc.firstChild?.attrs.shapes).not.toBe('diagonal');
-    });
-
-    it('should remove the image and its image settings', () => {
+    it('should preserve text and theme preferences when a background is removed', () => {
         const view = viewWith(
-            doc(
-                cover('Заголовок', {
-                    image: 'https://example.com/hero.png',
-                    layer: 'object',
-                    fit: 'whole',
-                    focus: 'right',
-                    effect: 'darken',
-                    text: 'light',
-                }),
-            ),
-            2,
+            cover('Title', {image: '/bg.png', text: 'blue', 'bg-image-theme': 'dark'}),
         );
-        expect(removeHeaderImage(0)(view.state, view.dispatch)).toBe(true);
+        removeHeaderImage(0)(view.state, view.dispatch);
         expect(view.state.doc.firstChild?.attrs).toMatchObject({
             image: '',
-            layer: 'full',
-            fit: 'crop',
-            focus: 'center',
-            effect: 'none',
-            text: 'auto',
+            text: 'blue',
+            'bg-image-theme': 'dark',
         });
+        view.destroy();
     });
-
-    it('should insert a cover after the paragraph', () => {
-        const view = viewWith(doc(paragraph('Текст')), 1);
+    it('should retain independent content and background images', () => {
+        const view = viewWith(cover('Title', {image: '/bg.png'}));
+        setHeaderMedia(0, {src: '/content.png', alt: 'Picture', enabled: 'true'})(
+            view.state,
+            view.dispatch,
+        );
+        setHeaderAttrs(0, {align: 'center'})(view.state, view.dispatch);
+        expect(view.state.doc.firstChild?.child(3).attrs).toMatchObject({
+            src: '/content.png',
+            enabled: 'true',
+        });
+        expect(view.state.doc.firstChild?.attrs.image).toBe('/bg.png');
+        view.destroy();
+    });
+    it('should keep three independent button slots when toggled', () => {
+        const view = viewWith();
+        setHeaderButton(0, 2, {label: 'Third', href: '/page', 'new-tab': true})(
+            view.state,
+            view.dispatch,
+        );
+        expect(view.state.doc.firstChild?.child(2).firstChild?.attrs.enabled).toBe(false);
+        setHeaderButton(0, 2, {enabled: false})(view.state, view.dispatch);
+        setHeaderButton(0, 0, {label: 'First', enabled: true})(view.state, view.dispatch);
+        setHeaderButton(0, 2, {enabled: true})(view.state, view.dispatch);
+        expect(view.state.doc.firstChild?.child(2).child(2).attrs).toMatchObject({
+            label: 'Third',
+            href: '/page',
+            'new-tab': true,
+            enabled: true,
+        });
+        expect(setHeaderButton(0, 3, {label: 'Fourth'})(view.state, view.dispatch)).toBe(false);
+        view.destroy();
+    });
+    it('should create the default cover with a button and content image slot', () => {
+        const view = viewWith(schema.nodes.paragraph.create());
         expect(toHeader(view.state, view.dispatch)).toBe(true);
-        expect(view.state.doc.child(1).type.name).toBe('header');
-        expect(view.state.doc.child(1).childCount).toBe(3);
+        const header = view.state.doc.child(1);
+        expect(header.childCount).toBe(4);
+        expect(header.child(2).firstChild?.attrs.label).toBe('Button');
+        expect(header.child(3).attrs.enabled).toBe('true');
+        view.destroy();
     });
-
-    it('should create a subtitle paragraph when Enter is pressed in the title', () => {
-        const view = viewWith(doc(cover('Заголовок')), 2);
+    it('should navigate from title to content and then outside the cover', () => {
+        const view = viewWith(cover('Title'));
         expect(enterHeaderContent(view.state, view.dispatch)).toBe(true);
-        expect(view.state.doc.firstChild?.child(1).firstChild?.type.name).toBe('paragraph');
-    });
-
-    it('should leave the cover on Mod-Enter', () => {
-        const view = viewWith(doc(cover('Заголовок')), 2);
+        expect(view.state.selection.$from.parent.type.name).toBe('paragraph');
         expect(exitHeaderForward(view.state, view.dispatch)).toBe(true);
-        expect(view.state.doc.child(1).type.name).toBe('paragraph');
+        expect(view.state.doc.lastChild?.type.name).toBe('paragraph');
+        view.destroy();
     });
-
-    it('should replace an empty cover with a paragraph on Backspace', () => {
-        const view = viewWith(doc(cover()), 2);
+    it('should replace an empty cover but preserve a cover with an image or button', () => {
+        const view = viewWith();
         expect(backspaceInHeader(view.state, view.dispatch)).toBe(true);
         expect(view.state.doc.firstChild?.type.name).toBe('paragraph');
-    });
-
-    it('should remove a cover', () => {
-        const view = viewWith(doc(cover('Заголовок'), paragraph('Текст')), 2);
-        expect(removeHeader(0)(view.state, view.dispatch)).toBe(true);
-        expect(view.state.doc.firstChild?.type.name).toBe('paragraph');
-    });
-});
-
-describe('Header action editing', () => {
-    it('should keep button slots and content when toggled independently', () => {
-        const view = viewWith(doc(cover('Title')), 2);
-        const action = {text: 'Third', href: '/third', type: 'link', color: 'default'};
-        expect(setHeaderAction(0, 2, action)(view.state, view.dispatch)).toBe(true);
-        expect(view.state.doc.firstChild?.child(2).child(0).attrs.enabled).toBe(false);
-        setHeaderAction(0, 2, {...action, enabled: false})(view.state, view.dispatch);
-        setHeaderAction(0, 0, {...action, text: 'First'})(view.state, view.dispatch);
-        expect(view.state.doc.firstChild?.child(2).child(2).textContent).toBe('Third');
-        expect(view.state.doc.firstChild?.child(2).child(2).attrs.enabled).toBe(false);
-        setHeaderAction(0, 2, action)(view.state, view.dispatch);
-        expect(view.state.doc.firstChild?.child(2).child(2).attrs).toMatchObject({
-            enabled: true,
-            href: '/third',
-        });
         view.destroy();
-    });
-    it('should add, edit and remove actions without changing the title', () => {
-        const view = viewWith(doc(cover('Title')), 2);
-        for (let index = 0; index < 3; index++) {
-            expect(
-                setHeaderAction(0, index, {
-                    text: `Button ${index}`,
-                    href: '/page',
-                    type: 'button',
-                    color: 'brand',
-                })(view.state, view.dispatch),
-            ).toBe(true);
-        }
-        expect(view.state.doc.firstChild?.child(2).childCount).toBe(3);
-        expect(
-            setHeaderAction(0, 1, {text: 'Edited', href: '/other', type: 'link', color: 'default'})(
-                view.state,
-                view.dispatch,
-            ),
-        ).toBe(true);
-        expect(view.state.doc.firstChild?.child(2).child(1).textContent).toBe('Edited');
-        expect(setHeaderAction(0, 0, null)(view.state, view.dispatch)).toBe(true);
-        expect(view.state.doc.firstChild?.child(2).firstChild?.textContent).toBe('Edited');
-        expect(view.state.doc.firstChild?.firstChild?.textContent).toBe('Title');
-        view.destroy();
-    });
-    it('should reject unsafe action links and invalid action positions', () => {
-        const view = viewWith(doc(cover('Title')), 2);
-        const action = {
-            text: 'Button',
-            href: ['javascript', 'alert(1)'].join(':'),
-            type: 'button',
-            color: 'brand',
-        };
-        expect(setHeaderAction(0, 0, action)(view.state, view.dispatch)).toBe(false);
-        expect(setHeaderAction(0, -1, {...action, href: '/page'})(view.state, view.dispatch)).toBe(
-            false,
-        );
-        expect(setHeaderAction(0, 3, {...action, href: '/page'})(view.state, view.dispatch)).toBe(
-            false,
-        );
-        expect(view.state.doc.firstChild?.child(2).childCount).toBe(0);
-        view.destroy();
-    });
-});
-
-describe('Header link drafts', () => {
-    it('should allow typing an incomplete HTTPS address', () => {
-        const view = viewWith(doc(cover('Title')), 2);
-        expect(
-            setHeaderAction(0, 0, {text: 'Button', href: 'https:', type: 'button', color: 'brand'})(
-                view.state,
-                view.dispatch,
-            ),
-        ).toBe(true);
-        expect(view.state.doc.firstChild?.child(2).firstChild?.attrs.href).toBe('https:');
-        view.destroy();
-    });
-    it('should reject an unsafe scheme containing control characters', () => {
-        const view = viewWith(doc(cover('Title')), 2);
-        expect(
-            setHeaderAction(0, 0, {
-                text: 'Button',
-                href: ['java\nscript', 'alert(1)'].join(':'),
-                type: 'button',
-                color: 'brand',
-            })(view.state, view.dispatch),
-        ).toBe(false);
-        view.destroy();
+        const populated = viewWith(cover('', {image: '/bg.png'}));
+        backspaceInHeader(populated.state, populated.dispatch);
+        expect(populated.state.doc.firstChild?.type.name).toBe('header');
+        populated.destroy();
     });
 });

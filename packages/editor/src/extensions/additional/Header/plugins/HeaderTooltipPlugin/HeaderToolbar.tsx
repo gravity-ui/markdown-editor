@@ -4,6 +4,7 @@ import {useFloatingRootContext} from '@floating-ui/react';
 import {Copy, Gear, TrashBin} from '@gravity-ui/icons';
 import {Button, Icon, Popup, useToaster} from '@gravity-ui/uikit';
 
+import type {Serializer} from '#core';
 import {Fragment, type Node, Slice} from '#pm/model';
 import type {EditorView} from '#pm/view';
 import {cn} from 'src/classname';
@@ -24,6 +25,7 @@ export type HeaderToolbarProps = {
     editorView: EditorView;
     anchorElement: HTMLElement;
     fileUploadHandler?: FileUploadHandler;
+    serializer: Serializer;
     onSettingsOpenChange: (open: boolean) => void;
     onClose: () => void;
 };
@@ -34,6 +36,7 @@ export function HeaderToolbar({
     editorView,
     anchorElement,
     fileUploadHandler,
+    serializer,
     onSettingsOpenChange,
     onClose,
 }: HeaderToolbarProps) {
@@ -52,14 +55,16 @@ export function HeaderToolbar({
     }, [anchorElement, context.refs]);
 
     const closeSettings = () => {
+        settingsAnchor?.focus();
         setSettingsAnchor(null);
         onSettingsOpenChange(false);
     };
     const copy = async () => {
         const current = headerAt(editorView.state.doc, pos);
         if (!current) return;
-        const {dom, text} = editorView.serializeForClipboard(
-            new Slice(Fragment.from(current), 0, 0),
+        const {dom} = editorView.serializeForClipboard(new Slice(Fragment.from(current), 0, 0));
+        const text = serializer.serialize(
+            editorView.state.schema.topNodeType.create(null, current),
         );
         try {
             if (typeof ClipboardItem === 'undefined') {
@@ -109,7 +114,6 @@ export function HeaderToolbar({
                 >
                     <Icon data={Gear} size={16} />
                 </Button>
-                <span className={b('separator')} aria-hidden="true" />
                 <Button
                     view="flat"
                     size="m"

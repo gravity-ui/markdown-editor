@@ -1,0 +1,133 @@
+.g-md-button.g-md-button {
+    --g-md-button-color: var(--g-color-text-primary);
+    --g-md-button-fill: var(--g-color-base-generic);
+    --g-md-button-accent: var(--g-color-base-brand);
+    --g-md-button-contrast: var(--g-color-text-brand-contrast);
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    box-sizing: border-box;
+    max-width: 100%;
+    min-height: 36px;
+    padding: 8px 16px;
+
+    font-family: var(--g-text-body-font-family);
+    font-size: 14px;
+    line-height: 18px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+
+    color: var(--g-md-button-color);
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: var(--g-md-button-fill);
+    overflow-wrap: anywhere;
+    @each $name,
+        $semantic
+            in (
+                'blue': 'info',
+                'green': 'positive',
+                'yellow': 'warning',
+                'orange': 'warning',
+                'red': 'danger',
+                'violet': 'utility'
+            )
+    {
+        &[data-color='#{$name}'] {
+            --g-md-button-color: var(--g-color-text-#{$semantic});
+            --g-md-button-fill: var(--g-color-base-#{$semantic}-light);
+            --g-md-button-accent: var(--g-color-text-#{$semantic});
+            --g-md-button-contrast: var(--g-color-text-light-primary);
+        }
+    }
+    &[data-color='orange'] {
+        --g-md-button-color: var(--g-color-private-orange-500-solid);
+        --g-md-button-accent: var(--g-color-private-orange-500-solid);
+    }
+    &[data-view='action'] {
+        color: var(--g-md-button-contrast);
+        background: var(--g-md-button-accent);
+    }
+    &[data-view='outlined'] {
+        border-color: var(--g-md-button-color);
+        background: transparent;
+    }
+    &[data-view='flat'] {
+        background: transparent;
+    }
+    &[data-enabled='false'] {
+        display: none;
+    }
+    &:hover {
+        text-decoration: none;
+
+        filter: brightness(1.05);
+    }
+    &:focus-visible {
+        outline: 2px solid var(--g-color-line-focus);
+        outline-offset: 2px;
+    }
+}
+
+.g-md-button-slot {
+    display: inline-flex;
+
+    max-width: 100%;
+    &[hidden] {
+        display: none;
+    }
+}
+
+.g-md-button-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    width: 248px;
+    padding: 16px;
+
+    color: var(--g-color-text-primary);
+    border-radius: 16px;
+    background: var(--g-color-base-float);
+}
+
+.g-md-button-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    &__row {
+        display: grid;
+        align-items: center;
+        grid-template-columns: var(--g-md-button-label-width, 53px) minmax(0, 1fr);
+        gap: 8px;
+    }
+    &__check {
+        margin-inline-start: calc(var(--g-md-button-label-width, 53px) + 8px);
+    }
+    &__option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    &__swatch.g-md-button {
+        display: inline-block;
+
+        width: 16px;
+        min-height: 16px;
+        padding: 0;
+
+        border-radius: 4px;
+    }
+}
+
+.g-md-button[data-color='yellow'],
+.g-md-button[data-color='orange'] {
+    --g-md-button-contrast: var(--g-color-text-dark-primary);
+}
+
+.g-md-button[data-color='gray'] {
+    --g-md-button-accent: var(--g-color-text-secondary);
+    --g-md-button-contrast: var(--g-color-base-background);
+}

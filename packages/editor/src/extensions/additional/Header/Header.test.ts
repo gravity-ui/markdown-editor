@@ -1,10 +1,13 @@
+import transform from '@diplodoc/transform';
 import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
-import {parseDOM} from '../../../../tests/parse-dom';
-import {DirectiveContext} from '../../../../tests/utils';
+import {DOMParser} from '#pm/model';
+
 import {ExtensionsManager} from '../../../core';
-import {BaseSchemaSpecs} from '../../base/specs';
+import color from '../../../markdown-it/color';
+import {FullSpecsPreset} from '../../../presets/full-specs';
+import {ButtonSpecs} from '../Button/ButtonSpecs';
 
 import {HeaderSpecs, headerDirective} from './HeaderSpecs';
 
@@ -13,227 +16,207 @@ const {
     markupParser: parser,
     serializer,
 } = new ExtensionsManager({
-    extensions: (builder) => {
-        builder.context.set('directiveSyntax', new DirectiveContext(undefined));
-        builder.use(BaseSchemaSpecs, {}).use(HeaderSpecs);
-    },
+    extensions: (builder) =>
+        builder.use(FullSpecsPreset, {color: {}}).use(HeaderSpecs, {}).use(ButtonSpecs),
 }).buildDeps();
+const slot = (name: string, body: string, attrs = '') =>
+    `:::${name}${attrs ? `{${attrs}}` : ''}\n${body}\n:::`;
+const cover = (body = '', attrs = '') => slot('header', body, attrs);
+const full = (attrs = '') =>
+    cover(
+        [
+            slot('header-image', '', 'src="https://example.com/content.png" alt="Content"'),
+            slot('header-title', 'Title **literal** &amp; text'),
+            slot('header-content', 'First **bold** paragraph.\n\nSecond {red}(red) [link](/page).'),
+            slot('button', 'Open', 'href="/page"'),
+            slot('button', 'Hidden', 'enabled="false" view="outlined" color="red" new-tab="true"'),
+        ].join('\n\n'),
+        attrs,
+    );
+const json = (doc: {toJSON: () => unknown}) =>
+    JSON.parse(
+        JSON.stringify(doc.toJSON(), (key, value) => (key === 'data-markup' ? undefined : value)),
+    );
+const md = new MarkdownIt().use(color).use(headerDirective);
+const dom = (html: string) => {
+    const element = document.createElement('div');
+    element.innerHTML = html;
+    return DOMParser.fromSchema(schema).parse(element);
+};
 
-describe('Header extension', () => {
-    it('should parse a cover with title, paragraphs and actions', () => {
-        const markup = [
-            ':::header[Портал команды]{bg="gradient" fill="indigo" fill2="violet"}',
-            '',
-            '::action[Открыть график](/wiki/duty){type="button" color="brand"}',
-            '',
-            'Подзаголовок.',
-            '',
-            'Ещё один абзац.',
-            '',
-            ':::',
-        ].join('\n');
-        const node = parser.parse(markup).firstChild;
+function roundTrip(markup: string) {
+    const doc = parser.parse(markup);
+    const serialized = serializer.serialize(doc);
+    expect(parser.parse(serialized).toJSON()).toEqual(doc.toJSON());
+    expect(serializer.serialize(parser.parse(serialized))).toBe(serialized);
+    expect(json(dom(md.render(markup)))).toEqual(json(doc));
+    return doc;
+}
 
-        expect(node?.type.name).toBe('header');
-        expect(node?.firstChild?.textContent).toBe('Портал команды');
-        expect(node?.child(1).childCount).toBe(2);
-        expect(node?.child(2).childCount).toBe(1);
-        expect(node?.child(2).firstChild?.attrs.href).toBe('/wiki/duty');
-        const restored = parser.parse(serializer.serialize(parser.parse(markup))).firstChild;
-        expect(restored?.child(2).firstChild?.textContent).toBe('Открыть график');
-    });
-
-    it('should filter unsupported blocks from the cover', () => {
-        const markup = [
-            ':::header[Заголовок]',
-            '',
-            '# Вложенный заголовок',
-            '',
-            'Текст',
-            '',
-            ':::',
-        ].join('\n');
-        const node = parser.parse(markup).firstChild;
-
-        expect(node?.child(1).childCount).toBe(1);
-        expect(node?.child(1).textContent).toBe('Текст');
-    });
-
-    it('should keep at most three actions', () => {
-        const markup = [
-            ':::header[Заголовок]',
-            '',
-            '::action[Один](/one)',
-            '',
-            '::action[Два](/two)',
-            '',
-            '::action[Три](/three)',
-            '',
-            '::action[Четыре](/four)',
-            '',
-            ':::',
-        ].join('\n');
-        expect(parser.parse(markup).firstChild?.child(2).childCount).toBe(3);
-    });
-
-    it('should normalize unsupported parameter values', () => {
-        const markup = [':::header[Заголовок]{bg="rainbow" fill="magenta"}', '', ':::'].join('\n');
-        const node = parser.parse(markup).firstChild;
-
-        expect(node?.attrs.bg).toBe('shapes');
-        expect(node?.attrs.fill).toBe('blue');
-    });
-
-    it('should treat title markup as plain text', () => {
-        const markup = [':::header[**Портал** команды]', '', ':::'].join('\n');
-        const title = parser.parse(markup).firstChild?.firstChild;
-        expect(title?.textContent).toBe('**Портал** команды');
-        expect(title?.firstChild?.marks).toHaveLength(0);
-    });
-
-    it('should serialize the cover and keep its content', () => {
-        const markup = [':::header[Заголовок]{fill="blue"}', '', 'Подзаголовок.', '', ':::'].join(
-            '\n',
+describe('Header containers', () => {
+    it('should parse and serialize all named containers and independent images', () => {
+        const doc = roundTrip(
+            full('image="https://example.com/background.png" width="s" height="m"'),
         );
-        const doc = parser.parse(markup);
-        const serialized = serializer.serialize(doc);
-        const restored = parser.parse(serialized);
-
-        expect(serialized).toContain(':::header[Заголовок]{fill="blue"}');
-        expect(serialized).toContain('Подзаголовок.');
-        expect(restored.firstChild?.child(1).textContent).toBe('Подзаголовок.');
+        expect(doc.firstChild?.firstChild?.textContent).toBe('Title **literal** & text');
+        expect(doc.firstChild?.child(1).childCount).toBe(2);
+        expect(doc.firstChild?.child(2).childCount).toBe(2);
+        expect(doc.firstChild?.child(3).attrs.src).toBe('https://example.com/content.png');
+        expect(doc.firstChild?.attrs.image).toBe('https://example.com/background.png');
     });
-
-    it('should keep a standalone action outside a cover', () => {
-        const doc = parser.parse('::action[Подробнее](/wiki/help){type="link"}');
-        expect(doc.firstChild?.type.name).toBe('header_action');
+    it('should keep the first container of each type and the first three direct buttons', () => {
+        const text = [
+            slot('header-title', 'First'),
+            slot('header-title', 'Second'),
+            slot('header-content', 'First body'),
+            slot('header-content', 'Second body'),
+            slot('header-image', '', 'src="/first.png"'),
+            slot('header-image', '', 'src="/second.png"'),
+            ...[1, 2, 3, 4].map((n) => slot('button', String(n))),
+            'Ignored paragraph',
+            '> ' + slot('button', 'Nested').replace(/\n/g, '\n> '),
+        ].join('\n\n');
+        const doc = roundTrip(cover(text));
+        expect(doc.firstChild?.textContent).toBe('FirstFirst body');
+        expect(doc.firstChild?.child(2).childCount).toBe(3);
+        expect(doc.firstChild?.child(2).child(2).attrs.label).toBe('3');
+        expect(doc.firstChild?.child(3).attrs.src).toBe('/first.png');
+        expect(md.render(cover(text))).not.toContain('Nested');
     });
-
-    it('should preserve punctuation in action labels', () => {
-        const doc = parser.parse('::action[Подробнее **здесь**](/wiki/help)');
-        expect(doc.firstChild?.textContent).toBe('Подробнее **здесь**');
-    });
-
-    it('should render the same slots in standalone Markdown', () => {
-        const markup = [
-            ':::header[Портал команды]{bg="gradient" fill="indigo" fill2="violet"}',
-            '',
-            'Текст.',
-            '',
-            '::action[Подробнее](/wiki/help)',
-            '',
-            ':::',
-        ].join('\n');
-        const html = new MarkdownIt().use(headerDirective).render(markup);
-        expect(html).toContain('class="g-md-header"');
-        expect(html).toContain('class="header_content"');
-        expect(html).toContain('class="header_actions"');
-        expect(html).toContain('href="/wiki/help"');
-        expect(html).toContain('Текст.');
-        parseDOM(schema, html, parser.parse(markup));
-    });
-
-    it('should preserve escaped characters in the title', () => {
-        const markup = [
-            ':::header[Портал &#91;Вики&#93; &amp; помощь]{fill="blue"}',
-            '',
-            ':::',
-        ].join('\n');
-        const restored = parser.parse(serializer.serialize(parser.parse(markup)));
-        expect(restored.firstChild?.firstChild?.textContent).toBe('Портал [Вики] & помощь');
-    });
-});
-
-describe('Header layout persistence', () => {
-    it('should preserve table palette colors for both text and background', () => {
-        for (const color of [
-            'grey',
-            'yellow-light',
-            'red-light',
-            'purple-light',
-            'blue-light',
-            'green-light',
-            'yellow',
-            'red',
-            'purple',
-            'blue',
-            'green',
-        ]) {
-            const markup = `:::header[Title]{bg="fill" fill="${color}" text="${color}"}\n\n:::`;
-            const doc = parser.parse(markup);
-            expect(doc.firstChild?.attrs).toMatchObject({fill: color, text: color});
-            expect(parser.parse(serializer.serialize(doc)).eq(doc)).toBe(true);
-            parseDOM(schema, new MarkdownIt().use(headerDirective).render(markup), doc);
+    it('should keep standalone buttons and reject header slots outside their parent', () => {
+        const doc = roundTrip(slot('button', 'Standalone', 'href="/page" new-tab="true"'));
+        expect(doc.firstChild?.type.name).toBe('button');
+        for (const name of ['header-title', 'header-content', 'header-image']) {
+            const parsed = parser.parse(slot(name, 'Outside'));
+            expect(parsed.firstChild?.type.name).toBe('paragraph');
+            expect(md.render(slot(name, 'Outside'))).not.toContain('g-md-header__');
         }
     });
-
-    it('should preserve disabled buttons and image metadata in Markdown and HTML', () => {
-        const markup =
-            ':::header[Title]{image="https://example.com/cover.png" image-name="My cover.png" image-enabled="false" layer="left"}\n\n::action[First](/one){enabled="false"}\n\n::action[Second](/two)\n\n:::';
-        const doc = parser.parse(markup);
-        expect(parser.parse(serializer.serialize(doc)).eq(doc)).toBe(true);
-        const html = new MarkdownIt().use(headerDirective).render(markup);
-        expect(html).toContain('data-enabled="false"');
-        expect(html).not.toContain('--g-md-header-image:');
-        parseDOM(schema, html, doc);
+    it('should ignore unsupported direct nodes and filter unsafe content within text', () => {
+        const doc = roundTrip(
+            cover(
+                slot(
+                    'header-content',
+                    'Paragraph.\n\n# Heading\n\n<script>alert(1)</script>\n\n![Image](/image.png)\n\n' +
+                        slot('button', 'Nested button'),
+                ),
+            ),
+        );
+        expect(doc.firstChild?.child(2).childCount).toBe(0);
+        expect(doc.firstChild?.child(1).textContent).not.toContain('Heading');
+        expect(
+            md.render(cover(slot('header-content', '<img src=x onerror=alert(1)>'))),
+        ).not.toContain('<img src=x');
     });
-    it('should preserve layout and hidden content through Markdown and DOM round trips', () => {
-        const markup =
-            ':::header[Title]{format="large" align="right" vertical="bottom" fixed="false" title="false" description="false" image="https://example.com/image.png" layer="left"}\n\nDescription\n\n::action[Button](/page)\n\n:::';
-        const doc = parser.parse(markup);
-        const restored = parser.parse(serializer.serialize(doc));
-        expect(restored.eq(doc)).toBe(true);
-        expect(restored.firstChild?.attrs).toMatchObject({
-            format: 'large',
-            align: 'right',
-            vertical: 'bottom',
-            fixed: 'false',
-            title: 'false',
-            description: 'false',
-            layer: 'left',
+    it('should normalize unknown and removed attributes without retaining old effects', () => {
+        const doc = roundTrip(
+            cover(
+                '',
+                'height="unknown" width="unknown" bg="gradient" fill2="red" effect="fade" layer="tile" scale="large"',
+            ),
+        );
+        expect(doc.firstChild?.attrs).toMatchObject({
+            height: 's',
+            width: 'm',
+            effect: 'none',
+            fill: 'none',
+            shapes: 'none',
         });
-        parseDOM(schema, new MarkdownIt().use(headerDirective).render(markup), doc);
+        const serialized = serializer.serialize(doc);
+        for (const name of ['gradient', 'fill2', 'layer', 'scale', 'fade'])
+            expect(serialized).not.toContain(name);
     });
-});
-
-describe('Header image text theme', () => {
+    it('should preserve hidden content, image settings and escaped literal labels', () => {
+        roundTrip(
+            full(
+                'title="false" description="false" image="/bg.png" image-enabled="false" bg-image-theme="dark"',
+            ),
+        );
+        roundTrip(
+            cover(
+                slot('header-title', 'First\n&#58;:: literal\nLast &amp; text') +
+                    '\n\n' +
+                    slot('button', '&#58;:: literal &amp; text'),
+            ),
+        );
+    });
     it.each(['system', 'light', 'dark'])(
-        'should preserve the %s image text theme in Markdown and HTML',
+        'should preserve the %s image text theme and apply it only to a valid background',
         (theme) => {
-            const markup = `:::header[Title]{image="https://example.com/cover.png" bg-image-theme="${theme}"}\n\nText\n\n:::`;
-            const doc = parser.parse(markup);
+            const doc = roundTrip(full(`image="/background.png" bg-image-theme="${theme}"`));
             expect(doc.firstChild?.attrs['bg-image-theme']).toBe(theme);
-            const serialized = serializer.serialize(doc);
-            expect(parser.parse(serialized).eq(doc)).toBe(true);
-            const html = new MarkdownIt().use(headerDirective).render(markup);
-            parseDOM(schema, html, doc);
-            if (theme === 'system') {
-                expect(serialized).not.toContain('bg-image-theme');
-                expect(html).not.toContain('g-root_theme_');
-            } else {
-                expect(html).toContain(`g-md-header__content g-root g-root_theme_${theme}`);
-            }
+            const html = md.render(serializer.serialize(doc));
+            expect(html.includes(`g-root_theme_${theme}`)).toBe(theme !== 'system');
+            for (const attrs of [
+                '',
+                'image="javascript:alert(1)"',
+                'image="/background.png" image-enabled="false"',
+            ])
+                expect(md.render(full(`${attrs} bg-image-theme="${theme}"`))).not.toContain(
+                    'g-root_theme_',
+                );
         },
     );
-
-    it('should fall back to the system theme for an unknown value', () => {
-        const markup = ':::header[Title]{bg-image-theme="unknown"}\n\n:::';
-        const doc = parser.parse(markup);
-        expect(doc.firstChild?.attrs['bg-image-theme']).toBe('system');
-        expect(serializer.serialize(doc)).not.toContain('bg-image-theme');
+    it.each(['gray', 'yellow', 'orange', 'red', 'green', 'blue', 'violet'])(
+        'should retain the standard %s text color',
+        (text) => {
+            roundTrip(full(`text="${text}"`));
+        },
+    );
+    it('should retain layout, shapes and palette through the default sanitizer', () => {
+        const result = transform(
+            full('image="/background.png" effect="blur" shapes="scatter" bg-image-theme="dark"'),
+            {plugins: [headerDirective], needToSanitizeHtml: true},
+        ).result.html;
+        expect(result).toContain('g-root_theme_dark');
+        expect(result).toContain('--g-md-header-shape-x:');
+        expect(result).toContain('data-effect="blur"');
+        expect(result).toContain('rel="noopener noreferrer"');
+        expect(result).not.toContain('contenteditable');
     });
-
     it.each([
-        '',
-        'image="https://example.com/cover.png" image-enabled="false"',
-        'image="https://example.com/cover.png" layer="left"',
-        'image="javascript:alert(1)"',
-    ])('should keep the theme preference inactive for %s', (attrs) => {
-        const markup = `:::header[Title]{${attrs} bg-image-theme="dark"}\n\n:::`;
-        const doc = parser.parse(markup);
-        expect(parser.parse(serializer.serialize(doc)).eq(doc)).toBe(true);
-        expect(new MarkdownIt().use(headerDirective).render(markup)).not.toContain(
-            'g-root_theme_dark',
+        ['javascript', 'alert(1)'].join(':'),
+        ['JaVaScRiPt', 'alert(1)'].join(':'),
+        'java\nscript:alert(1)',
+        'data:text/html,test',
+        'file:///tmp/test',
+    ])('should reject unsafe links and image URLs including %s', (url) => {
+        const button = schema.nodes.button.create({label: 'Unsafe', href: url});
+        expect(
+            md.render(serializer.serialize(schema.nodes.doc.create(null, button))),
+        ).not.toContain('href="' + url + '"');
+        const html = md.render(
+            cover(slot('header-image', '', `src="${url}"`), `image="${url}" bg-image-theme="dark"`),
         );
+        expect(html).not.toContain('--g-md-header-image:');
+        expect(html).not.toContain('g-root_theme_dark');
+    });
+    it('should preserve literal backslashes when titles and button labels are edited', () => {
+        const value = String.raw`Literal \[brackets] & text`;
+        const original = parser.parse(full()).firstChild!;
+        const title = original.child(0).type.create(null, schema.text(value));
+        const buttons = original
+            .child(2)
+            .type.create(null, schema.nodes.button.create({label: value}));
+        const node = original.type.create(original.attrs, [
+            title,
+            original.child(1),
+            buttons,
+            original.child(3),
+        ]);
+        const doc = schema.nodes.doc.create(null, node);
+        expect(parser.parse(serializer.serialize(doc)).toJSON()).toEqual(doc.toJSON());
+    });
+    it('should retain a cover nested inside a quote and a list', () => {
+        for (const markup of [
+            full()
+                .split('\n')
+                .map((line) => '> ' + line)
+                .join('\n'),
+            '- ' + full().split('\n').join('\n  '),
+        ]) {
+            const doc = parser.parse(markup);
+            expect(parser.parse(serializer.serialize(doc)).toJSON()).toEqual(doc.toJSON());
+        }
     });
 });

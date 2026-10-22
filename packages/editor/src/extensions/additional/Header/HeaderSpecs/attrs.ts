@@ -1,144 +1,50 @@
+import {Colors} from '../../../yfm/Color/const';
+import {serializeAttrs} from '../../Button/ButtonSpecs/attrs';
+
 import {
-    HeaderAttr,
-    HeaderBackground,
+    HEADER_FILLS,
     HeaderDefaults,
-    HeaderDirection,
     HeaderEffect,
-    HeaderFill,
-    HeaderFit,
-    HeaderFocus,
-    HeaderFormat,
+    type HeaderImageDefaults,
     HeaderImageTheme,
-    HeaderLayer,
-    HeaderScale,
     HeaderShapes,
-    HeaderText,
 } from './const';
 
 export type HeaderAttrs = {-readonly [K in keyof typeof HeaderDefaults]: string};
-
-const choices = {
-    [HeaderAttr.Format]: Object.values(HeaderFormat),
-    [HeaderAttr.Align]: ['left', 'center', 'right'],
-    [HeaderAttr.Vertical]: ['top', 'center', 'bottom'],
-    [HeaderAttr.Fixed]: ['true', 'false'],
-    [HeaderAttr.ImageEnabled]: ['true', 'false'],
-    [HeaderAttr.Title]: ['true', 'false'],
-    [HeaderAttr.Description]: ['true', 'false'],
-    [HeaderAttr.Background]: Object.values(HeaderBackground),
-    [HeaderAttr.Fill]: Object.values(HeaderFill),
-    [HeaderAttr.Fill2]: Object.values(HeaderFill),
-    [HeaderAttr.Direction]: Object.values(HeaderDirection),
-    [HeaderAttr.Shapes]: Object.values(HeaderShapes),
-    [HeaderAttr.Scale]: Object.values(HeaderScale),
-    [HeaderAttr.Effect]: Object.values(HeaderEffect),
-    [HeaderAttr.Layer]: Object.values(HeaderLayer),
-    [HeaderAttr.Fit]: Object.values(HeaderFit),
-    [HeaderAttr.Focus]: Object.values(HeaderFocus),
-    [HeaderAttr.Text]: Object.values(HeaderText),
-    [HeaderAttr.BackgroundImageTheme]: Object.values(HeaderImageTheme),
+const choices: Partial<Record<keyof HeaderAttrs, readonly string[]>> = {
+    height: ['s', 'm', 'l'],
+    width: ['s', 'm', 'l', 'full'],
+    align: ['left', 'center', 'right'],
+    vertical: ['top', 'center', 'bottom'],
+    title: ['true', 'false'],
+    description: ['true', 'false'],
+    fill: ['none', ...HEADER_FILLS],
+    shapes: Object.values(HeaderShapes),
+    effect: Object.values(HeaderEffect),
+    'image-enabled': ['true', 'false'],
+    text: ['auto', ...Object.values(Colors)],
+    'bg-image-theme': Object.values(HeaderImageTheme),
 };
-
-const ATTR_ORDER = [
-    HeaderAttr.Format,
-    HeaderAttr.Align,
-    HeaderAttr.Vertical,
-    HeaderAttr.Fixed,
-    HeaderAttr.Title,
-    HeaderAttr.Description,
-    HeaderAttr.Background,
-    HeaderAttr.Fill,
-    HeaderAttr.Fill2,
-    HeaderAttr.Direction,
-    HeaderAttr.Shapes,
-    HeaderAttr.Scale,
-    HeaderAttr.Image,
-    HeaderAttr.ImageEnabled,
-    HeaderAttr.ImageName,
-    HeaderAttr.Layer,
-    HeaderAttr.Fit,
-    HeaderAttr.Focus,
-    HeaderAttr.Effect,
-    HeaderAttr.Text,
-    HeaderAttr.BackgroundImageTheme,
-] as const;
-
 export function normalizeHeaderAttrs(raw: Readonly<Record<string, unknown>> = {}): HeaderAttrs {
     const attrs = {...HeaderDefaults} as HeaderAttrs;
-    for (const name of ATTR_ORDER) {
-        if (name === HeaderAttr.Image || name === HeaderAttr.ImageName) {
-            attrs[name] = typeof raw[name] === 'string' ? raw[name].trim() : '';
-        } else {
-            const value = raw[name];
-            if ((choices[name] as readonly unknown[]).includes(value)) attrs[name] = String(value);
-        }
+    for (const key of Object.keys(HeaderDefaults) as (keyof HeaderAttrs)[]) {
+        const value = raw[key];
+        if (choices[key]) {
+            if (choices[key]?.includes(String(value))) attrs[key] = String(value);
+        } else if (typeof value === 'string') attrs[key] = value.trim();
     }
     return attrs;
 }
-
-export function hasImage(attrs: HeaderAttrs): boolean {
-    return Boolean(attrs[HeaderAttr.Image]);
+export function normalizeHeaderImageAttrs(
+    raw: Readonly<Record<string, unknown>> = {},
+): typeof HeaderImageDefaults {
+    return {
+        src: typeof raw.src === 'string' ? raw.src.trim() : '',
+        alt: typeof raw.alt === 'string' ? raw.alt : '',
+        name: typeof raw.name === 'string' ? raw.name : '',
+        enabled: raw.enabled === false || raw.enabled === 'false' ? 'false' : 'true',
+    };
 }
-
-export function isTiled(attrs: HeaderAttrs): boolean {
-    return hasImage(attrs) && attrs[HeaderAttr.Layer] === HeaderLayer.Tile;
-}
-
-export function isCovered(attrs: HeaderAttrs): boolean {
-    return hasImage(attrs) && attrs[HeaderAttr.Layer] === HeaderLayer.Full;
-}
-
-export function hasShapes(attrs: HeaderAttrs): boolean {
-    return [HeaderBackground.Shapes, HeaderBackground.Mesh].includes(
-        attrs[HeaderAttr.Background] as never,
-    );
-}
-
-export function isAttrUsed(attr: keyof HeaderAttrs, attrs: HeaderAttrs): boolean {
-    switch (attr) {
-        case HeaderAttr.Fill2:
-            return [HeaderBackground.Gradient, HeaderBackground.Mesh].includes(attrs.bg as never);
-        case HeaderAttr.Direction:
-            return attrs.bg === HeaderBackground.Gradient;
-        case HeaderAttr.Shapes:
-            return hasShapes(attrs);
-        case HeaderAttr.Scale:
-            return attrs.bg === HeaderBackground.Pattern || isTiled(attrs);
-        case HeaderAttr.Layer:
-            return hasImage(attrs);
-        case HeaderAttr.Fit:
-        case HeaderAttr.Focus:
-            return hasImage(attrs) && !isTiled(attrs);
-        case HeaderAttr.Effect:
-            return isCovered(attrs);
-        default:
-            return true;
-    }
-}
-
-const quote = (value: string): string => `"${value.replace(/[\\"]/g, '\\$&')}"`;
-
-export function serializeHeaderAttrs(raw: Readonly<Record<string, unknown>>): string {
-    const attrs = normalizeHeaderAttrs(raw);
-    const pairs: string[] = [];
-    for (const name of ATTR_ORDER) {
-        if (!isAttrUsed(name, attrs)) continue;
-        const value = String(attrs[name]);
-        if (!value || (name !== HeaderAttr.Fill && value === HeaderDefaults[name])) continue;
-        pairs.push(`${name}=${quote(value)}`);
-    }
-    return pairs.length ? `{${pairs.join(' ')}}` : '';
-}
-
-const TITLE_ENTITIES: Record<string, string> = {
-    '&': '&amp;',
-    '\\': '&#92;',
-    '[': '&#91;',
-    ']': '&#93;',
-    '\r': '&#13;',
-    '\n': '&#10;',
-};
-
-export function escapeHeaderTitle(value: string): string {
-    return value.replace(/[&\\[\]\r\n]/g, (char) => TITLE_ENTITIES[char]);
-}
+export const hasShapes = (attrs: HeaderAttrs) => attrs.shapes !== 'none';
+export const serializeHeaderAttrs = (raw: Readonly<Record<string, unknown>>) =>
+    serializeAttrs(normalizeHeaderAttrs(raw), HeaderDefaults);

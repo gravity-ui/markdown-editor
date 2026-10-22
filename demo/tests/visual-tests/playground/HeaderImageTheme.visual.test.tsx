@@ -62,11 +62,22 @@ test('should preserve image text themes in sanitized preview and after switching
     await mount(<HeaderDemo markupKey="imageThemes" />, {width: 1100});
     const wysiwyg = page.locator('.g-md-header');
     const expected = await Promise.all([0, 1, 2].map((index) => textColors(wysiwyg.nth(index))));
+    const buttons = (scope: Locator) =>
+        scope.locator('.g-md-button').evaluateAll((nodes) =>
+            nodes.map((node) => ({
+                color: getComputedStyle(node).color,
+                background: getComputedStyle(node).backgroundColor,
+            })),
+        );
+    const expectedButtons = await Promise.all(
+        [0, 1, 2].map((index) => buttons(wysiwyg.nth(index))),
+    );
     await editor.switchPreview('visible');
     const preview = page.getByTestId('demo-md-preview').locator('.g-md-header');
     await expect(preview).toHaveCount(3);
     for (const index of [0, 1, 2]) {
         expect(await textColors(preview.nth(index))).toEqual(expected[index]);
+        expect(await buttons(preview.nth(index))).toEqual(expectedButtons[index]);
     }
     await page.emulateMedia({colorScheme: 'dark'});
     await expect(page.locator('body')).toHaveClass(/g-root_theme_dark/);
@@ -95,9 +106,11 @@ test('should change the image text theme from settings and retain it while the i
     await page.getByRole('option', {name: 'Dark', exact: true}).click();
     await expect(header.locator('.g-md-header__content')).toHaveClass(/g-root_theme_dark/);
     await expect(header).toHaveAttribute('data-bg-image-theme', 'dark');
-    await settings.getByRole('switch', {name: 'Image', exact: true}).press('Space');
+    await settings.getByRole('button', {name: 'Background', exact: true}).click();
+    await page
+        .getByTestId('g-md-header-background')
+        .getByRole('button', {name: 'Remove background image', exact: true})
+        .click();
     await expect(header.locator('.g-md-header__content')).not.toHaveClass(/g-root_theme_dark/);
     await expect(header).toHaveAttribute('data-bg-image-theme', 'dark');
-    await settings.getByRole('switch', {name: 'Image', exact: true}).press('Space');
-    await expect(header.locator('.g-md-header__content')).toHaveClass(/g-root_theme_dark/);
 });
