@@ -3,7 +3,12 @@
 // Размер L из макета: поля 9 × 16 px, радиус 12 px.
 
 .g-md-button {
+    // Рамка выделения узла повторяет форму кнопки.
+    width: fit-content;
+    max-width: 100%;
     margin: 0 0 15px;
+
+    border-radius: 12px;
 
     &__action {
         display: inline-flex;
