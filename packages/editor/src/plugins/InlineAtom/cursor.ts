@@ -5,6 +5,8 @@ import {Decoration, DecorationSet} from 'prosemirror-view';
 
 import {get$Cursor} from '../../utils/selection';
 
+import {trackInlineAtomVerticalNavigation} from './keymap';
+
 // Styles of the fake cursor, shared with the Code extension.
 import '../../extensions/markdown/Code/code.scss';
 
@@ -46,6 +48,7 @@ const createFakeCursor = () => {
 
 export const inlineAtomCursorPlugin = (nodeType: (schema: Schema) => NodeType) =>
     new Plugin({
+        view: trackInlineAtomVerticalNavigation,
         props: {
             attributes: (state): Record<string, string> =>
                 getInlineAtomCursorState(state, nodeType(state.schema))?.active

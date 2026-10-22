@@ -879,14 +879,60 @@ test.describe('Label vertical navigation', () => {
         }
         expect(
             await page.evaluate(() => {
-                const editor = document.querySelector('.ProseMirror');
-                return editor && editor.getBoundingClientRect().top < 0;
+                const content = document.querySelector('.ProseMirror');
+                return content && content.getBoundingClientRect().top < 0;
             }),
         ).toBe(true);
         for (let i = 0; i < 12; i++) {
             await page.keyboard.press('ArrowUp');
             await expect.poll(async () => (await readCursor(page)).pos).toBeLessThan(previous);
             previous = (await readCursor(page)).pos;
+        }
+    });
+
+    test('should preserve the native preferred column when entering an atom-only line @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+    }) => {
+        await mount(
+            <Playground
+                initial={'abcdefghijklmnopqrstuvwxyz\n\n:label[L]\n\nabcdefghijklmnopqrstuvwxyz'}
+                width="100%"
+                style={{width: 812}}
+            />,
+        );
+        await editor.switchMode('wysiwyg');
+        for (const key of ['ArrowDown', 'ArrowUp']) {
+            await page.evaluate((direction) => {
+                const view = (window.mdEditor as unknown as {_wysiwygView: EditorView})
+                    ._wysiwygView;
+                const positions: number[] = [];
+                view.state.doc.descendants((node, pos) => {
+                    if (node.isTextblock) positions.push(pos + 1);
+                });
+                const start =
+                    direction === 'ArrowDown' ? positions[0] : positions[positions.length - 1];
+                const SelectionClass = view.state.selection.constructor as typeof Selection;
+                view.dispatch(
+                    view.state.tr.setSelection(
+                        SelectionClass.near(view.state.doc.resolve(start + 19)),
+                    ),
+                );
+                view.focus();
+            }, key);
+            const initial = await readCursor(page);
+            await page.keyboard.press(key);
+            await expect
+                .poll(async () => Math.abs((await readCursor(page)).top - initial.top))
+                .toBeGreaterThan(20);
+            const short = await readCursor(page);
+            expect(short.left).toBeLessThan(initial.left - 50);
+            await page.keyboard.press(key);
+            await expect
+                .poll(async () => Math.abs((await readCursor(page)).top - short.top))
+                .toBeGreaterThan(20);
+            expect(Math.abs((await readCursor(page)).left - initial.left)).toBeLessThan(9);
         }
     });
 });

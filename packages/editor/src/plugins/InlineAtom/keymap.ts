@@ -65,8 +65,72 @@ const enterCodeAfterAtom =
 // Keep the preferred column when a vertical move crosses a shorter visual line.
 const verticalGoals = new WeakMap<
     EditorView,
-    {selection: EditorState['selection']; doc: EditorState['doc']; left: number}
+    {
+        selection: EditorState['selection'];
+        doc: EditorState['doc'];
+        left: number;
+        managed: boolean;
+        pendingNative: boolean;
+    }
 >();
+
+/** Track the browser's preferred column before native arrows enter a shorter atom-only line. */
+export function trackInlineAtomVerticalNavigation(view: EditorView) {
+    const reset = () => {
+        verticalGoals.delete(view);
+    };
+    const keydown = (event: KeyboardEvent) => {
+        if (
+            !['ArrowUp', 'ArrowDown'].includes(event.key) ||
+            event.shiftKey ||
+            event.altKey ||
+            event.ctrlKey ||
+            event.metaKey
+        ) {
+            reset();
+            return;
+        }
+        const {state} = view;
+        const previous = verticalGoals.get(view);
+        if (previous?.selection === state.selection && previous.doc === state.doc) {
+            previous.pendingNative = true;
+        } else if (get$Cursor(state.selection)) {
+            verticalGoals.set(view, {
+                selection: state.selection,
+                doc: state.doc,
+                left: view.coordsAtPos(state.selection.from).left,
+                managed: false,
+                pendingNative: true,
+            });
+        }
+    };
+    view.dom.addEventListener('keydown', keydown, true);
+    view.dom.addEventListener('mousedown', reset, true);
+    view.dom.addEventListener('blur', reset, true);
+    return {
+        update(currentView: EditorView) {
+            const goal = verticalGoals.get(currentView);
+            if (!goal) return;
+            const {state} = currentView;
+            if (goal.doc !== state.doc) {
+                reset();
+            } else if (goal.selection !== state.selection) {
+                if (goal.pendingNative) {
+                    goal.selection = state.selection;
+                    goal.pendingNative = false;
+                } else {
+                    reset();
+                }
+            }
+        },
+        destroy() {
+            reset();
+            view.dom.removeEventListener('keydown', keydown, true);
+            view.dom.removeEventListener('mousedown', reset, true);
+            view.dom.removeEventListener('blur', reset, true);
+        },
+    };
+}
 
 function visibleVerticalBounds(view: EditorView) {
     const bounds = view.dom.getBoundingClientRect();
@@ -112,16 +176,21 @@ const moveVerticallyAtInlineAtomBoundary =
             previous?.selection === state.selection && previous.doc === state.doc
                 ? previous
                 : undefined;
-        if (!adjacent && !goal) return false;
+        if (!adjacent && !goal?.managed) return false;
         const left = goal?.left ?? view.coordsAtPos($cursor.pos).left;
         const target = findVerticalTarget(view, $cursor.pos, left, dir);
         if (target === undefined) {
-            verticalGoals.delete(view);
             // Native navigation scrolls when the next visual line is outside the scrollport.
             return false;
         }
         const tr = state.tr.setSelection(TextSelection.create(state.doc, target)).scrollIntoView();
-        verticalGoals.set(view, {selection: tr.selection, doc: state.doc, left});
+        verticalGoals.set(view, {
+            selection: tr.selection,
+            doc: state.doc,
+            left,
+            managed: true,
+            pendingNative: false,
+        });
         dispatch?.(tr);
         return true;
     };
