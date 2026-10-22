@@ -1,11 +1,13 @@
 {
   "button": "Метка",
   "placeholder": "Подпись",
-  "default_caption": "Метка",
+  "default_caption": "Задать статус",
   "color_gray": "Серый",
   "color_green": "Зелёный",
   "color_yellow": "Жёлтый",
   "color_blue": "Синий",
   "color_red": "Красный",
-  "color_purple": "Фиолетовый"
+  "color_purple": "Фиолетовый",
+  "color": "Цвет",
+  "existing_labels": "Метки на странице"
 }

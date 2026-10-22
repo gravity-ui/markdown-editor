@@ -4,6 +4,7 @@ import {
     NodeSelection,
     Plugin,
     PluginKey,
+    TextSelection,
     type Transaction,
 } from 'prosemirror-state';
 
@@ -61,12 +62,29 @@ export function createInlineAtomEditing({
                 },
             },
             props: {
+                handleTextInput(view, _from, _to, text) {
+                    const {state} = view;
+                    if (
+                        !isNodeSelection(state.selection) ||
+                        state.selection.node.type !== nodeType(state.schema)
+                    )
+                        return false;
+                    // Arrow navigation selects the atom to show its passive popup. Typing stays outside it.
+                    const pos = state.selection.to;
+                    view.dispatch(
+                        state.tr
+                            .setSelection(TextSelection.create(state.doc, pos))
+                            .insertText(text),
+                    );
+                    return true;
+                },
                 handleDOMEvents: {
                     // ProseMirror selects an atom before its click handlers run, so the click is caught here.
                     mousedown(view, event) {
                         const target = event.target instanceof Element ? event.target : null;
                         const dom = target?.closest(`.${className}`);
-                        if (event.button !== 0 || !dom || !view.dom.contains(dom)) return false;
+                        if (event.button !== 0 || event.shiftKey || !dom || !view.dom.contains(dom))
+                            return false;
 
                         const pos = view.posAtDOM(dom, 0);
                         if (view.state.doc.nodeAt(pos)?.type !== nodeType(view.state.schema)) {

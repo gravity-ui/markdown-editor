@@ -27,8 +27,14 @@ export const getInlineAtomCursorState = (state: EditorState, type: NodeType): Co
     if (!$cursor) return null;
 
     const {nodeBefore, nodeAfter} = $cursor;
-    if (nodeBefore?.type === type) return {active: true, side: -1};
-    if (nodeAfter?.type === type && !hasFakeCursor(nodeBefore)) return {active: true, side: 0};
+    // Code owns both the inside and outside cursor at its boundary.
+    if (
+        nodeBefore?.marks.some((mark) => mark.type.spec.code) ||
+        nodeAfter?.marks.some((mark) => mark.type.spec.code)
+    )
+        return null;
+    if (nodeBefore?.type === type) return {active: true, side: 0};
+    if (nodeAfter?.type === type && !hasFakeCursor(nodeBefore)) return {active: true, side: -1};
     return null;
 };
 

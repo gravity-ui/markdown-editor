@@ -1,7 +1,6 @@
 import type {Command} from 'prosemirror-state';
 
 import type {Action, ExtensionAuto} from '../../../core';
-import {i18n} from '../../../i18n/label';
 import {isNodeSelection} from '../../../utils/selection';
 
 import {LabelSpecs, labelType} from './LabelSpecs';
@@ -9,6 +8,7 @@ import {labelTooltipPlugin} from './LabelTooltip';
 import {insertLabel, labelKeymap} from './commands';
 import {labelCursorPlugin} from './cursor-plugin';
 import {labelEditPlugin} from './edit-state';
+import {existingLabelsPlugin} from './existing-labels-plugin';
 import {removeEmptyLabelPlugin} from './remove-empty-plugin';
 
 export * from './LabelSpecs';
@@ -21,6 +21,7 @@ export const Label: ExtensionAuto = (builder) => {
     builder.use(LabelSpecs);
 
     builder
+        .addPlugin(existingLabelsPlugin)
         .addPlugin(labelEditPlugin)
         .addPlugin(labelTooltipPlugin)
         .addPlugin(labelCursorPlugin)
@@ -29,8 +30,7 @@ export const Label: ExtensionAuto = (builder) => {
 
     builder.addAction(labelAction, ({schema}) => {
         const type = labelType(schema);
-        const cmd: Command = (state, dispatch, view) =>
-            insertLabel(i18n('default_caption'))(state, dispatch, view);
+        const cmd: Command = (state, dispatch, view) => insertLabel('')(state, dispatch, view);
 
         return {
             isActive: (state) =>

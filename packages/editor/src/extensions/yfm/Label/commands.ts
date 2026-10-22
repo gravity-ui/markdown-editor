@@ -40,7 +40,10 @@ export const insertLabel =
             const tr = state.tr.replaceWith(
                 from,
                 to,
-                type.create({[LabelAttr.Text]: text, [LabelAttr.Color]: defaultLabelColor}),
+                type.create({
+                    [LabelAttr.Text]: state.doc.textBetween(from, to) || text,
+                    [LabelAttr.Color]: defaultLabelColor,
+                }),
             );
 
             dispatch(startLabelEdit(tr, from).scrollIntoView());
@@ -67,7 +70,7 @@ export const removeEmptyLabel =
     (pos: number): Command =>
     (state, dispatch) => {
         const node = findLabel(state, pos);
-        if (!node || node.attrs[LabelAttr.Text]) return false;
+        if (!node || node.attrs[LabelAttr.Text].trim()) return false;
 
         if (dispatch) {
             const tr = state.tr.delete(pos, pos + node.nodeSize);

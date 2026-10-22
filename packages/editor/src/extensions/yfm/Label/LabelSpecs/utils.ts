@@ -9,6 +9,8 @@ import {
     legacyLabelColors,
 } from './const';
 
+import './label.scss';
+
 const knownColors: ReadonlySet<string> = new Set(labelColors);
 
 export const normalizeLabelColor = (color: unknown): LabelColor => {
@@ -17,7 +19,7 @@ export const normalizeLabelColor = (color: unknown): LabelColor => {
     return Object.hasOwn(legacyLabelColors, color) ? legacyLabelColors[color] : defaultLabelColor;
 };
 
-export const escapeLabelText = (text: string): string => text.replace(/([\\\]])/g, '\\$1');
+export const escapeLabelText = (text: string): string => text.replace(/([\\[\]])/g, '\\$1');
 
 /** Classes of the UIKit Label, so the label looks the same without React. */
 export const getLabelClassName = (color: LabelColor): string =>

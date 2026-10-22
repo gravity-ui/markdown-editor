@@ -1,3 +1,4 @@
+import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import type {Locator, Page} from '@playwright/test';
 import dd from 'ts-dedent';
 
@@ -211,7 +212,6 @@ test.describe('Label', () => {
         expect(await isEditorFocused(page)).toBe(true);
         await expect(getLabels(page)).toHaveCount(7);
 
-        await editor.press('ArrowRight');
         await editor.press('ArrowLeft');
         await expect(getPopup(page)).toBeVisible();
     });
@@ -238,6 +238,7 @@ test.describe('Label', () => {
         );
 
         await getInput(page).focus();
+        await getInput(page).press('End');
         await page.mouse.move(0, 0);
         await wait.tooltipsHidden();
         await wait.markupPreview(':label[Draft]{color=green}');
@@ -262,6 +263,11 @@ test.describe('Label', () => {
             const swatch = getPopup(page).getByLabel(color, {exact: true});
             await swatch.click();
             await expect(swatch).toHaveAttribute('aria-pressed', 'true');
+            await expect(getLabels(page).first()).toHaveAttribute(
+                'data-color',
+                color.toLowerCase(),
+            );
+            await expect(getInput(page)).toHaveValue('Draft');
             await expectCentered();
         }
 
@@ -277,6 +283,44 @@ test.describe('Label', () => {
         await page.mouse.move(0, 0);
         await wait.tooltipsHidden();
         await expectScreenshot({component: getPopup(page), nameSuffix: 'focused swatch'});
+    });
+
+    test('should align the caption field and the palette inside the popup @wysiwyg', async ({
+        page,
+    }) => {
+        await getLabels(page).first().click();
+        const geometry = await getPopup(page).evaluate((root) => {
+            const field = root.querySelector('.g-text-input');
+            const palette = root.querySelector('.g-md-color-palette');
+            const popup = root.closest('.g-popup');
+            if (!field || !palette || !popup) throw new Error('Missing popup content');
+            const panel = root.getBoundingClientRect(),
+                input = field.getBoundingClientRect(),
+                colors = palette.getBoundingClientRect();
+            const round = (n: number) => Math.round(n);
+            return {
+                width: round(panel.width),
+                fieldWidth: round(input.width),
+                paletteWidth: round(colors.width),
+                left: round(input.left - panel.left),
+                right: round(panel.right - input.right),
+                top: round(input.top - panel.top),
+                gap: round(colors.top - input.bottom),
+                bottom: parseFloat(getComputedStyle(root).paddingBottom),
+                radius: getComputedStyle(popup).borderRadius,
+            };
+        });
+        expect(geometry).toEqual({
+            width: 180,
+            fieldWidth: 156,
+            paletteWidth: 156,
+            left: 12,
+            right: 12,
+            top: 12,
+            gap: 8,
+            bottom: 12,
+            radius: '8px',
+        });
     });
 
     test('should clear the caption and keep the popover for typing @wysiwyg', async ({
@@ -320,7 +364,7 @@ test.describe('Label', () => {
             const point = await page.evaluate(() => {
                 const editor = document.querySelector('[data-qa=g-md-editor-mode]');
                 const popup = document.querySelector('.g-md-label-tooltip');
-                for (let y = window.innerHeight - 2; y > 0; y -= 10) {
+                for (let y = 20; y < document.documentElement.clientHeight - 20; y += 10) {
                     for (let x = 2; x < window.innerWidth; x += 50) {
                         const target = document.elementFromPoint(x, y);
                         if (target && !editor?.contains(target) && !popup?.contains(target)) {
@@ -352,6 +396,183 @@ test.describe('Label', () => {
         await expect(getLabels(page)).toHaveCount(6);
     });
 
+    test('should confirm the caption without splitting the paragraph @wysiwyg', async ({
+        page,
+        editor,
+    }) => {
+        const paragraphs = editor.locators.contenteditable.locator('p');
+        const count = await paragraphs.count();
+        await getLabels(page).first().click();
+        await getInput(page).fill('Ready');
+        await page.keyboard.press('Enter');
+        await expect(getPopup(page)).toBeHidden();
+        await expect(paragraphs).toHaveCount(count);
+        await expect(paragraphs.nth(1)).toHaveText('Before Ready after');
+    });
+
+    test('should return focus after clearing the caption with the keyboard @wysiwyg', async ({
+        page,
+    }) => {
+        await getLabels(page).first().click();
+        await page.keyboard.press('Tab');
+        await page.keyboard.press('Enter');
+        await expect(getInput(page)).toBeFocused();
+        await expect(getInput(page)).toHaveValue('');
+        await page.keyboard.type('Again');
+        await expect(getInput(page)).toHaveValue('Again');
+    });
+
+    test('should refocus the caption on every explicit edit request @wysiwyg', async ({page}) => {
+        await getLabels(page).first().click();
+        await page.keyboard.press('Shift+Tab');
+        await page.keyboard.press('Enter');
+        await expect(getInput(page)).toBeFocused();
+        await getPopup(page).getByLabel('Red', {exact: true}).click();
+        await getLabels(page).first().click();
+        await expect(getInput(page)).toBeFocused();
+    });
+
+    test('should close from a color with one Escape and keep typing outside @wysiwyg', async ({
+        page,
+        editor,
+    }) => {
+        await getLabels(page).first().click();
+        await getPopup(page).getByLabel('Red', {exact: true}).focus();
+        await page.keyboard.press('Escape');
+        await expect(getPopup(page)).toBeHidden();
+        await page.keyboard.type('Q');
+        await expect(getLabels(page)).toHaveCount(7);
+        await expect(editor.locators.contenteditable.locator('p').nth(1)).toHaveText(
+            'Before DraftQ after',
+        );
+    });
+
+    test('should preserve the label when typing from passive navigation @wysiwyg', async ({
+        page,
+        editor,
+    }) => {
+        await placeCursorBeforeLabel(page, editor);
+        await editor.press('ArrowRight');
+        await page.keyboard.type('Q');
+        await expect(getLabels(page)).toHaveCount(7);
+        await expect(editor.locators.contenteditable.locator('p').nth(1)).toHaveText(
+            'Before DraftQ after',
+        );
+    });
+
+    test('should preserve brackets through a mode round trip @wysiwyg', async ({page, editor}) => {
+        await getLabels(page).first().click();
+        await getInput(page).fill('a [b] c');
+        await page.keyboard.press('Escape');
+        await editor.switchMode('markup');
+        await editor.switchMode('wysiwyg');
+        await expect(getLabels(page)).toHaveCount(7);
+        await expect(getLabels(page).first()).toHaveText('a [b] c');
+        await expect(getLabels(page).first()).toHaveAttribute('data-color', 'blue');
+    });
+
+    test('should preserve selected text and focus its inserted caption @wysiwyg', async ({
+        page,
+        editor,
+    }) => {
+        const line = editor.locators.contenteditable.locator('p').first();
+        await line.click();
+        await editor.press('Home');
+        await editor.press('Shift+ArrowRight', 5);
+        await page.getByRole('button', {name: 'Label', exact: true}).click();
+        await expect(getInput(page)).toBeFocused();
+        await expect(getInput(page)).toHaveValue('Plain');
+        await page.keyboard.type('Ready');
+        await expect(getInput(page)).toHaveValue('Ready');
+        await expect(getLabels(page).first()).toHaveText('Ready');
+    });
+
+    test('should refresh page suggestions when another label changes @wysiwyg', async ({page}) => {
+        await getLabels(page).first().click();
+        const suggestions = getPopup(page).getByRole('group', {name: 'Labels on this page'});
+        await expect(
+            suggestions.getByRole('button', {name: 'Green, Green', exact: true}),
+        ).toBeVisible();
+        await page.evaluate(() => {
+            const view = (window.mdEditor as {_wysiwygView?: EditorView} | undefined)?._wysiwygView;
+            if (!view) throw new Error('Missing editor');
+            let target: number | undefined;
+            view.state.doc.descendants((node, pos) => {
+                if (node.type.name === 'label' && node.attrs.text === 'Green') target = pos;
+            });
+            if (target === undefined) throw new Error('Missing source label');
+            view.dispatch(
+                view.state.tr.setNodeMarkup(target, undefined, {text: 'Ready', color: 'red'}),
+            );
+        });
+        await expect(
+            suggestions.getByRole('button', {name: 'Green, Green', exact: true}),
+        ).toHaveCount(0);
+        await expect(
+            suggestions.getByRole('button', {name: 'Ready, Red', exact: true}),
+        ).toBeVisible();
+        await expect(getInput(page)).toHaveValue('Draft');
+        await expect(getInput(page)).toBeFocused();
+    });
+
+    test('should reuse a page label and its color with keyboard navigation @wysiwyg', async ({
+        page,
+    }) => {
+        await getLabels(page).first().click();
+        const suggestions = getPopup(page).getByRole('group', {name: 'Labels on this page'});
+        await expect(suggestions.getByRole('button')).toHaveCount(6);
+        const green = suggestions.getByRole('button', {name: 'Green, Green', exact: true});
+        await green.focus();
+        await page.keyboard.press('ArrowDown');
+        await expect(
+            suggestions.getByRole('button', {name: 'Yellow, Yellow', exact: true}),
+        ).toBeFocused();
+        await page.keyboard.press('ArrowUp');
+        await expect(green).toBeFocused();
+        await page.keyboard.press('Enter');
+        await expect(getPopup(page)).toBeHidden();
+        await expect(getLabels(page).first()).toHaveText('Green');
+        await expect(getLabels(page).first()).toHaveAttribute('data-color', 'green');
+        await expect(getLabels(page).nth(2)).toHaveText('Green');
+        expect(await isEditorFocused(page)).toBe(true);
+    });
+
+    test('should update a long caption live without moving the left aligned popup @wysiwyg', async ({
+        page,
+    }) => {
+        await getLabels(page).first().click();
+        await page.locator('.g-md-label-popup').evaluate(async (element) => {
+            await Promise.all(
+                element.getAnimations({subtree: true}).map((animation) => animation.finished),
+            );
+        });
+        const before = await getPopup(page).boundingBox();
+        if (!before) throw new Error('Missing popup');
+        const options = await getPopup(page)
+            .getByRole('group', {name: 'Labels on this page'})
+            .textContent();
+        for (const text of [
+            'A',
+            'A longer caption with spaces',
+            'A longer caption with spaces '.repeat(8),
+        ]) {
+            await getInput(page).fill(text);
+            await expect(getLabels(page).first()).toHaveText(text);
+            const after = await getPopup(page).boundingBox();
+            if (!after) throw new Error('Missing popup after typing');
+            expect(Math.abs(after.x - before.x)).toBeLessThanOrEqual(1);
+            expect(Math.abs(after.y - before.y)).toBeLessThanOrEqual(1);
+            expect(
+                await getPopup(page)
+                    .getByRole('group', {name: 'Labels on this page'})
+                    .textContent(),
+            ).toBe(options);
+        }
+        await getPopup(page).getByLabel('Red', {exact: true}).click();
+        await expect(getInput(page)).toHaveValue('A longer caption with spaces '.repeat(8));
+        await expect(getLabels(page).first()).toHaveAttribute('data-color', 'red');
+    });
+
     test('should focus the caption of an inserted label @wysiwyg', async ({page, editor}) => {
         await page.getByTestId('g-md-editor-mode').getByText('Plain line').click();
         await editor.press('End');
@@ -360,7 +581,10 @@ test.describe('Label', () => {
 
         await expect(getPopup(page)).toBeVisible();
         await expect(getInput(page)).toBeFocused();
-        await expect(getInput(page)).toHaveValue('Label');
+        await expect(getInput(page)).toHaveValue('');
+        await expect(
+            getLabels(page).locator('.g-label__content[data-placeholder]'),
+        ).toHaveAttribute('data-placeholder', 'Set status');
         await expect(getLabels(page)).toHaveCount(8);
     });
 });
@@ -421,5 +645,70 @@ test.describe('Label, palette of the table', () => {
         expect(label).toEqual(tableSwatch);
         expect(Math.abs(label.offsetX)).toBeLessThanOrEqual(1);
         expect(Math.abs(label.offsetY)).toBeLessThanOrEqual(1);
+    });
+});
+
+test.describe('Label boundary regressions', () => {
+    test('should enter neighboring code without trapping the caret @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+    }) => {
+        await mount(<Playground initial=":label[L]`code` z" width="100%" style={{width: 812}} />);
+        await editor.switchMode('wysiwyg');
+        const content = editor.locators.contenteditable;
+        await content.locator('.g-md-label').click();
+        await page.keyboard.press('Escape');
+        await editor.press('ArrowRight', 2);
+        await expect(content.locator('.fake-cursor')).toHaveCount(0);
+        await page.keyboard.type('Q');
+        await expect(content.locator('code')).toHaveText('cQode');
+        await expect(content.locator('.g-md-label')).toHaveText('L');
+    });
+
+    test('should leave preceding code outside the mark @wysiwyg', async ({mount, page, editor}) => {
+        await mount(<Playground initial="a `code`:label[L] z" width="100%" style={{width: 812}} />);
+        await editor.switchMode('wysiwyg');
+        const content = editor.locators.contenteditable;
+        await content.locator('.g-md-label').click();
+        await page.keyboard.press('Escape');
+        await editor.press('ArrowLeft', 2);
+        await expect(content.locator('.fake-cursor')).toHaveCount(1);
+        await page.keyboard.type('Q');
+        await expect(content.locator('code')).toHaveText('code');
+        await expect(content.locator('p')).toHaveText('a codeQL z');
+    });
+
+    test('should move to the line end and next line from the leading label @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+    }) => {
+        await mount(
+            <Playground
+                initial={':label[Lead] middle tail\n\nNext line'}
+                width="100%"
+                style={{width: 812}}
+            />,
+        );
+        await editor.switchMode('wysiwyg');
+        await editor.locators.contenteditable
+            .locator('p')
+            .first()
+            .click({position: {x: 100, y: 8}});
+        await editor.press('Home');
+        await expect(page.locator('.playground__pm-selection')).toContainText('Cursor: 1');
+        await editor.press('End');
+        await expect(page.locator('.playground__pm-selection')).toContainText('Cursor: 14');
+        for (let i = 0; i < 3; i++) {
+            // Repeated clicks within 500 ms select words/paragraphs in ProseMirror.
+            await editor.press('Control+Home');
+            await expect(page.locator('.playground__pm-selection')).toContainText('Cursor: 1');
+            await editor.press('End');
+            await expect(page.locator('.playground__pm-selection')).toContainText('Cursor: 14');
+            await editor.press('Home');
+            await editor.press('ArrowDown');
+            await expect(page.locator('.playground__pm-selection')).toContainText('Cursor: 16');
+        }
     });
 });

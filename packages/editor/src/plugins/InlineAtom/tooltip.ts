@@ -1,4 +1,4 @@
-import type {EditorState} from 'prosemirror-state';
+import {type EditorState, TextSelection} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
 
 import {type BaseTooltipPluginOptions, BaseTooltipPluginView} from '../BaseTooltip';
@@ -27,6 +27,25 @@ export class InlineAtomTooltipView extends BaseTooltipPluginView {
             // A click or an insertion opens the popover again after Escape or an outside click.
             if (editId !== null) this.manualHidden = false;
             this.render();
+        }
+    }
+    protected startTrackingViewFocus() {
+        this.stopTrackingViewFocus();
+    }
+
+    protected hidePopupManual() {
+        const current = this.currentNode;
+        super.hidePopupManual();
+        if (current) {
+            const {state} = this.view;
+            const node = state.doc.nodeAt(current.pos);
+            if (node?.type === this.nodeType) {
+                this.view.dispatch(
+                    state.tr.setSelection(
+                        TextSelection.near(state.doc.resolve(current.pos + node.nodeSize)),
+                    ),
+                );
+            }
         }
     }
 }

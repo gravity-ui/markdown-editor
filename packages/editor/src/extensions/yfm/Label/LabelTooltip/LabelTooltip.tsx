@@ -1,6 +1,6 @@
 import {useEffect, useRef} from 'react';
 
-import {TextInput} from '@gravity-ui/uikit';
+import {Button, Label, TextInput} from '@gravity-ui/uikit';
 
 import type {Node} from '#pm/model';
 import {TextSelection} from '#pm/state';
@@ -9,8 +9,9 @@ import {cn} from 'src/classname';
 import {i18n} from 'src/i18n/label';
 import {ColorPalette} from 'src/react-utils/components/ColorPalette';
 
-import {LabelAttr, labelColors, normalizeLabelColor} from '../LabelSpecs';
+import {LabelAttr, labelColors, labelThemes, normalizeLabelColor} from '../LabelSpecs';
 import {updateLabel} from '../commands';
+import type {ExistingLabel} from '../existing-labels-plugin';
 
 import './LabelTooltip.scss';
 
@@ -21,18 +22,28 @@ export type LabelTooltipProps = {
     pos: number;
     view: EditorView;
     /** The label is opened by a click or an insertion, so the caption field takes the focus. */
-    edited: boolean;
+    editId: number | null;
+    suggestions: readonly ExistingLabel[];
 };
 
-export function LabelTooltip({node, pos, view, edited}: LabelTooltipProps) {
+export function LabelTooltip({node, pos, view, editId, suggestions}: LabelTooltipProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const text: string = node.attrs[LabelAttr.Text];
     const color = normalizeLabelColor(node.attrs[LabelAttr.Color]);
 
-    // `autoFocus` covers a popover opened for editing, the effect covers `Enter` on an open one.
+    // Let toolbar popovers finish restoring editor focus before focusing the caption.
     useEffect(() => {
-        if (edited) inputRef.current?.focus();
-    }, [edited]);
+        let active = true;
+        queueMicrotask(() => {
+            if (active && editId !== null) {
+                inputRef.current?.focus({preventScroll: true});
+                inputRef.current?.select();
+            }
+        });
+        return () => {
+            active = false;
+        };
+    }, [editId]);
 
     const update = (attrs: Parameters<typeof updateLabel>[1]) =>
         updateLabel(pos, attrs)(view.state, view.dispatch);
@@ -53,25 +64,92 @@ export function LabelTooltip({node, pos, view, edited}: LabelTooltipProps) {
     }));
 
     return (
-        <div className={b()}>
+        <div
+            className={b()}
+            role="group"
+            aria-label={i18n('button')}
+            onKeyDownCapture={(event) => {
+                const controls = event.currentTarget.querySelectorAll(
+                    'input, button:not(:disabled)',
+                );
+                const leavesPalette =
+                    event.key === 'Tab' &&
+                    !event.shiftKey &&
+                    event.target === controls[controls.length - 1];
+                if (event.key === 'Escape' || leavesPalette) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    close();
+                }
+            }}
+        >
             <TextInput
+                className={b('input')}
                 controlRef={inputRef}
-                autoFocus={edited}
+                controlProps={{'aria-label': i18n('placeholder')}}
                 hasClear
                 value={text}
                 placeholder={i18n('placeholder')}
-                onUpdate={(value) => update({[LabelAttr.Text]: value})}
+                onUpdate={(value) => {
+                    update({[LabelAttr.Text]: value});
+                    if (!value) inputRef.current?.focus({preventScroll: true});
+                }}
                 onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === 'Escape') close();
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        close();
+                    }
                 }}
             />
             <ColorPalette
                 className={b('colors')}
+                ariaLabel={i18n('color')}
                 items={items}
                 value={color}
                 columns={items.length}
                 onSelect={(value) => update({[LabelAttr.Color]: value})}
             />
+            {suggestions.length > 0 && (
+                <div className={b('suggestions')} role="group" aria-label={i18n('existing_labels')}>
+                    {suggestions.map((suggestion) => (
+                        <Button
+                            key={JSON.stringify([suggestion.text, suggestion.color])}
+                            className={b('suggestion')}
+                            view="flat"
+                            size="m"
+                            width="max"
+                            title={suggestion.text}
+                            aria-label={`${suggestion.text}, ${i18n(`color_${suggestion.color}`)}`}
+                            onClick={() => {
+                                update({
+                                    [LabelAttr.Text]: suggestion.text,
+                                    [LabelAttr.Color]: suggestion.color,
+                                });
+                                close();
+                            }}
+                            onKeyDown={(event) => {
+                                if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                                    event.preventDefault();
+                                    const buttons =
+                                        event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>(
+                                            'button',
+                                        );
+                                    if (!buttons?.length) return;
+                                    const index = Array.from(buttons).indexOf(event.currentTarget);
+                                    const direction = event.key === 'ArrowDown' ? 1 : -1;
+                                    buttons[
+                                        (index + direction + buttons.length) % buttons.length
+                                    ].focus();
+                                }
+                            }}
+                        >
+                            <Label theme={labelThemes[suggestion.color]} size="xs">
+                                {suggestion.text}
+                            </Label>
+                        </Button>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

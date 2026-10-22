@@ -42,6 +42,7 @@ export const LabelSpecs: ExtensionAuto = (builder) => {
         .addNodeSerializerSpec(labelNodeName, () => (state, node) => {
             const color = normalizeLabelColor(node.attrs[LabelAttr.Color]);
             const text = escapeLabelText(node.attrs[LabelAttr.Text]);
+            if (!text.trim()) return;
             const attrs = color === defaultLabelColor ? '' : `{${LabelAttr.Color}=${color}}`;
 
             state.write(`:${labelDirectiveName}[${text}]${attrs}`);

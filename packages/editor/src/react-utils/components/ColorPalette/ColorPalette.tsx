@@ -18,6 +18,7 @@ export type ColorPaletteProps<T extends string> = {
     value: T;
     columns: number;
     className?: string;
+    ariaLabel?: string;
     onSelect: (value: T) => void;
 };
 
@@ -26,11 +27,14 @@ export function ColorPalette<T extends string>({
     value,
     columns,
     className,
+    ariaLabel,
     onSelect,
 }: ColorPaletteProps<T>) {
     return (
         <div
             className={b(null, className)}
+            role={ariaLabel ? 'group' : undefined}
+            aria-label={ariaLabel}
             style={{gridTemplateColumns: `repeat(${columns}, auto)`}}
         >
             {items.map((item, index) => {
