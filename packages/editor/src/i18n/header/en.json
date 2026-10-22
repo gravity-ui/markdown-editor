@@ -26,6 +26,7 @@
   "image_add": "Upload image",
   "image_remove": "Remove background image",
   "image_error": "Could not upload image. Use an image up to 2 MB.",
+  "image_url_error": "Enter a valid image URL.",
   "image_size": "Up to 2 MB",
   "image": "Image",
   "file": "File",

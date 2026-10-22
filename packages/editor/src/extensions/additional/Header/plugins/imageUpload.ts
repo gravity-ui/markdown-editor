@@ -18,7 +18,15 @@ export const headerImageUploadPlugin = () =>
                 const next = new Map<symbol, PendingUpload>();
                 for (const [id, upload] of previous) {
                     const pos = mapHeaderPos(tr, upload.pos);
-                    if (pos !== null) next.set(id, {...upload, pos});
+                    if (pos === null) continue;
+                    const before = headerAt(tr.before, upload.pos);
+                    const after = headerAt(tr.doc, pos);
+                    if (!before || !after) continue;
+                    const unchanged =
+                        upload.target === 'background'
+                            ? before.attrs.image === after.attrs.image
+                            : before.child(3).eq(after.child(3));
+                    if (unchanged) next.set(id, {...upload, pos});
                 }
                 const meta = tr.getMeta(uploadKey) as
                     | {id: symbol; pos?: number; target?: UploadTarget}
@@ -53,15 +61,19 @@ export async function uploadHeaderImage(
     pos: number,
     handler: FileUploadHandler,
     target: UploadTarget = 'background',
+    file?: File,
 ): Promise<'done' | 'cancelled' | 'failed'> {
     const id = Symbol('upload');
     view.dispatch(view.state.tr.setMeta(uploadKey, {id, pos, target}));
     try {
-        const file = await pickImageFile();
-        if (!file) return 'cancelled';
-        if (file.size > 2 * 1024 * 1024 || (file.type && !file.type.startsWith('image/')))
+        const selectedFile = file ?? (await pickImageFile());
+        if (!selectedFile) return 'cancelled';
+        if (
+            selectedFile.size > 2 * 1024 * 1024 ||
+            (selectedFile.type && !selectedFile.type.startsWith('image/'))
+        )
             return 'failed';
-        const result = await handler(file);
+        const result = await handler(selectedFile);
         if (view.isDestroyed) return 'cancelled';
         const currentPos = uploadKey.getState(view.state)?.get(id)?.pos;
         if (
@@ -73,13 +85,13 @@ export async function uploadHeaderImage(
         if (target === 'background')
             setHeaderAttrs(currentPos, {
                 image: result.url,
-                'image-name': result.name ?? file.name,
+                'image-name': result.name ?? selectedFile.name,
                 'image-enabled': 'true',
             })(view.state, view.dispatch);
         else
             setHeaderMedia(currentPos, {
                 src: result.url,
-                name: result.name ?? file.name,
+                name: result.name ?? selectedFile.name,
                 enabled: 'true',
             })(view.state, view.dispatch);
         return 'done';

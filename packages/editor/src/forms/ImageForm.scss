@@ -1,4 +1,9 @@
 .g-md-image-form {
+    &_variant_source {
+        box-sizing: border-box;
+        width: 344px;
+        max-width: calc(100vw - 32px);
+    }
     &__input {
         &_type_width,
         &_type_height {

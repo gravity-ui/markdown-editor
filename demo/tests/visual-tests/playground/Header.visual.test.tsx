@@ -1,6 +1,19 @@
-import {expect, test} from 'playwright/core';
+import {test as base, expect} from 'playwright/core';
 
 import {HeaderDemo} from '../../../src/stories/examples/header/Header';
+
+const test = base.extend({
+    expectScreenshot: async ({expectScreenshot}, use) => {
+        await use((params = {}) =>
+            expectScreenshot({
+                ...params,
+                // Inline caret styles make ProseMirror rebuild the cover and its controls.
+                caret: 'initial',
+                style: '.playground__pm-selection {visibility:hidden;} input, textarea, [contenteditable] {caret-color:transparent !important;}',
+            }),
+        );
+    },
+});
 
 for (const theme of ['light', 'dark'] as const) {
     test(`should render the cover and settings in the ${theme} theme`, async ({
@@ -231,8 +244,13 @@ test('should edit empty title and description directly', async ({
 
 test('should upload a content image independently of the background', async ({mount, page}) => {
     await mount(<HeaderDemo markupKey="empty" />, {width: 1100});
-    const chooserPromise = page.waitForEvent('filechooser');
     await page.getByRole('button', {name: 'Upload content image', exact: true}).click();
+    const imageForm = page.locator('.g-md-header-image-popup');
+    await expect(
+        imageForm.getByRole('tab', {name: 'Upload from device', exact: true}),
+    ).toBeVisible();
+    const chooserPromise = page.waitForEvent('filechooser');
+    await imageForm.getByRole('button', {name: 'Upload', exact: true}).click();
     await (await chooserPromise).setFiles('tests/visual-tests/public/assets/test-image.jpg');
     const header = page.locator('.g-md-header');
     await expect(header.locator('.g-md-header__media img')).toBeVisible();
@@ -271,6 +289,103 @@ test('should upload a content image independently of the background', async ({mo
     const imageBox = await header.locator('.g-md-header__media img').boundingBox();
     expect(imageBox!.x).toBeCloseTo(mediaBox!.x, 0);
     expect(imageBox!.y).toBeCloseTo(mediaBox!.y, 0);
+});
+
+test('should add an image by link and keep the loaded photo passive', async ({
+    mount,
+    page,
+    editor,
+    expectScreenshot,
+}) => {
+    await mount(<HeaderDemo markupKey="empty" />, {width: 1100});
+    await page.getByRole('button', {name: 'Upload content image', exact: true}).click();
+    const imageForm = page.locator('.g-md-header-image-popup');
+    await expectScreenshot({component: imageForm, nameSuffix: 'upload'});
+    await imageForm.getByRole('tab', {name: 'Add by link', exact: true}).click();
+    await expect(imageForm.getByRole('textbox')).toHaveCount(1);
+    await expectScreenshot({component: imageForm, nameSuffix: 'link'});
+    const link = imageForm.getByRole('textbox', {name: 'Link', exact: true});
+    await link.fill(['javascript', 'alert(1)'].join(':'));
+    await imageForm.getByRole('button', {name: 'Submit', exact: true}).click();
+    await expect(page.getByText('Enter a valid image URL.', {exact: true})).toBeVisible();
+    await expect(imageForm).toBeVisible();
+    await link.fill('/assets/test-image.jpg');
+    await imageForm.getByRole('button', {name: 'Submit', exact: true}).click();
+    const media = page.locator('.g-md-header__media');
+    const image = media.locator('img');
+    await expect(image).toHaveAttribute('src', '/assets/test-image.jpg');
+    await expect(imageForm).toHaveCount(0);
+    await page.mouse.move(0, 0);
+    const remove = media.getByRole('button', {name: 'Remove content image', exact: true});
+    await expect(remove).toBeVisible();
+    await expect(media.getByRole('button')).toHaveCount(1);
+    let fileChoosers = 0;
+    page.on('filechooser', () => {
+        fileChoosers++;
+    });
+    await image.hover();
+    await image.click();
+    await expect(imageForm).toHaveCount(0);
+    expect(fileChoosers).toBe(0);
+    await expect(remove).toBeVisible();
+    await editor.switchMode('markup');
+    await expect(page.locator('.cm-content')).toContainText(
+        ':::header-image{src="/assets/test-image.jpg"',
+    );
+    await editor.switchMode('wysiwyg');
+    await expect(image).toHaveAttribute('src', '/assets/test-image.jpg');
+});
+
+test('should remove only the content image and restore it with undo', async ({
+    mount,
+    page,
+    expectScreenshot,
+}) => {
+    await mount(<HeaderDemo markupKey="designSettings" />, {width: 1100});
+    const header = page.locator('.g-md-header');
+    const media = header.locator('.g-md-header__media');
+    const src = await media.locator('img').getAttribute('src');
+    const background = await header.getAttribute('data-image');
+    await page.mouse.move(0, 0);
+    const remove = media.getByRole('button', {name: 'Remove content image', exact: true});
+    await expect(remove).toBeVisible();
+    await expectScreenshot({component: media});
+    await remove.click();
+    await expect(media.locator('img')).toHaveCount(0);
+    await expect(header).toHaveAttribute('data-image', background!);
+    await expect(
+        media.getByRole('button', {name: 'Upload content image', exact: true}),
+    ).toBeVisible();
+    await expect(page.locator('.g-md-header-image-popup')).toHaveCount(0);
+    await page.keyboard.press('Control+z');
+    await expect(media.locator('img')).toHaveAttribute('src', src!);
+    await expect(remove).toBeVisible();
+});
+
+test('should reuse the image source form from the settings panel', async ({mount, page}) => {
+    await mount(<HeaderDemo markupKey="design" />, {width: 1100});
+    await page.locator('.g-md-header').hover();
+    await page
+        .getByTestId('g-md-toolbar-header')
+        .getByRole('button', {name: 'Block settings'})
+        .click();
+    const settings = page.getByTestId('g-md-header-settings');
+    await settings.locator('.g-md-header-settings__file').getByRole('button').first().click();
+    const imageForm = page.locator('.g-md-header-image-popup');
+    await expect(
+        imageForm.getByRole('tab', {name: 'Upload from device', exact: true}),
+    ).toBeVisible();
+    await imageForm.getByRole('tab', {name: 'Add by link', exact: true}).click();
+    await imageForm
+        .getByRole('textbox', {name: 'Link', exact: true})
+        .fill('/assets/test-image.jpg');
+    await imageForm.getByRole('button', {name: 'Submit', exact: true}).click();
+    await expect(imageForm).toHaveCount(0);
+    await expect(settings).toBeVisible();
+    await expect(page.locator('.g-md-header__media img')).toHaveAttribute(
+        'src',
+        '/assets/test-image.jpg',
+    );
 });
 
 test('should insert a cover from the main toolbar', async ({mount, page}) => {

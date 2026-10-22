@@ -36,6 +36,7 @@ import type {FileUploadHandler} from 'src/utils/upload';
 
 import {ButtonFields} from '../../../Button/ButtonFields';
 import {type ButtonAttrs, normalizeButtonAttrs} from '../../../Button/ButtonSpecs';
+import {HeaderImagePopup} from '../../HeaderImagePopup';
 import {type HeaderAttrs, normalizeHeaderAttrs} from '../../HeaderSpecs';
 import {safeImageUrl} from '../../HeaderSpecs/dom';
 import {
@@ -241,6 +242,7 @@ export function HeaderSettings({
     fileUploadHandler?: FileUploadHandler;
 }) {
     const toaster = useToaster();
+    const [mediaAnchor, setMediaAnchor] = useState<HTMLElement | null>(null);
     const [, refresh] = useReducer((value: number) => value + 1, 0);
     const current = headerAt(editorView.state.doc, pos) ?? node;
     const attrs = normalizeHeaderAttrs(current.attrs);
@@ -491,10 +493,11 @@ export function HeaderSettings({
                                 <div className={b('file')}>
                                     <Button
                                         width="max"
-                                        disabled={!fileUploadHandler}
-                                        onClick={() => upload('media')}
+                                        onClick={(event) => setMediaAnchor(event.currentTarget)}
                                     >
-                                        {media.attrs.name || i18n('image_add')}
+                                        {media.attrs.name ||
+                                            media.attrs.src?.split('/').pop() ||
+                                            i18n('image_add')}
                                     </Button>
                                     {media.attrs.src && (
                                         <Button
@@ -506,6 +509,18 @@ export function HeaderSettings({
                                         </Button>
                                     )}
                                 </div>,
+                            )}
+                            {mediaAnchor && (
+                                <HeaderImagePopup
+                                    editorView={editorView}
+                                    getHeaderPos={() => pos}
+                                    fileUploadHandler={fileUploadHandler}
+                                    anchorElement={mediaAnchor}
+                                    onClose={() => {
+                                        setMediaAnchor(null);
+                                        mediaAnchor.focus();
+                                    }}
+                                />
                             )}
                             {media.attrs.src &&
                                 row(

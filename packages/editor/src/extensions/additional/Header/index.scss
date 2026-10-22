@@ -312,13 +312,11 @@
     color: var(--g-color-text-hint);
 }
 
-.g-md-header__media:has(img) .g-md-header__media-placeholder {
-    opacity: 0;
-}
-
-.g-md-header__media:has(img):hover .g-md-header__media-placeholder,
-.g-md-header__media:has(img) .g-md-header__media-placeholder:focus-visible {
-    opacity: 1;
+.g-md-header .g-md-header__media-remove {
+    position: absolute;
+    z-index: 1;
+    inset-block-start: 8px;
+    inset-inline-end: 8px;
 }
 
 .g-md-header .g-md-header__media-placeholder {

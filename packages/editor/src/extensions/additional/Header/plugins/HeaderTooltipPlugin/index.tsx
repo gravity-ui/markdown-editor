@@ -109,7 +109,7 @@ class HeaderHoverView {
             target &&
             (this.current?.dom.contains(target) ||
                 target.closest(
-                    '.g-md-header-toolbar, .g-md-header-title-toolbar, .g-md-header-settings, .g-md-button-settings',
+                    '.g-md-header-toolbar, .g-md-header-title-toolbar, .g-md-header-settings, .g-md-header-image-popup, .g-md-button-settings',
                 )),
         );
     }

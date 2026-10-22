@@ -5,7 +5,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest';
 import {ExtensionsManager} from '../../../../core';
 import {BaseSchemaSpecs} from '../../../base/specs';
 import {HeaderSpecs} from '../HeaderSpecs';
-import {setHeaderAttrs} from '../commands';
+import {setHeaderAttrs, setHeaderMedia} from '../commands';
 
 import {headerImageUploadPlugin, uploadHeaderImage} from './imageUpload';
 
@@ -40,6 +40,38 @@ afterEach(() => {
 });
 
 describe('Header uploads', () => {
+    it('should upload a file selected in the shared form without opening another chooser', async () => {
+        const click = vi.spyOn(HTMLInputElement.prototype, 'click');
+        const view = createView();
+        const file = new File(['image'], 'selected.png', {type: 'image/png'});
+        const handler = vi.fn(async () => ({url: '/selected.png'}));
+        expect(await uploadHeaderImage(view, 0, handler, 'media', file)).toBe('done');
+        expect(click).not.toHaveBeenCalled();
+        expect(handler).toHaveBeenCalledWith(file);
+        expect(view.state.doc.firstChild?.child(3).attrs).toMatchObject({
+            src: '/selected.png',
+            name: 'selected.png',
+        });
+    });
+    it('should discard an upload after its content image is removed', async () => {
+        const view = createView();
+        setHeaderMedia(0, {src: '/existing.png'})(view.state, view.dispatch);
+        let complete: (value: {url: string}) => void = () => {};
+        const upload = uploadHeaderImage(
+            view,
+            0,
+            () =>
+                new Promise((resolve) => {
+                    complete = resolve;
+                }),
+            'media',
+            new File(['image'], 'new.png', {type: 'image/png'}),
+        );
+        setHeaderMedia(0, {src: '', name: ''})(view.state, view.dispatch);
+        complete({url: '/new.png'});
+        expect(await upload).toBe('failed');
+        expect(view.state.doc.firstChild?.child(3).attrs.src).toBe('');
+    });
     it('should follow the original cover through document and attribute edits', async () => {
         chooseFile();
         const view = createView();

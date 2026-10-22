@@ -1,5 +1,7 @@
-import {Picture} from '@gravity-ui/icons';
-import {Icon, Portal, useToaster} from '@gravity-ui/uikit';
+import {useState} from 'react';
+
+import {Picture, TrashBin} from '@gravity-ui/icons';
+import {Button, Icon, Portal} from '@gravity-ui/uikit';
 
 import type {Node} from '#pm/model';
 import type {EditorView, NodeView} from '#pm/view';
@@ -7,36 +9,73 @@ import {getReactRendererFromState} from 'src/extensions/behavior/ReactRenderer';
 import {i18n} from 'src/i18n/header';
 import type {FileUploadHandler} from 'src/utils/upload';
 
+import {HeaderImagePopup} from './HeaderImagePopup';
 import {mediaDomAttrs} from './HeaderSpecs/dom';
-import {uploadHeaderImage} from './plugins/imageUpload';
+import {setHeaderMedia} from './commands';
 
-function UploadControl({
-    upload,
-    disabled,
-    hasImage,
+function ImageControls({
+    node,
+    editorView,
+    getHeaderPos,
+    fileUploadHandler,
 }: {
-    upload: () => Promise<'done' | 'cancelled' | 'failed'>;
-    disabled: boolean;
-    hasImage: boolean;
+    node: Node;
+    editorView: EditorView;
+    getHeaderPos: () => number | undefined;
+    fileUploadHandler?: FileUploadHandler;
 }) {
-    const toaster = useToaster();
+    const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+    const close = () => {
+        setAnchor(null);
+        editorView.focus();
+    };
+    const src = mediaDomAttrs(node.attrs)['data-src'];
     return (
-        <button
-            type="button"
-            className="g-md-header__media-placeholder"
-            aria-label={i18n('media_upload')}
-            disabled={disabled}
-            onClick={async () => {
-                if ((await upload()) === 'failed')
-                    toaster.add({
-                        name: 'header-media-upload',
-                        theme: 'danger',
-                        title: i18n('image_error'),
-                    });
-            }}
-        >
-            <Icon data={Picture} size={hasImage ? 24 : 118} />
-        </button>
+        <>
+            {src ? (
+                <>
+                    <img className="g-md-header__image" src={src} alt={node.attrs.alt} />
+                    <Button
+                        className="g-md-header__media-remove"
+                        view="normal"
+                        size="m"
+                        aria-label={i18n('media_remove')}
+                        disabled={!editorView.editable}
+                        onClick={() => {
+                            const pos = getHeaderPos();
+                            if (pos === undefined) return;
+                            setHeaderMedia(pos, {src: '', name: ''})(
+                                editorView.state,
+                                editorView.dispatch,
+                            );
+                            editorView.focus();
+                        }}
+                    >
+                        <Icon data={TrashBin} size={16} />
+                    </Button>
+                </>
+            ) : (
+                <button
+                    type="button"
+                    className="g-md-header__media-placeholder"
+                    aria-label={i18n('media_upload')}
+                    aria-expanded={Boolean(anchor)}
+                    disabled={!editorView.editable}
+                    onClick={(event) => setAnchor(event.currentTarget)}
+                >
+                    <Icon data={Picture} size={118} />
+                </button>
+            )}
+            {anchor && (
+                <HeaderImagePopup
+                    editorView={editorView}
+                    getHeaderPos={getHeaderPos}
+                    fileUploadHandler={fileUploadHandler}
+                    anchorElement={anchor}
+                    onClose={close}
+                />
+            )}
+        </>
     );
 }
 
@@ -52,28 +91,22 @@ export class HeaderImageView implements NodeView {
     ) {
         this.node = node;
         this.dom.contentEditable = 'false';
-        const upload = async () => {
+        const getHeaderPos = () => {
             const pos = getPos();
-            if (pos === undefined || !handler) return 'cancelled' as const;
+            if (pos === undefined || view.isDestroyed) return undefined;
             const $pos = view.state.doc.resolve(pos);
-            return uploadHeaderImage(view, $pos.before($pos.depth), handler, 'media');
+            return $pos.before($pos.depth);
         };
         this.renderItem = getReactRendererFromState(view.state).createItem('header-media', () => {
             const attrs = mediaDomAttrs(this.node.attrs);
             for (const [key, value] of Object.entries(attrs)) this.dom.setAttribute(key, value);
             return (
                 <Portal container={this.dom}>
-                    {attrs['data-src'] && (
-                        <img
-                            className="g-md-header__image"
-                            src={attrs['data-src']}
-                            alt={this.node.attrs.alt}
-                        />
-                    )}
-                    <UploadControl
-                        upload={upload}
-                        disabled={!handler}
-                        hasImage={Boolean(attrs['data-src'])}
+                    <ImageControls
+                        node={this.node}
+                        editorView={view}
+                        getHeaderPos={getHeaderPos}
+                        fileUploadHandler={handler}
                     />
                 </Portal>
             );
