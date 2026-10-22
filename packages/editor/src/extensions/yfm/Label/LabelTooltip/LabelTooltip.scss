@@ -46,11 +46,21 @@ $swatch-colors: (
     }
 
     &__suggestion {
+        --g-button-background-color-hover: transparent;
+        --g-button-border-width: 1px;
+        --g-button-border-color: transparent;
+        --g-button-focus-outline-offset: -2px;
         flex-shrink: 0;
         justify-content: flex-start;
+        align-self: flex-start;
 
         min-width: 0;
+        max-width: 100%;
         padding-inline: 4px;
+
+        &:hover {
+            --g-button-border-color: var(--g-color-line-generic);
+        }
 
         .g-button__text {
             min-width: 0;

@@ -1,6 +1,7 @@
 import {chainCommands} from 'prosemirror-commands';
 import type {NodeType, Schema} from 'prosemirror-model';
 import {type Command, type EditorState, NodeSelection, TextSelection} from 'prosemirror-state';
+import type {EditorView} from 'prosemirror-view';
 
 import type {Keymap} from '../../core';
 import {get$Cursor, isNodeSelection} from '../../utils/selection';
@@ -61,42 +62,87 @@ const enterCodeAfterAtom =
         return true;
     };
 
-/** Preserve line navigation when Chrome anchors its DOM caret before a non-editable atom. */
-const moveAtInlineAtomBoundary =
-    (nodeType: GetNodeType, dir: 'up' | 'down' | 'home' | 'end'): Command =>
+// Keep the preferred column when a vertical move crosses a shorter visual line.
+const verticalGoals = new WeakMap<
+    EditorView,
+    {selection: EditorState['selection']; doc: EditorState['doc']; left: number}
+>();
+
+function visibleVerticalBounds(view: EditorView) {
+    const bounds = view.dom.getBoundingClientRect();
+    let top = Math.max(bounds.top, 0);
+    let bottom = Math.min(bounds.bottom, view.dom.ownerDocument.documentElement.clientHeight);
+    for (let parent = view.dom.parentElement; parent; parent = parent.parentElement) {
+        if (/(auto|scroll|hidden|clip)/.test(getComputedStyle(parent).overflowY)) {
+            const rect = parent.getBoundingClientRect();
+            top = Math.max(top, rect.top + parent.clientTop);
+            bottom = Math.min(bottom, rect.top + parent.clientTop + parent.clientHeight);
+        }
+    }
+    return {top, bottom};
+}
+
+function findVerticalTarget(view: EditorView, pos: number, left: number, dir: 'up' | 'down') {
+    const current = view.coordsAtPos(pos);
+    const bounds = visibleVerticalBounds(view);
+    const step = dir === 'down' ? 1 : -1;
+    let top = dir === 'down' ? current.bottom + 1 : current.top - 1;
+    for (; top >= bounds.top && top <= bounds.bottom; top += step * 4) {
+        const found = view.posAtCoords({left, top});
+        // A hit in a block margin resolves before the textblock, not to a caret on another line.
+        if (!found || !view.state.doc.resolve(found.pos).parent.inlineContent) continue;
+        const coords = view.coordsAtPos(found.pos);
+        if (dir === 'down' ? coords.top >= current.bottom : coords.bottom <= current.top) {
+            return found.pos;
+        }
+    }
+    return undefined;
+}
+
+/** Chrome anchors its native caret before the non-editable atom at either fake-cursor edge. */
+const moveVerticallyAtInlineAtomBoundary =
+    (nodeType: GetNodeType, dir: 'up' | 'down'): Command =>
     (state, dispatch, view) => {
+        const $cursor = get$Cursor(state.selection);
+        if (!view || !$cursor) return false;
+        const type = nodeType(state.schema);
+        const adjacent = $cursor.nodeBefore?.type === type || $cursor.nodeAfter?.type === type;
+        const previous = verticalGoals.get(view);
+        const goal =
+            previous?.selection === state.selection && previous.doc === state.doc
+                ? previous
+                : undefined;
+        if (!adjacent && !goal) return false;
+        const left = goal?.left ?? view.coordsAtPos($cursor.pos).left;
+        const target = findVerticalTarget(view, $cursor.pos, left, dir);
+        if (target === undefined) {
+            verticalGoals.delete(view);
+            // Native navigation scrolls when the next visual line is outside the scrollport.
+            return false;
+        }
+        const tr = state.tr.setSelection(TextSelection.create(state.doc, target)).scrollIntoView();
+        verticalGoals.set(view, {selection: tr.selection, doc: state.doc, left});
+        dispatch?.(tr);
+        return true;
+    };
+
+const moveToLineEdgeAtInlineAtomBoundary =
+    (nodeType: GetNodeType, dir: 'home' | 'end'): Command =>
+    (state, dispatch, view) => {
+        if (view) verticalGoals.delete(view);
         const $cursor = get$Cursor(state.selection);
         const type = nodeType(state.schema);
         if (!view || !$cursor) return false;
         const adjacent = $cursor.nodeBefore?.type === type || $cursor.nodeAfter?.type === type;
-        // Commit Home synchronously in a line with an atom, before the next vertical key arrives.
+        // Commit Home synchronously before the next vertical key arrives.
         const homeInAtomBlock =
             dir === 'home' && $cursor.parent.content.content.some((node) => node.type === type);
         if (!adjacent && !homeInAtomBlock) return false;
         const current = view.coordsAtPos($cursor.pos);
-        const bounds = view.dom.getBoundingClientRect();
-        let target: number | undefined;
-        if (dir === 'end' || dir === 'home') {
-            const block = view.nodeDOM($cursor.before()) as HTMLElement | null;
-            const blockBounds = block?.getBoundingClientRect() ?? bounds;
-            const left = dir === 'end' ? blockBounds.right - 1 : blockBounds.left + 1;
-            target = view.posAtCoords({
-                left,
-                top: (current.top + current.bottom) / 2,
-            })?.pos;
-        } else {
-            const step = dir === 'down' ? 1 : -1;
-            let top = dir === 'down' ? current.bottom + 1 : current.top - 1;
-            for (; top >= bounds.top && top <= bounds.bottom; top += step * 4) {
-                const found = view.posAtCoords({left: current.left, top});
-                if (!found) continue;
-                const coords = view.coordsAtPos(found.pos);
-                if (dir === 'down' ? coords.top >= current.bottom : coords.bottom <= current.top) {
-                    target = found.pos;
-                    break;
-                }
-            }
-        }
+        const block = view.nodeDOM($cursor.before()) as HTMLElement | null;
+        const bounds = block?.getBoundingClientRect() ?? view.dom.getBoundingClientRect();
+        const left = dir === 'end' ? bounds.right - 1 : bounds.left + 1;
+        const target = view.posAtCoords({left, top: (current.top + current.bottom) / 2})?.pos;
         if (target === undefined) return false;
         dispatch?.(
             state.tr.setSelection(TextSelection.near(state.doc.resolve(target))).scrollIntoView(),
@@ -118,9 +164,9 @@ export const createInlineAtomKeymap = (nodeType: GetNodeType, edit: Command): Ke
         selectAdjacentInlineAtom(nodeType, 'right'),
         enterCodeAfterAtom(nodeType),
     ),
-    ArrowUp: moveAtInlineAtomBoundary(nodeType, 'up'),
-    ArrowDown: moveAtInlineAtomBoundary(nodeType, 'down'),
-    Home: moveAtInlineAtomBoundary(nodeType, 'home'),
-    End: moveAtInlineAtomBoundary(nodeType, 'end'),
+    ArrowUp: moveVerticallyAtInlineAtomBoundary(nodeType, 'up'),
+    ArrowDown: moveVerticallyAtInlineAtomBoundary(nodeType, 'down'),
+    Home: moveToLineEdgeAtInlineAtomBoundary(nodeType, 'home'),
+    End: moveToLineEdgeAtInlineAtomBoundary(nodeType, 'end'),
     Enter: edit,
 });

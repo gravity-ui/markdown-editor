@@ -1,3 +1,4 @@
+import type {Selection} from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import type {Locator, Page} from '@playwright/test';
 import dd from 'ts-dedent';
@@ -710,6 +711,182 @@ test.describe('Label boundary regressions', () => {
             await editor.press('Home');
             await editor.press('ArrowDown');
             await expect(page.locator('.playground__pm-selection')).toContainText(/Cursor: 16$/);
+        }
+    });
+});
+
+test.describe('Label vertical navigation', () => {
+    const readCursor = (page: Page) =>
+        page.evaluate(() => {
+            const view = (window.mdEditor as unknown as {_wysiwygView: EditorView})._wysiwygView;
+            const selection = view.state.selection;
+            const rect = view.coordsAtPos(selection.from);
+            return {
+                pos: selection.from,
+                to: selection.to,
+                left: rect.left,
+                top: rect.top,
+                bottom: rect.bottom,
+            };
+        });
+
+    const placeAtLabel = async (page: Page, side: 'before' | 'selected' | 'after') => {
+        await page.evaluate((edge) => {
+            const view = (window.mdEditor as unknown as {_wysiwygView: EditorView})._wysiwygView;
+            let pos = 0;
+            view.state.doc.descendants((node, offset) => {
+                if (node.type.name === 'label') pos = offset;
+            });
+            const SelectionClass = view.state.selection.constructor as typeof Selection;
+            const selection = SelectionClass.near(
+                view.state.doc.resolve(pos + (edge === 'after' ? 1 : 0)),
+            );
+            view.dispatch(view.state.tr.setSelection(selection).setStoredMarks([]));
+            view.focus();
+        }, side);
+        if (side === 'selected') await page.keyboard.press('ArrowRight');
+        await expect
+            .poll(async () => (await readCursor(page)).to - (await readCursor(page)).pos)
+            .toBe(side === 'selected' ? 1 : 0);
+    };
+
+    for (const [name, initial] of [
+        ['paragraph', 'abcdefghijklmnop\n\nprefix :label[Middle] suffix\n\nabcdefghijklmnop'],
+        ['quote', '> abcdefghijklmnop\n>\n> prefix :label[Middle] suffix\n>\n> abcdefghijklmnop'],
+        ['list', '- abcdefghijklmnop\n- prefix :label[Middle] suffix\n- abcdefghijklmnop'],
+        ['neighboring code', 'abcdefghijklmnop\n\n`code`:label[Middle]`after`\n\nabcdefghijklmnop'],
+        ['standalone label', 'abcdefghijklmnop\n\n:label[Only]\n\nabcdefghijklmnop'],
+    ]) {
+        test(`should reach neighboring visual lines from each label position in a ${name} @wysiwyg`, async ({
+            mount,
+            page,
+            editor,
+        }) => {
+            await mount(<Playground initial={initial} width="100%" style={{width: 812}} />);
+            await editor.switchMode('wysiwyg');
+            for (const side of ['before', 'selected', 'after'] as const) {
+                for (const key of ['ArrowUp', 'ArrowDown']) {
+                    await placeAtLabel(page, side);
+                    const before = await readCursor(page);
+                    await page.keyboard.press(key);
+                    await expect
+                        .poll(async () => {
+                            const after = await readCursor(page);
+                            return key === 'ArrowUp'
+                                ? after.bottom < before.top
+                                : after.top > before.bottom;
+                        })
+                        .toBe(true);
+                    if (side !== 'selected') {
+                        expect(Math.abs((await readCursor(page)).left - before.left)).toBeLessThan(
+                            9,
+                        );
+                    }
+                }
+            }
+        });
+    }
+
+    test('should retain the preferred column across shorter lines @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+    }) => {
+        await mount(
+            <Playground
+                initial={
+                    'abcdefghijklmnopqrstuvwxyz\n\nx\n\nprefix :label[Middle] suffix\n\nx\n\nabcdefghijklmnopqrstuvwxyz'
+                }
+                width="100%"
+                style={{width: 812}}
+            />,
+        );
+        await editor.switchMode('wysiwyg');
+        for (const key of ['ArrowUp', 'ArrowDown']) {
+            await placeAtLabel(page, 'after');
+            const initial = await readCursor(page);
+            await page.keyboard.press(key);
+            await expect
+                .poll(async () => Math.abs((await readCursor(page)).top - initial.top))
+                .toBeGreaterThan(20);
+            const short = await readCursor(page);
+            expect(short.left).toBeLessThan(initial.left - 20);
+            await page.keyboard.press(key);
+            await expect
+                .poll(async () => Math.abs((await readCursor(page)).top - short.top))
+                .toBeGreaterThan(20);
+            expect(Math.abs((await readCursor(page)).left - initial.left)).toBeLessThan(9);
+        }
+    });
+
+    test('should move between wrapped visual lines without leaving the paragraph @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+    }) => {
+        await mount(
+            <Playground
+                initial={'abcdefghij '.repeat(5) + ':label[Middle] ' + 'abcdefghij '.repeat(7)}
+                width="100%"
+                style={{width: 240}}
+            />,
+        );
+        await editor.switchMode('wysiwyg');
+        for (const side of ['before', 'after'] as const) {
+            for (const key of ['ArrowUp', 'ArrowDown']) {
+                await placeAtLabel(page, side);
+                const before = await readCursor(page);
+                await page.keyboard.press(key);
+                await expect
+                    .poll(async () => {
+                        const after = await readCursor(page);
+                        return key === 'ArrowUp'
+                            ? after.bottom <= before.top
+                            : after.top >= before.bottom;
+                    })
+                    .toBe(true);
+                expect(Math.abs((await readCursor(page)).left - before.left)).toBeLessThan(9);
+            }
+        }
+    });
+
+    test('should continue vertical navigation through the scrollport on a long page @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+    }) => {
+        await mount(
+            <Playground
+                initial={
+                    'prefix :label[Middle] suffix\n\n' +
+                    Array.from(
+                        {length: 300},
+                        (_, i) => `Line ${i} with enough text for navigation`,
+                    ).join('\n\n')
+                }
+                width="100%"
+                style={{width: 812}}
+            />,
+        );
+        await page.setViewportSize({width: 812, height: 500});
+        await editor.switchMode('wysiwyg');
+        await placeAtLabel(page, 'after');
+        let previous = (await readCursor(page)).pos;
+        for (let i = 0; i < 16; i++) {
+            await page.keyboard.press('ArrowDown');
+            await expect.poll(async () => (await readCursor(page)).pos).toBeGreaterThan(previous);
+            previous = (await readCursor(page)).pos;
+        }
+        expect(
+            await page.evaluate(() => {
+                const editor = document.querySelector('.ProseMirror');
+                return editor && editor.getBoundingClientRect().top < 0;
+            }),
+        ).toBe(true);
+        for (let i = 0; i < 12; i++) {
+            await page.keyboard.press('ArrowUp');
+            await expect.poll(async () => (await readCursor(page)).pos).toBeLessThan(previous);
+            previous = (await readCursor(page)).pos;
         }
     });
 });
