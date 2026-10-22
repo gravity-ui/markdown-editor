@@ -20,16 +20,19 @@ const heightOptions = Object.values(HeaderHeight).map((value) => ({
 }));
 
 /** Вертикальная линия по правой границе блока: попап прижимается к ней, а не к кнопке. */
-const rightEdgeOf = (view: EditorView, pos: number): PopupAnchorElement => ({
+const rightEdgeOf = (view: EditorView, pos: number): PopupAnchorElement => {
     // DOM блока пересоздаётся при смене атрибутов, поэтому берётся при каждом расчёте.
-    get contextElement() {
-        return (view.nodeDOM(pos) as Element | null) ?? undefined;
-    },
-    getBoundingClientRect() {
-        const rect = this.contextElement?.getBoundingClientRect() ?? new DOMRect();
-        return new DOMRect(rect.right, rect.top, 0, rect.height);
-    },
-});
+    const block = () => (view.nodeDOM(pos) as Element | null) ?? undefined;
+    return {
+        get contextElement() {
+            return block();
+        },
+        getBoundingClientRect() {
+            const rect = block()?.getBoundingClientRect() ?? new DOMRect();
+            return new DOMRect(rect.right, rect.top, 0, rect.height);
+        },
+    };
+};
 
 export type HeaderSettingsProps = {
     node: Node;
