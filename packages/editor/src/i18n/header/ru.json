@@ -73,5 +73,10 @@
   "image_theme": "Тема",
   "image_theme_system": "Системная",
   "image_theme_light": "Светлая",
-  "image_theme_dark": "Тёмная"
+  "image_theme_dark": "Тёмная",
+  "preview_light": "Светлая тема",
+  "preview_dark": "Тёмная тема",
+  "preview_description": "Подпись",
+  "title_size": "Размер заголовка",
+  "title_color": "Цвет заголовка"
 }

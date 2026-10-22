@@ -1,6 +1,11 @@
 import type {DOMOutputSpec, Node} from '#pm/model';
 
-import {type HeaderAttrs, normalizeHeaderAttrs, normalizeHeaderImageAttrs} from './attrs';
+import {
+    type HeaderAttrs,
+    normalizeHeaderAttrs,
+    normalizeHeaderImageAttrs,
+    normalizeHeaderTitleAttrs,
+} from './attrs';
 import {HeaderClassName, HeaderImageDefaults} from './const';
 import {type HeaderShape, getHeaderShapes} from './decor';
 
@@ -45,6 +50,10 @@ export function mediaDomAttrs(raw: Readonly<Record<string, unknown>>): Record<st
         'data-name': attrs.name,
         'data-enabled': attrs.enabled,
     };
+}
+export function titleDomAttrs(raw: Readonly<Record<string, unknown>>): Record<string, string> {
+    const attrs = normalizeHeaderTitleAttrs(raw);
+    return {class: HeaderClassName.Title, 'data-size': attrs.size, 'data-color': attrs.color};
 }
 export function mediaToDOM(raw: Readonly<Record<string, unknown>>): DOMOutputSpec {
     const attrs = mediaDomAttrs(raw);

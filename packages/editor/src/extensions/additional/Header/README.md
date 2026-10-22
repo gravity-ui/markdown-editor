@@ -29,6 +29,16 @@ The title and button labels contain plain text. Description content supports par
 
 The editor uses a fixed internal slot order. Markdown serialization emits the content image, title, description and buttons in that order. Missing title and description containers become empty slots. Ignored content is discarded when switching to visual editing.
 
+## Title attributes
+
+```md
+:::header-title{size="1" color="red"}
+Your title
+:::
+```
+
+`size` accepts `1` through `6`, using the corresponding YFM heading typography without adding a heading to the document outline. The default is `2` (24 px in the standard theme). `color` accepts `auto` and the seven standard text colors listed below. `auto` inherits the cover text color. Invalid values use defaults; default attributes are omitted from Markdown. Both attributes are editable in the cover settings and survive HTML and Markdown round trips.
+
 ## Appearance
 
 | Attribute | Values | Default |
@@ -52,6 +62,8 @@ Unknown attributes are discarded; unknown values use defaults. Default values ar
 S and M heights are minimum heights of 236 and 300 px. S and M widths are 600 and 900 px, limited by the available column. L currently uses provisional values of 360 px height and 1200 px width, customizable with `--g-md-header-height-l` and `--g-md-header-width-l`. Full width fills the containing column. Content grows naturally without text truncation. The outer radius is 24 px, content padding is 32 px, image inset is 8 px and image radius is 16 px.
 
 The content image is independent of the background image. Its attributes are `src`, `alt`, `name` and `enabled` (`true` by default when present). It occupies the half opposite the text. Center alignment hides it and disables its setting without discarding its content. At container widths below 600 px it moves above the text. This also works inside split preview or a narrow parent at a wide viewport.
+
+Settings open beside the right edge of the cover, with fallback placement when space is limited. The background popup shows the same image with text in light and dark themes together. A fixed image text theme applies to both previews. Text colors use a compact labeled list; background colors reuse the standard table palette.
 
 Disabled title, description, buttons and images retain their content. Image text theme preferences remain stored when no background image is active. Blur affects only the background image. Shapes remain outside the local text theme and stop animating under `prefers-reduced-motion`.
 

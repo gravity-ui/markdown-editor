@@ -3,9 +3,15 @@ import {writeDirectiveLines} from 'src/utils/directive-container';
 
 import {ButtonSpecs, escapePlainContent, serializeAttrs} from '../../Button/ButtonSpecs';
 
-import {normalizeHeaderAttrs, normalizeHeaderImageAttrs, serializeHeaderAttrs} from './attrs';
+import {
+    normalizeHeaderAttrs,
+    normalizeHeaderImageAttrs,
+    normalizeHeaderTitleAttrs,
+    serializeHeaderAttrs,
+} from './attrs';
 import {
     HeaderImageDefaults,
+    HeaderTitleDefaults,
     headerActionsName,
     headerContentName,
     headerImageName,
@@ -51,7 +57,12 @@ export const HeaderSpecs: ExtensionAuto<HeaderSpecsOptions> = (builder, options 
             type: 'block',
             ...(name === headerNodeName
                 ? {getAttrs: (token) => normalizeHeaderAttrs(Object.fromEntries(token.attrs ?? []))}
-                : {}),
+                : name === headerTitleName
+                  ? {
+                        getAttrs: (token) =>
+                            normalizeHeaderTitleAttrs(Object.fromEntries(token.attrs ?? [])),
+                    }
+                  : {}),
         }));
     }
     builder.addMarkdownTokenParserSpec(headerImageName, () => ({
@@ -74,7 +85,10 @@ export const HeaderSpecs: ExtensionAuto<HeaderSpecsOptions> = (builder, options 
         state.closeBlock(node);
     });
     builder.addNodeSerializerSpec(headerTitleName, () => (state, node) => {
-        writeDirectiveLines(state, `:::header-title\n${escapePlainContent(node.textContent)}`);
+        writeDirectiveLines(
+            state,
+            `:::header-title${serializeAttrs(normalizeHeaderTitleAttrs(node.attrs), HeaderTitleDefaults)}\n${escapePlainContent(node.textContent)}`,
+        );
         state.write(':::');
         state.closeBlock(node);
     });

@@ -54,6 +54,31 @@ function roundTrip(markup: string) {
 }
 
 describe('Header containers', () => {
+    it('should preserve all six title sizes and standard colors through Markdown and HTML', () => {
+        for (const size of ['1', '2', '3', '4', '5', '6']) {
+            for (const color of [
+                'auto',
+                'gray',
+                'yellow',
+                'orange',
+                'red',
+                'green',
+                'blue',
+                'violet',
+            ]) {
+                const doc = roundTrip(
+                    cover(slot('header-title', 'Title', `size="${size}" color="${color}"`)),
+                );
+                expect(doc.firstChild?.firstChild?.attrs).toEqual({size, color});
+            }
+        }
+    });
+    it('should normalize unsupported title sizes and colors', () => {
+        const doc = roundTrip(cover(slot('header-title', 'Title', 'size="7" color="pink"')));
+        expect(doc.firstChild?.firstChild?.attrs).toEqual({size: '2', color: 'auto'});
+        expect(serializer.serialize(doc)).not.toContain('size=');
+        expect(serializer.serialize(doc)).not.toContain('color=');
+    });
     it('should parse and serialize all named containers and independent images', () => {
         const doc = roundTrip(
             full('image="https://example.com/background.png" width="s" height="m"'),

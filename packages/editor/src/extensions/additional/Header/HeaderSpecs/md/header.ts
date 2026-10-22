@@ -7,7 +7,7 @@ import type MarkdownIt from 'markdown-it';
 import type Token from 'markdown-it/lib/token';
 
 import {buttonDirective} from '../../../Button/ButtonSpecs/md';
-import {normalizeHeaderAttrs, normalizeHeaderImageAttrs} from '../attrs';
+import {normalizeHeaderAttrs, normalizeHeaderImageAttrs, normalizeHeaderTitleAttrs} from '../attrs';
 import {
     HeaderClassName,
     HeaderImageDefaults,
@@ -16,7 +16,7 @@ import {
     headerImageName,
     headerTitleName,
 } from '../const';
-import {headerHtmlClose, headerHtmlOpen, mediaDomAttrs} from '../dom';
+import {headerHtmlClose, headerHtmlOpen, mediaDomAttrs, titleDomAttrs} from '../dom';
 
 function groups(tokens: Token[]): Token[][] {
     const result: Token[][] = [];
@@ -35,7 +35,9 @@ export const headerDirective = (md: MarkdownIt) => {
     const plainSlot = (name: string, className: string) =>
         registerContainerDirective(md, name.replace(/_/g, '-'), (state, params) => {
             if (String(state.parentType) !== 'header-directive') return false;
-            state.push(`${name}_open`, 'div', 1).attrSet('class', className);
+            const token = state.push(`${name}_open`, 'div', 1);
+            token.attrs = Object.entries(normalizeHeaderTitleAttrs(params.attrs ?? {}));
+            token.attrSet('class', className);
             state.push('text', '', 0).content = md.utils.unescapeAll(params.content.raw.trim());
             state.push(`${name}_close`, 'div', -1);
             return true;
@@ -141,7 +143,10 @@ export const headerDirective = (md: MarkdownIt) => {
             }
         }
     });
-    md.renderer.rules[`${headerTitleName}_open`] = () => `<div class="${HeaderClassName.Title}">`;
+    md.renderer.rules[`${headerTitleName}_open`] = (tokens, idx) =>
+        `<div${Object.entries(titleDomAttrs(Object.fromEntries(tokens[idx].attrs ?? [])))
+            .map(([key, value]) => ` ${key}="${md.utils.escapeHtml(value)}"`)
+            .join('')}>`;
     md.renderer.rules[`${headerTitleName}_close`] = () => '</div>';
     md.renderer.rules.header_open = (tokens, idx) =>
         headerHtmlOpen(

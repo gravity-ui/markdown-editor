@@ -1,18 +1,19 @@
 import type {NodeSpec} from '#pm/model';
 import type {PlaceholderOptions} from 'src/utils/placeholder';
 
-import {normalizeHeaderAttrs, normalizeHeaderImageAttrs} from './attrs';
+import {normalizeHeaderAttrs, normalizeHeaderImageAttrs, normalizeHeaderTitleAttrs} from './attrs';
 import {
     HeaderClassName,
     HeaderDefaults,
     HeaderImageDefaults,
+    HeaderTitleDefaults,
     headerActionsName,
     headerContentName,
     headerImageName,
     headerNodeName,
     headerTitleName,
 } from './const';
-import {headerToDOM, mediaToDOM} from './dom';
+import {headerToDOM, mediaToDOM, titleDomAttrs} from './dom';
 
 export const getHeaderSchemaSpec = (): NodeSpec => ({
     content: `${headerTitleName} ${headerContentName} ${headerActionsName} ${headerImageName}`,
@@ -45,8 +46,21 @@ export const getHeaderSchemaSpec = (): NodeSpec => ({
 export const getHeaderTitleSpec = (placeholder?: PlaceholderOptions): NodeSpec => ({
     content: 'text*',
     marks: '',
-    parseDOM: [{tag: `div.${HeaderClassName.Title}`, preserveWhitespace: 'full'}],
-    toDOM: () => ['div', {class: HeaderClassName.Title}, 0],
+    attrs: Object.fromEntries(
+        Object.entries(HeaderTitleDefaults).map(([key, value]) => [key, {default: value}]),
+    ),
+    parseDOM: [
+        {
+            tag: `div.${HeaderClassName.Title}`,
+            preserveWhitespace: 'full',
+            getAttrs: (dom) =>
+                normalizeHeaderTitleAttrs({
+                    size: (dom as Element).getAttribute('data-size'),
+                    color: (dom as Element).getAttribute('data-color'),
+                }),
+        },
+    ],
+    toDOM: (node) => ['div', titleDomAttrs(node.attrs), 0],
     selectable: false,
     allowSelection: false,
     selectionContext: false,

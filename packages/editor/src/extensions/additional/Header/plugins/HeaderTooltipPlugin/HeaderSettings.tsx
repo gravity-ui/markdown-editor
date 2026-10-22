@@ -1,5 +1,6 @@
-import {type ReactNode, useEffect, useReducer, useRef, useState} from 'react';
+import {type ReactNode, useReducer, useRef, useState} from 'react';
 
+import {flip, offset, shift, size} from '@floating-ui/react';
 import {
     ChevronDown,
     ChevronUp,
@@ -17,13 +18,13 @@ import {
     Checkbox,
     Icon,
     Popup,
-    Portal,
     SegmentedRadioGroup,
     Select,
     Switch,
     TextInput,
     useToaster,
 } from '@gravity-ui/uikit';
+import {Tabs} from '@gravity-ui/uikit/legacy';
 
 import type {Node} from '#pm/model';
 import type {EditorView} from '#pm/view';
@@ -35,16 +36,31 @@ import type {FileUploadHandler} from 'src/utils/upload';
 
 import {ButtonFields} from '../../../Button/ButtonFields';
 import {type ButtonAttrs, normalizeButtonAttrs} from '../../../Button/ButtonSpecs';
-import {type HeaderAttrs, normalizeHeaderAttrs} from '../../HeaderSpecs';
+import {type HeaderAttrs, normalizeHeaderAttrs, normalizeHeaderTitleAttrs} from '../../HeaderSpecs';
 import {safeImageUrl} from '../../HeaderSpecs/dom';
 import {headerAt, setHeaderAttrs, setHeaderButton, setHeaderMedia} from '../../commands';
 import {uploadHeaderImage} from '../imageUpload';
 
-import {HeaderColorControl} from './HeaderColorControl';
+import {HeaderBackgroundPreview} from './HeaderBackgroundPreview';
+import {HeaderColorControl, HeaderFillPalette} from './HeaderColorControl';
 
 import './HeaderSettings.scss';
 
 const b = cn('header-settings');
+const settingsMiddlewares = [
+    offset(12),
+    size({
+        padding: 16,
+        apply: ({availableHeight, elements}) => {
+            elements.floating.style.setProperty(
+                '--g-md-header-settings-max-height',
+                `${Math.max(160, availableHeight)}px`,
+            );
+        },
+    }),
+    flip({padding: 16, fallbackPlacements: ['left-start', 'bottom-end']}),
+    shift({padding: 16}),
+];
 const horizontal = [
     {value: 'left', key: 'left', icon: ObjectsAlignLeft},
     {value: 'center', key: 'center', icon: ObjectsAlignCenterHorizontal},
@@ -88,11 +104,13 @@ const row = (label: string, control: ReactNode) => (
     </div>
 );
 function BackgroundControl({
+    node,
     attrs,
     patch,
     upload,
     canUpload,
 }: {
+    node: Node;
     attrs: HeaderAttrs;
     patch: (next: Partial<HeaderAttrs>) => void;
     upload: () => Promise<void>;
@@ -113,6 +131,12 @@ function BackgroundControl({
                 aria-label={i18n('background_field')}
                 aria-expanded={open}
                 onClick={() => setOpen(!open)}
+                onKeyDown={(event) => {
+                    if (open && event.key === 'Escape') {
+                        event.stopPropagation();
+                        setOpen(false);
+                    }
+                }}
             >
                 {safeImageUrl(attrs.image) && (
                     <img className={b('thumbnail')} src={attrs.image} alt="" />
@@ -128,6 +152,7 @@ function BackgroundControl({
             </Button>
             <Popup
                 open={open}
+                initialFocus={0}
                 anchorElement={anchor.current}
                 placement={['bottom-end', 'top-end']}
                 onOpenChange={setOpen}
@@ -139,14 +164,13 @@ function BackgroundControl({
                     data-qa="g-md-header-background"
                 >
                     <div className={b('background-heading')}>
-                        <SegmentedRadioGroup
-                            value={tab}
-                            aria-label={i18n('background_type')}
-                            options={[
-                                {value: 'color', content: i18n('color')},
-                                {value: 'image', content: i18n('image')},
+                        <Tabs
+                            activeTab={tab}
+                            items={[
+                                {id: 'color', title: i18n('color')},
+                                {id: 'image', title: i18n('image')},
                             ]}
-                            onUpdate={setTab}
+                            onSelectTab={setTab}
                         />
                         <Button
                             view="flat-secondary"
@@ -159,9 +183,7 @@ function BackgroundControl({
                         </Button>
                     </div>
                     {tab === 'color' ? (
-                        <HeaderColorControl
-                            kind="fill"
-                            label={i18n('color')}
+                        <HeaderFillPalette
                             value={attrs.fill === 'none' ? '' : attrs.fill}
                             onUpdate={(fill) => {
                                 patch({fill: fill || 'none', image: '', 'image-name': ''});
@@ -172,11 +194,7 @@ function BackgroundControl({
                         <>
                             {safeImageUrl(attrs.image) && (
                                 <>
-                                    <img
-                                        className={b('background-preview')}
-                                        src={attrs.image}
-                                        alt=""
-                                    />
+                                    <HeaderBackgroundPreview node={node} attrs={attrs} />
                                     <Button
                                         view="flat-danger"
                                         onClick={() => patch({image: '', 'image-name': ''})}
@@ -205,6 +223,7 @@ export function HeaderSettings({
     node,
     pos,
     editorView,
+    anchorElement,
     hide,
     fileUploadHandler,
 }: {
@@ -220,6 +239,17 @@ export function HeaderSettings({
     const current = headerAt(editorView.state.doc, pos) ?? node;
     const attrs = normalizeHeaderAttrs(current.attrs);
     const media = current.child(3);
+    const title = current.child(0);
+    const patchTitle = (next: Record<string, unknown>) => {
+        editorView.dispatch(
+            editorView.state.tr.setNodeMarkup(
+                pos + 1,
+                null,
+                normalizeHeaderTitleAttrs({...title.attrs, ...next}),
+            ),
+        );
+        refresh();
+    };
     const patch = (next: Partial<HeaderAttrs>) => {
         setHeaderAttrs(pos, next)(editorView.state, editorView.dispatch);
         refresh();
@@ -244,19 +274,20 @@ export function HeaderSettings({
                 onUpdate={(checked) => patch({[key]: String(checked)})}
             />,
         );
-    useEffect(() => {
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape' && !event.defaultPrevented) {
-                event.stopPropagation();
-                hide();
-            }
-        };
-        document.addEventListener('keydown', onKeyDown);
-        return () => document.removeEventListener('keydown', onKeyDown);
-    }, [hide]);
     const buttons = current.child(2);
     return (
-        <Portal>
+        <Popup
+            open
+            disableFocusOut
+            anchorElement={anchorElement}
+            placement="right-start"
+            strategy="fixed"
+            floatingMiddlewares={settingsMiddlewares}
+            className={b('popup')}
+            onOpenChange={(open) => {
+                if (!open) hide();
+            }}
+        >
             <div
                 className={b()}
                 role="dialog"
@@ -298,6 +329,31 @@ export function HeaderSettings({
                 )}
                 <Section label={i18n('content')}>
                     {toggle('title', i18n('title'))}
+                    {attrs.title === 'true' && (
+                        <>
+                            {row(
+                                i18n('title_size'),
+                                <Select
+                                    width="max"
+                                    aria-label={i18n('title_size')}
+                                    value={[title.attrs.size]}
+                                    options={['1', '2', '3', '4', '5', '6'].map((value) => ({
+                                        value,
+                                        content: value,
+                                    }))}
+                                    onUpdate={([size]) => patchTitle({size})}
+                                />,
+                            )}
+                            {row(
+                                i18n('title_color'),
+                                <HeaderColorControl
+                                    label={i18n('title_color')}
+                                    value={title.attrs.color}
+                                    onUpdate={(color) => patchTitle({color: color || 'auto'})}
+                                />,
+                            )}
+                        </>
+                    )}
                     {toggle('description', i18n('description'))}
                     <span>{i18n('alignment')}</span>
                     {row(
@@ -339,7 +395,6 @@ export function HeaderSettings({
                     {row(
                         i18n('text'),
                         <HeaderColorControl
-                            kind="text"
                             label={i18n('text')}
                             value={attrs.text}
                             onUpdate={(text) => patch({text: text || 'auto'})}
@@ -384,6 +439,7 @@ export function HeaderSettings({
                     {row(
                         i18n('background_field'),
                         <BackgroundControl
+                            node={current}
                             attrs={attrs}
                             patch={patch}
                             upload={() => upload()}
@@ -474,6 +530,6 @@ export function HeaderSettings({
                     )}
                 </Section>
             </div>
-        </Portal>
+        </Popup>
     );
 }

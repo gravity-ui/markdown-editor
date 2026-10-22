@@ -142,7 +142,7 @@ export function HeaderToolbar({
                         node={node}
                         pos={pos}
                         editorView={editorView}
-                        anchorElement={settingsAnchor}
+                        anchorElement={anchorElement}
                         hide={closeSettings}
                         fileUploadHandler={fileUploadHandler}
                     />

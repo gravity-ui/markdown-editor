@@ -98,6 +98,21 @@
         font-size: 24px;
         font-weight: var(--g-text-header-font-weight);
         line-height: 28px;
+        @each $level, $size, $line in (1, 32px, 40px), (2, 24px, 28px), (3, 20px, 24px),
+            (4, 17px, 24px), (5, 15px, 20px), (6, 13px, 18px)
+        {
+            &[data-size='#{$level}'] {
+                font-size: var(--yfm-font-size-h#{$level}, #{$size});
+                line-height: var(--yfm-font-line-height-h#{$level}, #{$line});
+            }
+        }
+        @each $name, $color in fills.$header-text-colors {
+            @if $name != 'auto' {
+                &[data-color='#{$name}'] {
+                    color: #{$color};
+                }
+            }
+        }
     }
     .header_content {
         margin-top: 16px;
@@ -179,6 +194,7 @@
     }
     &__image {
         position: absolute;
+        inset: 0;
 
         width: 100%;
         height: 100%;

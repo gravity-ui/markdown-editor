@@ -4,10 +4,6 @@ $block: '.g-md-header-settings';
 
 #{$block} {
     --g-md-button-label-width: 120px;
-    position: fixed;
-    z-index: 1000;
-    top: 60px;
-    right: 20px;
 
     display: flex;
     overflow: auto;
@@ -17,7 +13,7 @@ $block: '.g-md-header-settings';
     box-sizing: border-box;
     width: 320px;
     max-width: calc(100vw - 32px);
-    max-height: calc(100dvh - 80px);
+    max-height: min(var(--g-md-header-settings-max-height, 100dvh), calc(100dvh - 32px));
     padding: var(--g-spacing-4);
 
     font-family: var(--g-text-body-font-family);
@@ -194,12 +190,86 @@ $block: '.g-md-header-settings';
     align-items: center;
 }
 
+.g-md-header-settings__background-previews {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.g-md-header-settings__theme-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    min-width: 0;
+    margin: 0;
+}
+
 .g-md-header-settings__background-preview {
-    width: 100%;
+    position: relative;
+
+    overflow: hidden;
+
     height: 120px;
 
     border-radius: 12px;
-    object-fit: cover;
+    isolation: isolate;
+    &::before {
+        position: absolute;
+        z-index: -1;
+        inset: 0;
+
+        content: '';
+
+        background-image: var(--g-md-header-preview-image);
+        background-position: center;
+        background-size: cover;
+    }
+    &[data-effect='blur']::before {
+        inset: -24px;
+
+        filter: blur(12px);
+    }
+}
+
+.g-md-header-settings__preview-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+
+    box-sizing: border-box;
+    height: 100%;
+    padding: 12px;
+
+    color: var(--g-color-text-primary);
+    background: transparent;
+    @each $name, $color in fills.$header-text-colors {
+        &[data-text='#{$name}'] {
+            color: #{$color};
+        }
+    }
+}
+
+.g-md-header-settings__preview-title {
+    font-size: 20px;
+    font-weight: var(--g-text-header-font-weight);
+    line-height: 24px;
+    @each $name, $color in fills.$header-text-colors {
+        @if $name != 'auto' {
+            &[data-color='#{$name}'] {
+                color: #{$color};
+            }
+        }
+    }
+}
+
+.g-md-header-settings__preview-title,
+.g-md-header-settings__preview-description {
+    overflow: hidden;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .g-md-header-settings__upload-hint {

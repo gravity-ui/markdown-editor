@@ -8,6 +8,7 @@ import {
     type HeaderImageDefaults,
     HeaderImageTheme,
     HeaderShapes,
+    HeaderTitleDefaults,
 } from './const';
 
 export type HeaderAttrs = {-readonly [K in keyof typeof HeaderDefaults]: string};
@@ -46,5 +47,13 @@ export function normalizeHeaderImageAttrs(
     };
 }
 export const hasShapes = (attrs: HeaderAttrs) => attrs.shapes !== 'none';
+export function normalizeHeaderTitleAttrs(raw: Readonly<Record<string, unknown>> = {}) {
+    const size = String(raw.size);
+    const color = String(raw.color);
+    return {
+        size: /^[1-6]$/.test(size) ? size : HeaderTitleDefaults.size,
+        color: Object.values(Colors).includes(color as Colors) ? color : HeaderTitleDefaults.color,
+    };
+}
 export const serializeHeaderAttrs = (raw: Readonly<Record<string, unknown>>) =>
     serializeAttrs(normalizeHeaderAttrs(raw), HeaderDefaults);

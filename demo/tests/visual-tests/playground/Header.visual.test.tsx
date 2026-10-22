@@ -27,9 +27,39 @@ for (const theme of ['light', 'dark'] as const) {
         await expect(toolbar.getByRole('button')).toHaveCount(3);
         await toolbar.getByRole('button', {name: 'Block settings'}).click();
         const settings = page.getByTestId('g-md-header-settings');
-        await expect(settings).toHaveCSS('position', 'fixed');
+        await expect
+            .poll(async () => {
+                const settingsBox = await settings.boundingBox();
+                const headerBox = await header.boundingBox();
+                return Math.abs(settingsBox!.x - headerBox!.x - headerBox!.width - 12);
+            })
+            .toBeLessThan(0.5);
+        const settingsBox = await settings.boundingBox();
+        const headerBox = await header.boundingBox();
+        expect(settingsBox!.y).toBeCloseTo(headerBox!.y, 0);
         await expect(settings).toHaveCSS('width', '320px');
         await expectScreenshot({component: settings, themes: [theme], nameSuffix: 'settings'});
+        await settings.getByRole('combobox', {name: 'Width', exact: true}).click();
+        await page.getByRole('option', {name: 'S', exact: true}).click();
+        await expect
+            .poll(async () => {
+                const panel = await settings.boundingBox();
+                const cover = await header.boundingBox();
+                return Math.abs(panel!.x - cover!.x - cover!.width - 12);
+            })
+            .toBeLessThan(0.5);
+        await page.setViewportSize({width: 900, height: 800});
+        await expect
+            .poll(async () => {
+                const panel = await settings.boundingBox();
+                return (
+                    panel!.x >= 15 &&
+                    panel!.x + panel!.width <= 885 &&
+                    panel!.y >= 15 &&
+                    panel!.y + panel!.height <= 785
+                );
+            })
+            .toBe(true);
     });
 }
 
@@ -55,19 +85,12 @@ test('should preserve hidden text and three independently editable buttons', asy
     await expect(header.locator('.g-md-button').nth(2)).toBeHidden();
     await settings.getByRole('switch', {name: 'Button 3', exact: true}).press('Space');
     await expect(header.locator('.g-md-button').nth(2)).toHaveText('Third button');
-    await settings.getByRole('button', {name: 'Text color', exact: true}).click();
-    await page
-        .getByRole('dialog', {name: 'Text color palette', exact: true})
-        .getByRole('button', {name: 'Red', exact: true})
-        .click();
+    await settings.getByRole('combobox', {name: 'Text color', exact: true}).click();
+    await page.getByRole('option', {name: 'Red', exact: true}).click();
     await expect(header).toHaveAttribute('data-text', 'red');
     await settings.getByRole('button', {name: 'Background', exact: true}).click();
     await page
-        .getByTestId('g-md-header-background')
-        .getByRole('button', {name: 'Color', exact: true})
-        .click();
-    await page
-        .getByRole('dialog', {name: 'Color palette', exact: true})
+        .getByRole('group', {name: 'Color palette', exact: true})
         .getByRole('button', {name: 'Blue', exact: true})
         .click();
     await expect(header).toHaveAttribute('data-fill', 'blue');
@@ -108,6 +131,10 @@ test('should keep independent images and hide the content image when centered', 
     await expect(header.locator('.g-md-header__media img')).toHaveAttribute('src', original!);
     await expect(header).toHaveAttribute('data-image', original!);
     await expect(header.locator('.g-md-header__media')).toBeVisible();
+    const mediaBox = await header.locator('.g-md-header__media').boundingBox();
+    const imageBox = await header.locator('.g-md-header__media img').boundingBox();
+    expect(imageBox!.x).toBeCloseTo(mediaBox!.x, 0);
+    expect(imageBox!.y).toBeCloseTo(mediaBox!.y, 0);
 });
 
 test('should adapt to a narrow container inside a wide viewport', async ({
@@ -221,12 +248,29 @@ test('should upload a content image independently of the background', async ({mo
         .getByRole('button', {name: 'Background', exact: true})
         .click();
     const popup = page.getByTestId('g-md-header-background');
-    await popup.getByRole('radio', {name: 'Image', exact: true}).check();
+    await popup.getByRole('tab', {name: 'Image', exact: true}).click();
     const backgroundChooser = page.waitForEvent('filechooser');
     await popup.getByRole('button', {name: 'Upload image', exact: true}).click();
     await (await backgroundChooser).setFiles('tests/visual-tests/public/assets/test-image.jpg');
     await expect(header).not.toHaveAttribute('data-image', '');
     await expect(header.locator('.g-md-header__media img')).toHaveAttribute('src', contentSrc!);
+    await page.keyboard.press('Escape');
+    const settings = page.getByTestId('g-md-header-settings');
+    await settings
+        .getByRole('radiogroup', {name: 'Horizontal'})
+        .getByRole('radio', {name: 'Right', exact: true})
+        .check();
+    await expect
+        .poll(() =>
+            header
+                .locator('.g-md-header__media img')
+                .evaluate((node: HTMLImageElement) => node.naturalWidth),
+        )
+        .toBeGreaterThan(0);
+    const mediaBox = await header.locator('.g-md-header__media').boundingBox();
+    const imageBox = await header.locator('.g-md-header__media img').boundingBox();
+    expect(imageBox!.x).toBeCloseTo(mediaBox!.x, 0);
+    expect(imageBox!.y).toBeCloseTo(mediaBox!.y, 0);
 });
 
 test('should insert a cover from the main toolbar', async ({mount, page}) => {
@@ -237,4 +281,83 @@ test('should insert a cover from the main toolbar', async ({mount, page}) => {
     await expect(page.locator('.g-md-header .g-md-button')).toHaveCount(1);
     await page.keyboard.type('Inserted cover');
     await expect(page.locator('.g-md-header__title')).toHaveText('Inserted cover');
+});
+
+test('should preview the background in both themes and honor a fixed text theme', async ({
+    mount,
+    page,
+    expectScreenshot,
+}) => {
+    await page.setViewportSize({width: 1440, height: 1100});
+    await mount(<HeaderDemo markupKey="designSettings" />, {width: 1100});
+    const header = page.locator('.g-md-header');
+    await header.hover();
+    await page
+        .getByTestId('g-md-toolbar-header')
+        .getByRole('button', {name: 'Block settings'})
+        .click();
+    const settings = page.getByTestId('g-md-header-settings');
+    await settings.getByRole('button', {name: 'Background', exact: true}).click();
+    const popup = page.getByTestId('g-md-header-background');
+    const previews = popup.locator('.g-md-header-settings__background-preview');
+    const text = popup.locator('.g-md-header-settings__preview-text');
+    await expect(previews).toHaveCount(2);
+    await expect(popup.getByText('Light theme', {exact: true})).toBeVisible();
+    await expect(popup.getByText('Dark theme', {exact: true})).toBeVisible();
+    const colors = await text.evaluateAll((nodes) =>
+        nodes.map((node) => getComputedStyle(node).color),
+    );
+    expect(colors[0]).not.toBe(colors[1]);
+    const images = await previews.evaluateAll((nodes) =>
+        nodes.map((node) => getComputedStyle(node, '::before').backgroundImage),
+    );
+    expect(images[0]).toContain(await header.getAttribute('data-image'));
+    expect(images[0]).toBe(images[1]);
+    await expectScreenshot({component: popup, nameSuffix: 'system'});
+    await page.keyboard.press('Escape');
+    await expect(popup).toBeHidden();
+    await expect(settings).toBeVisible();
+    await settings.getByRole('combobox', {name: 'Theme', exact: true}).click();
+    await page.getByRole('option', {name: 'Dark', exact: true}).click();
+    await settings.getByRole('button', {name: 'Background', exact: true}).click();
+    await expect(text.nth(0)).toHaveCSS('color', colors[1]);
+    await expect(text.nth(1)).toHaveCSS('color', colors[1]);
+    await expectScreenshot({component: popup, nameSuffix: 'fixed'});
+});
+
+test('should edit title size and color independently and preserve them in preview', async ({
+    mount,
+    page,
+    editor,
+    expectScreenshot,
+}) => {
+    await mount(<HeaderDemo markupKey="design" />, {width: 1100});
+    const header = page.locator('.g-md-header');
+    await header.hover();
+    await page
+        .getByTestId('g-md-toolbar-header')
+        .getByRole('button', {name: 'Block settings'})
+        .click();
+    const settings = page.getByTestId('g-md-header-settings');
+    await settings.getByRole('combobox', {name: 'Title size', exact: true}).click();
+    await page.getByRole('option', {name: '1', exact: true}).click();
+    await settings.getByRole('combobox', {name: 'Title color', exact: true}).click();
+    await expectScreenshot({component: page.getByRole('listbox'), nameSuffix: 'title-colors'});
+    await page.getByRole('option', {name: 'Red', exact: true}).click();
+    const title = header.locator('.g-md-header__title');
+    await expect(title).toHaveCSS('font-size', '32px');
+    await expect(title).toHaveAttribute('data-size', '1');
+    await expect(title).toHaveAttribute('data-color', 'red');
+    await expect(header).toHaveAttribute('data-text', 'auto');
+    const color = await title.evaluate((node) => getComputedStyle(node).color);
+    await settings.getByRole('button', {name: 'Close', exact: true}).click();
+    await editor.switchMode('markup');
+    await expect(page.locator('.cm-content')).toContainText(
+        ':::header-title{size="1" color="red"}',
+    );
+    await editor.switchMode('wysiwyg');
+    await editor.switchPreview('visible');
+    const preview = page.getByTestId('demo-md-preview').locator('.g-md-header__title');
+    await expect(preview).toHaveCSS('font-size', '32px');
+    await expect(preview).toHaveCSS('color', color);
 });

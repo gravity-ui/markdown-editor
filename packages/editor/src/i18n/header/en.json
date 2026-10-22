@@ -73,5 +73,10 @@
   "image_theme": "Theme",
   "image_theme_system": "System",
   "image_theme_light": "Light",
-  "image_theme_dark": "Dark"
+  "image_theme_dark": "Dark",
+  "preview_light": "Light theme",
+  "preview_dark": "Dark theme",
+  "preview_description": "Description",
+  "title_size": "Title size",
+  "title_color": "Title color"
 }

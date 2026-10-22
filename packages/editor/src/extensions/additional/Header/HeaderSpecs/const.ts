@@ -66,6 +66,7 @@ export const HeaderDefaults = {
     'bg-image-theme': 'system',
 } as const;
 export const HeaderImageDefaults = {src: '', alt: '', name: '', enabled: 'false'};
+export const HeaderTitleDefaults = {size: '2', color: 'auto'};
 export const HeaderClassName = {
     Root: 'g-md-header',
     Decor: 'g-md-header__decor',
