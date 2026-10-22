@@ -117,7 +117,6 @@ export function LabelTooltip({node, pos, view, editId, suggestions}: LabelToolti
                             className={b('suggestion')}
                             view="flat"
                             size="m"
-                            width="max"
                             title={suggestion.text}
                             aria-label={`${suggestion.text}, ${i18n(`color_${suggestion.color}`)}`}
                             onClick={() => {
