@@ -1,6 +1,11 @@
 import {useMemo, useState} from 'react';
 
+import {buildYfmHtmlBlockOptions, transform as htmlBlock} from '@diplodoc/html-extension';
+import {transform as latex} from '@diplodoc/latex-extension';
+import {transform as mermaid} from '@diplodoc/mermaid-extension';
+import {transform as pageConstructor} from '@diplodoc/page-constructor-extension/plugin/csr';
 import transform from '@diplodoc/transform';
+import defaultPlugins from '@diplodoc/transform/lib/plugins';
 import {type GalleryItemProps, GalleryProvider} from '@gravity-ui/components';
 import {MarkdownViewer, cnYFM} from '@gravity-ui/markdown-viewer';
 import {
@@ -10,29 +15,55 @@ import {
 } from '@gravity-ui/markdown-viewer/extensions';
 import {Button, Flex, SegmentedRadioGroup, Text, sp} from '@gravity-ui/uikit';
 
+import useYfmHtmlBlockStyles from '../../hooks/useYfmHtmlBlockStyles';
+
 import {cn} from './cn';
 import {documents as defaultDocuments, galleryCustomFile} from './content';
+import {DiplodocHtml} from './extensions/DiplodocHtml';
+import {DiplodocLatex} from './extensions/DiplodocLatex';
+import {DiplodocMermaid} from './extensions/DiplodocMermaid';
+import {DiplodocPageConstructor} from './extensions/DiplodocPageConstructor';
 import {Feedback} from './extensions/Feedback';
 import {PreserveCutState} from './extensions/PreserveCutState';
 import {TargetHelp} from './extensions/TargetHelp';
+import type {DiplodocMermaidOptions} from './extensions/types';
 
 import './MarkdownViewerDemo.scss';
 import '@diplodoc/transform/dist/css/yfm.css';
 
+const plugins = [
+    ...defaultPlugins,
+    latex({bundle: false, validate: false}),
+    pageConstructor({bundle: false}),
+    mermaid({bundle: false}),
+    htmlBlock({bundle: false}),
+];
+// Keep the iframe content created by HTML blocks after the outer sanitizer runs.
+const sanitizeOptions = buildYfmHtmlBlockOptions({allowedAttributes: {iframe: ['srcdoc']}});
+
 interface MarkdownViewerDemoProps {
     documents?: readonly {label: string; source: string}[];
     showFeedbackToggle?: boolean;
+    mermaidOptions?: DiplodocMermaidOptions;
 }
 
 export function MarkdownViewerDemo({
     documents = defaultDocuments,
     showFeedbackToggle = true,
+    mermaidOptions,
 }: MarkdownViewerDemoProps) {
     const [documentIndex, setDocumentIndex] = useState(0);
     const [showFeedback, setShowFeedback] = useState(true);
+    const htmlBlockConfig = useYfmHtmlBlockStyles();
     const document = documents[documentIndex];
     const result = useMemo(
-        () => transform(document.source, {allowHTML: true, codeLineWrapping: true}).result,
+        () =>
+            transform(document.source, {
+                allowHTML: true,
+                codeLineWrapping: true,
+                plugins,
+                sanitizeOptions,
+            }).result,
         [document.source],
     );
 
@@ -79,6 +110,10 @@ export function MarkdownViewerDemo({
                     <PreserveCutState />
                     <TargetHelp />
                     <YfmCodeBlockActions />
+                    <DiplodocLatex meta={result.meta} />
+                    <DiplodocPageConstructor meta={result.meta} />
+                    <DiplodocMermaid meta={result.meta} options={mermaidOptions} />
+                    <DiplodocHtml meta={result.meta} config={htmlBlockConfig} />
                     <FilesGallery
                         getCopyUrl={getGalleryUrl}
                         getDownloadUrl={getGalleryUrl}
