@@ -1,20 +1,31 @@
 import type {ExtensionAuto} from '#core';
+import {HeadingSpecs} from 'src/extensions/markdown/Heading/HeadingSpecs';
+import {writeDirectiveLines} from 'src/utils/directive-container';
 
-import {escapeHeaderTitle, normalizeHeaderAttrs, serializeHeaderAttrs} from './attrs';
+import {ButtonSpecs, escapePlainContent, serializeAttrs} from '../../Button/ButtonSpecs';
+
 import {
+    normalizeHeaderAttrs,
+    normalizeHeaderImageAttrs,
+    normalizeHeaderTitleAttrs,
+    serializeHeaderAttrs,
+} from './attrs';
+import {
+    HeaderImageDefaults,
+    HeaderTitleDefaults,
     headerActionsName,
     headerContentName,
+    headerImageName,
     headerNodeName,
     headerTitleName,
-    headerTokenName,
 } from './const';
 import {headerDirective} from './md/header';
 import {
+    getHeaderContentSpec,
     getHeaderSchemaSpec,
     getHeaderTitleSpec,
-    headerActionSpec,
     headerActionsSpec,
-    headerContentSpec,
+    headerImageSpec,
 } from './schema';
 
 export * from './attrs';
@@ -22,68 +33,77 @@ export * from './const';
 export * from './decor';
 export {headerHtml, toCssUrl} from './dom';
 export {headerDirective} from './md/header';
+export type HeaderSpecsOptions = {
+    titlePlaceholder?: () => string;
+    contentPlaceholder?: () => string;
+};
 
-const stripDataPrefix = (attrs: [string, string][]) =>
-    Object.fromEntries(attrs.map(([name, value]) => [name.replace(/^data-/, ''), value]));
-
-export const HeaderSpecs: ExtensionAuto = (builder) => {
-    builder.configureMd((md) => md.use(headerDirective));
-
+export const HeaderSpecs: ExtensionAuto<HeaderSpecsOptions> = (builder, options = {}) => {
+    if (!builder.hasNodeSpec('heading')) builder.use(HeadingSpecs, {});
+    builder.use(ButtonSpecs).configureMd((md) => md.use(headerDirective));
     builder
-        .addNodeSpec(headerNodeName, () => getHeaderSchemaSpec())
-        .addNodeSpec(headerTitleName, () => getHeaderTitleSpec(builder.context.get('placeholder')))
-        .addNodeSpec(headerContentName, () => headerContentSpec)
+        .addNodeSpec(headerNodeName, getHeaderSchemaSpec)
+        .addNodeSpec(headerTitleName, () =>
+            getHeaderTitleSpec(
+                options.titlePlaceholder
+                    ? {header: options.titlePlaceholder}
+                    : builder.context.get('placeholder'),
+            ),
+        )
+        .addNodeSpec(headerContentName, () => getHeaderContentSpec(options.contentPlaceholder))
         .addNodeSpec(headerActionsName, () => headerActionsSpec)
-        .addNodeSpec('header_action', () => headerActionSpec)
-        .addMarkdownTokenParserSpec(headerTokenName, () => ({
-            name: headerNodeName,
+        .addNodeSpec(headerImageName, () => headerImageSpec);
+    for (const name of [headerNodeName, headerTitleName, headerContentName, headerActionsName]) {
+        builder.addMarkdownTokenParserSpec(name, () => ({
+            name,
             type: 'block',
-            getAttrs: (token) => normalizeHeaderAttrs(stripDataPrefix(token.attrs ?? [])),
-        }))
-        .addMarkdownTokenParserSpec(headerTitleName, () => ({name: headerTitleName, type: 'block'}))
-        .addMarkdownTokenParserSpec(headerContentName, () => ({
-            name: headerContentName,
-            type: 'block',
-        }))
-        .addMarkdownTokenParserSpec(headerActionsName, () => ({
-            name: headerActionsName,
-            type: 'block',
-        }))
-        .addMarkdownTokenParserSpec('action', () => ({
-            name: 'header_action',
-            type: 'block',
-            noCloseToken: true,
-            getAttrs: (token) => {
-                const attrs = Object.fromEntries(token.attrs ?? []);
-                return {
-                    href: attrs.href,
-                    type: attrs['data-type'],
-                    color: attrs['data-color'],
-                    enabled: attrs['data-enabled'] !== 'false',
-                };
-            },
-        }))
-        .addNodeSerializerSpec(headerNodeName, () => (state, node) => {
-            const title = escapeHeaderTitle(node.firstChild?.textContent ?? '');
-            state.write(`:::header[${title}]${serializeHeaderAttrs(node.attrs)}\n\n`);
-            state.renderContent(node);
-            state.write(':::');
-            state.closeBlock(node);
-        })
-        .addNodeSerializerSpec(headerTitleName, () => () => {})
-        .addNodeSerializerSpec(headerContentName, () => (state, node) => {
-            state.renderContent(node);
-        })
-        .addNodeSerializerSpec(headerActionsName, () => (state, node) => {
-            state.renderContent(node);
-        })
-        .addNodeSerializerSpec('header_action', () => (state, node) => {
-            const href = String(node.attrs.href ?? '');
-            const title = escapeHeaderTitle(node.textContent);
-            const type = String(node.attrs.type ?? 'button');
-            const color = String(node.attrs.color ?? 'default');
-            const enabled = node.attrs.enabled === false ? ' enabled="false"' : '';
-            state.write(`::action[${title}](${href}){type="${type}" color="${color}"${enabled}}`);
-            state.closeBlock(node);
-        });
+            ...(name === headerNodeName
+                ? {getAttrs: (token) => normalizeHeaderAttrs(Object.fromEntries(token.attrs ?? []))}
+                : name === headerTitleName
+                  ? {
+                        getAttrs: (token) =>
+                            normalizeHeaderTitleAttrs(Object.fromEntries(token.attrs ?? [])),
+                    }
+                  : {}),
+        }));
+    }
+    builder.addMarkdownTokenParserSpec(headerImageName, () => ({
+        name: headerImageName,
+        type: 'node',
+        getAttrs: (token) => normalizeHeaderImageAttrs(Object.fromEntries(token.attrs ?? [])),
+    }));
+    builder.addNodeSerializerSpec(headerNodeName, () => (state, node) => {
+        writeDirectiveLines(state, `:::header${serializeHeaderAttrs(node.attrs)}\n`);
+        const image = node.child(3);
+        if (image.attrs.src || image.attrs.enabled === 'true') {
+            writeDirectiveLines(
+                state,
+                `:::header-image${serializeAttrs(image.attrs, {...HeaderImageDefaults, enabled: 'true'})}\n:::\n`,
+            );
+        }
+        for (const child of [node.child(0), node.child(1), node.child(2)])
+            state.render(child, node, 0);
+        state.write(':::');
+        state.closeBlock(node);
+    });
+    builder.addNodeSerializerSpec(headerTitleName, () => (state, node) => {
+        writeDirectiveLines(
+            state,
+            `:::header-title${serializeAttrs(normalizeHeaderTitleAttrs(node.attrs), HeaderTitleDefaults)}\n${escapePlainContent(node.textContent)}`,
+        );
+        state.write(':::');
+        state.closeBlock(node);
+    });
+    builder.addNodeSerializerSpec(headerContentName, () => (state, node) => {
+        writeDirectiveLines(state, ':::header-content');
+        state.renderContent(node);
+        state.ensureNewLine();
+        state.write(':::');
+        state.closeBlock(node);
+    });
+    builder.addNodeSerializerSpec(
+        headerActionsName,
+        () => (state, node) => state.renderContent(node),
+    );
+    builder.addNodeSerializerSpec(headerImageName, () => () => {});
 };

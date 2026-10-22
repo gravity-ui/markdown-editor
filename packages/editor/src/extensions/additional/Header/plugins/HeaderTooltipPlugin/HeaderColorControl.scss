@@ -1,66 +1,39 @@
 @use '../../fills' as fills;
 
 .g-md-header-color {
-    &__trigger {
-        --g-button-padding: 6px;
-        min-width: 0;
-        .g-button__text {
-            width: 100%;
-            margin: 0;
-        }
-    }
-    &__value {
+    &__option {
         display: flex;
         align-items: center;
-        gap: var(--g-spacing-2);
-
-        min-width: 0;
+        gap: 8px;
     }
-    &__name {
-        overflow: hidden;
-        flex: 1;
+    &__text-icon {
+        display: flex;
 
-        text-align: start;
-        text-overflow: ellipsis;
-    }
-    &__swatch {
-        flex-shrink: 0;
-
-        box-sizing: border-box;
-        width: 16px;
-        height: 16px;
-
-        border: 1px solid var(--g-color-line-generic);
-        border-radius: var(--g-border-radius-xs);
-        @each $name, $color in fills.$header-fills {
-            &_kind_fill#{&}_color_#{$name} {
-                background-color: $color;
-            }
-        }
+        color: var(--g-color-text-primary);
         @each $name, $color in fills.$header-text-colors {
-            &_kind_text#{&}_color_#{$name} {
-                background-color: $color;
+            &[data-color='#{$name}'] {
+                color: #{$color};
             }
-        }
-        &_kind_text#{&}_color_brand {
-            background-color: var(--g-color-text-brand);
-        }
-        &_kind_text#{&}_color_light {
-            background-color: var(--g-color-text-light-primary);
-        }
-        &_kind_text#{&}_color_dark {
-            background-color: var(--g-color-text-dark-primary);
         }
     }
-    &__palette {
-        padding: var(--g-spacing-2);
-        &_kind_text {
-            @each $name, $color in fills.$header-text-colors {
-                .g-md-yfm-table-cell-bg-palette__swatch_color_#{$name} {
-                    border-color: $color;
-                    background-color: $color;
-                }
-            }
+    &__fill-palette {
+        .g-md-yfm-table-cell-bg-palette {
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px 16px;
+        }
+        .g-md-yfm-table-cell-bg-palette__item {
+            width: 28px;
+            height: 28px;
+            padding: 4px;
+
+            border-radius: 10px;
+        }
+        .g-md-yfm-table-cell-bg-palette__swatch {
+            box-sizing: border-box;
+            width: 20px;
+            height: 20px;
+
+            border-radius: 6px;
         }
     }
 }

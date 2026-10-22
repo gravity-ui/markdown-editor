@@ -1,75 +1,84 @@
-# Header
+# Cover block
 
-Обложка страницы с заголовком, подзаголовком и тремя действиями.
+The cover contains named YFM containers and up to three reusable buttons. It supports visual editing and sanitized Markdown preview.
 
 ```md
-:::header[Портал команды Вики]{bg="gradient" fill="indigo" fill2="purple"}
+:::header{height="m" image="/background.jpg" bg-image-theme="dark" effect="blur"}
 
-::action[Открыть график](/wiki/duty){type="button" color="brand"}
+:::header-image{src="/content.jpg" alt="Mountain landscape"}
+:::
 
-::action[Подробнее](/wiki/help){type="link" color="brand"}
+:::header-title
+Your title
+:::
 
-Релизы, дежурства, контакты.
+:::header-content
+A paragraph with **formatting**, {red}(text color) and [a link](/page).
+:::
+
+:::button{href="/page" view="action" new-tab="true"}
+Read more
+:::
 
 :::
 ```
 
-Заголовок — одна строка простого текста. Содержимое обложки — абзацы. Заголовки, таблицы и другие блоки отбрасываются. Первые три `::action` попадают в слот действий независимо от положения в разметке. Перед листовой директивой после абзаца нужна пустая строка.
+Only the first direct `header-image`, `header-title` and `header-content` and the first three direct `button` containers are used. Other direct nodes and excess containers are ignored entirely. The `header-*` containers require a `header` parent; `button` also works independently.
 
-## Параметры
+The title and button labels contain plain text. Description content supports paragraphs, H1–H6 headings and standard text formatting. Images, buttons, HTML and other blocks are excluded from the description. The title is a `div` and does not enter the document outline.
 
-| Параметр    | Значения                                                   | По умолчанию | Применяется                  |
-| ----------- | ---------------------------------------------------------- | ------------ | ---------------------------- |
-| `format`    | `small`, `medium`, `large`                                 | `medium`     | всегда                       |
-| `bg`        | `surface`, `fill`, `shapes`, `gradient`, `mesh`, `pattern` | `shapes`     | всегда                       |
-| `fill`      | 11 цветов палитры таблиц                                          | `blue`       | всегда                       |
-| `fill2`     | те же цвета                                                | `purple`     | `gradient`, `mesh`           |
-| `direction` | `diagonal`, `right`, `down`                                | `diagonal`   | `gradient`                   |
-| `shapes`    | `diagonal`, `corner`, `edges`, `bottom`, `scatter`         | `diagonal`   | `shapes`, `mesh`             |
-| `scale`     | `small`, `medium`, `large`                                 | `medium`     | `pattern`, `layer="tile"`    |
-| `image`     | адрес изображения                                          | пусто        | всегда                       |
-| `layer`     | `full`, `left`, `right`, `object`, `tile`                  | `full`       | задано `image`               |
-| `fit`       | `crop`, `whole`                                            | `crop`       | задано `image`, кроме `tile` |
-| `focus`     | `center`, `top`, `right`, `bottom`, `left` и четыре угла   | `center`     | задано `image`, кроме `tile` |
-| `effect`    | `none`, `darken`, `blur`, `fade`                           | `none`       | `layer="full"`               |
-| `text`      | `auto`, `light`, `dark`, `primary`, `brand`, `blue`                | `auto`       | всегда                       |
+The editor uses a fixed internal slot order. Markdown serialization emits the content image, title, description and buttons in that order. Missing title and description containers become empty slots. Ignored content is discarded when switching to visual editing.
 
-Цвет `fill` записывается всегда. Другие значения по умолчанию и неприменимые параметры не сериализуются. Неизвестный параметр отбрасывается, неизвестное значение заменяется значением по умолчанию.
+## Title attributes
 
-## Фон и изображение
-
-Фон и изображение находятся на двух независимых слоях. После удаления изображения прежний фон сохраняется. Размытие и затемнение действуют на изображение, не затрагивая текст. Для `object` и `tile` подходит файл с прозрачным фоном: `fill` виден вокруг изображения.
-
-`focus` задаёт положение кадра при `fit="crop"`. `fit="whole"` показывает изображение целиком. `scale` задаёт размер точек узора или плитки.
-
-## Подключение
-
-```ts
-import {Header} from '@gravity-ui/markdown-editor';
-
-builder.use(Header, {fileUploadHandler, headerKey: 'Mod-Alt-h'});
+```md
+:::header-title{size="1" color="red"}
+Your title
+:::
 ```
 
-`fileUploadHandler` использует общий контракт загрузки файлов редактора. Без него кнопка загрузки выключена. Блок не входит в пресеты.
+`size` accepts `1` through `6`, using the corresponding YFM heading typography without adding a heading to the document outline. The default is `2` (24 px in the standard theme). `color` accepts `auto` and the seven standard text colors listed below. `auto` inherits the cover text color. Invalid values use defaults; default attributes are omitted from Markdown. Both attributes are editable in the cover settings and in the toolbar shown when title text is selected. These controls update the whole title while keeping it a named container. The usual heading shortcuts (`Mod-Alt-1` through `Mod-Alt-6`) change its size. Attributes survive HTML and Markdown round trips.
 
-Enter в заголовке переводит курсор в подзаголовок. Mod-Enter переводит курсор в абзац после обложки. Backspace в начале пустой обложки заменяет её абзацем.
+## Appearance
 
-## Расположение
+| Attribute | Values | Default |
+| --- | --- | --- |
+| `height` | `s`, `m`, `l` | `s` |
+| `width` | `s`, `m`, `l`, `full` | `m` |
+| `align` | `left`, `center`, `right` | `left` |
+| `vertical` | `top`, `center`, `bottom` | `center` |
+| `title`, `description` | `true`, `false` | `true` |
+| `fill` | `none` or the standard table background palette | `none` |
+| `text` | `auto`, `gray`, `yellow`, `orange`, `red`, `green`, `blue`, `violet` | `auto` |
+| `image` | Background image URL | Empty |
+| `image-name` | Background filename | Empty |
+| `image-enabled` | `true`, `false` | `true` |
+| `bg-image-theme` | `system`, `light`, `dark` | `system` |
+| `effect` | `none`, `blur` | `none` |
+| `shapes` | `none`, `diagonal`, `corner`, `edges`, `bottom`, `scatter` | `none` |
 
-`format="small|medium|large"` задаёт минимальную высоту 216, 280 или 420 пикселей.
-`align="left|center|right"` и `vertical="top|center|bottom"` задают выравнивание содержимого.
-`fixed="false"` позволяет тексту занимать доступную ширину.
-`title="false"` и `description="false"` скрывают текст, сохраняя его в разметке.
-`layer="left|right"` размещает изображение рядом с текстом.
-`bg="surface"` использует поверхность текущей темы.
-Панель настроек управляет расположением, видимостью текста и тремя кнопками.
+Unknown attributes are discarded; unknown values use defaults. Default values are omitted from serialized Markdown. Gradients, mesh gradients, patterns, tiled images, fading and brightness effects are not supported.
 
-При наведении появляется панель из трёх кнопок: настройки, копирование и удаление.
-Копирование сохраняет весь блок в буфер обмена как HTML и текст.
-После удаления блок можно восстановить отменой действия.
+S and M heights are minimum heights of 236 and 300 px. S and M widths are 600 and 900 px, limited by the available column. L currently uses provisional values of 360 px height and 1200 px width, customizable with `--g-md-header-height-l` and `--g-md-header-width-l`. Full width fills the containing column. Content grows naturally without text truncation. The outer radius is 24 px, content padding is 32 px, image inset is 8 px and image radius is 16 px.
 
-`image-enabled="false"` скрывает изображение, сохраняя файл и расположение.
-`image-name` сохраняет имя загруженного файла.
-`enabled="false"` у действия скрывает кнопку, сохраняя её позицию, текст, ссылку и стиль.
+The content image is independent of the background image. Its attributes are `src`, `alt`, `name` and `enabled` (`true` by default when present). It occupies the half opposite the text. Center alignment hides it and disables its setting without discarding its content. At container widths below 600 px it moves above the text. This also works inside split preview or a narrow parent at a wide viewport.
 
-Цвета текста и фона используют переменные темы Gravity UI. Палитра повторяет сетку цветов таблицы.
+The empty content image opens the shared image form with device upload and URL tabs. Its compact mode offers a single URL field and accepts one file. The delete button appears in the top corner when the loaded image is hovered or the button receives keyboard focus. It uses a light icon on an opaque dark background. Clicking the photo leaves it unchanged. Deleting the image restores the placeholder and supports undo. The settings panel reuses the same form for replacement.
+
+Settings open beside the right edge of the cover, with fallback placement when space is limited. The background popup shows the same image with text in light and dark themes together. A fixed image text theme applies to both previews. Text colors use a compact labeled list; background colors reuse the standard table palette.
+
+Disabled title, description, buttons and images retain their content. Image text theme preferences remain stored when no background image is active. Blur affects only the background image. Shapes remain outside the local text theme and stop animating under `prefers-reduced-motion`.
+
+## Integration
+
+```ts
+builder.use(Header, {fileUploadHandler});
+```
+
+`Header` includes the reusable `Button` extension. File uploads use the host handler and accept images up to 2 MB. The content image form accepts URLs independently of the upload handler; its upload tab requires a handler. Background upload controls also require a handler. Background and content uploads track document changes and discard results after their target is removed or replaced. URLs returned by the handler are stored as provided; durable attachment storage is the host's responsibility.
+
+For a schema without UI, use `HeaderSpecs` with optional `titlePlaceholder` and `contentPlaceholder` functions. Specs do not import React, UIKit or translations.
+
+For preview, use `@gravity-ui/markdown-editor/markdown-it/header`. Import the cover and button styles separately from `extensions/additional/Header/index.css` and `extensions/additional/Button/index.css`. Keep the default HTML sanitizer enabled. Static rendering requires no JavaScript runtime.
+
+See [image text themes](../../../../../../docs/header-image-text-theme.md) for the CSS inheritance mechanism and host theme requirements.
