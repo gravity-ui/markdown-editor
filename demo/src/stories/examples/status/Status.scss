@@ -1,0 +1,62 @@
+// The popover renders in a portal, so the variant class sits on body.
+// Every ring is 2px wide with a 2px gap.
+
+.status-ring_outline,
+.status-ring_shadow,
+.status-ring_pseudo {
+    .g-md-status_swatch svg {
+        display: none;
+    }
+}
+
+.status-ring_outline .g-md-status_swatch {
+    &:hover {
+        outline: 2px solid var(--g-color-line-generic-hover);
+        outline-offset: 2px;
+    }
+
+    &[aria-pressed='true'] {
+        outline: 2px solid var(--g-color-line-brand);
+        outline-offset: 2px;
+    }
+}
+
+// The gap is painted with the popover background.
+.status-ring_shadow .g-md-status_swatch {
+    &:hover {
+        box-shadow:
+            0 0 0 2px var(--g-color-base-float),
+            0 0 0 4px var(--g-color-line-generic-hover);
+    }
+
+    &[aria-pressed='true'] {
+        box-shadow:
+            0 0 0 2px var(--g-color-base-float),
+            0 0 0 4px var(--g-color-line-brand);
+    }
+}
+
+.status-ring_pseudo .g-md-status_swatch {
+    position: relative;
+
+    &::after {
+        position: absolute;
+        // Counted from the padding box: 1px swatch border, 2px gap, 2px ring.
+        inset: -5px;
+
+        content: '';
+        pointer-events: none;
+
+        border: 2px solid transparent;
+        // Swatch radius plus the ring offset keeps the corners concentric.
+        border-radius: 10px;
+    }
+
+    &:hover::after {
+        border-color: var(--g-color-line-generic-hover);
+    }
+
+    &[aria-pressed='true']::after {
+        border-color: var(--g-color-line-brand);
+    }
+}
