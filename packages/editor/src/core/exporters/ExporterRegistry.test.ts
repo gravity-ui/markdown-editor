@@ -66,12 +66,18 @@ describe('ExporterRegistry', () => {
                     {schema: createSchema(), logger: new Logger2()},
                 );
 
-            expect(createRegistry).toThrow(
-                expect.objectContaining({
-                    message: 'Failed to create exporter "broken"',
-                    cause,
-                }),
-            );
+            let received: unknown;
+            try {
+                createRegistry();
+            } catch (error) {
+                received = error;
+            }
+
+            expect(received).toBeInstanceOf(Error);
+            expect(received).toMatchObject({
+                message: 'Failed to create exporter "broken"',
+                cause,
+            });
             expect(nextCreate).not.toHaveBeenCalled();
         },
     );

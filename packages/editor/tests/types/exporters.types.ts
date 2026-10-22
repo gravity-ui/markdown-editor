@@ -104,6 +104,9 @@ export function shouldPreserveConditionalExporterLookup(
     const publicDeps: PublicPackage.ExtensionDeps = deps;
     const {getExporter} = publicDeps;
 
+    // @ts-expect-error The exporter lookup is read-only.
+    publicDeps.getExporter = getExporter;
+
     // @ts-expect-error Extension dependencies may omit the exporter lookup.
     getExporter<TextExporter>('text');
 

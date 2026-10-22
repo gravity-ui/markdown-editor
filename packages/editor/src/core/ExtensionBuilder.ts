@@ -347,7 +347,7 @@ export type ExtensionDeps = {
     readonly serializer: Serializer;
     readonly actions: ActionStorage;
     // TODO: Make getExporter required in the next major version.
-    getExporter?: ExporterStorage['getExporter'];
+    readonly getExporter?: ExporterStorage['getExporter'];
 };
 
 export class ExtensionBuilder {
