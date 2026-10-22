@@ -16,6 +16,7 @@ on:
           - 'packages/editor'
           - 'packages/latex-extension'
           - 'packages/page-constructor-extension'
+          - 'packages/viewer'
       tag:
         description: 'Publish with tag'
         required: true

@@ -2,6 +2,7 @@ packages:
   - 'demo'
   - 'infra/*'
   - 'packages/*'
+  - 'packages/viewer/tests/react19'
 
 catalog:
   '@types/markdown-it': ^13.0.0
@@ -59,5 +60,7 @@ catalogs:
     react: ^17.0.0
     react-dom: ^17.0.0
   react19:
+    '@types/react': ^19.0.0
+    '@types/react-dom': ^19.0.0
     react: ^19.0.0
     react-dom: ^19.0.0
