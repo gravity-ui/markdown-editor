@@ -10,6 +10,7 @@
   "group_flat": "No background",
   "group_normal": "Secondary",
   "group_outlined": "Outlined",
+  "insert": "Button",
   "label": "Button text",
   "label_default": "Button",
   "link": "Link",

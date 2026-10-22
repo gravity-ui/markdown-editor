@@ -1,10 +1,18 @@
 import {memo} from 'react';
 
-import type {ExtensionAuto} from '@gravity-ui/markdown-editor';
-import {Button} from '@gravity-ui/markdown-editor/extensions/additional/Button/index.js';
+import type {ExtensionAuto, ToolbarsPreset} from '@gravity-ui/markdown-editor';
+import {
+    Button,
+    buttonAction,
+    buttonItemMarkup,
+    buttonItemView,
+    buttonItemWysiwyg,
+} from '@gravity-ui/markdown-editor/extensions/additional/Button/index.js';
 import {Header} from '@gravity-ui/markdown-editor/extensions/additional/Header/index.js';
+import {ToolbarName as Toolbar} from '@gravity-ui/markdown-editor/toolbars';
 
 import {Playground} from '../../../components/Playground';
+import {playgroundToolbarsPreset as base} from '../../../defaults/toolbars';
 
 const markup = [
     ':::header{height=s}\n\n:::',
@@ -17,6 +25,23 @@ const markup = [
 
 const extensions: ExtensionAuto = (builder) => builder.use(Header).use(Button);
 
+const toolbarsPreset: ToolbarsPreset = {
+    items: {
+        ...base.items,
+        [buttonAction]: {
+            view: buttonItemView,
+            wysiwyg: buttonItemWysiwyg,
+            markup: buttonItemMarkup,
+        },
+    },
+    orders: {
+        ...base.orders,
+        [Toolbar.wysiwygMain]: [[buttonAction], ...base.orders[Toolbar.wysiwygMain]],
+        [Toolbar.markupMain]: [[buttonAction], ...base.orders[Toolbar.markupMain]],
+        [Toolbar.wysiwygSlash]: [[buttonAction, ...base.orders[Toolbar.wysiwygSlash].flat()]],
+    },
+};
+
 export const ButtonEditor = memo(function ButtonEditor() {
     return (
         <Playground
@@ -26,6 +51,7 @@ export const ButtonEditor = memo(function ButtonEditor() {
             splitModeOrientation="horizontal"
             renderPreviewDefined
             settingsVisible
+            toolbarsPreset={toolbarsPreset}
             wysiwygConfig={{extensions}}
         />
     );

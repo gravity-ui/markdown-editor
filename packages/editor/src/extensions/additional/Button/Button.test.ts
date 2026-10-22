@@ -2,6 +2,8 @@ import MarkdownIt from 'markdown-it';
 import {builders} from 'prosemirror-test-builder';
 import {describe, expect, it} from 'vitest';
 
+import {EditorState, NodeSelection, TextSelection} from '#pm/state';
+
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
@@ -17,6 +19,7 @@ import {
     buttonDirective,
     buttonNodeName,
 } from './ButtonSpecs';
+import {addButton} from './actions';
 
 const {schema, markupParser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(BlockquoteSpecs).use(ButtonSpecs),
@@ -125,5 +128,20 @@ describe('Button', () => {
         expect(md.render('::button[<b>](/а){view=outlined color=blue}')).toBe(
             '<div class="g-md-button"><a class="g-md-button__action" data-view="outlined" data-color="blue" href="/%D0%B0">&lt;b&gt;</a></div>\n',
         );
+    });
+
+    it('should insert a selected button in place of an empty paragraph', () => {
+        const before = doc(p('Text'), p());
+        let state = EditorState.create({
+            doc: before,
+            selection: TextSelection.create(before, before.content.size - 1),
+        });
+        addButton.run(state, (tr) => {
+            state = state.apply(tr);
+        });
+
+        expect(state.doc.toJSON()).toEqual(doc(p('Text'), button('Button', '')).toJSON());
+        expect(state.selection).toBeInstanceOf(NodeSelection);
+        expect((state.selection as NodeSelection).node.type.name).toBe(buttonNodeName);
     });
 });
