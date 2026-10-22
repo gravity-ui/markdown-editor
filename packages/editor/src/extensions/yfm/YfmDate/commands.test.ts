@@ -193,8 +193,8 @@ describe('Date virtual cursor', () => {
         (plugin.props.decorations?.call(plugin, state) as DecorationSet).find();
 
     it.each([
-        ['before', 2, 0],
-        ['after', 3, -1],
+        ['before', 2, -1],
+        ['after', 3, 0],
     ])('should draw the cursor %s the date', (_edge, pos, side) => {
         const pmDoc = doc(p('a', date(day('2026-10-21')), 'b'));
         const widgets = getWidgets(datePlugin, stateWithCursor(pmDoc, pos));
@@ -215,8 +215,8 @@ describe('Date virtual cursor', () => {
         const dateFirst = between(doc(p('a', date(day('2026-10-21')), label(grayLabel))));
 
         expect(labelFirst).toHaveLength(1);
-        expect(labelFirst[0].spec.side).toBe(-1);
+        expect(labelFirst[0].spec.side).toBe(0);
         expect(dateFirst).toHaveLength(1);
-        expect(dateFirst[0].spec.side).toBe(-1);
+        expect(dateFirst[0].spec.side).toBe(0);
     });
 });

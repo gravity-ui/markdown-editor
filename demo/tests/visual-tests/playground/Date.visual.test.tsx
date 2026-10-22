@@ -208,8 +208,8 @@ test.describe('Date', () => {
         await wait.timeout(500);
         await expect(getPopup(page)).toBeHidden();
         expect(await isEditorFocused(page)).toBe(true);
-        // The date stays selected, as the label does.
-        await expect(page.locator('.playground__pm-selection')).toContainText('From: 42');
+        // Closing returns a text caret after the date, as for a label.
+        await expectCursor(page, 43);
     });
 
     test('should choose a day in the calendar after a click @wysiwyg', async ({
@@ -242,6 +242,7 @@ test.describe('Date', () => {
         editor,
         wait,
     }) => {
+        const paragraphCount = await editor.locators.contenteditable.locator('p').count();
         await placeCursorBeforeDate(page, editor);
         await editor.press('ArrowRight');
         await editor.press('Enter');
@@ -251,6 +252,7 @@ test.describe('Date', () => {
         await page.keyboard.press('Enter');
         await expect(getPopup(page)).toBeHidden();
         await expect(getDates(page).first()).toHaveAttribute('datetime', '2025-03-15');
+        await expect(editor.locators.contenteditable.locator('p')).toHaveCount(paragraphCount);
         await wait.markupPreview('Before :date[2025-03-15] after');
         expect(await isEditorFocused(page)).toBe(true);
     });
@@ -281,6 +283,31 @@ test.describe('Date', () => {
 
         await getDates(page).first().click();
         await expect(getPopup(page)).toBeVisible();
+    });
+
+    test('should refocus the calendar on a repeated explicit edit @wysiwyg', async ({
+        page,
+        editor,
+    }) => {
+        await getDates(page).first().click();
+        await expect.poll(() => isCalendarFocused(page)).toBe(true);
+        await editor.locators.contenteditable.focus();
+        await editor.press('Enter');
+        await expect.poll(() => isCalendarFocused(page)).toBe(true);
+    });
+
+    test('should preserve a passively selected date when typing @wysiwyg', async ({
+        page,
+        editor,
+    }) => {
+        await placeCursorBeforeDate(page, editor);
+        await editor.press('ArrowRight');
+        await page.keyboard.type('Q');
+        await expect(getDates(page)).toHaveCount(4);
+        await expect(getDates(page).first()).toHaveAttribute('datetime', '2025-03-14');
+        await expect(editor.locators.contenteditable.locator('p').nth(1)).toHaveText(
+            'Before Mar 14, 2025Q after',
+        );
     });
 
     test('should keep dates after switching the modes @wysiwyg', async ({page, editor, wait}) => {

@@ -3,7 +3,7 @@ import {Plugin} from 'prosemirror-state';
 import {InlineAtomTooltipView} from 'src/plugins/InlineAtom';
 
 import {dateType} from '../YfmDateSpecs';
-import {getDateEditId, isDateEdited} from '../edit-state';
+import {getDateEditId} from '../edit-state';
 
 import {DateTooltip} from './DateTooltip';
 
@@ -20,7 +20,7 @@ export const dateTooltipPlugin = () =>
                         node={node}
                         pos={pos}
                         view={tooltipView}
-                        edited={isDateEdited(tooltipView.state)}
+                        editId={getDateEditId(tooltipView.state)}
                     />
                 ),
             });

@@ -23,11 +23,10 @@ export type DateTooltipProps = {
     pos: number;
     view: EditorView;
     /** The date is opened by a click or an insertion, so the calendar takes the focus. */
-    edited: boolean;
+    editId: number | null;
 };
 
-export function DateTooltip({node, pos, view, edited}: DateTooltipProps) {
-    const rootRef = useRef<HTMLDivElement>(null);
+export function DateTooltip({node, pos, view, editId}: DateTooltipProps) {
     const calendarRef = useRef<CalendarInstance>(null);
     const date: string = node.attrs[DateAttr.Date];
     const value = useMemo(() => toCalendarValue(date), [date]);
@@ -35,8 +34,14 @@ export function DateTooltip({node, pos, view, edited}: DateTooltipProps) {
 
     // Covers a popover opened for editing, `Enter` on an open one and a calendar mounted for a new locale.
     useEffect(() => {
-        if (edited) calendarRef.current?.focus();
-    }, [edited, locale]);
+        let active = true;
+        queueMicrotask(() => {
+            if (active && editId !== null) calendarRef.current?.focus();
+        });
+        return () => {
+            active = false;
+        };
+    }, [editId, locale]);
 
     // Moving the selection out of the date closes the popover.
     const close = () => {
@@ -46,22 +51,18 @@ export function DateTooltip({node, pos, view, edited}: DateTooltipProps) {
         view.dispatch(state.tr.setSelection(selection));
         view.focus();
     };
-    const closeRef = useRef(close);
-    closeRef.current = close;
-
-    // The calendar has no keyboard handler props, so `Escape` is caught on the container.
-    useEffect(() => {
-        const root = rootRef.current;
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') closeRef.current();
-        };
-
-        root?.addEventListener('keydown', onKeyDown);
-        return () => root?.removeEventListener('keydown', onKeyDown);
-    }, []);
 
     return (
-        <div ref={rootRef} className={b()}>
+        <div
+            className={b()}
+            onKeyDownCapture={(event) => {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    close();
+                }
+            }}
+        >
             <Calendar
                 // The calendar reads the locale on render, so it is mounted again for a new one.
                 key={locale}
