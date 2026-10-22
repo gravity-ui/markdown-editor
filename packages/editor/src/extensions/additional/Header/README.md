@@ -63,7 +63,7 @@ S and M heights are minimum heights of 236 and 300 px. S and M widths are 600 an
 
 The content image is independent of the background image. Its attributes are `src`, `alt`, `name` and `enabled` (`true` by default when present). It occupies the half opposite the text. Center alignment hides it and disables its setting without discarding its content. At container widths below 600 px it moves above the text. This also works inside split preview or a narrow parent at a wide viewport.
 
-The empty content image opens the shared image form with device upload and URL tabs. Its compact mode offers a single URL field and accepts one file. A loaded image has a persistent delete button in its top corner; hovering or clicking the photo leaves it unchanged. Deleting the image restores the placeholder and supports undo. The settings panel reuses the same form for replacement.
+The empty content image opens the shared image form with device upload and URL tabs. Its compact mode offers a single URL field and accepts one file. A loaded image has a persistent delete button with a light icon on an opaque dark background in its top corner; hovering or clicking the photo leaves it unchanged. Deleting the image restores the placeholder and supports undo. The settings panel reuses the same form for replacement.
 
 Settings open beside the right edge of the cover, with fallback placement when space is limited. The background popup shows the same image with text in light and dark themes together. A fixed image text theme applies to both previews. Text colors use a compact labeled list; background colors reuse the standard table palette.
 

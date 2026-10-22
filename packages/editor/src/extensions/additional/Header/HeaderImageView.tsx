@@ -37,7 +37,7 @@ function ImageControls({
                     <img className="g-md-header__image" src={src} alt={node.attrs.alt} />
                     <Button
                         className="g-md-header__media-remove"
-                        view="normal"
+                        view="flat-contrast"
                         size="m"
                         aria-label={i18n('media_remove')}
                         disabled={!editorView.editable}

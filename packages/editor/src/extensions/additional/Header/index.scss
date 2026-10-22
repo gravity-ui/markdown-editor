@@ -313,6 +313,8 @@
 }
 
 .g-md-header .g-md-header__media-remove {
+    --g-button-background-color: var(--g-color-base-float-heavy);
+    --g-button-background-color-hover: var(--g-color-base-float-heavy);
     position: absolute;
     z-index: 1;
     inset-block-start: 8px;

@@ -362,6 +362,54 @@ test('should remove only the content image and restore it with undo', async ({
     await expect(remove).toBeVisible();
 });
 
+test('should keep the image delete control legible in both editor themes', async ({
+    mount,
+    page,
+}) => {
+    await mount(<HeaderDemo markupKey="design" />, {width: 1100});
+    const remove = page
+        .locator('.g-md-header__media')
+        .getByRole('button', {name: 'Remove content image', exact: true});
+    const contrast = () =>
+        remove.evaluate((button) => {
+            const rgba = (color: string) => (color.match(/[\d.]+/g) ?? []).map(Number);
+            const foreground = rgba(getComputedStyle(button).color);
+            const background = rgba(getComputedStyle(button, '::before').backgroundColor);
+            const alpha = foreground[3] ?? 1;
+            const text = foreground
+                .slice(0, 3)
+                .map((value, index) => value * alpha + background[index] * (1 - alpha));
+            const luminance = (rgb: number[]) =>
+                rgb.slice(0, 3).reduce((sum, value, index) => {
+                    const channel = value / 255;
+                    return (
+                        sum +
+                        (channel <= 0.04045
+                            ? channel / 12.92
+                            : ((channel + 0.055) / 1.055) ** 2.4) *
+                            [0.2126, 0.7152, 0.0722][index]
+                    );
+                }, 0);
+            const light = luminance(text);
+            const dark = luminance(background);
+            return {
+                alpha: background[3] ?? 1,
+                ratio: (Math.max(light, dark) + 0.05) / (Math.min(light, dark) + 0.05),
+            };
+        });
+    for (const theme of ['light', 'dark'] as const) {
+        await page.emulateMedia({colorScheme: theme});
+        await expect(page.locator('body')).toHaveClass(new RegExp(`g-root_theme_${theme}`));
+        await page.mouse.move(0, 0);
+        await expect(remove).toBeVisible();
+        expect((await contrast()).alpha).toBe(1);
+        await expect.poll(async () => (await contrast()).ratio).toBeGreaterThanOrEqual(3);
+        await remove.hover();
+        expect((await contrast()).alpha).toBe(1);
+        await expect.poll(async () => (await contrast()).ratio).toBeGreaterThanOrEqual(3);
+    }
+});
+
 test('should reuse the image source form from the settings panel', async ({mount, page}) => {
     await mount(<HeaderDemo markupKey="design" />, {width: 1100});
     await page.locator('.g-md-header').hover();
