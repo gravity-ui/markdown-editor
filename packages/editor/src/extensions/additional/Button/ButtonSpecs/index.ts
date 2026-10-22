@@ -3,8 +3,10 @@ import type {ExtensionAuto} from '#core';
 import {
     buttonActionDomAttrs,
     buttonColorDataAttr,
+    buttonTargetDataAttr,
     buttonViewDataAttr,
     normalizeButtonStyle,
+    normalizeButtonTarget,
 } from './attrs';
 import {
     BUTTON_DEFAULT_VIEW,
@@ -27,12 +29,17 @@ const hrefDataAttr = `data-${ButtonAttr.Href}`;
 const escapeLabel = (label: string) => label.replace(/[\\[\]]/g, '\\$&');
 const escapeHref = (href: string) => href.replace(/[\\()]/g, '\\$&');
 
-const serializeStyle = (view: string, color: string) => {
-    const attrs = [
-        view === BUTTON_DEFAULT_VIEW ? '' : `${ButtonAttr.View}=${view}`,
-        color === ButtonColor.Default ? '' : `${ButtonAttr.Color}=${color}`,
+const serializeAttrs = (attrs: Record<string, string>) => {
+    const pairs = [
+        attrs[ButtonAttr.View] === BUTTON_DEFAULT_VIEW
+            ? ''
+            : `${ButtonAttr.View}=${attrs[ButtonAttr.View]}`,
+        attrs[ButtonAttr.Color] === ButtonColor.Default
+            ? ''
+            : `${ButtonAttr.Color}=${attrs[ButtonAttr.Color]}`,
+        attrs[ButtonAttr.Target] ? `${ButtonAttr.Target}=${attrs[ButtonAttr.Target]}` : '',
     ].filter(Boolean);
-    return attrs.length ? `{${attrs.join(' ')}}` : '';
+    return pairs.length ? `{${pairs.join(' ')}}` : '';
 };
 
 export const ButtonSpecs: ExtensionAuto = (builder) => {
@@ -47,6 +54,7 @@ export const ButtonSpecs: ExtensionAuto = (builder) => {
                 [ButtonAttr.Href]: {default: ''},
                 [ButtonAttr.View]: {default: BUTTON_DEFAULT_VIEW},
                 [ButtonAttr.Color]: {default: ButtonColor.Default},
+                [ButtonAttr.Target]: {default: ''},
             },
             parseDOM: [
                 {
@@ -65,6 +73,10 @@ export const ButtonSpecs: ExtensionAuto = (builder) => {
                                 '',
                             [ButtonAttr.View]: style.view,
                             [ButtonAttr.Color]: style.color,
+                            [ButtonAttr.Target]: normalizeButtonTarget(
+                                action?.getAttribute(buttonTargetDataAttr) ??
+                                    action?.getAttribute('target'),
+                            ),
                         };
                     },
                 },
@@ -83,6 +95,7 @@ export const ButtonSpecs: ExtensionAuto = (builder) => {
                             ),
                         ),
                         [hrefDataAttr]: node.attrs[ButtonAttr.Href],
+                        [buttonTargetDataAttr]: node.attrs[ButtonAttr.Target],
                     },
                     node.attrs[ButtonAttr.Label],
                 ],
@@ -96,13 +109,13 @@ export const ButtonSpecs: ExtensionAuto = (builder) => {
                 [ButtonAttr.Href]: token.attrGet(ButtonAttr.Href) ?? '',
                 [ButtonAttr.View]: token.attrGet(buttonViewDataAttr),
                 [ButtonAttr.Color]: token.attrGet(buttonColorDataAttr),
+                [ButtonAttr.Target]: token.attrGet(buttonTargetDataAttr) ?? '',
             }),
         }))
         .addNodeSerializerSpec(buttonNodeName, () => (state, node) => {
             const label = escapeLabel(node.attrs[ButtonAttr.Label]);
             const href = escapeHref(node.attrs[ButtonAttr.Href]);
-            const style = serializeStyle(node.attrs[ButtonAttr.View], node.attrs[ButtonAttr.Color]);
-            state.write(`::${buttonDirectiveName}[${label}](${href})${style}`);
+            state.write(`::${buttonDirectiveName}[${label}](${href})${serializeAttrs(node.attrs)}`);
             state.closeBlock(node);
         });
 };

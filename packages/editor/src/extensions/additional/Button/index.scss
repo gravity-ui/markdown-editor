@@ -1,38 +1,69 @@
 @use './colors';
 
-// Размер L кнопки uikit, стили и цвета — из макета.
+// Размер L из макета: поля 9 × 16 px, радиус 12 px.
+
 .g-md-button {
     margin: 0 0 15px;
 
     &__action {
-        @include colors.button-colors;
-
         display: inline-flex;
+        justify-content: center;
         align-items: center;
 
         box-sizing: border-box;
-        height: 36px;
-        padding: 0 var(--g-spacing-4);
+        max-width: 100%;
+        min-height: 36px;
+        padding: 9px 16px;
 
-        font-size: var(--g-text-body-1-font-size);
-        line-height: var(--g-text-body-1-line-height);
+        font-family: var(--g-text-body-font-family);
+        font-size: 14px;
+        line-height: 18px;
         text-decoration: none;
+        overflow-wrap: anywhere;
 
         color: var(--g-md-button-text);
-        border-radius: var(--g-border-radius-l);
+        border-radius: 12px;
+        background-color: transparent;
+
+        transition: background-color 0.15s linear;
+        @include colors.button-colors;
+
+        &:hover,
+        &:focus,
+        &:active {
+            text-decoration: none;
+
+            color: var(--g-md-button-text);
+        }
+
+        &:hover {
+            background-color: var(--g-color-base-simple-hover);
+        }
 
         &[data-view='action'] {
-            color: var(--g-md-button-contrast);
             background-color: var(--g-md-button-heavy);
 
-            &:hover {
+            &,
+            &:hover,
+            &:focus,
+            &:active {
                 color: var(--g-md-button-contrast);
+            }
+
+            &:hover {
                 background-color: var(--g-md-button-heavy-hover);
             }
         }
 
         &[data-view='normal'] {
             background-color: var(--g-md-button-light);
+
+            &,
+            &:hover,
+            &:focus,
+            &:active {
+                color: var(--g-md-button-light-text);
+            }
 
             &:hover {
                 background-color: var(--g-md-button-light-hover);
@@ -41,17 +72,6 @@
 
         &[data-view='outlined'] {
             box-shadow: inset 0 0 0 1px var(--g-md-button-line);
-        }
-
-        &[data-view='outlined'],
-        &[data-view='flat'] {
-            &:hover {
-                background-color: var(--g-color-base-simple-hover);
-            }
-        }
-
-        &:hover {
-            color: var(--g-md-button-text);
         }
     }
 }

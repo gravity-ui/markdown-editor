@@ -8,6 +8,7 @@ import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {BlockquoteSpecs, blockquoteNodeName} from '../../markdown/specs';
 
 import {
+    BUTTON_TARGET_BLANK,
     ButtonAttr,
     ButtonColor,
     ButtonSpecs,
@@ -31,13 +32,17 @@ const button = (
     label: string,
     href: string,
     {view, color}: ButtonStyle = {view: ButtonView.Action, color: ButtonColor.Default},
+    target = '',
 ) =>
     schema.node(buttonNodeName, {
         [ButtonAttr.Label]: label,
         [ButtonAttr.Href]: href,
         [ButtonAttr.View]: view,
         [ButtonAttr.Color]: color,
+        [ButtonAttr.Target]: target,
     });
+
+const accent = {view: ButtonView.Action, color: ButtonColor.Default};
 
 const {same, parse} = createMarkupChecker({parser: markupParser, serializer});
 
@@ -97,6 +102,23 @@ describe('Button', () => {
         ],
     ])('should normalize %s', (_name, attrs, style) => {
         parse(`::button[Open](/a)${attrs}`, doc(button('Open', '/a', style)));
+    });
+
+    it('should keep a new tab target after the style', () => {
+        same(
+            '::button[Open](/a){color=red target=_blank}',
+            doc(button('Open', '/a', {...accent, color: ButtonColor.Red}, BUTTON_TARGET_BLANK)),
+        );
+    });
+
+    it('should drop an unknown target', () => {
+        parse('::button[Open](/a){target=_top}', doc(button('Open', '/a')));
+    });
+
+    it('should render a new tab link without access to the opener', () => {
+        expect(md.render('::button[Open](/a){target=_blank}')).toBe(
+            '<div class="g-md-button"><a class="g-md-button__action" data-view="action" data-color="default" href="/a" target="_blank" rel="noopener noreferrer">Open</a></div>\n',
+        );
     });
 
     it('should render a link with the style and the escaped label', () => {

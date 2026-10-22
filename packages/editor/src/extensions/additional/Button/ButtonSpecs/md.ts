@@ -4,8 +4,10 @@ import type MarkdownIt from 'markdown-it';
 import {
     buttonActionDomAttrs,
     buttonColorDataAttr,
+    buttonTargetDataAttr,
     buttonViewDataAttr,
     normalizeButtonStyle,
+    normalizeButtonTarget,
 } from './attrs';
 import {ButtonAttr, buttonClassName, buttonDirectiveName, buttonTokenName} from './const';
 
@@ -28,6 +30,7 @@ export const buttonDirective = (md: MarkdownIt) => {
                 [ButtonAttr.Href, md.validateLink(href) ? href : ''],
                 [buttonViewDataAttr, style.view],
                 [buttonColorDataAttr, style.color],
+                [buttonTargetDataAttr, normalizeButtonTarget(attrs?.[ButtonAttr.Target])],
             ];
             return true;
         },
@@ -39,9 +42,11 @@ export const buttonDirective = (md: MarkdownIt) => {
             token.attrGet(buttonViewDataAttr),
             token.attrGet(buttonColorDataAttr),
         );
+        const target = normalizeButtonTarget(token.attrGet(buttonTargetDataAttr));
         const attrs = Object.entries({
             ...buttonActionDomAttrs(style),
             href: md.normalizeLink(token.attrGet(ButtonAttr.Href) ?? ''),
+            ...(target && {target, rel: 'noopener noreferrer'}),
         })
             .map(([name, value]) => ` ${name}="${escapeHtml(value)}"`)
             .join('');
