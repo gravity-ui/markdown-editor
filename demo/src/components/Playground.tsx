@@ -131,6 +131,9 @@ export const Playground = memo<PlaygroundProps>((props) => {
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
     const [previewVisible, setPreviewVisible] = useState(false);
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
+    const [headingEdit, setHeadingEdit] = useState<{line: number; source: MarkupString} | null>(
+        null,
+    );
 
     useEffect(() => {
         if (!syncMarkupToUrl) return undefined;
@@ -158,6 +161,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 }}
                 disableMarkdownItAttrs={disableMarkdownItAttrs}
                 htmlRuntimeConfig={htmlRuntimeConfig}
+                onHeadingEdit={(line, source) => setHeadingEdit({line, source})}
             />
         ),
         [sanitizeHtml, htmlRuntimeConfig, disableMarkdownItAttrs],
@@ -306,6 +310,21 @@ export const Playground = memo<PlaygroundProps>((props) => {
             markupParseHtmlOnPaste,
         ],
     );
+
+    useEffect(() => {
+        if (!headingEdit) return;
+        if (headingEdit.source !== mdEditor.getValue()) {
+            setHeadingEdit(null);
+            return;
+        }
+        if (mdEditor.previewVisible) {
+            mdEditor.changePreviewVisible(false);
+            return;
+        }
+        mdEditor.moveCursor({line: headingEdit.line});
+        mdEditor.focus();
+        setHeadingEdit(null);
+    }, [headingEdit, mdEditor, previewVisible]);
 
     useEffect(() => {
         function onCancel() {

@@ -12,8 +12,10 @@ import {MarkdownViewer, cnYFM} from '@gravity-ui/markdown-viewer';
 import {
     FilesGallery,
     type FilesGallerySource,
+    HeadingAnchors,
     YfmCodeBlockActions,
 } from '@gravity-ui/markdown-viewer/extensions';
+import {sp} from '@gravity-ui/uikit';
 import type MarkdownIt from 'markdown-it';
 import {useDebounce} from 'react-use';
 
@@ -26,11 +28,14 @@ import {
     getPlugins,
 } from '../defaults/md-plugins';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
+import {lineNumbersPlugin} from '../stories/examples/line-numbers/md-plugin';
+import {getHeadingHref, navigateToHeading} from '../stories/viewer/heading-links';
 
 import {DiplodocHtml} from './viewer-extensions/DiplodocHtml';
 import {DiplodocLatex} from './viewer-extensions/DiplodocLatex';
 import {DiplodocMermaid} from './viewer-extensions/DiplodocMermaid';
 import {DiplodocPageConstructor} from './viewer-extensions/DiplodocPageConstructor';
+import {HeadingEditButtons} from './viewer-extensions/HeadingEditButtons';
 import type {TransformMeta} from './viewer-extensions/types';
 
 import '@diplodoc/cut-extension/runtime/styles.css';
@@ -55,6 +60,7 @@ export type SplitModePreviewProps = {
     needToSanitizeHtml?: boolean;
     htmlRuntimeConfig?: HTMLRuntimeConfig;
     disableMarkdownItAttrs?: boolean;
+    onHeadingEdit?: (line: number, source: MarkupString) => void;
 };
 
 export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
@@ -69,6 +75,7 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
         needToSanitizeHtml,
         htmlRuntimeConfig,
         disableMarkdownItAttrs,
+        onHeadingEdit,
     } = props;
     const {
         directiveSyntax,
@@ -88,12 +95,18 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
         ],
         [directiveSyntax, ignoreSplittersInBlockMath, ignoreSplittersInInlineMath, extraPlugins],
     );
-    const [result, setResult] = useState<{html: string; meta?: TransformMeta}>({html: ''});
+    const [result, setResult] = useState<{
+        html: string;
+        meta?: TransformMeta;
+        source: MarkupString;
+    }>({html: '', source: ''});
 
     useDebounce(
         () => {
-            setResult(
-                transform(getValue(), {
+            const source = getValue();
+            setResult({
+                ...transform(source, {
+                    disableLiquid: true,
                     allowHTML,
                     breaks,
                     linkify,
@@ -107,9 +120,11 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
                         ...(disableMarkdownItAttrs
                             ? [(md: MarkdownIt) => md.core.ruler.disable('curly_attributes')]
                             : []),
+                        lineNumbersPlugin,
                     ],
                 }).result,
-            );
+                source,
+            });
         },
         200,
         [props],
@@ -122,8 +137,16 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
             <MarkdownViewer
                 qa="demo-md-preview"
                 html={result.html}
-                className={cnYFM({'no-list-reset': true}, 'demo-preview')}
+                className={cnYFM({'no-list-reset': true}, ['demo-preview', sp({pl: 6})])}
             >
+                <HeadingAnchors getHref={getHeadingHref} onClick={navigateToHeading} />
+                {onHeadingEdit && (
+                    <HeadingEditButtons
+                        onClick={(_event, line) => {
+                            if (result.source === getValue()) onHeadingEdit(line, result.source);
+                        }}
+                    />
+                )}
                 <YfmCodeBlockActions />
                 <FilesGallery getCopyUrl={getGalleryUrl} getDownloadUrl={getGalleryUrl} />
                 <DiplodocLatex meta={result.meta} runtime={LATEX_RUNTIME} />
