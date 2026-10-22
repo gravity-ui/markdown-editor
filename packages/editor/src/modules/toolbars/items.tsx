@@ -9,6 +9,7 @@ import {WToolbarTextSelect} from '../../bundle/toolbar/wysiwyg/WToolbarTextSelec
 import {showMarkupGpt} from '../../extensions/additional/GPT';
 import {gptHotKeys} from '../../extensions/additional/GPT/constants';
 import {headingType, pType} from '../../extensions/specs';
+import {i18n as i18nDate} from '../../i18n/date';
 import {i18n as i18nGpt} from '../../i18n/gpt/extension';
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n as i18nLabel} from '../../i18n/label';
@@ -747,6 +748,19 @@ export const labelItemWysiwyg: ToolbarItemWysiwyg = {
     isActive: (editor) => editor.actions.addLabel?.isActive() ?? false,
     isEnable: (editor) => editor.actions.addLabel?.isEnable() ?? false,
     exec: (editor) => editor.actions.addLabel.run(),
+};
+
+// ---- Date ----
+export const dateItemView: ToolbarItemView = {
+    type: ToolbarDataType.SingleButton,
+    title: i18nDate.bind(null, 'button'),
+    icon: icons.date,
+    aliases: ['calendar', 'day'],
+};
+export const dateItemWysiwyg: ToolbarItemWysiwyg = {
+    isActive: (editor) => editor.actions.addDate?.isActive() ?? false,
+    isEnable: (editor) => editor.actions.addDate?.isEnable() ?? false,
+    exec: (editor) => editor.actions.addDate.run(),
 };
 
 // ---- Toggle Heading Folding ----

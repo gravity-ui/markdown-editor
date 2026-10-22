@@ -445,6 +445,12 @@ importers:
       '@floating-ui/react':
         specifier: ^0.27.16
         version: 0.27.16(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@gravity-ui/date-components':
+        specifier: ~3.2.4
+        version: 3.2.4(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@gravity-ui/date-utils':
+        specifier: ^2.5.6
+        version: 2.5.6
       '@gravity-ui/i18n':
         specifier: ^1.7.0
         version: 1.8.0
@@ -2249,6 +2255,13 @@ packages:
       '@gravity-ui/uikit': ^7.0.0
       react: ^16.14.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0
+
+  '@gravity-ui/date-components@3.2.4':
+    resolution: {integrity: sha512-R/AfVKdcuLmWcibBlbqz3Q89L5I6CbSgYRpqzm4rBFujuf3Di+e3JyZMNjs8ILwl+wkqUGJiG7ns7+Sc/oKeNg==}
+    peerDependencies:
+      '@gravity-ui/uikit': ^7.0.0
+      react: '>=17.0.0'
+      react-dom: '>=17.0.0'
 
   '@gravity-ui/date-components@3.4.2':
     resolution: {integrity: sha512-3RWf2k2B8oeM3q90UutCnWFtiUBs6A7phqFd444UqA5hFCPG2AeH/RrCishNfQqOzdxlm3lZDSApLm4wnPrCcg==}
@@ -10861,6 +10874,16 @@ snapshots:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       universal-cookie: 7.2.2
+
+  '@gravity-ui/date-components@3.2.4(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+    dependencies:
+      '@bem-react/classname': 1.8.0
+      '@gravity-ui/date-utils': 2.5.6
+      '@gravity-ui/icons': 2.13.0(react@18.2.0)
+      '@gravity-ui/uikit': 7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      tslib: 2.8.1
 
   '@gravity-ui/date-components@3.4.2(@gravity-ui/date-utils@2.5.6)(@gravity-ui/uikit@7.13.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.0.28)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:

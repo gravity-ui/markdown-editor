@@ -24,6 +24,8 @@ import {
     cutItemMarkup,
     cutItemView,
     cutItemWysiwyg,
+    dateItemView,
+    dateItemWysiwyg,
     emojiItemMarkup,
     emojiItemView,
     emojiItemWysiwyg,
@@ -618,6 +620,10 @@ export const full: ToolbarsPreset = {
             view: labelItemView,
             wysiwyg: labelItemWysiwyg,
         },
+        [Action.date]: {
+            view: dateItemView,
+            wysiwyg: dateItemWysiwyg,
+        },
     },
     orders: {
         ...yfm.orders,
@@ -660,6 +666,7 @@ export const full: ToolbarsPreset = {
                 Action.file,
                 Action.tabs,
                 Action.label,
+                Action.date,
             ],
         ],
         [Toolbar.wysiwygMain]: [
@@ -697,7 +704,7 @@ export const full: ToolbarsPreset = {
                     items: [Action.codeInline, Action.codeBlock],
                 },
             ],
-            [Action.image, Action.file, Action.table, Action.checkbox, Action.label],
+            [Action.image, Action.file, Action.table, Action.checkbox, Action.label, Action.date],
         ],
         [Toolbar.markupMain]: [
             [Action.undo, Action.redo],

@@ -4,6 +4,7 @@ import {
     CodeBlockIcon,
     CodeInlineIcon,
     CutIcon,
+    DateIcon,
     EmojiIcon,
     FileIcon,
     FoldingHeadingIcon,
@@ -86,6 +87,7 @@ type Icon =
     | 'html'
     | 'foldingHeading'
     | 'label'
+    | 'date'
     | 'gpt';
 
 type Icons = Record<Icon, ToolbarIconData>;
@@ -148,6 +150,7 @@ export const icons: Icons = {
     foldingHeading: {data: FoldingHeadingIcon},
 
     label: {data: LabelIcon},
+    date: {data: DateIcon},
 
     gpt: {data: GPTIcon},
 };
