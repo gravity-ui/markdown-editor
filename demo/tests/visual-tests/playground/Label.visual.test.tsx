@@ -697,18 +697,19 @@ test.describe('Label boundary regressions', () => {
             .first()
             .click({position: {x: 100, y: 8}});
         await editor.press('Home');
-        await expect(page.locator('.playground__pm-selection')).toContainText('Cursor: 1');
+        await expect(page.locator('.playground__pm-selection')).toContainText(/Cursor: 1$/);
         await editor.press('End');
-        await expect(page.locator('.playground__pm-selection')).toContainText('Cursor: 14');
+        await expect(page.locator('.playground__pm-selection')).toContainText(/Cursor: 14$/);
         for (let i = 0; i < 3; i++) {
             // Repeated clicks within 500 ms select words/paragraphs in ProseMirror.
+            // Control+Home updates ProseMirror through the native selectionchange event.
             await editor.press('Control+Home');
-            await expect(page.locator('.playground__pm-selection')).toContainText('Cursor: 1');
+            await expect(page.locator('.playground__pm-selection')).toContainText(/Cursor: 1$/);
             await editor.press('End');
-            await expect(page.locator('.playground__pm-selection')).toContainText('Cursor: 14');
+            await expect(page.locator('.playground__pm-selection')).toContainText(/Cursor: 14$/);
             await editor.press('Home');
             await editor.press('ArrowDown');
-            await expect(page.locator('.playground__pm-selection')).toContainText('Cursor: 16');
+            await expect(page.locator('.playground__pm-selection')).toContainText(/Cursor: 16$/);
         }
     });
 });
