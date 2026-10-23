@@ -12,6 +12,7 @@ import {headingType, pType} from '../../extensions/specs';
 import {i18n as i18nGpt} from '../../i18n/gpt/extension';
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n} from '../../i18n/menubar';
+import {i18n as i18nStatus} from '../../i18n/status';
 import {
     insertBlockquoteLink,
     insertHRule,
@@ -733,6 +734,19 @@ export const liftListItemMarkup: ToolbarItemMarkup = {
     exec: (e) => liftListItemCommand(e.cm),
     isActive: inactive,
     isEnable: enable,
+};
+
+// ---- Status ----
+export const statusItemView: ToolbarItemView = {
+    type: ToolbarDataType.SingleButton,
+    title: i18nStatus.bind(null, 'button'),
+    icon: icons.status,
+    aliases: ['badge', 'label'],
+};
+export const statusItemWysiwyg: ToolbarItemWysiwyg = {
+    isActive: (editor) => editor.actions.addStatus?.isActive() ?? false,
+    isEnable: (editor) => editor.actions.addStatus?.isEnable() ?? false,
+    exec: (editor) => editor.actions.addStatus.run(),
 };
 
 // ---- Toggle Heading Folding ----

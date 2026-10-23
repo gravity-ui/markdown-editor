@@ -1,0 +1,123 @@
+@use 'sass:map';
+
+// Hue and saturation per color; lightness is fixed per theme, so the row stays even.
+$colors: (
+    'gray': (
+        hue: 220,
+        saturation: 10%,
+        // Gray is the neutral badge: its caption is the text color of the document.
+        text: var(--g-color-text-primary),
+    ),
+    'blue': (
+        hue: 222,
+        saturation: 80%,
+    ),
+    'teal': (
+        hue: 185,
+        saturation: 62%,
+    ),
+    'green': (
+        hue: 142,
+        saturation: 55%,
+    ),
+    'lime': (
+        hue: 95,
+        saturation: 62%,
+    ),
+    'yellow': (
+        hue: 50,
+        saturation: 90%,
+    ),
+    'orange': (
+        hue: 26,
+        saturation: 92%,
+    ),
+    'red': (
+        hue: 356,
+        saturation: 80%,
+    ),
+    'magenta': (
+        hue: 318,
+        saturation: 70%,
+    ),
+    'purple': (
+        hue: 268,
+        saturation: 70%,
+    ),
+);
+
+@function caption($color, $hue, $saturation, $lightness) {
+    // A color may declare a caption of its own instead of the hue-derived one.
+    $text: map.get($color, text);
+
+    @if $text {
+        @return $text;
+    }
+
+    // $lightness keeps the caption at 4.5:1 against the fill.
+    @return hsl($hue, $saturation, $lightness);
+}
+
+@mixin palette($saturation-scale, $background-lightness, $border-lightness, $text-lightness) {
+    @each $name, $color in $colors {
+        $hue: map.get($color, hue);
+        $saturation: map.get($color, saturation) * $saturation-scale;
+        $text: caption($color, $hue, $saturation, $text-lightness);
+
+        --g-md-status-#{$name}-background: #{hsl($hue, $saturation, $background-lightness)};
+        --g-md-status-#{$name}-border: #{hsl($hue, $saturation, $border-lightness)};
+        --g-md-status-#{$name}-text: #{$text};
+    }
+}
+
+.g-root {
+    @include palette(1, 90%, 70%, 26%);
+}
+
+.g-root_theme_dark,
+.g-root_theme_dark-hc {
+    @include palette(0.45, 24%, 42%, 78%);
+}
+
+.g-md-status {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 0 0.4em;
+
+    // The badge stays within the line box of the surrounding text, so a line with a
+    // badge is as tall as a line without one.
+    font-size: 0.85em;
+    line-height: 1.25;
+    white-space: nowrap;
+
+    border: 1px solid;
+    border-radius: 4px;
+
+    @each $name in map.keys($colors) {
+        &_color_#{$name} {
+            color: var(--g-md-status-#{$name}-text);
+            border-color: var(--g-md-status-#{$name}-border);
+            background-color: var(--g-md-status-#{$name}-background);
+        }
+    }
+
+    &_swatch {
+        justify-content: center;
+
+        box-sizing: border-box;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+
+        cursor: pointer;
+
+        color: var(--g-color-text-primary);
+        border-radius: 6px;
+
+        &:focus-visible {
+            outline: 2px solid var(--g-color-line-focus);
+            outline-offset: 1px;
+        }
+    }
+}

@@ -3,6 +3,7 @@ export * from './Color';
 export * from './Emoji';
 export * from './ImgSize';
 export * from './Monospace';
+export * from './Status';
 export * from './Video';
 export * from './YfmConfigs';
 export * from './YfmCut';
