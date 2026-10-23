@@ -3,13 +3,7 @@ export const headerDirectiveName = 'header';
 export const headerTokenName = 'header';
 export const headerMarkupAttr = 'markup';
 
-export const HeaderSlot = {
-    Title: 'header-title',
-    Content: 'header-content',
-    Image: 'header-image',
-    Actions: 'header-actions',
-} as const;
-
+export const headerImageName = 'image';
 export const headerActionName = 'action';
 
 /** Токены превью, из которых собирается HTML блока. */
@@ -31,6 +25,7 @@ export const HeaderAttr = {
     Vertical: 'vertical',
     Border: 'border',
     Background: 'bg',
+    /** Адрес фонового изображения. В разметке его задаёт `bg`, отдельного параметра нет. */
     Image: 'image',
     Layout: 'layout',
     Fit: 'fit',
@@ -54,7 +49,7 @@ export const HeaderBorder = {
     Dotted: 'dotted',
 } as const;
 
-/** Фон: заливка `fill` или фоновое изображение из `image`. */
+/** Фон: заливка `fill` или фоновое изображение. В разметке вместо `image` в `bg` пишется адрес. */
 export const HeaderBackground = {Fill: 'fill', Image: 'image'} as const;
 
 /** Раскладка фонового изображения: на всю площадь или объектом внутри отступов. */
@@ -135,7 +130,9 @@ export const HeaderSide = {Left: 'left', Right: 'right'} as const;
 export const HeaderActionType = {Button: 'button', Link: 'link'} as const;
 export const HeaderActionColor = HeaderFill;
 
-export const HEADER_TITLE_SIZES = ['1', '2', '3', '4', '5', '6'] as const;
+/** Параметр контейнера с уровнем заголовка блока. В модель параметров он не входит: на корне HTML его нет. */
+export const HEADER_TITLE_LEVEL_ATTR = 'h';
+export const HEADER_TITLE_LEVELS = ['1', '2', '3', '4', '5', '6'] as const;
 export const HEADER_MAX_ACTIONS = 3;
 
 type ValueOf<T> = T[keyof T];

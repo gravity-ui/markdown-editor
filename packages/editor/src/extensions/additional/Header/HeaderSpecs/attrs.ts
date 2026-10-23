@@ -1,5 +1,6 @@
 import {
-    HEADER_TITLE_SIZES,
+    HEADER_TITLE_LEVELS,
+    HEADER_TITLE_LEVEL_ATTR,
     HeaderActionColor,
     type HeaderActionColorValue,
     HeaderActionType,
@@ -35,14 +36,13 @@ function choose<T extends string>(value: unknown, values: readonly T[], fallback
     return values.includes(value as T) ? (value as T) : fallback;
 }
 
-const choices: Record<Exclude<keyof HeaderAttrs, 'image'>, readonly string[]> = {
+const choices: Record<Exclude<keyof HeaderAttrs, 'bg' | 'image'>, readonly string[]> = {
     [HeaderAttr.Format]: Object.values(HeaderFormat),
     [HeaderAttr.Edges]: Object.values(HeaderEdges),
     [HeaderAttr.Fixed]: ['true', 'false'],
     [HeaderAttr.Align]: Object.values(HeaderAlign),
     [HeaderAttr.Vertical]: Object.values(HeaderVertical),
     [HeaderAttr.Border]: Object.values(HeaderBorder),
-    [HeaderAttr.Background]: Object.values(HeaderBackground),
     [HeaderAttr.Layout]: Object.values(HeaderLayout),
     [HeaderAttr.Fit]: Object.values(HeaderFit),
     [HeaderAttr.Focus]: Object.values(HeaderFocus),
@@ -56,19 +56,20 @@ const choices: Record<Exclude<keyof HeaderAttrs, 'image'>, readonly string[]> = 
 
 const ATTR_ORDER = Object.values(HeaderAttr);
 
-/** `bg="image"` без адреса в `image` заменяется заливкой: показывать нечего. */
+/** `bg="fill"` или пустой `bg` — заливка. Любое другое значение `bg` — адрес фонового изображения. */
+function parseBackground(value: unknown): Pick<HeaderAttrs, 'bg' | 'image'> {
+    const bg = typeof value === 'string' ? value.trim() : '';
+    if (!bg || bg === HeaderBackground.Fill) return {bg: HeaderBackground.Fill, image: ''};
+    return {bg: HeaderBackground.Image, image: bg};
+}
+
 export function normalizeHeaderAttrs(raw: RawAttrs = {}): HeaderAttrs {
     const attrs = {...HeaderDefaults} as HeaderAttrs;
     for (const name of ATTR_ORDER) {
-        const value = raw[name];
-        if (name === HeaderAttr.Image) {
-            attrs[name] = typeof value === 'string' ? value.trim() : '';
-        } else {
-            attrs[name] = choose(value, choices[name], HeaderDefaults[name]);
-        }
+        if (name === HeaderAttr.Background || name === HeaderAttr.Image) continue;
+        attrs[name] = choose(raw[name], choices[name], HeaderDefaults[name]);
     }
-    if (!attrs[HeaderAttr.Image]) attrs[HeaderAttr.Background] = HeaderBackground.Fill;
-    return attrs;
+    return {...attrs, ...parseBackground(raw[HeaderAttr.Background])};
 }
 
 export function hasImage(attrs: HeaderAttrs): boolean {
@@ -103,21 +104,28 @@ export function isAttrUsed(attr: keyof HeaderAttrs, attrs: HeaderAttrs): boolean
 
 const quote = (value: string): string => `"${value.replace(/[\\"]/g, '\\$&')}"`;
 
-/** Для будущего ВИЗИВИГ: пока заглушка печатает исходную разметку блока. */
+/**
+ * Параметры контейнера в фигурных скобках: уровень заголовка, затем параметры блока.
+ * Для будущего ВИЗИВИГ: пока заглушка печатает исходную разметку блока.
+ */
 export function serializeHeaderAttrs(raw: RawAttrs): string {
     const attrs = normalizeHeaderAttrs(raw);
-    const pairs: string[] = [];
+    const level = normalizeHeaderTitleLevel(raw);
+    const pairs = level === 1 ? [] : [`${HEADER_TITLE_LEVEL_ATTR}=${quote(String(level))}`];
     for (const name of ATTR_ORDER) {
-        if (!isAttrUsed(name, attrs)) continue;
-        const value = attrs[name];
-        if (!value || value === HeaderDefaults[name]) continue;
+        if (name === HeaderAttr.Image || !isAttrUsed(name, attrs)) continue;
+        const value =
+            name === HeaderAttr.Background && hasImage(attrs)
+                ? attrs[HeaderAttr.Image]
+                : attrs[name];
+        if (value === HeaderDefaults[name]) continue;
         pairs.push(`${name}=${quote(value)}`);
     }
     return pairs.length ? `{${pairs.join(' ')}}` : '';
 }
 
-export function normalizeHeaderTitleSize(raw: RawAttrs = {}): number {
-    return Number(choose(raw.size, HEADER_TITLE_SIZES, '1'));
+export function normalizeHeaderTitleLevel(raw: RawAttrs = {}): number {
+    return Number(choose(raw[HEADER_TITLE_LEVEL_ATTR], HEADER_TITLE_LEVELS, '1'));
 }
 
 export type HeaderImageAttrs = {
