@@ -1,0 +1,30 @@
+// Размеры из макета: панель 320 px, подпись 120 px, поле 158 px.
+.g-md-header-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    box-sizing: border-box;
+    width: 320px;
+    padding: 16px;
+
+    &__title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__label {
+        flex: 0 0 120px;
+    }
+
+    &__control {
+        flex: 1;
+    }
+}
