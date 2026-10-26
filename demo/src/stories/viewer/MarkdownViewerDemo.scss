@@ -20,3 +20,16 @@
         align-items: flex-start;
     }
 }
+
+.markdown-viewer-demo__content :is(h1, h2, h3, h4, h5, h6) > [data-markdown-viewer-slot] {
+    font-weight: normal;
+}
+
+.markdown-viewer-demo__feedback {
+    border-radius: var(--g-border-radius-m);
+    background: var(--g-color-base-generic);
+}
+
+.markdown-viewer-demo__feedback-toggle {
+    flex-shrink: 0;
+}
