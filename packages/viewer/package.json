@@ -20,11 +20,13 @@
     "lint:js": "eslint './**/*.{js,jsx,mjs,ts,tsx}'",
     "lint:styles": "stylelint './**/*.{css,scss}' --allow-empty-input",
     "lint:prettier": "prettier --check './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
-    "test": "run-p --continue-on-error test:**",
+    "test": "run-p --continue-on-error test:react18 test:react19 test:package",
     "prepublishOnly": "nx lint && nx clean && nx build",
     "test:react18": "VIEWER_REACT_VERSION=18 vitest run",
     "test:react19": "VIEWER_REACT_VERSION=19 vitest run",
-    "test:package": "pnpm build && node tests/package-imports.mjs",
+    "test:package": "pnpm build && run-p --continue-on-error test:imports:* test:types:*",
+    "test:imports:root": "node tests/package-imports/root.mjs",
+    "test:imports:extensions": "node tests/package-imports/extensions.mjs",
     "test:types:react18": "tsc -p tests/types/tsconfig.json --noEmit",
     "test:types:react19": "tsc -p tests/types/tsconfig.react19.json --noEmit"
   },
@@ -38,7 +40,18 @@
         "types": "./build/cjs/index.d.ts",
         "default": "./build/cjs/index.js"
       }
-    }
+    },
+    "./extensions": {
+      "import": {
+        "types": "./build/esm/extensions.d.ts",
+        "default": "./build/esm/extensions.js"
+      },
+      "require": {
+        "types": "./build/cjs/extensions.d.ts",
+        "default": "./build/cjs/extensions.js"
+      }
+    },
+    "./styles.css": "./build/styles.css"
   },
   "main": "build/cjs/index.js",
   "module": "build/esm/index.js",
@@ -49,6 +62,7 @@
   ],
   "dependencies": {
     "@bem-react/classname": "^1.6.0",
+    "@gravity-ui/icons": "^2.12.0",
     "tslib": "catalog:ts"
   },
   "devDependencies": {
@@ -65,6 +79,7 @@
     "@markdown-editor/vitest-config": "workspace:*",
     "vitest": "catalog:testing",
     "jsdom": "25.0.1",
+    "esbuild": "^0.28.2",
     "@markdown-viewer-tests/react19": "workspace:*"
   },
   "peerDependencies": {
