@@ -29,6 +29,10 @@
         }
     }
 
+    &__hotkey_disabled {
+        color: inherit;
+    }
+
     &__action-disabled-popover {
         display: block;
 
