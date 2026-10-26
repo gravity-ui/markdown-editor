@@ -1,0 +1,22 @@
+.markdown-viewer-demo {
+    max-width: 880px;
+}
+
+.markdown-viewer-demo__content {
+    overflow: hidden;
+
+    border: 1px solid var(--g-color-line-generic);
+    border-radius: var(--g-border-radius-xl);
+    background: var(--g-color-base-background);
+}
+
+.markdown-viewer-demo__content .yfm-code-floating-container .yfm-code-floating {
+    display: none;
+}
+
+@media (width <= 560px) {
+    .markdown-viewer-demo__toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

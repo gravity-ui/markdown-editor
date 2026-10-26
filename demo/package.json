@@ -35,6 +35,7 @@
     "@gravity-ui/markdown-editor": "workspace:*",
     "@gravity-ui/markdown-editor-latex-extension": "workspace:*",
     "@gravity-ui/markdown-editor-page-constructor-extension": "workspace:*",
+    "@gravity-ui/markdown-viewer": "workspace:*",
     "@gravity-ui/page-constructor": "catalog:peer-gravity",
     "@gravity-ui/uikit": "catalog:peer-gravity",
     "markdown-it": "catalog:peers"
@@ -81,14 +82,12 @@
     "targets": {
       "playwright": {
         "dependsOn": [
-          "^clean",
-          "^build"
+          "prepare-deps"
         ]
       },
       "sb:build": {
         "dependsOn": [
-          "^clean",
-          "^build"
+          "prepare-deps"
         ],
         "outputs": [
           "{projectRoot}/demo/storybook-static"
@@ -98,10 +97,24 @@
       "sb:start": {
         "continuous": true,
         "dependsOn": [
-          "^clean",
           "^build",
           "watch-deps"
         ]
+      },
+      "clean-deps": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pnpm run clean"
+        }
+      },
+      "prepare-deps": {
+        "dependsOn": [
+          "clean-deps"
+        ],
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pnpm exec nx build-deps @markdown-editor/demo"
+        }
       },
       "build-deps": {
         "dependsOn": [

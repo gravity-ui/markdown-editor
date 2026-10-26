@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "..",
+    "paths": {
+      "react": ["react19/node_modules/@types/react"],
+      "react/*": ["react19/node_modules/@types/react/*"],
+      "react-dom": ["react19/node_modules/@types/react-dom"],
+      "react-dom/*": ["react19/node_modules/@types/react-dom/*"]
+    }
+  }
+}
