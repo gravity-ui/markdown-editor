@@ -70,6 +70,7 @@
   },
   "devDependencies": {
     "@diplodoc/latex-extension": "catalog:peer-diplodoc",
+    "@gravity-ui/uikit": "catalog:peer-gravity",
     "@markdown-editor/gulp-tasks": "workspace:*",
     "@markdown-editor/tsconfig": "workspace:*",
     "gulp-cli": "catalog:",

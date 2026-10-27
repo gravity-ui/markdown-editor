@@ -1,12 +1,9 @@
-import {useRef} from 'react';
-
 import {DelayedTextInput, FormRow} from '@gravity-ui/components';
 import {Xmark} from '@gravity-ui/icons';
 import {Button, Card, Checkbox, type DOMProps, Flex, Icon, Text, sp} from '@gravity-ui/uikit';
 
 import {cn} from 'src/classname';
 import {i18n} from 'src/i18n/search';
-import {useAutoFocus} from 'src/react-utils/useAutoFocus';
 
 import {SearchQA} from '../qa';
 import type {SearchCounter, SearchState} from '../types';
@@ -16,6 +13,7 @@ import {SearchTextInput} from './SearchTextInput';
 import './SearchCardView.scss';
 
 export type SearchCardViewProps = DOMProps & {
+    inputRef?: React.Ref<HTMLInputElement>;
     counter?: SearchCounter;
     searchState: SearchState;
     onClose: () => void;
@@ -34,6 +32,7 @@ const b = cn('search-card');
 export const SearchCardView: React.FC<SearchCardViewProps> = ({
     style,
     className,
+    inputRef,
 
     counter,
     searchState,
@@ -47,10 +46,6 @@ export const SearchCardView: React.FC<SearchCardViewProps> = ({
     onWholeWordChange,
     onCaseSensitiveChange,
 }) => {
-    const searchInputRef = useRef<HTMLInputElement>(null);
-
-    useAutoFocus(searchInputRef, [], 200);
-
     return (
         <Card
             size="l"
@@ -80,10 +75,10 @@ export const SearchCardView: React.FC<SearchCardViewProps> = ({
 
             <FormRow direction="row" label={i18n('title_search')} className={b('row', sp({mb: 4}))}>
                 <SearchTextInput
+                    controlRef={inputRef}
                     counter={counter}
                     onFindNext={onFindNext}
                     onFindPrevious={onFindPrevious}
-                    controlRef={searchInputRef}
                     className={sp({mb: 2})}
                     onUpdate={onSearchChange}
                     value={searchState.search}
