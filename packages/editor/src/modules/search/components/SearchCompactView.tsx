@@ -1,5 +1,3 @@
-import {useRef} from 'react';
-
 import {ChevronsExpandUpRight, Xmark} from '@gravity-ui/icons';
 import {
     Button,
@@ -14,7 +12,6 @@ import {
 
 import {cn} from 'src/classname';
 import {i18n} from 'src/i18n/search';
-import {useAutoFocus} from 'src/react-utils/useAutoFocus';
 
 import {SearchQA} from '../qa';
 import type {SearchCounter} from '../types';
@@ -27,6 +24,7 @@ const b = cn('search-compact');
 
 export type SearchCompactProps = DOMProps &
     QAProps & {
+        inputRef?: React.Ref<HTMLInputElement>;
         value: string;
         counter?: SearchCounter;
         onChange: (value: string) => void;
@@ -39,6 +37,7 @@ export type SearchCompactProps = DOMProps &
 export const SeachCompactView: React.FC<SearchCompactProps> = function SearchCompactView({
     value,
     counter,
+    inputRef,
 
     onChange,
     onFindNext,
@@ -50,13 +49,10 @@ export const SeachCompactView: React.FC<SearchCompactProps> = function SearchCom
     style,
     className,
 }) {
-    const inputRef = useRef<HTMLInputElement>(null);
-
-    useAutoFocus(inputRef, [], 200);
-
     return (
         <Card spacing={{pr: 1}} data-qa={qa} style={style} className={b(null, className)}>
             <SearchTextInput
+                controlRef={inputRef}
                 counter={counter}
                 onFindNext={onFindNext}
                 onFindPrevious={onFindPrevious}
@@ -64,7 +60,6 @@ export const SeachCompactView: React.FC<SearchCompactProps> = function SearchCom
                 view="clear"
                 delay={300}
                 onUpdate={onChange}
-                controlRef={inputRef}
                 placeholder={i18n('search_placeholder')}
                 className={sp({pl: 3})}
             />

@@ -186,7 +186,19 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             default:
                 throw new Error('Unknown editor mode: ' + newMode);
         }
+        const ownerDocument =
+            this.#markupEditor?.cm.dom.ownerDocument ?? this.#wysiwygEditor?.dom.ownerDocument;
+        const activeElement = ownerDocument?.activeElement;
         setTimeout(() => {
+            // Search may open before this timer runs. Do not take focus from its input.
+            // Removing the old editor can move focus to body; still focus the new editor then.
+            if (
+                ownerDocument &&
+                ownerDocument.activeElement !== activeElement &&
+                ownerDocument.activeElement !== ownerDocument.body
+            ) {
+                return;
+            }
             this.currentEditor.focus();
         }, 30);
     }
