@@ -1,3 +1,4 @@
+import {CompletionContext, type CompletionSource} from '@codemirror/autocomplete';
 import {describe, expect, it, vi} from 'vitest';
 
 import {ReactRenderStorage} from '../extensions';
@@ -25,6 +26,36 @@ function createEditorWithPreview(
         ...overrides,
     });
 }
+
+describe('EditorImpl: markup emoji configuration', () => {
+    async function suggestions(editor: EditorImpl) {
+        const {state} = editor.markupEditor.cm;
+        const sources = state.languageDataAt<CompletionSource>('autocomplete', 1);
+        const results = await Promise.all(
+            sources.map((source) => source(new CompletionContext(state, 1, false))),
+        );
+        return results.flatMap((result) => result?.options ?? []);
+    }
+
+    it('should use the configured emoji definitions in markup mode', async () => {
+        const editor = createEditor({
+            initial: {mode: 'markup', markup: ':'},
+            wysiwygConfig: {extensionOptions: {emoji: {defs: {custom: '⭐'}}}},
+        });
+
+        expect(await suggestions(editor)).toEqual([
+            {label: ':custom:', detail: '⭐', type: 'text'},
+        ]);
+        editor.destroy();
+    });
+
+    it('should leave emoji completion disabled outside the full preset', async () => {
+        const editor = createEditor({preset: 'yfm', initial: {mode: 'markup', markup: ':'}});
+
+        expect(await suggestions(editor)).toEqual([]);
+        editor.destroy();
+    });
+});
 
 describe('EditorImpl: changePreviewVisible', () => {
     it('should be a no-op when renderPreview is not configured', () => {

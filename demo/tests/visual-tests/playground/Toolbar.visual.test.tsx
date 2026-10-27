@@ -98,11 +98,11 @@ test.describe('Toolbar', () => {
             await expectScreenshot({fullPage: true, caret: 'hide'});
         });
 
-        test('in @markup mode', async ({editor, expectScreenshot}) => {
+        test('in @markup mode', async ({page, editor, expectScreenshot}) => {
             await editor.switchMode('markup');
             await editor.openMainToolbarMoreMenu();
-            await editor.hoverToolbarMoreAction('Emoji');
-            await editor.waitForToolbarActionDisabledHint();
+            await editor.assertAdditionalToolbarButtonEnabled('Emoji');
+            await page.mouse.move(-1, -1);
 
             await expectScreenshot({fullPage: true, caret: 'hide'});
         });

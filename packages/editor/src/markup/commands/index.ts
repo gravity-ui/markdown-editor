@@ -9,3 +9,4 @@ export * from './marks';
 export * from './math';
 export * from './yfm';
 export * from './emptyRow';
+export * from './emoji';
