@@ -135,6 +135,15 @@ export const wMarkedItemData: WToolbarSingleItemData = {
     isActive: (e) => e.actions.mark.isActive(),
     isEnable: (e) => e.actions.mark.isEnable(),
 };
+export const wSpoilerItemData: WToolbarSingleItemData = {
+    id: ActionName.spoiler,
+    type: ToolbarDataType.SingleButton,
+    title: i18n.bind(null, 'spoiler'),
+    icon: icons.spoiler,
+    exec: (e) => e.actions.spoiler.run(),
+    isActive: (e) => e.actions.spoiler.isActive(),
+    isEnable: (e) => e.actions.spoiler.isEnable(),
+};
 // ----
 export const wCheckboxItemData: WToolbarSingleItemData = {
     id: ActionName.checkbox,
@@ -519,6 +528,7 @@ export const wSelectionMenuConfig: SelectionContextConfig = [
         wStrikethroughItemData,
         wMonospaceItemData,
         wMarkedItemData,
+        wSpoilerItemData,
         wCodeItemData,
     ],
     [

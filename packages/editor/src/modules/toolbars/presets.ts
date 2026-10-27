@@ -91,6 +91,9 @@ import {
     sinkListItemMarkup,
     sinkListItemView,
     sinkListItemWysiwyg,
+    spoilerItemMarkup,
+    spoilerItemView,
+    spoilerItemWysiwyg,
     strikethroughItemMarkup,
     strikethroughItemView,
     strikethroughItemWysiwyg,
@@ -602,6 +605,11 @@ export const full: ToolbarsPreset = {
             wysiwyg: markedItemWysiwyg,
             markup: markedItemMarkup,
         },
+        [Action.spoiler]: {
+            view: spoilerItemView,
+            wysiwyg: spoilerItemWysiwyg,
+            markup: spoilerItemMarkup,
+        },
         [Action.colorify]: {
             view: colorifyItemView,
             wysiwyg: colorifyItemWysiwyg,
@@ -624,6 +632,7 @@ export const full: ToolbarsPreset = {
                 Action.strike,
                 Action.mono,
                 Action.mark,
+                Action.spoiler,
                 Action.codeInline,
             ],
             [Action.colorify, Action.link],
@@ -657,7 +666,15 @@ export const full: ToolbarsPreset = {
         ],
         [Toolbar.wysiwygMain]: [
             [Action.undo, Action.redo],
-            [Action.bold, Action.italic, Action.underline, Action.strike, Action.mono, Action.mark],
+            [
+                Action.bold,
+                Action.italic,
+                Action.underline,
+                Action.strike,
+                Action.mono,
+                Action.mark,
+                Action.spoiler,
+            ],
             [
                 {
                     id: List.heading,
@@ -694,7 +711,15 @@ export const full: ToolbarsPreset = {
         ],
         [Toolbar.markupMain]: [
             [Action.undo, Action.redo],
-            [Action.bold, Action.italic, Action.underline, Action.strike, Action.mono, Action.mark],
+            [
+                Action.bold,
+                Action.italic,
+                Action.underline,
+                Action.strike,
+                Action.mono,
+                Action.mark,
+                Action.spoiler,
+            ],
             [
                 {
                     id: List.heading,

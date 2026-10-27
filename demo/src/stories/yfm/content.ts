@@ -326,6 +326,44 @@ blocks:
 :::
 `.trim(),
 
+    yfmSpoiler: `
+&nbsp;
+
+## Spoiler
+
+Plain text
+
+\`:spoiler[The answer is 42]\`
+
+:spoiler[The answer is 42]
+
+Text with other marks and a link
+
+\`:spoiler[**bold**, *italic* and [a link](https://example.com)]\`
+
+:spoiler[**bold**, *italic* and [a link](https://example.com)]
+
+Several spoilers in one line
+
+\`Answers: :spoiler[first], :spoiler[second] and :spoiler[third]\`
+
+Answers: :spoiler[first], :spoiler[second] and :spoiler[third]
+
+Line break inside a spoiler
+
+\`\`\`
+:spoiler[first line\\
+second line]
+\`\`\`
+
+:spoiler[first line\\
+second line]
+
+Long spoiler that wraps
+
+The end of the story: :spoiler[the main character was in the garden the whole time, and the letter was never sent. The last chapter explains why the key opened only the old door.]
+`.trim(),
+
     foldingHeadings: `
 &nbsp;
 
