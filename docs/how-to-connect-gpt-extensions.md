@@ -14,6 +14,42 @@ Features:
 
 <img src="https://raw.githubusercontent.com/gravity-ui/markdown-editor/refs/heads/main/docs/assets/gifs/prompt-preset-gpt.gif" width="470"/>
 
+### Rendering React UI from external extensions
+
+External extensions can access the editor's React renderer through the dedicated
+`@gravity-ui/markdown-editor/react-renderer` entry point. It provides the same renderer
+getter and CodeMirror facet as the root entry point, without importing the built-in
+GPT extension or the editor bundle. This entry point is available in versions that
+include this API; the minimum version above applies to the existing GPT integration.
+
+```ts
+import {
+    getReactRendererFromState,
+    ReactRendererFacet,
+    type ReactRenderer,
+    type RendererItem,
+} from '@gravity-ui/markdown-editor/react-renderer';
+
+// In a ProseMirror plugin view:
+const wysiwygRenderer: ReactRenderer = getReactRendererFromState(proseMirrorView.state);
+
+// In a CodeMirror view plugin:
+const markupRenderer: ReactRenderer = codeMirrorView.state.facet(ReactRendererFacet);
+
+const item: RendererItem = markupRenderer.createItem('my-extension', () => 'Extension content');
+item.rerender();
+item.remove();
+```
+
+Use the renderer installed by the editor; do not create a separate React root for an
+extension popup. Remove each render item when its plugin view is destroyed. The
+standard editor configures both renderers. Custom WYSIWYG setups must install
+`ReactRendererExtension`; custom CodeMirror setups must supply `ReactRendererFacet`.
+
+Existing GPT imports, options, callbacks, and root renderer exports remain supported.
+The dedicated entry point does not change popup behavior or move GPT into a separate
+package by itself.
+
 ### 1. Add extension usage and extensions props
 
 ```ts

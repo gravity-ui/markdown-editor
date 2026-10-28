@@ -8,7 +8,7 @@ import {
     ViewPlugin,
     type ViewUpdate,
 } from '../../../../cm/view';
-import {ReactRendererFacet} from '../../../../markup/codemirror/react-facet';
+import {ReactRendererFacet} from '../../../../react-renderer';
 import type {CommonAnswer} from '../ErrorScreen/types';
 import {WIDGET_DECO_CLASS_NAME} from '../constants';
 import type {GptWidgetOptions} from '../gptExtension/gptExtension';

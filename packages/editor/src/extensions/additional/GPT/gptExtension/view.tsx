@@ -10,7 +10,7 @@ import {useMount} from 'react-use';
 
 import {cn} from '../../../../classname';
 import type {Parser, Serializer} from '../../../../core';
-import {getReactRendererFromState} from '../../../behavior/ReactRenderer';
+import {getReactRendererFromState} from '../../../../react-renderer';
 import type {CommonAnswer} from '../ErrorScreen/types';
 import {GptDialog} from '../GptDialog/GptDialog';
 import {WIDGET_DECO_CLASS_NAME, WIDGET_DECO_SPEC_FLAG, gptPopupPlacement} from '../constants';
