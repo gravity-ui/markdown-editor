@@ -10,6 +10,7 @@ import {HeadingSpecs} from '../../extensions/markdown/Heading/HeadingSpecs';
 import {ImageSpecs} from '../../extensions/markdown/Image/ImageSpecs';
 import {ItalicSpecs} from '../../extensions/markdown/Italic/ItalicSpecs';
 import {LinkSpecs} from '../../extensions/markdown/Link/LinkSpecs';
+import {StrikeSpecs} from '../../extensions/markdown/Strike/StrikeSpecs';
 import {Logger2} from '../../logger';
 import {ExtensionsManager} from '../ExtensionsManager';
 
@@ -17,6 +18,213 @@ import {MarkdownParser} from './MarkdownParser';
 import type {SerializerMarkToken} from './MarkdownSerializer';
 
 describe('MarkdownSerializer whitespace', () => {
+    it('should keep ending emphasis when a custom raw mark expels spaces', () => {
+        const {doc, p, em, strong, a, s, parser, serializer} = createFixture(
+            ['strong', 'em', 'link', 'strike', 'code'],
+            {
+                em: {
+                    open: '*',
+                    close: '*',
+                    mixable: true,
+                    expelEnclosingWhitespace: true,
+                    escape: false,
+                },
+            },
+        );
+        const input = doc(p(em(a('!')), strong(em(a('y '))), strong(em('  ')), strong(em(s('z')))));
+        const text = serializer.serialize(input);
+
+        const marks: string[] = [];
+        parser.parse(text).descendants((node) => {
+            if (node.text?.includes('z')) marks.push(...node.marks.map((mark) => mark.type.name));
+        });
+        expect(marks).toEqual(['strong', 'em', 'strike']);
+    });
+
+    it('should keep custom raw emphasis separate from code whitespace', () => {
+        const {doc, p, em, strong, a, s, code, parser, serializer} = createFixture([], {
+            em: {
+                open: '*',
+                close: '*',
+                mixable: true,
+                expelEnclosingWhitespace: false,
+                escape: false,
+            },
+        });
+        const input = doc(p(a(strong(s(em('y ')))), s(em(' ')), s(em(code(' z ')))));
+        const text = serializer.serialize(input);
+        const marks: string[] = [];
+        parser.parse(text).descendants((node) => {
+            if (node.text?.includes('z')) marks.push(...node.marks.map((mark) => mark.type.name));
+        });
+
+        expect(marks).toEqual(['strike', 'em', 'code']);
+    });
+
+    it('should preserve loaded code text after a marked code space', () => {
+        const {doc, p, a, strong, em, code, parser, serializer} = createFixture([
+            'link',
+            'strong',
+            'em',
+            'strike',
+            'code',
+        ]);
+        const input = parser.parse('[***x***](foo)*` `*`x`');
+        const text = serializer.serialize(input);
+
+        expect(text).toBe('[***x*** ](foo)`x`');
+        expect(parser.parse(text)).toMatchNode(doc(p(a(strong(em('x')), ' '), code('x'))));
+    });
+
+    it('should preserve loaded marks before nested code after a code space', () => {
+        const {doc, p, a, strong, s, em, code, parser, serializer} = createFixture([
+            'link',
+            'strong',
+            'strike',
+            'em',
+            'code',
+        ]);
+        const input = parser.parse('[***x***](foo)*` `*[**~~*`y`*~~**](foo)');
+        const text = serializer.serialize(input);
+
+        expect(text).toBe('[***x***](foo)` `[**~~*`y`*~~**](foo)');
+        expect(parser.parse(text)).toMatchNode(
+            doc(p(a(strong(em('x'))), code(' '), a(strong(s(em(code('y'))))))),
+        );
+    });
+
+    it.each(['\u2028', '\u2029'])(
+        'should preserve a %j separator before custom code with empty delimiters',
+        (separator) => {
+            const {doc, p, a, strong, s, code, parser, serializer} = createFixture([], {
+                code: {open: () => '', close: () => '', escape: false},
+            });
+            const input = doc(p(a(strong(s('x'))), s(code(separator)), code('y'), 'z'));
+            const text = serializer.serialize(input);
+
+            expect(text).toBe(`[**~~x~~**](foo)${separator}yz`);
+            expect(parser.parse(text)).toMatchNode(doc(p(a(strong(s('x'))), separator + 'yz')));
+        },
+    );
+
+    it('should preserve code whitespace before an image with a code mark', () => {
+        const {doc, p, a, strong, s, code, img, parser, serializer} = createFixture([]);
+        const input = doc(p(a(strong(s('x'))), s(code(' ')), code(img()), 'z'));
+        const text = serializer.serialize(input);
+
+        expect(text).toBe('[**~~x~~**](foo)` `![x](a)z');
+        expect(parser.parse(text)).toMatchNode(doc(p(a(strong(s('x'))), code(' '), img(), 'z')));
+    });
+
+    it('should preserve emphasis when custom code uses empty delimiters', () => {
+        const {doc, p, em, strong, a, s, code, parser, serializer} = createFixture(
+            ['em', 'strong', 'link', 'strike', 'code'],
+            {code: {open: () => '', close: () => '', escape: false}},
+        );
+        const input = doc(p(em(strong(a(s('x')))), em(s(code(' '))), code('y')));
+        const text = serializer.serialize(input);
+
+        expect(text).toBe('***[~~x~~](foo)*** y');
+        expect(parser.parse(text)).toMatchNode(doc(p(em(strong(a(s('x')))), ' y')));
+    });
+
+    it('should preserve custom raw emphasis around a code space', () => {
+        const {doc, p, em, strong, s, code, parser, serializer} = createFixture(
+            ['em', 'strong', 'link', 'strike', 'code'],
+            {
+                em: {
+                    open: '*',
+                    close: '*',
+                    mixable: true,
+                    expelEnclosingWhitespace: true,
+                    escape: false,
+                },
+            },
+        );
+        const input = doc(p(em(strong(s('x'))), s(code(' ')), em('y')));
+        const text = serializer.serialize(input);
+
+        expect(text).toBe('***~~x~~***` `*y*');
+        expect(parser.parse(text)).toMatchNode(doc(p(em(strong(s('x'))), code(' '), em('y'))));
+    });
+
+    it('should preserve emphasis before custom code that expels a leading newline', () => {
+        const {doc, p, em, strong, a, s, code, sb, parser, serializer} = createFixture(
+            ['em', 'strong', 'link', 'strike', 'code'],
+            {code: {open: '`', close: '`', escape: false, expelEnclosingWhitespace: true}},
+        );
+        const input = doc(p(em(strong(a(s('x')))), em(s(code(' '))), code('\ny'), sb()));
+        const text = serializer.serialize(input);
+
+        expect(text).toBe('***[~~x~~](foo)***` `\n`y`');
+        expect(parser.parse(text)).toMatchNode(
+            doc(p(em(strong(a(s('x')))), code(' '), sb(), code('y'))),
+        );
+    });
+
+    it.each(['\u2028', '\u2029'])(
+        'should preserve literal stars after %j whitespace with custom code delimiters',
+        (separator) => {
+            const {doc, p, strong, em, code, parser, serializer} = createFixture([], {
+                code: {open: '', close: '', escape: false},
+            });
+            const input = doc(p(strong('x '), strong(em(code('\t' + separator))), code('**y**')));
+            const text = serializer.serialize(input);
+
+            expect(parser.parse(text).textContent.replace(/\s/g, '')).toBe('x**y**');
+        },
+    );
+
+    it('should preserve loaded emphasis after a code space', () => {
+        const {doc, p, em, strong, parser, serializer} = createFixture([
+            'link',
+            'strong',
+            'em',
+            'code',
+        ]);
+        const input = parser.parse('*x` `**y**.*');
+        const text = serializer.serialize(input);
+
+        expect(text).toBe('*x **y**.*');
+        expect(parser.parse(text)).toMatchNode(doc(p(em('x ', strong('y'), '.'))));
+    });
+
+    it('should preserve loaded strike before a code space and a link', () => {
+        const {doc, p, s, a, parser, serializer} = createFixture([
+            'link',
+            'strong',
+            'em',
+            'strike',
+            'code',
+        ]);
+        const input = parser.parse('~~x ` `[y](foo)~~');
+        const text = serializer.serialize(input);
+
+        expect(text).toBe('~~x  [y](foo)~~');
+        expect(parser.parse(text)).toMatchNode(doc(p(s('x  ', a('y')))));
+    });
+
+    it('should close ending emphasis before deferred code whitespace', () => {
+        const {doc, p, em, strong, code, a, parser, serializer} = createFixture(
+            ['em', 'link', 'strong', 'code'],
+            {link: {open: '[', close: '](foo)', expelEnclosingWhitespace: true}},
+        );
+        const input = doc(p(strong('x '), em(strong(code(' '))), em(a(strong(' y')))));
+        const text = serializer.serialize(input);
+
+        expect(text).toBe('**x**   *[**y**](foo)*');
+        expect(parser.parse(text)).toMatchNode(doc(p(strong('x'), '   ', em(a(strong('y'))))));
+    });
+
+    it('should close nested emphasis before a struck link after a code space', () => {
+        const {doc, p, em, strong, code, s, a, parser, serializer} = createFixture();
+        const input = doc(p(em(strong('x')), em(code(' ')), s(em(strong(a('y'))))));
+        const text = serializer.serialize(input);
+
+        expect(text).toBe('***x*** ~~***[y](foo)***~~');
+        expect(parser.parse(text)).toMatchNode(doc(p(em(strong('x')), ' ', s(em(strong(a('y')))))));
+    });
+
     it('should preserve a code space after reordering emphasis', () => {
         const {doc, p, strong, a, em, code, parser, serializer} = createFixture();
         const input = doc(
@@ -436,6 +644,7 @@ function createFixture(
                 .use(LinkSpecs)
                 .use(ImageSpecs)
                 .use(BoldSpecs)
+                .use(StrikeSpecs)
                 .use(ItalicSpecs)
                 .use(CodeSpecs);
             for (const [name, spec] of Object.entries(markSpecs))
@@ -455,7 +664,7 @@ function createFixture(
     });
     const nodes = builders<
         'doc' | 'p' | 'h1' | 'img' | 'br' | 'sb',
-        'em' | 'strong' | 'a' | 'code'
+        'em' | 'strong' | 'a' | 'code' | 's'
     >(schema, {
         p: {nodeType: 'paragraph'},
         h1: {nodeType: 'heading', level: 1},
@@ -465,6 +674,7 @@ function createFixture(
         em: {markType: 'em'},
         strong: {markType: 'strong', 'data-markup': markSpecs.strong?.open ?? '**'},
         a: {markType: 'link', href: 'foo'},
+        s: {markType: 'strike'},
         code: {markType: 'code'},
     });
     return {...nodes, parser, serializer: deps.serializer};

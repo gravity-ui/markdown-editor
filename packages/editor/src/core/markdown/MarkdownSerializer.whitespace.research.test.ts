@@ -11,6 +11,7 @@ import {HeadingSpecs} from '../../extensions/markdown/Heading/HeadingSpecs';
 import {ImageSpecs} from '../../extensions/markdown/Image/ImageSpecs';
 import {ItalicSpecs} from '../../extensions/markdown/Italic/ItalicSpecs';
 import {LinkSpecs} from '../../extensions/markdown/Link/LinkSpecs';
+import {StrikeSpecs} from '../../extensions/markdown/Strike/StrikeSpecs';
 import {Logger2} from '../../logger';
 import {ExtensionsManager} from '../ExtensionsManager';
 
@@ -231,7 +232,7 @@ describe('MarkdownSerializer whitespace research', () => {
             expect(parser.parse(text)).toMatchNode(doc(p(em('x y'))));
         });
 
-        it.fails('should keep continuing emphasis across multiple whitespace nodes', () => {
+        it('should keep continuing emphasis across multiple whitespace nodes', () => {
             const text = serializer.serialize(
                 doc(p(em('x'), strong(em(' ')), strong(' '), strong(em('y')))),
             );
@@ -239,10 +240,10 @@ describe('MarkdownSerializer whitespace research', () => {
             expect(parser.parse(text)).toMatchNode(doc(p(em('x  ', strong('y')))));
         });
 
-        it.fails('should keep trailing line separator whitespace inside a continuing link', () => {
+        it('should expel emphasis whitespace inside a continuing link', () => {
             const text = serializer.serialize(doc(p(a(' '), strong(a('x ')), em(a('\u2028')))));
-            expect(text).toBe('[ **x \u2028**](foo)');
-            expect(parser.parse(text)).toMatchNode(doc(p(a(' '), strong(a('x \u2028')))));
+            expect(text).toBe('[ **x** \u2028](foo)');
+            expect(parser.parse(text)).toMatchNode(doc(p(a(' ', strong('x'), ' \u2028'))));
         });
 
         it.fails('should expel trailing whitespace before an expelled whitespace node', () => {
@@ -264,7 +265,7 @@ describe('MarkdownSerializer whitespace research', () => {
             expect(parser.parse(text)).toMatchNode(doc(p(em('x'))));
         });
 
-        it.fails('should preserve linked emphasis after reordered code whitespace', () => {
+        it('should preserve linked emphasis after reordered code whitespace', () => {
             const text = serializer.serialize(
                 doc(p(strong(em(a('!'))), a(code(' ')), strong(em(a('x '))), strong(a(' ')))),
             );
@@ -272,6 +273,12 @@ describe('MarkdownSerializer whitespace research', () => {
             expect(parser.parse(text)).toMatchNode(
                 doc(p(strong(em(a('!'))), code(' '), strong(em(a('x '))))),
             );
+        });
+
+        it('should close linked emphasis before a final expelled whitespace node', () => {
+            const text = serializer.serialize(doc(p(strong(em(a('x '))), strong(a(' ')))));
+            expect(text).toBe('***[x ](foo)*** ');
+            expect(parser.parse(text)).toMatchNode(doc(p(strong(em(a('x '))))));
         });
     });
     describe('link ordered between em and strong', () => {
@@ -409,6 +416,73 @@ describe('MarkdownSerializer whitespace research', () => {
             );
         });
     });
+    describe('known mark boundary failures', () => {
+        it.fails('should preserve bold and italic text with non-expelling bold', () => {
+            const {doc, p, em, strong, code, s, parser, serializer} = createFixture(
+                ['em', 'link', 'strong', 'strike', 'code'],
+                {
+                    strong: {
+                        open: '**',
+                        close: '**',
+                        mixable: true,
+                        expelEnclosingWhitespace: false,
+                    },
+                },
+            );
+            const input = doc(p(s('!'), s(code(' ')), em(strong(s('x '))), strong(s('\u00a0'))));
+            const parsed = parser.parse(serializer.serialize(input));
+            const text = parsed.firstChild?.content.content.find((node) =>
+                node.text?.includes('x'),
+            );
+
+            expect(text?.marks.map((mark) => mark.type.name)).toEqual(
+                expect.arrayContaining(['em', 'strong']),
+            );
+        });
+
+        it.fails('should preserve bold and italic text with non-expelling italic', () => {
+            const {doc, p, em, strong, s, code, parser, serializer} = createFixture(
+                ['strike', 'link', 'strong', 'em', 'code'],
+                {
+                    em: {
+                        open: '*',
+                        close: '*',
+                        mixable: true,
+                        expelEnclosingWhitespace: false,
+                    },
+                },
+            );
+            const input = doc(
+                p(s(strong(em('!'))), s(code(' ')), s(strong(em('x '))), strong(em('\t'))),
+            );
+            const parsed = parser.parse(serializer.serialize(input));
+
+            expect(parsed).toMatchNode(
+                doc(p(s(strong(em('!'))), s(code(' ')), s(strong(em('x'))))),
+            );
+        });
+
+        it.fails(
+            'should keep an earlier space outside emphasis when linked whitespace ends',
+            () => {
+                const {doc, p, em, strong, a, s, code, parser, serializer} = createFixture([
+                    'em',
+                    'strong',
+                    'link',
+                    'strike',
+                    'code',
+                ]);
+                const input = doc(
+                    p(em(a(s('!'))), strong(a(code(' '))), em(strong(a('x '))), em(a('\t'))),
+                );
+                const parsed = parser.parse(serializer.serialize(input));
+                const space = parsed.firstChild?.content.content.find((node) => node.text === ' ');
+
+                expect(space?.marks.some((mark) => mark.type.name === 'em')).toBe(false);
+            },
+        );
+    });
+
     it.each(['hard', 'soft'])('should preserve %s breaks inside continuing emphasis', (kind) => {
         const {doc, p, em, br, sb, parser, serializer} = createFixture();
         const breakNode = kind === 'hard' ? br() : sb();
@@ -443,6 +517,7 @@ function createFixture(
                 .use(ImageSpecs)
                 .use(BoldSpecs)
                 .use(ItalicSpecs)
+                .use(StrikeSpecs)
                 .use(CodeSpecs);
             for (const [name, spec] of Object.entries(markSpecs))
                 builder.overrideMarkSerializerSpec(name, () => spec);
@@ -461,7 +536,7 @@ function createFixture(
     });
     const nodes = builders<
         'doc' | 'p' | 'h1' | 'img' | 'br' | 'sb',
-        'em' | 'strong' | 'a' | 'code'
+        'em' | 'strong' | 'a' | 'code' | 's'
     >(schema, {
         p: {nodeType: 'paragraph'},
         h1: {nodeType: 'heading', level: 1},
@@ -472,6 +547,7 @@ function createFixture(
         strong: {markType: 'strong', 'data-markup': markSpecs.strong?.open ?? '**'},
         a: {markType: 'link', href: 'foo'},
         code: {markType: 'code'},
+        s: {markType: 'strike'},
     });
     return {...nodes, parser, serializer: deps.serializer};
 }

@@ -365,7 +365,8 @@ export class MarkdownSerializerState {
         const active: Mark[] = [];
         let trailing = '';
         const progress = (node: Node | null, _: any, index: number) => {
-            let marks = node ? node.marks : [];
+            const sourceMarks = node ? node.marks : [];
+            let marks = sourceMarks;
 
             // Remove marks from breaks (hard_break or soft_break) that are the edge node inside
             // that mark to prevent parser edge cases with new lines just
@@ -406,7 +407,8 @@ export class MarkdownSerializerState {
                         }
                         else if (j > i) {
                             if (noEsc && j > len) reorderedNoEsc = true;
-                            marks = marks.slice(0, i).concat(marks.slice(i + 1, j)).concat(mark).concat(marks.slice(j, len))
+                            const end = this.getMark(mark.type.name).expelEnclosingWhitespace ? j : Math.min(j, len);
+                            marks = marks.slice(0, i).concat(marks.slice(i + 1, end)).concat(mark).concat(marks.slice(j, len))
                         }
                         // eslint-disable-next-line no-labels
                         continue outer;
@@ -414,10 +416,23 @@ export class MarkdownSerializerState {
                 }
             }
 
+            const next = parent.maybeChild(index + 1);
+            // Keep code whitespace inside a shared outer mark that allows spaces.
+            const continuingCodeWhitespace = reorderedNoEsc && noEsc && whitespaceOnly && inner.type.spec.code === true &&
+                !this.getMark(inner.type.name).expelEnclosingWhitespace &&
+                !this.getMark(active[0].type.name).expelEnclosingWhitespace && sourceMarks[0].eq(active[0]) &&
+                active.every(mark => this.getMark(mark.type.name).escape !== false) &&
+                sourceMarks.slice(0, -1).every(mark => mark.isInSet(active)) &&
+                this.isMarkAhead(parent, index + 1, sourceMarks.slice(0, -1));
             // Keep whitespace-only code outside reordered marks.
-            if (reorderedNoEsc && whitespaceOnly) {
-                marks = [];
-                len = 0;
+            if (reorderedNoEsc && whitespaceOnly && !(
+                active.length > 0 && !this.getMark(active[0].type.name).expelEnclosingWhitespace &&
+                !/[^ \t]/.test(node?.text ?? '') &&
+                next?.isText && next.marks.length === 1 &&
+                this.getMark(next.marks[0].type.name).escape === false
+            )) {
+                marks = continuingCodeWhitespace ? sourceMarks : [];
+                len = marks.length - (continuingCodeWhitespace ? 1 : 0);
             }
 
             // Find the prefix of the mark set that didn't change
@@ -428,7 +443,7 @@ export class MarkdownSerializerState {
             trailing = '';
             // If whitespace has to be expelled from the node, adjust
             // leading and trailing accordingly.
-            if (node && node.isText && marks.some((mark) => {
+            if (node && node.isText && !continuingCodeWhitespace && marks.some((mark) => {
                 const info = this.getMark(mark.type.name);
                 return info && info.expelEnclosingWhitespace && !active.some((m, i) => i < keep && m.eq(mark));
             })) {
@@ -441,7 +456,6 @@ export class MarkdownSerializerState {
                 }
             }
 
-            const next = parent.maybeChild(index + 1);
             const singleLine = node?.isText && !/[\r\n\u2028\u2029]/.test(node.text ?? '');
             const singleEscapedMark = !noEsc && marks.length === 1;
             const expellingMarksOnly = !noEsc && marks.every(mark => this.getMark(mark.type.name).expelEnclosingWhitespace);
@@ -471,14 +485,35 @@ export class MarkdownSerializerState {
             if (
                 !node &&
                 noEsc &&
+                (keep < active.length || (leading && !/\s/.test(this.out.slice(-1))) ||
+                    active.some((mark) => this.getMark(mark.type.name).escape === false) ||
+                    /[\r\n\u2028\u2029]/.test(parent.child(index).text ?? '')) &&
                 active.every((mark) => this.getMark(mark.type.name).expelEnclosingWhitespace)
             ) keep = 0;
+
+            // Keep continuing marks open when a close would follow a space.
+            const preserveMixableWhitespace = keep < active.length && !node && !noEsc && /[ \t]$/.test(this.out) && !/[^ \t]/.test(leading) &&
+                next?.isText && /\S/.test(next.text ?? '') &&
+                active.every(mark => this.getMark(mark.type.name).mixable &&
+                    this.getMark(mark.type.name).expelEnclosingWhitespace && mark.isInSet(next.marks)) &&
+                parent.child(index).marks.every(mark => this.getMark(mark.type.name).mixable &&
+                    this.getMark(mark.type.name).expelEnclosingWhitespace) &&
+                next.marks.every(mark => this.getMark(mark.type.name).mixable &&
+                    this.getMark(mark.type.name).expelEnclosingWhitespace);
+
+            // Write the final expelled spaces before closing the ending marks.
+            const keepOmittedMarks = !node && index + 1 === parent.childCount && !noEsc && active.length > 0 &&
+                active.every(mark => this.getMark(mark.type.name).escape !== false) &&
+                !this.getMark(active[active.length - 1].type.name).expelEnclosingWhitespace &&
+                active[active.length - 1].isInSet(sourceMarks) &&
+                sourceMarks.every(mark => mark.isInSet(active)) &&
+                active.slice(0, -1).every(mark => this.getMark(mark.type.name).expelEnclosingWhitespace);
 
             // Close the marks that need to be closed
             while (keep < active.length) {
                 if (!node && index < parent.childCount && (
                     !active.slice(keep).some(mark => this.getMark(mark.type.name).expelEnclosingWhitespace) ||
-                    this.isMarkAhead(parent, index + 1, active)
+                    this.isMarkAhead(parent, index + 1, active) || preserveMixableWhitespace || keepOmittedMarks
                 )) break;
                 this.text(this.markString(active.pop()!, false, parent, index), false)
             }
