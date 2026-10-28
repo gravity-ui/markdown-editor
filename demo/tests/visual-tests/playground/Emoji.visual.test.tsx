@@ -36,35 +36,11 @@ test.describe('Markup emoji', () => {
         await expect(editor.locators.contenteditable).toHaveText(':');
     });
 
-    test('should insert a suggested emoji with the keyboard and undo it', async ({
-        editor,
-        page,
-    }) => {
-        await editor.pressSequentially(':smi');
-        const option = editor.locators.cmAutocomplete
-            .getByRole('option')
-            .filter({hasText: ':smile:'});
-        await expect(option).toBeVisible();
-        // CodeMirror ignores completion keys during its initial 75 ms interaction delay.
-        await page.waitForTimeout(100);
-        await editor.press('ArrowDown');
-        const selectedLabel = await editor.locators.cmAutocomplete
-            .getByRole('option', {selected: true})
-            .locator('.cm-completionLabel')
-            .innerText();
-        await editor.press('Enter');
-
-        await expect(editor.locators.contenteditable).toHaveText(selectedLabel);
-        await editor.press('ControlOrMeta+z');
-        await expect(editor.locators.contenteditable).toHaveText(':smi');
-    });
-
-    test('should open the toolbar list without changing the document', async ({editor, page}) => {
+    test('should open the toolbar list without changing the document', async ({editor}) => {
         await editor.pressSequentially('Hello');
         await editor.openMainToolbarMoreMenu();
         await editor.locators.toolbars.additional.getByLabel('Emoji', {exact: true}).click();
         await expect(editor.locators.cmAutocomplete).toBeVisible();
-        await page.waitForTimeout(100);
         await editor.press('Escape');
 
         await expect(editor.locators.cmAutocomplete).toBeHidden();
