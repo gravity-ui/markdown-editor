@@ -1,13 +1,18 @@
 import type React from 'react';
 
-import {i18n} from '../../../i18n/gpt/dialog';
+import type {AlertProps} from '@gravity-ui/uikit';
 
 import type {CommonAnswer} from './ErrorScreen/types';
+import {i18n} from './i18n/dialog';
 import type {GptDialogProps, GptWidgetOptions} from './types';
 
 type CombinedKeyboardEvent = KeyboardEvent | React.KeyboardEvent;
 
-export function getAlertGptInfo(gptAlert: GptDialogProps['gptAlertProps']) {
+export function getAlertGptInfo(gptAlert: GptDialogProps['gptAlertProps']): {
+    alertMessage: string;
+    alertTheme: AlertProps['theme'];
+    alertClassName?: string;
+} {
     return {
         alertMessage: gptAlert?.message || i18n('alert-gpt-presets-info'),
         alertTheme: gptAlert?.theme || 'info',

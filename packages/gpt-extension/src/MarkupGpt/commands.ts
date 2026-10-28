@@ -1,4 +1,4 @@
-import type {Command, EditorView} from '../../../../cm/view';
+import type {Command, EditorView} from '@codemirror/view';
 
 import {HideMarkupGptEffect, ShowMarkupGptEffect} from './effects';
 

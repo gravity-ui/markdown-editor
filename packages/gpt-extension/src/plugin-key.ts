@@ -1,7 +1,12 @@
 import {PluginKey} from 'prosemirror-state';
 import type {DecorationSet} from 'prosemirror-view';
 
-const key = new PluginKey<DecorationSet>('gpt-widget');
+export type GptPluginState = {
+    decorations: DecorationSet;
+    disablePromptPresets: boolean;
+};
+
+const key = new PluginKey<GptPluginState>('gpt-widget');
 export {key as pluginKey};
 
 export type GptWidgetMeta =

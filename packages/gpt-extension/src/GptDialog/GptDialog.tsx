@@ -1,132 +1,46 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 
-import {ArrowRight, ArrowRotateLeft, ThumbsDown, ThumbsUp} from '@gravity-ui/icons';
-import {ActionTooltip, Alert, Button, Icon, TextInput} from '@gravity-ui/uikit';
-
-import {cn} from '../../../../classname';
-import {i18n} from '../../../../i18n/gpt/dialog';
-import gptIcon from '../../../../icons/GPT';
 import {ErrorScreen} from '../ErrorScreen/ErrorScreen';
 import type {CommonAnswer} from '../ErrorScreen/types';
-import {IconRefuge} from '../IconRefuge/IconRefuge';
-import {PresetList} from '../PresetList/PresetList';
 import {gptHotKeys} from '../constants';
 import {useGpt} from '../hooks/useGpt';
 import {useGptHotKeys} from '../hooks/useGptHotKeys';
 import type {GptDialogProps} from '../types';
-import {getAlertGptInfo, getDisableReplaceButtonText, getInputPlaceHolder} from '../utils';
 
+import {GptAnswer} from './GptAnswer';
+import {GptPrompt} from './GptPrompt';
 import {LoadingScreen} from './LoadingScreen/LoadingScreen';
+import {cnGptDialog} from './classname';
 
 import './GptDialog.scss';
 
 export type {GptDialogProps};
+export {cnGptDialog};
 
-export const cnGptDialog = cn('gpt-dialog');
-
-export const GptDialog = <
-    AnswerData extends CommonAnswer = CommonAnswer,
-    PromptData extends unknown = unknown,
->({
-    markup,
-    answerRender,
-    promptPresets,
-    disablePromptPresets,
-    customPromptPlaceholder,
-    disabledPromptPlaceholder,
-    onCustomPromptApply,
-    onPromptPresetClick,
-    onTryAgain,
-    onApplyResult,
-    onClose,
-    onLike,
-    onDislike,
-    onUpdate,
-    gptAlertProps,
-}: GptDialogProps<AnswerData, PromptData>) => {
-    const {
-        answer,
-        customPrompt,
-        loading,
-        mode,
-        feedbackType,
-        feedbackTypeLoading,
-        handleLike,
-        handleDislike,
-        handleCustomPromptUpdate,
-        handleCustomPromptKeyPress,
-        handleCustomPromptApply,
-        handlePresetClick,
-        handleTryAgain,
-        handleFreshStart,
-        handleApplyResult,
-        showAnswer,
-        showError,
-        showAnswerActions,
-        showTryAgainButton,
-    } = useGpt({
-        markup,
-        promptPresets,
-        onLike,
-        onDislike,
-        onCustomPromptApply,
-        onPromptPresetClick,
-        onTryAgain,
-        onApplyResult,
-        onUpdate,
-    });
-
-    const gptAlert = gptAlertProps;
-
-    const customPromptContainerRef = useRef<HTMLInputElement>(null);
-
-    const [showedGptAlert, setShowedGptAlert] = useState(gptAlert?.showedGptAlert);
-
-    const {alertMessage, alertTheme, alertClassName} = getAlertGptInfo(gptAlert);
+export function GptDialog<A extends CommonAnswer = CommonAnswer, P = unknown>(
+    props: GptDialogProps<A, P>,
+) {
+    const session = useGpt(props);
+    const {loading, showError, showAnswer, handleTryAgain, handleFreshStart, handleApplyResult} =
+        session;
+    const localPromptRef = useRef<HTMLInputElement | null>(null);
+    const promptRef = props.promptRef ?? localPromptRef;
+    const [alertDismissed, setAlertDismissed] = useState(false);
 
     const onCloseAlert = useCallback(() => {
-        if (gptAlert) {
-            gptAlert.showedGptAlert = false;
-        }
-        gptAlert?.onCloseGptAlert?.();
-
-        setShowedGptAlert(false);
-    }, [gptAlert]);
+        setAlertDismissed(true);
+        props.gptAlertProps?.onCloseGptAlert?.();
+    }, [props.gptAlertProps]);
 
     useEffect(() => {
-        if (customPromptContainerRef.current) {
-            customPromptContainerRef.current.focus();
-        }
-    }, [customPromptContainerRef.current]);
+        promptRef.current?.focus({preventScroll: true});
+    }, [promptRef, loading, showError, showAnswer]);
 
-    useGptHotKeys(gptHotKeys.tryAgainGpt, handleTryAgain);
+    useGptHotKeys(gptHotKeys.tryAgainGpt, handleTryAgain, {enabled: !loading});
     useGptHotKeys(gptHotKeys.freshStartGpt, handleFreshStart);
-    useGptHotKeys(gptHotKeys.applyResultGpt, handleApplyResult);
+    useGptHotKeys(gptHotKeys.applyResultGpt, handleApplyResult, {enabled: showAnswer});
 
-    const replaceButtonText = getDisableReplaceButtonText(disablePromptPresets);
-
-    const inputPlaceholderText = getInputPlaceHolder(
-        disablePromptPresets,
-        disabledPromptPlaceholder,
-        customPromptPlaceholder,
-    );
-
-    const tryAgainButton = (
-        <ActionTooltip hotkey={gptHotKeys.tryAgainGpt} title={i18n('try-again')}>
-            <Button
-                className={cnGptDialog('try-again-button')}
-                view="normal"
-                size="m"
-                onClick={handleTryAgain}
-            >
-                <Icon data={ArrowRotateLeft} size={16} />
-                {i18n('try-again')}
-            </Button>
-        </ActionTooltip>
-    );
-
-    let content = null;
-
+    let content;
     if (loading) {
         content = <LoadingScreen />;
     } else if (showError) {
@@ -134,154 +48,17 @@ export const GptDialog = <
     } else {
         content = (
             <>
-                <div className={cnGptDialog('header')}>
-                    <div className={cnGptDialog('header-top')}>
-                        <IconRefuge
-                            containerClassName={cnGptDialog('gpt-icon')}
-                            data={gptIcon}
-                            refugeSize={28}
-                            size={16}
-                        />
-                        {(mode === 'only-custom' || mode === 'custom-and-presets') &&
-                            (showAnswer ? (
-                                <span className={cnGptDialog('answer-title')}>
-                                    {i18n('answer-title')}
-                                </span>
-                            ) : (
-                                <div className={cnGptDialog('custom-prompt')}>
-                                    <TextInput
-                                        controlRef={customPromptContainerRef}
-                                        view="clear"
-                                        size="m"
-                                        className={cnGptDialog('custom-prompt-input')}
-                                        placeholder={inputPlaceholderText}
-                                        onKeyPress={handleCustomPromptKeyPress}
-                                        onUpdate={handleCustomPromptUpdate}
-                                    />
-                                    <Button
-                                        className={cnGptDialog('custom-prompt-ask-button')}
-                                        view="normal"
-                                        size="s"
-                                        disabled={!customPrompt}
-                                        onClick={handleCustomPromptApply}
-                                    >
-                                        <Icon data={ArrowRight} size={16} />
-                                    </Button>
-                                </div>
-                            ))}
-                        {mode === 'only-presets' && (
-                            <div className={cnGptDialog('alone-presets')}>
-                                <span className={cnGptDialog('alone-presets-text')}>
-                                    {i18n('only-presets-title')}
-                                </span>
-                            </div>
-                        )}
-                    </div>
-                    {(mode === 'custom-and-presets' || mode === 'only-presets') &&
-                        ((showTryAgainButton && (
-                            <div className={cnGptDialog('header-bottom')}>
-                                {tryAgainButton}
-                                <ActionTooltip
-                                    title={i18n('fresh-start-button')}
-                                    hotkey={gptHotKeys.freshStartGpt}
-                                >
-                                    <Button
-                                        className={cnGptDialog('back-to-start')}
-                                        view="normal"
-                                        size="m"
-                                        onClick={handleFreshStart}
-                                    >
-                                        {i18n('fresh-start-button')}
-                                    </Button>
-                                </ActionTooltip>
-                            </div>
-                        )) ||
-                            (!disablePromptPresets && (
-                                <div className={cnGptDialog('header-bottom')}>
-                                    <PresetList
-                                        disablePromptPresets={disablePromptPresets}
-                                        promptPresets={promptPresets}
-                                        onPresetClick={handlePresetClick}
-                                    />
-                                </div>
-                            )) ||
-                            (disablePromptPresets && showedGptAlert && (
-                                <Alert
-                                    theme={alertTheme}
-                                    message={alertMessage}
-                                    align="center"
-                                    className={cnGptDialog('description-alert', alertClassName)}
-                                    onClose={onCloseAlert}
-                                />
-                            )))}
-                </div>
-                {showAnswer && (
-                    <>
-                        <div className={cnGptDialog('body')}>
-                            <div className={cnGptDialog('answer')}>{answerRender(answer!)}</div>
-                        </div>
-                        <div className={cnGptDialog('footer')}>
-                            {showAnswerActions && (
-                                <div className={cnGptDialog('answer-actions')}>
-                                    <Button
-                                        className={cnGptDialog('like-button')}
-                                        view="normal"
-                                        size="m"
-                                        onClick={handleLike}
-                                        selected={feedbackType === 'like'}
-                                        loading={feedbackTypeLoading === 'like'}
-                                    >
-                                        <Icon data={ThumbsUp} size={16} />
-                                    </Button>
-                                    <Button
-                                        className={cnGptDialog('dislike-button')}
-                                        view="normal"
-                                        size="m"
-                                        onClick={handleDislike}
-                                        selected={feedbackType === 'dislike'}
-                                        loading={feedbackTypeLoading === 'dislike'}
-                                    >
-                                        <Icon data={ThumbsDown} size={16} />
-                                    </Button>
-                                    {feedbackType && (
-                                        <span className={cnGptDialog('feedback-message')}>
-                                            {i18n('feedback-message')}
-                                        </span>
-                                    )}
-                                </div>
-                            )}
-                            <ActionTooltip
-                                title={i18n('close-button')}
-                                hotkey={gptHotKeys.closeGpt}
-                            >
-                                <Button
-                                    className={cnGptDialog('close-button')}
-                                    view="flat"
-                                    size="m"
-                                    onClick={onClose}
-                                >
-                                    {i18n('close-button')}
-                                </Button>
-                            </ActionTooltip>
-                            <ActionTooltip
-                                title={replaceButtonText}
-                                hotkey={gptHotKeys.applyResultGpt}
-                            >
-                                <Button
-                                    className={cnGptDialog('apply-button')}
-                                    view="action"
-                                    size="m"
-                                    onClick={handleApplyResult}
-                                >
-                                    {replaceButtonText}
-                                </Button>
-                            </ActionTooltip>
-                        </div>
-                    </>
-                )}
+                <GptPrompt
+                    {...props}
+                    session={session}
+                    promptRef={promptRef}
+                    showedGptAlert={props.gptAlertProps?.showedGptAlert && !alertDismissed}
+                    onCloseAlert={onCloseAlert}
+                />
+                {showAnswer && <GptAnswer {...props} session={session} />}
             </>
         );
     }
 
-    return <div className={cnGptDialog()}> {content} </div>;
-};
+    return <div className={cnGptDialog()}>{content}</div>;
+}

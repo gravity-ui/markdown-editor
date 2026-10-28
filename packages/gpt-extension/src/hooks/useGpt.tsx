@@ -6,6 +6,9 @@ import type {CommonAnswer, GptRequestData} from '../ErrorScreen/types';
 import type {GptDialogProps, PresetListProps} from '../types';
 import {isEnter} from '../utils';
 
+import {useGptFeedback} from './useGptFeedback';
+import {useGptRequest} from './useGptRequest';
+
 type UseGptProps<
     AnswerData extends CommonAnswer = CommonAnswer,
     PromptData extends unknown = unknown,
@@ -36,94 +39,17 @@ export const useGpt = <
     onApplyResult,
     onUpdate,
 }: UseGptProps<AnswerData, PromptData>) => {
-    const [answer, setAnswer] = useState<AnswerData>();
-    const [lastRequestData, setLastRequestData] = useState<GptRequestData<PromptData>>();
     const [customPrompt, setCustomPrompt] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(false);
-    const [feedbackType, setFeedbackType] = useState<'like' | 'dislike' | undefined>(undefined);
-    const [feedbackTypeLoading, setFeedbackTypeLoading] = useState<'like' | 'dislike' | undefined>(
-        undefined,
+    const {state, request: makeRequest, reset} = useGptRequest<AnswerData, PromptData>(onUpdate);
+    const {answer, lastRequestData} = state;
+    const loading = state.status === 'loading';
+    const error = state.status === 'error';
+    const {feedbackType, feedbackTypeLoading, handleLike, handleDislike} = useGptFeedback(
+        answer,
+        lastRequestData,
+        onLike,
+        onDislike,
     );
-
-    const makeRequest: (
-        requestFunction: UseGptProps<AnswerData, PromptData>['onPromptPresetClick'],
-        data: GptRequestData<PromptData>,
-    ) => Promise<void> = useCallback(
-        async (requestFunction, data) => {
-            if (!requestFunction) {
-                return;
-            }
-
-            let result;
-
-            try {
-                setLoading(true);
-                setError(false);
-                setLastRequestData(data);
-
-                result = await requestFunction(data);
-
-                if (result) {
-                    setAnswer(result);
-                    setFeedbackType(undefined);
-                }
-            } catch (error) {
-                console.error(error);
-
-                setError(true);
-            } finally {
-                setLoading(false);
-                setTimeout(() => {
-                    // hack for popup rerender
-                    // When a lot of text is entered into the GPT popup,
-                    // it expands and goes beyond the boundaries. However,
-                    // the popup does not handle height changes.
-                    window.dispatchEvent(new CustomEvent('scroll'));
-                });
-                onUpdate?.(result);
-            }
-        },
-        [onUpdate],
-    );
-
-    const handleLike = useCallback(async () => {
-        if (!onLike || !lastRequestData) {
-            return;
-        }
-
-        try {
-            setFeedbackType(undefined);
-            setFeedbackTypeLoading('like');
-
-            await onLike(lastRequestData);
-
-            setFeedbackType('like');
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setFeedbackTypeLoading(undefined);
-        }
-    }, [lastRequestData, onLike]);
-
-    const handleDislike = useCallback(async () => {
-        if (!onDislike || !lastRequestData) {
-            return;
-        }
-
-        try {
-            setFeedbackType(undefined);
-            setFeedbackTypeLoading('dislike');
-
-            await onDislike(lastRequestData);
-
-            setFeedbackType('dislike');
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setFeedbackTypeLoading(undefined);
-        }
-    }, [lastRequestData, onDislike]);
 
     const handleCustomPromptApply = useCallback(async () => {
         if (!customPrompt) {
@@ -170,18 +96,13 @@ export const useGpt = <
     }, [lastRequestData, makeRequest, onTryAgain]);
 
     const handleApplyResult = useCallback(() => {
-        onApplyResult(answer?.rawText ?? '');
-    }, [answer?.rawText, onApplyResult]);
+        if (answer && !loading && !error) onApplyResult(answer.rawText);
+    }, [answer, loading, error, onApplyResult]);
 
     const handleFreshStart = useCallback(() => {
-        setError(false);
-        setLastRequestData(undefined);
-        setAnswer(undefined);
         setCustomPrompt('');
-        setFeedbackType(undefined);
-
-        onUpdate?.(undefined);
-    }, [onUpdate]);
+        reset();
+    }, [reset]);
 
     const showTryAgainButton = Boolean(lastRequestData && onTryAgain && !loading);
     const showAnswer = Boolean(answer && !loading && !error);
@@ -220,3 +141,5 @@ export const useGpt = <
         showAnswerActions,
     };
 };
+
+export type GptSession<A extends CommonAnswer, P> = ReturnType<typeof useGpt<A, P>>;

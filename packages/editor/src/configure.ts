@@ -1,3 +1,5 @@
+import {configure as configureGpt} from '@gravity-ui/markdown-editor-gpt-extension/configure';
+
 export enum Lang {
     Ru = 'ru',
     En = 'en',
@@ -15,6 +17,7 @@ const config: Config = {};
 
 export const configure = (newConfig: Config) => {
     Object.assign(config, newConfig);
+    configureGpt(config);
     subs.forEach((sub) => {
         sub(config);
     });

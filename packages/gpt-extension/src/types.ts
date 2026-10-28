@@ -1,3 +1,5 @@
+import type {MutableRefObject} from 'react';
+
 import type {AlertProps} from '@gravity-ui/uikit';
 
 import type {CommonAnswer, GptRequestData, PromptPreset} from './ErrorScreen/types';
@@ -29,6 +31,8 @@ type GptSharedProps<
     onClose?: () => void;
     onUpdate?: (value: AnswerData | undefined) => void;
     gptAlertProps?: GptAlertProps;
+    /** Keep the popup inside a modal or drawer's focus boundary. */
+    gptPopupContainer?: HTMLElement;
 };
 
 export type GptDialogProps<
@@ -36,6 +40,7 @@ export type GptDialogProps<
     PromptData extends unknown = unknown,
 > = GptSharedProps<AnswerData, PromptData> & {
     markup: string;
+    promptRef?: MutableRefObject<HTMLInputElement | null>;
     onApplyResult: ApplyResult;
 };
 

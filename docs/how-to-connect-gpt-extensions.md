@@ -14,6 +14,18 @@ Features:
 
 <img src="https://raw.githubusercontent.com/gravity-ui/markdown-editor/refs/heads/main/docs/assets/gifs/prompt-preset-gpt.gif" width="470"/>
 
+### Package ownership and compatibility
+
+The GPT implementation lives in `@gravity-ui/markdown-editor-gpt-extension`.
+The editor retains its existing GPT exports as adapters, so the examples below
+continue to work without changing imports or callback signatures. The standalone
+package contains the dialog, request state, and ProseMirror/CodeMirror plugins;
+it receives rendering and Markdown conversion functions from the host instead of
+depending on the editor package.
+
+See the [GPT package guide](../packages/gpt-extension/README.md) for direct integration,
+state ownership, cancellation behavior, and publishing order.
+
 ### Rendering React UI from external extensions
 
 External extensions can access the editor's React renderer through the dedicated
@@ -47,8 +59,6 @@ standard editor configures both renderers. Custom WYSIWYG setups must install
 `ReactRendererExtension`; custom CodeMirror setups must supply `ReactRendererFacet`.
 
 Existing GPT imports, options, callbacks, and root renderer exports remain supported.
-The dedicated entry point does not change popup behavior or move GPT into a separate
-package by itself.
 
 ### 1. Add extension usage and extensions props
 

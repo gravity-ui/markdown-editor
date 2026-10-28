@@ -21,53 +21,47 @@ export const gptWidgetPlugin = <
     return new Plugin({
         key: pluginKey,
         state: {
-            init: () => DecorationSet.empty,
-            apply: (tr, decos) => {
+            init: () => ({decorations: DecorationSet.empty, disablePromptPresets: false}),
+            apply: (tr, previous) => {
                 const meta = tr.getMeta(pluginKey) as GptWidgetMeta | undefined;
-                const paramsGpt = params;
+                const empty = {decorations: DecorationSet.empty, disablePromptPresets: false};
 
                 if (meta?.action === 'show') {
-                    paramsGpt.disablePromptPresets = false;
+                    const disablePromptPresets = meta.from === meta.to;
+                    if (isEmptyGptPrompts(params, disablePromptPresets)) return empty;
 
-                    if (meta.to === meta.from) {
-                        const spanElem = document.createElement('span');
-                        spanElem.className = WIDGET_DECO_CLASS_NAME;
-                        spanElem.textContent = ' ';
+                    const decoration = disablePromptPresets
+                        ? Decoration.widget(
+                              meta.from,
+                              () => {
+                                  const anchor = document.createElement('span');
+                                  anchor.className = WIDGET_DECO_CLASS_NAME;
+                                  anchor.textContent = ' ';
+                                  return anchor;
+                              },
+                              {[WIDGET_DECO_SPEC_FLAG]: true},
+                          )
+                        : Decoration.inline(
+                              meta.from,
+                              meta.to,
+                              {nodeName: 'span', class: WIDGET_DECO_CLASS_NAME},
+                              {[WIDGET_DECO_SPEC_FLAG]: true},
+                          );
 
-                        paramsGpt.disablePromptPresets = true;
-
-                        if (isEmptyGptPrompts(paramsGpt, true)) return DecorationSet.empty;
-
-                        return DecorationSet.create(tr.doc, [
-                            Decoration.widget(meta.from, spanElem, {
-                                [WIDGET_DECO_SPEC_FLAG]: true,
-                            }),
-                        ]);
-                    }
-
-                    if (isEmptyGptPrompts(paramsGpt, false)) return DecorationSet.empty;
-
-                    return DecorationSet.create(tr.doc, [
-                        Decoration.inline(
-                            meta.from,
-                            meta.to,
-                            {nodeName: 'span', class: WIDGET_DECO_CLASS_NAME},
-                            {[WIDGET_DECO_SPEC_FLAG]: true},
-                        ),
-                    ]);
+                    return {
+                        decorations: DecorationSet.create(tr.doc, [decoration]),
+                        disablePromptPresets,
+                    };
                 }
 
-                if (meta?.action === 'hide') {
-                    paramsGpt.disablePromptPresets = false;
+                // A response must never replace text edited after the dialog was opened.
+                if (meta?.action === 'hide' || tr.docChanged || tr.selectionSet) return empty;
 
-                    return DecorationSet.empty;
-                }
-
-                return decos.map(tr.mapping, tr.doc);
+                return previous;
             },
         },
         props: {
-            decorations: (state) => pluginKey.getState(state),
+            decorations: (state) => pluginKey.getState(state)?.decorations,
         },
         view: (view) => new GptWidgetDecoView(view, params),
     });

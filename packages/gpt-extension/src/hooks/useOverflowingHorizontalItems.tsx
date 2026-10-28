@@ -37,19 +37,21 @@ export function useOverflowingHorizontalItems<ItemType>({
             }
         };
 
-        requestAnimationFrame(measureItemSizes);
+        const frame = requestAnimationFrame(measureItemSizes);
+        return () => cancelAnimationFrame(frame);
     }, [containerRef, itemSelector, moreButtonSelector]);
 
     useLayoutEffect(() => {
         const container = containerRef.current;
 
         if (!container) {
-            return;
+            return undefined;
         }
 
         const updateContainerSize = (entries: ResizeObserverEntry[]) => {
-            if (entries.length > 0) {
-                setContainerWidth(entries[0]!.contentRect.width);
+            const entry = entries[0];
+            if (entry) {
+                setContainerWidth(entry.contentRect.width);
             }
         };
 
@@ -58,7 +60,10 @@ export function useOverflowingHorizontalItems<ItemType>({
 
         containerResizeObserver.observe(container);
 
-        return () => containerResizeObserver.unobserve(container);
+        return () => {
+            updateContainerSizeDebounced.cancel();
+            containerResizeObserver.disconnect();
+        };
     }, [containerRef]);
 
     const isMeasured = itemWidths.length > 0;

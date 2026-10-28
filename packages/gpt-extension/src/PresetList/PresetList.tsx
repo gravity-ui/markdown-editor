@@ -1,10 +1,10 @@
 import {ActionTooltip, Button, DropdownMenu} from '@gravity-ui/uikit';
 
-import {i18n} from '../../../../i18n/gpt/dialog';
 import type {CommonAnswer, PromptPreset} from '../ErrorScreen/types';
 import {gptHotKeys} from '../constants';
 import {useGptHotKeys} from '../hooks/useGptHotKeys';
 import {usePresetList} from '../hooks/usePresetList';
+import {i18n} from '../i18n/dialog';
 import type {PresetListProps} from '../types';
 
 import {cnGptDialogPresetList} from './classname';

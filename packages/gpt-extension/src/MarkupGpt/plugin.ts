@@ -1,5 +1,4 @@
 import {WidgetType} from '@codemirror/view';
-
 import {
     Decoration,
     type DecorationSet,
@@ -7,11 +6,12 @@ import {
     type PluginValue,
     ViewPlugin,
     type ViewUpdate,
-} from '../../../../cm/view';
-import {ReactRendererFacet} from '../../../../react-renderer';
+} from '@codemirror/view';
+
 import type {CommonAnswer} from '../ErrorScreen/types';
 import {WIDGET_DECO_CLASS_NAME} from '../constants';
-import type {GptWidgetOptions} from '../gptExtension/gptExtension';
+import type {MarkupGptHost} from '../host';
+import type {GptWidgetOptions} from '../types';
 import {isEmptyGptPrompts} from '../utils';
 
 import {hideMarkupGpt} from './commands';
@@ -39,7 +39,7 @@ class SpanWidget extends WidgetType {
 export function mGptPlugin<
     AnswerData extends CommonAnswer = CommonAnswer,
     PromptData extends unknown = unknown,
->(gptProps: GptWidgetOptions<AnswerData, PromptData>) {
+>(gptProps: GptWidgetOptions<AnswerData, PromptData>, host: MarkupGptHost) {
     return ViewPlugin.fromClass(
         class implements PluginValue {
             readonly _view: EditorView;
@@ -58,14 +58,15 @@ export function mGptPlugin<
 
             constructor(view: EditorView) {
                 this._view = view;
-                this._renderItem = view.state
-                    .facet(ReactRendererFacet)
+                this._renderItem = host
+                    .getRenderer(view.state)
                     .createItem('gpt-in-markup-mode', () => this.renderPopup());
             }
 
             update(update: ViewUpdate) {
                 if (update.docChanged || update.selectionSet) {
                     this.decos = Decoration.none;
+                    this._clearSelectedText();
                     return;
                 }
 
@@ -110,6 +111,7 @@ export function mGptPlugin<
 
                         if (eff.is(HideMarkupGptEffect)) {
                             this.decos = Decoration.none;
+                            this._clearSelectedText();
                         }
                     }
                 }
@@ -137,6 +139,7 @@ export function mGptPlugin<
                     disablePromptPresets: this.disablePromptPresets,
                     onClose: () => {
                         hideMarkupGpt(this._view);
+                        this._view.focus();
 
                         gptProps.onClose?.();
                     },
@@ -158,6 +161,8 @@ export function mGptPlugin<
             }
 
             _onApplyResult(changedMarkup: string) {
+                if (this.markup === null || this.decos.size === 0) return;
+
                 const {from, to} = this.selectedPosition;
                 const changes = [{from, to, insert: changedMarkup}];
 
@@ -167,6 +172,8 @@ export function mGptPlugin<
                 });
 
                 this._view.dispatch(transaction);
+                this._view.focus();
+                gptProps.onApplyResult?.(changedMarkup);
             }
         },
         {
