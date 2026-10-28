@@ -426,7 +426,7 @@ export class MarkdownSerializerState {
                 this.isMarkAhead(parent, index + 1, sourceMarks.slice(0, -1));
             // Keep whitespace-only code outside reordered marks.
             if (reorderedNoEsc && whitespaceOnly && !(
-                active.length > 0 && !this.getMark(active[0].type.name).expelEnclosingWhitespace &&
+                !this.getMark(active[0].type.name).expelEnclosingWhitespace &&
                 !/[^ \t]/.test(node?.text ?? '') &&
                 next?.isText && next.marks.length === 1 &&
                 this.getMark(next.marks[0].type.name).escape === false
@@ -456,14 +456,13 @@ export class MarkdownSerializerState {
                 }
             }
 
-            const singleLine = node?.isText && !/[\r\n\u2028\u2029]/.test(node.text ?? '');
-            const singleEscapedMark = !noEsc && marks.length === 1;
-            const expellingMarksOnly = !noEsc && marks.every(mark => this.getMark(mark.type.name).expelEnclosingWhitespace);
+            const expelBeforeBreak = !noEsc && marks.every(mark => this.getMark(mark.type.name).expelEnclosingWhitespace) &&
+                !/[\r\n\u2028\u2029]/.test(node?.text ?? '') && next?.type.spec.isBreak;
             if (node && node.isText && marks.some((mark, i) => {
                 const info = this.getMark(mark.type.name);
                 return info && info.expelEnclosingWhitespace && (
                     !this.isMarkAhead(parent, index + 1, marks.slice(0, i + 1)) ||
-                    (expellingMarksOnly && singleLine && next?.type.spec.isBreak && !mark.isInSet(next.marks))
+                    (expelBeforeBreak && !mark.isInSet(next.marks))
                 );
             })) {
                 const isolatedEscapingMarks = keep === 0 && marks.every(mark => {
@@ -471,7 +470,7 @@ export class MarkdownSerializerState {
                     return info.expelEnclosingWhitespace && info.escape !== false && !mark.isInSet(next?.marks ?? []);
                 });
                 // Read all lines when ending marks cannot affect adjacent nodes.
-                const trailingWhitespace = (singleEscapedMark || isolatedEscapingMarks)
+                const trailingWhitespace = ((!noEsc && marks.length === 1) || isolatedEscapingMarks)
                     ? /^([\s\S]*\S)?(\s*)$/ : /^(.*?)(\s*)$/m;
                 const [_, rest = '', trail] = trailingWhitespace.exec(node.text!)!;
                 if (trail) {
@@ -496,7 +495,7 @@ export class MarkdownSerializerState {
                 next?.isText && /\S/.test(next.text ?? '') &&
                 active.every(mark => this.getMark(mark.type.name).mixable &&
                     this.getMark(mark.type.name).expelEnclosingWhitespace && mark.isInSet(next.marks)) &&
-                parent.child(index).marks.every(mark => this.getMark(mark.type.name).mixable &&
+                sourceMarks.every(mark => this.getMark(mark.type.name).mixable &&
                     this.getMark(mark.type.name).expelEnclosingWhitespace) &&
                 next.marks.every(mark => this.getMark(mark.type.name).mixable &&
                     this.getMark(mark.type.name).expelEnclosingWhitespace);
