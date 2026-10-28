@@ -3,6 +3,14 @@ import {syntaxTree} from '@codemirror/language';
 
 import type {LanguageData} from '../yfm';
 
+const ignoredNodes: ReadonlySet<string> = new Set([
+    'InlineCode',
+    'FencedCode',
+    'CodeBlock',
+    'HTMLBlock',
+    'HTMLTag',
+]);
+
 export function emojiAutocomplete(defs: Record<string, string>): LanguageData {
     const options: Completion[] = Object.entries(defs).map(([name, symbol]) => ({
         label: `:${name}:`,
@@ -16,13 +24,7 @@ export function emojiAutocomplete(defs: Record<string, string>): LanguageData {
 
             const syntaxNode = syntaxTree(context.state).resolve(context.pos, -1);
             for (let node: typeof syntaxNode | null = syntaxNode; node; node = node.parent) {
-                if (
-                    ['InlineCode', 'FencedCode', 'CodeBlock', 'HTMLBlock', 'HTMLTag'].includes(
-                        node.name,
-                    )
-                ) {
-                    return null;
-                }
+                if (ignoredNodes.has(node.name)) return null;
             }
 
             const token = context.matchBefore(/(?:^|\s):[\w+-]*$/);
