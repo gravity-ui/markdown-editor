@@ -30,12 +30,18 @@ describe('markup emoji completion', () => {
         },
     );
 
-    it.each(['text', 'http:', 'https://example.com:', ':smile:', ':::cut', 'word:smi'])(
-        'should leave %j without automatic emoji suggestions',
-        async (doc) => {
-            expect(await complete(doc)).toBeNull();
-        },
-    );
+    it.each([
+        'text',
+        'http:',
+        'https://example.com:',
+        ':smile:',
+        '::',
+        ':::',
+        ':::cut',
+        'word:smi',
+    ])('should leave %j without automatic emoji suggestions', async (doc) => {
+        expect(await complete(doc)).toBeNull();
+    });
 
     it('should open the list explicitly without inserting a colon', async () => {
         const result = await complete('Hello', true);

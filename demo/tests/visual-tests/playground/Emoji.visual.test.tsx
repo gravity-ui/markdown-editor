@@ -4,11 +4,36 @@ import {Playground} from './Playground.helpers';
 
 test.describe('Markup emoji', () => {
     test.beforeEach(async ({mount}) => {
-        await mount(<Playground initial="" initialEditor="markup" />, {
+        await mount(<Playground initial="" initialEditor="markup" directiveSyntax="enabled" />, {
             hidePlaygroundBlocks: true,
             width: '100%',
             rootStyle: {width: '100%', height: '100%', padding: 0},
         });
+    });
+
+    test('should switch between emoji and directive suggestions at the second colon', async ({
+        editor,
+    }) => {
+        const options = editor.locators.cmAutocomplete.getByRole('option');
+        const cut = options.filter({hasText: 'YFM Cut'});
+
+        await editor.pressSequentially(':');
+        await expect(options.first()).toBeVisible();
+        await expect(cut).toHaveCount(0);
+
+        await editor.pressSequentially(':');
+        await expect(options).toHaveCount(1);
+        await expect(cut).toBeVisible();
+
+        await editor.pressSequentially(':');
+        await expect(options).toHaveCount(1);
+        await expect(cut).toBeVisible();
+
+        await editor.press('Backspace');
+        await editor.press('Backspace');
+        await expect(options.first()).toBeVisible();
+        await expect(cut).toHaveCount(0);
+        await expect(editor.locators.contenteditable).toHaveText(':');
     });
 
     test('should insert a suggested emoji with the keyboard and undo it', async ({

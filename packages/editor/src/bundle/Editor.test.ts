@@ -30,9 +30,10 @@ function createEditorWithPreview(
 describe('EditorImpl: markup emoji configuration', () => {
     async function suggestions(editor: EditorImpl) {
         const {state} = editor.markupEditor.cm;
-        const sources = state.languageDataAt<CompletionSource>('autocomplete', 1);
+        const pos = state.doc.length;
+        const sources = [...new Set(state.languageDataAt<CompletionSource>('autocomplete', pos))];
         const results = await Promise.all(
-            sources.map((source) => source(new CompletionContext(state, 1, false))),
+            sources.map((source) => source(new CompletionContext(state, pos, false))),
         );
         return results.flatMap((result) => result?.options ?? []);
     }
@@ -48,6 +49,22 @@ describe('EditorImpl: markup emoji configuration', () => {
         ]);
         editor.destroy();
     });
+
+    it.each([':', '::', ':::', ':::cu'])(
+        'should separate emoji and directive suggestions for %j',
+        async (markup) => {
+            const editor = createEditor({
+                initial: {mode: 'markup', markup},
+                directiveSyntax: new DirectiveSyntaxContext('enabled'),
+                wysiwygConfig: {extensionOptions: {emoji: {defs: {custom: '⭐'}}}},
+            });
+
+            expect((await suggestions(editor)).map(({label}) => label)).toEqual([
+                markup === ':' ? ':custom:' : ':::cut',
+            ]);
+            editor.destroy();
+        },
+    );
 
     it('should leave emoji completion disabled outside the full preset', async () => {
         const editor = createEditor({preset: 'yfm', initial: {mode: 'markup', markup: ':'}});
