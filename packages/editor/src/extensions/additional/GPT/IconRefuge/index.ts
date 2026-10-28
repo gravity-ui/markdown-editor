@@ -1,2 +1,1 @@
-export {IconRefuge} from './IconRefuge';
-export type {IconRefugeProps} from './IconRefuge.types';
+export * from '@gravity-ui/markdown-editor-gpt-extension/IconRefuge/index';

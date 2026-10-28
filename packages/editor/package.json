@@ -26,7 +26,7 @@
     "test": "vitest run",
     "test:cov": "vitest run --coverage",
     "test:watch": "vitest",
-    "test:esbuild": "node tests/esbuild-test/esbuild-tester.js",
+    "test:esbuild": "node tests/esbuild-test/esbuild-tester.js && node tests/esbuild-test/react-renderer.mjs && node tests/esbuild-test/gpt-package.mjs",
     "test:circular-deps": "node scripts/check-circular-deps.js 0",
     "prepack": "cp ../../README.md ./README.md",
     "postpack": "rm -f ./README.md",
@@ -41,6 +41,16 @@
       "require": {
         "types": "./build/cjs/index.d.ts",
         "default": "./build/cjs/index.js"
+      }
+    },
+    "./react-renderer": {
+      "import": {
+        "types": "./build/esm/react-renderer/index.d.ts",
+        "default": "./build/esm/react-renderer/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/react-renderer/index.d.ts",
+        "default": "./build/cjs/react-renderer/index.js"
       }
     },
     "./core": {
@@ -220,7 +230,8 @@
     "react-use": "catalog:",
     "ts-dedent": "2.3.0",
     "tslib": "catalog:ts",
-    "uuid": "14.0.2"
+    "uuid": "14.0.2",
+    "@gravity-ui/markdown-editor-gpt-extension": "workspace:^"
   },
   "devDependencies": {
     "@diplodoc/cut-extension": "catalog:peer-diplodoc",

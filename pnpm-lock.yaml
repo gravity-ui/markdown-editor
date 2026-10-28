@@ -470,6 +470,9 @@ importers:
       '@gravity-ui/icons':
         specifier: ^2.12.0
         version: 2.13.0(react@18.2.0)
+      '@gravity-ui/markdown-editor-gpt-extension':
+        specifier: workspace:^
+        version: link:../gpt-extension
       '@lezer/highlight':
         specifier: ^1.2.1
         version: 1.2.1
@@ -702,6 +705,88 @@ importers:
       react-dom:
         specifier: catalog:react
         version: 18.2.0(react@18.2.0)
+      typescript:
+        specifier: catalog:ts
+        version: 5.9.3
+      vitest:
+        specifier: catalog:testing
+        version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1))
+
+  packages/gpt-extension:
+    dependencies:
+      '@bem-react/classname':
+        specifier: ^1.6.0
+        version: 1.8.0
+      '@gravity-ui/i18n':
+        specifier: ^1.7.0
+        version: 1.8.0
+      '@gravity-ui/icons':
+        specifier: ^2.12.0
+        version: 2.23.0(react@18.2.0)
+      lodash:
+        specifier: ^4.17.21
+        version: 4.18.1
+      react:
+        specifier: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+        version: 18.2.0(react@18.2.0)
+      react-hotkeys-hook:
+        specifier: ^4.5.0
+        version: 4.5.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      tslib:
+        specifier: catalog:ts
+        version: 2.8.1
+    devDependencies:
+      '@codemirror/state':
+        specifier: ^6.5.1
+        version: 6.5.2
+      '@codemirror/view':
+        specifier: ^6.36.2
+        version: 6.36.2
+      '@gravity-ui/uikit':
+        specifier: catalog:peer-gravity
+        version: 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@markdown-editor/gulp-tasks':
+        specifier: workspace:*
+        version: link:../../infra/gulp-tasks
+      '@markdown-editor/tsconfig':
+        specifier: workspace:*
+        version: link:../../infra/tsconfig
+      '@markdown-editor/vitest-config':
+        specifier: workspace:*
+        version: link:../../infra/vitest-config
+      '@testing-library/react':
+        specifier: 16.3.0
+        version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@18.2.25)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@types/lodash':
+        specifier: ^4.14.177
+        version: 4.14.185
+      '@types/react':
+        specifier: catalog:react
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: catalog:react
+        version: 18.2.25
+      gulp-cli:
+        specifier: 'catalog:'
+        version: 3.1.0
+      jsdom:
+        specifier: 25.0.1
+        version: 25.0.1
+      npm-run-all:
+        specifier: ^4.1.5
+        version: 4.1.5
+      prosemirror-model:
+        specifier: ^1.24.1
+        version: 1.24.1
+      prosemirror-state:
+        specifier: ^1.4.3
+        version: 1.4.3
+      prosemirror-view:
+        specifier: ^1.38.0
+        version: 1.39.1
       typescript:
         specifier: catalog:ts
         version: 5.9.3
@@ -9239,6 +9324,22 @@ packages:
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
+
+  '@testing-library/react@16.3.0':
+    resolution: {integrity: sha512-kFSyxiEDwv1WLl2fgsq6pPBbw5aWKrsY2/noi1Id0TK0UParSF62oFQFGHXIyaG4pp2tEub/Zlel+fjjZILDsw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@testing-library/dom': ^10.0.0
+      '@types/react': ^18.0.0 || ^19.0.0
+      '@types/react-dom': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
 
 snapshots:
 
@@ -19047,3 +19148,13 @@ snapshots:
   zimmerframe@1.1.5: {}
 
   zwitch@2.0.4: {}
+
+  '@testing-library/react@16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@18.2.25)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+    dependencies:
+      '@babel/runtime': 7.29.2
+      '@testing-library/dom': 10.4.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    optionalDependencies:
+      '@types/react': 18.2.79
+      '@types/react-dom': 18.2.25
