@@ -11,12 +11,15 @@ import {dirname, join, relative, resolve} from 'node:path';
 import process from 'node:process';
 import {fileURLToPath} from 'node:url';
 
+import {writeExtensionMetadata} from './extract-extension-metadata.mjs';
 import {generateExtensionPages} from './generate-extension-pages.mjs';
+import {writeRenderedPages} from './render-extension-pages.mjs';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const DOCS_DIR = join(REPO_ROOT, 'docs');
-const EXTENSION_PAGES_DIR = join(REPO_ROOT, 'tmp/docs-gen/stubs');
+const EXTENSION_PAGES_DIR = join(REPO_ROOT, 'tmp/docs-gen/pages');
 const OUT_DIR = join(REPO_ROOT, 'tmp/docs-src');
+const SITE_OUT_DIR = join(REPO_ROOT, 'dist/docs');
 const GITHUB_RAW_RE =
     /https:\/\/raw\.githubusercontent\.com\/gravity-ui\/markdown-editor\/(?:refs\/heads\/[^/]+|[^/]+)\/docs\//g;
 
@@ -58,6 +61,7 @@ function cleanOutDir() {
     if (existsSync(OUT_DIR)) {
         rmSync(OUT_DIR, {recursive: true, force: true});
     }
+    rmSync(SITE_OUT_DIR, {recursive: true, force: true});
     mkdirSync(OUT_DIR, {recursive: true});
 }
 
@@ -274,6 +278,8 @@ function writeYfmConfig() {
 function main() {
     cleanOutDir();
     generateExtensionPages();
+    writeExtensionMetadata();
+    writeRenderedPages();
 
     const docs = collectDocs();
     const {categories, topLevel} = groupByCategory(docs);
