@@ -1,6 +1,11 @@
 import {describe, expect, it, vi} from 'vitest';
 
+import {dispatchPasteEvent} from '../../tests/dispatch-event';
 import {ReactRenderStorage} from '../extensions';
+import {BaseSchemaSpecs} from '../extensions/base/BaseSchema/BaseSchemaSpecs';
+import {Clipboard} from '../extensions/behavior/Clipboard';
+import {LinkSpecs} from '../extensions/markdown/Link/LinkSpecs';
+import {linkPasteEnhance} from '../extensions/markdown/Link/paste-plugin';
 import {Logger2} from '../logger';
 import {DirectiveSyntaxContext} from '../utils/directive';
 
@@ -128,5 +133,48 @@ describe('EditorImpl: mutual exclusion between preview and split mode', () => {
 
         expect(previewListener).not.toHaveBeenCalled();
         expect(splitListener).not.toHaveBeenCalled();
+    });
+});
+
+describe('EditorImpl: linkifyDefaultProtocol', () => {
+    it('should pass the default protocol to WYSIWYG and expose it to preview', () => {
+        const editor = createEditor({
+            md: {linkify: true, linkifyDefaultProtocol: 'https'},
+            wysiwygConfig: {
+                extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(LinkSpecs),
+            },
+            initial: {markup: 'example.com'},
+        });
+        try {
+            expect(editor.wysiwygEditor.doc.firstChild?.firstChild?.marks[0].attrs.href).toBe(
+                'https://example.com',
+            );
+            expect(editor.mdOptions.linkifyDefaultProtocol).toBe('https');
+        } finally {
+            editor.destroy();
+        }
+    });
+
+    it.each(['example.com', 'See example.com'])('should paste %s with an HTTPS link', (text) => {
+        const editor = createEditor({
+            wysiwygConfig: {
+                extensions: (builder) =>
+                    builder
+                        .use(BaseSchemaSpecs, {})
+                        .use(LinkSpecs)
+                        .use(Clipboard, {})
+                        .addPlugin(linkPasteEnhance, builder.Priority.High),
+            },
+            md: {linkify: true, linkifyDefaultProtocol: 'https'},
+        });
+        try {
+            dispatchPasteEvent(editor.wysiwygEditor.view, {'text/plain': text});
+            expect(editor.wysiwygEditor.doc.firstChild?.lastChild?.marks[0].attrs.href).toBe(
+                'https://example.com',
+            );
+            expect(editor.wysiwygEditor.doc.textContent).toBe(text);
+        } finally {
+            editor.destroy();
+        }
     });
 });

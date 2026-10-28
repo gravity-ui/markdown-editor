@@ -261,6 +261,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                 allowHTML: this.#mdOptions.html,
                 linkify: this.#mdOptions.linkify,
                 linkifyTlds: this.#mdOptions.linkifyTlds,
+                linkifyDefaultProtocol: this.#mdOptions.linkifyDefaultProtocol,
                 escapeConfig: this.#escapeConfig,
                 onChange: () => this.emit('rerender-toolbar', null),
                 onDocChange: () => this.emit('change', null),
