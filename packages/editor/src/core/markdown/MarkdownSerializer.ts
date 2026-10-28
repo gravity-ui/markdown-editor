@@ -407,7 +407,8 @@ export class MarkdownSerializerState {
                         }
                         else if (j > i) {
                             if (noEsc && j > len) reorderedNoEsc = true;
-                            const end = this.getMark(mark.type.name).expelEnclosingWhitespace ? j : Math.min(j, len);
+                            const end = this.getMark(mark.type.name).expelEnclosingWhitespace && !node?.isText
+                                ? j : Math.min(j, len);
                             marks = marks.slice(0, i).concat(marks.slice(i + 1, end)).concat(mark).concat(marks.slice(j, len))
                         }
                         // eslint-disable-next-line no-labels
@@ -458,13 +459,20 @@ export class MarkdownSerializerState {
 
             const expelBeforeBreak = !noEsc && marks.every(mark => this.getMark(mark.type.name).expelEnclosingWhitespace) &&
                 !/[\r\n\u2028\u2029]/.test(node?.text ?? '') && next?.type.spec.isBreak;
-            if (node && node.isText && marks.some((mark, i) => {
+            const expelTrailingWhitespace = node?.isText && marks.some((mark, i) => {
                 const info = this.getMark(mark.type.name);
                 return info && info.expelEnclosingWhitespace && (
                     !this.isMarkAhead(parent, index + 1, marks.slice(0, i + 1)) ||
                     (expelBeforeBreak && !mark.isInSet(next.marks))
                 );
-            })) {
+            });
+            // Keep code spaces when an outer mark would close after a space.
+            const keepCodeWhitespace = expelTrailingWhitespace && noEsc && whitespaceOnly && inner.type.spec.code === true &&
+                !this.getMark(inner.type.name).expelEnclosingWhitespace && /[ \t]$/.test(this.out) &&
+                !/[\r\n\u2028\u2029]/.test(node?.text ?? '') &&
+                (!next || next.type.spec.isBreak || (next.isText && /^\s/.test(next.text ?? '')) ||
+                    this.isMarkAhead(parent, index + 1, active));
+            if (node && expelTrailingWhitespace && !keepCodeWhitespace) {
                 const isolatedEscapingMarks = keep === 0 && marks.every(mark => {
                     const info = this.getMark(mark.type.name);
                     return info.expelEnclosingWhitespace && info.escape !== false && !mark.isInSet(next?.marks ?? []);
@@ -472,7 +480,11 @@ export class MarkdownSerializerState {
                 // Read all lines when ending marks cannot affect adjacent nodes.
                 const trailingWhitespace = ((!noEsc && marks.length === 1) || isolatedEscapingMarks)
                     ? /^([\s\S]*\S)?(\s*)$/ : /^(.*?)(\s*)$/m;
-                const [_, rest = '', trail] = trailingWhitespace.exec(node.text!)!;
+                const text = node.text ?? '';
+                const lineMatch = trailingWhitespace.exec(text)!;
+                // Read the whole text when a line match would drop the next lines.
+                const [_, rest = '', trail] = lineMatch[2] && lineMatch[0].length < text.length
+                    ? /^([\s\S]*\S)?(\s*)$/.exec(text)! : lineMatch;
                 if (trail) {
                     // Keep spaces from turning a soft break into a hard break.
                     trailing = next?.type.name === 'soft_break' ? trail.replace(/ +$/, '') : trail;
@@ -532,8 +544,13 @@ export class MarkdownSerializerState {
                 // Render the node. Special case code marks, since their content
                 // may not be escaped.
                 if (noEsc && node.isText) {
-                    this.text(this.markString(inner, true, parent, index) + node.text +
-                      this.markString(inner, false, parent, index + 1), false);
+                    // Keep omitted code whitespace from joining the next code delimiters.
+                    const omitCodeDelimiters = whitespaceOnly && marks.length === 0 && inner.type.spec.code === true &&
+                        !/[\r\n\u2028\u2029]/.test(node.text ?? '') && next?.isText &&
+                        next.marks.length === 1 && next.marks[0].eq(inner) &&
+                        (!this.getMark(inner.type.name).expelEnclosingWhitespace || /^\S/.test(next.text ?? ''));
+                    this.text(omitCodeDelimiters ? (node.text ?? '') : this.markString(inner, true, parent, index) + node.text +
+                        this.markString(inner, false, parent, index + 1), false);
                 } else {
                     this.render(node, parent, index)
                 }
