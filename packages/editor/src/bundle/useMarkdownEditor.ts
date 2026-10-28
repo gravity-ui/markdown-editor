@@ -23,6 +23,7 @@ export function useMarkdownEditor(
             initial = {},
             handlers = {},
             experimental = {},
+            config = {},
             markupConfig = {},
             wysiwygConfig = {},
             logger = new Logger2(),
@@ -43,6 +44,7 @@ export function useMarkdownEditor(
 
             builder.use(BundlePreset, {
                 ...extensionOptions,
+                emoji: {...config.emoji, ...extensionOptions?.emoji},
                 directiveSyntax,
                 preset,
                 reactRenderer: renderStorage,

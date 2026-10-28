@@ -38,10 +38,11 @@ describe('EditorImpl: markup emoji configuration', () => {
         return results.flatMap((result) => result?.options ?? []);
     }
 
-    it('should use the configured emoji definitions in markup mode', async () => {
+    it('should use the shared emoji definitions in markup mode', async () => {
         const editor = createEditor({
             initial: {mode: 'markup', markup: ':'},
-            wysiwygConfig: {extensionOptions: {emoji: {defs: {custom: '⭐'}}}},
+            config: {emoji: {defs: {custom: '⭐'}}},
+            wysiwygConfig: {extensionOptions: {emoji: {defs: {wysiwyg: '🔥'}}}},
         });
 
         expect(await suggestions(editor)).toEqual([
