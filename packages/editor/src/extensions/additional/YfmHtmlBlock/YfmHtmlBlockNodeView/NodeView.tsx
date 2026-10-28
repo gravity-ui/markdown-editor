@@ -62,7 +62,7 @@ export class WYfmHtmlBlockNodeView implements NodeView {
 
     stopEvent(e: Event) {
         const target = e.target as Element;
-        return target.classList.contains(STOP_EVENT_CLASSNAME);
+        return target.closest(`.${STOP_EVENT_CLASSNAME}`) !== null;
     }
 
     private validateEntityId() {
