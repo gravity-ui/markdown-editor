@@ -193,6 +193,17 @@ export type MarkdownEditorWysiwygConfig = {
     searchPanel?: boolean;
 };
 
+export type MarkdownEditorConfig = {
+    /**
+     * Emoji available in the `full` preset.
+     * In WYSIWYG mode, `wysiwygConfig.extensionOptions.emoji` overrides this option.
+     */
+    emoji?: {
+        /** Map of emoji names to symbols. */
+        defs?: Record<string, string>;
+    };
+};
+
 export type MarkdownEditorOptions = {
     /**
      * A set of plug-in extensions.
@@ -205,6 +216,8 @@ export type MarkdownEditorOptions = {
     initial?: MarkdownEditorInitialOptions;
     handlers?: MarkdownEditorHandlers;
     experimental?: MarkdownEditorExperimentalOptions;
+    /** Options shared by WYSIWYG and markup modes */
+    config?: MarkdownEditorConfig;
     /** Options for markup mode */
     markupConfig?: MarkdownEditorMarkupConfig;
     /** Options for wysiwyg mode */

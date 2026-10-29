@@ -21,6 +21,7 @@ import {
     insertYfmTable,
     insertYfmTabs,
     liftListItem as liftListItemCommand,
+    openEmojiSuggest,
     redo,
     redoDepth,
     sinkListItem as sinkListItemCommand,
@@ -57,7 +58,6 @@ import type {ToolbarItemMarkup, ToolbarItemView, ToolbarItemWysiwyg} from './typ
 const noop = () => {};
 const inactive = () => false;
 const enable = () => true;
-const disable = () => false;
 
 // ---- Undo ----
 export const undoItemView: ToolbarItemView = {
@@ -535,10 +535,9 @@ export const emojiItemWysiwyg: ToolbarItemWysiwyg = {
     isEnable: (e) => e.actions.openEmojiSuggest.isEnable(),
 };
 export const emojiItemMarkup: ToolbarItemMarkup = {
-    exec: noop,
-    hintWhenDisabled: i18n.bind(null, 'emoji__hint'),
+    exec: (e) => openEmojiSuggest(e.cm),
     isActive: inactive,
-    isEnable: disable,
+    isEnable: (e) => !e.cm.state.readOnly && e.cm.state.selection.main.empty,
 };
 
 // ---- Heading 1 ----

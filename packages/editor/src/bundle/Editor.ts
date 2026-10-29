@@ -27,10 +27,12 @@ import type {DirectiveSyntaxContext} from '../utils/directive';
 import {MarkupManager} from './MarkupManager';
 import {createDynamicModifiers} from './config/dynamicModifiers';
 import type {ChangeEditorModeOptions, MarkdownEditorInstance} from './editor-public-types';
+import {emojiDefs} from './emoji';
 import type {EventMap, ToolbarActionData} from './events';
 import type {
     MarkdownEditorMode as EditorMode,
     MarkdownEditorPreset as EditorPreset,
+    MarkdownEditorConfig,
     MarkdownEditorMdOptions,
     MarkdownEditorOptions,
     MarkdownEditorMarkupConfig as MarkupConfig,
@@ -96,9 +98,19 @@ export interface EditorInt
 
 type SetEditorModeOptions = Pick<ChangeEditorModeOptions, 'emit'>;
 
+const resolveEmojiDefs = (preset: EditorPreset, config?: MarkdownEditorConfig) =>
+    preset === 'full' ? (config?.emoji?.defs ?? emojiDefs) : undefined;
+
 export type EditorOptions = Pick<
     MarkdownEditorOptions,
-    'md' | 'initial' | 'handlers' | 'experimental' | 'markupConfig' | 'wysiwygConfig' | 'mobile'
+    | 'md'
+    | 'initial'
+    | 'handlers'
+    | 'experimental'
+    | 'config'
+    | 'markupConfig'
+    | 'wysiwygConfig'
+    | 'mobile'
 > & {
     logger: Logger2.ILogger;
     renderStorage: ReactRenderStorage;
@@ -124,6 +136,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #mdOptions: Readonly<MarkdownEditorMdOptions>;
     #pmTransformers: TransformFn[] = [];
     #preserveEmptyRows: boolean;
+    #emojiDefs?: Record<string, string>;
     #modifiers?: DynamicModifiers[];
 
     readonly #preset: EditorPreset;
@@ -294,6 +307,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                     yfmLangOptions: {
                         languageData: getAutocompleteConfig({
                             preserveEmptyRows: this.#preserveEmptyRows,
+                            emojiDefs: this.#emojiDefs,
                         }).concat(this.#markupConfig?.languageData || []),
                     },
                     autocompletion: this.#markupConfig.autocompletion,
@@ -368,6 +382,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
         this.#markup = initial.markup ?? '';
 
         this.#preset = opts.preset ?? 'full';
+        this.#emojiDefs = resolveEmojiDefs(this.#preset, opts.config);
         this.#pmTransformers = opts.pmTransformers;
         this.#mdOptions = md;
         this.#extensions = wysiwygConfig.extensions;

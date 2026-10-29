@@ -16,7 +16,6 @@
   "colorify__group_text": "Text",
   "cut": "Cut",
   "emoji": "Emoji",
-  "emoji__hint": "Emojis can be added in WYSIWYG or manually with markup",
   "file": "File",
   "folding-heading": "Collapsed section",
   "folding-heading__hint": "The text under the heading can be collapsed or expanded",

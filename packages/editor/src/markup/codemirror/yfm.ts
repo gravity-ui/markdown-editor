@@ -145,7 +145,7 @@ export const mdAutocomplete: LanguageData = {
                 ],
             };
         }
-        if (directiveContext.option !== 'disabled' && word?.text.startsWith(':')) {
+        if (directiveContext.option !== 'disabled' && word?.text.startsWith('::')) {
             const options: Completion[] = [];
 
             if (directiveContext.valueFor('yfmCut') !== 'disabled') {
