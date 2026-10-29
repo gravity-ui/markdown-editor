@@ -3,6 +3,6 @@
   "compilerOptions": {
     "outDir": "build/esm"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "tests/**/*"],
   "exclude": ["build"]
 }
