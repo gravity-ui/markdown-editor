@@ -709,6 +709,30 @@ importers:
         specifier: catalog:testing
         version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1))
 
+  packages/editor-header-extension:
+    devDependencies:
+      '@gravity-ui/markdown-editor':
+        specifier: workspace:*
+        version: link:../editor
+      '@markdown-editor/gulp-tasks':
+        specifier: workspace:*
+        version: link:../../infra/gulp-tasks
+      '@markdown-editor/linters':
+        specifier: workspace:*
+        version: link:../../infra/linters
+      '@markdown-editor/tsconfig':
+        specifier: workspace:*
+        version: link:../../infra/tsconfig
+      gulp-cli:
+        specifier: 'catalog:'
+        version: 3.1.0
+      npm-run-all:
+        specifier: ^4.1.5
+        version: 4.1.5
+      typescript:
+        specifier: catalog:ts
+        version: 5.9.3
+
   packages/latex-extension:
     dependencies:
       '@gravity-ui/markdown-editor':
@@ -815,6 +839,34 @@ importers:
       vitest:
         specifier: catalog:testing
         version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.105.0)(terser@5.51.2)(yaml@2.9.1))
+
+  packages/plugin-header:
+    dependencies:
+      '@types/markdown-it':
+        specifier: 'catalog:'
+        version: 13.0.9
+    devDependencies:
+      '@markdown-editor/gulp-tasks':
+        specifier: workspace:*
+        version: link:../../infra/gulp-tasks
+      '@markdown-editor/linters':
+        specifier: workspace:*
+        version: link:../../infra/linters
+      '@markdown-editor/tsconfig':
+        specifier: workspace:*
+        version: link:../../infra/tsconfig
+      gulp-cli:
+        specifier: 'catalog:'
+        version: 3.1.0
+      markdown-it:
+        specifier: catalog:peers
+        version: 13.0.2
+      npm-run-all:
+        specifier: ^4.1.5
+        version: 4.1.5
+      typescript:
+        specifier: catalog:ts
+        version: 5.9.3
 
 packages:
 
