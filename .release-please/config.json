@@ -14,6 +14,8 @@
   "packages": {
     "packages/editor": {},
     "packages/latex-extension": {},
-    "packages/page-constructor-extension": {}
+    "packages/page-constructor-extension": {},
+    "packages/editor-header-extension": {},
+    "packages/plugin-header": {}
   }
 }

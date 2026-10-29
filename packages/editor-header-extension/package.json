@@ -1,0 +1,58 @@
+{
+  "name": "@gravity-ui/markdown-editor-header-extension",
+  "version": "0.0.0",
+  "description": "Header block extension for @gravity-ui/markdown-editor",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gravity-ui/markdown-editor"
+  },
+  "keywords": [
+    "md",
+    "yfm",
+    "wysiwyg",
+    "markdown",
+    "prosemirror"
+  ],
+  "scripts": {
+    "clean": "gulp clean",
+    "build": "gulp build",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "run-p -cs lint:*",
+    "lint:js": "eslint './**/*.{js,jsx,mjs,ts,tsx}'",
+    "lint:prettier": "prettier --check './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
+    "prepublishOnly": "nx lint && nx clean && nx build"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./build/esm/index.d.ts",
+        "default": "./build/esm/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/index.d.ts",
+        "default": "./build/cjs/index.js"
+      }
+    }
+  },
+  "main": "build/cjs/index.js",
+  "module": "build/esm/index.js",
+  "types": "build/esm/index.d.ts",
+  "files": [
+    "build",
+    "README.md"
+  ],
+  "devDependencies": {
+    "@gravity-ui/markdown-editor": "workspace:*",
+    "@markdown-editor/gulp-tasks": "workspace:*",
+    "@markdown-editor/linters": "workspace:*",
+    "@markdown-editor/tsconfig": "workspace:*",
+    "gulp-cli": "catalog:",
+    "npm-run-all": "^4.1.5",
+    "typescript": "catalog:ts"
+  },
+  "peerDependencies": {
+    "@gravity-ui/markdown-editor": "workspace:^15.49.0"
+  },
+  "sideEffects": false
+}

@@ -77,4 +77,38 @@ export default defineConfig(
             },
         },
     },
+    {
+        files: ['./packages/editor-header-extension/**/*'],
+        languageOptions: {
+            parserOptions: {
+                project: './packages/editor-header-extension/tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: './packages/editor-header-extension/tsconfig.json',
+                },
+            },
+        },
+    },
+    {
+        files: ['./packages/plugin-header/**/*'],
+        languageOptions: {
+            parserOptions: {
+                project: './packages/plugin-header/tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: './packages/plugin-header/tsconfig.json',
+                },
+            },
+        },
+    },
 );
