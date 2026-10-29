@@ -23,6 +23,8 @@ export const addEmptyLink: Command = (state, dispatch) => {
     const {$from, $to} = selection;
     // text selection inside one text node
     if ($from.parent !== $to.parent) return false;
+    if (selection instanceof TextSelection && isWhitespaceOnlySelection(selection)) return false;
+
     let tr = state.tr;
     const toggleResult = toggleMark(linkMarkType, {
         [LinkAttr.Href]: '',
@@ -40,7 +42,10 @@ export const addEmptyLink: Command = (state, dispatch) => {
             tr.setMeta(imageRendererKey, meta);
         }
     } else {
-        const selectedText = state.doc.textBetween($from.pos, $to.pos);
+        // Keep leaf offsets intact while treating trailing line breaks as whitespace.
+        const selectedText = state.doc.textBetween($from.pos, $to.pos, '', (node) =>
+            node.type.spec.isBreak ? '\n' : '\uFFFC',
+        );
         const countOfWhitespacesAtEnd = selectedText.length - selectedText.trimEnd().length;
         tr.setSelection(TextSelection.create(tr.doc, $to.pos - countOfWhitespacesAtEnd - 1));
     }
@@ -56,3 +61,11 @@ export const linkActionSpec2 = (deps: ExtensionDeps): ActionSpec => ({
     isEnable: addLinkCmd2(deps),
     run: addLinkCmd2(deps),
 });
+
+function isWhitespaceOnlySelection({from, to, $from}: TextSelection): boolean {
+    // Inline objects count as content; line breaks do not.
+    const text = $from.doc.textBetween(from, to, '', (node) =>
+        node.type.spec.isBreak ? '' : '\uFFFC',
+    );
+    return !text.trim();
+}

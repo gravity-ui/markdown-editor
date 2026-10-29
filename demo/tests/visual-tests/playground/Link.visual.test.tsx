@@ -13,6 +13,76 @@ test.describe('Link', () => {
         await editor.switchMode('wysiwyg');
     });
 
+    test('should save a single-character link @wysiwyg', async ({editor, actions, page}) => {
+        await editor.fill('before a after');
+        await editor.press('ControlOrMeta+End');
+        await actions.pressFocused('ArrowLeft', ' after'.length);
+        await actions.pressFocused('Shift+ArrowLeft');
+        await expect(page.locator('.playground__pm-selection')).toHaveText(
+            /TextSelection\s*From: 8\s*To: 9/,
+        );
+        await actions.pressFocused('ControlOrMeta+k');
+
+        await expect(page.locator('.g-md-link-tooltip-view')).toBeVisible();
+        await page.locator('.g-md-link-tooltip-view input').fill('https://example.com');
+        await actions.pressFocused('Enter');
+
+        const link = editor.getBySelectorInContenteditable('a');
+        await expect(link).toHaveText('a');
+        await expect(link).toHaveAttribute('href', 'https://example.com');
+        await expect(page.locator('.g-md-link-tooltip-view')).toBeHidden();
+    });
+
+    test('should save a link with a trailing line break and spaces @wysiwyg', async ({
+        editor,
+        actions,
+        page,
+    }) => {
+        await editor.fill('before word');
+        await editor.press('ControlOrMeta+End');
+        await editor.press('Shift+Enter');
+        await editor.pressSequentially('   after');
+        await actions.pressFocused('ArrowLeft', 'after'.length);
+        await actions.pressFocused('Shift+ArrowLeft', 'word'.length + 1 + 3);
+        await expect(page.locator('.playground__pm-selection')).toHaveText(
+            /TextSelection\s*From: 8\s*To: 16/,
+        );
+        await actions.pressFocused('ControlOrMeta+k');
+
+        await expect(page.locator('.g-md-link-tooltip-view')).toBeVisible();
+        await page.locator('.g-md-link-tooltip-view input').fill('https://example.com');
+        await actions.pressFocused('Enter');
+
+        const link = editor.getBySelectorInContenteditable('a').filter({hasText: 'word'});
+        await expect(link).toHaveText('word');
+        await expect(link).toHaveAttribute('href', 'https://example.com');
+        await editor.switchMode('markup');
+        await expect(
+            editor.getByTextInContenteditable('[word](https://example.com)'),
+        ).toBeVisible();
+    });
+
+    test('should cancel a single-character link without leaving an empty link @wysiwyg', async ({
+        editor,
+        actions,
+        page,
+    }) => {
+        await editor.fill('before a after');
+        await editor.press('ControlOrMeta+End');
+        await actions.pressFocused('ArrowLeft', ' after'.length);
+        await actions.pressFocused('Shift+ArrowLeft');
+        await expect(page.locator('.playground__pm-selection')).toHaveText(
+            /TextSelection\s*From: 8\s*To: 9/,
+        );
+        await actions.pressFocused('ControlOrMeta+k');
+        await expect(page.locator('.g-md-link-tooltip-view')).toBeVisible();
+        await actions.pressFocused('Escape');
+
+        await expect(page.locator('.g-md-link-tooltip-view')).toBeHidden();
+        await expect(editor.getBySelectorInContenteditable('a')).toHaveCount(0);
+        await expect(editor.getByTextInContenteditable('before a after')).toBeVisible();
+    });
+
     test('should insert via toolbar @wysiwyg', async ({browserName, editor, actions, wait}) => {
         test.skip(browserName === 'webkit', 'fillFocused does not work correctly in webkit');
 
