@@ -38,25 +38,23 @@ describe('EditorImpl: markup emoji configuration', () => {
         return results.flatMap((result) => result?.options ?? []);
     }
 
-    it('should use the shared emoji definitions in markup mode', async () => {
-        const editor = createEditor({
-            initial: {mode: 'markup', markup: ':'},
-            config: {emoji: {defs: {custom: '⭐'}}},
-            wysiwygConfig: {extensionOptions: {emoji: {defs: {wysiwyg: '🔥'}}}},
-        });
+    it.each([
+        ['full', [{label: ':custom:', detail: '⭐', type: 'text'}]],
+        ['yfm', []],
+    ] as const)(
+        'should suggest only the shared emoji definitions in markup mode for the %s preset',
+        async (preset, expected) => {
+            const editor = createEditor({
+                preset,
+                initial: {mode: 'markup', markup: ':'},
+                config: {emoji: {defs: {custom: '⭐'}}},
+                wysiwygConfig: {extensionOptions: {emoji: {defs: {wysiwyg: '🔥'}}}},
+            });
 
-        expect(await suggestions(editor)).toEqual([
-            {label: ':custom:', detail: '⭐', type: 'text'},
-        ]);
-        editor.destroy();
-    });
-
-    it('should leave emoji completion disabled outside the full preset', async () => {
-        const editor = createEditor({preset: 'yfm', initial: {mode: 'markup', markup: ':'}});
-
-        expect(await suggestions(editor)).toEqual([]);
-        editor.destroy();
-    });
+            expect(await suggestions(editor)).toEqual(expected);
+            editor.destroy();
+        },
+    );
 });
 
 describe('EditorImpl: changePreviewVisible', () => {

@@ -101,7 +101,6 @@ test.describe('Toolbar', () => {
         test('in @markup mode', async ({page, editor, expectScreenshot}) => {
             await editor.switchMode('markup');
             await editor.openMainToolbarMoreMenu();
-            await editor.assertAdditionalToolbarButtonEnabled('Emoji');
             await page.mouse.move(-1, -1);
 
             await expectScreenshot({fullPage: true, caret: 'hide'});

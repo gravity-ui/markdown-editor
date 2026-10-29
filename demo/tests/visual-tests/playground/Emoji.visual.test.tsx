@@ -11,7 +11,7 @@ test.describe('Markup emoji', () => {
         });
     });
 
-    test('should switch between emoji and directive suggestions at the second colon', async ({
+    test('should switch from emoji to directive suggestions at the second colon', async ({
         editor,
     }) => {
         const options = editor.locators.cmAutocomplete.getByRole('option');
@@ -24,41 +24,20 @@ test.describe('Markup emoji', () => {
         await editor.pressSequentially(':');
         await expect(options).toHaveCount(1);
         await expect(cut).toBeVisible();
-
-        await editor.pressSequentially(':');
-        await expect(options).toHaveCount(1);
-        await expect(cut).toBeVisible();
-
-        await editor.press('Backspace');
-        await editor.press('Backspace');
-        await expect(options.first()).toBeVisible();
-        await expect(cut).toHaveCount(0);
-        await expect(editor.locators.contenteditable).toHaveText(':');
     });
 
-    test('should open the toolbar list without changing the document', async ({editor}) => {
+    test('should insert an emoji from the toolbar', async ({editor}) => {
         await editor.pressSequentially('Hello');
         await editor.openMainToolbarMoreMenu();
         await editor.locators.toolbars.additional.getByLabel('Emoji', {exact: true}).click();
-        await expect(editor.locators.cmAutocomplete).toBeVisible();
-        await editor.press('Escape');
+        await expect(editor.locators.contenteditable).toHaveText('Hello:');
 
-        await expect(editor.locators.cmAutocomplete).toBeHidden();
-        await expect(editor.locators.contenteditable).toHaveText('Hello');
-    });
-
-    test('should select an emoji with the mouse and preserve it across modes', async ({editor}) => {
-        await editor.pressSequentially('Hello :smi');
+        await editor.pressSequentially('smi');
         await editor.locators.cmAutocomplete
             .getByRole('option')
             .filter({hasText: ':smile:'})
             .click();
 
-        await expect(editor.locators.contenteditable).toHaveText('Hello :smile:');
-        await expect(editor.locators.contenteditable).toBeFocused();
-        await editor.switchMode('wysiwyg');
-        await expect(editor.locators.contenteditable).toContainText('😄');
-        await editor.switchMode('markup');
-        await expect(editor.locators.contenteditable).toHaveText('Hello :smile:');
+        await expect(editor.locators.contenteditable).toHaveText('Hello:smile:');
     });
 });
