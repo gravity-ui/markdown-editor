@@ -17,32 +17,29 @@ function complete(doc: string, explicit = false, pos = doc.length) {
 }
 
 describe('markup emoji completion', () => {
-    it.each(['Hello :smi', 'Hello\n:+1'])(
-        'should suggest emoji after a colon in %j',
-        async (doc) => {
-            const result = await complete(doc);
+    it.each([
+        ['Hello :smi', false],
+        ['Hello\n:+1', false],
+        ['word:smi', true],
+    ])('should suggest emoji from the colon in %j (explicit: %s)', async (doc, explicit) => {
+        const result = await complete(doc, explicit);
 
-            expect(result?.from).toBe(doc.lastIndexOf(':'));
-            expect(result?.options).toEqual([
-                {label: ':smile:', detail: '😄', type: 'text'},
-                {label: ':+1:', detail: '👍', type: 'text'},
-            ]);
-        },
-    );
+        expect(result?.from).toBe(doc.lastIndexOf(':'));
+        expect(result?.options).toEqual([
+            {label: ':smile:', detail: '😄', type: 'text'},
+            {label: ':+1:', detail: '👍', type: 'text'},
+        ]);
+    });
 
     it.each([':smile:', 'word:smi'])(
-        'should leave %j without automatic emoji suggestions',
+        'should skip automatic emoji suggestions in %j',
         async (doc) => {
             expect(await complete(doc)).toBeNull();
         },
     );
 
-    it('should replace an existing emoji prefix when opened explicitly', async () => {
-        expect((await complete('Hello :smi', true))?.from).toBe(6);
-    });
-
     it.each(['`:smi`', '```js\n:smi\n```', '<div>\n:smi\n</div>'])(
-        'should suppress emoji suggestions inside code or HTML in %j',
+        'should skip emoji suggestions inside code or HTML in %j',
         async (doc) => {
             const pos = doc.indexOf(':smi') + 4;
 
@@ -51,19 +48,12 @@ describe('markup emoji completion', () => {
         },
     );
 
-    it('should suppress emoji suggestions in a read-only editor', async () => {
-        const state = EditorState.create({
-            doc: ':',
-            selection: {anchor: 1},
-            extensions: [EditorState.readOnly.of(true)],
-        });
+    it.each([
+        ['a read-only editor', {doc: ':', extensions: EditorState.readOnly.of(true)}],
+        ['a nonempty selection', {doc: ':smi', selection: {anchor: 0, head: 4}}],
+    ])('should skip emoji suggestions in %s', async (_name, config) => {
+        const state = EditorState.create(config);
 
-        expect(await autocomplete(new CompletionContext(state, 1, true))).toBeNull();
-    });
-
-    it('should preserve a nonempty selection', async () => {
-        const state = EditorState.create({doc: ':smi', selection: {anchor: 0, head: 4}});
-
-        expect(await autocomplete(new CompletionContext(state, 4, true))).toBeNull();
+        expect(await autocomplete(new CompletionContext(state, state.doc.length, true))).toBeNull();
     });
 });

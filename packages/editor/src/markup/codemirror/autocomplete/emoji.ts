@@ -27,13 +27,13 @@ export function emojiAutocomplete(defs: Record<string, string>): LanguageData {
                 if (ignoredNodes.has(node.name)) return null;
             }
 
-            const token = context.matchBefore(/(?:^|\s):[\w+-]*$/);
-            if (!token && !context.explicit) return null;
+            const token = context.matchBefore(context.explicit ? /:[\w+-]*$/ : /(?:^|\s):[\w+-]*$/);
+            if (!token) return null;
 
             return {
-                from: token ? token.from + token.text.indexOf(':') : context.pos,
+                from: token.from + token.text.indexOf(':'),
                 options,
-                validFor: /^:?[\w+-]*$/,
+                validFor: /^:[\w+-]*$/,
             };
         },
     };
