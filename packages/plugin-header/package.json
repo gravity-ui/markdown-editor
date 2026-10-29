@@ -1,6 +1,7 @@
 {
   "name": "@gravity-ui/markdown-plugin-header",
   "version": "0.0.0",
+  "private": true,
   "description": "markdown-it plugin for the header block markup",
   "license": "MIT",
   "repository": {

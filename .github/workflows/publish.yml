@@ -14,8 +14,6 @@ on:
         default: 'packages/editor'
         options:
           - 'packages/editor'
-          - 'packages/editor-header-extension'
-          - 'packages/plugin-header'
           - 'packages/latex-extension'
           - 'packages/page-constructor-extension'
       tag:

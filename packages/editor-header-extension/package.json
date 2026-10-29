@@ -1,6 +1,7 @@
 {
   "name": "@gravity-ui/markdown-editor-header-extension",
   "version": "0.0.0",
+  "private": true,
   "description": "Header block extension for @gravity-ui/markdown-editor",
   "license": "MIT",
   "repository": {
