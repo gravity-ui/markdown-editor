@@ -204,6 +204,71 @@ describe('MarkdownSerializer whitespace', () => {
         expect(parser.parse(text)).toMatchNode(doc(p(s('x  ', a('y')))));
     });
 
+    it('should keep text after differently marked code spaces', () => {
+        const {doc, p, strong, em, s, code, parser, serializer} = createFixture([
+            'em',
+            'link',
+            'strong',
+            'strike',
+            'code',
+        ]);
+        const input = doc(p(strong(s('x')), strong(code(' ')), em(strong(' ')), 'x'));
+
+        const text = serializer.serialize(input);
+
+        expect(parser.parse(text)).toMatchNode(doc(p(strong(s('x')), '  x')));
+    });
+
+    it.each(['\u2028', '\u2029'])(
+        'should keep literal punctuation before a code space and %j',
+        (separator) => {
+            const {doc, p, em, code, parser, serializer} = createFixture([]);
+            const input = doc(p(em('*'), em(code(' ')), separator, 'x'));
+
+            const text = serializer.serialize(input);
+
+            expect(parser.parse(text)).toMatchNode(doc(p(em('*'), ` ${separator}x`)));
+        },
+    );
+
+    it('should keep code after a soft break with reordered marks', () => {
+        const {doc, p, s, a, strong, em, code, sb, parser, serializer} = createFixture([
+            'strike',
+            'link',
+            'strong',
+            'em',
+            'code',
+        ]);
+        const input = doc(
+            p(s(a(strong(code('x ')))), s(strong(em(code(sb())))), strong(code('é'))),
+        );
+
+        const text = serializer.serialize(input);
+
+        expect(parser.parse(text)).toMatchNode(
+            doc(p(s(a(strong(code('x')))), code(' '), strong(code('é')))),
+        );
+    });
+
+    it('should keep an image after a raw newline in code', () => {
+        const {doc, h1, a, strong, s, code, img, parser, serializer} = createFixture([
+            'em',
+            'link',
+            'strong',
+            'strike',
+            'code',
+        ]);
+        const input = doc(h1(code('\n'), a(strong(s('*'))), s(code(img())), code('x')));
+
+        const text = serializer.serialize(input);
+        let imageCount = 0;
+        parser.parse(text).descendants((node) => {
+            if (node.type.name === 'image') imageCount++;
+        });
+
+        expect(imageCount).toBe(1);
+    });
+
     it('should close ending emphasis before deferred code whitespace', () => {
         const {doc, p, em, strong, code, a, parser, serializer} = createFixture(
             ['em', 'link', 'strong', 'code'],

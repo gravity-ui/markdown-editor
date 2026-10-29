@@ -364,6 +364,7 @@ export class MarkdownSerializerState {
         this.atBlockStart = fromBlockStart;
         const active: Mark[] = [];
         let trailing = '';
+        let hasRawLineBreak: boolean | undefined;
         const progress = (node: Node | null, _: any, index: number) => {
             const sourceMarks = node ? node.marks : [];
             let marks = sourceMarks;
@@ -389,6 +390,12 @@ export class MarkdownSerializerState {
             let len = marks.length - (noEsc ? 1 : 0);
             let reorderedNoEsc = false;
             const whitespaceOnly = node && node.isText && !/\S/.test(node.text ?? '');
+            const isCodeLeaf = noEsc && node && !node.isText && node.isLeaf && !node.type.spec.isBreak && inner.type.spec.code === true;
+            if (isCodeLeaf && active.length > len + 1 && hasRawLineBreak === undefined) {
+                hasRawLineBreak = false;
+                for (let k = 0; k < parent.childCount && !hasRawLineBreak; k++)
+                    hasRawLineBreak = /[\r\n]/.test(parent.child(k).text ?? '');
+            }
 
             // Try to reorder 'mixable' marks, such as em and strong, which
             // in Markdown may be opened and closed in different order, so
@@ -407,8 +414,9 @@ export class MarkdownSerializerState {
                         }
                         else if (j > i) {
                             if (noEsc && j > len) reorderedNoEsc = true;
-                            const end = this.getMark(mark.type.name).expelEnclosingWhitespace && !node?.isText
-                                ? j : Math.min(j, len);
+                            // Keep the old output for breaks and raw line endings.
+                            const end = this.getMark(mark.type.name).expelEnclosingWhitespace && !node?.isText &&
+                                (!isCodeLeaf || hasRawLineBreak) ? j : Math.min(j, len);
                             marks = marks.slice(0, i).concat(marks.slice(i + 1, end)).concat(mark).concat(marks.slice(j, len))
                         }
                         // eslint-disable-next-line no-labels
@@ -478,8 +486,13 @@ export class MarkdownSerializerState {
                     return info.expelEnclosingWhitespace && info.escape !== false && !mark.isInSet(next?.marks ?? []);
                 });
                 // Read all lines when ending marks cannot affect adjacent nodes.
-                const trailingWhitespace = ((!noEsc && marks.length === 1) || isolatedEscapingMarks)
-                    ? /^([\s\S]*\S)?(\s*)$/ : /^(.*?)(\s*)$/m;
+                // Keep line and paragraph separators inside a single ending mark.
+                let trailingWhitespace: RegExp;
+                if (!noEsc && marks.length === 1) {
+                    trailingWhitespace = /^([\s\S]*[\S\u2028\u2029])?([^\S\u2028\u2029]*)$/;
+                } else {
+                    trailingWhitespace = isolatedEscapingMarks ? /^([\s\S]*\S)?(\s*)$/ : /^(.*?)(\s*)$/m;
+                }
                 const text = node.text ?? '';
                 const lineMatch = trailingWhitespace.exec(text)!;
                 // Read the whole text when a line match would drop the next lines.
