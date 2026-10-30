@@ -15,7 +15,7 @@ registerBuildTasks({
     version: pkg.version,
     buildDir: BUILD_DIR,
     nodeModulesDir: NODE_MODULES_DIR,
-    esmSideEffects: [],
+    esmSideEffects: ['*.css'],
 });
 
 task('default', series('clean', 'build'));
