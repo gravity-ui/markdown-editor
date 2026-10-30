@@ -95,18 +95,24 @@ describe('MarkdownSerializer mark boundary compatibility', () => {
         const {doc, p, a, strong, em, code, parser, serializer} = createFixture();
         const input = doc(p(a(strong(em('x'))), em(code('y')), strong('z')));
 
-        expect(parser.parse(serializer.serialize(input)).textContent).toBe('xyz');
+        // Emphasis on this code was already lost before the regression.
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(
+            doc(p(a(strong(em('x'))), code('y'), strong('z'))),
+        );
     });
 
     it('should keep linked text after struck inline code', () => {
         const {doc, p, a, strong, em, s, code, parser, serializer} = createFixture();
         const input = doc(p(a(strong(em(s('x')))), a(s(code('y'))), a('z')));
 
-        expect(parser.parse(serializer.serialize(input)).textContent).toBe('xyz');
+        // Strike on this code was already lost before the regression.
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(
+            doc(p(a(strong(em(s('x')))), a(code('y')), a('z'))),
+        );
     });
 
     it('should keep an image after a raw newline in code', () => {
-        const {doc, h1, a, strong, s, code, img, parser, serializer} = createFixture([
+        const {doc, p, h1, a, strong, s, code, img, parser, serializer} = createFixture([
             'em',
             'link',
             'strong',
@@ -114,19 +120,20 @@ describe('MarkdownSerializer mark boundary compatibility', () => {
             'code',
         ]);
         const input = doc(h1(code('\n'), a(strong(s('*'))), s(code(img())), code('x')));
-        let imageCount = 0;
-        parser.parse(serializer.serialize(input)).descendants((node) => {
-            if (node.type.name === 'image') imageCount++;
-        });
-
-        expect(imageCount).toBe(1);
+        // Raw newlines already split the heading and change its marks.
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(
+            doc(h1('`'), p(code('[**~~\\*~~**](foo)'), img(), '``x`')),
+        );
     });
 
     it('should keep text after a marked image and a code space', () => {
         const {doc, p, strong, em, code, img, parser, serializer} = createFixture();
         const input = doc(p(strong('中'), strong(em(img())), strong('x'), strong(code(' ')), '.y'));
 
-        expect(parser.parse(serializer.serialize(input)).textContent).toBe('中x .y');
+        // These image boundaries already changed bold to italic.
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(
+            doc(p(em('中'), img(), em('x'), ' .y')),
+        );
     });
 
     it.each(['\u2028', '\u00a0'])(
@@ -135,8 +142,11 @@ describe('MarkdownSerializer mark boundary compatibility', () => {
             const {doc, p, a, strong, em, code, parser, serializer} = createFixture();
             const input = doc(p(a(strong(em('x' + separator))), em(code('y'))));
 
-            expect(parser.parse(serializer.serialize(input)).textContent).toBe(
-                'x' + separator + 'y',
+            // U+2028 already lost emphasis on code before the regression.
+            const expectedCode = separator === '\u00a0' ? em(code('y')) : code('y');
+
+            expect(parser.parse(serializer.serialize(input))).toMatchNode(
+                doc(p(a(strong(em('x'))), separator, expectedCode)),
             );
         },
     );
@@ -145,14 +155,19 @@ describe('MarkdownSerializer mark boundary compatibility', () => {
         const {doc, p, a, strong, em, code, parser, serializer} = createFixture();
         const input = doc(p(a(strong(em('x'))), em(code(' y ')), a(em('z'))));
 
-        expect(parser.parse(serializer.serialize(input)).textContent).toBe('x y z');
+        // Keep the leading code-space normalization.
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(
+            doc(p(a(strong(em('x'))), ' ', em(code('y ')), a(em('z')))),
+        );
     });
 
     it('should keep an existing trailing code space after a link', () => {
         const {doc, p, a, strong, em, code, parser, serializer} = createFixture();
         const input = doc(p(a(strong(em('x'))), em(code(' '))));
 
-        expect(parser.parse(serializer.serialize(input)).textContent).toBe('x ');
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(
+            doc(p(a(strong(em('x')), ' '))),
+        );
     });
 });
 
@@ -297,7 +312,10 @@ describe('MarkdownSerializer Unicode and multiline text', () => {
 
             const text = serializer.serialize(input);
 
-            expect(parser.parse(text).textContent).toBe(`x${separator}!${separator}!`);
+            // These separators already moved the bold boundary.
+            expect(parser.parse(text)).toMatchNode(
+                doc(p(strong(s('x'), `${separator}!${separator}`), '!')),
+            );
         },
     );
 
@@ -551,6 +569,135 @@ describe('MarkdownSerializer whitespace boundaries', () => {
 
         expect(text).toBe(expectedMarkup);
         expect(parser.parse(text)).toMatchNode(expectedDoc);
+    });
+});
+
+describe('MarkdownSerializer reviewed regressions', () => {
+    it.each(['*', '**', '~~'])(
+        'should keep %s formatting around a link before a letter',
+        (delimiter) => {
+            const {parser, serializer} = createFixture();
+            const input = parser.parse(`${delimiter}a${delimiter}[${delimiter}b${delimiter}](u)c`);
+
+            expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+        },
+    );
+
+    it.each(['*', '**', '~~'])(
+        'should keep %s formatting around a link before a space',
+        (delimiter) => {
+            const {parser, serializer} = createFixture();
+            const input = parser.parse(`${delimiter}a${delimiter}[${delimiter}b${delimiter}](u) c`);
+
+            expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+        },
+    );
+
+    it.each([
+        '*`a `**b***',
+        '*`a `[b](u)*',
+        '~~`a `*b*~~',
+        '[*a*](u)*` a`*',
+        '[**a**](u)**` a`**',
+        '[~~a~~](u)~~` a`~~',
+        '[*a*](u)*``  a`  ``b*',
+        '[**a**](u)**``  a`  ``b**',
+        '[~~a~~](u)~~``  a`  ``b~~',
+    ])('should keep spaces inside code when outer marks continue in %s', (source) => {
+        const {parser, serializer} = createFixture();
+        const input = parser.parse(source);
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+    });
+
+    it('should keep bold on a link after a code space before a letter', () => {
+        const {parser, serializer} = createFixture();
+        const input = parser.parse('**` `**[**x**](u)x');
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+    });
+});
+
+describe('MarkdownSerializer deferred whitespace regressions', () => {
+    it.each([' ', '\t'])(
+        'should keep strike on code after deferred whitespace %j in a formatted link',
+        (space) => {
+            const {doc, p, a, em, s, code, parser, serializer} = createFixture();
+            const input = doc(p(a(em(s('A' + space))), s(code('B'))));
+
+            expect(parser.parse(serializer.serialize(input))).toMatchNode(
+                doc(p(a(em(s('A'))), space, s(code('B')))),
+            );
+        },
+    );
+
+    it('should keep emphasis on code after a nested link with enclosing spaces', () => {
+        const {doc, p, a, strong, em, code, parser, serializer} = createFixture();
+        const input = doc(p(strong(em('A')), a(strong(em(' B '))), em(code('C'))));
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(
+            doc(p(strong(em('A')), ' ', a(strong(em('B'))), ' ', em(code('C')))),
+        );
+    });
+});
+
+describe('MarkdownSerializer known delimiter regressions', () => {
+    it.each(['***`A`****` B C`*', '___`A`____` B C`_'])(
+        'should keep code spaces after valid adjacent delimiters in %s',
+        (source) => {
+            const {parser, serializer} = createFixture();
+            const input = parser.parse(source);
+
+            expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+        },
+    );
+
+    it('should keep the code space when a link opens after nested bold', () => {
+        const {doc, p, strong, em, code, a, parser, serializer} = createFixture();
+        const input = doc(p(strong(em('A')), a(em(code(' B C')))));
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+    });
+
+    it('should keep emphasis around linked code with a Unicode line separator', () => {
+        const {doc, p, a, em, code, parser, serializer} = createFixture();
+        const input = doc(p(em('A'), a(em(code('B\u2029C '))), 'C'));
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+    });
+
+    it('should keep the leading code space at a formatted link boundary', () => {
+        const {parser, serializer} = createFixture();
+        const input = parser.parse('**L**[**``  a  ``**](u)R');
+        // The trailing space already loses its marks before this regression.
+        const expected = parser.parse('**L**[**` a`**](u) R');
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(expected);
+    });
+
+    it('should keep emphasis on code after closing nested bold', () => {
+        const {doc, p, strong, em, code, parser, serializer} = createFixture();
+        const input = doc(p('A ', strong(em('B')), em(code(' C'))));
+        // Keep the existing code-space normalization.
+        const expected = doc(p('A ', strong(em('B')), ' ', em(code('C'))));
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(expected);
+    });
+
+    // TODO: Keep formatting around raw multiline code inside a link.
+    it.fails.each([
+        {name: 'bold and italic', strike: false},
+        {name: 'bold, italic and strike', strike: true},
+    ])('should keep $name on multiline code inside a link', ({strike}) => {
+        const {doc, p, a, strong, em, s, code, parser, serializer} = createFixture();
+        const rawCode = code('a\nb');
+        const normalizedCode = code('a b');
+        const input = doc(p(a(em('L'), strong(em(strike ? s(rawCode) : rawCode))), 'R'));
+        const expected = doc(
+            p(a(em('L'), strong(em(strike ? s(normalizedCode) : normalizedCode))), 'R'),
+        );
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(expected);
     });
 });
 
