@@ -1,0 +1,20 @@
+/// Палитра редактора: цвет → семейство семантических токенов Gravity.
+$palette: (
+    'blue': 'info',
+    'green': 'positive',
+    'yellow': 'warning',
+    'red': 'danger',
+    'violet': 'utility',
+);
+
+/// Цвет текста. Серого и оранжевого семейства в Gravity нет,
+/// `text-warning` слишком светлый для текста на белом фоне.
+$palette-text: (
+    'gray': '--g-color-text-secondary',
+    'yellow': '--g-color-private-yellow-600-solid',
+    'orange': '--g-color-private-orange-500-solid',
+    'red': '--g-color-text-danger',
+    'green': '--g-color-text-positive',
+    'blue': '--g-color-text-info',
+    'violet': '--g-color-text-utility',
+);

@@ -9,4 +9,5 @@
 
 ### Own plugins:
 
+- [button](../extensions/additional/Button/README.md) — button `::button`
 - [header](../extensions/additional/Header/README.md) — cover block `:::header`
