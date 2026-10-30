@@ -44,6 +44,11 @@ export type WysiwygEditorOptions = {
     linkify?: boolean;
     pmTransformers?: TransformFn[];
     linkifyTlds?: string | string[];
+    /**
+     * Protocol for detected links without a scheme. Defaults to 'http'.
+     * Explicit protocols, email links, and protocol-relative URLs are preserved.
+     */
+    linkifyDefaultProtocol?: 'http' | 'https';
     escapeConfig?: EscapeConfig;
     /** Call on any state change (move cursor, change selection, etc...) */
     onChange?: OnChange;
@@ -102,6 +107,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage, ExporterStora
         linkify,
         pmTransformers,
         linkifyTlds,
+        linkifyDefaultProtocol,
         escapeConfig,
         onChange,
         onDocChange,
@@ -137,6 +143,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage, ExporterStora
                 // "breaks" option only affects the renderer, but not the parser
                 mdOpts: {html: allowHTML, linkify, breaks: true, preset: mdPreset},
                 linkifyTlds,
+                linkifyDefaultProtocol,
                 pmTransformers,
                 dynamicModifiers,
                 exporters,

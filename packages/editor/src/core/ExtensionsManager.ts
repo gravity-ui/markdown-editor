@@ -22,6 +22,7 @@ import type {ExporterRegistration, ExporterStorage} from './exporters/types';
 import type {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
 import type {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializer';
 import type {TransformFn} from './markdown/ProseMirrorTransformer';
+import {configureLinkify} from './markdown/plugins/configureLinkify';
 import type {ActionSpec} from './types/actions';
 import type {MarkViewConstructor, NodeViewConstructor} from './types/node-views';
 
@@ -35,6 +36,7 @@ type ExtensionsManagerOptions = {
     exporters?: readonly ExporterRegistration[];
     mdOpts?: MarkdownIt.Options & {preset?: PresetName};
     linkifyTlds?: string | string[];
+    linkifyDefaultProtocol?: 'http' | 'https';
     pmTransformers?: TransformFn[];
     dynamicModifiers?: {
         parser?: MarkdownParserDynamicModifier;
@@ -98,9 +100,11 @@ export class ExtensionsManager {
         this.#mdForMarkup = new MarkdownIt(mdPreset, options.mdOpts ?? {});
         this.#mdForText = new MarkdownIt(mdPreset, options.mdOpts ?? {});
 
-        if (options.linkifyTlds) {
-            this.#mdForMarkup.linkify.tlds(options.linkifyTlds, true);
-            this.#mdForText.linkify.tlds(options.linkifyTlds, true);
+        for (const md of [this.#mdForMarkup, this.#mdForText]) {
+            md.use(configureLinkify, {
+                tlds: options.linkifyTlds,
+                defaultProtocol: options.linkifyDefaultProtocol,
+            });
         }
 
         if (options.pmTransformers) {

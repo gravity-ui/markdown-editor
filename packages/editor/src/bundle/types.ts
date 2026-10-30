@@ -41,6 +41,12 @@ export type MarkdownEditorMdOptions = {
     breaks?: boolean;
     linkify?: boolean;
     linkifyTlds?: string | string[];
+    /**
+     * Protocol for detected links without a scheme. Defaults to 'http'.
+     * Explicit protocols, email links, and protocol-relative URLs are preserved.
+     * Custom previews must apply this option to their own renderer.
+     */
+    linkifyDefaultProtocol?: 'http' | 'https';
 };
 
 export type MarkdownEditorInitialOptions = {
