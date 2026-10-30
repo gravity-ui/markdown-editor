@@ -1,3 +1,6 @@
+// A shadow root is matched by `:host`, not by `:root`.
+
+:host,
 :root {
     --toolbar-item-preview-width: 144px;
     --toolbar-item-preview-height: 104px;

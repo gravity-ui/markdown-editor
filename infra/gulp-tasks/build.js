@@ -25,8 +25,16 @@ const Module = Object.freeze({
  * @param {string[]} [config.esmSideEffects] `sideEffects` patterns, relative to `build/esm`, written into
  * `build/esm/package.json`. That file shadows the package's root `package.json` for every module under
  * `build/esm`, so bundlers never see the root `sideEffects` field.
+ * @param {string[]} [config.finalTasks] Tasks appended after the compile tasks of `build`.
+ * `gulp.series` resolves names at composition time, so each one must already be registered.
  */
-export function registerBuildTasks({version, buildDir, nodeModulesDir, esmSideEffects}) {
+export function registerBuildTasks({
+    version,
+    buildDir,
+    nodeModulesDir,
+    esmSideEffects,
+    finalTasks = [],
+}) {
     const BUILD_DIR = buildDir;
     const BUILD_DIR_CJS = path.resolve(BUILD_DIR, 'cjs');
     const BUILD_DIR_ESM = path.resolve(BUILD_DIR, 'esm');
@@ -60,7 +68,8 @@ export function registerBuildTasks({version, buildDir, nodeModulesDir, esmSideEf
             .pipe(gulp.dest(BUILD_DIR));
     });
 
-    gulp.task('build', gulp.parallel('ts', 'json', 'scss'));
+    const compile = gulp.parallel('ts', 'json', 'scss');
+    gulp.task('build', finalTasks.length ? gulp.series(compile, ...finalTasks) : compile);
 
     /**
      * Compiles TypeScript files to the specified destination.
