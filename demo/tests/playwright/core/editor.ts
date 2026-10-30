@@ -15,6 +15,8 @@ type EditorSelectionState = {
     empty: boolean;
     /** The last caret position in the document, null when the document ends with a leaf block */
     end: number | null;
+    /** Content range of the requested node that contains the target element */
+    within: {from: number; to: number} | null;
 };
 type YfmTableActionKind =
     | 'remove-table'
@@ -836,6 +838,19 @@ export class MarkdownEditorPage {
     }
 
     /**
+     * Waits until the editor state has a text selection inside the node of the given type
+     * that contains the target element.
+     */
+    async waitForTextSelectionInside(target: Locator, nodeName: string) {
+        await this.expect
+            .poll(async () => {
+                const {type, from, to, within} = await this.readSelection(target, nodeName);
+                return type === 'text' && within !== null && from >= within.from && to <= within.to;
+            })
+            .toBe(true);
+    }
+
+    /**
      * Presses a key within the contenteditable area
      */
     async press(key: string, times = 1) {
@@ -950,8 +965,8 @@ export class MarkdownEditorPage {
      * The only place that reads the editor state: tests observe it and never change it.
      * There is no public selection API, so the internal editor views are read.
      */
-    private readSelection(): Promise<EditorSelectionState> {
-        return this.page.evaluate(() => {
+    private readSelection(target?: Locator, nodeName?: string): Promise<EditorSelectionState> {
+        return (target ?? this.page.locator('body')).evaluate((element, targetNodeName) => {
             const editor = window.mdEditor as
                 | {
                       currentMode: MarkdownEditorMode;
@@ -981,6 +996,7 @@ export class MarkdownEditorPage {
                     head: main.head,
                     empty: main.empty,
                     end: cm.state.doc.length,
+                    within: null,
                 };
             }
 
@@ -1012,7 +1028,18 @@ export class MarkdownEditorPage {
                 head: selection.head,
                 empty: selection.empty,
                 end: node ? end : null,
+                within: targetNodeName ? findWithin(view, element, targetNodeName) : null,
             };
-        });
+
+            function findWithin(editorView: PMEditorView, dom: Element, name: string) {
+                const $pos = editorView.state.doc.resolve(editorView.posAtDOM(dom, 0));
+                for (let depth = $pos.depth; depth > 0; depth--) {
+                    if ($pos.node(depth).type.name === name) {
+                        return {from: $pos.start(depth), to: $pos.end(depth)};
+                    }
+                }
+                throw new Error(`No ${name} node contains the target element`);
+            }
+        }, nodeName ?? null);
     }
 }
