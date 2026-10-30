@@ -1,5 +1,17 @@
 # Changelog
 
+## [15.50.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.49.0...markdown-editor-v15.50.0) (2026-10-30)
+
+
+### Features
+
+* add emoji suggestions in markup mode and shared editor config ([#1383](https://github.com/gravity-ui/markdown-editor/issues/1383)) ([098146e](https://github.com/gravity-ui/markdown-editor/commit/098146e296549bd3c23b201d5e61fb74897120a9))
+
+
+### Bug Fixes
+
+* **core:** preserve serializer formatting across whitespace and inline code ([#1388](https://github.com/gravity-ui/markdown-editor/issues/1388)) ([3a50b6e](https://github.com/gravity-ui/markdown-editor/commit/3a50b6eb77cfad25675b3382613b3e03223101a0))
+
 ## [15.49.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.48.2...markdown-editor-v15.49.0) (2026-10-26)
 
 
