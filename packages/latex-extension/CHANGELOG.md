@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-latex-extension-v0.1.1...markdown-editor-latex-extension-v0.1.2) (2026-10-30)
+
+
+### Bug Fixes
+
+* preserve popup focus and disabled hotkey styles after UIKit update ([4c63f0e](https://github.com/gravity-ui/markdown-editor/commit/4c63f0e86e371b8f5ef08ebdbd8537ca1fe3bda5))
+
 ## [0.1.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-latex-extension-v0.1.0...markdown-editor-latex-extension-v0.1.1) (2026-08-11)
 
 
