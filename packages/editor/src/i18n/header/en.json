@@ -1,3 +1,8 @@
 {
-  "stub": "Visual editing of the cover is not available. Switch to markup mode."
+  "close": "Close",
+  "duplicate": "Duplicate",
+  "height": "Height",
+  "remove": "Remove",
+  "settings": "Settings",
+  "settings_title": "Block settings"
 }

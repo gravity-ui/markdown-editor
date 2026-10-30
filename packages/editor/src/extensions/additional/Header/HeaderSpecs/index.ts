@@ -1,34 +1,52 @@
 import type {ExtensionAuto} from '#core';
 
-import {headerMarkupAttr, headerNodeName, headerTokenName} from './const';
-import {headerStubPlugin} from './md/stub';
-import {headerStubSpec} from './schema';
+import {headerDomAttrs, headerHeightDataAttr, normalizeHeaderHeight} from './attrs';
+import {
+    HEADER_DEFAULT_HEIGHT,
+    HeaderAttr,
+    headerClassName,
+    headerDirectiveName,
+    headerNodeName,
+    headerTokenName,
+} from './const';
+import {headerDirective} from './md';
 
 export * from './attrs';
 export * from './const';
-export * from './decor';
-export {toCssUrl, toSafeUrl} from './dom';
-export {headerDirective} from './md/header';
-export {headerStubPlugin} from './md/stub';
+export {headerDirective} from './md';
 
 export const HeaderSpecs: ExtensionAuto = (builder) => {
     builder
-        .configureMd((md) => md.use(headerStubPlugin))
-        .addNodeSpec(headerNodeName, () => headerStubSpec)
+        .configureMd((md) => md.use(headerDirective))
+        .addNodeSpec(headerNodeName, () => ({
+            atom: true,
+            group: 'block',
+            selectable: true,
+            attrs: {[HeaderAttr.Height]: {default: HEADER_DEFAULT_HEIGHT}},
+            parseDOM: [
+                {
+                    tag: `div.${headerClassName}`,
+                    getAttrs: (dom) => ({
+                        [HeaderAttr.Height]: normalizeHeaderHeight(
+                            (dom as Element).getAttribute(headerHeightDataAttr),
+                        ),
+                    }),
+                },
+            ],
+            toDOM: (node) => ['div', headerDomAttrs(node.attrs[HeaderAttr.Height])],
+        }))
         .addMarkdownTokenParserSpec(headerTokenName, () => ({
             name: headerNodeName,
             type: 'node',
-            getAttrs: (token) => ({[headerMarkupAttr]: token.content}),
+            getAttrs: (token) => ({[HeaderAttr.Height]: token.attrGet(headerHeightDataAttr)}),
         }))
         .addNodeSerializerSpec(headerNodeName, () => (state, node) => {
-            String(node.attrs[headerMarkupAttr])
-                .split('\n')
-                .forEach((line, index) => {
-                    if (index) state.out += '\n';
-                    state.write(line);
-                    // Пустая строка в списке или цитате — без хвостовых пробелов, как между блоками.
-                    if (!line) state.out = state.out.replace(/[ \t]+$/, '');
-                });
+            state.write(
+                `:::${headerDirectiveName}{${HeaderAttr.Height}=${node.attrs[HeaderAttr.Height]}}`,
+            );
+            // Закрытый блок отделяется от следующей записи пустой строкой.
+            state.closeBlock(node);
+            state.write(':::');
             state.closeBlock(node);
         });
 };
