@@ -365,8 +365,14 @@ export class MarkdownSerializerState {
         const active: Mark[] = [];
         let trailing = '';
         let afterExpelledWhitespace = false;
+        let afterWhitespace = false;
         const progress = (node: Node | null, _: any, index: number) => {
+            if (parent.type.name === 'heading' && node?.isText && /[\r\n]/.test(node.text ?? '')) {
+                node = (node as any).withText(node.text!.replace(/\r\n?|\n/g, ' '));
+            }
             let marks = node ? node.marks : [];
+            const whitespaceOnly = node?.isText && !/\S/.test(node.text ?? '') &&
+                marks.every(mark => this.getMark(mark.type.name).escape !== false);
 
             // Remove marks from breaks (hard_break or soft_break) that are the edge node inside
             // that mark to prevent parser edge cases with new lines just
@@ -384,13 +390,22 @@ export class MarkdownSerializerState {
                 });
             }
 
+            const next = parent.maybeChild(index + 1);
+            const keepLinkedWhitespace = !active.length && node?.isText && /\s$/.test(node.text ?? '') &&
+                (!next || (next.type.spec.isBreak && !/[\r\n][^\S\r\n]*$/.test(node.text ?? ''))) &&
+                marks.some(mark => !this.getMark(mark.type.name).expelEnclosingWhitespace) &&
+                marks.every(mark => this.getMark(mark.type.name).mixable && this.getMark(mark.type.name).escape !== false);
+            if (keepLinkedWhitespace) {
+                marks = marks.filter(mark => this.getMark(mark.type.name).expelEnclosingWhitespace)
+                    .concat(marks.filter(mark => !this.getMark(mark.type.name).expelEnclosingWhitespace));
+            }
+
             const inner = marks.length && marks[marks.length - 1];
             const noEsc = inner && this.getMark(inner.type.name).escape === false;
             const len = marks.length - (noEsc ? 1 : 0);
-            const next = parent.maybeChild(index + 1);
             const continuingRawMarks = noEsc && len > 0 && next && !trailing && !next.type.spec.isBreak &&
                 this.isMarkAhead(parent, index + 1, marks.slice(0, len), true);
-            const canReorderRawMarks = noEsc && len > 0 && (!trailing || /[ \t\u00a0]$/.test(trailing)) && (!next || continuingRawMarks);
+            const canReorderRawMarks = noEsc && len > 0 && (!trailing || /[ \t\u00a0]$/.test(trailing)) && (!next || continuingRawMarks || (node?.isLeaf && !node.isText && !node.type.spec.isBreak));
             const closingBeforeText = next?.isText && /^[^\s\p{P}\p{S}]/u.test(next.text ?? '') &&
                 active.some(mark => this.getMark(mark.type.name).expelEnclosingWhitespace &&
                     mark.isInSet(marks) && !mark.isInSet(next.marks));
@@ -436,11 +451,11 @@ export class MarkdownSerializerState {
             trailing = '';
             // If whitespace has to be expelled from the node, adjust
             // leading and trailing accordingly.
-            if (node && node.isText && !keepRawWhitespace && marks.some((mark) => {
+            if (node && node.isText && !keepRawWhitespace && !keepLinkedWhitespace && marks.some((mark) => {
                 const info = this.getMark(mark.type.name);
                 return info && info.expelEnclosingWhitespace && !active.some((m, i) => (keepLeadingCodeWhitespace || i < keep) && m.eq(mark));
             })) {
-                const [_, lead, rest] = /^(\s*)(.*)$/m.exec(node.text!)!;
+                const [_, lead, rest] = (noEsc ? /^(\s*)(.*)$/m : /^(\s*)([\s\S]*)$/).exec(node.text!)!;
                 if (lead) {
                     leading += lead;
                     node = rest ? (node as any).withText(rest) : null;
@@ -448,18 +463,36 @@ export class MarkdownSerializerState {
                 }
             }
 
-            if (node && node.isText && !keepRawWhitespace && marks.some((mark, i) => {
+            const trimBeforeBreak = !noEsc && next?.type.spec.isBreak;
+            if (node && node.isText && !keepRawWhitespace && !keepLinkedWhitespace && marks.some((mark, i) => {
                 const info = this.getMark(mark.type.name);
-                return info && info.expelEnclosingWhitespace && !this.isMarkAhead(parent, index + 1, marks.slice(0, i + 1), Boolean(noEsc && !rawWhitespaceOnly));
+                return info && info.expelEnclosingWhitespace && (!this.isMarkAhead(parent, index + 1, marks.slice(0, i + 1), Boolean(noEsc && !rawWhitespaceOnly), !noEsc && /\S/.test(node?.text ?? '')) || (trimBeforeBreak && /[\r\n]/.test(node?.text ?? '')));
             })) {
-                const [_, rest, trail] = /^(.*?)(\s*)$/m.exec(node.text!)!;
+                const whitespace = /^(.*?)(\s*)$/m.exec(node.text!)!;
+                const [_, rest = '', trail] = noEsc || (whitespace[0].length === node.text!.length && !trimBeforeBreak)
+                    ? whitespace
+                    : /^([\s\S]*[\S\u2028\u2029])?([^\S\u2028\u2029]*)$/.exec(node.text!)!;
                 if (trail) {
-                    trailing = trail;
+                    trailing = trimBeforeBreak ? trail.replace(/[\r\n][\s\S]*$/, '') : trail;
                     node = rest ? (node as any).withText(rest) : null;
                     if (!node) {
                         marks = active;
                         if (leading && !noEsc) keep = active.length;
                     }
+                }
+            }
+
+            if (!node && !noEsc && !afterWhitespace) {
+                while (keep > 0 && this.getMark(active[keep - 1].type.name).expelEnclosingWhitespace &&
+                    !this.isMarkAhead(parent, index + 1, active.slice(0, keep), true, true)) --keep;
+            }
+
+            if (node?.type.name === 'soft_break') {
+                leading = leading.replace(/[ \t]+$/, '');
+                if (this.out.endsWith('  ')) {
+                    let end = this.out.length;
+                    while (/[ \t]/.test(this.out.charAt(end - 1))) --end;
+                    this.out = this.out.slice(0, end);
                 }
             }
 
@@ -472,7 +505,7 @@ export class MarkdownSerializerState {
             while (keep < active.length) {
                 if (!node && index < parent.childCount && (
                     !active.slice(keep).some(mark => this.getMark(mark.type.name).expelEnclosingWhitespace) ||
-                    this.isMarkAhead(parent, index + 1, active, afterExpelledWhitespace)
+                    this.isMarkAhead(parent, index + 1, active, afterExpelledWhitespace, !noEsc && !afterWhitespace)
                 )) break;
                 const delimiter = this.markString(active.pop()!, false, parent, index);
                 closedDelimiters += delimiter;
@@ -510,6 +543,7 @@ export class MarkdownSerializerState {
             }
 
             afterExpelledWhitespace = !node && Boolean(leading);
+            afterWhitespace = Boolean(whitespaceOnly);
 
             // After the first non-empty text node is rendered, the end of output
             // is no longer at block start.
@@ -614,10 +648,14 @@ export class MarkdownSerializerState {
         };
     }
 
-    private isMarkAhead(parent: Node, index: number, marks: readonly Mark[], allowReordering = false): boolean {
+    private isMarkAhead(parent: Node, index: number, marks: readonly Mark[], allowReordering = false, skipWhitespace = false): boolean {
         for (;; index++) {
             if (index >= parent.childCount) return false;
             const next = parent.child(index);
+            if (skipWhitespace && (next.type.spec.isBreak || (next.isText && !/\S/.test(next.text ?? '') && next.marks.every(mark => this.getMark(mark.type.name).escape !== false)))) {
+                if (!marks.every(mark => (!next.type.spec.isBreak && allowReordering && this.getMark(mark.type.name).expelEnclosingWhitespace) || mark.isInSet(next.marks))) return false;
+                continue;
+            }
             if (!next.type.spec.isBreak) {
                 if (next.marks.length < marks.length) return false;
                 if (marks.every((mark, i) => mark.eq(next.marks[i]))) return true;
