@@ -1,0 +1,22 @@
+.g-md-header-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    box-sizing: content-box;
+    width: 286px;
+    padding: 16px;
+
+    &__title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__row {
+        display: grid;
+        align-items: center;
+        grid-template-columns: 120px 158px;
+        gap: 8px;
+    }
+}

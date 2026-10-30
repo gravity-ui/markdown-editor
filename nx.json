@@ -3,6 +3,7 @@
   "targetDefaults": {
     "build": {
       "dependsOn": [
+        "clean",
         "^build"
       ]
     },

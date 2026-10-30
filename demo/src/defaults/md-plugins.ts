@@ -26,7 +26,10 @@ import {bare as emoji} from '@gravity-ui/markdown-editor/markdown-it/emoji';
 import ins from '@gravity-ui/markdown-editor/markdown-it/ins';
 import mark from '@gravity-ui/markdown-editor/markdown-it/mark';
 import sub from '@gravity-ui/markdown-editor/markdown-it/sub';
+import {headerPlugin} from '@gravity-ui/markdown-plugin-header';
 import type {PluginWithParams} from 'markdown-it/lib';
+
+import '@gravity-ui/markdown-plugin-header/styles.css';
 
 export const LATEX_RUNTIME = 'extension:latex';
 export const MERMAID_RUNTIME = 'extension:mermaid';
@@ -83,6 +86,7 @@ export function getPlugins({
             }),
     ];
     const extendedPlugins = defaultPlugins.concat(
+        headerPlugin,
         (md) => md.use(emoji, {defs: emojiDefs}),
         checkbox,
         (md) => md.use(color, {escape: true, defaultClassName: colorClassName}),
