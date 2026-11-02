@@ -41,6 +41,7 @@ describe('Header Markdown', () => {
         ':::header{width="s"}',
         ':::header\n```\n:::\n```\n:::',
         ':::header\n~~~~\n:::\n~~~\n~~~~\n:::',
+        ':::header\nText\n\n    :::\n:::',
     ])('should preserve unsupported source safely for %s', (markup) => {
         const tokens = md.parse(markup, {});
         expect(tokens).toHaveLength(1);
@@ -66,6 +67,16 @@ describe('Header Markdown', () => {
     it('should leave code fences and indented code unchanged', () => {
         expect(md.parse('```\n:::header\n:::\n```', {})[0].type).toBe('fence');
         expect(md.parse('    :::header\n    :::', {})[0].type).toBe('code_block');
+    });
+
+    it('should not open a code fence on an indented line inside a header', () => {
+        const tokens = md.parse(':::header\n    ```\n:::\nAfter', {});
+        expect(tokens.map(({type}) => type)).toEqual([
+            'header_source',
+            'paragraph_open',
+            'inline',
+            'paragraph_close',
+        ]);
     });
 
     it('should parse an empty header inside a blockquote', () => {

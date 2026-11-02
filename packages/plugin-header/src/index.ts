@@ -66,7 +66,8 @@ export const headerPlugin: PluginSimple = (md) => {
             for (; nextLine < endLine; nextLine++) {
                 if (state.sCount[nextLine] < state.blkIndent && !state.isEmpty(nextLine)) break;
                 const current = line(nextLine);
-                closed = closes(current);
+                const indentedCode = state.sCount[nextLine] - state.blkIndent >= 4;
+                closed = !indentedCode && closes(current);
                 if (closed) break;
                 if (current.trim()) empty = false;
             }
