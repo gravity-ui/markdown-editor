@@ -4,6 +4,7 @@ import type {DOMProps} from '@gravity-ui/uikit';
 import {createPortal} from 'react-dom';
 
 import {useViewerEffect} from '../../hooks/use-viewer-effect';
+import {inspectViewerNode} from '../../utils/inspect-viewer-node';
 
 import {VIEWER_SLOT_ATTRIBUTE} from './constants';
 
@@ -29,8 +30,10 @@ export function ViewerTargets({
         ({root}) => {
             const hosts: HTMLElement[] = [];
             for (const target of Array.from(root.querySelectorAll(selector))) {
-                const slot = target.closest(`[${VIEWER_SLOT_ATTRIBUTE}]`);
-                if (target instanceof HTMLElement && !(slot && root.contains(slot))) {
+                if (
+                    target instanceof HTMLElement &&
+                    inspectViewerNode(root, target).kind === 'content'
+                ) {
                     hosts.push(target);
                 }
             }

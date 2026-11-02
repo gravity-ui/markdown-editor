@@ -13,6 +13,7 @@ for (const api of [
 ]) {
     assert.equal(typeof api.useViewerEffect, 'function');
     assert.equal(typeof api.ViewerTargets, 'function');
+    assert.equal(typeof api.inspectViewerNode, 'function');
     assert.equal(api.VIEWER_SLOT_ATTRIBUTE, 'data-markdown-viewer-slot');
     assert.equal(api.cnYFM(), 'yfm');
     const result = renderToString(

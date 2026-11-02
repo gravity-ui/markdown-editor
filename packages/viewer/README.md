@@ -317,26 +317,42 @@ The result inside the host is:
 
 The viewer marks each slot with `data-markdown-viewer-slot`. Import `VIEWER_SLOT_ATTRIBUTE` to use this attribute name. Its value is not part of the API. Do not add the attribute to prepared HTML or change it in an extension.
 
-React owns each slot and its content. Before a DOM extension replaces an element's content, check that the element is outside slots and contains no slots:
+React owns each slot and its content. Use `inspectViewerNode(root, node)` to check whether a node belongs to the viewer's HTML content. Pass the `root` from `useViewerEffect`. The helper accepts any `Node`, including text nodes. The package also exports the `ViewerNodeInfo` type.
+
+| Result                               | Meaning                                                       |
+| ------------------------------------ | ------------------------------------------------------------- |
+| `{kind: 'outside'}`                  | The node is outside this root.                                |
+| `{kind: 'slot'}`                     | The node is a slot or is inside a slot.                       |
+| `{kind: 'content', hasSlots: false}` | The node belongs to the HTML content and has no slots inside. |
+| `{kind: 'content', hasSlots: true}`  | The node belongs to the HTML content and contains slots.      |
+
+To change only the element itself, check `kind`:
 
 ```ts
-import {VIEWER_SLOT_ATTRIBUTE} from '@gravity-ui/markdown-viewer';
+import {inspectViewerNode} from '@gravity-ui/markdown-viewer';
 
-function canReplaceContent(element: Element): boolean {
-  const slotSelector = `[${VIEWER_SLOT_ATTRIBUTE}]`;
-  return !element.closest(slotSelector) && !element.querySelector(slotSelector);
+function markContent(root: Element, element: Element) {
+  if (inspectViewerNode(root, element).kind === 'content') {
+    element.classList.add('processed');
+  }
 }
 ```
 
-Check immediately before each content replacement. After async work, check again: another extension may have added a slot while you waited. Also check the effect's signal:
+For a nested viewer, use its own root. Slot markers above that root are ignored.
+
+Before replacing an element's content, check both `kind` and `hasSlots`. Check immediately before each replacement. After async work, check again: another extension may have added a slot while you waited. Also check the effect's signal:
 
 ```ts
 const result = await prepareContent();
-if (signal.aborted || !canReplaceContent(element)) return;
+if (signal.aborted) return;
+const info = inspectViewerNode(root, element);
+if (info.kind !== 'content' || info.hasSlots) return;
 element.replaceChildren(result);
 ```
 
 During cleanup, repeat the slot check and undo only your own changes. Do not restore saved `innerHTML` over another extension's slots.
+
+Inspect the element you will change, including elements found with `closest()`.
 
 This check does not make it safe for two extensions to replace the same content. If a runtime needs full control of a subtree, put other extensions' controls in a separate host outside it.
 
