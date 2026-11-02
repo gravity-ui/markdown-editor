@@ -23,13 +23,12 @@ export const setHeaderDimensions: CommandWithAttrs<Partial<HeaderDimensions>> = 
     state,
     dispatch,
     view,
-    attrs,
+    attrs = {},
 ) => {
     if (
         !view?.editable ||
         !(state.selection instanceof NodeSelection) ||
         state.selection.node.type.name !== headerNodeName ||
-        !attrs ||
         (attrs.height !== undefined && !isHeaderHeight(attrs.height)) ||
         (attrs.width !== undefined && !isHeaderWidth(attrs.width))
     )

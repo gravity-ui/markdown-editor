@@ -32,7 +32,6 @@ function parseDimensions(line: string): HeaderDimensions | undefined {
     return dimensions;
 }
 
-/** Detects the closing line of a container and ignores delimiters inside code fences. */
 function trackDelimiters() {
     let nesting = 1;
     let fence = '';
@@ -93,7 +92,7 @@ export const headerPlugin: PluginSimple = (md) => {
 
 let sourceParser: MarkdownIt | undefined;
 
-/** Checks that the text is a single Header container that the plugin keeps as source. */
+/** The text is exactly one Header container that the plugin keeps as source. */
 export function isHeaderSource(source: string) {
     sourceParser ??= new MarkdownIt('zero').use(headerPlugin);
     const tokens = sourceParser.parse(source, {});

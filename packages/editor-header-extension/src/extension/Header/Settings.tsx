@@ -75,7 +75,7 @@ function HeaderSettings({view}: {view: EditorView}) {
                     </Text>
                     <Select
                         size="m"
-                        width={158}
+                        width="max"
                         aria-labelledby={heightId}
                         value={[node.attrs.height]}
                         options={headerHeights.map((value) => ({
@@ -94,7 +94,7 @@ function HeaderSettings({view}: {view: EditorView}) {
                     </Text>
                     <Select
                         size="m"
-                        width={158}
+                        width="max"
                         aria-labelledby={widthId}
                         value={[node.attrs.width]}
                         options={headerWidths.map((value) => ({
