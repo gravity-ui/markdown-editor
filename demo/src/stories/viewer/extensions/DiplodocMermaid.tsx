@@ -1,5 +1,5 @@
 import {useMermaid} from '@diplodoc/mermaid-extension/react';
-import {VIEWER_SLOT_ATTRIBUTE, useViewerEffect} from '@gravity-ui/markdown-viewer';
+import {inspectViewerNode, useViewerEffect} from '@gravity-ui/markdown-viewer';
 import {useThemeType} from '@gravity-ui/uikit';
 
 import {cn} from '../cn';
@@ -23,7 +23,6 @@ interface DiplodocMermaidProps {
     onError?: (error: unknown) => void;
 }
 
-const slotSelector = `[${VIEWER_SLOT_ATTRIBUTE}]`;
 const defaultTheme: DiplodocMermaidTheme = {light: 'forest', dark: 'dark'};
 let pendingRender = Promise.resolve();
 
@@ -63,8 +62,7 @@ export function DiplodocMermaid({
                 if (signal.aborted) return;
 
                 for (const target of Array.from(root.querySelectorAll<HTMLElement>(selector))) {
-                    const slot = target.closest(slotSelector);
-                    if (slot && root.contains(slot)) continue;
+                    if (inspectViewerNode(root, target).kind !== 'content') continue;
 
                     // The runtime owns this child; React slots stay next to it.
                     const node = root.ownerDocument.createElement('div');
