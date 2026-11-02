@@ -4,7 +4,13 @@ import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, assert, beforeEach, describe, expect, it} from 'vitest';
 
 import {act} from '../../tests/utils/act';
-import {MarkdownViewer, VIEWER_SLOT_ATTRIBUTE, ViewerTargets, useViewerEffect} from '../index';
+import {
+    MarkdownViewer,
+    VIEWER_SLOT_ATTRIBUTE,
+    ViewerTargets,
+    inspectViewerNode,
+    useViewerEffect,
+} from '../index';
 
 const html = '<section data-text="" data-host="">Host</section><p data-text="">Plain</p>';
 
@@ -91,7 +97,8 @@ function TextAdapter({wait}: {wait?: Promise<void>}) {
             function apply() {
                 if (signal.aborted) return;
                 for (const target of targets) {
-                    if (!canReplaceContent(target)) continue;
+                    const info = inspectViewerNode(root, target);
+                    if (info.kind !== 'content' || info.hasSlots) continue;
                     const text = target.textContent || '';
                     changed.set(target, text);
                     target.textContent = text.toUpperCase();
@@ -104,7 +111,12 @@ function TextAdapter({wait}: {wait?: Promise<void>}) {
             }
             return () => {
                 for (const [target, text] of changed) {
-                    if (canReplaceContent(target) && target.textContent === text.toUpperCase()) {
+                    const info = inspectViewerNode(root, target);
+                    if (
+                        info.kind === 'content' &&
+                        !info.hasSlots &&
+                        target.textContent === text.toUpperCase()
+                    ) {
                         target.textContent = text;
                     }
                 }
@@ -113,11 +125,4 @@ function TextAdapter({wait}: {wait?: Promise<void>}) {
         [wait],
     );
     return null;
-}
-
-function canReplaceContent(element: Element) {
-    return (
-        !element.closest(`[${VIEWER_SLOT_ATTRIBUTE}]`) &&
-        !element.querySelector(`[${VIEWER_SLOT_ATTRIBUTE}]`)
-    );
 }
