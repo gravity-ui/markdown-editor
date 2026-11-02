@@ -1,25 +1,23 @@
 # Header editor extension
 
-Adds an empty Header block with independent height and width.
+Header block for [@gravity-ui/markdown-editor](https://github.com/gravity-ui/markdown-editor): an empty block with independent height and width.
 
 ```ts
-import {Header, headerItem} from '@gravity-ui/markdown-editor-header-extension';
+import {useMarkdownEditor} from '@gravity-ui/markdown-editor';
+import {Header} from '@gravity-ui/markdown-editor-header-extension';
 
-// Add Header to wysiwygConfig.extensions.
-const extensions = (builder) => builder.use(Header);
-
-// Add headerItem to your toolbar preset and its desired orders.
+const editor = useMarkdownEditor({
+  wysiwygConfig: {extensions: (builder) => builder.use(Header)},
+});
 ```
 
-Select the block to open Header settings. The panel contains Height (S/M/L) and
-Width (S/M/L/Full width). Changes support undo and redo. Readonly views do not
-show the panel or allow dimension changes.
+`headerItem` is the toolbar button that inserts the block.
+Clicking the block opens a panel with height and width; the panel is hidden in readonly mode.
+Each change is a separate undo step.
 
-Use `headerPlugin` and its stylesheet from `@gravity-ui/markdown-plugin-header`
-for Markdown previews. That package defines the shared defaults and dimensions.
-The editor serializes both attributes, including their default values.
-Unsupported Header containers remain visible as source and retain their markup
-when switching modes. They do not expose dimension controls.
+The editor writes both attributes, including default values.
+Syntax, sizes, and the stylesheet for previews are in `@gravity-ui/markdown-plugin-header`.
+A container the plugin keeps as source stays unchanged when switching modes.
 
-`HeaderSpecs` is available for parsers without an editor view. `Header` requires
-the editor's React renderer, which is included in the standard presets.
+`HeaderSpecs` adds only the schema and Markdown parsing.
+`Header` also needs the editor's React renderer, which the standard presets include.

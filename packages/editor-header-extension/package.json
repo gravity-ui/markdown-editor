@@ -21,10 +21,10 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "run-p -cs lint:*",
     "lint:js": "eslint './**/*.{js,jsx,mjs,ts,tsx}'",
+    "lint:styles": "stylelint './**/*.{css,scss}' --allow-empty-input",
     "lint:prettier": "prettier --check './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
-    "prepublishOnly": "nx lint && nx clean && nx build",
     "test": "vitest run",
-    "lint:styles": "stylelint './**/*.{css,scss}' --allow-empty-input"
+    "prepublishOnly": "nx lint && nx clean && nx build"
   },
   "exports": {
     ".": {
@@ -45,22 +45,27 @@
     "build",
     "README.md"
   ],
+  "dependencies": {
+    "@gravity-ui/icons": "^2.12.0",
+    "@gravity-ui/markdown-plugin-header": "workspace:*",
+    "tslib": "catalog:ts"
+  },
   "devDependencies": {
     "@gravity-ui/markdown-editor": "workspace:*",
+    "@gravity-ui/uikit": "catalog:peer-gravity",
     "@markdown-editor/gulp-tasks": "workspace:*",
     "@markdown-editor/linters": "workspace:*",
     "@markdown-editor/tsconfig": "workspace:*",
-    "gulp-cli": "catalog:",
-    "npm-run-all": "^4.1.5",
-    "typescript": "catalog:ts",
     "@markdown-editor/vitest-config": "workspace:*",
-    "vitest": "catalog:testing",
-    "@gravity-ui/uikit": "catalog:peer-gravity",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
+    "gulp-cli": "catalog:",
+    "jsdom": "25.0.1",
+    "npm-run-all": "^4.1.5",
     "react": "catalog:react",
     "react-dom": "catalog:react",
-    "jsdom": "25.0.1"
+    "typescript": "catalog:ts",
+    "vitest": "catalog:testing"
   },
   "peerDependencies": {
     "@gravity-ui/markdown-editor": "workspace:^15.49.0",
@@ -71,10 +76,5 @@
   "sideEffects": [
     "*.css",
     "*.scss"
-  ],
-  "dependencies": {
-    "@gravity-ui/markdown-plugin-header": "workspace:*",
-    "@gravity-ui/icons": "^2.12.0",
-    "tslib": "catalog:ts"
-  }
+  ]
 }
