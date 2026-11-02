@@ -36,7 +36,8 @@ function trackDelimiters() {
     let nesting = 1;
     let fence = '';
     return (line: string) => {
-        const marker = /^(`{3,}|~{3,})/.exec(line)?.[1];
+        // A backtick fence has no backticks after its marker, as in markdown-it.
+        const marker = /^(`{3,}(?=[^`]*$)|~{3,})/.exec(line)?.[1];
         if (fence) {
             if (marker?.startsWith(fence) && !line.slice(marker.length).trim()) fence = '';
         } else if (marker) fence = marker;

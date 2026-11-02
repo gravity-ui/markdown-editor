@@ -69,15 +69,18 @@ describe('Header Markdown', () => {
         expect(md.parse('    :::header\n    :::', {})[0].type).toBe('code_block');
     });
 
-    it('should not open a code fence on an indented line inside a header', () => {
-        const tokens = md.parse(':::header\n    ```\n:::\nAfter', {});
-        expect(tokens.map(({type}) => type)).toEqual([
-            'header_source',
-            'paragraph_open',
-            'inline',
-            'paragraph_close',
-        ]);
-    });
+    it.each([':::header\n    ```\n:::\nAfter', ':::header\n```inline```\n:::\nAfter'])(
+        'should not open a code fence inside a header for %j',
+        (markup) => {
+            const tokens = md.parse(markup, {});
+            expect(tokens.map(({type}) => type)).toEqual([
+                'header_source',
+                'paragraph_open',
+                'inline',
+                'paragraph_close',
+            ]);
+        },
+    );
 
     it('should parse an empty header inside a blockquote', () => {
         expect(md.render('> :::header{width="s"}\n> :::')).toBe(
