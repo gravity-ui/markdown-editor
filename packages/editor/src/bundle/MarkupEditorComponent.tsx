@@ -1,19 +1,39 @@
 import {useEffect, useLayoutEffect, useRef} from 'react';
 
+import {EditorView} from '@codemirror/view';
 import type {QAProps} from '@gravity-ui/uikit';
+
+import {inputAttributesCompartment} from '../markup/codemirror/input-attributes';
 
 import type {EditorInt} from './Editor';
 
 export type MarkupEditorComponentProps = QAProps & {
     editor: EditorInt;
     autofocus?: boolean;
+    contenteditableAttributes?: Record<string, string>;
     className?: string;
     children?: React.ReactNode;
 };
 
 export const MarkupEditorComponent: React.FC<MarkupEditorComponentProps> =
-    function MarkupEditorComponent({editor, autofocus, className, children, qa}) {
+    function MarkupEditorComponent({
+        editor,
+        autofocus,
+        className,
+        contenteditableAttributes,
+        children,
+        qa,
+    }) {
         const ref = useRef<HTMLDivElement>(null);
+        const view = editor.markupEditor.cm;
+
+        useLayoutEffect(() => {
+            view.dispatch({
+                effects: inputAttributesCompartment.reconfigure(
+                    EditorView.contentAttributes.of(contenteditableAttributes ?? {}),
+                ),
+            });
+        }, [view, contenteditableAttributes]);
 
         // insert editor to dom
         useLayoutEffect(() => {
