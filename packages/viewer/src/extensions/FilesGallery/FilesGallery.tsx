@@ -1,8 +1,8 @@
 import {useGallery} from '@gravity-ui/components';
 
-import {VIEWER_SLOT_ATTRIBUTE} from '../../components/ViewerTargets/constants';
 import {useViewerEffect} from '../../hooks/use-viewer-effect';
 import {cn} from '../../utils/classname';
+import {inspectViewerNode} from '../../utils/inspect-viewer-node';
 
 import {collectGallery} from './helpers/collect-gallery';
 import {i18n} from './i18n';
@@ -43,11 +43,10 @@ export function FilesGallery({
                 const clickedElement = event.target;
                 if (!(clickedElement instanceof Element)) return;
 
-                const slot = clickedElement.closest(`[${VIEWER_SLOT_ATTRIBUTE}]`);
-                if (slot && root.contains(slot)) return;
+                if (inspectViewerNode(root, clickedElement).kind !== 'content') return;
 
                 const target = clickedElement.closest('img,a');
-                if (!target || !root.contains(target)) return;
+                if (!target || inspectViewerNode(root, target).kind !== 'content') return;
                 if (target.tagName === 'IMG' && target.closest('a')) return;
 
                 const gallery = collectGallery(

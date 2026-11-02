@@ -1,6 +1,6 @@
 import type {GalleryItemProps} from '@gravity-ui/components';
 
-import {VIEWER_SLOT_ATTRIBUTE} from '../../../components/ViewerTargets/constants';
+import {inspectViewerNode} from '../../../utils/inspect-viewer-node';
 import type {FilesGalleryProps} from '../types';
 
 import {createGalleryItem} from './create-gallery-item';
@@ -22,8 +22,7 @@ export function collectGallery(
     let initialIndex = -1;
 
     for (const element of Array.from(root.querySelectorAll('img,a'))) {
-        const slot = element.closest(`[${VIEWER_SLOT_ATTRIBUTE}]`);
-        if (slot && root.contains(slot)) continue;
+        if (inspectViewerNode(root, element).kind !== 'content') continue;
 
         if (element === target) {
             initialIndex = items.length;
