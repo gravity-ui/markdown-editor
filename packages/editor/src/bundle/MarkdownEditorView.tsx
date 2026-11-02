@@ -52,6 +52,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             editorMode,
             enableSubmitInPreview,
             hidePreviewAfterSubmit,
+            contenteditableAttributes,
             isFocused,
             markupHiddenActionsConfig: initialMarkupHiddenActionsConfig,
             markupToolbarConfig: initialMarkupToolbarConfig,
@@ -214,6 +215,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                         {editorMode === 'wysiwyg' && (
                             <WysiwygEditorView
                                 editor={editor}
+                                contenteditableAttributes={contenteditableAttributes}
                                 autofocus={autofocus}
                                 settingsVisible={areSettingsVisible}
                                 toolbarConfig={wysiwygToolbarConfig}
@@ -233,6 +235,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                         {editorMode === 'markup' && (
                             <MarkupEditorView
                                 editor={editor}
+                                contenteditableAttributes={contenteditableAttributes}
                                 autofocus={autofocus}
                                 settingsVisible={areSettingsVisible}
                                 toolbarConfig={markupToolbarConfig}
@@ -268,6 +271,13 @@ EditorWrapper.displayName = 'EditorWrapper';
 type ViewProps = {
     editor?: MarkdownEditorInstance;
     autofocus?: boolean;
+    /**
+     * HTML attributes forwarded to the editable element in both modes.
+     * Attribute precedence and merging follow the active editor engine's rules.
+     * Omitted attributes fall back to the engine's configuration.
+     * Memoize this object with `useMemo` to avoid redundant editor updates.
+     */
+    contenteditableAttributes?: Record<string, string>;
     // MAJOR: rename to settings
     /** @default true */
     settingsVisible?: boolean | SettingItems[];
@@ -301,6 +311,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             className,
             enableSubmitInPreview = true,
             hidePreviewAfterSubmit = false,
+            contenteditableAttributes,
             markupHiddenActionsConfig,
             markupToolbarConfig,
             qa,
@@ -380,6 +391,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         editorMode={editorMode}
                         enableSubmitInPreview={enableSubmitInPreview}
                         hidePreviewAfterSubmit={hidePreviewAfterSubmit}
+                        contenteditableAttributes={contenteditableAttributes}
                         isFocused={isWrapperFocused(divRef)}
                         markupHiddenActionsConfig={markupHiddenActionsConfig}
                         markupToolbarConfig={markupToolbarConfig}
