@@ -1,5 +1,5 @@
 import {useLatex} from '@diplodoc/latex-extension/react';
-import {VIEWER_SLOT_ATTRIBUTE, useViewerEffect} from '@gravity-ui/markdown-viewer';
+import {inspectViewerNode, useViewerEffect} from '@gravity-ui/markdown-viewer';
 
 import type {DiplodocLatexOptions, DiplodocLatexRuntime, TransformMeta} from './types';
 
@@ -11,7 +11,6 @@ interface DiplodocLatexProps {
     onError?: (error: unknown) => void;
 }
 
-const slotSelector = `[${VIEWER_SLOT_ATTRIBUTE}]`;
 const defaultRuntime = {
     script: '_assets/latex-extension.js',
     style: '_assets/latex-extension.css',
@@ -67,8 +66,8 @@ export function DiplodocLatex({
 }
 
 function getTargets(root: HTMLElement, selector: string) {
-    return Array.from(root.querySelectorAll<HTMLElement>(selector)).filter(
-        (target) =>
-            !root.contains(target.closest(slotSelector)) && !target.querySelector(slotSelector),
-    );
+    return Array.from(root.querySelectorAll<HTMLElement>(selector)).filter((target) => {
+        const info = inspectViewerNode(root, target);
+        return info.kind === 'content' && !info.hasSlots;
+    });
 }
