@@ -5,7 +5,47 @@ import {headerPlugin, isHeaderSource} from './index';
 
 const md = new MarkdownIt().use(headerPlugin);
 
+const contractExample = [
+    ':::header{bg-image="./.files/cover.jpg" bg-image-theme="dark"}',
+    '',
+    ':::header-image',
+    ':::',
+    '',
+    ':::header-title{size="1" color="red"}',
+    'Team portal',
+    ':::',
+    '',
+    ':::header-content',
+    'Subtitle, one or more paragraphs.',
+    ':::',
+    '',
+    ':::button',
+    ':::',
+    '',
+    ':::',
+].join('\n');
+
+const header = (height: string, width: string) =>
+    `<div class="g-md-header" data-height="${height}" data-width="${width}"></div>\n`;
+
 describe('Header Markdown', () => {
+    it.each([
+        [':::header\n:::', header('s', 'm')],
+        [':::header{height="m"}\n:::', header('m', 'm')],
+        [':::header{height="l" width="full"}\n:::', header('l', 'full')],
+        ['Before\n:::header\n:::\nAfter', `<p>Before</p>\n${header('s', 'm')}<p>After</p>\n`],
+        [':::header\n:::\n:::header{width="l"}\n:::', header('s', 'm') + header('s', 'l')],
+        ['> :::header\n> :::', `<blockquote>\n${header('s', 'm')}</blockquote>\n`],
+        ['- :::header{width="s"}\n  :::', `<ul>\n<li>\n${header('s', 's')}</li>\n</ul>\n`],
+        [
+            '1. Item\n\n   :::header{height="m" width="l"}\n   :::',
+            `<ol>\n<li>\n<p>Item</p>\n${header('m', 'l')}</li>\n</ol>\n`,
+        ],
+        ['::::header\n::::', '<p>::::header\n::::</p>\n'],
+    ])('should render supported markup %j', (markup, html) => {
+        expect(md.render(markup)).toBe(html);
+    });
+
     for (const height of ['s', 'm', 'l']) {
         for (const width of ['s', 'm', 'l', 'full']) {
             it(`should render height ${height} and width ${width}`, () => {
@@ -42,6 +82,10 @@ describe('Header Markdown', () => {
         ':::header\n```\n:::\n```\n:::',
         ':::header\n~~~~\n:::\n~~~\n~~~~\n:::',
         ':::header\nText\n\n    :::\n:::',
+        ':::header {height="m"}\n:::',
+        ':::header\n::::',
+        ':::header\n    :::\n:::',
+        contractExample,
     ])('should preserve unsupported source safely for %s', (markup) => {
         const tokens = md.parse(markup, {});
         expect(tokens).toHaveLength(1);

@@ -10,7 +10,7 @@ import {
     TextSelection,
 } from '@gravity-ui/markdown-editor/pm/state';
 import {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {BaseSchemaSpecs, BlockquoteSpecs} from '@gravity-ui/markdown-editor/specs';
+import {BaseSchemaSpecs, BlockquoteSpecs, ListsSpecs} from '@gravity-ui/markdown-editor/specs';
 import {afterEach, describe, expect, it} from 'vitest';
 
 import {headerSettingsKey} from './Settings';
@@ -20,7 +20,8 @@ import {HeaderSpecs} from './specs';
 import {Header} from './index';
 
 const {schema, markupParser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(BlockquoteSpecs).use(HeaderSpecs),
+    extensions: (builder) =>
+        builder.use(BaseSchemaSpecs, {}).use(BlockquoteSpecs).use(ListsSpecs).use(HeaderSpecs),
 }).buildDeps();
 
 let view: EditorView | undefined;
@@ -68,7 +69,72 @@ function createEditor(initialContent: string) {
     return {editor, renderer, editorView: probe.view};
 }
 
+const header = (height: string, width: string) => ({type: 'header', attrs: {height, width}});
+const paragraph = (text: string) => ({
+    type: 'paragraph',
+    attrs: {'data-line': null},
+    content: [{type: 'text', text}],
+});
+const listItem = (markup: string, ...content: object[]) => ({
+    type: 'list_item',
+    attrs: {markup, 'data-line': null},
+    content,
+});
+
 describe('Header extension', () => {
+    it.each([
+        [':::header\n:::', [header('s', 'm')], ':::header{height="s" width="m"}\n:::'],
+        [':::header{height="m"}\n:::', [header('m', 'm')], ':::header{height="m" width="m"}\n:::'],
+        [
+            ':::header{height="l" width="full"}\n:::',
+            [header('l', 'full')],
+            ':::header{height="l" width="full"}\n:::',
+        ],
+        [
+            'Before\n:::header\n:::\nAfter',
+            [paragraph('Before'), header('s', 'm'), paragraph('After')],
+            'Before\n\n:::header{height="s" width="m"}\n:::\n\nAfter',
+        ],
+        [
+            ':::header\n:::\n:::header{width="l"}\n:::',
+            [header('s', 'm'), header('s', 'l')],
+            ':::header{height="s" width="m"}\n:::\n\n:::header{height="s" width="l"}\n:::',
+        ],
+        [
+            '> :::header\n> :::',
+            [{type: 'blockquote', content: [header('s', 'm')]}],
+            '> :::header{height="s" width="m"}\n> :::',
+        ],
+        [
+            '- :::header{width="s"}\n  :::',
+            [
+                {
+                    type: 'bullet_list',
+                    attrs: {tight: false, markup: '-'},
+                    content: [listItem('-', header('s', 's'))],
+                },
+            ],
+            '- :::header{height="s" width="s"}\n  :::',
+        ],
+        [
+            '1. Item\n\n   :::header{height="m" width="l"}\n   :::',
+            [
+                {
+                    type: 'ordered_list',
+                    attrs: {order: 1, tight: false, markup: '.'},
+                    content: [listItem('.', paragraph('Item'), header('m', 'l'))],
+                },
+            ],
+            '1. Item\n\n   :::header{height="m" width="l"}\n   :::',
+        ],
+        ['::::header\n::::', [paragraph('::::header\n::::')], '\\::::header\n\\::::'],
+    ])('should parse supported markup %j', (markup, content, serialized) => {
+        const doc = markupParser.parse(markup);
+        expect(doc.toJSON()).toEqual({type: 'doc', content});
+        expect(serializer.serialize(doc)).toBe(serialized);
+        expect(markupParser.parse(serialized).toJSON()).toEqual(doc.toJSON());
+    });
+
     for (const height of ['s', 'm', 'l']) {
         for (const width of ['s', 'm', 'l', 'full']) {
             it(`should round trip height ${height} and width ${width}`, () => {
@@ -110,6 +176,10 @@ describe('Header extension', () => {
         ':::header\nUnclosed text',
         ':::header\n```\n:::\n```\n:::',
         ':::header\nWow!\n[link]\n:::',
+        ':::header {height="m"}\n:::',
+        ':::header\n::::',
+        ':::header\n    :::\n:::',
+        ':::header{bg-image="./.files/cover.jpg"}\n\n:::header-title{size="1"}\nTitle\n:::\n\n:::button\n:::\n\n:::',
     ])('should round trip unsupported source without losing data for %s', (markup) => {
         const doc = markupParser.parse(markup);
         expect(doc.firstChild?.type.name).toBe('header_source');
