@@ -87,6 +87,7 @@ test.describe('Header dimensions', () => {
     test('should undo and redo each dimension and keep keyboard navigation available', async ({
         mount,
         page,
+        editor,
     }) => {
         await mount(<HeaderStories.Wysiwyg />);
         const header = page.locator('.ProseMirror .g-md-header');
@@ -97,15 +98,15 @@ test.describe('Header dimensions', () => {
         await settings.getByRole('combobox', {name: 'Width', exact: true}).click();
         await page.getByRole('option', {name: 'Full width', exact: true}).click();
         await settings.getByRole('button', {name: 'Close', exact: true}).click();
-        await page.keyboard.press('Control+z');
+        await editor.press('Control+z');
         await expect(header).toHaveAttribute('data-height', 'l');
         await expect(header).toHaveAttribute('data-width', 'm');
-        await page.keyboard.press('Control+z');
+        await editor.press('Control+z');
         await expect(header).toHaveAttribute('data-height', 's');
-        await page.keyboard.press('Control+Shift+z');
+        await editor.press('Control+Shift+z');
         await expect(header).toHaveAttribute('data-height', 'l');
-        await page.keyboard.press('ArrowDown');
-        await page.keyboard.type('Text ');
+        await editor.press('ArrowDown');
+        await editor.pressSequentially('Text ');
         await expect(header).toHaveCount(1);
         await expect(page.locator('.ProseMirror')).toContainText('Text');
     });
