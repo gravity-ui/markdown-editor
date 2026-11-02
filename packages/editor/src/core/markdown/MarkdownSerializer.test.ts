@@ -6,8 +6,12 @@ import {MarkdownSerializer, type SerializerMarkToken} from './MarkdownSerializer
 
 const schema = new Schema({
     nodes: baseSchema.spec.nodes
-        .update('hard_break', {...baseSchema.spec.nodes.get('hard_break'), isBreak: true})
-        .addToEnd('soft_break', {inline: true, group: 'inline', isBreak: true}),
+        .update('hard_break', {
+            ...baseSchema.spec.nodes.get('hard_break'),
+            isBreak: true,
+            breakType: 'hard',
+        })
+        .addToEnd('soft_break', {inline: true, group: 'inline', isBreak: true, breakType: 'soft'}),
     marks: baseSchema.spec.marks.addBefore('em', 'unknown', {}),
 });
 
@@ -22,6 +26,23 @@ const {doc, p, i, b, u, br, sb} = builders(schema, {
 });
 
 describe('MarkdownSerializer overlapping marks', () => {
+    it('should keep a renamed soft break after spaces', () => {
+        const renamedSchema = new Schema({
+            nodes: schema.spec.nodes
+                .remove('soft_break')
+                .addToEnd('line_feed', schema.nodes.soft_break.spec),
+            marks: schema.spec.marks,
+        });
+        const nodes = builders(renamedSchema, {
+            p: {nodeType: 'paragraph'},
+            i: {markType: 'em'},
+            sb: {nodeType: 'line_feed'},
+        });
+        const input = nodes.doc(nodes.p(nodes.i('x'), '  ', nodes.sb(), nodes.i('y')));
+
+        expect(createSerializer({}, 'line_feed').serialize(input)).toBe('*x*\n*y*');
+    });
+
     it.each([false, true])(
         'should close marks before a dropped space with strong first: %s',
         (strongFirst) => {
@@ -276,7 +297,10 @@ describe('MarkdownSerializer block wrapping', () => {
     });
 });
 
-function createSerializer(marks: Record<string, SerializerMarkToken> = {}) {
+function createSerializer(
+    marks: Record<string, SerializerMarkToken> = {},
+    softBreakName = 'soft_break',
+) {
     return new MarkdownSerializer(
         {
             text: (state, node) => state.text(node.text ?? ''),
@@ -287,7 +311,7 @@ function createSerializer(marks: Record<string, SerializerMarkToken> = {}) {
             hard_break: (state, _node, parent, index) => {
                 if (index < parent.childCount - 1) state.write('\\\n');
             },
-            soft_break: (state, _node, parent, index) => {
+            [softBreakName]: (state, _node, parent, index) => {
                 if (index < parent.childCount - 1) state.write('\n');
             },
         },

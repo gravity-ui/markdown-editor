@@ -362,14 +362,12 @@ export class MarkdownSerializerState {
     // TODO(major): Fix link marks around spaces: https://github.com/gravity-ui/markdown-editor/issues/1263.
     renderInline(parent: Node, fromBlockStart = true) {
         this.atBlockStart = fromBlockStart;
+        const inlineStart = this.out.length;
         const active: Mark[] = [];
         let trailing = '';
         let afterExpelledWhitespace = false;
         let afterWhitespace = false;
         const progress = (node: Node | null, _: any, index: number) => {
-            if (parent.type.name === 'heading' && node?.isText && /[\r\n]/.test(node.text ?? '')) {
-                node = (node as any).withText(node.text!.replace(/\r\n?|\n/g, ' '));
-            }
             let marks = node ? node.marks : [];
             const whitespaceOnly = node?.isText && !/\S/.test(node.text ?? '') &&
                 marks.every(mark => this.getMark(mark.type.name).escape !== false);
@@ -391,7 +389,9 @@ export class MarkdownSerializerState {
             }
 
             const next = parent.maybeChild(index + 1);
+            // Match the parser's whitespace and punctuation.
             const keepLinkedWhitespace = !active.length && node?.isText && /\s$/.test(node.text ?? '') &&
+                (this.atBlockStart || trailing || /[\p{P}\p{Zs}\t\n\v\f\r$+<=>^`|~]$/u.test(this.out.slice(-1))) &&
                 (!next || (next.type.spec.isBreak && !/[\r\n][^\S\r\n]*$/.test(node.text ?? ''))) &&
                 marks.some(mark => !this.getMark(mark.type.name).expelEnclosingWhitespace) &&
                 marks.every(mark => this.getMark(mark.type.name).mixable && this.getMark(mark.type.name).escape !== false);
@@ -487,11 +487,11 @@ export class MarkdownSerializerState {
                     !this.isMarkAhead(parent, index + 1, active.slice(0, keep), true, true)) --keep;
             }
 
-            if (node?.type.name === 'soft_break') {
+            if (node?.type.spec.breakType === 'soft') {
                 leading = leading.replace(/[ \t]+$/, '');
-                if (this.out.endsWith('  ')) {
+                if (this.out.endsWith('  ') && (keep === active.length || this.getMark(active[active.length - 1].type.name).expelEnclosingWhitespace)) {
                     let end = this.out.length;
-                    while (/[ \t]/.test(this.out.charAt(end - 1))) --end;
+                    while (end > inlineStart && /[ \t]/.test(this.out.charAt(end - 1))) --end;
                     this.out = this.out.slice(0, end);
                 }
             }
