@@ -882,6 +882,9 @@ importers:
 
   packages/plugin-header:
     dependencies:
+      '@diplodoc/directive':
+        specifier: ^0.4.0
+        version: 0.4.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       '@types/markdown-it':
         specifier: 'catalog:'
         version: 13.0.9

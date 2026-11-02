@@ -85,6 +85,14 @@ describe('Header Markdown', () => {
         ':::header {height="m"}\n:::',
         ':::header\n::::',
         ':::header\n    :::\n:::',
+        ':::header{height="s"} trailing\n:::',
+        ':::header{height="s"}{width="m"}\n:::',
+        ':::header{}{}\n:::',
+        ':::header[]\n:::',
+        ':::header{height="m"\n:::',
+        ':::header{height="s" height="s"}\n:::',
+        ':::header{HEIGHT="m"}\n:::',
+        ':::header{height=""}\n:::',
         contractExample,
     ])('should preserve unsupported source safely for %s', (markup) => {
         const tokens = md.parse(markup, {});
@@ -94,13 +102,26 @@ describe('Header Markdown', () => {
         expect(md.render(markup)).toBe(`<pre><code>${md.utils.escapeHtml(markup)}</code></pre>\n`);
     });
 
+    it.each([
+        [
+            '- :::header\n:::',
+            '<ul>\n<li>\n<pre><code>:::header</code></pre>\n</li>\n</ul>\n<p>:::</p>\n',
+        ],
+        [':::header\n:::\n\n:::', `${header('s', 'm')}<p>:::</p>\n`],
+        [':::header-title\nText\n:::', '<p>:::header-title\nText\n:::</p>\n'],
+        [':::button\nText\n:::', '<p>:::button\nText\n:::</p>\n'],
+    ])('should keep the closing line inside the header block for %j', (markup, html) => {
+        expect(md.render(markup)).toBe(html);
+    });
+
     it('should keep adjacent paragraphs and header boundaries', () => {
         const tokens = md.parse('Before\n:::header\n:::\nAfter', {});
         expect(tokens.map(({type}) => type)).toEqual([
             'paragraph_open',
             'inline',
             'paragraph_close',
-            'header',
+            'header_open',
+            'header_close',
             'paragraph_open',
             'inline',
             'paragraph_close',

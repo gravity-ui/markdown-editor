@@ -1,3 +1,5 @@
+import {stringifyAttrs} from './attrs';
+
 export const headerHeights = ['s', 'm', 'l'] as const;
 export const headerWidths = ['s', 'm', 'l', 'full'] as const;
 export type HeaderHeight = (typeof headerHeights)[number];
@@ -7,7 +9,6 @@ export type HeaderDimensions = {height: HeaderHeight; width: HeaderWidth};
 export const headerDefaults: Readonly<HeaderDimensions> = {height: 's', width: 'm'};
 export const headerClassName = 'g-md-header';
 export const headerTokenName = 'header';
-export const headerSourceTokenName = 'header_source';
 
 export function isHeaderHeight(value: unknown): value is HeaderHeight {
     return headerHeights.some((height) => height === value);
@@ -31,5 +32,5 @@ export function headerDomAttrs(attrs: {height?: unknown; width?: unknown}) {
 
 export function serializeHeader(attrs: {height?: unknown; width?: unknown}) {
     const {height, width} = headerDimensions(attrs);
-    return `:::header{height="${height}" width="${width}"}\n:::`;
+    return `:::header${stringifyAttrs({height, width})}\n:::`;
 }

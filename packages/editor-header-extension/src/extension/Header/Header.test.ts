@@ -132,7 +132,9 @@ describe('Header extension', () => {
         const doc = markupParser.parse(markup);
         expect(doc.toJSON()).toEqual({type: 'doc', content});
         expect(serializer.serialize(doc)).toBe(serialized);
-        expect(markupParser.parse(serialized).toJSON()).toEqual(doc.toJSON());
+        const reparsed = markupParser.parse(serialized);
+        expect(reparsed.toJSON()).toEqual(doc.toJSON());
+        expect(serializer.serialize(reparsed)).toBe(serialized);
     });
 
     for (const height of ['s', 'm', 'l']) {
@@ -179,6 +181,10 @@ describe('Header extension', () => {
         ':::header {height="m"}\n:::',
         ':::header\n::::',
         ':::header\n    :::\n:::',
+        ':::header{height="s"} trailing\n:::',
+        ':::header{}{}\n:::',
+        ':::header{height="m"\n:::',
+        ':::header{height="s" height="s"}\n:::',
         ':::header{bg-image="./.files/cover.jpg"}\n\n:::header-title{size="1"}\nTitle\n:::\n\n:::button\n:::\n\n:::',
     ])('should round trip unsupported source without losing data for %s', (markup) => {
         const doc = markupParser.parse(markup);

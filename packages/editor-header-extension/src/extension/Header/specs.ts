@@ -4,13 +4,13 @@ import {
     headerDefaults,
     headerDomAttrs,
     headerPlugin,
-    headerSourceTokenName,
     headerTokenName,
     isHeaderHeight,
-    isHeaderSource,
     isHeaderWidth,
     serializeHeader,
 } from '@gravity-ui/markdown-plugin-header';
+
+import {HeaderSourceSpecs} from './source';
 
 export const headerNodeName = 'header';
 
@@ -43,7 +43,7 @@ export const HeaderSpecs: ExtensionAuto = (builder) => {
         }))
         .addMarkdownTokenParserSpec(headerTokenName, () => ({
             name: headerNodeName,
-            type: 'node',
+            type: 'block',
             getAttrs: (token) => ({
                 height: token.attrGet('data-height'),
                 width: token.attrGet('data-width'),
@@ -54,34 +54,5 @@ export const HeaderSpecs: ExtensionAuto = (builder) => {
             state.closeBlock(node);
         });
 
-    // Keep unsupported containers intact when switching between editor modes.
-    builder
-        .addNodeSpec(headerSourceTokenName, () => ({
-            group: 'block',
-            atom: true,
-            attrs: {source: {default: ''}},
-            parseDOM: [
-                {
-                    tag: 'pre[data-header-source]',
-                    getAttrs: (dom) => {
-                        const source = dom.textContent ?? '';
-                        return isHeaderSource(source) ? {source} : false;
-                    },
-                },
-            ],
-            toDOM: (node) => ['pre', {'data-header-source': ''}, ['code', node.attrs.source]],
-        }))
-        .addMarkdownTokenParserSpec(headerSourceTokenName, () => ({
-            name: headerSourceTokenName,
-            type: 'node',
-            getAttrs: (token) => ({source: token.content}),
-        }))
-        .addNodeSerializerSpec(headerSourceTokenName, () => (state, node) => {
-            // `state.text` rewrites `!` before `[` even without escaping, and the source must not change.
-            node.attrs.source.split('\n').forEach((line: string, index: number) => {
-                if (index) state.out += '\n';
-                state.write(line);
-            });
-            state.closeBlock(node);
-        });
+    builder.use(HeaderSourceSpecs);
 };
