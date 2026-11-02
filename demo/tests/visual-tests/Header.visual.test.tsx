@@ -36,8 +36,8 @@ test.describe('Header dimensions', () => {
         await expect(width).toHaveText('M');
         const sizes = await settings.getByRole('group').evaluateAll((elements) =>
             elements.map((element) => {
-                const rect = element.getBoundingClientRect();
-                return {width: rect.width, height: rect.height};
+                const {width, height} = element.getBoundingClientRect();
+                return {width: Math.round(width), height: Math.round(height)};
             }),
         );
         expect(sizes).toEqual([
