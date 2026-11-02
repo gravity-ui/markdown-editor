@@ -1,8 +1,8 @@
 {
-    "title": "Cover settings",
+    "title": "Header settings",
     "height": "Height",
     "width": "Width",
     "full-width": "Full width",
     "close": "Close",
-    "insert": "Cover"
+    "insert": "Header"
 }

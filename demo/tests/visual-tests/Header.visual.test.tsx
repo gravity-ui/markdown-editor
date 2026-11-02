@@ -20,11 +20,11 @@ test.describe('Header dimensions', () => {
         await expect(header).toHaveCSS('border-top-left-radius', '16px');
         await expect(header).toBeEmpty();
         await header.click();
-        const settings = page.getByRole('dialog', {name: 'Cover settings'});
+        const settings = page.getByRole('dialog', {name: 'Header settings'});
         await expect(settings).toBeVisible();
         await expect(settings).toHaveCSS('width', '286px');
         await expect(settings).toHaveCSS('box-sizing', 'content-box');
-        await expect(settings.getByText('Cover settings', {exact: true})).toHaveCSS(
+        await expect(settings.getByText('Header settings', {exact: true})).toHaveCSS(
             'font-size',
             '17px',
         );
@@ -193,7 +193,7 @@ test.describe('Header dimensions', () => {
         await header.click();
         await expect(page.getByTestId('header-settings')).toHaveCount(0);
         await expect(page.locator('.ProseMirror')).toHaveAttribute('contenteditable', 'false');
-        await expect(page.getByRole('button', {name: 'Cover', exact: true})).toBeDisabled();
+        await expect(page.getByRole('button', {name: 'Header', exact: true})).toBeDisabled();
         await expect(header).toHaveAttribute('data-height', 's');
         await expect(header).toHaveAttribute('data-width', 'm');
     });
@@ -201,7 +201,7 @@ test.describe('Header dimensions', () => {
     for (const mode of ['wysiwyg', 'markup'] as const) {
         test(`should insert an empty header in ${mode} mode`, async ({mount, page, editor}) => {
             await mount(<HeaderStories.Wysiwyg initial="" mode={mode} />);
-            await page.getByRole('button', {name: 'Cover', exact: true}).click();
+            await page.getByRole('button', {name: 'Header', exact: true}).click();
             await expect
                 .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
                 .toContain(':::header{height="s" width="m"}\n:::');
@@ -212,7 +212,7 @@ test.describe('Header dimensions', () => {
 
     test('should insert a header after the current markup line', async ({mount, page}) => {
         await mount(<HeaderStories.Markdown initial="Before" />);
-        await page.getByRole('button', {name: 'Cover', exact: true}).click();
+        await page.getByRole('button', {name: 'Header', exact: true}).click();
         await expect
             .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
             .toContain('Before\n\n:::header{height="s" width="m"}\n:::');

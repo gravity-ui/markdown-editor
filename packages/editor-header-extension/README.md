@@ -11,7 +11,7 @@ const extensions = (builder) => builder.use(Header);
 // Add headerItem to your toolbar preset and its desired orders.
 ```
 
-Select the block to open Cover settings. The panel contains Height (S/M/L) and
+Select the block to open Header settings. The panel contains Height (S/M/L) and
 Width (S/M/L/Full width). Changes support undo and redo. Readonly views do not
 show the panel or allow dimension changes.
 
