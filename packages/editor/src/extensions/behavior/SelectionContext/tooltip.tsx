@@ -4,8 +4,9 @@ import type {EditorView} from 'prosemirror-view';
 
 import type {ActionStorage} from '../../../core';
 import {type Logger2, globalLogger} from '../../../logger';
+import type {RendererItem} from '../../../modules/react-renderer';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
-import {type RendererItem, getReactRendererFromState} from '../ReactRenderer';
+import {getReactRendererFromState} from '../ReactRenderer';
 
 import {TextSelectionTooltip} from './TextSelectionTooltip';
 import type {ContextConfig} from './types';

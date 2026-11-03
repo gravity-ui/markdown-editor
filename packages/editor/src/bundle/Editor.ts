@@ -15,12 +15,12 @@ import {
 } from '../core';
 import type {TransformFn} from '../core/markdown/ProseMirrorTransformer';
 import type {DynamicModifiers} from '../core/types/dynamicModifiers';
-import type {ReactRenderStorage, RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {type Logger2, globalLogger} from '../logger';
 import {createCodemirror} from '../markup';
 import {getAutocompleteConfig} from '../markup/codemirror/autocomplete';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
+import type {ReactRenderStorage, RenderStorage} from '../modules/react-renderer';
 import {type Emitter, type FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
 

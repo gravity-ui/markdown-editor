@@ -1,9 +1,9 @@
 import {CompletionContext, type CompletionSource} from '@codemirror/autocomplete';
 import {describe, expect, it, onTestFinished, vi} from 'vitest';
 
-import {ReactRenderStorage} from '../extensions';
 import {BaseSchemaSpecs} from '../extensions/base/BaseSchema/BaseSchemaSpecs';
 import {Logger2} from '../logger';
+import {ReactRenderStorage} from '../modules/react-renderer';
 import {DirectiveSyntaxContext} from '../utils/directive';
 
 import {EditorImpl} from './Editor';
