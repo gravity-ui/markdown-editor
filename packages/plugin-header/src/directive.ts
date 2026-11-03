@@ -1,9 +1,19 @@
-import {directiveParser, registerContainerDirective} from '@diplodoc/directive';
+import {
+    directiveParser,
+    registerContainerDirective,
+    tokenizeBlockContent,
+} from '@diplodoc/directive';
 import type MarkdownIt from 'markdown-it';
 import type StateBlock from 'markdown-it/lib/rules_block/state_block';
 
 import {parseDirectiveAttrs} from './attrs';
 import {headerDomAttrs, headerTokenName, isHeaderHeight, isHeaderWidth} from './dimensions';
+import {
+    headerTextAttrsSchema,
+    headerTextDomAttrs,
+    isHeaderSlotParent,
+    isHeaderTextBody,
+} from './text';
 
 export const headerOpening = /^:::header(?=$|[\s{[])/;
 
@@ -22,14 +32,26 @@ export function headerDirective(md: MarkdownIt) {
         for (let line = params.startLine + 1; line <= closing; line++) {
             if (state.sCount[line] < state.blkIndent && !state.isEmpty(line)) return false;
         }
-        if (params.content.raw.trim()) return false;
-        const attrs = parseDirectiveAttrs(params, {height: isHeaderHeight, width: isHeaderWidth});
+        if (isHeaderSlotParent(state.parentType)) return false;
+        const attrs = parseDirectiveAttrs(params, {
+            height: isHeaderHeight,
+            width: isHeaderWidth,
+            ...headerTextAttrsSchema,
+        });
         if (!attrs) return false;
 
+        const start = state.tokens.length;
         const open = state.push(`${headerTokenName}_open`, 'div', 1);
-        open.attrs = Object.entries(headerDomAttrs(attrs));
+        open.attrs = Object.entries({...headerDomAttrs(attrs), ...headerTextDomAttrs(attrs)});
         open.map = [params.startLine, params.endLine];
         open.markup = ':::';
+        tokenizeBlockContent(state, params.content, headerTokenName);
+        if (!isHeaderTextBody(state.tokens.slice(start + 1), state.level)) {
+            state.tokens.length = start;
+            state.level--;
+            state.line = params.startLine;
+            return false;
+        }
         state.push(`${headerTokenName}_close`, 'div', -1).markup = ':::';
         return true;
     });

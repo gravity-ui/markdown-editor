@@ -13,7 +13,9 @@ export const insertHeader: CommandWithAttrs = (state, dispatch, view) => {
     if (!view?.editable) return false;
     const type = state.schema.nodes[headerNodeName];
     if (!type) return false;
-    const tr = state.tr.replaceSelectionWith(type.create());
+    const node = type.createAndFill();
+    if (!node) return false;
+    const tr = state.tr.replaceSelectionWith(node);
     if (!tr.docChanged) return false;
     dispatch?.(tr.scrollIntoView());
     return true;

@@ -5,6 +5,7 @@ import {headerSettingsPlugin} from './Settings';
 import {insertHeader, setHeaderDimensions} from './commands';
 import {headerNodeView} from './node-view';
 import {HeaderSpecs, headerNodeName} from './specs';
+import {HeaderText} from './text';
 
 import '@gravity-ui/markdown-plugin-header/styles.css';
 
@@ -17,7 +18,8 @@ export const Header: ExtensionAuto = (builder) => {
             isEnable: setHeaderDimensions,
             run: setHeaderDimensions,
         }))
-        .addPlugin(headerSettingsPlugin);
+        .addPlugin(headerSettingsPlugin)
+        .use(HeaderText);
 };
 
 declare global {
