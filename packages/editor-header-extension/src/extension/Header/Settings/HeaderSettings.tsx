@@ -8,7 +8,7 @@ import {Button, Icon, Text} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../i18n';
 import {setHeaderDimensions} from '../commands';
-import {headerNodeName} from '../specs';
+import {headerNodeName} from '../const';
 
 import {DimensionSelect} from './DimensionSelect';
 

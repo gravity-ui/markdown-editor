@@ -3,8 +3,9 @@ import type {HeaderDimensions} from '@gravity-ui/markdown-plugin-header';
 
 import {headerSettingsPlugin} from './Settings';
 import {insertHeader, setHeaderDimensions} from './commands';
+import {headerNodeName} from './const';
 import {headerNodeView} from './node-view';
-import {HeaderSpecs, headerNodeName} from './specs';
+import {HeaderSpecs} from './specs';
 
 import '@gravity-ui/markdown-plugin-header/styles.css';
 

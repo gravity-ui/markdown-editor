@@ -24,4 +24,5 @@ The block is left-aligned and never wider than its container.
 Sizes are set by `--g-md-header-height-{s,m,l}` and `--g-md-header-width-{s,m,l}`.
 The border uses `--g-color-line-generic` and `--g-border-radius-2xl` (16 px by default).
 
-Any other `:::header` container is rendered as escaped source text.
+The block is a container directive of [`@diplodoc/directive`](https://github.com/diplodoc-platform/directive).
+Any other closed `:::header` container is rendered as escaped source text: content inside the block, an unknown or repeated attribute, or an unsupported value.

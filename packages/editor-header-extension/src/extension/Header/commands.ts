@@ -1,21 +1,19 @@
 import type {CommandWithAttrs} from '@gravity-ui/markdown-editor/core';
 import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
-import {NodeSelection} from '@gravity-ui/markdown-editor/pm/state';
+import {type Command, NodeSelection} from '@gravity-ui/markdown-editor/pm/state';
 import {
     type HeaderDimensions,
     isHeaderHeight,
     isHeaderWidth,
 } from '@gravity-ui/markdown-plugin-header';
 
-import {headerNodeName} from './specs';
+import {headerNodeType} from './const';
 
-export const insertHeader: CommandWithAttrs = (state, dispatch, view) => {
+export const insertHeader: Command = (state, dispatch, view) => {
     if (!view?.editable) return false;
-    const type = state.schema.nodes[headerNodeName];
-    if (!type) return false;
-    const tr = state.tr.replaceSelectionWith(type.create());
-    if (!tr.docChanged) return false;
-    dispatch?.(tr.scrollIntoView());
+    dispatch?.(
+        state.tr.replaceSelectionWith(headerNodeType(state.schema).create()).scrollIntoView(),
+    );
     return true;
 };
 
@@ -28,7 +26,7 @@ export const setHeaderDimensions: CommandWithAttrs<Partial<HeaderDimensions>> = 
     if (
         !view?.editable ||
         !(state.selection instanceof NodeSelection) ||
-        state.selection.node.type.name !== headerNodeName ||
+        state.selection.node.type !== headerNodeType(state.schema) ||
         (attrs.height !== undefined && !isHeaderHeight(attrs.height)) ||
         (attrs.width !== undefined && !isHeaderWidth(attrs.width))
     )

@@ -47,6 +47,7 @@
     "README.md"
   ],
   "dependencies": {
+    "@diplodoc/directive": "^0.4.0",
     "@types/markdown-it": "catalog:",
     "tslib": "catalog:ts"
   },
