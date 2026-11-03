@@ -131,6 +131,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #renderPreview?: RenderPreview;
     #wysiwygEditor?: WysiwygEditor;
     #markupEditor?: MarkupEditor;
+    #markupEditorNeedsReplace = false;
     #markupConfig: MarkupConfig;
     #escapeConfig?: EscapeConfig;
     #mdOptions: Readonly<MarkdownEditorMdOptions>;
@@ -171,7 +172,9 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             case 'markup': {
                 this.#editorMode = newMode;
                 if (this.#wysiwygEditor) {
-                    const markupEditorValue = this.#markupEditor?.getValue();
+                    const markupEditorValue = this.#markupEditorNeedsReplace
+                        ? undefined
+                        : this.#markupEditor?.getValue();
                     const wysiwygEditorValue = this.#wysiwygEditor.getValue();
                     if (
                         !markupEditorValue ||
@@ -182,7 +185,11 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                         this.#markup = markupEditorValue;
                     }
                 }
-                if (this.#markupEditor) this.#markupEditor.replace(this.#markup);
+                if (this.#markupEditor) {
+                    this.#markupEditorNeedsReplace = true;
+                    this.#markupEditor.replace(this.#markup);
+                    this.#markupEditorNeedsReplace = false;
+                }
                 break;
             }
             case 'wysiwyg': {
@@ -449,7 +456,15 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             reason: opts.reason,
         });
 
-        this.currentMode = opts.mode;
+        const previousMode = this.#editorMode;
+        const previousMarkup = this.#markup;
+        try {
+            this.currentMode = opts.mode;
+        } catch (error) {
+            this.#editorMode = previousMode;
+            this.#markup = previousMarkup;
+            throw error;
+        }
         this.emit('rerender', null);
 
         if (emit) {
