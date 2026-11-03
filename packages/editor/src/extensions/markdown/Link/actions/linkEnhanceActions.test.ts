@@ -17,12 +17,16 @@ const deps = new ExtensionsManager({
         builder.use(BaseSchemaSpecs, {}).use(LinkSpecs).use(ImageSpecs).use(BreaksSpecs, {}),
 }).buildDeps();
 const {schema} = deps;
-const {doc, p, link, image, br} = builders<'doc' | 'p' | 'link' | 'image' | 'br'>(schema, {
+const {doc, p, link, placeholder, image, br, sb} = builders<
+    'doc' | 'p' | 'link' | 'placeholder' | 'image' | 'br' | 'sb'
+>(schema, {
     image: {nodeType: 'image', src: 'image.png'},
     br: {nodeType: BreakNodeName.HardBreak},
+    sb: {nodeType: BreakNodeName.SoftBreak},
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     link: {markType: linkMarkName, [LinkAttr.Href]: 'https://example.com'},
+    placeholder: {markType: linkMarkName, [LinkAttr.Href]: '', [LinkAttr.IsPlaceholder]: true},
 });
 const tooltip = linkTooltipPlugin(deps);
 
@@ -94,46 +98,121 @@ describe('addEmptyLink', () => {
     });
 
     it.each([
-        ['a', 8, 9],
-        [' a ', 9, 10],
-        ['word', 8, 12],
-        [' word ', 9, 13],
-    ] as const)('should provide a tooltip anchor for selected text %j', (text, from, to) => {
-        const document = doc(p('before <from>', text, '<to> after'));
-        let state = EditorState.create({
-            schema,
-            doc: document,
-            selection: TextSelection.create(document, document.tag.from, document.tag.to),
-        });
+        ['a', 8, 9, () => doc(p('before ', placeholder('a'), ' after'))],
+        [' a ', 9, 10, () => doc(p('before  ', placeholder('a'), '  after'))],
+        ['word', 8, 12, () => doc(p('before ', placeholder('word'), ' after'))],
+        [' word ', 9, 13, () => doc(p('before  ', placeholder('word'), '  after'))],
+    ] as const)(
+        'should mark selected text %j and provide its tooltip anchor',
+        (text, from, to, createExpected) => {
+            const document = doc(p('before <from>', text, '<to> after'));
+            let state = EditorState.create({
+                schema,
+                doc: document,
+                selection: TextSelection.create(document, document.tag.from, document.tag.to),
+            });
 
-        expect(
-            addEmptyLink(state, (tr) => {
-                state = state.apply(tr);
-            }),
-        ).toBe(true);
-        expect(decorations(state)).toEqual([
-            expect.objectContaining({
-                from,
-                to,
-            }),
-        ]);
-    });
+            expect(
+                addEmptyLink(state, (tr) => {
+                    state = state.apply(tr);
+                }),
+            ).toBe(true);
+            expect(state.doc).toMatchNode(createExpected());
+            expect(decorations(state)).toEqual([
+                expect.objectContaining({
+                    from,
+                    to,
+                }),
+            ]);
+        },
+    );
 
-    it('should anchor text before a trailing line break and spaces', () => {
-        const document = doc(p('before <from>word', br(), '   <to>after'));
-        let state = EditorState.create({
-            schema,
-            doc: document,
-            selection: TextSelection.create(document, document.tag.from, document.tag.to),
-        });
+    it.each([
+        [
+            'trailing hard break',
+            () => doc(p('before <from>word', br(), '   <to>after')),
+            () => doc(p('before ', placeholder('<anchorFrom>word<anchorTo>'), br(), '   after')),
+        ],
+        [
+            'leading hard break',
+            () => doc(p('before<from> ', br(), ' word<to> after')),
+            () => doc(p('before ', br(), ' ', placeholder('<anchorFrom>word<anchorTo>'), ' after')),
+        ],
+        [
+            'soft breaks at both edges',
+            () => doc(p('before<from> ', sb(), ' word', sb(), ' \u00a0<to>after')),
+            () =>
+                doc(
+                    p(
+                        'before ',
+                        sb(),
+                        ' ',
+                        placeholder('<anchorFrom>word<anchorTo>'),
+                        sb(),
+                        ' \u00a0after',
+                    ),
+                ),
+        ],
+        [
+            'consecutive edge breaks',
+            () => doc(p('before<from>', br(), sb(), ' word ', sb(), br(), '<to>after')),
+            () =>
+                doc(
+                    p(
+                        'before',
+                        br(),
+                        sb(),
+                        ' ',
+                        placeholder('<anchorFrom>word<anchorTo>'),
+                        ' ',
+                        sb(),
+                        br(),
+                        'after',
+                    ),
+                ),
+        ],
+        [
+            'an internal break',
+            () => doc(p('before <from>one', br(), 'two<to> after')),
+            () =>
+                doc(p('before ', placeholder('one', br(), '<anchorFrom>two<anchorTo>'), ' after')),
+        ],
+        [
+            'an image between edge breaks',
+            () => doc(p('before<from> ', br(), image(), sb(), ' <to>after')),
+            () =>
+                doc(
+                    p(
+                        'before ',
+                        br(),
+                        placeholder('<anchorFrom>', image(), '<anchorTo>'),
+                        sb(),
+                        ' after',
+                    ),
+                ),
+        ],
+    ] as const)(
+        'should preserve content and trim only blank link edges with %s',
+        (_name, createDocument, createExpected) => {
+            const document = createDocument();
+            const expected = createExpected();
+            let state = EditorState.create({
+                schema,
+                doc: document,
+                selection: TextSelection.create(document, document.tag.from, document.tag.to),
+            });
 
-        expect(
-            addEmptyLink(state, (tr) => {
-                state = state.apply(tr);
-            }),
-        ).toBe(true);
-        expect(decorations(state)).toEqual([expect.objectContaining({from: 8, to: 12})]);
-    });
+            expect(
+                addEmptyLink(state, (tr) => {
+                    state = state.apply(tr);
+                }),
+            ).toBe(true);
+            expect(state.doc).toMatchNode(expected);
+            expect(decorations(state)).toEqual([
+                expect.objectContaining({from: expected.tag.anchorFrom, to: expected.tag.anchorTo}),
+            ]);
+        },
+    );
 
     it('should anchor a new single-character link next to an existing link', () => {
         const document = doc(p(link('existing'), '<from>a<to> after'));
@@ -148,6 +227,7 @@ describe('addEmptyLink', () => {
                 state = state.apply(tr);
             }),
         ).toBe(true);
+        expect(state.doc).toMatchNode(doc(p(link('existing'), placeholder('a'), ' after')));
         expect(decorations(state)).toEqual([
             expect.objectContaining({from: document.tag.from, to: document.tag.to}),
         ]);

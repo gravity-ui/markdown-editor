@@ -47,6 +47,10 @@ export const addEmptyLink: Command = (state, dispatch) => {
             node.type.spec.isBreak ? '\n' : '\uFFFC',
         );
         const countOfWhitespacesAtEnd = selectedText.length - selectedText.trimEnd().length;
+        const countOfWhitespacesAtStart = selectedText.length - selectedText.trimStart().length;
+        // toggleMark trims text-node whitespace, but leaves marks on edge line breaks.
+        tr.removeMark($from.pos, $from.pos + countOfWhitespacesAtStart, linkMarkType);
+        tr.removeMark($to.pos - countOfWhitespacesAtEnd, $to.pos, linkMarkType);
         tr.setSelection(TextSelection.create(tr.doc, $to.pos - countOfWhitespacesAtEnd - 1));
     }
     dispatch?.(tr);
