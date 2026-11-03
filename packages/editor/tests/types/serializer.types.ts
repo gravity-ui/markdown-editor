@@ -1,8 +1,10 @@
 import type {Node} from 'prosemirror-model';
 
-import type {SerializerState} from '../../src/core';
+import type {RenderInlineOptions, SerializerState} from '../../src/core';
 
 export function shouldAcceptInlineRenderingOptions(state: SerializerState, node: Node) {
+    const options: RenderInlineOptions = {atBlockStart: false, textLineBreaks: 'space'};
+    state.renderInline(node, options);
     state.renderInline(node);
     state.renderInline(node, false);
     state.renderInline(node, {atBlockStart: false});

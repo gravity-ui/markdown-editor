@@ -21,7 +21,8 @@ export interface SerializerMarkToken {
     escape?: boolean;
 }
 
-interface RenderInlineOptions {
+/** Options for SerializerState.renderInline. */
+export interface RenderInlineOptions {
     atBlockStart?: boolean;
     /** Replace raw line endings in text nodes. Break nodes are unchanged. */
     textLineBreaks?: 'preserve' | 'space';

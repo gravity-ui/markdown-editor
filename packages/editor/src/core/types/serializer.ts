@@ -1,4 +1,5 @@
 export type {
+    RenderInlineOptions,
     MarkdownSerializerState as SerializerState,
     SerializerNodeToken,
     SerializerMarkToken,
