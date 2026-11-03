@@ -30,23 +30,6 @@ const {doc, p, i, b, u, br, sb} = builders(schema, {
 });
 
 describe('MarkdownSerializer overlapping marks', () => {
-    it('should keep a renamed soft break after spaces', () => {
-        const renamedSchema = new Schema({
-            nodes: schema.spec.nodes
-                .remove('soft_break')
-                .addToEnd('line_feed', schema.nodes.soft_break.spec),
-            marks: schema.spec.marks,
-        });
-        const nodes = builders(renamedSchema, {
-            p: {nodeType: 'paragraph'},
-            i: {markType: 'em'},
-            sb: {nodeType: 'line_feed'},
-        });
-        const input = nodes.doc(nodes.p(nodes.i('x'), '  ', nodes.sb(), nodes.i('y')));
-
-        expect(createSerializer({}, 'line_feed').serialize(input)).toBe('*x*\n*y*');
-    });
-
     it.each([false, true])(
         'should close marks before a dropped space with strong first: %s',
         (strongFirst) => {
@@ -167,6 +150,25 @@ describe('MarkdownSerializer overlapping marks', () => {
         const content = doc(p(b('f'), i(b('oo'), ' bar')));
 
         expect(createSerializer().serialize(content)).toBe('**f*oo*** *bar*');
+    });
+});
+
+describe('MarkdownSerializer line breaks', () => {
+    it('should keep a renamed soft break after spaces', () => {
+        const renamedSchema = new Schema({
+            nodes: schema.spec.nodes
+                .remove('soft_break')
+                .addToEnd('line_feed', schema.nodes.soft_break.spec),
+            marks: schema.spec.marks,
+        });
+        const nodes = builders(renamedSchema, {
+            p: {nodeType: 'paragraph'},
+            i: {markType: 'em'},
+            sb: {nodeType: 'line_feed'},
+        });
+        const input = nodes.doc(nodes.p(nodes.i('x'), '  ', nodes.sb(), nodes.i('y')));
+
+        expect(createSerializer({}, 'line_feed').serialize(input)).toBe('*x*\n*y*');
     });
 });
 

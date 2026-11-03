@@ -46,20 +46,25 @@ describe('MarkdownSerializer production marks', () => {
         expect(parser.parse(text)).toMatchNode(doc(h1(strong('y ', em('x')))));
     });
 
-    it.each(['italic', 'bold', 'strike'] as const)(
-        'should keep %s on a trailing link after plain text',
-        (name) => {
-            const {doc, p, a, em, strong, s, parser, serializer} = createFixture();
-            const mark = {italic: em, bold: strong, strike: s}[name];
+    it.each(
+        (['italic', 'bold', 'strike'] as const).flatMap((name) =>
+            [
+                {prefix: 'A', prefixName: 'ASCII text'},
+                {prefix: '中', prefixName: 'CJK text'},
+                {prefix: '🙂', prefixName: 'emoji'},
+                {prefix: '©', prefixName: 'copyright sign'},
+                {prefix: 'A\u2028', prefixName: 'U+2028'},
+                {prefix: 'A\u2029', prefixName: 'U+2029'},
+            ].map((prefixCase) => ({name, ...prefixCase})),
+        ),
+    )('should keep $name on a trailing link after $prefixName', ({name, prefix}) => {
+        const {doc, p, a, em, strong, s, parser, serializer} = createFixture();
+        const mark = {italic: em, bold: strong, strike: s}[name];
+        const input = doc(p(prefix, a(mark('B '))));
+        const expected = doc(p(prefix, a(mark('B'))));
 
-            for (const prefix of ['A', '中', '🙂', '©', 'A\u2028', 'A\u2029']) {
-                const input = doc(p(prefix, a(mark('B '))));
-                const expected = doc(p(prefix, a(mark('B'))));
-
-                expect(parser.parse(serializer.serialize(input))).toMatchNode(expected);
-            }
-        },
-    );
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(expected);
+    });
 
     it.each(['(', '+', '—'])(
         'should keep linked trailing whitespace after punctuation %s',
@@ -120,20 +125,21 @@ describe('MarkdownSerializer production marks', () => {
         expect(parser.parse(serializer.serialize(input))).toMatchNode(expected);
     });
 
-    it.each(['italic', 'bold', 'strike'] as const)(
-        'should keep %s on a link after punctuation from a newer Unicode version',
-        (name) => {
-            const {doc, p, a, em, strong, s, parser, serializer} = createFixture();
-            const mark = {italic: em, bold: strong, strike: s}[name];
+    it.each(
+        (['italic', 'bold', 'strike'] as const).flatMap((name) =>
+            [
+                {prefix: 'a\u2e52', prefixName: 'U+2E52'},
+                {prefix: 'a\u061d', prefixName: 'U+061D'},
+            ].map((prefixCase) => ({name, ...prefixCase})),
+        ),
+    )('should keep $name on a link after $prefixName punctuation', ({name, prefix}) => {
+        const {doc, p, a, em, strong, s, parser, serializer} = createFixture();
+        const mark = {italic: em, bold: strong, strike: s}[name];
+        const input = doc(p(prefix, a(mark('B '))));
+        const expected = doc(p(prefix, a(mark('B'))));
 
-            for (const prefix of ['a\u2e52', 'a\u061d']) {
-                const input = doc(p(prefix, a(mark('B '))));
-                const expected = doc(p(prefix, a(mark('B'))));
-
-                expect(parser.parse(serializer.serialize(input))).toMatchNode(expected);
-            }
-        },
-    );
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(expected);
+    });
 
     it('should keep a whitespace-only link inside emphasis', () => {
         const {parser, serializer} = createFixture();
