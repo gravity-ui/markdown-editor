@@ -69,7 +69,15 @@ function createEditor(initialContent: string) {
     return {editor, renderer, editorView: probe.view};
 }
 
-const header = (height: string, width: string) => ({type: 'header', attrs: {height, width}});
+const emptyParagraph = {type: 'paragraph', attrs: {'data-line': null}};
+const header = (height: string, width: string) => ({
+    type: 'header',
+    attrs: {height, width, title: true, description: true},
+    content: [
+        {type: 'header_title', attrs: {size: '2', color: 'auto'}, content: [emptyParagraph]},
+        {type: 'header_content', content: [emptyParagraph]},
+    ],
+});
 const paragraph = (text: string) => ({
     type: 'paragraph',
     attrs: {'data-line': null},
@@ -142,8 +150,8 @@ describe('Header extension', () => {
             it(`should round trip height ${height} and width ${width}`, () => {
                 const source = `:::header{height="${height}" width="${width}"}\n:::`;
                 const doc = markupParser.parse(source);
-                expect(doc.firstChild?.attrs).toEqual({height, width});
-                expect(doc.firstChild?.childCount).toBe(0);
+                expect(doc.firstChild?.attrs).toMatchObject({height, width});
+                expect(doc.firstChild?.textContent).toBe('');
                 expect(serializer.serialize(doc)).toBe(source);
                 const dom = DOMSerializer.fromSchema(schema).serializeFragment(doc.content);
                 const container = document.createElement('div');
@@ -156,8 +164,8 @@ describe('Header extension', () => {
     }
 
     it('should use the same defaults in the schema and parser', () => {
-        expect(schema.nodes.header.create().attrs).toEqual({height: 's', width: 'm'});
-        expect(markupParser.parse(':::header\n:::').firstChild?.attrs).toEqual({
+        expect(schema.nodes.header.create().attrs).toMatchObject({height: 's', width: 'm'});
+        expect(markupParser.parse(':::header\n:::').firstChild?.attrs).toMatchObject({
             height: 's',
             width: 'm',
         });
@@ -231,13 +239,13 @@ describe('Header extension', () => {
         expect(setHeaderDimensions(editor.state, editor.dispatch, editor, {width: 'full'})).toBe(
             true,
         );
-        expect(editor.state.doc.firstChild?.attrs).toEqual({height: 'l', width: 'full'});
+        expect(editor.state.doc.firstChild?.attrs).toMatchObject({height: 'l', width: 'full'});
         expect(undo(editor.state, editor.dispatch)).toBe(true);
-        expect(editor.state.doc.firstChild?.attrs).toEqual({height: 'l', width: 'm'});
+        expect(editor.state.doc.firstChild?.attrs).toMatchObject({height: 'l', width: 'm'});
         expect(undo(editor.state, editor.dispatch)).toBe(true);
-        expect(editor.state.doc.firstChild?.attrs).toEqual({height: 's', width: 'm'});
+        expect(editor.state.doc.firstChild?.attrs).toMatchObject({height: 's', width: 'm'});
         expect(redo(editor.state, editor.dispatch)).toBe(true);
-        expect(editor.state.doc.firstChild?.attrs).toEqual({height: 'l', width: 'm'});
+        expect(editor.state.doc.firstChild?.attrs).toMatchObject({height: 'l', width: 'm'});
     });
 
     it('should refuse readonly changes and insertion', () => {
@@ -246,31 +254,39 @@ describe('Header extension', () => {
             false,
         );
         expect(insertHeader(editor.state, editor.dispatch, editor)).toBe(false);
-        expect(editor.state.doc.firstChild?.attrs).toEqual({height: 's', width: 'm'});
+        expect(editor.state.doc.firstChild?.attrs).toMatchObject({height: 's', width: 'm'});
     });
 
     it('should open settings on request and close them when the header is replaced', () => {
         const {editor, renderer, editorView} = createEditor(':::header\n:::\n\nAfter');
-        expect(editorView.state.selection).toBeInstanceOf(NodeSelection);
+        expect(editorView.state.selection).toBeInstanceOf(TextSelection);
         expect(renderer.getItems()).toHaveLength(0);
-        editorView.dispatch(editorView.state.tr.setMeta(headerSettingsKey, 0));
+        editorView.dispatch(
+            editorView.state.tr
+                .setSelection(NodeSelection.create(editorView.state.doc, 0))
+                .setMeta(headerSettingsKey, 0),
+        );
         expect(renderer.getItems()).toHaveLength(1);
         editor.actions.setHeaderDimensions.run({height: 'l'});
-        expect(editor.doc.firstChild?.attrs).toEqual({height: 'l', width: 'm'});
+        expect(editor.doc.firstChild?.attrs).toMatchObject({height: 'l', width: 'm'});
         expect(renderer.getItems()).toHaveLength(1);
         editor.replace(':::header\n:::');
-        expect(editorView.state.selection).toBeInstanceOf(NodeSelection);
+        expect(editorView.state.selection).toBeInstanceOf(TextSelection);
         expect(renderer.getItems()).toHaveLength(0);
     });
 
     it('should remove settings when an editable view becomes readonly', () => {
         const {editor, renderer, editorView} = createEditor(':::header\n:::');
-        editorView.dispatch(editorView.state.tr.setMeta(headerSettingsKey, 0));
+        editorView.dispatch(
+            editorView.state.tr
+                .setSelection(NodeSelection.create(editorView.state.doc, 0))
+                .setMeta(headerSettingsKey, 0),
+        );
         expect(renderer.getItems()).toHaveLength(1);
         editorView.setProps({editable: () => false});
         expect(renderer.getItems()).toHaveLength(0);
         editor.actions.setHeaderDimensions.run({height: 'l'});
-        expect(editor.doc.firstChild?.attrs).toEqual({height: 's', width: 'm'});
+        expect(editor.doc.firstChild?.attrs).toMatchObject({height: 's', width: 'm'});
     });
 
     it('should reject invalid dimensions and a non-header selection', () => {
@@ -290,7 +306,7 @@ describe('Header extension', () => {
         editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 1)));
         expect(insertHeader(editor.state, editor.dispatch, editor)).toBe(true);
         expect(editor.state.doc.firstChild?.type.name).toBe('header');
-        expect(editor.state.doc.firstChild?.attrs).toEqual({height: 's', width: 'm'});
+        expect(editor.state.doc.firstChild?.attrs).toMatchObject({height: 's', width: 'm'});
         expect(undo(editor.state, editor.dispatch)).toBe(true);
         expect(editor.state.doc.firstChild?.type.name).toBe('paragraph');
     });

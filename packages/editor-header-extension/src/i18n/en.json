@@ -4,5 +4,20 @@
     "width": "Width",
     "full-width": "Full width",
     "close": "Close",
-    "insert": "Header"
+    "insert": "Header",
+    "text": "Text",
+    "show-title": "Title",
+    "show-description": "Description",
+    "title-size": "Title size",
+    "title-color": "Title color",
+    "title-placeholder": "Title",
+    "description-placeholder": "Description",
+    "color-auto": "Auto",
+    "color-gray": "Gray",
+    "color-yellow": "Yellow",
+    "color-orange": "Orange",
+    "color-red": "Red",
+    "color-green": "Green",
+    "color-blue": "Blue",
+    "color-violet": "Violet"
 }

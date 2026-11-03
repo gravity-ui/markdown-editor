@@ -17,6 +17,7 @@ import {i18n} from '../../i18n';
 
 import {setHeaderDimensions} from './commands';
 import {headerNodeName} from './specs';
+import {TextSettings} from './text/TextSettings';
 
 import './settings.scss';
 
@@ -107,6 +108,7 @@ function HeaderSettings({view}: {view: EditorView}) {
                         }}
                     />
                 </div>
+                <TextSettings view={view} node={node} />
             </div>
         </EditorPopup>
     );

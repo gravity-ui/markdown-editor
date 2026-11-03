@@ -18,8 +18,8 @@ test.describe('Header dimensions', () => {
         await expect(header).toHaveCSS('border-top-style', 'dashed');
         await expect(header).toHaveCSS('border-top-width', '2px');
         await expect(header).toHaveCSS('border-top-left-radius', '16px');
-        await expect(header).toBeEmpty();
-        await header.click();
+        await expect(header).toHaveText(/^(Title)?(Description)?$/);
+        await header.click({position: {x: 8, y: 8}});
         const settings = page.getByRole('dialog', {name: 'Header settings'});
         await expect(settings).toBeVisible();
         await expect(settings).toHaveCSS('width', '286px');
@@ -29,7 +29,7 @@ test.describe('Header dimensions', () => {
             '17px',
         );
         await expect(settings.getByText('Height', {exact: true})).toHaveCSS('font-size', '13px');
-        await expect(settings.getByRole('combobox')).toHaveCount(2);
+        await expect(settings.getByRole('combobox')).toHaveCount(4);
         const height = settings.getByRole('combobox', {name: 'Height', exact: true});
         const width = settings.getByRole('combobox', {name: 'Width', exact: true});
         await expect(height).toHaveText('S');
@@ -40,10 +40,7 @@ test.describe('Header dimensions', () => {
                 return {width: Math.round(width), height: Math.round(height)};
             }),
         );
-        expect(sizes).toEqual([
-            {width: 158, height: 28},
-            {width: 158, height: 28},
-        ]);
+        expect(sizes).toEqual(Array(4).fill({width: 158, height: 28}));
         await expectScreenshot({fullPage: true});
         await height.click();
         await expect(page.getByRole('option')).toHaveText(['S', 'M', 'L']);
@@ -55,7 +52,7 @@ test.describe('Header dimensions', () => {
         await expect(header).toHaveCSS('width', '600px');
         await settings.getByRole('button', {name: 'Close', exact: true}).click();
         await expect(settings).toBeHidden();
-        await header.click();
+        await header.click({position: {x: 8, y: 8}});
         await expect(settings).toBeVisible();
         await page.keyboard.press('Escape');
         await expect(settings).toBeHidden();
@@ -76,7 +73,7 @@ test.describe('Header dimensions', () => {
     test('should hide settings after switching editor modes', async ({mount, page, editor}) => {
         await mount(<HeaderStories.Wysiwyg />);
         const settings = page.getByTestId('header-settings');
-        await page.locator('.ProseMirror .g-md-header').click();
+        await page.locator('.ProseMirror .g-md-header').click({position: {x: 8, y: 8}});
         await expect(settings).toBeVisible();
         await editor.switchMode('markup');
         await expect(settings).toHaveCount(0);
@@ -91,7 +88,7 @@ test.describe('Header dimensions', () => {
     }) => {
         await mount(<HeaderStories.Wysiwyg />);
         const header = page.locator('.ProseMirror .g-md-header');
-        await header.click();
+        await header.click({position: {x: 8, y: 8}});
         const settings = page.getByTestId('header-settings');
         await settings.getByRole('combobox', {name: 'Height', exact: true}).click();
         await page.getByRole('option', {name: 'L', exact: true}).click();
@@ -190,7 +187,7 @@ test.describe('Header dimensions', () => {
     test('should hide settings and reject edits in readonly mode', async ({mount, page}) => {
         await mount(<HeaderStories.Wysiwyg readonly />);
         const header = page.locator('.ProseMirror .g-md-header');
-        await header.click();
+        await header.click({position: {x: 8, y: 8}});
         await expect(page.getByTestId('header-settings')).toHaveCount(0);
         await expect(page.locator('.ProseMirror')).toHaveAttribute('contenteditable', 'false');
         await expect(page.getByRole('button', {name: 'Header', exact: true})).toBeDisabled();

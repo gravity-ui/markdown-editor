@@ -1,6 +1,7 @@
 import MarkdownIt from 'markdown-it';
 
 import {blockLine, headerDirective, headerOpening} from './directive';
+import {headerText} from './text';
 
 export const headerSourceTokenName = 'header_source';
 
@@ -50,7 +51,7 @@ let sourceParser: MarkdownIt | undefined;
 
 /** The text is exactly one Header container that the plugin keeps as source. */
 export function isHeaderSource(source: string) {
-    sourceParser ??= new MarkdownIt('zero').use(headerDirective).use(headerSource);
+    sourceParser ??= new MarkdownIt('zero').use(headerDirective).use(headerText).use(headerSource);
     const tokens = sourceParser.parse(source, {});
     return (
         tokens.length === 1 &&
