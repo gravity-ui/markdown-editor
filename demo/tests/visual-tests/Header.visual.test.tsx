@@ -5,7 +5,7 @@ import {HeaderStories} from './Header.helpers';
 test.describe('Header dimensions', () => {
     test.use({viewport: {width: 1500, height: 1000}});
 
-    test('should show only two size controls and round trip their values through Markdown preview', async ({
+    test('should show size and text controls and round trip size values through Markdown preview', async ({
         mount,
         page,
         editor,
