@@ -1,7 +1,7 @@
 // ::- A specification for serializing a ProseMirror document as
 // Markdown/CommonMark text.
-// prettier-ignore
-import type {Mark, Node} from "prosemirror-model";
+import {Fragment, type Mark, type Node} from 'prosemirror-model';
+import unicodePunctuation from 'uc.micro/categories/P/regex.js';
 
 import {isEmptyString} from 'src/utils/nodes';
 
@@ -19,6 +19,12 @@ export interface SerializerMarkToken {
     mixable?: boolean;
     expelEnclosingWhitespace?: boolean;
     escape?: boolean;
+}
+
+interface RenderInlineOptions {
+    atBlockStart?: boolean;
+    /** Replace raw line endings in text nodes. Break nodes are unchanged. */
+    textLineBreaks?: 'preserve' | 'space';
 }
 
 interface SerializerOptions {
@@ -360,8 +366,15 @@ export class MarkdownSerializerState {
 
     // Render the contents of `parent` as inline content.
     // TODO(major): Fix link marks around spaces: https://github.com/gravity-ui/markdown-editor/issues/1263.
-    renderInline(parent: Node, fromBlockStart = true) {
-        this.atBlockStart = fromBlockStart;
+    renderInline(parent: Node, options: boolean | RenderInlineOptions = true) {
+        if (typeof options === 'object' && options.textLineBreaks === 'space') {
+            parent = parent.copy(Fragment.fromArray(parent.content.content.map((child) => {
+                if (!child.isText || !child.text) return child;
+                const text = child.text.replace(/\r\n?|\n/g, ' ');
+                return text === child.text ? child : parent.type.schema.text(text, child.marks);
+            })));
+        }
+        this.atBlockStart = typeof options === 'boolean' ? options : options.atBlockStart ?? true;
         const inlineStart = this.out.length;
         const active: Mark[] = [];
         let trailing = '';
@@ -389,10 +402,10 @@ export class MarkdownSerializerState {
             }
 
             const next = parent.maybeChild(index + 1);
-            // Match the parser's whitespace and punctuation.
+            // Use stable Unicode punctuation for delimiter boundaries.
             const keepLinkedWhitespace = !active.length && node?.isText && /\s$/.test(node.text ?? '') &&
-                (this.atBlockStart || trailing || /[\p{P}\p{Zs}\t\n\v\f\r$+<=>^`|~]$/u.test(this.out.slice(-1))) &&
-                (!next || (next.type.spec.isBreak && !/[\r\n][^\S\r\n]*$/.test(node.text ?? ''))) &&
+                (this.atBlockStart || trailing || isMarkdownWhitespaceOrPunctuation(this.out.slice(-1))) &&
+                (!next || next.type.spec.isBreak) && !/[\r\n][^\S\r\n]*$/.test(node.text ?? '') &&
                 marks.some(mark => !this.getMark(mark.type.name).expelEnclosingWhitespace) &&
                 marks.every(mark => this.getMark(mark.type.name).mixable && this.getMark(mark.type.name).escape !== false);
             if (keepLinkedWhitespace) {
@@ -464,9 +477,17 @@ export class MarkdownSerializerState {
             }
 
             const trimBeforeBreak = !noEsc && next?.type.spec.isBreak;
+            // A closing inner link keeps spaces away from outer delimiters.
+            const closesInnerLink = (markIndex: number) => !noEsc && (!next || next.type.spec.isBreak) &&
+                /\S[ \t]+$/.test(node?.text ?? '') &&
+                marks.slice(markIndex + 1).some((mark) => {
+                    const info = this.getMark(mark.type.name);
+                    return !info.expelEnclosingWhitespace && info.mixable && info.escape !== false &&
+                        !(next && mark.isInSet(next.marks));
+                });
             if (node && node.isText && !keepRawWhitespace && !keepLinkedWhitespace && marks.some((mark, i) => {
                 const info = this.getMark(mark.type.name);
-                return info && info.expelEnclosingWhitespace && (!this.isMarkAhead(parent, index + 1, marks.slice(0, i + 1), Boolean(noEsc && !rawWhitespaceOnly), !noEsc && /\S/.test(node?.text ?? '')) || (trimBeforeBreak && /[\r\n]/.test(node?.text ?? '')));
+                return info && info.expelEnclosingWhitespace && !closesInnerLink(i) && (!this.isMarkAhead(parent, index + 1, marks.slice(0, i + 1), Boolean(noEsc && !rawWhitespaceOnly), !noEsc && /\S/.test(node?.text ?? '')) || (trimBeforeBreak && /[\r\n]/.test(node?.text ?? '')));
             })) {
                 const whitespace = /^(.*?)(\s*)$/m.exec(node.text!)!;
                 const [_, rest = '', trail] = noEsc || (whitespace[0].length === node.text!.length && !trimBeforeBreak)
@@ -799,4 +820,8 @@ class MarkdownTextEscaper {
 function replacementOffset(args: unknown[]): number {
     const hasNamedGroups = typeof args[args.length - 1] === 'object';
     return args[args.length - (hasNamedGroups ? 3 : 2)] as number;
+}
+
+function isMarkdownWhitespaceOrPunctuation(char: string): boolean {
+    return /[\p{Zs}\t\n\v\f\r!-/:-@[-`{-~]/u.test(char) || unicodePunctuation.test(char);
 }

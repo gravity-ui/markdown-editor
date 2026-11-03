@@ -71,6 +71,77 @@ describe('MarkdownSerializer production marks', () => {
         },
     );
 
+    it.each(['*', '**', '~~'])(
+        'should keep trailing link spaces inside continuing outer formatting %s',
+        (marker) => {
+            const {parser, serializer} = createFixture();
+            const input = parser.parse(`${marker}a [x  ](foo)${marker}\ny`);
+
+            expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+        },
+    );
+
+    it.each(['a\n\n', 'a  \n', 'a\r', 'a\r\n'])(
+        'should close linked emphasis before trailing line endings in %j',
+        (text) => {
+            const {doc, p, a, em, parser, serializer} = createFixture();
+            const input = doc(p(a(em(text))));
+            const expected = doc(p(a(em('a'))));
+
+            expect(parser.parse(serializer.serialize(input))).toMatchNode(expected);
+        },
+    );
+
+    it('should close nested formatting before plain text after a trailing link space', () => {
+        const {doc, p, strong, s, a, parser, serializer} = createFixture([
+            'em',
+            'strong',
+            'strike',
+            'link',
+            'code',
+        ]);
+        const input = doc(p(strong(s('L ')), strong(s(a('B      '))), 'R'));
+        const expected = doc(p(strong(s('L ', a('B'))), '      R'));
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(expected);
+    });
+
+    it('should close italic before bold text after a trailing link tab', () => {
+        const {doc, p, em, strong, a, parser, serializer} = createFixture([
+            'em',
+            'strong',
+            'strike',
+            'link',
+            'code',
+        ]);
+        const input = doc(p(em('L '), em(a('B\t')), strong('R')));
+        const expected = doc(p(em('L ', a('B')), '\t', strong('R')));
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(expected);
+    });
+
+    it.each(['italic', 'bold', 'strike'] as const)(
+        'should keep %s on a link after punctuation from a newer Unicode version',
+        (name) => {
+            const {doc, p, a, em, strong, s, parser, serializer} = createFixture();
+            const mark = {italic: em, bold: strong, strike: s}[name];
+
+            for (const prefix of ['a\u2e52', 'a\u061d']) {
+                const input = doc(p(prefix, a(mark('B '))));
+                const expected = doc(p(prefix, a(mark('B'))));
+
+                expect(parser.parse(serializer.serialize(input))).toMatchNode(expected);
+            }
+        },
+    );
+
+    it('should keep a whitespace-only link inside emphasis', () => {
+        const {parser, serializer} = createFixture();
+        const input = parser.parse('*[ ](foo)*');
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+    });
+
     it('should keep separate link targets across expelled whitespace', () => {
         const {doc, p, em, a, parser, serializer} = createFixture();
         const input = doc(p(em(a({href: 'foo'}, 'x ')), em(a({href: 'bar'}, 'y'))));

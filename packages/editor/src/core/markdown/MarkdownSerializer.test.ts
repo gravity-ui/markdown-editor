@@ -2,7 +2,11 @@ import {Schema} from 'prosemirror-model';
 import {schema as baseSchema, builders} from 'prosemirror-test-builder';
 import {describe, expect, it} from 'vitest';
 
-import {MarkdownSerializer, type SerializerMarkToken} from './MarkdownSerializer';
+import {
+    MarkdownSerializer,
+    type MarkdownSerializerState,
+    type SerializerMarkToken,
+} from './MarkdownSerializer';
 
 const schema = new Schema({
     nodes: baseSchema.spec.nodes
@@ -279,6 +283,35 @@ describe('MarkdownSerializer block markers', () => {
     });
 });
 
+describe('MarkdownSerializer inline options', () => {
+    it.each(['\n', '\r', '\r\n'])(
+        'should normalize text line endings with an explicit space option: %j',
+        (ending) => {
+            const serializer = createSerializer({}, 'soft_break', {textLineBreaks: 'space'});
+            expect(serializer.serialize(doc(p(`a${ending}b`)))).toBe('a b');
+        },
+    );
+
+    it('should preserve text line endings by default', () => {
+        expect(createSerializer().serialize(doc(p('a\nb')))).toBe('a\nb');
+    });
+
+    it('should keep explicit breaks when normalizing text line endings', () => {
+        const serializer = createSerializer({}, 'soft_break', {textLineBreaks: 'space'});
+        expect(serializer.serialize(doc(p('a\nb', sb(), 'c', br(), 'd')))).toBe('a b\nc\\\nd');
+    });
+
+    it.each([false, true])(
+        'should preserve the boolean block-start argument: %s',
+        (atBlockStart) => {
+            const input = doc(p('# heading'));
+            const legacy = createSerializer({}, 'soft_break', atBlockStart);
+            const options = createSerializer({}, 'soft_break', {atBlockStart});
+            expect(options.serialize(input)).toBe(legacy.serialize(input));
+        },
+    );
+});
+
 describe('MarkdownSerializer block wrapping', () => {
     it('should keep an empty first delimiter when ensuring a newline', () => {
         const serializer = new MarkdownSerializer(
@@ -300,12 +333,13 @@ describe('MarkdownSerializer block wrapping', () => {
 function createSerializer(
     marks: Record<string, SerializerMarkToken> = {},
     softBreakName = 'soft_break',
+    inlineOptions?: Parameters<MarkdownSerializerState['renderInline']>[1],
 ) {
     return new MarkdownSerializer(
         {
             text: (state, node) => state.text(node.text ?? ''),
             paragraph: (state, node) => {
-                state.renderInline(node);
+                state.renderInline(node, inlineOptions);
                 state.closeBlock(node);
             },
             hard_break: (state, _node, parent, index) => {
