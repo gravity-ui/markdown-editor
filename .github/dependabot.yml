@@ -87,5 +87,4 @@ updates:
       - dependency-name: "@gravity-ui/i18n"
       - dependency-name: "@gravity-ui/icons"
       - dependency-name: "@gravity-ui/page-constructor"
-      - dependency-name: "@gravity-ui/readme-validator"
       - dependency-name: "@gravity-ui/uikit"
