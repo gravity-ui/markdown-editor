@@ -221,7 +221,7 @@
     "ts-dedent": "2.3.0",
     "tslib": "catalog:ts",
     "uc.micro": "1.0.6",
-    "uuid": "14.0.2"
+    "uuid": "14.0.3"
   },
   "devDependencies": {
     "@diplodoc/cut-extension": "catalog:peer-diplodoc",
