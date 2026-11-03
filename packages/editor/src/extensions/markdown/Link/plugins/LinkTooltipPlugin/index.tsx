@@ -7,9 +7,10 @@ import {findChildrenByMark, findParentNode} from 'prosemirror-utils';
 import {Decoration, DecorationSet, type EditorView} from 'prosemirror-view';
 
 import type {ExtensionDeps} from '../../../../../core';
+import type {RendererItem} from '../../../../../modules/react-renderer';
 import {ErrorLoggerBoundary} from '../../../../../react-utils/ErrorBoundary';
 import {findMark, isMarkActive} from '../../../../../utils/marks';
-import {type RendererItem, getReactRendererFromState} from '../../../../behavior/ReactRenderer';
+import {getReactRendererFromState} from '../../../../behavior/ReactRenderer';
 import {LinkAttr, linkType} from '../../LinkSpecs';
 import {normalizeUrlFactory} from '../../utils';
 
