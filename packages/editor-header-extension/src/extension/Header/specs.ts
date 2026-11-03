@@ -29,10 +29,11 @@ import {
 export const headerNodeName = 'header';
 
 const isHeaderSlotElement = (child: ChildNode) =>
-    child.nodeType === child.ELEMENT_NODE &&
-    [headerTitleClassName, headerContentClassName].some((name) =>
-        (child as Element).classList.contains(name),
-    );
+    child.nodeType === child.ELEMENT_NODE
+        ? [headerTitleClassName, headerContentClassName].some((name) =>
+              (child as Element).classList.contains(name),
+          )
+        : child.nodeType === child.TEXT_NODE && !child.textContent?.trim();
 
 export const HeaderSpecs: ExtensionAuto = (builder) => {
     builder

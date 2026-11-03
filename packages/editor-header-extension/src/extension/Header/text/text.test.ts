@@ -116,6 +116,36 @@ describe('Header text', () => {
         expect(findHeaderNode(parsed)).toEqual(findHeaderNode(doc));
     });
 
+    it('should parse preview HTML with whitespace between slots', () => {
+        const container = document.createElement('div');
+        container.innerHTML = [
+            '<div class="g-md-header" data-height="m" data-width="m" data-description="false">',
+            '<div class="g-md-header__title" data-size="1" data-color="red">',
+            '<p>Team</p>',
+            '</div>',
+            '<div class="g-md-header__content">',
+            '<p>Desc</p>',
+            '</div>',
+            '</div>',
+        ].join('\n');
+        const parsed = DOMParser.fromSchema(schema).parse(container);
+        expect(serializer.serialize(parsed)).toBe(
+            [
+                ':::header{height="m" width="m" description="false"}',
+                '',
+                ':::header-title{size="1" color="red"}',
+                'Team',
+                ':::',
+                '',
+                ':::header-content',
+                'Desc',
+                ':::',
+                '',
+                ':::',
+            ].join('\n'),
+        );
+    });
+
     it('should parse title and description as separate nodes', () => {
         const header = markupParser.parse(full).firstChild;
         expect(header?.child(0).type.name).toBe('header_title');
