@@ -121,6 +121,7 @@ export type EditorOptions = Pick<
 
 /** @internal */
 export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorInt {
+    #destroyed = false;
     #logger: Logger2.ILogger;
     #markup: MarkupString;
     #editorMode: EditorMode;
@@ -210,6 +211,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             this.#markupEditor?.cm.dom.ownerDocument ?? this.#wysiwygEditor?.dom.ownerDocument;
         const activeElement = ownerDocument?.activeElement;
         setTimeout(() => {
+            if (this.#destroyed) return;
             // Search may open before this timer runs. Do not take focus from its input.
             // Removing the old editor can move focus to body; still focus the new editor then.
             if (
@@ -430,6 +432,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     // <--- implements ActionStorage
 
     destroy() {
+        this.#destroyed = true;
         this.#wysiwygEditor?.destroy();
         this.#markupEditor?.codemirror.destroy();
 
@@ -465,6 +468,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             this.#markup = previousMarkup;
             throw error;
         }
+
         this.emit('rerender', null);
 
         if (emit) {

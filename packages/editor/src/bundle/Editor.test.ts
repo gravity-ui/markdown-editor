@@ -1,5 +1,5 @@
 import {CompletionContext, type CompletionSource} from '@codemirror/autocomplete';
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {describe, expect, it, onTestFinished, vi} from 'vitest';
 
 import {ReactRenderStorage} from '../extensions';
 import {BaseSchemaSpecs} from '../extensions/base/BaseSchema/BaseSchemaSpecs';
@@ -9,14 +9,27 @@ import {DirectiveSyntaxContext} from '../utils/directive';
 import {EditorImpl} from './Editor';
 
 describe('EditorImpl: mode changes', () => {
-    beforeEach(() => {
+    it('should not create an editor from pending mode focus after destroy', () => {
         vi.useFakeTimers();
-    });
+        onTestFinished(() => {
+            vi.useRealTimers();
+        });
+        const initializeWysiwyg = vi.fn();
+        const editor = createModeEditor({
+            initial: {mode: 'markup'},
+            wysiwygConfig: {
+                extensions: (builder) => {
+                    initializeWysiwyg();
+                    return builder.use(BaseSchemaSpecs, {});
+                },
+            },
+        });
 
-    afterEach(() => {
-        vi.clearAllTimers();
-        vi.useRealTimers();
-        vi.restoreAllMocks();
+        editor.setEditorMode('wysiwyg');
+        editor.destroy();
+        vi.advanceTimersByTime(30);
+
+        expect(initializeWysiwyg).not.toHaveBeenCalled();
     });
 
     it('should keep the source mode after serialization fails and allow retry', () => {
@@ -28,19 +41,15 @@ describe('EditorImpl: mode changes', () => {
             throw error;
         });
 
-        try {
-            expect(() => editor.setEditorMode('markup')).toThrow(error);
-            expect(editor.currentMode).toBe('wysiwyg');
-            expect(editor.getValue()).toBe('source');
-            expect(modeChange).not.toHaveBeenCalled();
+        expect(() => editor.setEditorMode('markup')).toThrow(error);
+        expect(editor.currentMode).toBe('wysiwyg');
+        expect(editor.getValue()).toBe('source');
+        expect(modeChange).not.toHaveBeenCalled();
 
-            editor.setEditorMode('markup');
+        editor.setEditorMode('markup');
 
-            expect(editor.currentMode).toBe('markup');
-            expect(editor.getValue()).toBe('source');
-        } finally {
-            editor.destroy();
-        }
+        expect(editor.currentMode).toBe('markup');
+        expect(editor.getValue()).toBe('source');
     });
 
     it('should keep the source mode after markup preparation fails and allow retry', () => {
@@ -55,19 +64,15 @@ describe('EditorImpl: mode changes', () => {
             experimental: {prepareRawMarkup},
         });
 
-        try {
-            expect(() => editor.setEditorMode('wysiwyg')).toThrow(error);
-            expect(editor.currentMode).toBe('markup');
-            expect(editor.getValue()).toBe('source');
+        expect(() => editor.setEditorMode('wysiwyg')).toThrow(error);
+        expect(editor.currentMode).toBe('markup');
+        expect(editor.getValue()).toBe('source');
 
-            editor.replace('fresh source');
-            editor.setEditorMode('wysiwyg');
+        editor.replace('fresh source');
+        editor.setEditorMode('wysiwyg');
 
-            expect(editor.currentMode).toBe('wysiwyg');
-            expect(editor.getValue()).toBe('fresh source');
-        } finally {
-            editor.destroy();
-        }
+        expect(editor.currentMode).toBe('wysiwyg');
+        expect(editor.getValue()).toBe('fresh source');
     });
 
     it.each([
@@ -92,24 +97,20 @@ describe('EditorImpl: mode changes', () => {
                 throw error;
             });
 
-            try {
-                expect(() => editor.setEditorMode(targetMode)).toThrow(error);
-                expect(editor.currentMode).toBe(sourceMode);
-                expect(editor.getValue()).toBe('source');
-                expect(modeChange).not.toHaveBeenCalled();
-                expect(rerender).not.toHaveBeenCalled();
-                expect(changedModes).toEqual([targetMode]);
+            expect(() => editor.setEditorMode(targetMode)).toThrow(error);
+            expect(editor.currentMode).toBe(sourceMode);
+            expect(editor.getValue()).toBe('source');
+            expect(modeChange).not.toHaveBeenCalled();
+            expect(rerender).not.toHaveBeenCalled();
+            expect(changedModes).toEqual([targetMode]);
 
-                editor.replace('fresh source');
-                editor.setEditorMode(targetMode);
+            editor.replace('fresh source');
+            editor.setEditorMode(targetMode);
 
-                expect(editor.currentMode).toBe(targetMode);
-                expect(editor.getValue()).toBe('fresh source');
-                expect(editor.currentEditor).toBe(target);
-                expect(source.getValue()).toBe('fresh source');
-            } finally {
-                editor.destroy();
-            }
+            expect(editor.currentMode).toBe(targetMode);
+            expect(editor.getValue()).toBe('fresh source');
+            expect(editor.currentEditor).toBe(target);
+            expect(source.getValue()).toBe('fresh source');
         },
     );
 
@@ -136,18 +137,14 @@ describe('EditorImpl: mode changes', () => {
                 });
             }
 
-            try {
-                editor.setEditorMode(targetMode, {emit});
+            editor.setEditorMode(targetMode, {emit});
 
-                expect(events).toEqual([
-                    ['rerender-toolbar', targetMode, 'updated'],
-                    ['change', targetMode, 'updated'],
-                    ['rerender', targetMode, 'updated'],
-                    ...(emit ? [['change-editor-mode', targetMode, 'updated']] : []),
-                ]);
-            } finally {
-                editor.destroy();
-            }
+            expect(events).toEqual([
+                ['rerender-toolbar', targetMode, 'updated'],
+                ['change', targetMode, 'updated'],
+                ['rerender', targetMode, 'updated'],
+                ...(emit ? [['change-editor-mode', targetMode, 'updated']] : []),
+            ]);
         },
     );
 });
@@ -308,9 +305,14 @@ describe('EditorImpl: mutual exclusion between preview and split mode', () => {
 });
 
 function createModeEditor(overrides: Partial<ConstructorParameters<typeof EditorImpl>[0]> = {}) {
-    return createEditor({
+    const editor = createEditor({
         preset: 'zero',
         wysiwygConfig: {extensions: (builder) => builder.use(BaseSchemaSpecs, {})},
         ...overrides,
     });
+    onTestFinished(() => {
+        editor.destroy();
+        vi.restoreAllMocks();
+    });
+    return editor;
 }
