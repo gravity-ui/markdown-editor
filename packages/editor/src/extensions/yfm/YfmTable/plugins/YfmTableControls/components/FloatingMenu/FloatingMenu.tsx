@@ -1,6 +1,10 @@
 import {useState} from 'react';
 
-import {Ellipsis as DotsColumn, GripHorizontal as GripColumn} from '@gravity-ui/icons';
+import {
+    Ellipsis as DotsColumn,
+    EllipsisVertical as DotsSelection,
+    GripHorizontal as GripColumn,
+} from '@gravity-ui/icons';
 import {
     Button,
     type ButtonButtonProps,
@@ -18,8 +22,13 @@ const popupOffset: FloatingPopupProps['offset'] = {
     mainAxis: -9.5,
 };
 
+const selectionPopupOffset: FloatingPopupProps['offset'] = ({rects}) => ({
+    mainAxis: -rects.floating.height - 4,
+    crossAxis: -4,
+});
+
 export type FloatingMenuProps = {
-    dirtype: 'row' | 'column';
+    dirtype: 'row' | 'column' | 'selection';
     canDrag: boolean;
     anchorElement: ReferenceType;
     dropdownItems?: DropdownMenuProps<unknown>['items'];
@@ -28,7 +37,7 @@ export type FloatingMenuProps = {
         ButtonButtonProps,
         'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'onMouseLeave'
     >;
-    onOpenToggle: NonNullable<DropdownMenuProps<unknown>['onOpenToggle']>;
+    onOpenToggle?: NonNullable<DropdownMenuProps<unknown>['onOpenToggle']>;
 };
 
 export const FloatingMenu: React.FC<FloatingMenuProps> = function YfmTableFloatingMenu(props) {
@@ -45,15 +54,15 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = function YfmTableFloati
     const [isMenuOpened, setMenuOpened] = useState(false);
     const [isHovered, setHovered, unsetHovered] = useBooleanState(false);
 
-    const showActionView = isMenuOpened || isHovered;
+    const showActionView = dirtype === 'selection' || isMenuOpened || isHovered;
     const isRowType = dirtype === 'row';
 
     return (
         <FloatingPopup
             open
-            offset={popupOffset}
+            offset={dirtype === 'selection' ? selectionPopupOffset : popupOffset}
             anchorElement={anchorElement}
-            placement={isRowType ? 'left' : 'top'}
+            placement={dirtype === 'selection' ? 'top-end' : isRowType ? 'left' : 'top'}
             floatingStyles={{
                 lineHeight: 'initial',
             }}
@@ -62,9 +71,10 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = function YfmTableFloati
             }}
         >
             <DropdownMenu
+                hideOnScroll={dirtype !== 'selection'}
                 onOpenToggle={(...args) => {
                     setMenuOpened(...args);
-                    onOpenToggle(...args);
+                    onOpenToggle?.(...args);
                 }}
                 renderSwitcher={(switcherProps) => (
                     <Flex
@@ -92,12 +102,20 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = function YfmTableFloati
                             view={isMenuOpened ? 'outlined-action' : 'outlined'}
                             pin={showActionView ? 'round-round' : 'circle-circle'}
                             size="xs"
-                            qa={isRowType ? 'g-md-yfm-table-row-btn' : 'g-md-yfm-table-column-btn'}
+                            qa={`g-md-yfm-table-${dirtype}-btn`}
                             {...switcherProps}
                             {...switcherMouseProps}
                         >
                             {showActionView ? (
-                                <Icon data={canDrag ? GripColumn : DotsColumn} />
+                                <Icon
+                                    data={
+                                        dirtype === 'selection'
+                                            ? DotsSelection
+                                            : canDrag
+                                              ? GripColumn
+                                              : DotsColumn
+                                    }
+                                />
                             ) : (
                                 String.fromCharCode(8194) // en space
                             )}

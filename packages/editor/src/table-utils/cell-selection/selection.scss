@@ -1,0 +1,13 @@
+// Project-specific styles using the existing YFM cell highlight.
+@use './selected-cell' as selection;
+
+.yfm.ProseMirror table {
+    th,
+    td {
+        &.g-md-table-selected-cell {
+            position: relative;
+
+            @include selection.selected-cell('g-md-table-selected-cell');
+        }
+    }
+}

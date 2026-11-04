@@ -19,7 +19,7 @@ import type {DnDControlHandler} from '../../dnd/dnd';
 import {CellBgMenuItem} from '../CellBgMenuItem';
 import {FloatingMenu, type FloatingMenuProps} from '../FloatingMenu/FloatingMenu';
 
-type ControlType = FloatingMenuProps['dirtype'];
+type ControlType = Exclude<FloatingMenuProps['dirtype'], 'selection'>;
 
 export type FloatingMenuControlProps = {
     cellElement: Element;
