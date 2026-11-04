@@ -1,8 +1,6 @@
-import {liftListItem} from 'prosemirror-schema-list';
-
 import type {ActionSpec, ExtensionDeps} from '../../../core';
 
-import {sinkOnlySelectedListItem, toList} from './commands';
+import {liftSelectedListItems, sinkSelectedListItems, toList} from './commands';
 import {ListNode} from './const';
 import {blType, isIntoListOfType, liType, olType} from './utils';
 
@@ -27,15 +25,15 @@ export const actions = {
 
     liftListItem: ({schema}: ExtensionDeps): ActionSpec => {
         return {
-            isEnable: liftListItem(liType(schema)),
-            run: liftListItem(liType(schema)),
+            isEnable: liftSelectedListItems(liType(schema)),
+            run: liftSelectedListItems(liType(schema)),
         };
     },
 
     sinkListItem: ({schema}: ExtensionDeps): ActionSpec => {
         return {
-            isEnable: sinkOnlySelectedListItem(liType(schema)),
-            run: sinkOnlySelectedListItem(liType(schema)),
+            isEnable: sinkSelectedListItems(liType(schema)),
+            run: sinkSelectedListItems(liType(schema)),
         };
     },
 };
