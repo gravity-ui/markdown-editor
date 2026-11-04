@@ -1,0 +1,78 @@
+@use 'sass:map';
+@use '../../../../../styles/yc-header-fill' as fills;
+
+.g-md-header-fill-palette {
+    display: grid;
+    grid-template-columns: repeat(8, auto);
+
+    &__item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        font: inherit;
+        cursor: pointer;
+
+        color: inherit;
+        border: 0;
+        border-radius: var(--g-border-radius-m);
+        background: transparent;
+        appearance: none;
+
+        &:hover {
+            background: var(--g-color-base-generic);
+        }
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            outline: 1px solid var(--g-color-line-focus);
+            outline-offset: -1px;
+        }
+    }
+
+    &__swatch {
+        position: relative;
+
+        display: block;
+
+        width: 16px;
+        height: 16px;
+        padding: 0;
+
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-xs);
+        background-color: transparent;
+
+        @each $name, $fill in fills.$header-fills {
+            &_color_#{$name} {
+                color: var(--g-color-text-primary);
+                border-color: #{map.get($fill, bg)};
+                background-color: #{map.get($fill, bg)};
+
+                @if map.get($fill, surface) == inverted {
+                    color: var(--g-color-text-inverted-primary);
+                }
+            }
+        }
+
+        &_color_brand {
+            color: var(--g-color-text-brand-contrast);
+            border-color: var(--g-color-base-brand);
+            background-color: var(--g-color-base-brand);
+        }
+    }
+
+    &__check {
+        position: absolute;
+        inset: 0;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        color: inherit;
+    }
+}

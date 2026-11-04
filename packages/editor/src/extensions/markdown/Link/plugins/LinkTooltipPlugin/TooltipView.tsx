@@ -1,20 +1,11 @@
 import {memo, useEffect, useState} from 'react';
 
 import {ArrowUpRightFromSquare as LinkIcon, LinkSlash as UnlinkIcon} from '@gravity-ui/icons';
-import {
-    ActionTooltip,
-    Button,
-    Icon,
-    Popup,
-    type PopupPlacement,
-    type PopupProps,
-    type TextInputProps,
-} from '@gravity-ui/uikit';
+import {Popup, type PopupPlacement, type PopupProps} from '@gravity-ui/uikit';
 
 import {cn} from '../../../../../classname';
-import {TextInputFixed} from '../../../../../forms/TextInput';
+import {UrlAction, UrlInput} from '../../../../../forms/UrlInput';
 import {i18n} from '../../../../../i18n/forms';
-import {enterKeyHandler} from '../../../../../utils/handlers';
 
 import './TooltipView.scss';
 
@@ -54,7 +45,6 @@ export const Link = memo<LinkProps>(function Link({
     const handleSubmit = () => {
         onChange?.({href: url});
     };
-    const inputEnterKeyHandler: TextInputProps['onKeyDown'] = enterKeyHandler(handleSubmit);
 
     useEffect(() => {
         setUrl(href);
@@ -69,41 +59,34 @@ export const Link = memo<LinkProps>(function Link({
             placement={placement}
             onOpenChange={onOpenChange}
         >
-            <div className={b()}>
-                <TextInputFixed
-                    size="l"
-                    hasClear
-                    view="clear"
-                    value={url}
-                    className={b('input', {empty: !url})}
-                    onUpdate={handleUrlUpdate}
-                    placeholder={i18n('link-href-placeholder')}
-                    autoFocus={autoFocus}
-                    onKeyDown={inputEnterKeyHandler}
-                />
-                {url && onRemove && (
-                    <ActionTooltip title={i18n('link_remove_help')}>
-                        <Button className={b('button')} view="flat" size="m" onClick={onRemove}>
-                            <Icon data={UnlinkIcon} size={16} />
-                        </Button>
-                    </ActionTooltip>
-                )}
-                {url && (
-                    <ActionTooltip title={i18n('link_open_help')}>
-                        <Button
-                            className={b('button')}
-                            view="flat"
-                            size="m"
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={onOpenInNewTab}
-                        >
-                            <Icon data={LinkIcon} size={16} />
-                        </Button>
-                    </ActionTooltip>
-                )}
-            </div>
+            <UrlInput
+                className={b()}
+                value={url}
+                onUpdate={handleUrlUpdate}
+                onSubmit={handleSubmit}
+                aria-label={i18n('link-href-placeholder')}
+                placeholder={i18n('link-href-placeholder')}
+                autoFocus={autoFocus}
+                actions={
+                    url ? (
+                        <>
+                            {onRemove && (
+                                <UrlAction
+                                    title={i18n('link_remove_help')}
+                                    icon={UnlinkIcon}
+                                    onClick={onRemove}
+                                />
+                            )}
+                            <UrlAction
+                                title={i18n('link_open_help')}
+                                icon={LinkIcon}
+                                href={url}
+                                onClick={onOpenInNewTab}
+                            />
+                        </>
+                    ) : undefined
+                }
+            />
         </Popup>
     );
 });

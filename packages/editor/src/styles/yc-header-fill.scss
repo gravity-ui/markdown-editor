@@ -1,0 +1,36 @@
+// Shared by the header and palette. Solid tokens provide opaque fills.
+// Inverted surfaces use the theme's inverted text colors.
+$header-fills: (
+    'grey': (
+        bg: var(--g-color-private-cool-grey-150-solid),
+        surface: normal,
+    ),
+    'blue': (
+        bg: var(--g-color-private-blue-200-solid),
+        surface: normal,
+    ),
+    'green': (
+        bg: var(--g-color-private-green-200-solid),
+        surface: normal,
+    ),
+    'yellow': (
+        bg: var(--g-color-private-yellow-200-solid),
+        surface: normal,
+    ),
+    'orange': (
+        bg: var(--g-color-private-orange-200-solid),
+        surface: normal,
+    ),
+    'red': (
+        bg: var(--g-color-private-red-200-solid),
+        surface: normal,
+    ),
+    'purple': (
+        bg: var(--g-color-private-purple-200-solid),
+        surface: normal,
+    ),
+    'contrast': (
+        bg: var(--g-color-private-cool-grey-900-solid),
+        surface: inverted,
+    ),
+);
