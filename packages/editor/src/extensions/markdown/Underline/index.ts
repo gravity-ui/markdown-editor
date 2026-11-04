@@ -1,7 +1,8 @@
-import {toggleMark} from 'prosemirror-commands';
-
 import type {Action, ExtensionAuto} from '../../../core';
-import {createMarkdownInlineMarkAction} from '../../../utils/actions';
+import {
+    createMarkdownInlineMarkAction,
+    createMarkdownInlineMarkCommand,
+} from '../../../utils/actions';
 import {markInputRule} from '../../../utils/inputrules';
 import {withLogAction} from '../../../utils/keymap';
 
@@ -28,7 +29,10 @@ export const Underline: ExtensionAuto<UnderlineOptions> = (builder, opts) => {
     if (opts?.underlineKey) {
         const {underlineKey} = opts;
         builder.addKeymap(({schema}) => ({
-            [underlineKey]: withLogAction('underline', toggleMark(underlineType(schema))),
+            [underlineKey]: withLogAction(
+                'underline',
+                createMarkdownInlineMarkCommand(underlineType(schema)),
+            ),
         }));
     }
 };
