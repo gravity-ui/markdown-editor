@@ -91,6 +91,8 @@ import {
     sinkListItemMarkup,
     sinkListItemView,
     sinkListItemWysiwyg,
+    statusItemView,
+    statusItemWysiwyg,
     strikethroughItemMarkup,
     strikethroughItemView,
     strikethroughItemWysiwyg,
@@ -612,6 +614,10 @@ export const full: ToolbarsPreset = {
             wysiwyg: emojiItemWysiwyg,
             markup: emojiItemMarkup,
         },
+        [Action.status]: {
+            view: statusItemView,
+            wysiwyg: statusItemWysiwyg,
+        },
     },
     orders: {
         ...yfm.orders,
@@ -653,6 +659,7 @@ export const full: ToolbarsPreset = {
                 Action.emoji,
                 Action.file,
                 Action.tabs,
+                Action.status,
             ],
         ],
         [Toolbar.wysiwygMain]: [
@@ -690,7 +697,7 @@ export const full: ToolbarsPreset = {
                     items: [Action.codeInline, Action.codeBlock],
                 },
             ],
-            [Action.image, Action.file, Action.table, Action.checkbox],
+            [Action.image, Action.file, Action.table, Action.checkbox, Action.status],
         ],
         [Toolbar.markupMain]: [
             [Action.undo, Action.redo],
