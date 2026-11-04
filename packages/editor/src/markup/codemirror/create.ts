@@ -69,10 +69,25 @@ type Tooltips = Parameters<typeof tooltips>[0];
 
 const linkRegex = /\[[\s\S]*?]\([\s\S]*?\)/g;
 
-// startCompletion is bound to Opt+` on macOS, and CodeMirror resolves Alt combinations by the
-// produced character, so the binding also matches Opt+Shift+0 — the Russian layout's backtick.
-// Ctrl-Space keeps startCompletion reachable.
-const completionKeymapWithoutBacktick = completionKeymap.filter(({mac}) => mac !== 'Alt-`');
+const isAltOrShift = (part: string) => part === 'Alt' || part === 'Shift';
+
+// macOS types a character on Alt with a character key: Opt+A gives "Å", Opt+Shift+0 gives "`" on
+// the Russian layout. Key resolution for Alt combinations there goes by key code, so a binding on
+// such a combination shadows the input. Alt with a named key (Alt-ArrowUp) types nothing.
+const typesCharacterOnMac = ({mac, key}: KeyBinding): boolean => {
+    const parts = (mac ?? key ?? '').split('-');
+    const char = parts.pop() ?? '';
+    return char.length === 1 && parts.includes('Alt') && parts.every(isAltOrShift);
+};
+
+// Both commands dropped this way stay reachable: toggleBlockComment by Mod-/, since markdown has
+// no line comment syntax and toggleComment falls back to block comments, startCompletion by
+// Ctrl-Space.
+const withoutMacAltCharacters = (bindings: readonly KeyBinding[]): readonly KeyBinding[] =>
+    isMac() ? bindings.filter((binding) => !typesCharacterOnMac(binding)) : bindings;
+
+const bind = (action: A, binding: Omit<KeyBinding, 'key'>): KeyBinding[] =>
+    f.toCMList(action).map((key) => ({...binding, key}));
 
 export type CreateCodemirrorParams = {
     doc: EditorViewConfig['doc'];
@@ -140,63 +155,49 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         syntaxHighlighting(gravityHighlightStyle),
         LoggerFacet.of(logger),
         keymap.of([
-            {key: f.toCM(A.Bold)!, run: withLogger(ActionName.bold, toggleBold)},
-            {key: f.toCM(A.Italic)!, run: withLogger(ActionName.italic, toggleItalic)},
-            {key: f.toCM(A.Strike)!, run: withLogger(ActionName.strike, toggleStrikethrough)},
-            {key: f.toCM(A.Underline)!, run: withLogger(ActionName.underline, toggleUnderline)},
-            {key: f.toCM(A.Link)!, run: withLogger(ActionName.link, insertLink)},
-            {key: f.toCM(A.Heading1)!, run: withLogger(ActionName.heading1, toH1)},
-            {key: f.toCM(A.Heading2)!, run: withLogger(ActionName.heading2, toH2)},
-            {key: f.toCM(A.Heading3)!, run: withLogger(ActionName.heading3, toH3)},
-            {key: f.toCM(A.Heading4)!, run: withLogger(ActionName.heading4, toH4)},
-            {key: f.toCM(A.Heading5)!, run: withLogger(ActionName.heading5, toH5)},
-            {key: f.toCM(A.Heading6)!, run: withLogger(ActionName.heading6, toH6)},
-            {key: f.toCM(A.Code)!, run: withLogger(ActionName.code_inline, wrapToInlineCode)},
-            {key: f.toCM(A.CodeBlock)!, run: withLogger(ActionName.code_block, wrapToCodeBlock)},
-            {key: f.toCM(A.Cut)!, run: withLogger(ActionName.yfm_cut, wrapToYfmCut)},
-            {key: f.toCM(A.Note)!, run: withLogger(ActionName.yfm_note, wrapToYfmNote)},
-            {
-                key: f.toCM(A.Cancel)!,
+            ...bind(A.Bold, {run: withLogger(ActionName.bold, toggleBold)}),
+            ...bind(A.Italic, {run: withLogger(ActionName.italic, toggleItalic)}),
+            ...bind(A.Strike, {run: withLogger(ActionName.strike, toggleStrikethrough)}),
+            ...bind(A.Underline, {run: withLogger(ActionName.underline, toggleUnderline)}),
+            ...bind(A.Link, {run: withLogger(ActionName.link, insertLink)}),
+            ...bind(A.Heading1, {run: withLogger(ActionName.heading1, toH1)}),
+            ...bind(A.Heading2, {run: withLogger(ActionName.heading2, toH2)}),
+            ...bind(A.Heading3, {run: withLogger(ActionName.heading3, toH3)}),
+            ...bind(A.Heading4, {run: withLogger(ActionName.heading4, toH4)}),
+            ...bind(A.Heading5, {run: withLogger(ActionName.heading5, toH5)}),
+            ...bind(A.Heading6, {run: withLogger(ActionName.heading6, toH6)}),
+            ...bind(A.Code, {run: withLogger(ActionName.code_inline, wrapToInlineCode)}),
+            ...bind(A.CodeBlock, {run: withLogger(ActionName.code_block, wrapToCodeBlock)}),
+            ...bind(A.Cut, {run: withLogger(ActionName.yfm_cut, wrapToYfmCut)}),
+            ...bind(A.Note, {run: withLogger(ActionName.yfm_note, wrapToYfmNote)}),
+            ...bind(A.Cancel, {
                 preventDefault: true,
                 run: () => {
                     onCancel();
                     return true;
                 },
-            },
-            {
-                key: f.toCM(A.Submit)!,
+            }),
+            ...bind(A.Submit, {
                 preventDefault: true,
                 run: () => {
                     onSubmit();
                     return true;
                 },
-            },
+            }),
             {key: 'Tab', preventDefault: true, run: insertTab},
             {
                 key: 'Enter',
                 shift: insertNewlineKeepIndent,
             },
             indentWithTab,
-            // Temporary workaround, to be dropped once CodeMirror gives Alt-A a mac override
-            // upstream (tracker: https://code.haverbeke.berlin/codemirror/dev/issues).
-            //
-            // Opt+Shift+A types a printable character on macOS ("Å" on the US layout), and key
-            // resolution there goes by key code for Alt combinations, so a binding on it shadows
-            // the character. Upstream gives every other Alt+letter binding a mac override
-            // (Alt-l -> Ctrl-l, Alt-ArrowLeft -> Ctrl-ArrowLeft); Alt-A, bound to
-            // toggleBlockComment, is the only one left without. Its command stays reachable via
-            // Mod-/, since markdown has no line comment syntax and toggleComment then falls back
-            // to block comments.
-            ...defaultKeymap.filter(
-                (binding) => !(isMac() && (binding.mac || binding.key) === 'Alt-A'),
-            ),
+            ...withoutMacAltCharacters(defaultKeymap),
             ...(disabledExtensions.history ? [] : historyKeymap),
             ...keymaps,
         ]),
         autocompletion({...autocompletionConfig, defaultKeymap: false}),
         autocompletionConfig?.defaultKeymap === false
             ? []
-            : Prec.highest(keymap.of(completionKeymapWithoutBacktick)),
+            : Prec.highest(keymap.of(withoutMacAltCharacters(completionKeymap))),
         yfmLang(yfmLangOptions),
         ReactRendererFacet.of(reactRenderer),
         DirectiveSyntaxFacet.of(directiveSyntax),
@@ -328,9 +329,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
 
     if (preserveEmptyRows) {
         extensions.push(
-            keymap.of([
-                {key: f.toCM(A.EmptyRow)!, run: withLogger(ActionName.emptyRow, insertEmptyRow)},
-            ]),
+            keymap.of(bind(A.EmptyRow, {run: withLogger(ActionName.emptyRow, insertEmptyRow)})),
         );
     }
 
