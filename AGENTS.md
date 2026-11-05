@@ -50,15 +50,15 @@ For more details on filtering and updating snapshots see [`docs/how-to-add-visua
 
 These run visual tests outside Docker and produce unreliable results.
 
-### Скриншоты
+### Screenshots
 
-Примеры лежат в `demo/tests/visual-tests/playground/`.
+Examples live in `demo/tests/visual-tests/playground/`.
 
-1. С тулбаром, пример: `Lists.visual.test.tsx:160`.
-2. Ширина и высота по содержимому, пример: `Lists.visual.test.tsx:7-8`.
-3. Всплывающее окно снимается в тесте, который его открывает, пример: `File.visual.test.tsx:37`.
-4. Без `for`, тег режима в имени `test()`, пример: `File.visual.test.tsx:18`.
-5. Хелперы блока лежат в `demo/tests/playwright/core/editor.ts`, пример: класс `YfmTable`, строка 144.
+1. Include the toolbar, example: `Lists.visual.test.tsx:160`.
+2. Fit the page width and height to the content, example: `Lists.visual.test.tsx:7-8`.
+3. Capture a popup in the test that opens it, example: `File.visual.test.tsx:37`.
+4. No `for` loops; put the mode tag in the `test()` name, example: `File.visual.test.tsx:18`.
+5. Block helpers live in `demo/tests/playwright/core/editor.ts`, example: the `YfmTable` class, line 144.
 
 ## Code style
 
