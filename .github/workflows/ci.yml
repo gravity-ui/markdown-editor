@@ -56,6 +56,9 @@ jobs:
       - name: ESBuild compatability
         run: pnpm ci:test:esbuild
 
+      - name: Built package bundles
+        run: pnpm ci:test:bundle
+
   check_circular_deps:
     name: Check Circular Dependencies
     runs-on: ubuntu-latest
