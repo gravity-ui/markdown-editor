@@ -61,7 +61,7 @@ test.describe('Header', () => {
             </div>,
         );
         await expect(page.locator('.ProseMirror .g-md-header-plugin')).toHaveCount(4);
-        await expectScreenshot({component: page.locator('.g-md-wysiwyg-editor__editor')});
+        await expectScreenshot({component: page.locator('.g-md-editor-component')});
     });
 
     test('each width in a narrow column', async ({mount, page, expectScreenshot}) => {
@@ -84,19 +84,19 @@ test.describe('Header', () => {
         expect(small).toBe(120);
         expect([medium, large]).toEqual([full, full]);
         expect(full).toBeLessThan(180);
-        await expectScreenshot({component: page.locator('.g-md-wysiwyg-editor__editor')});
+        await expectScreenshot({component: page.locator('.g-md-editor-component')});
     });
 
     test('hover toolbar', async ({mount, page, expectScreenshot}) => {
         await mount(<HeaderStories.Wysiwyg width={660} initial={`${header('s', 's')}\n\nAfter`} />);
         await page.locator('.ProseMirror .g-md-header-plugin').hover();
         await expect(page.locator('.g-md-header-view__toolbar')).toBeVisible();
-        await expectScreenshot({component: page.locator('.g-md-wysiwyg-editor__editor')});
+        await expectScreenshot({component: page.locator('.g-md-editor-component')});
     });
 
     test('settings panel', async ({mount, page, expectScreenshot}) => {
         await mount(<HeaderStories.Wysiwyg width={660} initial={`${header('s', 's')}\n\nAfter`} />);
-        const content = page.locator('.g-md-wysiwyg-editor__editor');
+        const view = page.locator('.g-md-editor-component');
         const block = page.locator('.ProseMirror .g-md-header-plugin');
         await block.hover();
         await page
@@ -105,17 +105,17 @@ test.describe('Header', () => {
             .click();
         const settings = page.getByRole('dialog', {name: 'Block settings'});
         await expect(settings).toBeVisible();
-        await expectScreenshot({component: content});
+        await expectScreenshot({component: view});
 
         await settings.getByRole('combobox', {name: 'Height', exact: true}).click();
         await expect(page.getByRole('option')).toHaveText(['S', 'M', 'L']);
-        await expectScreenshot({component: content, nameSuffix: 'height list'});
+        await expectScreenshot({component: view, nameSuffix: 'height list'});
         await page.getByRole('option', {name: 'M', exact: true}).click();
         await expect(block).toHaveClass(/g-md-header-plugin_height_m/);
 
         await settings.getByRole('combobox', {name: 'Width', exact: true}).click();
         await expect(page.getByRole('option')).toHaveText(['S', 'M', 'L', 'Full width']);
-        await expectScreenshot({component: content, nameSuffix: 'width list'});
+        await expectScreenshot({component: view, nameSuffix: 'width list'});
         await page.getByRole('option', {name: 'M', exact: true}).click();
         await expect(block).toHaveClass(/g-md-header-plugin_width_m/);
 
@@ -142,6 +142,6 @@ test.describe('Header on mobile', () => {
     test('block', async ({mount, page, expectScreenshot}) => {
         await mount(<HeaderStories.Wysiwyg width={335} />);
         await expect(page.locator('.ProseMirror .g-md-header-plugin')).toBeVisible();
-        await expectScreenshot({component: page.locator('.g-md-wysiwyg-editor__editor')});
+        await expectScreenshot({component: page.locator('.g-md-editor-component')});
     });
 });
