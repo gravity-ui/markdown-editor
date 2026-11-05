@@ -6,7 +6,6 @@ import {
     type RenderPreview,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
-import {Plugin} from '@gravity-ui/markdown-editor/pm/state';
 import {ToolbarName, full} from '@gravity-ui/markdown-editor/toolbars';
 import {Header, headerItem} from '@gravity-ui/markdown-editor-header-extension';
 
@@ -26,12 +25,10 @@ export function HeaderExample({
     initial = ':::header{height="s" width="m"}\n:::\n\nAfter',
     mode = 'wysiwyg',
     width = 1000,
-    readonly = false,
 }: {
     initial?: string;
     mode?: MarkdownEditorMode;
     width?: number;
-    readonly?: boolean;
 }) {
     const renderPreview = useCallback<RenderPreview>(
         ({getValue}) => <SplitModePreviewLazy getValue={getValue} needToSanitizeHtml />,
@@ -39,12 +36,7 @@ export function HeaderExample({
     );
     const editor = useMarkdownEditor({
         initial: {markup: initial, mode, toolbarVisible: true},
-        wysiwygConfig: {
-            extensions: (builder) =>
-                builder
-                    .use(Header)
-                    .addPlugin(() => new Plugin({props: {editable: () => !readonly}})),
-        },
+        wysiwygConfig: {extensions: (builder) => builder.use(Header)},
         markupConfig: {renderPreview},
     });
     useEditorHandle(editor);

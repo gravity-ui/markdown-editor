@@ -17,7 +17,7 @@ export const headerItem: ToolbarsPreset['items'][string] = {
     },
     markup: {
         exec: ({cm}) => insertHeaderMarkup(cm),
-        isEnable: ({cm}) => !cm.state.readOnly,
+        isEnable: () => true,
         isActive: () => false,
     },
 };

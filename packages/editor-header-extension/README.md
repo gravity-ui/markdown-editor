@@ -12,12 +12,12 @@ const editor = useMarkdownEditor({
 ```
 
 `headerItem` is the toolbar button that inserts the block.
-Clicking the block opens a panel with height and width; the panel is hidden in readonly mode.
-Each change is a separate undo step.
+Hovering the block shows a toolbar with settings, copy, and delete, and a drag handle on the left.
+The settings panel on the right side of the page changes the height and width; each change is a separate undo step.
 
 The editor writes both attributes, including default values.
 Syntax, sizes, and the stylesheet for previews are in `@gravity-ui/markdown-plugin-header`.
 A container the plugin keeps as source stays unchanged when switching modes.
 
-`HeaderSpecs` adds only the schema and Markdown parsing.
+`HeaderSpecs` from `@gravity-ui/markdown-editor-header-extension/specs` adds only the schema and Markdown parsing and runs in Node.js.
 `Header` also needs the editor's React renderer, which the standard presets include.

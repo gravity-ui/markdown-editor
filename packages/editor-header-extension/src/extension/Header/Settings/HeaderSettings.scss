@@ -1,16 +1,33 @@
 .g-md-header-settings {
+    position: fixed;
+    z-index: 100;
+    top: 20px;
+    right: 20px;
+
     display: flex;
     flex-direction: column;
     gap: 16px;
 
-    box-sizing: content-box;
-    width: 286px;
+    box-sizing: border-box;
+    width: 320px;
     padding: 16px;
+
+    background-color: var(--g-color-base-background);
+    border: 1px solid var(--g-color-line-generic);
+    border-radius: var(--g-border-radius-xl);
+    box-shadow: 0 1px 5px var(--g-color-sfx-shadow);
 
     &__title {
         display: flex;
         justify-content: space-between;
         align-items: center;
+
+        height: 28px;
+    }
+
+    // The 36 px button extends 4 px beyond the 28 px title row.
+    &__close {
+        margin-right: -4px;
     }
 
     &__row {

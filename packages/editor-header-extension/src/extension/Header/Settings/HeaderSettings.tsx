@@ -1,14 +1,18 @@
 import {useId, useLayoutEffect, useState} from 'react';
 
 import {Xmark} from '@gravity-ui/icons';
-import {EditorPopup} from '@gravity-ui/markdown-editor/_/plugins/BaseTooltip/EditorPopup.js';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {headerDimensions, headerHeights, headerWidths} from '@gravity-ui/markdown-plugin-header';
-import {Button, Icon, Text} from '@gravity-ui/uikit';
+import {
+    type HeaderDimensions,
+    headerDimensions,
+    headerHeights,
+    headerWidths,
+} from '@gravity-ui/markdown-plugin-header';
+import {Button, Icon, Portal, Text} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../i18n';
 import {setHeaderDimensions} from '../commands';
-import {headerNodeName} from '../const';
+import {headerNodeType} from '../const';
 
 import {DimensionSelect} from './DimensionSelect';
 
@@ -27,21 +31,13 @@ export function HeaderSettings({view, pos, onClose}: HeaderSettingsProps) {
     useLayoutEffect(() => setConnected(view.dom.isConnected), [view]);
     if (!connected) return null;
     const node = view.state.doc.nodeAt(pos);
-    const anchor = view.nodeDOM(pos);
-    if (node?.type.name !== headerNodeName || !(anchor instanceof HTMLElement)) return null;
+    if (node?.type !== headerNodeType(view.state.schema)) return null;
     const {height, width} = headerDimensions(node.attrs);
+    const update = (attrs: Partial<HeaderDimensions>) =>
+        setHeaderDimensions(pos, attrs)(view.state, view.dispatch);
     return (
-        <EditorPopup
-            editorElement={view.dom}
-            anchorElement={anchor}
-            placement={['bottom-start', 'top-start']}
-            onOpenChange={(nextOpen, _event, reason) => {
-                if (nextOpen) return;
-                onClose();
-                if (reason === 'escape-key') view.focus();
-            }}
-        >
-            <div
+        <Portal>
+            <section
                 className="g-md-header-settings"
                 role="dialog"
                 aria-labelledby={titleId}
@@ -52,13 +48,11 @@ export function HeaderSettings({view, pos, onClose}: HeaderSettingsProps) {
                         {i18n('title')}
                     </Text>
                     <Button
+                        className="g-md-header-settings__close"
                         view="flat"
-                        size="s"
+                        size="l"
                         aria-label={i18n('close')}
-                        onClick={() => {
-                            onClose();
-                            view.focus();
-                        }}
+                        onClick={onClose}
                     >
                         <Icon data={Xmark} size={16} />
                     </Button>
@@ -68,9 +62,7 @@ export function HeaderSettings({view, pos, onClose}: HeaderSettingsProps) {
                     value={height}
                     values={headerHeights}
                     format={(value) => value.toUpperCase()}
-                    onUpdate={(value) =>
-                        setHeaderDimensions(view.state, view.dispatch, view, {height: value})
-                    }
+                    onUpdate={(value) => update({height: value})}
                 />
                 <DimensionSelect
                     label={i18n('width')}
@@ -79,11 +71,9 @@ export function HeaderSettings({view, pos, onClose}: HeaderSettingsProps) {
                     format={(value) =>
                         value === 'full' ? i18n('full-width') : value.toUpperCase()
                     }
-                    onUpdate={(value) =>
-                        setHeaderDimensions(view.state, view.dispatch, view, {width: value})
-                    }
+                    onUpdate={(value) => update({width: value})}
                 />
-            </div>
-        </EditorPopup>
+            </section>
+        </Portal>
     );
 }

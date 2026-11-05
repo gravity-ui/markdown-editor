@@ -1,8 +1,11 @@
 {
-    "title": "Header settings",
-    "height": "Height",
-    "width": "Width",
-    "full-width": "Full width",
-    "close": "Close",
-    "insert": "Header"
+  "insert": "Header",
+  "title": "Block settings",
+  "height": "Height",
+  "width": "Width",
+  "full-width": "Full width",
+  "close": "Close",
+  "settings": "Settings",
+  "copy": "Copy",
+  "remove": "Delete"
 }

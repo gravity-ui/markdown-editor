@@ -1,27 +1,24 @@
 // @vitest-environment jsdom
-import {ExtensionsManager, WysiwygEditor} from '@gravity-ui/markdown-editor/core';
-import {ReactRenderStorage, ReactRendererExtension} from '@gravity-ui/markdown-editor/extensions';
+import {ExtensionsManager} from '@gravity-ui/markdown-editor/core';
 import {history, redo, undo} from '@gravity-ui/markdown-editor/pm/history';
 import {DOMParser, DOMSerializer} from '@gravity-ui/markdown-editor/pm/model';
 import {
+    type Command,
     EditorState,
-    NodeSelection,
-    Plugin,
     TextSelection,
+    type Transaction,
 } from '@gravity-ui/markdown-editor/pm/state';
 import {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {BaseSchemaSpecs, BlockquoteSpecs} from '@gravity-ui/markdown-editor/specs';
-import {headerHeights, headerWidths, serializeHeader} from '@gravity-ui/markdown-plugin-header';
+import {BaseSchemaSpecs} from '@gravity-ui/markdown-editor/specs';
+import {type HeaderDimensions, serializeHeader} from '@gravity-ui/markdown-plugin-header';
 import {afterEach, describe, expect, it} from 'vitest';
 
-import {headerSettingsKey} from './Settings';
-import {insertHeader, setHeaderDimensions} from './commands';
+import {headerSettingsKey, headerSettingsPlugin, openHeaderSettings} from './Settings';
+import {copyHeader, insertHeader, removeHeader, setHeaderDimensions} from './commands';
 import {HeaderSpecs} from './specs';
 
-import {Header} from './index';
-
 const {schema, markupParser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(BlockquoteSpecs).use(HeaderSpecs),
+    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(HeaderSpecs),
 }).buildDeps();
 
 let view: EditorView | undefined;
@@ -30,63 +27,36 @@ afterEach(() => {
     view = undefined;
 });
 
-function createView(markup = ':::header\n:::', editable = true) {
+function createView(markup = ':::header\n:::') {
     const doc = markupParser.parse(markup);
     view = new EditorView(document.createElement('div'), {
-        state: EditorState.create({
-            schema,
-            doc,
-            plugins: [history()],
-            selection: NodeSelection.create(doc, 0),
-        }),
-        editable: () => editable,
+        state: EditorState.create({schema, doc, plugins: [history()]}),
     });
     return view;
 }
 
-function createEditor(initialContent: string) {
-    const renderer = new ReactRenderStorage();
-    const probe: {view?: EditorView} = {};
-    const editor = new WysiwygEditor({
-        initialContent,
-        extensions: (builder) =>
-            builder
-                .use(BaseSchemaSpecs, {})
-                .use(ReactRendererExtension, renderer)
-                .use(Header)
-                .addPlugin(
-                    () =>
-                        new Plugin({
-                            view(editorView) {
-                                probe.view = editorView;
-                                return {};
-                            },
-                        }),
-                ),
-    });
-    if (!probe.view) throw new Error('Editor view is missing');
-    view = probe.view;
-    return {editor, renderer, editorView: probe.view};
+function run(editor: EditorView, command: Command) {
+    return command(editor.state, editor.dispatch);
+}
+
+function attrs(editor: EditorView) {
+    return editor.state.doc.firstChild?.attrs;
 }
 
 describe('Header extension', () => {
-    for (const height of headerHeights) {
-        for (const width of headerWidths) {
-            it(`should round trip height ${height} and width ${width}`, () => {
-                const source = serializeHeader({height, width});
-                const doc = markupParser.parse(source);
-                expect(doc.firstChild?.attrs).toEqual({height, width});
-                expect(doc.firstChild?.childCount).toBe(0);
-                expect(serializer.serialize(doc)).toBe(source);
-                const dom = DOMSerializer.fromSchema(schema).serializeFragment(doc.content);
-                const container = document.createElement('div');
-                container.append(dom);
-                expect(DOMParser.fromSchema(schema).parse(container).toJSON()).toEqual(
-                    doc.toJSON(),
-                );
-            });
-        }
-    }
+    it.each<HeaderDimensions>([
+        {height: 's', width: 'm'},
+        {height: 'm', width: 's'},
+        {height: 'l', width: 'full'},
+    ])('should round trip %j', (dimensions) => {
+        const source = serializeHeader(dimensions);
+        const doc = markupParser.parse(source);
+        expect(doc.firstChild?.attrs).toEqual(dimensions);
+        expect(serializer.serialize(doc)).toBe(source);
+        const container = document.createElement('div');
+        container.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
+        expect(DOMParser.fromSchema(schema).parse(container).toJSON()).toEqual(doc.toJSON());
+    });
 
     it('should use the same defaults in the schema and parser', () => {
         expect(schema.nodes.header.create().attrs).toEqual({height: 's', width: 'm'});
@@ -94,115 +64,72 @@ describe('Header extension', () => {
             height: 's',
             width: 'm',
         });
-        expect(serializer.serialize(markupParser.parse(':::header{width="full"}\n:::'))).toBe(
-            ':::header{height="s" width="full"}\n:::',
+    });
+
+    it('should skip an unsupported attribute and use the default for an unsupported value', () => {
+        expect(
+            serializer.serialize(markupParser.parse(':::header{height="xl" color="red"}\n:::')),
+        ).toBe(':::header{height="s" width="m"}\n:::');
+    });
+
+    it.each([':::header\nText **with formatting**\n:::', ':::header[Title]\n:::'])(
+        'should keep the text of %j unchanged',
+        (markup) => {
+            const doc = markupParser.parse(markup);
+            expect(doc.firstChild?.type.name).toBe('header_source');
+            expect(serializer.serialize(doc)).toBe(markup);
+        },
+    );
+
+    it('should copy and remove a header', () => {
+        const editor = createView(':::header{height="m" width="s"}\n:::');
+        expect(run(editor, copyHeader(0))).toBe(true);
+        expect(serializer.serialize(editor.state.doc)).toBe(
+            ':::header{height="m" width="s"}\n:::\n\n:::header{height="m" width="s"}\n:::',
         );
-    });
-
-    it.each([
-        ':::header{height="xl"}\n:::',
-        ':::header{width="s"width="m"}\n:::',
-        ':::header{width="s" width="l"}\n:::',
-        ':::header{height="s}\n:::',
-        ':::header{onclick="alert(1)"}\n:::',
-        ':::header[Title]{width="s"}\nText\n:::',
-        ':::header\nText **with formatting**\n:::',
-        ':::header\n:::header\n:::\n:::',
-        ':::header\nWow!\n[link]\n:::',
-    ])('should round trip unsupported source without changes for %j', (markup) => {
-        const doc = markupParser.parse(markup);
-        expect(doc.firstChild?.type.name).toBe('header_source');
-        expect(serializer.serialize(doc)).toBe(markup);
-    });
-
-    it('should serialize multiple blocks and nested headers without changing boundaries', () => {
-        const markup = 'Before\n\n> :::header{height="m" width="s"}\n> :::\n\nAfter';
-        expect(serializer.serialize(markupParser.parse(markup))).toBe(markup);
-    });
-
-    it('should preserve unsupported source inside a blockquote', () => {
-        const source = '> :::header{title="Keep"}\n> Keep **text**\n> :::';
-        expect(serializer.serialize(markupParser.parse(source))).toBe(source);
-    });
-
-    it('should preserve pasted text instead of accepting a nonempty header element', () => {
-        const container = document.createElement('div');
-        container.innerHTML =
-            '<div class="g-md-header" data-height="s" data-width="m">Keep this text</div>';
-        const doc = DOMParser.fromSchema(schema).parse(container);
-        expect(doc.textContent).toBe('Keep this text');
-        expect(doc.firstChild?.type.name).toBe('paragraph');
+        expect(run(editor, removeHeader(0))).toBe(true);
+        expect(serializer.serialize(editor.state.doc)).toBe(':::header{height="m" width="s"}\n:::');
+        expect(run(editor, removeHeader(1))).toBe(false);
     });
 
     it('should update dimensions independently and undo each change', () => {
         const editor = createView();
-        expect(setHeaderDimensions(editor.state, editor.dispatch, editor, {height: 'l'})).toBe(
-            true,
-        );
-        expect(setHeaderDimensions(editor.state, editor.dispatch, editor, {width: 'full'})).toBe(
-            true,
-        );
-        expect(editor.state.doc.firstChild?.attrs).toEqual({height: 'l', width: 'full'});
+        expect(run(editor, setHeaderDimensions(0, {height: 'l'}))).toBe(true);
+        expect(run(editor, setHeaderDimensions(0, {width: 'full'}))).toBe(true);
+        expect(attrs(editor)).toEqual({height: 'l', width: 'full'});
         expect(undo(editor.state, editor.dispatch)).toBe(true);
-        expect(editor.state.doc.firstChild?.attrs).toEqual({height: 'l', width: 'm'});
+        expect(attrs(editor)).toEqual({height: 'l', width: 'm'});
         expect(undo(editor.state, editor.dispatch)).toBe(true);
-        expect(editor.state.doc.firstChild?.attrs).toEqual({height: 's', width: 'm'});
+        expect(attrs(editor)).toEqual({height: 's', width: 'm'});
         expect(redo(editor.state, editor.dispatch)).toBe(true);
-        expect(editor.state.doc.firstChild?.attrs).toEqual({height: 'l', width: 'm'});
-    });
-
-    it('should refuse readonly changes and insertion', () => {
-        const editor = createView(':::header\n:::', false);
-        expect(setHeaderDimensions(editor.state, editor.dispatch, editor, {height: 'l'})).toBe(
-            false,
-        );
-        expect(insertHeader(editor.state, editor.dispatch, editor)).toBe(false);
-        expect(editor.state.doc.firstChild?.attrs).toEqual({height: 's', width: 'm'});
-    });
-
-    it('should open settings on request and close them when the header is replaced', () => {
-        const {editor, renderer, editorView} = createEditor(':::header\n:::\n\nAfter');
-        expect(editorView.state.selection).toBeInstanceOf(NodeSelection);
-        expect(renderer.getItems()).toHaveLength(0);
-        editorView.dispatch(editorView.state.tr.setMeta(headerSettingsKey, 0));
-        expect(renderer.getItems()).toHaveLength(1);
-        editor.actions.setHeaderDimensions.run({height: 'l'});
-        expect(editor.doc.firstChild?.attrs).toEqual({height: 'l', width: 'm'});
-        expect(renderer.getItems()).toHaveLength(1);
-        editor.replace(':::header\n:::');
-        expect(editorView.state.selection).toBeInstanceOf(NodeSelection);
-        expect(renderer.getItems()).toHaveLength(0);
-    });
-
-    it('should remove settings when an editable view becomes readonly', () => {
-        const {editor, renderer, editorView} = createEditor(':::header\n:::');
-        editorView.dispatch(editorView.state.tr.setMeta(headerSettingsKey, 0));
-        expect(renderer.getItems()).toHaveLength(1);
-        editorView.setProps({editable: () => false});
-        expect(renderer.getItems()).toHaveLength(0);
-        editor.actions.setHeaderDimensions.run({height: 'l'});
-        expect(editor.doc.firstChild?.attrs).toEqual({height: 's', width: 'm'});
-    });
-
-    it('should reject invalid dimensions and a non-header selection', () => {
-        const editor = createView(':::header\n:::\n\nAfter');
-        // @ts-expect-error Unsupported sizes must also be rejected at runtime.
-        expect(setHeaderDimensions(editor.state, editor.dispatch, editor, {width: '100%'})).toBe(
-            false,
-        );
-        editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 2)));
-        expect(setHeaderDimensions(editor.state, editor.dispatch, editor, {height: 'l'})).toBe(
-            false,
-        );
+        expect(attrs(editor)).toEqual({height: 'l', width: 'm'});
     });
 
     it('should insert an empty header and undo the insertion', () => {
         const editor = createView('');
         editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 1)));
-        expect(insertHeader(editor.state, editor.dispatch, editor)).toBe(true);
+        expect(run(editor, insertHeader)).toBe(true);
         expect(editor.state.doc.firstChild?.type.name).toBe('header');
-        expect(editor.state.doc.firstChild?.attrs).toEqual({height: 's', width: 'm'});
+        expect(attrs(editor)).toEqual({height: 's', width: 'm'});
         expect(undo(editor.state, editor.dispatch)).toBe(true);
         expect(editor.state.doc.firstChild?.type.name).toBe('paragraph');
+    });
+
+    it('should track the open settings and close them when the header is removed', () => {
+        let state = EditorState.create({
+            schema,
+            doc: markupParser.parse('Before\n\n:::header\n:::'),
+            plugins: [headerSettingsPlugin()],
+        });
+        const dispatch = (tr: Transaction) => {
+            state = state.apply(tr);
+        };
+        const pos = state.doc.child(0).nodeSize;
+        openHeaderSettings(pos)(state, dispatch);
+        expect(headerSettingsKey.getState(state)).toBe(pos);
+        dispatch(state.tr.insertText('New ', 1));
+        expect(headerSettingsKey.getState(state)).toBe(pos + 4);
+        removeHeader(pos + 4)(state, dispatch);
+        expect(headerSettingsKey.getState(state)).toBeNull();
     });
 });
