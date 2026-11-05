@@ -67,6 +67,20 @@ It covers `*.{js,jsx,mjs,ts,tsx,css,scss}` across the whole repository. Its outp
 - Where the linter is silent, follow the file you are editing.
 - Shared rules live in `infra/linters/`; per-package overrides are in the root `eslint.config.mjs`.
 
+## Package naming
+
+Every package lives directly in `packages/`. The npm name starts with the target (`editor`, `viewer` or `plugin`), and the entity name comes before its kind:
+
+| Package | npm name | Directory |
+|---------|----------|-----------|
+| Editor extension | `@gravity-ui/markdown-editor-<name>-extension` | `packages/editor-<name>-extension` |
+| Viewer extension | `@gravity-ui/markdown-viewer-<name>-extension` | `packages/viewer-<name>-extension` |
+| markdown-it plugin | `@gravity-ui/markdown-plugin-<name>` | `packages/plugin-<name>` |
+
+- The directory name is the npm name without the `@gravity-ui/markdown-` prefix.
+- Examples: `packages/editor-header-extension` and `packages/plugin-header`.
+- `latex-extension` and `page-constructor-extension` predate this convention. New packages follow the table.
+
 ## Documentation
 
 Project docs live in `docs/`. Read the relevant file before working on the corresponding area:
