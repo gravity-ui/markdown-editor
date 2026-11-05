@@ -1,5 +1,7 @@
 import {useMemo, useState} from 'react';
 
+import {transform as foldingHeadings} from '@diplodoc/folding-headings-extension';
+import '@diplodoc/folding-headings-extension/runtime';
 import {buildYfmHtmlBlockOptions, transform as htmlBlock} from '@diplodoc/html-extension';
 import {transform as latex} from '@diplodoc/latex-extension';
 import {transform as mermaid} from '@diplodoc/mermaid-extension';
@@ -11,6 +13,7 @@ import {MarkdownViewer, cnYFM} from '@gravity-ui/markdown-viewer';
 import {
     FilesGallery,
     type FilesGallerySource,
+    HeadingAnchors,
     YfmCodeBlockActions,
 } from '@gravity-ui/markdown-viewer/extensions';
 import {Button, Flex, SegmentedRadioGroup, Text, sp} from '@gravity-ui/uikit';
@@ -27,12 +30,15 @@ import {Feedback} from './extensions/Feedback';
 import {PreserveCutState} from './extensions/PreserveCutState';
 import {TargetHelp} from './extensions/TargetHelp';
 import type {DiplodocMermaidOptions} from './extensions/types';
+import {getHeadingHref, navigateToHeading} from './heading-links';
 
 import './MarkdownViewerDemo.scss';
+import '@diplodoc/folding-headings-extension/runtime/styles.css';
 import '@diplodoc/transform/dist/css/yfm.css';
 
 const plugins = [
     ...defaultPlugins,
+    foldingHeadings({bundle: false}),
     latex({bundle: false, validate: false}),
     pageConstructor({bundle: false}),
     mermaid({bundle: false}),
@@ -109,6 +115,7 @@ export function MarkdownViewerDemo({
                 >
                     <PreserveCutState />
                     <TargetHelp />
+                    <HeadingAnchors getHref={getHeadingHref} onClick={navigateToHeading} />
                     <YfmCodeBlockActions />
                     <DiplodocLatex meta={result.meta} />
                     <DiplodocPageConstructor meta={result.meta} />

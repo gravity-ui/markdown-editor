@@ -12,8 +12,10 @@ import {MarkdownViewer, cnYFM} from '@gravity-ui/markdown-viewer';
 import {
     FilesGallery,
     type FilesGallerySource,
+    HeadingAnchors,
     YfmCodeBlockActions,
 } from '@gravity-ui/markdown-viewer/extensions';
+import {sp} from '@gravity-ui/uikit';
 import type MarkdownIt from 'markdown-it';
 import {useDebounce} from 'react-use';
 
@@ -31,6 +33,7 @@ import {DiplodocLatex} from '../stories/viewer/extensions/DiplodocLatex';
 import {DiplodocMermaid} from '../stories/viewer/extensions/DiplodocMermaid';
 import {DiplodocPageConstructor} from '../stories/viewer/extensions/DiplodocPageConstructor';
 import type {TransformMeta} from '../stories/viewer/extensions/types';
+import {getHeadingHref, navigateToHeading} from '../stories/viewer/heading-links';
 
 import '@diplodoc/cut-extension/runtime/styles.css';
 import '@diplodoc/folding-headings-extension/runtime/styles.css';
@@ -120,8 +123,9 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
             <MarkdownViewer
                 qa="demo-md-preview"
                 html={result.html}
-                className={cnYFM({'no-list-reset': true}, 'demo-preview')}
+                className={cnYFM({'no-list-reset': true}, ['demo-preview', sp({pl: 6})])}
             >
+                <HeadingAnchors getHref={getHeadingHref} onClick={navigateToHeading} />
                 <YfmCodeBlockActions />
                 <FilesGallery getCopyUrl={getGalleryUrl} getDownloadUrl={getGalleryUrl} />
                 <DiplodocLatex meta={result.meta} runtime={LATEX_RUNTIME} />

@@ -1,0 +1,38 @@
+.g-md-heading-anchor {
+    position: relative;
+
+    &__slot {
+        position: absolute;
+        inset-block-start: calc((1lh - 24px) / 2);
+        inset-inline-start: -24px;
+
+        display: flex;
+
+        width: 24px;
+
+        opacity: 0;
+    }
+
+    &:hover > &__slot,
+    &:focus-within > &__slot {
+        opacity: 1;
+    }
+
+    &__button {
+        --g-button-border-radius: var(--g-border-radius-xs);
+        --g-button-font-size: 18px;
+        --g-button-text-color: var(--yfm-color-link, var(--g-color-text-link));
+        --g-button-text-color-hover: var(--yfm-color-link-hover, var(--g-color-text-link-hover));
+        --g-button-background-color-hover: transparent;
+
+        border-radius: var(--g-border-radius-xs);
+        background-color: var(
+            --g-md-heading-anchor-background-color,
+            var(--yfm-color-base, var(--g-color-base-background))
+        );
+    }
+}
+
+.g-md-viewer__content .g-md-heading-anchor > :is(.yfm-anchor, .yfm-clipboard-anchor) {
+    display: none;
+}

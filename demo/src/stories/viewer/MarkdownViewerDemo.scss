@@ -31,3 +31,23 @@
 .markdown-viewer-demo__feedback-toggle {
     flex-shrink: 0;
 }
+
+.markdown-viewer-demo__content .yfm-note.yfm-accent-info {
+    --yfm-color-note-info-background: color-mix(
+        in sRGB,
+        var(--g-color-base-background) 92%,
+        var(--g-color-text-info)
+    );
+    --g-md-heading-anchor-background-color: var(--yfm-color-note-info-background);
+}
+
+.markdown-viewer-demo__content.yfm .cell-bg-green-light {
+    --g-md-heading-anchor-background-color: color-mix(
+        in sRGB,
+        var(--g-color-base-background) 85%,
+        var(--g-color-text-positive)
+    );
+
+    color: var(--g-color-text-primary);
+    background-color: var(--g-md-heading-anchor-background-color);
+}
