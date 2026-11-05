@@ -1,8 +1,7 @@
-import {createPortal} from 'react-dom';
-
 import type {NodeViewConstructor} from '@gravity-ui/markdown-editor/core';
 import {getReactRendererFromState} from '@gravity-ui/markdown-editor/extensions';
 import {headerClassName, headerDimensions} from '@gravity-ui/markdown-plugin-header';
+import {createPortal} from 'react-dom';
 
 import {HeaderControls} from './Controls/HeaderControls';
 
