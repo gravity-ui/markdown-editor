@@ -22,6 +22,8 @@ See the [UIkit migration guide](https://github.com/gravity-ui/uikit/blob/main/do
 
 ## Page Constructor integration
 
-The current `@gravity-ui/page-constructor` 7 dependency and its UI components require UIkit 7. Its dependency `@gravity-ui/components` 4 imports `Popover` from `@gravity-ui/uikit/legacy`, where this component was removed in UIkit 8. The full visual suite stops at bundling before any tests run.
+Page Constructor support is retained with Page Constructor 9 and the Diplodoc Page Constructor extension 0.14. These compatible releases must be published before the dependency locks can be refreshed for this migration.
 
-The Page Constructor extension cannot be released with this migration until its dependencies support UIkit 8. Installing a second UIkit also requires a separate theme provider and style isolation; changing peer ranges or skipping the affected tests does not establish compatibility.
+The Page Constructor extension requires Node.js 24 or later. Its previous Diplodoc dependency supported Node.js 18; Node.js 18 through 23 are no longer supported for this integration.
+
+Update the dependencies together with UIKit 8. Previous Page Constructor releases require UIKit 7 and components 4, which imports the removed legacy Popover. Existing page content, contrast button themes, WYSIWYG editing, and split preview remain supported.

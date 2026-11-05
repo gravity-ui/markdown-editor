@@ -100,9 +100,9 @@
     "vitest": "catalog:testing"
   },
   "peerDependencies": {
-    "@diplodoc/page-constructor-extension": "^0.13.3",
+    "@diplodoc/page-constructor-extension": "^0.14.0",
     "@gravity-ui/markdown-editor": "^16.0.0",
-    "@gravity-ui/page-constructor": "^7.0.0",
+    "@gravity-ui/page-constructor": "^9.0.0",
     "@gravity-ui/uikit": "^8.0.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
@@ -110,5 +110,8 @@
   "sideEffects": [
     "*.css",
     "*.scss"
-  ]
+  ],
+  "engines": {
+    "node": ">=24"
+  }
 }
