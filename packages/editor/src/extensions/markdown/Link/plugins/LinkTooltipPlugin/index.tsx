@@ -262,9 +262,9 @@ class SelectionTooltip implements PluginView {
         view.focus();
     }
 
-    private onUrlChange(url: string) {
+    private onUrlChange = (url: string) => {
         this.currentUrl = url;
-    }
+    };
 
     private onOpenInNewTab() {
         this.view.focus();
@@ -281,7 +281,7 @@ class SelectionTooltip implements PluginView {
                     onChange={this.changeAttrs.bind(this)}
                     onRemove={this.removeLink.bind(this)}
                     onOpenChange={this.onOpenChange}
-                    onUrlChange={this.onUrlChange.bind(this)}
+                    onUrlChange={this.onUrlChange}
                     onOpenInNewTab={this.onOpenInNewTab.bind(this)}
                 />
             </ErrorLoggerBoundary>
