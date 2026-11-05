@@ -19,6 +19,7 @@ const forbiddenDependencies = {
     ],
     markup: [
         /build\/esm\/(?:modules\/toolbars|bundle\/toolbar)\/wysiwyg\//,
+        /build\/esm\/bundle\/config\/w-heading-config\.js$/,
         /prosemirror-/,
         /build\/esm\/core\/Editor\.js/,
         /build\/esm\/extensions\/(?:base|behavior|markdown)\//,

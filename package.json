@@ -21,6 +21,7 @@
     "ci:deps": "pnpm i --frozen-lockfile",
     "ci:demo:build": "nx sb:build @markdown-editor/demo",
     "ci:docs:build": "nx build @markdown-editor/infra/docs-gen",
+    "ci:test": "nx run-many -t test,test:esbuild,test:bundle --verbose",
     "ci:test:visual": "nx playwright @markdown-editor/demo",
     "ci:test:unit": "nx run-many -t test --verbose",
     "ci:test:esbuild": "nx run-many -t test:esbuild --verbose",

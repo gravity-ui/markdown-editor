@@ -59,7 +59,7 @@ See the [combined toolbar presets](../packages/editor/src/modules/toolbars/prese
 
 The presets, the toolbar items and the `ActionName` and `ToolbarName` constants are exported from `@gravity-ui/markdown-editor/toolbars`, starting with version 15.48.0.
 
-The same entry point exports `wysiwygToolbarsPresets` and `markupToolbarsPresets`, keyed by the preset names above. Each contains only its mode's behavior and toolbar orders.
+The same entry point exports `wysiwygToolbarsPresets` and `markupToolbarsPresets`, keyed by the preset names above. Each contains only its mode's behavior and toolbar orders. Use the combined presets when the editor can switch between modes.
 
 > **Note:** These toolbar presets have the same names as editor presets for convenience. When you don't specify `toolbarsPreset`, the editor automatically selects the toolbar preset matching your editor preset name.
 
