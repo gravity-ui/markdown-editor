@@ -1,6 +1,7 @@
 import {useId} from 'react';
 
 import {Xmark} from '@gravity-ui/icons';
+import {cn} from '@gravity-ui/markdown-editor';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {
     type HeaderDimensions,
@@ -19,6 +20,8 @@ import {DimensionSelect} from './DimensionSelect';
 
 import './HeaderSettings.scss';
 
+const b = cn('header-settings');
+
 type HeaderSettingsProps = {
     view: EditorView;
     pos: number;
@@ -35,18 +38,13 @@ export function HeaderSettings({view, pos, onClose}: HeaderSettingsProps) {
     const update = (attrs: Partial<HeaderDimensions>) =>
         setHeaderDimensions(pos, attrs)(view.state, view.dispatch);
     return createPortal(
-        <section
-            className="g-md-header-settings"
-            role="dialog"
-            aria-labelledby={titleId}
-            data-qa="header-settings"
-        >
-            <div className="g-md-header-settings__title">
+        <section className={b()} role="dialog" aria-labelledby={titleId} data-qa="header-settings">
+            <div className={b('title')}>
                 <Text variant="subheader-3" id={titleId}>
                     {i18n('title')}
                 </Text>
                 <Button
-                    className="g-md-header-settings__close"
+                    className={b('close')}
                     view="flat"
                     size="l"
                     aria-label={i18n('close')}

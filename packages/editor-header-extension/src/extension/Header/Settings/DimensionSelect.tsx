@@ -1,6 +1,9 @@
 import {useId} from 'react';
 
+import {cn} from '@gravity-ui/markdown-editor';
 import {Select, Text} from '@gravity-ui/uikit';
+
+const b = cn('header-settings');
 
 type DimensionSelectProps<T extends string> = {
     label: string;
@@ -19,7 +22,7 @@ export function DimensionSelect<T extends string>({
 }: DimensionSelectProps<T>) {
     const labelId = useId();
     return (
-        <div className="g-md-header-settings__row">
+        <div className={b('row')}>
             <Text variant="body-1" id={labelId}>
                 {label}
             </Text>

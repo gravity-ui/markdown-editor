@@ -1,6 +1,7 @@
 import type {DragEvent} from 'react';
 
 import {Copy, Gear, Grip, TrashBin} from '@gravity-ui/icons';
+import {cn} from '@gravity-ui/markdown-editor';
 import {type Command, NodeSelection} from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {Button, Icon} from '@gravity-ui/uikit';
@@ -10,6 +11,8 @@ import {openHeaderSettings} from '../Settings';
 import {copyHeader, removeHeader} from '../commands';
 
 import './HeaderControls.scss';
+
+const b = cn('header-view');
 
 type HeaderControlsProps = {
     view: EditorView;
@@ -40,7 +43,7 @@ export function HeaderControls({view, getPos, block}: HeaderControlsProps) {
     return (
         <>
             <div
-                className="g-md-header-view__handle"
+                className={b('handle')}
                 draggable
                 onDragStart={startDrag}
                 // A drop outside the editor leaves the dragged slice behind.
@@ -50,9 +53,9 @@ export function HeaderControls({view, getPos, block}: HeaderControlsProps) {
             >
                 <Icon data={Grip} size={16} />
             </div>
-            <div className="g-md-header-view__toolbar" role="toolbar">
+            <div className={b('toolbar')} role="toolbar">
                 <Button
-                    className="g-md-header-view__settings"
+                    className={b('settings')}
                     view="flat"
                     size="m"
                     aria-label={i18n('settings')}
@@ -63,7 +66,7 @@ export function HeaderControls({view, getPos, block}: HeaderControlsProps) {
                 <Button view="flat" size="m" aria-label={i18n('copy')} onClick={run(copyHeader)}>
                     <Icon data={Copy} size={16} />
                 </Button>
-                <div className="g-md-header-view__divider" />
+                <div className={b('divider')} />
                 <Button
                     view="flat-danger"
                     size="m"
