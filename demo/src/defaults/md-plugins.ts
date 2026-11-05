@@ -21,6 +21,7 @@ import type {YfmTablePluginOptions} from '@diplodoc/transform/lib/plugins/table/
 import video from '@diplodoc/transform/lib/plugins/video';
 import {type RenderPreviewParams, colorClassName} from '@gravity-ui/markdown-editor';
 import {emojiDefs} from '@gravity-ui/markdown-editor/_/bundle/emoji.js';
+import button from '@gravity-ui/markdown-editor/markdown-it/button';
 import color from '@gravity-ui/markdown-editor/markdown-it/color';
 import {bare as emoji} from '@gravity-ui/markdown-editor/markdown-it/emoji';
 import header from '@gravity-ui/markdown-editor/markdown-it/header';
@@ -108,6 +109,7 @@ export function getPlugins({
         }),
         foldingHeadings({bundle: false}),
         header,
+        button,
     );
 
     return extendedPlugins;

@@ -1,0 +1,36 @@
+@use '../../../styles/palette' as *;
+
+/// Цвета кнопки по атрибуту `data-color`. Стандартный и серый цвета повторяют виды
+/// `action`, `normal`, `outlined`, `flat` и `flat-secondary` кнопки Gravity, остальные берутся из палитры редактора.
+
+@mixin button-colors {
+    --g-md-button-heavy: var(--g-color-base-brand);
+    --g-md-button-heavy-hover: var(--g-color-base-brand-hover);
+    --g-md-button-contrast: var(--g-color-text-brand-contrast);
+    --g-md-button-light: var(--g-color-base-generic);
+    --g-md-button-light-hover: var(--g-color-base-generic-hover);
+    --g-md-button-light-text: var(--g-color-text-primary);
+    --g-md-button-line: var(--g-color-line-generic);
+    --g-md-button-text: var(--g-color-text-primary);
+    --g-md-button-text-hover: var(--g-md-button-text);
+
+    @each $color, $family in $palette {
+        &[data-color='#{$color}'] {
+            --g-md-button-heavy: var(--g-color-base-#{$family}-heavy);
+            --g-md-button-heavy-hover: var(--g-color-base-#{$family}-heavy-hover);
+            --g-md-button-contrast: var(
+                --g-color-text-#{if($family == 'warning', 'dark', 'light')}-primary
+            );
+            --g-md-button-light: var(--g-color-base-#{$family}-light);
+            --g-md-button-light-hover: var(--g-color-base-#{$family}-light-hover);
+            --g-md-button-light-text: var(--g-color-text-#{$family}-heavy);
+            --g-md-button-line: var(--g-color-line-#{$family});
+            --g-md-button-text: var(--yfm-color-text-#{$color});
+        }
+    }
+
+    &[data-view='flat'][data-color='gray'] {
+        --g-md-button-text: var(--yfm-color-text-gray);
+        --g-md-button-text-hover: var(--g-color-text-primary);
+    }
+}
