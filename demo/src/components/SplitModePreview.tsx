@@ -1,19 +1,21 @@
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useMemo, useState} from 'react';
 
+import '@diplodoc/cut-extension/runtime';
+import '@diplodoc/folding-headings-extension/runtime';
 import type {HTMLRuntimeConfig} from '@diplodoc/html-extension';
+import {buildYfmHtmlBlockOptions} from '@diplodoc/html-extension';
+import '@diplodoc/tabs-extension/runtime';
 import transform from '@diplodoc/transform';
+import {GalleryProvider} from '@gravity-ui/components';
 import {type MarkupString, colorClassName} from '@gravity-ui/markdown-editor';
-import {debounce} from '@gravity-ui/markdown-editor/_/lodash.js';
-import {YfmStaticView} from '@gravity-ui/markdown-editor/view/components/YfmHtml/index.js';
-import {withLatex} from '@gravity-ui/markdown-editor/view/hocs/withLatex/index.js';
+import {MarkdownViewer, cnYFM} from '@gravity-ui/markdown-viewer';
 import {
-    type MermaidConfig,
-    withMermaid,
-} from '@gravity-ui/markdown-editor/view/hocs/withMermaid/index.js';
-import {withYfmHtmlBlock} from '@gravity-ui/markdown-editor/view/hocs/withYfmHtml/index.js';
-import {withYfmPageConstructor} from '@gravity-ui/markdown-editor-page-constructor-extension/view';
-import {useThemeValue} from '@gravity-ui/uikit';
+    FilesGallery,
+    type FilesGallerySource,
+    YfmCodeBlockActions,
+} from '@gravity-ui/markdown-viewer/extensions';
 import type MarkdownIt from 'markdown-it';
+import {useDebounce} from 'react-use';
 
 import {
     type GetPluginsOptions,
@@ -24,17 +26,20 @@ import {
     getPlugins,
 } from '../defaults/md-plugins';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
+import {DiplodocHtml} from '../stories/viewer/extensions/DiplodocHtml';
+import {DiplodocLatex} from '../stories/viewer/extensions/DiplodocLatex';
+import {DiplodocMermaid} from '../stories/viewer/extensions/DiplodocMermaid';
+import {DiplodocPageConstructor} from '../stories/viewer/extensions/DiplodocPageConstructor';
+import type {TransformMeta} from '../stories/viewer/extensions/types';
+
+import '@diplodoc/cut-extension/runtime/styles.css';
+import '@diplodoc/folding-headings-extension/runtime/styles.css';
+import '@diplodoc/tabs-extension/runtime/styles.css';
+import '@diplodoc/transform/dist/css/yfm.css';
 
 const ML_ATTR = 'data-ml';
-const mermaidConfig: MermaidConfig = {theme: 'forest'};
-
-const Preview = withMermaid({runtime: MERMAID_RUNTIME})(
-    withLatex({runtime: LATEX_RUNTIME})(
-        withYfmPageConstructor({runtime: PAGE_CONSTRUCTOR_RUNTIME})(
-            withYfmHtmlBlock({runtime: YFM_HTML_BLOCK_RUNTIME})(YfmStaticView),
-        ),
-    ),
-);
+// Keep the iframe content created by HTML blocks after the outer sanitizer runs.
+const sanitizeOptions = buildYfmHtmlBlockOptions({allowedAttributes: {iframe: ['srcdoc']}});
 
 export type SplitModePreviewProps = {
     pluginsOptions?: GetPluginsOptions;
@@ -69,8 +74,7 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
         table_ignoreSplittersInInlineMath: ignoreSplittersInInlineMath,
     } = pluginsOptions ?? {};
 
-    // Deps are the option fields, not the options object: callers build it inline on every render,
-    // and a new plugin array would recreate `render` and retrigger the transform effect.
+    // Use option fields because callers build the options object on each render.
     const mdPlugins = useMemo(
         () => [
             ...getPlugins({
@@ -82,21 +86,18 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
         ],
         [directiveSyntax, ignoreSplittersInBlockMath, ignoreSplittersInInlineMath, extraPlugins],
     );
-    const [html, setHtml] = useState('');
-    const [meta, setMeta] = useState<object | undefined>({});
-    const divRef = useRef<HTMLDivElement>(null);
+    const [result, setResult] = useState<{html: string; meta?: TransformMeta}>({html: ''});
 
-    const theme = useThemeValue();
-
-    const render = useMemo(
-        () =>
-            debounce(() => {
-                const res = transform(getValue(), {
+    useDebounce(
+        () => {
+            setResult(
+                transform(getValue(), {
                     allowHTML,
                     breaks,
                     linkify,
                     linkifyTlds,
                     needToSanitizeHtml,
+                    sanitizeOptions,
                     linkAttrs: [[ML_ATTR, true]],
                     defaultClassName: colorClassName,
                     plugins: [
@@ -105,40 +106,38 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
                             ? [(md: MarkdownIt) => md.core.ruler.disable('curly_attributes')]
                             : []),
                     ],
-                }).result;
-                setHtml(res.html);
-                setMeta(res.meta);
-            }, 200),
-        [
-            getValue,
-            allowHTML,
-            breaks,
-            mdPlugins,
-            disableMarkdownItAttrs,
-            linkify,
-            linkifyTlds,
-            needToSanitizeHtml,
-            theme,
-        ],
+                }).result,
+            );
+        },
+        200,
+        [props],
     );
-
-    useEffect(() => {
-        render();
-    }, [props, render]);
 
     const yfmHtmlBlockConfig = useYfmHtmlBlockStyles();
 
     return (
-        <Preview
-            qa="demo-md-preview"
-            ref={divRef}
-            html={html}
-            meta={meta}
-            noListReset
-            mermaidConfig={mermaidConfig}
-            yfmHtmlBlockConfig={yfmHtmlBlockConfig}
-            htmlRuntimeConfig={htmlRuntimeConfig}
-            className="demo-preview"
-        />
+        <GalleryProvider>
+            <MarkdownViewer
+                qa="demo-md-preview"
+                html={result.html}
+                className={cnYFM({'no-list-reset': true}, 'demo-preview')}
+            >
+                <YfmCodeBlockActions />
+                <FilesGallery getCopyUrl={getGalleryUrl} getDownloadUrl={getGalleryUrl} />
+                <DiplodocLatex meta={result.meta} runtime={LATEX_RUNTIME} />
+                <DiplodocPageConstructor meta={result.meta} runtime={PAGE_CONSTRUCTOR_RUNTIME} />
+                <DiplodocMermaid meta={result.meta} runtime={MERMAID_RUNTIME} />
+                <DiplodocHtml
+                    meta={result.meta}
+                    runtime={YFM_HTML_BLOCK_RUNTIME}
+                    config={yfmHtmlBlockConfig}
+                    runtimeConfig={htmlRuntimeConfig}
+                />
+            </MarkdownViewer>
+        </GalleryProvider>
     );
 };
+
+function getGalleryUrl({url}: FilesGallerySource) {
+    return url;
+}
