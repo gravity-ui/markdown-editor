@@ -1,47 +1,33 @@
-import type {StoryObj} from '@storybook/react';
+import type {Meta, StoryObj} from '@storybook/react';
 
-import {HeaderDemo as component} from './Header';
+import {HeaderCatalogue, HeaderEditor} from './Header';
 
-type Story = StoryObj<typeof component>;
+type Story = StoryObj<typeof HeaderCatalogue>;
 
-export const Design: Story = {args: {markupKey: 'design'}};
-export const DesignSizes: Story = {args: {markupKey: 'designSizes'}};
-export const DesignLayouts: Story = {args: {markupKey: 'designLayouts'}};
+const group = (name: string): Story => ({name, args: {group: name}});
 
-export const Backgrounds: Story = {args: {markupKey: 'backgrounds'}};
-Backgrounds.storyName = 'Backgrounds';
+export const Alignment = group('Alignment');
+export const Height = group('Height');
+export const Width = group('Width');
+export const Border = group('Border');
+export const Fill = group('Fill');
+export const BackgroundImage = group('Background image');
+export const DecorLayer = group('Decor layer');
+export const TextColor = group('Text color');
+export const ContentImage = group('Content image');
+export const Title = group('Title');
+export const Content = group('Content');
+export const Actions = group('Actions');
+export const Combinations = group('Combinations');
+export const EdgeCases = group('Edge cases');
 
-export const Formats: Story = {args: {markupKey: 'formats'}};
-Formats.storyName = 'Formats';
+/** Все группы подряд. */
+export const Catalogue: Story = {};
 
-export const Angles: Story = {args: {markupKey: 'angles'}};
-Angles.storyName = 'Gradient direction and pattern size';
+export const Editor: StoryObj = {render: () => <HeaderEditor />};
 
-export const Layers: Story = {args: {markupKey: 'layers'}};
-Layers.storyName = 'Image layers';
-
-export const Crops: Story = {args: {markupKey: 'crops'}};
-Crops.storyName = 'Image fit and focus';
-
-export const Fills: Story = {args: {markupKey: 'fills'}};
-Fills.storyName = 'Fills';
-
-export const Seeds: Story = {args: {markupKey: 'seeds'}};
-Seeds.storyName = 'Shape layouts';
-
-export const Content: Story = {args: {markupKey: 'content'}};
-Content.storyName = 'Title, actions and subtitle';
-
-export const InsideCut: Story = {args: {markupKey: 'insideCut'}};
-InsideCut.storyName = 'Inside cut';
-
-export const UnknownValues: Story = {args: {markupKey: 'unknownValues'}};
-UnknownValues.storyName = 'Unknown attribute values';
-
-export const Empty: Story = {args: {markupKey: 'empty'}};
-Empty.storyName = 'Empty';
-
-export default {
+const meta: Meta<typeof HeaderCatalogue> = {
     title: 'Examples / Header',
-    component,
+    component: HeaderCatalogue,
 };
+export default meta;
