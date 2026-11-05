@@ -1,7 +1,5 @@
 import type {ComponentProps, DependencyList, Ref} from 'react';
 
-import type {EditorView} from 'prosemirror-view';
-
 import type * as Public from '../../src';
 
 export function shouldKeepHookArguments(useEditor: typeof Public.useMarkdownEditor) {
@@ -67,7 +65,6 @@ export function shouldKeepNestedOptions(logger: Public.Logger2.ILogger) {
 
 export function shouldKeepInstanceMethods(editor: Public.MarkdownEditorInstance) {
     const mode: 'markup' | 'wysiwyg' = editor.currentMode;
-    const view: EditorView | undefined = editor._wysiwygView;
     const logger: Public.Logger2.LogReceiver = editor.logger;
     const getValue: () => string = editor.getValue;
     const focused: boolean = editor.hasFocus();
@@ -96,7 +93,6 @@ export function shouldKeepInstanceMethods(editor: Public.MarkdownEditorInstance)
     editor.moveCursor(0);
     return {
         mode,
-        view,
         logger,
         getValue,
         focused,
