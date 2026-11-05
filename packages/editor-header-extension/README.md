@@ -13,6 +13,7 @@ const editor = useMarkdownEditor({
 
 `headerItem` is the toolbar button that inserts the block.
 Hovering the block shows a toolbar with settings, copy, and delete, and a drag handle on the left.
+The handle takes 20 px to the left of the block; `--g-md-editor-padding` provides this space.
 The settings panel on the right side of the page changes the height and width; each change is a separate undo step.
 
 The editor writes both attributes, including default values.

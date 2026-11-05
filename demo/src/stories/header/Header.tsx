@@ -1,4 +1,4 @@
-import {useCallback} from 'react';
+import {type CSSProperties, useCallback} from 'react';
 
 import {
     type MarkdownEditorMode,
@@ -41,7 +41,8 @@ export function HeaderExample({
     });
     useEditorHandle(editor);
     return (
-        <div style={{width, maxWidth: '100%'}}>
+        // The drag handle is placed in the editor padding to the left of the block.
+        <div style={{width, maxWidth: '100%', '--g-md-editor-padding': '0 20px'} as CSSProperties}>
             <MarkdownEditorView editor={editor} toolbarsPreset={toolbars} stickyToolbar={false} />
         </div>
     );
