@@ -79,7 +79,6 @@ Published `@gravity-ui/*` packages live directly in `packages/`. The npm name st
 
 - The directory name is the npm name without the `@gravity-ui/markdown-` prefix.
 - Examples: `packages/editor-header-extension` and `packages/plugin-header`.
-- `latex-extension` and `page-constructor-extension` predate this convention. New packages follow the table.
 
 ## Documentation
 
