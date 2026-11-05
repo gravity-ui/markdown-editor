@@ -2,6 +2,7 @@
     box-sizing: border-box;
     max-width: var(--g-md-header-plugin-width-m, 900px);
     min-height: var(--g-md-header-plugin-height-s, 236px);
+    margin: 0 0 20px;
 
     border: 2px dashed var(--g-color-line-generic);
     border-radius: var(--g-border-radius-2xl, 16px);
