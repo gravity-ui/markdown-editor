@@ -19,6 +19,11 @@
         visibility: visible;
     }
 
+    // The size of a block with text cannot be changed.
+    &_source &__settings {
+        display: none;
+    }
+
     &__handle {
         top: -2px;
         right: calc(100% + 6px);

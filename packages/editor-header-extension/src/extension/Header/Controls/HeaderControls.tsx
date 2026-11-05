@@ -52,6 +52,7 @@ export function HeaderControls({view, getPos, block}: HeaderControlsProps) {
             </div>
             <div className="g-md-header-view__toolbar" role="toolbar">
                 <Button
+                    className="g-md-header-view__settings"
                     view="flat"
                     size="m"
                     aria-label={i18n('settings')}

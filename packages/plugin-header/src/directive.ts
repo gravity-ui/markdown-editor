@@ -5,13 +5,15 @@ import {
 } from '@diplodoc/directive';
 import type {PluginSimple} from 'markdown-it';
 
-import {headerClassName, headerSourceTokenName, headerTokenName} from './const';
-import {headerDimensions} from './dimensions';
+import {headerClassNames} from './classname';
+import {headerTokenName} from './const';
+import {type HeaderDimensions, headerDimensions} from './dimensions';
 
-export function headerDomAttrs(attrs: {height?: unknown; width?: unknown}) {
-    const {height, width} = headerDimensions(attrs);
-    return {class: headerClassName, 'data-height': height, 'data-width': width};
-}
+/** Meta of the `header_open` token. */
+export type HeaderMeta = HeaderDimensions & {
+    /** Markdown of a block with text inside or a title; the text is not rendered. */
+    source: string | null;
+};
 
 function hasText({inlineContent, dests, contentTitle, content}: ContainerDirectiveParams) {
     return Boolean(inlineContent || dests || contentTitle || content.raw.trim());
@@ -22,20 +24,18 @@ export const headerPlugin: PluginSimple = (md) => {
 
     registerContainerDirective(md, 'header', (state, params) => {
         const {startLine, endLine} = params;
-        if (hasText(params)) {
-            // The block has no text yet, so the source is kept verbatim.
-            const token = state.push(headerSourceTokenName, 'pre', 0);
-            token.content = state.getLines(startLine, endLine, state.blkIndent, false);
-            token.map = [startLine, endLine];
-        } else {
-            const token = state.push(`${headerTokenName}_open`, 'div', 1);
-            token.attrs = Object.entries(headerDomAttrs(params.attrs ?? {}));
-            token.map = [startLine, endLine];
-            state.push(`${headerTokenName}_close`, 'div', -1);
-        }
+        const dimensions = headerDimensions(params.attrs ?? {});
+        const meta: HeaderMeta = {
+            ...dimensions,
+            source: hasText(params)
+                ? state.getLines(startLine, endLine, state.blkIndent, false)
+                : null,
+        };
+        const token = state.push(`${headerTokenName}_open`, 'div', 1);
+        token.attrSet('class', headerClassNames(dimensions));
+        token.meta = meta;
+        token.map = [startLine, endLine];
+        state.push(`${headerTokenName}_close`, 'div', -1);
         return true;
     });
-
-    md.renderer.rules[headerSourceTokenName] = (tokens, index) =>
-        `<pre><code>${md.utils.escapeHtml(tokens[index].content)}</code></pre>\n`;
 };

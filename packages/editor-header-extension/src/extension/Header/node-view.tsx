@@ -1,13 +1,12 @@
 import type {NodeViewConstructor} from '@gravity-ui/markdown-editor/core';
 import {getReactRendererFromState} from '@gravity-ui/markdown-editor/extensions';
-import {headerClassName, headerDimensions} from '@gravity-ui/markdown-plugin-header';
+import {headerClassNames} from '@gravity-ui/markdown-plugin-header';
 import {createPortal} from 'react-dom';
 
 import {HeaderControls} from './Controls/HeaderControls';
 
 export const headerNodeView: NodeViewConstructor = (node, view, getPos) => {
     const dom = document.createElement('div');
-    dom.className = `${headerClassName} g-md-header-view`;
     dom.contentEditable = 'false';
 
     const controls = document.createElement('div');
@@ -20,9 +19,8 @@ export const headerNodeView: NodeViewConstructor = (node, view, getPos) => {
 
     const update = (next: typeof node) => {
         if (next.type !== node.type) return false;
-        const {height, width} = headerDimensions(next.attrs);
-        dom.dataset.height = height;
-        dom.dataset.width = width;
+        dom.className = `${headerClassNames(next.attrs)} g-md-header-view`;
+        dom.classList.toggle('g-md-header-view_source', Boolean(next.attrs.source));
         return true;
     };
     update(node);

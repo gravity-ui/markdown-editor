@@ -1,9 +1,8 @@
 import {MarkupHelpers} from '@gravity-ui/markdown-editor';
 import type {StateCommand} from '@gravity-ui/markdown-editor/cm/state';
-import {headerDefaults, serializeHeader} from '@gravity-ui/markdown-plugin-header';
 
 export const insertHeaderMarkup: StateCommand = ({state, dispatch}) => {
-    const tr = MarkupHelpers.replaceOrInsertAfter(state, serializeHeader(headerDefaults));
+    const tr = MarkupHelpers.replaceOrInsertAfter(state, ':::header{height="s" width="m"}\n:::');
     dispatch(state.update(tr));
     return true;
 };

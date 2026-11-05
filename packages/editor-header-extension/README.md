@@ -18,7 +18,7 @@ The settings panel on the right side of the page changes the height and width; e
 
 The editor writes both attributes, including default values.
 Syntax, sizes, and the stylesheet for previews are in `@gravity-ui/markdown-plugin-header`.
-A container the plugin keeps as source stays unchanged when switching modes.
+A block with text inside or a title keeps its Markdown when switching modes, and its size cannot be changed.
 
 `HeaderSpecs` from `@gravity-ui/markdown-editor-header-extension/specs` adds only the schema and Markdown parsing and runs in Node.js.
 `Header` also needs the editor's React renderer, which the standard presets include.

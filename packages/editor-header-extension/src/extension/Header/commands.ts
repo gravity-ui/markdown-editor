@@ -20,7 +20,8 @@ export const setHeaderDimensions =
     (pos: number, attrs: Partial<HeaderDimensions>): Command =>
     (state, dispatch) => {
         const node = headerAt(state, pos);
-        if (!node) return false;
+        // The source of a block with text is written back unchanged.
+        if (!node || node.attrs.source) return false;
         // Attribute steps keep the node position, which the open settings track.
         const tr = closeHistory(state.tr);
         for (const name of ['height', 'width'] as const) {
