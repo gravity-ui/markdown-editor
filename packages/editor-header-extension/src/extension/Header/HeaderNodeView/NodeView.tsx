@@ -3,9 +3,9 @@ import {getReactRendererFromState} from '@gravity-ui/markdown-editor/extensions'
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView, NodeView} from '@gravity-ui/markdown-editor/pm/view';
 import {headerClassNames} from '@gravity-ui/markdown-plugin-header';
-import {createPortal} from 'react-dom';
+import {Portal} from '@gravity-ui/uikit';
 
-import {HeaderControls} from './HeaderControls';
+import {HeaderControls, STOP_EVENT_CLASSNAME} from './HeaderControls';
 
 const b = cn('header-view');
 
@@ -14,7 +14,6 @@ export class WHeaderNodeView implements NodeView {
     private node: Node;
     private readonly view: EditorView;
     private readonly getPos: () => number | undefined;
-    private readonly controls: HTMLElement;
     private readonly renderItem;
 
     constructor(node: Node, view: EditorView, getPos: () => number | undefined) {
@@ -24,9 +23,6 @@ export class WHeaderNodeView implements NodeView {
 
         this.dom = document.createElement('div');
         this.dom.contentEditable = 'false';
-        this.controls = document.createElement('div');
-        this.controls.className = b('controls');
-        this.dom.append(this.controls);
         this.updateClassName();
 
         this.renderItem = getReactRendererFromState(view.state).createItem(
@@ -50,9 +46,10 @@ export class WHeaderNodeView implements NodeView {
         return true;
     }
 
-    // Children of the block are the controls and the settings panel.
     stopEvent(event: Event) {
-        return event.target !== this.dom;
+        const {target} = event;
+        // The target can be an icon or a text inside the marked controls.
+        return target instanceof Element && target.closest(`.${STOP_EVENT_CLASSNAME}`) !== null;
     }
 
     private updateClassName() {
@@ -61,9 +58,10 @@ export class WHeaderNodeView implements NodeView {
     }
 
     private renderControls() {
-        return createPortal(
-            <HeaderControls view={this.view} getPos={this.getPos} block={this.dom} />,
-            this.controls,
+        return (
+            <Portal container={this.dom}>
+                <HeaderControls view={this.view} getPos={this.getPos} block={this.dom} />
+            </Portal>
         );
     }
 }

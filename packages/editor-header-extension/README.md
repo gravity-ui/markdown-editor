@@ -11,7 +11,7 @@ const editor = useMarkdownEditor({
 });
 ```
 
-`headerItem` is the toolbar button that inserts the block.
+`@gravity-ui/markdown-editor-header-extension/configs` exports the toolbar button that inserts the block: `headerItemView`, `headerItemWysiwyg`, and `headerItemMarkup`.
 Hovering the block shows a toolbar with settings, copy, and delete, and a drag handle on the left.
 The handle takes 20 px to the left of the block; `--g-md-editor-padding` provides this space.
 The settings panel on the right side of the page changes the height and width; each change is a separate undo step.

@@ -12,6 +12,8 @@ import {copyHeader, removeHeader} from '../commands';
 
 import './HeaderControls.scss';
 
+export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
+
 const b = cn('header-view');
 
 type HeaderControlsProps = {
@@ -43,7 +45,7 @@ export function HeaderControls({view, getPos, block}: HeaderControlsProps) {
     return (
         <>
             <div
-                className={b('handle')}
+                className={b('handle', STOP_EVENT_CLASSNAME)}
                 draggable
                 onDragStart={startDrag}
                 // A drop outside the editor leaves the dragged slice behind.
@@ -53,7 +55,7 @@ export function HeaderControls({view, getPos, block}: HeaderControlsProps) {
             >
                 <Icon data={Grip} size={16} />
             </div>
-            <div className={b('toolbar')} role="toolbar">
+            <div className={b('toolbar', STOP_EVENT_CLASSNAME)} role="toolbar">
                 <Button
                     className={b('settings')}
                     view="flat"

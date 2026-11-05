@@ -37,6 +37,16 @@
         "default": "./build/cjs/index.js"
       }
     },
+    "./configs": {
+      "import": {
+        "types": "./build/esm/configs.d.ts",
+        "default": "./build/esm/configs.js"
+      },
+      "require": {
+        "types": "./build/cjs/configs.d.ts",
+        "default": "./build/cjs/configs.js"
+      }
+    },
     "./specs": {
       "import": {
         "types": "./build/esm/specs.d.ts",
