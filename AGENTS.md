@@ -50,6 +50,16 @@ For more details on filtering and updating snapshots see [`docs/how-to-add-visua
 
 These run visual tests outside Docker and produce unreliable results.
 
+### Скриншоты
+
+Примеры лежат в `demo/tests/visual-tests/playground/`.
+
+1. С тулбаром, пример: `Lists.visual.test.tsx:160`.
+2. Ширина и высота по содержимому, пример: `Lists.visual.test.tsx:7-8`.
+3. Всплывающее окно снимается в тесте, который его открывает, пример: `File.visual.test.tsx:37`.
+4. Без `for`, тег режима в имени `test()`, пример: `File.visual.test.tsx:18`.
+5. Хелперы блока лежат в `demo/tests/playwright/core/editor.ts`, пример: класс `YfmTable`, строка 144.
+
 ## Code style
 
 Prettier owns formatting, ESLint and Stylelint own the rest. One command applies the fixes of all three:
