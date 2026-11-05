@@ -16,8 +16,8 @@ const toolbars = {
     items: {...full.items, header: headerItem},
     orders: {
         ...full.orders,
-        [ToolbarName.wysiwygMain]: [['header'], ...full.orders[ToolbarName.wysiwygMain]],
-        [ToolbarName.markupMain]: [['header'], ...full.orders[ToolbarName.markupMain]],
+        [ToolbarName.wysiwygHidden]: [[...full.orders[ToolbarName.wysiwygHidden].flat(), 'header']],
+        [ToolbarName.markupHidden]: [[...full.orders[ToolbarName.markupHidden].flat(), 'header']],
     },
 };
 
