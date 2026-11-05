@@ -30,7 +30,8 @@ export const headerNodeView: NodeViewConstructor = (node, view, getPos) => {
     return {
         dom,
         update,
-        stopEvent: (event) => event.target instanceof Element && controls.contains(event.target),
+        // Children of the block are the controls and the settings panel.
+        stopEvent: (event) => event.target !== dom,
         ignoreMutation: () => true,
         destroy: () => item.remove(),
     };
