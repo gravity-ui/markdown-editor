@@ -1,10 +1,9 @@
 import type {Action, ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 
+import {HeaderSpecs, headerNodeName} from './HeaderSpecs';
 import {headerSettingsPlugin} from './Settings';
 import {insertHeader} from './commands';
-import {headerNodeName} from './const';
 import {headerNodeView} from './node-view';
-import {HeaderSpecs} from './specs';
 
 import '@gravity-ui/markdown-plugin-header/styles.css';
 

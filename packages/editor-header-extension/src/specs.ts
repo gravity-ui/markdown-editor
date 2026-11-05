@@ -1,2 +1,1 @@
-export {headerNodeName} from './extension/Header/const';
-export {HeaderSpecs} from './extension/Header/specs';
+export {HeaderSpecs, headerNodeName} from './extension/Header/HeaderSpecs';

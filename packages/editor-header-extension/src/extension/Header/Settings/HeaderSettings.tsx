@@ -12,8 +12,8 @@ import {Button, Icon, Text} from '@gravity-ui/uikit';
 import {createPortal} from 'react-dom';
 
 import {i18n} from '../../../i18n';
+import {headerNodeType} from '../HeaderSpecs';
 import {setHeaderDimensions} from '../commands';
-import {headerNodeType} from '../const';
 
 import {DimensionSelect} from './DimensionSelect';
 

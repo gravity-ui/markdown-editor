@@ -13,9 +13,9 @@ import {BaseSchemaSpecs} from '@gravity-ui/markdown-editor/specs';
 import type {HeaderDimensions} from '@gravity-ui/markdown-plugin-header';
 import {afterEach, describe, expect, it} from 'vitest';
 
+import {HeaderSpecs} from './HeaderSpecs';
 import {headerSettingsKey, headerSettingsPlugin, openHeaderSettings} from './Settings';
 import {copyHeader, insertHeader, removeHeader, setHeaderDimensions} from './commands';
-import {HeaderSpecs} from './specs';
 
 const {schema, markupParser, serializer} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(HeaderSpecs),

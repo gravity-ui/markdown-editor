@@ -2,7 +2,7 @@ import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
 import type {Command, EditorState} from '@gravity-ui/markdown-editor/pm/state';
 import type {HeaderDimensions} from '@gravity-ui/markdown-plugin-header';
 
-import {headerNodeType} from './const';
+import {headerNodeType} from './HeaderSpecs';
 
 function headerAt(state: EditorState, pos: number) {
     const node = state.doc.nodeAt(pos);
