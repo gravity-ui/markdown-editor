@@ -20,12 +20,13 @@ const className = 'pm-link-focus-deco';
 const placement: PopupPlacement = ['bottom-start', 'bottom-end', 'top-start', 'top-end'];
 
 function getTextNode(state: EditorState) {
-    if (
-        !(state.selection instanceof TextSelection) ||
-        !state.selection.empty ||
-        !isMarkActive(state, linkType(state.schema))
-    )
-        return null;
+    if (!(state.selection instanceof TextSelection) || !state.selection.empty) return null;
+
+    const markType = linkType(state.schema);
+    // A one-character placeholder leaves the cursor at the start of a non-inclusive mark.
+    const nextNode = state.selection.$from.nodeAfter;
+    const nextLink = nextNode && findMark(nextNode, markType);
+    if (!isMarkActive(state, markType) && !nextLink?.attrs[LinkAttr.IsPlaceholder]) return null;
 
     const parent = findParentNode(Boolean)(state.selection);
 
@@ -33,17 +34,18 @@ function getTextNode(state: EditorState) {
         return null;
     }
 
-    const textNodes = findChildrenByMark(parent?.node, linkType(state.schema));
+    const contentStart = parent.pos + 1;
+    const textNodes = findChildrenByMark(parent.node, markType);
 
     const textNode = textNodes.find((n: {node: Node; pos: number}) => {
-        const start = n.pos + parent.pos;
+        const start = n.pos + contentStart;
         const end = start + n.node.nodeSize;
-        return start <= state.selection.from && end >= state.selection.from;
+        return start <= state.selection.from && end > state.selection.from;
     })!;
 
     if (!textNode) return null;
 
-    const absolutePos = textNode.pos + parent.pos + 1;
+    const absolutePos = textNode.pos + contentStart;
 
     return {
         ...textNode,
@@ -260,9 +262,9 @@ class SelectionTooltip implements PluginView {
         view.focus();
     }
 
-    private onUrlChange(url: string) {
+    private onUrlChange = (url: string) => {
         this.currentUrl = url;
-    }
+    };
 
     private onOpenInNewTab() {
         this.view.focus();
@@ -279,7 +281,7 @@ class SelectionTooltip implements PluginView {
                     onChange={this.changeAttrs.bind(this)}
                     onRemove={this.removeLink.bind(this)}
                     onOpenChange={this.onOpenChange}
-                    onUrlChange={this.onUrlChange.bind(this)}
+                    onUrlChange={this.onUrlChange}
                     onOpenInNewTab={this.onOpenInNewTab.bind(this)}
                 />
             </ErrorLoggerBoundary>
