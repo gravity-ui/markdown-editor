@@ -26,6 +26,8 @@ export interface RenderInlineOptions {
     atBlockStart?: boolean;
     /** Replace raw line endings in text nodes. Break nodes are unchanged. */
     textLineBreaks?: 'preserve' | 'space';
+    /** Escape indentation that could start a code block. */
+    escapeLeadingIndent?: boolean;
 }
 
 interface SerializerOptions {
@@ -190,6 +192,7 @@ export class MarkdownSerializerState {
     escapeWhitespace: boolean;
     escapeCharacters?: string[];
 
+    private escapeLeadingSpace = false;
     private readonly nodes: NodeMap;
     private readonly marks: MarkMap;
     private readonly options: SerializerOptions;
@@ -289,6 +292,7 @@ export class MarkdownSerializerState {
     // Add the given text to the document. When escape is not `false`,
     // it will be escaped.
     text(text: string, escape?: boolean) {
+        const shouldEscape = escape !== false && this.options.escape !== false;
         const lines = text.split('\n');
         for (let i = 0; i < lines.length; i++) {
             this.write();
@@ -296,8 +300,12 @@ export class MarkdownSerializerState {
             if (escape === false && lines[i][0] === '[' && /(^|[^\\])!$/.test(this.out))
                 this.out = this.out.slice(0, this.out.length - 1) + '\\!';
             let text = lines[i];
-            if (escape !== false && this.options.escape !== false) text = this.esc(text, this.atBlockStart)
+            if (shouldEscape) text = this.esc(text, this.atBlockStart)
             if (this.escapeWhitespace) text = this.escWhitespace(text);
+            if (this.escapeLeadingSpace && text) {
+                this.escapeLeadingSpace = false;
+                if (shouldEscape) text = text.replace(/^ /, '&#32;');
+            }
             this.out += text
             if (i != lines.length - 1) this.out += '\n';
         }
@@ -375,6 +383,8 @@ export class MarkdownSerializerState {
                 return text === child.text ? child : parent.type.schema.text(text, child.marks);
             })));
         }
+        const previousEscapeLeadingSpace = this.escapeLeadingSpace;
+        this.escapeLeadingSpace = typeof options === 'object' && Boolean(options.escapeLeadingIndent) && hasCodeBlockIndent(parent);
         this.atBlockStart = typeof options === 'boolean' ? options : options.atBlockStart ?? true;
         const inlineStart = this.out.length;
         const active: Mark[] = [];
@@ -580,6 +590,7 @@ export class MarkdownSerializerState {
         parent.forEach(progress);
         progress(null, null, parent.childCount);
         this.atBlockStart = false;
+        this.escapeLeadingSpace = previousEscapeLeadingSpace;
     }
 
     // :: (Node, string, (number) → string)
@@ -825,4 +836,25 @@ function replacementOffset(args: unknown[]): number {
 
 function isMarkdownWhitespaceOrPunctuation(char: string): boolean {
     return /[\p{Zs}\t\n\v\f\r!-/:-@[-`{-~]/u.test(char) || unicodePunctuation.test(char);
+}
+
+function hasCodeBlockIndent(parent: Node): boolean {
+    let spaces = 0;
+    let atStart = true;
+    for (const child of parent.content.content) {
+        if (child.type.spec.isBreak) {
+            if (child.type.spec.breakType === 'soft') return false;
+            atStart = false;
+            continue;
+        }
+        if (!child.isText) return spaces >= 4;
+        const text = child.text ?? '';
+        if (atStart) {
+            const indent = text.match(/^ */)?.[0].length ?? 0;
+            spaces += indent;
+            atStart = indent === text.length;
+        }
+        if (/\S/.test(text)) return spaces >= 4;
+    }
+    return false;
 }

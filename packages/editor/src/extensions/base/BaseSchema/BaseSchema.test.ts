@@ -26,6 +26,10 @@ describe('BaseSchema extension', () => {
 
         it('should parse a paragraph', () => same('hello!', doc(p('hello!'))));
 
+        it('should keep an indented paragraph as text', () => {
+            same('&#32;   text', doc(p('    text')));
+        });
+
         it('should parse a few paragraphs', () => {
             same(['hello', '', 'world!'].join('\n'), doc(p('hello'), p('world!')));
         });
