@@ -35,43 +35,53 @@ function decorations(state: EditorState) {
     return result instanceof DecorationSet ? result.find() : [];
 }
 
+function createState(document: ReturnType<typeof doc>) {
+    return EditorState.create({
+        schema,
+        doc: document,
+        selection: TextSelection.create(document, document.tag.from, document.tag.to),
+    });
+}
+
+function applyLink(document: ReturnType<typeof doc>) {
+    let state = createState(document);
+    expect(
+        addEmptyLink(state, (tr) => {
+            state = state.apply(tr);
+        }),
+    ).toBe(true);
+    return state;
+}
+
+function expectTooltipAnchor(state: EditorState, expected: ReturnType<typeof doc>) {
+    expect(decorations(state)).toEqual([
+        expect.objectContaining({from: expected.tag.anchorFrom, to: expected.tag.anchorTo}),
+    ]);
+}
+
 describe('addEmptyLink', () => {
     it.each([
-        ['two inline images', () => doc(p('before <from>', image(), image(), '<to> after'))],
-        [
-            'an image surrounded by whitespace',
-            () => doc(p('before <from> ', image(), ' <to> after')),
-        ],
-    ] as const)('should keep link creation enabled for %s', (_name, createDocument) => {
-        const document = createDocument();
-        let state = EditorState.create({
-            schema,
-            doc: document,
-            selection: TextSelection.create(document, document.tag.from, document.tag.to),
-        });
+        {
+            name: 'two inline images',
+            document: doc(p('before <from>', image(), image(), '<to> after')),
+            expected: doc(
+                p('before ', placeholder(image(), '<anchorFrom>', image(), '<anchorTo>'), ' after'),
+            ),
+        },
+        {
+            name: 'an image surrounded by whitespace',
+            document: doc(p('before <from> ', image(), ' <to> after')),
+            expected: doc(
+                p('before  ', placeholder('<anchorFrom>', image(), '<anchorTo>'), '  after'),
+            ),
+        },
+    ])('should keep link creation enabled for $name', ({document, expected}) => {
+        expect(addEmptyLink(createState(document))).toBe(true);
 
-        expect(addEmptyLink(state)).toBe(true);
-        expect(
-            addEmptyLink(state, (tr) => {
-                state = state.apply(tr);
-            }),
-        ).toBe(true);
+        const state = applyLink(document);
 
-        const objects: {pos: number; size: number}[] = [];
-        state.doc.nodesBetween(document.tag.from, document.tag.to, (node, pos) => {
-            if (node.isInline && !node.isText) {
-                expect(schema.marks[linkMarkName].isInSet(node.marks)?.attrs).toMatchObject({
-                    [LinkAttr.Href]: '',
-                    [LinkAttr.IsPlaceholder]: true,
-                });
-                objects.push({pos, size: node.nodeSize});
-            }
-        });
-        expect(objects.length).toBeGreaterThan(0);
-        const last = objects[objects.length - 1];
-        expect(decorations(state)).toEqual([
-            expect.objectContaining({from: last.pos, to: last.pos + last.size}),
-        ]);
+        expect(state.doc).toMatchNode(expected);
+        expectTooltipAnchor(state, expected);
     });
 
     it.each([
@@ -79,11 +89,7 @@ describe('addEmptyLink', () => {
         ['whitespace and a line break', () => doc(p('before<from> ', br(), ' \u00a0<to>after'))],
     ] as const)('should reject %s without dispatching', (_name, createDocument) => {
         const document = createDocument();
-        const state = EditorState.create({
-            schema,
-            doc: document,
-            selection: TextSelection.create(document, document.tag.from, document.tag.to),
-        });
+        const state = createState(document);
         const dispatch = vi.fn();
 
         expect(addEmptyLink(state)).toBe(false);
@@ -106,17 +112,7 @@ describe('addEmptyLink', () => {
         'should mark selected text %j and provide its tooltip anchor',
         (text, from, to, createExpected) => {
             const document = doc(p('before <from>', text, '<to> after'));
-            let state = EditorState.create({
-                schema,
-                doc: document,
-                selection: TextSelection.create(document, document.tag.from, document.tag.to),
-            });
-
-            expect(
-                addEmptyLink(state, (tr) => {
-                    state = state.apply(tr);
-                }),
-            ).toBe(true);
+            const state = applyLink(document);
             expect(state.doc).toMatchNode(createExpected());
             expect(decorations(state)).toEqual([
                 expect.objectContaining({
@@ -196,37 +192,17 @@ describe('addEmptyLink', () => {
         (_name, createDocument, createExpected) => {
             const document = createDocument();
             const expected = createExpected();
-            let state = EditorState.create({
-                schema,
-                doc: document,
-                selection: TextSelection.create(document, document.tag.from, document.tag.to),
-            });
-
-            expect(
-                addEmptyLink(state, (tr) => {
-                    state = state.apply(tr);
-                }),
-            ).toBe(true);
+            const state = applyLink(document);
             expect(state.doc).toMatchNode(expected);
-            expect(decorations(state)).toEqual([
-                expect.objectContaining({from: expected.tag.anchorFrom, to: expected.tag.anchorTo}),
-            ]);
+            expectTooltipAnchor(state, expected);
         },
     );
+});
 
+describe('linkTooltipPlugin', () => {
     it('should anchor a new single-character link next to an existing link', () => {
         const document = doc(p(link('existing'), '<from>a<to> after'));
-        let state = EditorState.create({
-            schema,
-            doc: document,
-            selection: TextSelection.create(document, document.tag.from, document.tag.to),
-        });
-
-        expect(
-            addEmptyLink(state, (tr) => {
-                state = state.apply(tr);
-            }),
-        ).toBe(true);
+        const state = applyLink(document);
         expect(state.doc).toMatchNode(doc(p(link('existing'), placeholder('a'), ' after')));
         expect(decorations(state)).toEqual([
             expect.objectContaining({from: document.tag.from, to: document.tag.to}),
