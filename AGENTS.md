@@ -50,6 +50,25 @@ For more details on filtering and updating snapshots see [`docs/how-to-add-visua
 
 These run visual tests outside Docker and produce unreliable results.
 
+### Screenshots
+
+- A screenshot shows the editor together with its toolbar: call `expectScreenshot()` without `component`, or pass a locator that contains the toolbar.
+- Fit the frame to the content with the page size, as in `playground/Headings.visual.test.tsx`: the `width` and `style` props of `Playground` and `page.setViewportSize({height, width})`.
+
+## Extensions
+
+Follow the layout of neighbouring extensions, such as `Mermaid` and `YfmCut`.
+
+- Specs live in a `<Name>Specs/` folder. A small spec fits in `index.ts` (`YfmFileSpecs`); a larger one is split into `const.ts`, `schema.ts`, `parser.ts`, `serializer.ts` and `index.ts` (`YfmCutSpecs`).
+- A NodeView is a class that implements `NodeView` from `prosemirror-view`. It lives in a `<Name>NodeView/` folder with `NodeView.tsx` and `index.ts` (`WMermaidNodeView`, `WYfmPageConstructorNodeView`) and is registered with `builder.addNodeView`.
+- Class names come from `cn`: `src/classname` inside `packages/editor`, `@gravity-ui/markdown-editor` in other packages. Element state is a `cn` modifier, and styles select it by the modifier class.
+
+### markdown-it plugins
+
+- A plugin emits one token stream: the same token types in the same order for every input it accepts, such as `<name>_open` and `<name>_close`. Other token types appear only when the task requires them.
+- Extra data for the editor goes to `token.meta`, and the parser spec reads it in `getAttrs`: `token.meta?.headerRows` in `YfmTableSpecs/parser.ts`, `token.meta?.folding` in `YfmHeadingSpecs/index.ts`.
+- The plugin only parses Markdown. Serialization belongs to the editor extension, `<Name>Specs/serializer.ts`, and writes through `state`: `write`, `ensureNewLine`, `renderContent`, `closeBlock` (`YfmCutSpecs/serializer.ts`).
+
 ## Code style
 
 Prettier owns formatting, ESLint and Stylelint own the rest. One command applies the fixes of all three:
