@@ -27,6 +27,7 @@
     "test:cov": "vitest run --coverage",
     "test:watch": "vitest",
     "test:esbuild": "node tests/esbuild-test/esbuild-tester.js",
+    "test:bundle": "nx exec -- node --test \"tests/bundle-test/*.test.mjs\"",
     "test:circular-deps": "node scripts/check-circular-deps.js 0",
     "prepack": "cp ../../README.md ./README.md",
     "postpack": "rm -f ./README.md",
