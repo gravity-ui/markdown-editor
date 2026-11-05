@@ -70,6 +70,7 @@
   },
   "devDependencies": {
     "@diplodoc/latex-extension": "catalog:peer-diplodoc",
+    "@gravity-ui/markdown-editor": "workspace:*",
     "@gravity-ui/uikit": "catalog:peer-gravity",
     "@markdown-editor/gulp-tasks": "workspace:*",
     "@markdown-editor/tsconfig": "workspace:*",
@@ -79,7 +80,7 @@
   },
   "peerDependencies": {
     "@diplodoc/latex-extension": "^1.0.3 || ^2.0.0",
-    "@gravity-ui/markdown-editor": "workspace:^15.38.1",
+    "@gravity-ui/markdown-editor": "^16.0.0",
     "@gravity-ui/uikit": "^8.0.0",
     "katex": "^0.16.9",
     "markdown-it": "^13.0.0",

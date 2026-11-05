@@ -53,7 +53,7 @@
     "typescript": "catalog:ts"
   },
   "peerDependencies": {
-    "@gravity-ui/markdown-editor": "workspace:^15.49.0"
+    "@gravity-ui/markdown-editor": "^16.0.0"
   },
   "sideEffects": false
 }
