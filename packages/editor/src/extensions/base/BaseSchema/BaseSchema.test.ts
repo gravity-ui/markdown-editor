@@ -30,6 +30,10 @@ describe('BaseSchema extension', () => {
             same('&#32;   text', doc(p('    text')));
         });
 
+        it('should keep a tab-indented paragraph as text', () => {
+            same('&#9;text', doc(p('\ttext')));
+        });
+
         it('should parse a few paragraphs', () => {
             same(['hello', '', 'world!'].join('\n'), doc(p('hello'), p('world!')));
         });

@@ -304,7 +304,7 @@ export class MarkdownSerializerState {
             if (this.escapeWhitespace) text = this.escWhitespace(text);
             if (this.escapeLeadingSpace && text) {
                 this.escapeLeadingSpace = false;
-                if (shouldEscape) text = text.replace(/^ /, '&#32;');
+                if (shouldEscape) text = text.replace(/^[ \t]/, char => char === ' ' ? '&#32;' : '&#9;');
             }
             this.out += text
             if (i != lines.length - 1) this.out += '\n';
@@ -839,7 +839,7 @@ function isMarkdownWhitespaceOrPunctuation(char: string): boolean {
 }
 
 function hasCodeBlockIndent(parent: Node): boolean {
-    let spaces = 0;
+    let columns = 0;
     let atStart = true;
     for (const child of parent.content.content) {
         if (child.type.spec.isBreak) {
@@ -847,14 +847,15 @@ function hasCodeBlockIndent(parent: Node): boolean {
             atStart = false;
             continue;
         }
-        if (!child.isText) return spaces >= 4;
+        if (!child.isText) return columns >= 4;
         const text = child.text ?? '';
         if (atStart) {
-            const indent = text.match(/^ */)?.[0].length ?? 0;
-            spaces += indent;
-            atStart = indent === text.length;
+            if (/^[ \t]*[\r\n]/.test(text)) return false;
+            const indent = text.match(/^[ \t]*/)?.[0] ?? '';
+            for (const char of indent) columns += char === '\t' ? 4 - (columns % 4) : 1;
+            atStart = indent.length === text.length;
         }
-        if (/\S/.test(text)) return spaces >= 4;
+        if (/\S/.test(text)) return columns >= 4;
     }
     return false;
 }

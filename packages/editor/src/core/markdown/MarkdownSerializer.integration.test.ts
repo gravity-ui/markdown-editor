@@ -22,6 +22,25 @@ describe('MarkdownSerializer paragraph indentation', () => {
         expect(serializer.serialize(parser.parse(result))).toBe(result);
     });
 
+    it.each(['\t', ' \t', '  \t', '   \t', '\t ', '\t\t'])(
+        'should keep a paragraph with tab indentation %j',
+        (indent) => {
+            const {doc, p, parser, serializer} = createFixture();
+            const input = doc(p(indent + 'text'));
+            const markdown = serializer.serialize(input);
+
+            expect(parser.parse(markdown)).toMatchNode(input);
+            expect(serializer.serialize(parser.parse(markdown))).toBe(markdown);
+        },
+    );
+
+    it('should keep marked text after tab indentation', () => {
+        const {doc, p, em, parser, serializer} = createFixture();
+        const input = doc(p('\t', em('text')));
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+    });
+
     it.each(['> &#32;   text', '- &#32;   text', 'before\n\n&#32;   text', '&#32;   **text**'])(
         'should keep an indented paragraph in %s',
         (markdown) => {
@@ -66,6 +85,25 @@ describe('MarkdownSerializer paragraph indentation', () => {
         const {doc, p, sb, serializer} = createFixture();
 
         expect(serializer.serialize(doc(p('    ', sb(), 'text')))).toBe('\ntext');
+    });
+
+    it.each(['\n', '\r', '\r\n'])(
+        'should keep a raw line ending after indentation as %j',
+        (lineEnding) => {
+            const {doc, p, parser, serializer} = createFixture();
+            const text = '    ' + lineEnding + 'text';
+            const markdown = serializer.serialize(doc(p(text)));
+
+            expect(markdown).toBe(text);
+            expect(parser.parse(markdown)).toMatchNode(doc(p('text')));
+        },
+    );
+
+    it('should keep indentation escaped before a hard break followed by a raw newline', () => {
+        const {doc, p, br, serializer} = createFixture();
+        const input = doc(p('    ', br(), '\ntext'));
+
+        expect(serializer.serialize(input)).toBe('&#32;   \\\n\ntext');
     });
 
     it('should keep an image after paragraph indentation', () => {
