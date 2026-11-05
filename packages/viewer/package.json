@@ -66,6 +66,7 @@
     "tslib": "catalog:ts"
   },
   "devDependencies": {
+    "@gravity-ui/components": "catalog:peer-gravity",
     "@gravity-ui/uikit": "catalog:peer-gravity",
     "@markdown-editor/gulp-tasks": "workspace:*",
     "@markdown-editor/linters": "workspace:*",
@@ -83,6 +84,7 @@
     "@markdown-viewer-tests/react19": "workspace:*"
   },
   "peerDependencies": {
+    "@gravity-ui/components": "^4.21.0",
     "@gravity-ui/uikit": "^7.34.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
