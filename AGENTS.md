@@ -69,7 +69,7 @@ It covers `*.{js,jsx,mjs,ts,tsx,css,scss}` across the whole repository. Its outp
 
 ## Package naming
 
-Every package lives directly in `packages/`. The npm name starts with the target (`editor`, `viewer` or `plugin`), and the entity name comes before its kind:
+Published `@gravity-ui/*` packages live directly in `packages/`. The npm name starts with the target (`editor`, `viewer` or `plugin`), and the entity name comes before its kind:
 
 | Package | npm name | Directory |
 |---------|----------|-----------|
