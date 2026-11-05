@@ -1,14 +1,8 @@
 import {useState} from 'react';
 
 import {Ellipsis as DotsColumn, GripHorizontal as GripColumn} from '@gravity-ui/icons';
-import {
-    Button,
-    type ButtonButtonProps,
-    DropdownMenu,
-    type DropdownMenuProps,
-    Flex,
-    Icon,
-} from '@gravity-ui/uikit';
+import {Button, type ButtonButtonProps, Flex, Icon} from '@gravity-ui/uikit';
+import {DropdownMenu, type DropdownMenuProps} from '@gravity-ui/uikit/legacy';
 
 import {useBooleanState} from 'src/react-utils';
 
@@ -68,9 +62,10 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = function YfmTableFloati
                 }}
                 renderSwitcher={(switcherProps) => (
                     <Flex
-                        centerContent
-                        width={20} // xs button
-                        height={20} // xs button
+                        alignItems="center"
+                        justifyContent="center"
+                        width="20px" // xs button
+                        height="20px" // xs button
                         style={{
                             borderRadius: 'var(--g-border-radius-xs)',
                             backgroundColor: showActionView

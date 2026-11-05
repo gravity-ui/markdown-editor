@@ -1,7 +1,6 @@
 import {useLayoutEffect, useState} from 'react';
 
-import {TextInput, type TextInputProps} from '@gravity-ui/uikit';
-import {Tabs} from '@gravity-ui/uikit/legacy';
+import {Tab, TabList, TextInput, type TextInputProps} from '@gravity-ui/uikit';
 
 import {type ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/forms';
@@ -80,14 +79,10 @@ export const ImageForm: React.FC<ImageFormProps> = ({
     return (
         <Form.Form className={b(null, [className])}>
             {shouldRenderTabs && (
-                <Tabs
-                    activeTab={tabId}
-                    onSelectTab={setTabId}
-                    items={[
-                        {id: ImageTabId.Attach, title: i18n('common_tab_attach')},
-                        {id: ImageTabId.Link, title: i18n('common_tab_link')},
-                    ]}
-                />
+                <TabList value={tabId} onUpdate={setTabId}>
+                    <Tab value={ImageTabId.Attach}>{i18n('common_tab_attach')}</Tab>
+                    <Tab value={ImageTabId.Link}>{i18n('common_tab_link')}</Tab>
+                </TabList>
             )}
             {tabId === ImageTabId.Attach && onAttach && (
                 <>
@@ -118,7 +113,7 @@ export const ImageForm: React.FC<ImageFormProps> = ({
                                     placeholder="https://"
                                     autoFocus={autoFocus}
                                     className={b('input', {type: 'link'})}
-                                    onKeyPress={inputEnterKeyHandler}
+                                    onKeyDown={inputEnterKeyHandler}
                                 />
                             }
                         />
@@ -131,7 +126,7 @@ export const ImageForm: React.FC<ImageFormProps> = ({
                                     value={name}
                                     onUpdate={setName}
                                     className={b('input', {type: 'name'})}
-                                    onKeyPress={inputEnterKeyHandler}
+                                    onKeyDown={inputEnterKeyHandler}
                                 />
                             }
                         />
@@ -145,7 +140,7 @@ export const ImageForm: React.FC<ImageFormProps> = ({
                                     value={alt}
                                     onUpdate={setAlt}
                                     className={b('input', {type: 'alt'})}
-                                    onKeyPress={inputEnterKeyHandler}
+                                    onKeyDown={inputEnterKeyHandler}
                                 />
                             }
                         />

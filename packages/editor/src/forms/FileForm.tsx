@@ -1,7 +1,6 @@
 import {useLayoutEffect, useState} from 'react';
 
-import {TextInput, type TextInputProps} from '@gravity-ui/uikit';
-import {Tabs} from '@gravity-ui/uikit/legacy';
+import {Tab, TabList, TextInput, type TextInputProps} from '@gravity-ui/uikit';
 
 import {type ClassNameProps, cn} from '../classname';
 import {i18n} from '../i18n/forms';
@@ -66,14 +65,10 @@ export const FileForm: React.FC<FileFormProps> = ({
     return (
         <Form.Form className={b(null, [className])}>
             {shouldRenderTabs && (
-                <Tabs
-                    activeTab={tabId}
-                    onSelectTab={setTabId}
-                    items={[
-                        {id: TabId.Attach, title: i18n('common_tab_attach')},
-                        {id: TabId.Link, title: i18n('common_tab_link')},
-                    ]}
-                />
+                <TabList value={tabId} onUpdate={setTabId}>
+                    <Tab value={TabId.Attach}>{i18n('common_tab_attach')}</Tab>
+                    <Tab value={TabId.Link}>{i18n('common_tab_link')}</Tab>
+                </TabList>
             )}
             {tabId === TabId.Attach && onAttach && (
                 <>
@@ -108,7 +103,7 @@ export const FileForm: React.FC<FileFormProps> = ({
                                     placeholder="https://"
                                     autoFocus={autoFocus}
                                     className={b('input', {type: 'link'})}
-                                    onKeyPress={inputEnterKeyHandler}
+                                    onKeyDown={inputEnterKeyHandler}
                                 />
                             }
                         />
@@ -121,7 +116,7 @@ export const FileForm: React.FC<FileFormProps> = ({
                                     value={name}
                                     onUpdate={setName}
                                     className={b('input', {type: 'name'})}
-                                    onKeyPress={inputEnterKeyHandler}
+                                    onKeyDown={inputEnterKeyHandler}
                                 />
                             }
                         />

@@ -1,4 +1,4 @@
-import type {SelectOption, SelectOptionGroup} from '@gravity-ui/uikit';
+import type {SelectOptionGroupProps, SelectOptionProps} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
@@ -13,7 +13,7 @@ import {TooltipButton} from './TooltipSelect';
 /** @deprecated */
 interface TooltipSelectOptions extends BaseTooltipPluginOptions {
     buttonText?: (node: Node) => string;
-    items?: SelectOption[] | SelectOptionGroup[];
+    items?: SelectOptionProps[] | SelectOptionGroupProps[];
     buildAttrs: (selectedValue: string) => Record<string, string>;
     withSearch?: boolean;
     disableHideOnBlur?: boolean;
@@ -22,7 +22,7 @@ interface TooltipSelectOptions extends BaseTooltipPluginOptions {
 /** @deprecated */
 export class TooltipSelectPluginView extends BaseTooltipPluginView {
     private buttonText?: (node: Node) => string;
-    private items?: SelectOption[] | SelectOptionGroup[];
+    private items?: SelectOptionProps[] | SelectOptionGroupProps[];
     private buildAttrs: (selectedValue: string) => Record<string, string>;
     private withSearch: boolean;
     private enableHideOnBlur?: boolean;

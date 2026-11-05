@@ -5,7 +5,7 @@ import {
     TrashBin as RemoveIcon,
     ArrowUturnCwLeft as WrappingIcon,
 } from '@gravity-ui/icons';
-import {ClipboardButton, type SelectOption} from '@gravity-ui/uikit';
+import {ClipboardButton, type SelectOptionProps} from '@gravity-ui/uikit';
 import {useLatest} from 'react-use';
 
 import type {Node} from '#pm/model';
@@ -31,7 +31,7 @@ export type CodeBlockToolbarProps = {
     node: Node;
     pos: number;
     editorView: EditorView;
-    langItems: SelectOption[];
+    langItems: SelectOptionProps[];
     mapping: Record<string, string>;
     showCodeWrapping: boolean;
     showLineNumbers: boolean;

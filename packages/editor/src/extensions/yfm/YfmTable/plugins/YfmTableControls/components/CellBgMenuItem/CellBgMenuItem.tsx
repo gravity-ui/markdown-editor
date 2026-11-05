@@ -1,7 +1,8 @@
 import {useEffect, useRef} from 'react';
 
 import {ChevronRight, BucketPaint as ColorPalette} from '@gravity-ui/icons';
-import {Icon, Menu, Popup, sp} from '@gravity-ui/uikit';
+import {Icon, Popup, sp} from '@gravity-ui/uikit';
+import {Menu} from '@gravity-ui/uikit/legacy';
 
 import {i18n} from 'src/i18n/yfm-table';
 import {useBooleanState, useElementState} from 'src/react-utils';

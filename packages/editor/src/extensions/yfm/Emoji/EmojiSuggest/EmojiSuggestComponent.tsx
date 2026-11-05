@@ -1,4 +1,5 @@
-import {List, Popup, type PopupPlacement} from '@gravity-ui/uikit';
+import {Popup, type PopupPlacement} from '@gravity-ui/uikit';
+import {List} from '@gravity-ui/uikit/legacy';
 
 import {cn} from '../../../../classname';
 import {ErrorLoggerBoundary} from '../../../../react-utils/ErrorBoundary';

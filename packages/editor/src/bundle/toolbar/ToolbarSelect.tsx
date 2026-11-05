@@ -3,7 +3,7 @@ import {
     Hotkey,
     Icon,
     Select,
-    type SelectOption,
+    type SelectOptionProps,
     type SelectProps,
 } from '@gravity-ui/uikit';
 
@@ -45,13 +45,14 @@ export const ToolbarSelect: React.FC<ToolbarSelectProps> = ({
                     if (!open) focus();
                 }}
                 value={activeItem ? [activeItem.id] : undefined}
-                options={items.map<SelectOption>((item) => ({
+                options={items.map<SelectOptionProps>((item) => ({
                     data: item,
                     value: item.id,
-                    text: isFunction(item.title) ? item.title() : item.title,
+                    content: isFunction(item.title) ? item.title() : item.title,
                 }))}
-                renderOption={({text, data}) => {
-                    const {icon, hotkey, hint, preview} = data as WToolbarItemData;
+                renderOption={({data}) => {
+                    const {icon, hotkey, hint, preview, title} = data as WToolbarItemData;
+                    const text = isFunction(title) ? title() : title;
                     const hintText = isFunction(hint) ? hint() : hint;
                     return (
                         <PreviewTooltip preview={preview}>

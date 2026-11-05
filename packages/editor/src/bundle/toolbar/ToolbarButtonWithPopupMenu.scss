@@ -6,7 +6,7 @@
     width: 42px;
 
     &__menu-group {
-        .g-menu__group-label {
+        .g-menu-legacy__group-label {
             color: var(--g-color-text-hint);
             @include uikit.text-body-1();
         }

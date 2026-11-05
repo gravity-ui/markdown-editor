@@ -1,7 +1,8 @@
 import {Fragment, useEffect, useState} from 'react';
 
 import {ChevronDown} from '@gravity-ui/icons';
-import {HelpMark, Hotkey, Icon, Menu, Popover, Popup} from '@gravity-ui/uikit';
+import {HelpMark, Hotkey, Icon, Popover, Popup} from '@gravity-ui/uikit';
+import {Menu} from '@gravity-ui/uikit/legacy';
 
 import {LAYOUT} from 'src/common/layout';
 

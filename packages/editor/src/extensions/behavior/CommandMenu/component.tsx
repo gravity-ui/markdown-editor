@@ -1,4 +1,5 @@
-import {HelpMark, Hotkey, Icon, List, Popup, type PopupPlacement} from '@gravity-ui/uikit';
+import {HelpMark, Hotkey, Icon, Popup, type PopupPlacement} from '@gravity-ui/uikit';
+import {List} from '@gravity-ui/uikit/legacy';
 
 import {cn} from '../../../classname';
 import {i18n} from '../../../i18n/suggest';

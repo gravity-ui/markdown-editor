@@ -1,6 +1,7 @@
 import {memo} from 'react';
 
-import {Select, type SelectOption} from '@gravity-ui/uikit';
+import {Select, type SelectOptionProps} from '@gravity-ui/uikit';
+import {ListVirtualizer} from '@gravity-ui/uikit/virtualizer';
 
 import {cn} from 'src/classname';
 import {i18n} from 'src/i18n/codeblock';
@@ -12,7 +13,7 @@ const bCodeBlock = cn('code-block');
 
 export type CodeLangSelectProps = {
     lang: string;
-    selectItems: SelectOption[];
+    selectItems: SelectOptionProps[];
     mapping: Record<string, string>;
     focus: () => void;
     onChange: (value: string) => void;
@@ -29,23 +30,25 @@ export const CodeLangSelect: React.FC<CodeLangSelectProps> = memo<CodeLangSelect
         };
 
         return (
-            <Select
-                size="m"
-                width="max"
-                disablePortal
-                value={[value]}
-                onUpdate={(v) => handleClick(v[0])}
-                options={selectItems}
-                filterable
-                filterPlaceholder={i18nPlaceholder('select_filter')}
-                popupClassName={bCodeBlock('select-popup')}
-                className={bCodeBlock('select-button')}
-                renderEmptyOptions={() => (
-                    <div className={bCodeBlock('select-empty')}>{i18n('empty_option')}</div>
-                )}
-                // TODO: in onOpenChange return focus to view.dom after press Esc in Select
-                // after https://github.com/gravity-ui/uikit/issues/2075
-            />
+            <ListVirtualizer minItemsCount={50}>
+                <Select
+                    size="m"
+                    width="max"
+                    disablePortal
+                    value={[value]}
+                    onUpdate={(v) => handleClick(v[0])}
+                    options={selectItems}
+                    filterable
+                    filterPlaceholder={i18nPlaceholder('select_filter')}
+                    popupClassName={bCodeBlock('select-popup')}
+                    className={bCodeBlock('select-button')}
+                    renderEmptyOptions={() => (
+                        <div className={bCodeBlock('select-empty')}>{i18n('empty_option')}</div>
+                    )}
+                    // TODO: in onOpenChange return focus to view.dom after press Esc in Select
+                    // after https://github.com/gravity-ui/uikit/issues/2075
+                />
+            </ListVirtualizer>
         );
     },
 );

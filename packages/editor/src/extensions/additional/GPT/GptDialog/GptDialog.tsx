@@ -54,7 +54,7 @@ export const GptDialog = <
         handleLike,
         handleDislike,
         handleCustomPromptUpdate,
-        handleCustomPromptKeyPress,
+        handleCustomPromptKeyDown,
         handleCustomPromptApply,
         handlePresetClick,
         handleTryAgain,
@@ -155,7 +155,7 @@ export const GptDialog = <
                                         size="m"
                                         className={cnGptDialog('custom-prompt-input')}
                                         placeholder={inputPlaceholderText}
-                                        onKeyPress={handleCustomPromptKeyPress}
+                                        onKeyDown={handleCustomPromptKeyDown}
                                         onUpdate={handleCustomPromptUpdate}
                                     />
                                     <Button

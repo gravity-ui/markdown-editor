@@ -1,6 +1,6 @@
 import {
     MobileProvider,
-    ThemeProvider,
+    Provider,
     Toaster,
     ToasterComponent,
     ToasterProvider,
@@ -14,13 +14,13 @@ const toaster = new Toaster();
 
 beforeMount(async ({App}) => {
     return (
-        <ThemeProvider>
+        <Provider>
             <MobileProvider>
                 <ToasterProvider toaster={toaster}>
                     <App />
                     <ToasterComponent />
                 </ToasterProvider>
             </MobileProvider>
-        </ThemeProvider>
+        </Provider>
     );
 });

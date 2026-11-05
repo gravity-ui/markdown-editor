@@ -3,7 +3,8 @@ import {useEffect, useMemo, useRef, useState} from 'react';
 import {getStyles} from '@diplodoc/html-extension';
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
 import {Ellipsis as DotsIcon, Eye} from '@gravity-ui/icons';
-import {Button, Icon, Label, Menu, Popup} from '@gravity-ui/uikit';
+import {Button, Icon, Label, Popup} from '@gravity-ui/uikit';
+import {Menu} from '@gravity-ui/uikit/legacy';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 

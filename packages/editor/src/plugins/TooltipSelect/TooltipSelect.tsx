@@ -4,19 +4,19 @@ import {
     ArrowToggle,
     Button,
     Popup,
-    type PopupProps,
     Select,
-    type SelectOption,
-    type SelectOptionGroup,
+    type SelectOptionGroupProps,
+    type SelectOptionProps,
 } from '@gravity-ui/uikit';
 
 import {useBooleanState} from '../../react-utils';
 
 /** @deprecated */
-type TooltipButtonProps = Pick<PopupProps, 'onOutsideClick'> & {
+type TooltipButtonProps = {
+    onOutsideClick?: () => void;
     domRef: HTMLElement | null;
     buttonTitle?: string;
-    items?: SelectOption[] | SelectOptionGroup[];
+    items?: SelectOptionProps[] | SelectOptionGroupProps[];
     onUpdate: (s: string) => void;
     withSearch?: boolean;
 };
@@ -48,7 +48,9 @@ export const TooltipButton: React.FC<TooltipButtonProps> = ({
             anchorElement={domRef}
             placement={'right-start'}
             offset={{crossAxis: 10, mainAxis: -(width + 10)}}
-            onOutsideClick={onOutsideClick}
+            onOpenChange={(open, _event, reason) => {
+                if (!open && reason === 'outside-press') onOutsideClick?.();
+            }}
         >
             <Select
                 onOpenChange={toggleOpen}
