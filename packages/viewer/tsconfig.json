@@ -5,6 +5,6 @@
     "baseUrl": ".",
     "paths": {}
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "tests/types/*.types.ts"],
   "exclude": ["build"]
 }
