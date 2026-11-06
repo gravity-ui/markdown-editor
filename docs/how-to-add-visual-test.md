@@ -90,25 +90,11 @@ See more: [Playwright Test Components](https://playwright.dev/docs/test-componen
 
 ## Reviewing screenshot changes
 
-The **Screenshot Diff** link in the visual test report comment opens the changed
-screenshot baselines in a pull request. The **Diff** tab is selected by default:
-changed pixels are pink, and anti-aliasing differences are yellow. **Before** and
-**After** show the original screenshots. Select an image to open it at full size.
-
-The report compares committed baselines with the target branch, including when the
-visual tests pass after updating screenshots. Added and removed screenshots come
-first and show the available version. Changed screenshots follow, sorted by the
-number of changed pixels. Screenshots without pixel changes are listed at the end.
-Resized screenshots are aligned at the top left, with added or removed areas
-highlighted.
-
-To generate the report locally, fetch the target branch, then run from the repository root:
-
-```shell
-pnpm --filter @markdown-editor/snapshot-diff generate origin/main HEAD "$PWD/demo/playwright-report/snapshot-diff"
-```
-
-Open `demo/playwright-report/snapshot-diff/index.html` in a browser.
+The **Screenshot Diff** link in the visual test report comment opens a
+[reg-cli](https://github.com/reg-viz/reg-cli) report for the screenshot baselines
+changed in a pull request, compared with the target branch. Changed, new, and deleted
+screenshots are listed separately; screenshots without pixel changes are listed as
+passed. Each changed screenshot opens in Diff, Slide, 2up, Blend, and Toggle views.
 
 ## Writing Tests
 
