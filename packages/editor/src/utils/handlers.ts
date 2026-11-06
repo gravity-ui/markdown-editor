@@ -4,7 +4,7 @@ export function enterKeyHandler<T>(
     handler: React.KeyboardEventHandler<T>,
 ): React.KeyboardEventHandler<T> {
     return (event) => {
-        if (event.key === Key.Enter) {
+        if (event.key === Key.Enter && !event.nativeEvent.isComposing) {
             handler(event);
         }
     };
