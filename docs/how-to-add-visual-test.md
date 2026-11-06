@@ -88,6 +88,26 @@ Tests use the configuration file `playwright.config.ts`. The build is handled by
 
 See more: [Playwright Test Components](https://playwright.dev/docs/test-components)
 
+## Reviewing screenshot changes
+
+The **Screenshot Diff** link in the visual test report comment opens the changed
+screenshot baselines in a pull request. The **Diff** tab is selected by default:
+changed pixels are pink, and anti-aliasing differences are yellow. **Before** and
+**After** show the original screenshots. Select an image to open it at full size.
+
+The report compares committed baselines with the pull request's merge base,
+including when the visual tests pass after updating screenshots. Added and removed
+screenshots show the available version. Resized screenshots are aligned at the
+top left, with added or removed areas highlighted.
+
+To generate the report locally, fetch the target branch, then run from the repository root:
+
+```shell
+pnpm --filter @markdown-editor/snapshot-diff generate origin/main HEAD "$PWD/demo/playwright-report/snapshot-diff"
+```
+
+Open `demo/playwright-report/snapshot-diff/index.html` in a browser.
+
 ## Writing Tests
 
 Creating tests occurs on a local machine, but using commands with the `:docker` postfix to avoid environmental differences.

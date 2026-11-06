@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -29,6 +31,13 @@ jobs:
         run: pnpm run ci:test:visual
         env:
           CI: 'true'
+
+      - name: Generate Screenshot Diff
+        if: success() || failure()
+        run: pnpm --filter @markdown-editor/snapshot-diff generate "$BASE_SHA" "$HEAD_SHA" "$GITHUB_WORKSPACE/demo/playwright-report/snapshot-diff"
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
 
       - name: Upload Playwright Report
         if: always()
