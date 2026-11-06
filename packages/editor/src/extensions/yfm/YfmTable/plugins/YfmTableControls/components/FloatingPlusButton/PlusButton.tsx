@@ -22,9 +22,10 @@ export const PlusButton: React.FC<PlusButtonProps> = function YfmTablePlusButton
 
     return (
         <Flex
-            centerContent
-            width={20} // xs button
-            height={20} // xs button
+            alignItems="center"
+            justifyContent="center"
+            width="20px" // xs button
+            height="20px" // xs button
             onMouseEnter={setHovered}
             onMouseLeave={unsetHovered}
             style={{

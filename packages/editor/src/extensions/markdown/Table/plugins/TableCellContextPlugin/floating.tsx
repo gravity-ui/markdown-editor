@@ -1,5 +1,7 @@
 import {Ellipsis} from '@gravity-ui/icons';
-import {DropdownMenu, type DropdownMenuItemMixed, Icon} from '@gravity-ui/uikit';
+import {Icon} from '@gravity-ui/uikit';
+// TODO: migrate to Menu from '@gravity-ui/uikit'
+import {DropdownMenu, type DropdownMenuItemMixed} from '@gravity-ui/uikit/legacy';
 
 import type {Action} from '../../../../../core';
 import {EditorPopup} from '../../../../../plugins/BaseTooltip/EditorPopup';

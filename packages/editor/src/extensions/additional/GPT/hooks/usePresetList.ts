@@ -1,6 +1,7 @@
 import {useMemo, useRef} from 'react';
 
-import type {DropdownMenuItem} from '@gravity-ui/uikit';
+// TODO: migrate to Menu from '@gravity-ui/uikit'
+import type {DropdownMenuItem} from '@gravity-ui/uikit/legacy';
 
 import type {CommonAnswer} from '../ErrorScreen/types';
 import {cnGptDialogPresetList} from '../PresetList/classname';

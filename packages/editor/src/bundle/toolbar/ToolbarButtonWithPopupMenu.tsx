@@ -6,10 +6,11 @@ import {
     Button,
     Icon,
     type IconProps,
-    Menu,
     Popup,
     type PopupProps,
 } from '@gravity-ui/uikit';
+// TODO: migrate to Menu from '@gravity-ui/uikit'
+import {Menu} from '@gravity-ui/uikit/legacy';
 
 import {LAYOUT} from 'src/common/layout';
 

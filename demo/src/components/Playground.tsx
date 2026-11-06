@@ -27,7 +27,9 @@ import {Mermaid} from '@gravity-ui/markdown-editor/extensions/additional/Mermaid
 import {YfmHtmlBlock} from '@gravity-ui/markdown-editor/extensions/additional/YfmHtmlBlock/index.js';
 import {LatexExtension} from '@gravity-ui/markdown-editor-latex-extension';
 import {YfmPageConstructorExtension} from '@gravity-ui/markdown-editor-page-constructor-extension';
-import {Button, DropdownMenu} from '@gravity-ui/uikit';
+import {Button} from '@gravity-ui/uikit';
+// TODO: migrate to Menu from '@gravity-ui/uikit'
+import {DropdownMenu} from '@gravity-ui/uikit/legacy';
 
 import {playgroundToolbarsPreset} from '../defaults/toolbars';
 import {useLogs} from '../hooks/useLogs';
