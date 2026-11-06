@@ -65,31 +65,39 @@ describe.each([
         expect(container.querySelector('input[placeholder="https://"]')).not.toBeNull();
     });
 
-    it('should submit on Enter after composition ends', async () => {
-        await render(false);
-        const input = container.querySelector<HTMLInputElement>('input[placeholder="https://"]');
-        if (!input) throw new Error('Link input is missing');
+    it.each([
+        {isComposing: true, keyCode: 13},
+        {isComposing: false, keyCode: 229},
+    ])(
+        'should submit on Enter after composition ends (isComposing=$isComposing, keyCode=$keyCode)',
+        async ({isComposing, keyCode}) => {
+            await render(false);
+            const input = container.querySelector<HTMLInputElement>(
+                'input[placeholder="https://"]',
+            );
+            if (!input) throw new Error('Link input is missing');
 
-        await act(async () => {
-            input.value = 'https://example.com/file';
-            Simulate.change(input);
-        });
-        await act(async () => {
-            Simulate.keyDown(input, {
-                key: 'Enter',
-                nativeEvent: new KeyboardEvent('keydown', {key: 'Enter', isComposing: true}),
+            await act(async () => {
+                input.value = 'https://example.com/file';
+                Simulate.change(input);
             });
-        });
-        expect(onSubmit).not.toHaveBeenCalled();
+            await act(async () => {
+                Simulate.keyDown(input, {
+                    key: 'Enter',
+                    nativeEvent: new KeyboardEvent('keydown', {key: 'Enter', isComposing, keyCode}),
+                });
+            });
+            expect(onSubmit).not.toHaveBeenCalled();
 
-        await act(async () => Simulate.keyDown(input, {key: 'Enter'}));
-        expect(onSubmit).toHaveBeenCalledOnce();
-        expect(onSubmit).toHaveBeenCalledWith(
-            expect.objectContaining(
-                _name === 'file'
-                    ? {src: 'https://example.com/file'}
-                    : {url: 'https://example.com/file'},
-            ),
-        );
-    });
+            await act(async () => Simulate.keyDown(input, {key: 'Enter'}));
+            expect(onSubmit).toHaveBeenCalledOnce();
+            expect(onSubmit).toHaveBeenCalledWith(
+                expect.objectContaining(
+                    _name === 'file'
+                        ? {src: 'https://example.com/file'}
+                        : {url: 'https://example.com/file'},
+                ),
+            );
+        },
+    );
 });

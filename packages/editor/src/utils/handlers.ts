@@ -4,7 +4,9 @@ export function enterKeyHandler<T>(
     handler: React.KeyboardEventHandler<T>,
 ): React.KeyboardEventHandler<T> {
     return (event) => {
-        if (event.key === Key.Enter && !event.nativeEvent.isComposing) {
+        const {isComposing, keyCode} = event.nativeEvent;
+        // IME confirmation may report keyCode 229 after isComposing becomes false.
+        if (event.key === Key.Enter && !isComposing && keyCode !== 229) {
             handler(event);
         }
     };
