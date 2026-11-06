@@ -3,7 +3,7 @@ import {
     Hotkey,
     Icon,
     Select,
-    type SelectOptionProps,
+    type SelectOptionProps as SelectOption,
     type SelectProps,
 } from '@gravity-ui/uikit';
 
@@ -45,7 +45,7 @@ export const ToolbarSelect: React.FC<ToolbarSelectProps> = ({
                     if (!open) focus();
                 }}
                 value={activeItem ? [activeItem.id] : undefined}
-                options={items.map<SelectOptionProps>((item) => ({
+                options={items.map<SelectOption>((item) => ({
                     data: item,
                     value: item.id,
                     content: isFunction(item.title) ? item.title() : item.title,

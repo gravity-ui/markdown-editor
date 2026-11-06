@@ -1,6 +1,6 @@
 import {memo} from 'react';
 
-import {Select, type SelectOptionProps} from '@gravity-ui/uikit';
+import {Select, type SelectOptionProps as SelectOption} from '@gravity-ui/uikit';
 import {ListVirtualizer} from '@gravity-ui/uikit/virtualizer';
 
 import {cn} from 'src/classname';
@@ -13,7 +13,7 @@ const bCodeBlock = cn('code-block');
 
 export type CodeLangSelectProps = {
     lang: string;
-    selectItems: SelectOptionProps[];
+    selectItems: SelectOption[];
     mapping: Record<string, string>;
     focus: () => void;
     onChange: (value: string) => void;

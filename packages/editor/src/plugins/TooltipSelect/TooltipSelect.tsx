@@ -5,8 +5,8 @@ import {
     Button,
     Popup,
     Select,
-    type SelectOptionGroupProps,
-    type SelectOptionProps,
+    type SelectOptionProps as SelectOption,
+    type SelectOptionGroupProps as SelectOptionGroup,
 } from '@gravity-ui/uikit';
 
 import {useBooleanState} from '../../react-utils';
@@ -16,7 +16,7 @@ type TooltipButtonProps = {
     onOutsideClick?: () => void;
     domRef: HTMLElement | null;
     buttonTitle?: string;
-    items?: SelectOptionProps[] | SelectOptionGroupProps[];
+    items?: SelectOption[] | SelectOptionGroup[];
     onUpdate: (s: string) => void;
     withSearch?: boolean;
 };
