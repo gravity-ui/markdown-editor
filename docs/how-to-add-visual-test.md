@@ -95,10 +95,12 @@ screenshot baselines in a pull request. The **Diff** tab is selected by default:
 changed pixels are pink, and anti-aliasing differences are yellow. **Before** and
 **After** show the original screenshots. Select an image to open it at full size.
 
-The report compares committed baselines with the pull request's merge base,
-including when the visual tests pass after updating screenshots. Added and removed
-screenshots show the available version. Resized screenshots are aligned at the
-top left, with added or removed areas highlighted.
+The report compares committed baselines with the target branch, including when the
+visual tests pass after updating screenshots. Added and removed screenshots come
+first and show the available version. Changed screenshots follow, sorted by the
+number of changed pixels. Screenshots without pixel changes are listed at the end.
+Resized screenshots are aligned at the top left, with added or removed areas
+highlighted.
 
 To generate the report locally, fetch the target branch, then run from the repository root:
 

@@ -4,17 +4,17 @@ const escapeHtml = (value) =>
         (char) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'})[char],
     );
 
-export function renderReport(entries, base, head) {
-    const sections = entries
-        .map((entry, index) => {
-            const modes = ['diff', 'before', 'after'].filter((mode) => entry.images[mode]);
-            const title = escapeHtml(entry.path);
-            let summary = entry.beforeSize ? 'Removed screenshot' : 'Added screenshot';
-            if (entry.changedPixels !== undefined) {
-                summary = `${entry.changedPixels.toLocaleString('en-US')} changed pixels (${((entry.changedPixels / (entry.width * entry.height)) * 100).toFixed(2)}%)`;
-            }
+const screenshots = (count) => `${count} screenshot${count === 1 ? '' : 's'}`;
 
-            return `<section>
+function renderChanged(entry, index) {
+    const modes = ['diff', 'before', 'after'].filter((mode) => entry.images[mode]);
+    const title = escapeHtml(entry.path);
+    let summary = entry.beforeSize ? 'Removed screenshot' : 'Added screenshot';
+    if (entry.changedPixels !== undefined) {
+        summary = `${entry.changedPixels.toLocaleString('en-US')} changed pixels (${((entry.changedPixels / (entry.width * entry.height)) * 100).toFixed(2)}%)`;
+    }
+
+    return `<section>
 <h2>${title}</h2>
 ${entry.previousPath ? `<p>Renamed from ${escapeHtml(entry.previousPath)}</p>` : ''}
 <p>${summary} · ${entry.beforeSize ?? '—'} → ${entry.afterSize ?? '—'}</p>
@@ -23,8 +23,25 @@ ${modes.map((mode, i) => `<input type="radio" name="view-${index}" id="${index}-
 <div class="views">${modes.map((mode) => `<a class="${mode}" href="${index}-${mode}.png"><img src="${index}-${mode}.png" alt="${mode === 'diff' ? 'Highlighted differences' : mode} for ${title}" loading="lazy"></a>`).join('')}</div>
 </fieldset>
 </section>`;
-        })
-        .join('\n');
+}
+
+function renderUnchanged(entries) {
+    if (entries.length === 0) return '';
+    const items = entries
+        .map(
+            (entry) =>
+                `<li>${escapeHtml(entry.path)}${entry.previousPath ? `<br>Renamed from ${escapeHtml(entry.previousPath)}` : ''}</li>`,
+        )
+        .join('');
+
+    return `<details>
+<summary>${screenshots(entries.length)} without pixel changes</summary>
+<ul>${items}</ul>
+</details>`;
+}
+
+export function renderReport({changed, unchanged, base, head}) {
+    const sections = changed.map(renderChanged).join('\n') + renderUnchanged(unchanged);
 
     return `<!doctype html>
 <html lang="en">
@@ -37,9 +54,11 @@ ${modes.map((mode, i) => `<input type="radio" name="view-${index}" id="${index}-
 body { margin: 24px auto; padding: 0 16px; max-width: 1200px; }
 h1 { font-size: 1.6rem; }
 h2 { font-size: 1rem; overflow-wrap: anywhere; }
-p { line-height: 1.6; }
+p, li { line-height: 1.6; }
+li { overflow-wrap: anywhere; }
 code { font-family: ui-monospace, monospace; }
-section { margin: 24px 0; padding-top: 12px; border-top: 1px solid GrayText; }
+section, details { margin: 24px 0; padding-top: 12px; border-top: 1px solid GrayText; }
+summary { cursor: pointer; }
 fieldset { border: 0; padding: 0; margin: 0; }
 label { display: inline-block; padding: 8px 16px; cursor: pointer; border: 1px solid GrayText; border-radius: 4px 4px 0 0; }
 input { position: absolute; opacity: 0; }
@@ -56,7 +75,7 @@ img { display: block; max-width: 100%; height: auto; }
 </head>
 <body>
 <h1>Screenshot Diff</h1>
-<p>${entries.length} changed screenshot${entries.length === 1 ? '' : 's'} · <code>${escapeHtml(base.slice(0, 12))}</code> → <code>${escapeHtml(head.slice(0, 12))}</code></p>
+<p>${screenshots(changed.length)} changed · ${screenshots(unchanged.length)} without pixel changes · <code>${escapeHtml(base.slice(0, 12))}</code> → <code>${escapeHtml(head.slice(0, 12))}</code></p>
 <p>Changed pixels are highlighted in pink; anti-aliasing differences are yellow. Diff opens by default. Select an image to open it at full size.</p>
 ${sections || '<p>No screenshot baselines changed.</p>'}
 </body>

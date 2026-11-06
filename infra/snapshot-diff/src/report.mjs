@@ -31,7 +31,6 @@ export async function generateReport({cwd, base, head, outputDir}) {
         ),
     ).split('\0');
     const entries = [];
-    await mkdir(outputDir, {recursive: true});
 
     for (let i = 0; i < changes.length - 1; ) {
         const status = changes[i++];
@@ -45,13 +44,28 @@ export async function generateReport({cwd, base, head, outputDir}) {
             beforePath ? git('show', `${baseCommit}:${beforePath}`) : null,
             afterPath ? git('show', `${headCommit}:${afterPath}`) : null,
         ]);
-        const comparison = await compareImages(before, after);
-        for (const [mode, image] of Object.entries(comparison.images)) {
-            await writeFile(join(outputDir, `${entries.length}-${mode}.png`), image);
-        }
-        entries.push({path, previousPath: firstPath === path ? null : firstPath, ...comparison});
+        entries.push({
+            path,
+            previousPath: firstPath === path ? null : firstPath,
+            ...(await compareImages(before, after)),
+        });
     }
 
-    await writeFile(join(outputDir, 'index.html'), renderReport(entries, baseCommit, headCommit));
-    return entries;
+    // Added and removed screenshots have no pixel count and come first.
+    const weight = (entry) => entry.changedPixels ?? Number.MAX_SAFE_INTEGER;
+    entries.sort((a, b) => weight(b) - weight(a));
+    const changed = entries.filter((entry) => entry.changedPixels !== 0);
+    const unchanged = entries.filter((entry) => entry.changedPixels === 0);
+
+    await mkdir(outputDir, {recursive: true});
+    for (const [index, entry] of changed.entries()) {
+        for (const [mode, image] of Object.entries(entry.images)) {
+            await writeFile(join(outputDir, `${index}-${mode}.png`), image);
+        }
+    }
+    await writeFile(
+        join(outputDir, 'index.html'),
+        renderReport({changed, unchanged, base: baseCommit, head: headCommit}),
+    );
+    return {changed, unchanged};
 }

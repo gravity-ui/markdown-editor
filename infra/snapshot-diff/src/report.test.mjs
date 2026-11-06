@@ -45,7 +45,7 @@ afterEach(async () => {
     await rm(cwd, {recursive: true, force: true});
 });
 
-it('should generate diff, before, and after views for modified, added, removed, and renamed screenshots', async () => {
+it('should generate views for changed screenshots and list screenshots without pixel changes', async () => {
     await writeImage(`${snapshots}/modified.webp`, 'black');
     await writeImage(`${snapshots}/added.webp`, 'blue');
     await rm(join(cwd, snapshots, 'removed.webp'));
@@ -56,18 +56,24 @@ it('should generate diff, before, and after views for modified, added, removed, 
     await writeFile(join(cwd, 'unrelated.txt'), 'not a screenshot');
     const head = await commit('Update snapshots');
 
-    const entries = await generateReport({cwd: join(cwd, 'demo'), base, head, outputDir});
-    expect(entries).toHaveLength(4);
-    const modified = entries.findIndex((entry) => entry.path.endsWith('/modified.webp'));
-    expect(entries[modified].changedPixels).toBe(12);
+    const {changed, unchanged} = await generateReport({
+        cwd: join(cwd, 'demo'),
+        base,
+        head,
+        outputDir,
+    });
+    expect(changed.map((entry) => entry.changedPixels)).toEqual([undefined, undefined, 12]);
+    expect(unchanged.map((entry) => entry.path)).toEqual([`${snapshots}/renamed with spaces.webp`]);
+    const modified = changed.length - 1;
     const html = await readFile(join(outputDir, 'index.html'), 'utf8');
     expect(html).toContain(`id="${modified}-diff" value="diff" checked`);
     expect(html).toContain('Added screenshot');
     expect(html).toContain('Removed screenshot');
+    expect(html).toContain('1 screenshot without pixel changes');
     expect(html).toContain('Renamed from');
     expect(html).not.toContain('unrelated.txt');
     expect(await readFile(join(outputDir, `${modified}-diff.png`))).toEqual(
-        entries[modified].images.diff,
+        changed[modified].images.diff,
     );
 });
 
@@ -79,8 +85,8 @@ it('should compare with the merge base instead of unrelated target branch change
     await writeImage(`${snapshots}/modified.webp`, 'black');
     const head = await commit('Feature change');
 
-    const entries = await generateReport({cwd, base: target, head, outputDir});
-    const data = await sharp(entries[0].images.before).raw().toBuffer();
+    const {changed} = await generateReport({cwd, base: target, head, outputDir});
+    const data = await sharp(changed[0].images.before).raw().toBuffer();
     expect([...data.subarray(0, 3)]).toEqual([255, 255, 255]);
 });
 

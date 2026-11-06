@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          fetch-depth: 2
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -34,10 +34,9 @@ jobs:
 
       - name: Generate Screenshot Diff
         if: success() || failure()
-        run: pnpm --filter @markdown-editor/snapshot-diff generate "$BASE_SHA" "$HEAD_SHA" "$GITHUB_WORKSPACE/demo/playwright-report/snapshot-diff"
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          pnpm --filter @markdown-editor/snapshot-diff generate HEAD^1 HEAD "$GITHUB_WORKSPACE/demo/playwright-report/snapshot-diff"
 
       - name: Upload Playwright Report
         if: always()
