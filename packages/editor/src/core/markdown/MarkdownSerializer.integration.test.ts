@@ -2,6 +2,7 @@ import {Schema} from 'prosemirror-model';
 import {builders} from 'prosemirror-test-builder';
 import {describe, expect, it} from 'vitest';
 
+import {MathSpecs} from '../../extensions/additional/Math/MathSpecs';
 import {Logger2} from '../../logger';
 import {DefaultSpecsPreset} from '../../presets/default-specs';
 import {ExtensionsManager} from '../ExtensionsManager';
@@ -104,6 +105,156 @@ describe('MarkdownSerializer paragraph indentation', () => {
         const input = doc(p('    ', br(), '\ntext'));
 
         expect(serializer.serialize(input)).toBe('&#32;   \\\n\ntext');
+    });
+
+    it.each([
+        {name: 'soft break', lineEnding: null},
+        {name: 'LF', lineEnding: '\n'},
+        {name: 'CR', lineEnding: '\r'},
+        {name: 'CRLF', lineEnding: '\r\n'},
+    ])('should keep NBSP indentation across repeated saves with $name', ({lineEnding}) => {
+        const {doc, p, sb, parser, serializer} = createFixture();
+        const input = doc(p('    \u00a0', lineEnding ?? sb(), 'text'));
+        const expected = doc(p('    \u00a0', sb(), 'text'));
+        const result = parser.parse(serializer.serialize(input));
+
+        expect(result).toMatchNode(expected);
+        expect(parser.parse(serializer.serialize(result))).toMatchNode(expected);
+    });
+
+    it.each(['> &#32;   \u00a0\n> text', '- &#32;   \u00a0\n  text'])(
+        'should keep NBSP indentation in %j across repeated saves',
+        (markdown) => {
+            const {parser, serializer} = createFixture();
+            const input = parser.parse(markdown);
+            const result = parser.parse(serializer.serialize(input));
+
+            expect(result).toMatchNode(input);
+            expect(parser.parse(serializer.serialize(result))).toMatchNode(input);
+        },
+    );
+
+    it.each(['\u2002', '\u3000', '\ufeff'])(
+        'should keep Unicode whitespace before a soft break %j',
+        (space) => {
+            const {doc, p, sb, parser, serializer} = createFixture();
+            const input = doc(p('    ' + space, sb(), 'text'));
+            const result = parser.parse(serializer.serialize(input));
+
+            expect(result).toMatchNode(input);
+            expect(parser.parse(serializer.serialize(result))).toMatchNode(input);
+        },
+    );
+
+    it('should keep a whitespace-only code mark after indented Unicode whitespace', () => {
+        const {doc, p, sb, code, parser, serializer} = createFixture();
+        const input = doc(p('    \u00a0', sb(), code(' ')));
+        const result = parser.parse(serializer.serialize(input));
+
+        expect(result).toMatchNode(input);
+        expect(parser.parse(serializer.serialize(result))).toMatchNode(input);
+    });
+
+    it('should keep indentation escaping after fragmented Unicode whitespace and a blank line', () => {
+        const {doc, p, em, strong, parser, serializer} = createFixture();
+        const spaces = Array.from({length: 1000}, (_, index) =>
+            index % 2 ? em('\u00a0') : strong('\u00a0'),
+        );
+        const input = doc(p('    \u00a0', ...spaces, '\n\ntext'));
+        const markdown = serializer.serialize(input);
+
+        expect(markdown).toBe('&#32;   ' + '\u00a0'.repeat(1001) + '\n\ntext');
+        expect(parser.parse(markdown)).toMatchNode(doc(p(' '), p('text')));
+    });
+
+    it.each(['---', '--', '# heading', '- item', '1. item', '> quote'])(
+        'should keep literal line-start text after a soft break %j',
+        (text) => {
+            const {doc, p, sb, parser, serializer} = createFixture();
+            const input = doc(p('text', sb(), text));
+            const result = parser.parse(serializer.serialize(input));
+
+            expect(result).toMatchNode(input);
+            expect(parser.parse(serializer.serialize(result))).toMatchNode(input);
+        },
+    );
+
+    it.each(['> text\n> \\---', '- text\n  \\---'])(
+        'should keep escaped line-start text in a container %j',
+        (markdown) => {
+            const {parser, serializer} = createFixture();
+            const input = parser.parse(markdown);
+
+            expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+        },
+    );
+
+    it('should keep literal setext syntax after indented Unicode whitespace', () => {
+        const {doc, p, sb, parser, serializer} = createFixture();
+        const input = doc(p('    \u00a0', sb(), '---'));
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+    });
+
+    it('should keep a whitespace-only inline formula after NBSP indentation', () => {
+        const {markupParser: parser, serializer} = new ExtensionsManager({
+            extensions: (builder) => builder.use(DefaultSpecsPreset, {}).use(MathSpecs),
+        }).buildDeps();
+        const input = parser.parse('&#32;   \u00a0$\u00a0$');
+        const result = parser.parse(serializer.serialize(input));
+
+        expect(result).toMatchNode(input);
+        expect(parser.parse(serializer.serialize(result))).toMatchNode(input);
+    });
+
+    // TODO: Preserve whitespace-only paragraphs.
+    it('should keep legacy serialization for unsupported whitespace-only NBSP paragraphs', () => {
+        const {doc, p, br, sb, serializer} = createFixture();
+        const prefix = '    \u00a0';
+
+        expect(serializer.serialize(doc(p(prefix)))).toBe(prefix);
+        expect(serializer.serialize(doc(p(prefix, br())))).toBe(prefix);
+        expect(serializer.serialize(doc(p(prefix, sb())))).toBe(prefix);
+    });
+
+    it.fails('should keep whitespace-only code inside emphasis after indentation', () => {
+        const {doc, p, sb, em, code, parser, serializer} = createFixture();
+        const input = doc(p('    \u00a0', sb(), em(code(' '))));
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+    });
+
+    it('should keep legacy serialization for unsupported NBSP paragraphs with a blank line', () => {
+        const {doc, p, sb, serializer} = createFixture();
+        const input = doc(p('    \u00a0', sb(), '\ntext'));
+
+        expect(serializer.serialize(input)).toBe('    \u00a0\n\ntext');
+    });
+
+    it.each(['\n\n', '\r\r', '\r\n\r\n'])(
+        'should keep paragraphs after a raw blank line following NBSP indentation %j',
+        (blankLine) => {
+            const {doc, p, parser, serializer} = createFixture();
+            const input = doc(p('    \u00a0' + blankLine + 'text'));
+
+            expect(parser.parse(serializer.serialize(input))).toMatchNode(doc(p(' '), p('text')));
+        },
+    );
+
+    it('should keep an image after a raw blank line following NBSP indentation', () => {
+        const {doc, p, img, parser, serializer} = createFixture();
+        const input = doc(p('    \u00a0\n\n', img()));
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(doc(p(' '), p(img())));
+    });
+
+    it('should keep NBSP indentation escaped before a hard break and a raw newline', () => {
+        const {doc, p, br, parser, serializer} = createFixture();
+        const input = doc(p('    \u00a0', br(), '\ntext'));
+        const markdown = serializer.serialize(input);
+
+        expect(markdown).toBe('&#32;   \u00a0\\\n\ntext');
+        expect(parser.parse(markdown).child(0).type.name).toBe('paragraph');
     });
 
     it('should keep an image after paragraph indentation', () => {
