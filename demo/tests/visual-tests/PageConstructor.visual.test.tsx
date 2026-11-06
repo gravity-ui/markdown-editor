@@ -5,7 +5,7 @@ import {YFMStories} from './YfmExtensions.helpers';
 const content = (title: string) => `blocks:
   - type: header-block
     title: ${title}
-    description: '**Page content**'
+    description: Page content
     buttons:
       - text: Continue
         url: '#next'
@@ -20,13 +20,16 @@ test.describe('Page Constructor', () => {
         wait,
         expectScreenshot,
     }) => {
-        await mount(<YFMStories.YfmPageConstructor initial={initial} />);
+        await mount(
+            <YFMStories.YfmPageConstructor initial={initial} width="100%" style={{width: 812}} />,
+        );
+        await page.setViewportSize({height: 500, width: 812});
         await wait.loadersHidden();
 
         const nodeView = page.locator('.g-md-yfm-page-constructor').first();
         await expect(nodeView.getByRole('link', {name: 'Continue'})).toBeVisible();
 
-        await expectScreenshot({component: nodeView});
+        await expectScreenshot();
     });
 
     test('should keep edits in markup and preview', async ({mount, page, editor}) => {
