@@ -51,4 +51,5 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           number: ${{ steps.pr.outputs.id }}
           header: visual tests report
-          message: '[![🎭 Playwright Report](https://img.shields.io/badge/%F0%9F%8E%AD%20Playwright-Report-45ba4b?style=for-the-badge&labelColor=2b3137)](https://storage.yandexcloud.net/playwright-reports/markdown-editor/pulls/${{ steps.pr.outputs.id }}/index.html)'
+          message: |
+            [Screenshot Diff](https://storage.yandexcloud.net/playwright-reports/markdown-editor/pulls/${{ steps.pr.outputs.id }}/snapshot-diff/index.html) · [Playwright Report](https://storage.yandexcloud.net/playwright-reports/markdown-editor/pulls/${{ steps.pr.outputs.id }}/index.html)

@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -29,6 +31,22 @@ jobs:
         run: pnpm run ci:test:visual
         env:
           CI: 'true'
+
+      - name: Generate Screenshot Diff
+        if: success() || failure()
+        working-directory: demo
+        shell: bash
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          snapshots=tests/visual-tests/__snapshots__
+          report=playwright-report/snapshot-diff
+          mkdir -p "$report/expected" "$report/actual"
+          save() { mkdir -p "$(dirname "$3")"; git show "$1:$2" > "$3" 2>/dev/null || rm "$3"; }
+          git diff -z --name-only --no-renames HEAD^1 HEAD -- "$snapshots" | while IFS= read -r -d '' file; do
+            save HEAD^1 "$file" "$report/expected/${file#demo/$snapshots/}"
+            save HEAD "$file" "$report/actual/${file#demo/$snapshots/}"
+          done
+          cd "$report" && pnpm dlx reg-cli@0.19.0-rc3 actual expected diff -R index.html -I -M 0.1
 
       - name: Upload Playwright Report
         if: always()
