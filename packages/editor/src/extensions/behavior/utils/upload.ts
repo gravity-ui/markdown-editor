@@ -24,8 +24,7 @@ export abstract class FilesBatchUploadProcess {
 
     async run() {
         await this.insertSkeleton();
-        if (this.view.isDestroyed) return;
-        await this.batchUpload();
+        if (!this.view.isDestroyed) await this.batchUpload();
         this.removeSkeleton();
     }
 
@@ -68,7 +67,10 @@ export abstract class FilesBatchUploadProcess {
 
     protected removeSkeleton() {
         const {view} = this;
-        if (view.isDestroyed) return;
+        if (view.isDestroyed) {
+            this.skeletonDescriptor?.remove();
+            return;
+        }
         view.dispatch(this.skeletonDescriptor!.rmDeco(view.state.tr));
     }
 }

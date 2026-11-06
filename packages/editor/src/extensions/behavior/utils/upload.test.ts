@@ -14,8 +14,8 @@ describe('FilesBatchUploadProcess', () => {
     it.each(['skeleton', 'upload', 'node'] as const)(
         'should skip view updates after destruction during the %s stage',
         async (stage) => {
-            const {view, process, paused, resume, uploadHandler} = createUpload(stage);
-            const running = process.run();
+            const {view, upload, paused, resume, uploadHandler, skeleton} = createUpload(stage);
+            const running = upload.run();
             await paused;
             view.destroy();
             const dispatch = vi.spyOn(view, 'dispatch');
@@ -26,17 +26,19 @@ describe('FilesBatchUploadProcess', () => {
             await expect(running).resolves.toBeUndefined();
             expect(dispatch).not.toHaveBeenCalled();
             expect(uploadHandler).toHaveBeenCalledTimes(stage === 'skeleton' ? 0 : 1);
+            expect(skeleton.remove).toHaveBeenCalledOnce();
         },
     );
 
     it('should insert the uploaded content while the view is alive', async () => {
-        const {view, process, resume} = createUpload('upload');
+        const {view, upload, resume, skeleton} = createUpload('upload');
         resume();
 
-        await process.run();
+        await upload.run();
 
         expect(view.state.doc.textContent).toBe(' uploaded ');
         expect(view.dom.querySelector('[data-upload-skeleton]')).toBeNull();
+        expect(skeleton.remove).toHaveBeenCalledOnce();
     });
 });
 
@@ -52,14 +54,8 @@ function createUpload(stage: UploadStage) {
         state: EditorState.create({schema, plugins: [WidgetDecorationPlugin()]}),
     });
     onTestFinished(() => view.destroy());
-    let resume!: () => void;
-    let notifyPaused!: () => void;
-    const gate = new Promise<void>((resolve) => {
-        resume = resolve;
-    });
-    const paused = new Promise<void>((resolve) => {
-        notifyPaused = resolve;
-    });
+    const {promise: gate, resolve: resume} = Promise.withResolvers<void>();
+    const {promise: paused, resolve: notifyPaused} = Promise.withResolvers<void>();
     async function pause(current: UploadStage) {
         if (current === stage) {
             notifyPaused();
@@ -67,10 +63,11 @@ function createUpload(stage: UploadStage) {
         }
     }
 
+    const skeleton = new Skeleton(1);
     class UploadProcess extends FilesBatchUploadProcess {
         protected async createSkeleton() {
             await pause('skeleton');
-            return new Skeleton(1);
+            return skeleton;
         }
 
         protected async createPMNode() {
@@ -83,12 +80,12 @@ function createUpload(stage: UploadStage) {
         await pause('upload');
         return {url: 'https://example.com/test.txt'};
     });
-    const process = new UploadProcess(view, [new File(['text'], 'test.txt')], uploadHandler);
-    return {view, process, paused, resume, uploadHandler};
+    const upload = new UploadProcess(view, [new File(['text'], 'test.txt')], uploadHandler);
+    return {view, upload, paused, resume, uploadHandler, skeleton};
 }
 
 class Skeleton extends WidgetDescriptor {
-    remove() {}
+    remove = vi.fn();
 
     protected renderWidget() {
         const element = document.createElement('span');
