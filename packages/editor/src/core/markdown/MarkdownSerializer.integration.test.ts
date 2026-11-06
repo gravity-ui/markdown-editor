@@ -8,6 +8,130 @@ import {ExtensionsManager} from '../ExtensionsManager';
 
 import {MarkdownParser} from './MarkdownParser';
 
+describe('MarkdownSerializer paragraph indentation', () => {
+    it.each([
+        {text: '    text', markdown: '&#32;   text'},
+        {text: '        text', markdown: '&#32;       text'},
+    ])('should keep an indented paragraph with $text', ({text, markdown}) => {
+        const {doc, p, parser, serializer} = createFixture();
+        const input = doc(p(text));
+        const result = serializer.serialize(input);
+
+        expect(parser.parse(result)).toMatchNode(input);
+        expect(result).toBe(markdown);
+        expect(serializer.serialize(parser.parse(result))).toBe(result);
+    });
+
+    it.each(['\t', ' \t', '  \t', '   \t', '\t ', '\t\t'])(
+        'should keep a paragraph with tab indentation %j',
+        (indent) => {
+            const {doc, p, parser, serializer} = createFixture();
+            const input = doc(p(indent + 'text'));
+            const markdown = serializer.serialize(input);
+
+            expect(parser.parse(markdown)).toMatchNode(input);
+            expect(serializer.serialize(parser.parse(markdown))).toBe(markdown);
+        },
+    );
+
+    it('should keep marked text after tab indentation', () => {
+        const {doc, p, em, parser, serializer} = createFixture();
+        const input = doc(p('\t', em('text')));
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+    });
+
+    it.each(['> &#32;   text', '- &#32;   text', 'before\n\n&#32;   text', '&#32;   **text**'])(
+        'should keep an indented paragraph in %s',
+        (markdown) => {
+            const {parser, serializer} = createFixture();
+            const input = parser.parse(markdown);
+
+            expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+        },
+    );
+
+    it('should keep indentation split across differently marked text nodes', () => {
+        const {doc, p, em, parser, serializer} = createFixture();
+        const input = doc(p('  ', em('  '), 'text'));
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(doc(p('    text')));
+    });
+
+    it.each(['\t', '\u00a0'])(
+        'should keep indentation before marked text after %j',
+        (separator) => {
+            const {doc, p, em, parser, serializer} = createFixture();
+            const input = doc(p('    ' + separator, em('text')));
+
+            expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+        },
+    );
+
+    it.each([
+        {name: 'br', markdown: '    '},
+        {name: 'sb', markdown: ''},
+    ] as const)(
+        'should keep existing whitespace-only serialization before a final $name',
+        ({name, markdown}) => {
+            const {doc, p, serializer, br, sb} = createFixture();
+            const breakNode = {br, sb}[name];
+
+            expect(serializer.serialize(doc(p('    ', breakNode())))).toBe(markdown);
+        },
+    );
+
+    it('should keep existing serialization for spaces before a soft break', () => {
+        const {doc, p, sb, serializer} = createFixture();
+
+        expect(serializer.serialize(doc(p('    ', sb(), 'text')))).toBe('\ntext');
+    });
+
+    it.each(['\n', '\r', '\r\n'])(
+        'should keep a raw line ending after indentation as %j',
+        (lineEnding) => {
+            const {doc, p, parser, serializer} = createFixture();
+            const text = '    ' + lineEnding + 'text';
+            const markdown = serializer.serialize(doc(p(text)));
+
+            expect(markdown).toBe(text);
+            expect(parser.parse(markdown)).toMatchNode(doc(p('text')));
+        },
+    );
+
+    it('should keep indentation escaped before a hard break followed by a raw newline', () => {
+        const {doc, p, br, serializer} = createFixture();
+        const input = doc(p('    ', br(), '\ntext'));
+
+        expect(serializer.serialize(input)).toBe('&#32;   \\\n\ntext');
+    });
+
+    it('should keep an image after paragraph indentation', () => {
+        const {doc, p, img, parser, serializer} = createFixture();
+        const input = doc(p('    ', img()));
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(input);
+    });
+
+    it.each(['text    text', '   text', '    '])(
+        'should keep existing paragraph spaces in %s',
+        (text) => {
+            const {doc, p, serializer} = createFixture();
+
+            expect(serializer.serialize(doc(p(text)))).toBe(text);
+        },
+    );
+
+    it.each(['`    text`', '```\n    text\n```'])(
+        'should keep existing code serialization in %s',
+        (markdown) => {
+            const {parser, serializer} = createFixture();
+
+            expect(serializer.serialize(parser.parse(markdown))).toBe(markdown);
+        },
+    );
+});
+
 describe('MarkdownSerializer production marks', () => {
     it('should keep continuing emphasis across differently marked spaces', () => {
         const {doc, p, em, strong, parser, serializer} = createFixture();
