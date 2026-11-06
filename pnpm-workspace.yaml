@@ -61,3 +61,6 @@ catalogs:
   react19:
     react: ^19.0.0
     react-dom: ^19.0.0
+
+overrides:
+  '@gravity-ui/page-constructor>@gravity-ui/components': 5.0.0
