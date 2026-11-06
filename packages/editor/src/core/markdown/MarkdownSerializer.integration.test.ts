@@ -106,6 +106,49 @@ describe('MarkdownSerializer paragraph indentation', () => {
         expect(serializer.serialize(input)).toBe('&#32;   \\\n\ntext');
     });
 
+    it.each([
+        {name: 'soft break', lineEnding: null},
+        {name: 'LF', lineEnding: '\n'},
+        {name: 'CR', lineEnding: '\r'},
+        {name: 'CRLF', lineEnding: '\r\n'},
+    ])('should keep NBSP indentation across repeated saves with $name', ({lineEnding}) => {
+        const {doc, p, sb, parser, serializer} = createFixture();
+        const input = doc(p('    \u00a0', lineEnding ?? sb(), 'text'));
+        const expected = doc(p('    \u00a0', sb(), 'text'));
+        const result = parser.parse(serializer.serialize(input));
+
+        expect(result).toMatchNode(expected);
+        expect(parser.parse(serializer.serialize(result))).toMatchNode(expected);
+    });
+
+    it.each(['> &#32;   \u00a0\n> text', '- &#32;   \u00a0\n  text'])(
+        'should keep NBSP indentation in %j across repeated saves',
+        (markdown) => {
+            const {parser, serializer} = createFixture();
+            const input = parser.parse(markdown);
+            const result = parser.parse(serializer.serialize(input));
+
+            expect(result).toMatchNode(input);
+            expect(parser.parse(serializer.serialize(result))).toMatchNode(input);
+        },
+    );
+
+    it('should keep existing whitespace-only NBSP serialization', () => {
+        const {doc, p, br, sb, serializer} = createFixture();
+        const prefix = '    \u00a0';
+
+        expect(serializer.serialize(doc(p(prefix)))).toBe(prefix);
+        expect(serializer.serialize(doc(p(prefix, br())))).toBe(prefix);
+        expect(serializer.serialize(doc(p(prefix, sb())))).toBe(prefix);
+    });
+
+    it('should keep existing serialization when a blank line follows NBSP indentation', () => {
+        const {doc, p, sb, serializer} = createFixture();
+        const input = doc(p('    \u00a0', sb(), '\ntext'));
+
+        expect(serializer.serialize(input)).toBe('    \u00a0\n\ntext');
+    });
+
     it('should keep an image after paragraph indentation', () => {
         const {doc, p, img, parser, serializer} = createFixture();
         const input = doc(p('    ', img()));

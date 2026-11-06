@@ -855,7 +855,33 @@ function hasCodeBlockIndent(parent: Node): boolean {
             for (const char of indent) columns += char === '\t' ? 4 - (columns % 4) : 1;
             atStart = indent.length === text.length;
         }
+        if (text.includes('\u00a0')) return columns >= 4 && hasContentBeforeBlankLine(parent);
         if (/\S/.test(text)) return columns >= 4;
+    }
+    return false;
+}
+
+function hasContentBeforeBlankLine(parent: Node): boolean {
+    let end = parent.content.size;
+    const lastType = parent.lastChild?.type;
+    for (let index = parent.childCount - 1; index >= 0; index--) {
+        const child = parent.child(index);
+        if (child.type !== lastType || !child.type.spec.isBreak) break;
+        end -= child.nodeSize;
+    }
+    const text = parent.textBetween(0, end, '', (node) => {
+        if (!node.type.spec.isBreak) return '\ufffc';
+        return node.type.spec.breakType === 'hard' ? '\\\n' : '\n';
+    });
+    let afterLineBreak = false;
+    for (let index = 0; index < text.length; index++) {
+        const char = text[index];
+        if (char.trim()) return true;
+        if (char === ' ' || char === '\t') continue;
+        const isLineBreak = char === '\r' || char === '\n';
+        if (afterLineBreak && isLineBreak) return false;
+        afterLineBreak = isLineBreak;
+        if (char === '\r' && text[index + 1] === '\n') index++;
     }
     return false;
 }
