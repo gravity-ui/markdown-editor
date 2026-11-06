@@ -295,12 +295,13 @@ export class MarkdownSerializerState {
         const shouldEscape = escape !== false && this.options.escape !== false;
         const lines = text.split('\n');
         for (let i = 0; i < lines.length; i++) {
+            const atLineStart = this.atBlockStart || (i === 0 && this.out.endsWith('\n'));
             this.write();
             // Escape ! before [ to prevent being parsed as image syntax
             if (escape === false && lines[i][0] === '[' && /(^|[^\\])!$/.test(this.out))
                 this.out = this.out.slice(0, this.out.length - 1) + '\\!';
             let text = lines[i];
-            if (shouldEscape) text = this.esc(text, this.atBlockStart)
+            if (shouldEscape) text = this.esc(text, atLineStart)
             if (this.escapeWhitespace) text = this.escWhitespace(text);
             if (this.escapeLeadingSpace && text) {
                 this.escapeLeadingSpace = false;
@@ -855,9 +856,9 @@ function hasCodeBlockIndent(parent: Node): boolean {
             for (const char of indent) columns += char === '\t' ? 4 - (columns % 4) : 1;
             atStart = indent.length === text.length;
         }
-        if (columns >= 4 && text.includes('\u00a0') && hasContentBeforeBlankLine(parent))
-            return true;
         if (/\S/.test(text)) return columns >= 4;
+        if (columns >= 4 && hasNonMarkdownWhitespace(text) && hasContentBeforeBlankLine(parent))
+            return true;
     }
     return false;
 }
@@ -873,7 +874,9 @@ function hasContentBeforeBlankLine(parent: Node): boolean {
     const text = parent.content.content
         .slice(0, end)
         .map((node) => {
-            if (node.isText) return node.text ?? '';
+            // Outer marks can remove whitespace-only code.
+            const codeOnly = node.marks.length === 1 && node.marks[0].type.spec.code;
+            if (node.isText && !codeOnly) return node.text ?? '';
             if (!node.type.spec.isBreak) return '\ufffc';
             return node.type.spec.breakType === 'hard' ? '\\\n' : '\n';
         })
@@ -887,6 +890,14 @@ function hasContentBeforeBlankLine(parent: Node): boolean {
         if (afterLineBreak && isLineBreak) return false;
         afterLineBreak = isLineBreak;
         if (char === '\r' && text[index + 1] === '\n') index++;
+    }
+    return false;
+}
+
+function hasNonMarkdownWhitespace(text: string): boolean {
+    for (const char of text) {
+        if (char !== ' ' && char !== '\t' && char !== '\r' && char !== '\n' && !char.trim())
+            return true;
     }
     return false;
 }
