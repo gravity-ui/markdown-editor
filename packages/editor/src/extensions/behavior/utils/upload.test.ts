@@ -14,7 +14,7 @@ describe('FilesBatchUploadProcess', () => {
     it.each(['skeleton', 'upload', 'node'] as const)(
         'should skip view updates after destruction during the %s stage',
         async (stage) => {
-            const {view, process, paused, resume} = createUpload(stage);
+            const {view, process, paused, resume, uploadHandler} = createUpload(stage);
             const running = process.run();
             await paused;
             view.destroy();
@@ -25,6 +25,7 @@ describe('FilesBatchUploadProcess', () => {
 
             await expect(running).resolves.toBeUndefined();
             expect(dispatch).not.toHaveBeenCalled();
+            expect(uploadHandler).toHaveBeenCalledTimes(stage === 'skeleton' ? 0 : 1);
         },
     );
 
@@ -78,11 +79,12 @@ function createUpload(stage: UploadStage) {
         }
     }
 
-    const process = new UploadProcess(view, [new File(['text'], 'test.txt')], async () => {
+    const uploadHandler = vi.fn(async () => {
         await pause('upload');
         return {url: 'https://example.com/test.txt'};
     });
-    return {view, process, paused, resume};
+    const process = new UploadProcess(view, [new File(['text'], 'test.txt')], uploadHandler);
+    return {view, process, paused, resume, uploadHandler};
 }
 
 class Skeleton extends WidgetDescriptor {

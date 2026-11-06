@@ -24,6 +24,7 @@ export abstract class FilesBatchUploadProcess {
 
     async run() {
         await this.insertSkeleton();
+        if (this.view.isDestroyed) return;
         await this.batchUpload();
         this.removeSkeleton();
     }
