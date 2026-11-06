@@ -35,22 +35,20 @@ for (const [condition, format] of [
             noEmit: true,
         });
         const buildDir = path.join(packageDir, 'build', format) + path.sep;
-        const diagnostics = program
-            .getSourceFiles()
-            .filter((file) => file.fileName.startsWith(buildDir))
-            .flatMap((file) => {
-                const references = [];
-                collectLocalReferences(file, references);
-                return program
-                    .getSemanticDiagnostics(file)
-                    .filter((diagnostic) =>
-                        references.some(
-                            (node) =>
-                                diagnostic.start >= node.getStart(file) &&
-                                diagnostic.start < node.getEnd(),
-                        ),
-                    );
-            });
+        const diagnostics = [];
+        for (const file of program.getSourceFiles()) {
+            if (!file.fileName.startsWith(buildDir)) continue;
+            const references = [];
+            collectLocalReferences(file, references);
+            const errors = program
+                .getSemanticDiagnostics(file)
+                .filter(({start}) =>
+                    references.some(
+                        (node) => start >= node.getStart(file) && start < node.getEnd(),
+                    ),
+                );
+            diagnostics.push(...errors);
+        }
 
         assert.equal(
             diagnostics.length,

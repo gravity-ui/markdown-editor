@@ -1,5 +1,6 @@
 import type {EventEmitter} from 'src/utils/event-emitter';
 
+/** @internal */
 export type SharedPluginState = {
     map: Map<string, object>;
     changedKeys: Set<string> | null;
