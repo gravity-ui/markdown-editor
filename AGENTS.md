@@ -50,31 +50,6 @@ For more details on filtering and updating snapshots see [`docs/how-to-add-visua
 
 These run visual tests outside Docker and produce unreliable results.
 
-## Implementing an extension
-
-These rules apply to every extension. Before writing code, read [`docs/how-to-create-extension.md`](docs/how-to-create-extension.md) and an existing extension of the same kind, such as `Mermaid` or `YfmCut`, and follow its layout.
-
-### Files
-
-- Specs live in a `<Name>Specs/` folder. A small spec fits in `index.ts` (`YfmFileSpecs`); a larger one is split into `const.ts`, `schema.ts`, `parser.ts`, `serializer.ts` and `index.ts` (`YfmCutSpecs`).
-- A NodeView is a class that implements `NodeView` from `prosemirror-view`. It lives in a `<Name>NodeView/` folder with `NodeView.tsx` and `index.ts` (`WMermaidNodeView`, `WYfmPageConstructorNodeView`) and is registered with `builder.addNodeView`.
-
-### Class names
-
-- Class names come from `cn`: `src/classname` inside `packages/editor`, `@gravity-ui/markdown-editor` in other packages.
-- Element state is a `cn` modifier, and styles select it by the modifier class.
-
-### markdown-it plugin
-
-- A plugin emits one token stream: the same token types in the same order for every input it accepts, such as `<name>_open` and `<name>_close`. Other token types appear only when the task requires them.
-- Extra data for the editor goes to `token.meta`, and the parser spec reads it in `getAttrs`: `token.meta?.headerRows` in `YfmTableSpecs/parser.ts`, `token.meta?.folding` in `YfmHeadingSpecs/index.ts`.
-- The plugin only parses Markdown. Serialization belongs to the editor extension, `<Name>Specs/serializer.ts`, and writes through `state`: `write`, `ensureNewLine`, `renderContent`, `closeBlock` (`YfmCutSpecs/serializer.ts`).
-
-### Screenshot tests
-
-- A screenshot shows the editor together with its toolbar: call `expectScreenshot()` without `component`, or pass a locator that contains the toolbar.
-- Fit the frame to the content with the page size, as in `playground/Headings.visual.test.tsx`: the `width` and `style` props of `Playground` and `page.setViewportSize({height, width})`.
-
 ## Code style
 
 Prettier owns formatting, ESLint and Stylelint own the rest. One command applies the fixes of all three:
@@ -91,6 +66,16 @@ It covers `*.{js,jsx,mjs,ts,tsx,css,scss}` across the whole repository. Its outp
 - Write code the way the linter wants it from the start: `T[]` instead of `Array<T>`, object shorthand (`{foo}` instead of `{foo: foo}`), inline type imports (`import {type Foo} from './foo'`).
 - Where the linter is silent, follow the file you are editing.
 - Shared rules live in `infra/linters/`; per-package overrides are in the root `eslint.config.mjs`.
+
+## Extensions
+
+Rules for every extension. Examples live in `packages/editor/src/extensions/`.
+
+1. Specs live in a `<Name>Specs/` folder split by file, example: `yfm/YfmCut/YfmCutSpecs/`.
+2. A NodeView is a class in a `<Name>NodeView/` folder, example: `additional/Mermaid/MermaidNodeView/NodeView.tsx:16`.
+3. Class names come from `cn`, state is a modifier, example: `additional/YfmHtmlBlock/YfmHtmlBlockNodeView/YfmHtmlBlockView.tsx:25`, `:207`.
+4. A markdown-it plugin emits one token stream; extra data goes to `token.meta`, example: `yfm/YfmTable/YfmTableSpecs/parser.ts:15`.
+5. The plugin only parses; the serializer lives in the extension and writes through `state`, example: `yfm/YfmCut/YfmCutSpecs/serializer.ts:20-22`.
 
 ## Package naming
 
