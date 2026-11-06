@@ -9,6 +9,13 @@ const packageDir = path.resolve(import.meta.dirname, '../..');
 const {exports: packageExports} = JSON.parse(
     readFileSync(path.join(packageDir, 'package.json'), 'utf8'),
 );
+const {config, error} = ts.readConfigFile(path.join(packageDir, 'tsconfig.json'), ts.sys.readFile);
+assert.ifError(error);
+const parsedConfig = ts.parseJsonConfigFileContent(config, ts.sys, packageDir);
+assert.deepEqual(parsedConfig.errors, []);
+const aliases = Object.keys(parsedConfig.options.paths ?? {}).map(
+    (alias) => new RegExp(`^${alias.split('*').map(RegExp.escape).join('.*')}$`),
+);
 
 for (const [condition, format] of [
     ['import', 'esm'],
@@ -69,7 +76,11 @@ function collectLocalReferences(node, references) {
     } else if (ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument)) {
         module = node.argument.literal;
     }
-    if (module && ts.isStringLiteral(module) && module.text.startsWith('.')) {
+    if (
+        module &&
+        ts.isStringLiteral(module) &&
+        (module.text.startsWith('.') || aliases.some((alias) => alias.test(module.text)))
+    ) {
         references.push(node);
     }
     ts.forEachChild(node, (child) => collectLocalReferences(child, references));
