@@ -862,17 +862,21 @@ function hasCodeBlockIndent(parent: Node): boolean {
 }
 
 function hasContentBeforeBlankLine(parent: Node): boolean {
-    let end = parent.content.size;
+    let end = parent.childCount;
     const lastType = parent.lastChild?.type;
     for (let index = parent.childCount - 1; index >= 0; index--) {
         const child = parent.child(index);
         if (child.type !== lastType || !child.type.spec.isBreak) break;
-        end -= child.nodeSize;
+        end--;
     }
-    const text = parent.textBetween(0, end, '', (node) => {
-        if (!node.type.spec.isBreak) return '\ufffc';
-        return node.type.spec.breakType === 'hard' ? '\\\n' : '\n';
-    });
+    const text = parent.content.content
+        .slice(0, end)
+        .map((node) => {
+            if (node.isText) return node.text ?? '';
+            if (!node.type.spec.isBreak) return '\ufffc';
+            return node.type.spec.breakType === 'hard' ? '\\\n' : '\n';
+        })
+        .join('');
     let afterLineBreak = false;
     for (let index = 0; index < text.length; index++) {
         const char = text[index];

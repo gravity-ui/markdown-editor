@@ -2,6 +2,7 @@ import {Schema} from 'prosemirror-model';
 import {builders} from 'prosemirror-test-builder';
 import {describe, expect, it} from 'vitest';
 
+import {MathSpecs} from '../../extensions/additional/Math/MathSpecs';
 import {Logger2} from '../../logger';
 import {DefaultSpecsPreset} from '../../presets/default-specs';
 import {ExtensionsManager} from '../ExtensionsManager';
@@ -133,6 +134,17 @@ describe('MarkdownSerializer paragraph indentation', () => {
         },
     );
 
+    it('should keep a whitespace-only inline formula after NBSP indentation', () => {
+        const {markupParser: parser, serializer} = new ExtensionsManager({
+            extensions: (builder) => builder.use(DefaultSpecsPreset, {}).use(MathSpecs),
+        }).buildDeps();
+        const input = parser.parse('&#32;   \u00a0$\u00a0$');
+        const result = parser.parse(serializer.serialize(input));
+
+        expect(result).toMatchNode(input);
+        expect(parser.parse(serializer.serialize(result))).toMatchNode(input);
+    });
+
     it('should keep existing whitespace-only NBSP serialization', () => {
         const {doc, p, br, sb, serializer} = createFixture();
         const prefix = '    \u00a0';
@@ -147,6 +159,15 @@ describe('MarkdownSerializer paragraph indentation', () => {
         const input = doc(p('    \u00a0', sb(), '\ntext'));
 
         expect(serializer.serialize(input)).toBe('    \u00a0\n\ntext');
+    });
+
+    it('should keep NBSP indentation escaped before a hard break and a raw newline', () => {
+        const {doc, p, br, parser, serializer} = createFixture();
+        const input = doc(p('    \u00a0', br(), '\ntext'));
+        const markdown = serializer.serialize(input);
+
+        expect(markdown).toBe('&#32;   \u00a0\\\n\ntext');
+        expect(parser.parse(markdown).child(0).type.name).toBe('paragraph');
     });
 
     it('should keep an image after paragraph indentation', () => {
