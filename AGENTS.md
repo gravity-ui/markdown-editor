@@ -50,6 +50,14 @@ For more details on filtering and updating snapshots see [`docs/how-to-add-visua
 
 These run visual tests outside Docker and produce unreliable results.
 
+### Screenshots
+
+- A screenshot of editor content includes the toolbar.
+- The viewport width and height fit the content, without empty space around it.
+- A popup is captured in the real editor, in the test that opens it. A popup component mounted on its own misses changes in how the editor renders it.
+- Each mode gets its own `test()` with the mode tag (`@wysiwyg`, `@markup`) in its name, without `for` loops.
+- Locators and actions for a block live in its class in `demo/tests/playwright/core/editor.ts`, not in the test file.
+
 ## Code style
 
 Prettier owns formatting, ESLint and Stylelint own the rest. One command applies the fixes of all three:
