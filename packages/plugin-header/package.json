@@ -21,7 +21,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "run-p -cs lint:*",
     "lint:js": "eslint './**/*.{js,jsx,mjs,ts,tsx}'",
+    "lint:styles": "stylelint './**/*.{css,scss}' --allow-empty-input",
     "lint:prettier": "prettier --check './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
+    "test": "vitest run",
     "prepublishOnly": "nx lint && nx clean && nx build"
   },
   "exports": {
@@ -34,7 +36,8 @@
         "types": "./build/cjs/index.d.ts",
         "default": "./build/cjs/index.js"
       }
-    }
+    },
+    "./styles.css": "./build/styles.css"
   },
   "main": "build/cjs/index.js",
   "module": "build/esm/index.js",
@@ -44,19 +47,26 @@
     "README.md"
   ],
   "dependencies": {
-    "@types/markdown-it": "catalog:"
+    "@diplodoc/directive": "^0.4.0",
+    "@types/markdown-it": "catalog:",
+    "tslib": "catalog:ts"
   },
   "devDependencies": {
     "@markdown-editor/gulp-tasks": "workspace:*",
     "@markdown-editor/linters": "workspace:*",
     "@markdown-editor/tsconfig": "workspace:*",
+    "@markdown-editor/vitest-config": "workspace:*",
     "gulp-cli": "catalog:",
     "markdown-it": "catalog:peers",
     "npm-run-all": "^4.1.5",
-    "typescript": "catalog:ts"
+    "typescript": "catalog:ts",
+    "vitest": "catalog:testing"
   },
   "peerDependencies": {
     "markdown-it": "^13.0.0"
   },
-  "sideEffects": false
+  "sideEffects": [
+    "*.css",
+    "*.scss"
+  ]
 }

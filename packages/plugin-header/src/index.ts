@@ -1,5 +1,8 @@
-import type {PluginSimple} from 'markdown-it';
+import {headerPlugin} from './directive';
 
-export const headerPlugin: PluginSimple = () => {};
+export * from './classname';
+export * from './const';
+export * from './dimensions';
+export * from './directive';
 
 export default headerPlugin;
