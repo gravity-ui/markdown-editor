@@ -1,12 +1,16 @@
 import {CompletionContext, type CompletionSource} from '@codemirror/autocomplete';
 import {describe, expect, it, onTestFinished, vi} from 'vitest';
 
-import {BaseSchemaSpecs} from '../extensions/base/BaseSchema/BaseSchemaSpecs';
-import {Logger2} from '../logger';
-import {ReactRenderStorage} from '../modules/react-renderer';
-import {DirectiveSyntaxContext} from '../utils/directive';
+import {BaseSchemaSpecs} from 'src/extensions/base/BaseSchema/BaseSchemaSpecs';
+import {Logger2, globalLogger} from 'src/logger';
+import {ReactRenderStorage} from 'src/modules/react-renderer';
+import {DirectiveSyntaxContext} from 'src/utils/directive';
+import {SafeEventEmitter} from 'src/utils/event-emitter';
 
-import {EditorImpl} from './Editor';
+import {EditorImpl, type EditorOptions} from './Editor';
+import {MarkupCore} from './markup/MarkupCore';
+import type {EditorEventMap} from './shared/events';
+import {WysiwygCore} from './wysiwyg/WysiwygCore';
 
 describe('EditorImpl: mode changes', () => {
     it('should not create an editor from pending mode focus after destroy', () => {
@@ -149,14 +153,40 @@ describe('EditorImpl: mode changes', () => {
     );
 });
 
+describe('EditorImpl: events', () => {
+    it('should count listeners after subscribing and unsubscribing', () => {
+        const editor = createModeEditor();
+        const listener = vi.fn();
+
+        expect(editor.countOf('change')).toBe(0);
+        editor.on('change', listener);
+        expect(editor.countOf('change')).toBe(1);
+        editor.off('change', listener);
+        expect(editor.countOf('change')).toBe(0);
+    });
+});
+
 function createEditor(overrides: Partial<ConstructorParameters<typeof EditorImpl>[0]> = {}) {
-    return new EditorImpl({
+    const options: EditorOptions = {
         logger: new Logger2(),
         renderStorage: new ReactRenderStorage(),
         preset: 'full',
         directiveSyntax: new DirectiveSyntaxContext(undefined),
-        pmTransformers: [],
         ...overrides,
+    };
+    const events = new SafeEventEmitter<EditorEventMap>({
+        onError: (error) => {
+            options.logger.error(error);
+            globalLogger.error(error);
+        },
+    });
+    const markupState = {markup: options.initial?.markup ?? ''};
+    const getInitialMarkup = () => markupState.markup;
+    return new EditorImpl(options, {
+        events,
+        markupState,
+        wysiwyg: new WysiwygCore(options, events, getInitialMarkup),
+        markup: new MarkupCore(options, events, getInitialMarkup),
     });
 }
 
