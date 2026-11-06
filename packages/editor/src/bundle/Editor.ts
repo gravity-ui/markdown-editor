@@ -20,7 +20,6 @@ import type {
     MarkdownEditorPreset as EditorPreset,
     MarkdownEditorMdOptions,
     MarkdownEditorOptions,
-    ParseInsertedUrlAsImage,
     RenderPreview,
     MarkdownEditorSplitMode as SplitMode,
 } from './types';
@@ -107,9 +106,7 @@ export class EditorImpl implements EditorInt {
     readonly #preset: EditorPreset;
     #renderStorage: ReactRenderStorage;
     #fileUploadHandler?: FileUploadHandler;
-    #parseInsertedUrlAsImage?: ParseInsertedUrlAsImage;
     #needToSetDimensionsForUploadedImages: boolean;
-    #enableNewImageSizeCalculation: boolean;
     #directiveSyntax: DirectiveSyntaxContext;
     #prepareRawMarkup?: (value: MarkupString) => MarkupString;
     #beforeEditorModeChange?: (
@@ -163,8 +160,7 @@ export class EditorImpl implements EditorInt {
                 } else if (this.#prepareRawMarkup) {
                     this.#markupState.markup = this.#prepareRawMarkup(this.#markupState.markup);
                 }
-                if (this.#wysiwygCore.editor)
-                    this.#wysiwygCore.editor.replace(this.#markupState.markup);
+                this.#wysiwygCore.editor?.replace(this.#markupState.markup);
                 break;
             }
             default:
@@ -249,16 +245,8 @@ export class EditorImpl implements EditorInt {
         return this.#fileUploadHandler;
     }
 
-    get parseInsertedUrlAsImage() {
-        return this.#parseInsertedUrlAsImage;
-    }
-
     get needToSetDimensionsForUploadedImages(): boolean {
         return this.#needToSetDimensionsForUploadedImages;
-    }
-
-    get enableNewImageSizeCalculation(): boolean {
-        return this.#enableNewImageSizeCalculation;
     }
 
     get mobile(): boolean {
@@ -296,12 +284,10 @@ export class EditorImpl implements EditorInt {
 
         this.#renderStorage = opts.renderStorage;
         this.#fileUploadHandler = handlers.uploadFile;
-        this.#parseInsertedUrlAsImage = markupConfig.parseInsertedUrlAsImage;
         this.#needToSetDimensionsForUploadedImages = Boolean(
             experimental.needToSetDimensionsForUploadedImages,
         );
         this.#directiveSyntax = opts.directiveSyntax;
-        this.#enableNewImageSizeCalculation = Boolean(experimental.enableNewImageSizeCalculation);
         this.#prepareRawMarkup = experimental.prepareRawMarkup;
         this.#escapeConfig = opts.wysiwygConfig?.escapeConfig;
         this.#beforeEditorModeChange = experimental.beforeEditorModeChange;

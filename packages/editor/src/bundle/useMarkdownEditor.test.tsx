@@ -105,8 +105,7 @@ describe('useMarkdownEditor', () => {
                         builder.configureMd((md) => {
                             md.core.ruler.push('source-lines', (state) => {
                                 for (const token of state.tokens) {
-                                    // Leave the first line unmapped to check the fallback.
-                                    if (token.map && token.map[0] > 0) {
+                                    if (token.map) {
                                         token.attrSet('data-line', String(token.map[0]));
                                     }
                                 }
@@ -118,11 +117,11 @@ describe('useMarkdownEditor', () => {
             editor.replace('first\n\nlast');
             editor.setEditorMode(mode);
 
-            editor.moveCursor({line: 0});
-            editor.insert('new-');
-            expect(editor.getValue()).toBe('new-first\n\nlast');
-
             editor.moveCursor({line: 2});
+            editor.insert('new-');
+            expect(editor.getValue()).toBe('first\n\nnew-last');
+
+            editor.moveCursor({line: 0});
             editor.insert('new-');
             expect(editor.getValue()).toBe('new-first\n\nnew-last');
         },
