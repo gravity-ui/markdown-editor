@@ -1,6 +1,6 @@
 import {expect, test} from 'playwright/core';
 
-import {Playground} from './playground/Playground.helpers';
+import {Playground} from './Playground.helpers';
 
 const content = (title: string) => `blocks:
   - type: header-block
