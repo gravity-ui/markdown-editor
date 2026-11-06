@@ -52,13 +52,11 @@ These run visual tests outside Docker and produce unreliable results.
 
 ### Screenshots
 
-Examples live in `demo/tests/visual-tests/playground/`.
-
-1. Include the toolbar, example: `Lists.visual.test.tsx:160`.
-2. Fit the page width and height to the content, example: `Lists.visual.test.tsx:7-8`.
-3. Capture a popup in the test that opens it, example: `File.visual.test.tsx:37`.
-4. No `for` loops; put the mode tag in the `test()` name, example: `File.visual.test.tsx:18`.
-5. Block helpers live in `demo/tests/playwright/core/editor.ts`, example: the `YfmTable` class, line 144.
+- A screenshot of editor content includes the toolbar.
+- The viewport width and height fit the content, without empty space around it.
+- A popup is captured in the real editor, in the test that opens it. A popup component mounted on its own misses changes in how the editor renders it.
+- Each mode gets its own `test()` with the mode tag (`@wysiwyg`, `@markup`) in its name, without `for` loops.
+- Locators and actions for a block live in its class in `demo/tests/playwright/core/editor.ts`, not in the test file.
 
 ## Code style
 
