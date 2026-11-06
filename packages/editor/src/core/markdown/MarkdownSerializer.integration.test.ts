@@ -161,6 +161,23 @@ describe('MarkdownSerializer paragraph indentation', () => {
         expect(serializer.serialize(input)).toBe('    \u00a0\n\ntext');
     });
 
+    it.each(['\n\n', '\r\r', '\r\n\r\n'])(
+        'should keep paragraphs after a raw blank line following NBSP indentation %j',
+        (blankLine) => {
+            const {doc, p, parser, serializer} = createFixture();
+            const input = doc(p('    \u00a0' + blankLine + 'text'));
+
+            expect(parser.parse(serializer.serialize(input))).toMatchNode(doc(p(' '), p('text')));
+        },
+    );
+
+    it('should keep an image after a raw blank line following NBSP indentation', () => {
+        const {doc, p, img, parser, serializer} = createFixture();
+        const input = doc(p('    \u00a0\n\n', img()));
+
+        expect(parser.parse(serializer.serialize(input))).toMatchNode(doc(p(' '), p(img())));
+    });
+
     it('should keep NBSP indentation escaped before a hard break and a raw newline', () => {
         const {doc, p, br, parser, serializer} = createFixture();
         const input = doc(p('    \u00a0', br(), '\ntext'));

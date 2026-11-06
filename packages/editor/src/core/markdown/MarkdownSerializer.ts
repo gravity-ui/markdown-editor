@@ -855,7 +855,8 @@ function hasCodeBlockIndent(parent: Node): boolean {
             for (const char of indent) columns += char === '\t' ? 4 - (columns % 4) : 1;
             atStart = indent.length === text.length;
         }
-        if (text.includes('\u00a0')) return columns >= 4 && hasContentBeforeBlankLine(parent);
+        if (columns >= 4 && text.includes('\u00a0') && hasContentBeforeBlankLine(parent))
+            return true;
         if (/\S/.test(text)) return columns >= 4;
     }
     return false;
