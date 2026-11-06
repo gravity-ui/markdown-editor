@@ -1,4 +1,5 @@
 import type {ExtensionAuto} from '../../core';
+import type {ReactRenderer} from '../../modules/react-renderer';
 import type {PlaceholderOptions} from '../../utils/placeholder';
 
 import {ClicksOnEdges} from './ClicksOnEdges';
@@ -9,7 +10,7 @@ import {Cursor, type CursorOptions} from './Cursor';
 import {FilePaste} from './FilePaste';
 import {History, type HistoryOptions} from './History';
 import {Placeholder} from './Placeholder';
-import {type ReactRenderer, ReactRendererExtension} from './ReactRenderer';
+import {ReactRendererExtension} from './ReactRenderer';
 import {Search, type SearchOptions} from './Search';
 import {Selection} from './Selection';
 import {SelectionContext, type SelectionContextOptions} from './SelectionContext';

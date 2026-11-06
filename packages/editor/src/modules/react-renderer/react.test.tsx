@@ -5,8 +5,7 @@ import {act} from 'react-dom/test-utils';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {Renderer} from './react';
-
-import {ReactRenderStorage} from './index';
+import {ReactRenderStorage} from './storage';
 
 describe('ReactRenderer', () => {
     let container: HTMLDivElement;
@@ -47,5 +46,25 @@ describe('ReactRenderer', () => {
 
         expect(storage.getItems()).toHaveLength(1);
         expect(container.textContent).toBe('HTML preview');
+    });
+
+    it('should keep items available across renderer remounts', () => {
+        const storage = new ReactRenderStorage();
+        let value = 'WYSIWYG item';
+        const item = storage.createItem('wysiwyg', () => <div>{value}</div>);
+
+        act(() => root.render(<Renderer storage={storage} />));
+        expect(container.textContent).toBe('WYSIWYG item');
+
+        value = 'Updated item';
+        act(() => item.rerender());
+        expect(container.textContent).toBe('Updated item');
+
+        act(() => root.render(null));
+        act(() => root.render(<Renderer storage={storage} />));
+        expect(container.textContent).toBe('Updated item');
+
+        act(() => item.remove());
+        expect(container.textContent).toBe('');
     });
 });

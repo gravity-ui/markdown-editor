@@ -15,12 +15,12 @@ import {
 } from '../core';
 import type {TransformFn} from '../core/markdown/ProseMirrorTransformer';
 import type {DynamicModifiers} from '../core/types/dynamicModifiers';
-import type {ReactRenderStorage, RenderStorage} from '../extensions';
 import {i18n} from '../i18n/bundle';
 import {type Logger2, globalLogger} from '../logger';
 import {createCodemirror} from '../markup';
 import {getAutocompleteConfig} from '../markup/codemirror/autocomplete';
 import {type CodeEditor, Editor as MarkupEditor} from '../markup/editor';
+import type {ReactRenderStorage, RenderStorage} from '../modules/react-renderer';
 import {type Emitter, type FileUploadHandler, type Receiver, SafeEventEmitter} from '../utils';
 import type {DirectiveSyntaxContext} from '../utils/directive';
 
@@ -121,6 +121,7 @@ export type EditorOptions = Pick<
 
 /** @internal */
 export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorInt {
+    #destroyed = false;
     #logger: Logger2.ILogger;
     #markup: MarkupString;
     #editorMode: EditorMode;
@@ -131,6 +132,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     #renderPreview?: RenderPreview;
     #wysiwygEditor?: WysiwygEditor;
     #markupEditor?: MarkupEditor;
+    #markupEditorNeedsReplace = false;
     #markupConfig: MarkupConfig;
     #escapeConfig?: EscapeConfig;
     #mdOptions: Readonly<MarkdownEditorMdOptions>;
@@ -171,7 +173,9 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             case 'markup': {
                 this.#editorMode = newMode;
                 if (this.#wysiwygEditor) {
-                    const markupEditorValue = this.#markupEditor?.getValue();
+                    const markupEditorValue = this.#markupEditorNeedsReplace
+                        ? undefined
+                        : this.#markupEditor?.getValue();
                     const wysiwygEditorValue = this.#wysiwygEditor.getValue();
                     if (
                         !markupEditorValue ||
@@ -182,7 +186,11 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
                         this.#markup = markupEditorValue;
                     }
                 }
-                if (this.#markupEditor) this.#markupEditor.replace(this.#markup);
+                if (this.#markupEditor) {
+                    this.#markupEditorNeedsReplace = true;
+                    this.#markupEditor.replace(this.#markup);
+                    this.#markupEditorNeedsReplace = false;
+                }
                 break;
             }
             case 'wysiwyg': {
@@ -203,6 +211,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             this.#markupEditor?.cm.dom.ownerDocument ?? this.#wysiwygEditor?.dom.ownerDocument;
         const activeElement = ownerDocument?.activeElement;
         setTimeout(() => {
+            if (this.#destroyed) return;
             // Search may open before this timer runs. Do not take focus from its input.
             // Removing the old editor can move focus to body; still focus the new editor then.
             if (
@@ -423,6 +432,7 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
     // <--- implements ActionStorage
 
     destroy() {
+        this.#destroyed = true;
         this.#wysiwygEditor?.destroy();
         this.#markupEditor?.codemirror.destroy();
 
@@ -449,7 +459,16 @@ export class EditorImpl extends SafeEventEmitter<EventMapInt> implements EditorI
             reason: opts.reason,
         });
 
-        this.currentMode = opts.mode;
+        const previousMode = this.#editorMode;
+        const previousMarkup = this.#markup;
+        try {
+            this.currentMode = opts.mode;
+        } catch (error) {
+            this.#editorMode = previousMode;
+            this.#markup = previousMarkup;
+            throw error;
+        }
+
         this.emit('rerender', null);
 
         if (emit) {

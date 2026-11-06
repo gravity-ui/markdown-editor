@@ -1,6 +1,7 @@
 import type {Schema} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
+import type {RendererItem} from '../../../../modules/react-renderer';
 import {AutocompletePopupCloser} from '../../../../utils/autocomplete-popup';
 import {ArrayCarousel} from '../../../../utils/carousel';
 import {
@@ -10,7 +11,7 @@ import {
     closeAutocomplete,
     getAutocompleteState,
 } from '../../../behavior/Autocomplete';
-import {type RendererItem, getReactRendererFromState} from '../../../behavior/ReactRenderer';
+import {getReactRendererFromState} from '../../../behavior/ReactRenderer';
 import {EmojiConsts} from '../EmojiSpecs';
 
 import {type EmojiSuggestComponentProps, render} from './EmojiSuggestComponent';

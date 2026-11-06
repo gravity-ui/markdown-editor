@@ -2,8 +2,8 @@ import {useLayoutEffect, useMemo} from 'react';
 
 import type {Extension} from '../core';
 import {getPMTransformers} from '../core/markdown/ProseMirrorTransformer/getTransformers';
-import {ReactRenderStorage} from '../extensions';
 import {Logger2, globalLogger} from '../logger';
+import {ReactRenderStorage} from '../modules/react-renderer';
 import {DirectiveSyntaxContext} from '../utils/directive';
 
 import {EditorImpl, type EditorInt} from './Editor';
