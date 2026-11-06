@@ -1,13 +1,10 @@
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 
-import {getLoggerFromState} from '../../../core';
-import type {Logger2} from '../../../logger';
-import {
-    type FileUploadHandler,
-    type UploadSuccessItem,
-    batchUploadFiles,
-} from '../../../utils/upload';
+import {getLoggerFromState} from 'src/core';
+import type {Logger2} from 'src/logger';
+import {type FileUploadHandler, type UploadSuccessItem, batchUploadFiles} from 'src/utils/upload';
+
 import type {WidgetDescriptor} from '../WidgetDecoration';
 
 export abstract class FilesBatchUploadProcess {
@@ -35,6 +32,7 @@ export abstract class FilesBatchUploadProcess {
         const {view} = this;
         const {state} = view;
         this.skeletonDescriptor = await this.createSkeleton();
+        if (view.isDestroyed) return;
         let tr = state.tr;
         if (!state.selection.empty) tr = tr.deleteSelection();
         tr = this.skeletonDescriptor.applyTo(tr);
@@ -50,6 +48,7 @@ export abstract class FilesBatchUploadProcess {
                 (async () => {
                     const node = await this.createPMNode(res);
                     const {view} = this;
+                    if (view.isDestroyed) return;
                     const {schema} = view.state;
                     view.dispatch(
                         view.state.tr.insert(this.skeletonDescriptor!.pos, [
@@ -68,6 +67,7 @@ export abstract class FilesBatchUploadProcess {
 
     protected removeSkeleton() {
         const {view} = this;
+        if (view.isDestroyed) return;
         view.dispatch(this.skeletonDescriptor!.rmDeco(view.state.tr));
     }
 }
