@@ -35,6 +35,7 @@ jobs:
       - name: Generate Screenshot Diff
         if: success() || failure()
         working-directory: demo
+        shell: bash
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           snapshots=tests/visual-tests/__snapshots__
