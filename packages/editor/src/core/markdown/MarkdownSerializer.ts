@@ -842,6 +842,7 @@ function isMarkdownWhitespaceOrPunctuation(char: string): boolean {
 function hasCodeBlockIndent(parent: Node): boolean {
     let columns = 0;
     let atStart = true;
+    let hasContent: boolean | undefined;
     for (const child of parent.content.content) {
         if (child.type.spec.isBreak) {
             if (child.type.spec.breakType === 'soft') return false;
@@ -857,8 +858,10 @@ function hasCodeBlockIndent(parent: Node): boolean {
             atStart = indent.length === text.length;
         }
         if (/\S/.test(text)) return columns >= 4;
-        if (columns >= 4 && hasNonMarkdownWhitespace(text) && hasContentBeforeBlankLine(parent))
-            return true;
+        if (columns >= 4 && hasNonMarkdownWhitespace(text)) {
+            hasContent ??= hasContentBeforeBlankLine(parent);
+            if (hasContent) return true;
+        }
     }
     return false;
 }

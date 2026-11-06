@@ -155,6 +155,18 @@ describe('MarkdownSerializer paragraph indentation', () => {
         expect(parser.parse(serializer.serialize(result))).toMatchNode(input);
     });
 
+    it('should keep indentation escaping after fragmented Unicode whitespace and a blank line', () => {
+        const {doc, p, em, strong, parser, serializer} = createFixture();
+        const spaces = Array.from({length: 1000}, (_, index) =>
+            index % 2 ? em('\u00a0') : strong('\u00a0'),
+        );
+        const input = doc(p('    \u00a0', ...spaces, '\n\ntext'));
+        const markdown = serializer.serialize(input);
+
+        expect(markdown).toBe('&#32;   ' + '\u00a0'.repeat(1001) + '\n\ntext');
+        expect(parser.parse(markdown)).toMatchNode(doc(p(' '), p('text')));
+    });
+
     it.each(['---', '--', '# heading', '- item', '1. item', '> quote'])(
         'should keep literal line-start text after a soft break %j',
         (text) => {
