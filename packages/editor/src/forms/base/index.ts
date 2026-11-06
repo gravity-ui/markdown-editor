@@ -8,4 +8,11 @@ import {FormFooter as Footer} from './FormFooter';
 import {FormLayout as Layout} from './FormLayout';
 import {FormRow as Row} from './FormRow';
 
-export default {Form, Layout, Row, Footer};
+const forms: {
+    Form: typeof Form;
+    Layout: typeof Layout;
+    Row: typeof Row;
+    Footer: typeof Footer;
+} = {Form, Layout, Row, Footer};
+
+export default forms;

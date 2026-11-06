@@ -11,7 +11,12 @@ export type YfmTableControlsPluginsOpts = {
 };
 
 export const yfmTableControlsPlugins =
-    (opts: YfmTableControlsPluginsOpts) => (_deps: ExtensionDeps) => [
+    (opts: YfmTableControlsPluginsOpts) =>
+    (
+        _deps: ExtensionDeps,
+    ): ReturnType<
+        typeof yfmTableFocusPlugin | typeof yfmTableDndPlugin | typeof yfmTableHeaderRowsPlugin
+    >[] => [
         yfmTableFocusPlugin(opts),
         yfmTableDndPlugin(),
         ...(opts.headerRowsEnabled ? [yfmTableHeaderRowsPlugin()] : []),
