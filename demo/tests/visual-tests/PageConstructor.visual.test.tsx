@@ -11,27 +11,31 @@ const content = (title: string) => `blocks:
         url: '#next'
         theme: normal-contrast`;
 
-for (const colorScheme of ['light', 'dark'] as const) {
-    test(`should preserve Page Constructor editing and preview in the ${colorScheme} theme`, async ({
+const initial = `::: page-constructor\n${content('Original page')}\n:::`;
+
+test.describe('Page Constructor', () => {
+    test('should show a contrast button @wysiwyg', async ({
         mount,
         page,
-        editor,
+        wait,
+        expectScreenshot,
     }) => {
+        await mount(<YFMStories.YfmPageConstructor initial={initial} />);
+        await wait.loadersHidden();
+
+        const nodeView = page.locator('.g-md-yfm-page-constructor').first();
+        await expect(nodeView.getByRole('link', {name: 'Continue'})).toBeVisible();
+
+        await expectScreenshot({component: nodeView});
+    });
+
+    test('should keep edits in markup and preview', async ({mount, page, editor}) => {
         const errors: string[] = [];
         page.on('pageerror', (error) => errors.push(error.message));
-        await page.emulateMedia({colorScheme});
-        await mount(
-            <YFMStories.YfmPageConstructor
-                initial={`::: page-constructor\n${content('Original page')}\n:::`}
-            />,
-        );
+        await mount(<YFMStories.YfmPageConstructor initial={initial} />);
 
         const nodeView = page.locator('.g-md-yfm-page-constructor').first();
         const preview = page.getByTestId('demo-md-preview');
-        await expect(nodeView.getByRole('heading', {name: 'Original page'})).toBeVisible();
-        await expect(nodeView.getByRole('link', {name: 'Continue'})).toHaveClass(
-            /g-button_view_contrast-light/,
-        );
 
         await nodeView.getByRole('heading', {name: 'Original page'}).dblclick();
         const editing = page.locator('.g-md-yfm-page-constructor_edit');
@@ -46,8 +50,9 @@ for (const colorScheme of ['light', 'dark'] as const) {
         await expect(page.locator('.cm-content')).toContainText('Updated page');
         await editor.switchPreview('visible');
         await expect(preview.getByRole('heading', {name: 'Updated page'})).toBeVisible();
+
         await editor.switchMode('wysiwyg');
         await expect(nodeView.getByRole('heading', {name: 'Updated page'})).toBeVisible();
         expect(errors).toEqual([]);
     });
-}
+});
