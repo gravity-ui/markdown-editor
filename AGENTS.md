@@ -69,13 +69,34 @@ It covers `*.{js,jsx,mjs,ts,tsx,css,scss}` across the whole repository. Its outp
 
 ## Extensions
 
-Rules for every extension. Examples live in `packages/editor/src/extensions/`.
+An extension `Block` in `packages/editor/src/extensions/` has this layout:
 
-1. Specs live in a `<Name>Specs/` folder split by file, example: `yfm/YfmCut/YfmCutSpecs/`.
-2. A NodeView is a class in a `<Name>NodeView/` folder, example: `additional/Mermaid/MermaidNodeView/NodeView.tsx:16`.
-3. Class names come from `cn`, state is a modifier, example: `additional/YfmHtmlBlock/YfmHtmlBlockNodeView/YfmHtmlBlockView.tsx:25`, `:207`.
-4. A markdown-it plugin emits one token stream; extra data goes to `token.meta`, example: `yfm/YfmTable/YfmTableSpecs/parser.ts:15`.
-5. The plugin only parses; the serializer lives in the extension and writes through `state`, example: `yfm/YfmCut/YfmCutSpecs/serializer.ts:20-22`.
+```
+Block/
+  BlockSpecs/
+    index.ts
+    const.ts
+    BlockSpecs.ts
+  BlockNodeView/
+    components/
+      <React components>
+    index.ts
+    BlockNodeView.ts
+  plugins/
+    BlockPlugin/
+      index.ts
+      plugin.ts
+  Block.ts
+  index.ts
+```
+
+- `Block.ts` holds the extension; every `index.ts` only re-exports.
+- `BlockSpecs/` holds the schema, the parser and the serializer; `const.ts` holds node and attribute names.
+- A NodeView is a class in `BlockNodeView/`; its React components live in `components/`.
+- Each ProseMirror plugin gets its own folder in `plugins/`.
+- Class names come from `cn`; element state is a modifier.
+- A markdown-it plugin emits one token stream; extra data goes to `token.meta`.
+- A markdown-it plugin only parses. The serializer lives in the extension and writes through `state`.
 
 ## Package naming
 
