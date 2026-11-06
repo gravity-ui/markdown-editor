@@ -1,5 +1,6 @@
 import {Ellipsis} from '@gravity-ui/icons';
 import {Button, Icon, Popup, type PopupPlacement} from '@gravity-ui/uikit';
+// TODO: migrate to Menu from '@gravity-ui/uikit'
 import {Menu} from '@gravity-ui/uikit/legacy';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';

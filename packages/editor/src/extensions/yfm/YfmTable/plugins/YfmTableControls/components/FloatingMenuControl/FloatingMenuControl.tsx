@@ -12,6 +12,7 @@ import {
     TrashBin as RemoveTableIcon,
 } from '@gravity-ui/icons';
 import {Flex, Icon, Switch} from '@gravity-ui/uikit';
+// TODO: migrate to Menu from '@gravity-ui/uikit'
 import {DropdownMenu, Menu} from '@gravity-ui/uikit/legacy';
 
 import {i18n} from 'src/i18n/yfm-table';

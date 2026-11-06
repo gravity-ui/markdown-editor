@@ -2,6 +2,7 @@ import {useEffect, useRef} from 'react';
 
 import {ChevronRight, BucketPaint as ColorPalette} from '@gravity-ui/icons';
 import {Icon, Popup, sp} from '@gravity-ui/uikit';
+// TODO: migrate to Menu from '@gravity-ui/uikit'
 import {Menu} from '@gravity-ui/uikit/legacy';
 
 import {i18n} from 'src/i18n/yfm-table';

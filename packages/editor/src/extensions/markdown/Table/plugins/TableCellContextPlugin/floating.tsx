@@ -1,5 +1,6 @@
 import {Ellipsis} from '@gravity-ui/icons';
 import {Icon} from '@gravity-ui/uikit';
+// TODO: migrate to Menu from '@gravity-ui/uikit'
 import {DropdownMenu, type DropdownMenuItemMixed} from '@gravity-ui/uikit/legacy';
 
 import type {Action} from '../../../../../core';

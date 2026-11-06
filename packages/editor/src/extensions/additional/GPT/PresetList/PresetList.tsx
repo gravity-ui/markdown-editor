@@ -1,4 +1,5 @@
 import {ActionTooltip, Button} from '@gravity-ui/uikit';
+// TODO: migrate to Menu from '@gravity-ui/uikit'
 import {DropdownMenu} from '@gravity-ui/uikit/legacy';
 
 import {i18n} from '../../../../i18n/gpt/dialog';

@@ -2,6 +2,7 @@ import {useState} from 'react';
 
 import {Ellipsis as DotsColumn, GripHorizontal as GripColumn} from '@gravity-ui/icons';
 import {Button, type ButtonButtonProps, Flex, Icon} from '@gravity-ui/uikit';
+// TODO: migrate to Menu from '@gravity-ui/uikit'
 import {DropdownMenu, type DropdownMenuProps} from '@gravity-ui/uikit/legacy';
 
 import {useBooleanState} from 'src/react-utils';

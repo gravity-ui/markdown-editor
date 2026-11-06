@@ -1,4 +1,5 @@
 import {HelpMark, Hotkey, Icon, Popup, type PopupPlacement} from '@gravity-ui/uikit';
+// TODO: migrate to List from '@gravity-ui/uikit'
 import {List} from '@gravity-ui/uikit/legacy';
 
 import {cn} from '../../../classname';

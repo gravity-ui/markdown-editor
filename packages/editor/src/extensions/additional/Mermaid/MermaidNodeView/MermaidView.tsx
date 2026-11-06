@@ -2,6 +2,7 @@ import {useEffect, useMemo, useState} from 'react';
 
 import {Ellipsis as DotsIcon} from '@gravity-ui/icons';
 import {Button, Icon, Loader, Overlay, Popup, useThemeType} from '@gravity-ui/uikit';
+// TODO: migrate to Menu from '@gravity-ui/uikit'
 import {Menu} from '@gravity-ui/uikit/legacy';
 import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
 import type {Node} from 'prosemirror-model';

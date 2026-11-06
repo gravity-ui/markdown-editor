@@ -13,6 +13,7 @@ import {TextAreaFixed as TextArea} from '@gravity-ui/markdown-editor/_/forms/Tex
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {Button, Flex, Icon, Loader, Popup, type PopupPlacement} from '@gravity-ui/uikit';
+// TODO: migrate to Menu from '@gravity-ui/uikit'
 import {Menu} from '@gravity-ui/uikit/legacy';
 
 import {i18n} from '../../i18n';
