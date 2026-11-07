@@ -1,53 +1,8 @@
-// The controls are measured from the outer edge of the 2 px block border.
-
 .g-md-header-view {
     position: relative;
 
-    &__handle,
     &__toolbar {
         position: absolute;
-
-        visibility: hidden;
-    }
-
-    &:hover &__handle,
-    &:hover &__toolbar {
-        visibility: visible;
-    }
-
-    // The size of a block with text cannot be changed.
-    &_source &__settings {
-        display: none;
-    }
-
-    &__handle {
-        top: -2px;
-        right: calc(100% + 6px);
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        width: 16px;
-        height: 28px;
-
-        cursor: grab;
-
-        color: var(--g-color-text-secondary);
-
-        // Keeps the block hovered while the pointer crosses the gap.
-        &::after {
-            position: absolute;
-            left: 100%;
-
-            width: 6px;
-            height: 100%;
-
-            content: '';
-        }
-    }
-
-    &__toolbar {
         z-index: 1;
         top: calc(100% + 6px);
         left: 50%;
@@ -58,6 +13,9 @@
 
         padding: 4px;
 
+        pointer-events: none;
+
+        opacity: 0;
         border-radius: var(--g-border-radius-l);
         background-color: var(--g-color-base-float);
         box-shadow: 0 1px 5px var(--g-color-sfx-shadow);
@@ -74,6 +32,14 @@
 
             content: '';
         }
+    }
+
+    &:hover &__toolbar,
+    &:focus-within &__toolbar,
+    &.ProseMirror-selectednode &__toolbar {
+        pointer-events: auto;
+
+        opacity: 1;
     }
 
     &__divider {

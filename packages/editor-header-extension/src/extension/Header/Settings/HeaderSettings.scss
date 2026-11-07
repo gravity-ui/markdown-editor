@@ -1,14 +1,17 @@
 .g-md-header-settings {
     position: absolute;
+    z-index: 2;
     top: 16px;
     right: 16px;
 
     display: flex;
+    overflow: auto;
     flex-direction: column;
     gap: 16px;
 
     box-sizing: border-box;
-    width: 320px;
+    width: min(320px, calc(100% - 32px));
+    max-height: calc(100dvh - 32px);
     padding: 16px;
 
     border: 1px solid var(--g-color-line-generic);
@@ -32,7 +35,11 @@
     &__row {
         display: grid;
         align-items: center;
-        grid-template-columns: 120px 158px;
+        grid-template-columns: minmax(0, 120px) minmax(0, 1fr);
         gap: 8px;
+
+        > * {
+            min-width: 0;
+        }
     }
 }

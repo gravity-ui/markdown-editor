@@ -1,6 +1,6 @@
 # Header Markdown plugin
 
-markdown-it plugin for an empty Header block with independent height and width.
+markdown-it plugin for a Header container with independent height and width.
 
 ```ts
 import MarkdownIt from 'markdown-it';
@@ -27,4 +27,5 @@ The border uses `--g-color-line-generic` and `--g-border-radius-2xl` (16 px by d
 
 The block is a container directive of [`@diplodoc/directive`](https://github.com/diplodoc-platform/directive).
 An unknown attribute is skipped, and an unsupported value is replaced with the default: `:::header{height="xl" color="red"}` is an `s` × `m` block.
-A container with text inside or a title is rendered as an empty block; its Markdown is in `meta.source` of the `header_open` token.
+The container parses its child blocks in the same Markdown token stream.
+Inline titles and destinations in the opening directive are not supported and remain ordinary Markdown.

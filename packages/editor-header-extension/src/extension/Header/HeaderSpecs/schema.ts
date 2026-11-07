@@ -11,19 +11,21 @@ import {headerNodeName} from './const';
 export const HeaderSchemaSpecs: ExtensionAuto = (builder) => {
     builder.addNodeSpec(headerNodeName, () => ({
         group: 'block',
+        content: 'block*',
+        defining: true,
+        allowSelection: true,
+        selectAll: 'node',
+        complex: 'root',
         attrs: {
             height: {default: headerDefaults.height},
             width: {default: headerDefaults.width},
-            source: {default: null},
         },
         parseDOM: [
             {
                 tag: `div.${headerClassName}`,
-                // Pasted text inside the element is parsed by other rules.
-                getAttrs: (dom) =>
-                    !dom.hasChildNodes() && headerDimensionsFromClassName(dom.className),
+                getAttrs: (dom) => headerDimensionsFromClassName(dom.className),
             },
         ],
-        toDOM: (node) => ['div', {class: headerClassNames(node.attrs)}],
+        toDOM: (node) => ['div', {class: headerClassNames(node.attrs)}, 0],
     }));
 };

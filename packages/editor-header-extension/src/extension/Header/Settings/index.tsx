@@ -27,7 +27,10 @@ export const headerSettingsPlugin = () =>
             },
         },
         view(view) {
-            const close = () => openHeaderSettings(null)(view.state, view.dispatch);
+            const close = () => {
+                openHeaderSettings(null)(view.state, view.dispatch);
+                view.focus();
+            };
             const item = getReactRendererFromState(view.state).createItem('header-settings', () => {
                 const pos = headerSettingsKey.getState(view.state);
                 return (

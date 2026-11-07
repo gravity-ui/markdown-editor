@@ -43,22 +43,72 @@ describe('Header Markdown', () => {
         expect(md.render(markup)).toBe(html(height, width));
     });
 
-    it.each([
-        [':::header\nText **with formatting**\n:::', 's', 'm'],
-        [':::header[Title]{width="s"}\n:::', 's', 's'],
-        [':::header Title\n:::', 's', 'm'],
-    ])('should keep the text of %j in the token meta', (markup, height, width) => {
+    it('should parse child blocks in the container token stream', () => {
+        const markup = ':::header\nText **with formatting**\n:::';
         const tokens = md.parse(markup, {});
-        expect(tokens.map((token) => token.type)).toEqual(['header_open', 'header_close']);
-        expect(tokens[0].meta).toEqual({height, width, source: markup});
-        expect(md.render(markup)).toBe(html(height, width));
+        expect(tokens.map((token) => token.type)).toEqual([
+            'header_open',
+            'paragraph_open',
+            'inline',
+            'paragraph_close',
+            'header_close',
+        ]);
+        expect(tokens[0].meta).toEqual({height: 's', width: 'm'});
+        expect(md.render(markup)).toContain('<p>Text <strong>with formatting</strong></p>');
     });
 
-    it('should keep no source for an empty block', () => {
+    it.each([':::header[Title]{width="s"}\n:::', ':::header(link)\n:::', ':::header Title\n:::'])(
+        'should leave unsupported opening syntax as Markdown in %j',
+        (markup) => {
+            expect(md.parse(markup, {}).some((token) => token.type === 'header_open')).toBe(false);
+        },
+    );
+
+    it.each([
+        ':::header\n\n```text\n:::\n```\n\nAfter\n:::',
+        ':::header\n\n    :::\n\nAfter\n:::',
+        ':::header\n\n~~~~text\n:::\n~~~\n~~~~\n\nAfter\n:::',
+    ])('should keep code delimiters inside the container in %j', (markup) => {
+        const tokens = md.parse(markup, {});
+        expect(tokens[0].type).toBe('header_open');
+        expect(tokens[tokens.length - 1].type).toBe('header_close');
+        expect(
+            tokens.find((token) => ['fence', 'code_block'].includes(token.type))?.content,
+        ).toContain(':::\n');
+        expect(md.render(markup)).toContain('<p>After</p>');
+    });
+
+    it('should preserve nested containers and paragraphs after them', () => {
+        const tokens = md.parse(':::header\n:::header\nInner\n:::\nOuter\n:::', {});
+        expect(tokens.filter((token) => token.type === 'header_open')).toHaveLength(2);
+        expect(tokens.filter((token) => token.type === 'header_close')).toHaveLength(2);
+        expect(tokens[tokens.length - 1].type).toBe('header_close');
+        expect(
+            tokens.filter((token) => token.type === 'inline').map((token) => token.content),
+        ).toEqual(['Inner', 'Outer']);
+    });
+
+    it.each([':::header\nUnclosed', '    :::header\n    :::'])(
+        'should leave incomplete or indented directives as Markdown in %j',
+        (markup) => {
+            expect(md.parse(markup, {}).some((token) => token.type === 'header_open')).toBe(false);
+        },
+    );
+
+    it('should preserve an incomplete directive inside a paragraph', () => {
+        const markup = 'Before\n:::header\nUnclosed';
+        expect(md.render(markup)).toBe(new MarkdownIt().render(markup));
+    });
+
+    it('should resolve references from child blocks in the document environment', () => {
+        const markup = ':::header\n[inside][ref]\n:::\n\n[ref]: https://example.com';
+        expect(md.render(markup)).toContain('<a href="https://example.com">inside</a>');
+    });
+
+    it('should assign independent default dimensions to an empty block', () => {
         expect(md.parse(':::header{height="m"}\n:::', {})[0].meta).toEqual({
             height: 'm',
             width: 'm',
-            source: null,
         });
     });
 });

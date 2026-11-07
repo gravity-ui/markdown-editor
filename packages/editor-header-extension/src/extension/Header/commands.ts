@@ -1,3 +1,4 @@
+import {get$Cursor, pType, removeNode} from '@gravity-ui/markdown-editor';
 import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
 import type {Command, EditorState} from '@gravity-ui/markdown-editor/pm/state';
 import type {HeaderDimensions} from '@gravity-ui/markdown-plugin-header';
@@ -10,6 +11,8 @@ function headerAt(state: EditorState, pos: number) {
 }
 
 export const insertHeader: Command = (state, dispatch) => {
+    const $cursor = get$Cursor(state.selection);
+    if ($cursor?.parent.type !== pType(state.schema)) return false;
     dispatch?.(
         state.tr.replaceSelectionWith(headerNodeType(state.schema).create()).scrollIntoView(),
     );
@@ -20,8 +23,7 @@ export const setHeaderDimensions =
     (pos: number, attrs: Partial<HeaderDimensions>): Command =>
     (state, dispatch) => {
         const node = headerAt(state, pos);
-        // The source of a block with text is written back unchanged.
-        if (!node || node.attrs.source) return false;
+        if (!node) return false;
         // Attribute steps keep the node position, which the open settings track.
         const tr = closeHistory(state.tr);
         for (const name of ['height', 'width'] as const) {
@@ -44,9 +46,12 @@ export const copyHeader =
 
 export const removeHeader =
     (pos: number): Command =>
-    (state, dispatch) => {
+    (state, dispatch, view) => {
         const node = headerAt(state, pos);
         if (!node) return false;
-        dispatch?.(state.tr.delete(pos, pos + node.nodeSize));
+        if (dispatch) {
+            removeNode({node, pos, tr: state.tr, dispatch});
+            view?.focus();
+        }
         return true;
     };

@@ -12,9 +12,9 @@ import {
 import {Button, Icon, Portal, Text} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../i18n';
-import {STOP_EVENT_CLASSNAME} from '../HeaderNodeView/HeaderControls';
 import {headerNodeType} from '../HeaderSpecs';
 import {setHeaderDimensions} from '../commands';
+import {STOP_EVENT_CLASSNAME} from '../const';
 
 import {DimensionSelect} from './DimensionSelect';
 
@@ -42,6 +42,7 @@ export function HeaderSettings({view, pos, onClose}: HeaderSettingsProps) {
             <section
                 className={b(null, STOP_EVENT_CLASSNAME)}
                 role="dialog"
+                contentEditable={false}
                 aria-labelledby={titleId}
                 data-qa="header-settings"
             >

@@ -1,16 +1,19 @@
 import {cn} from '@gravity-ui/markdown-editor';
 import {getReactRendererFromState} from '@gravity-ui/markdown-editor/extensions';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
-import type {EditorView, NodeView} from '@gravity-ui/markdown-editor/pm/view';
+import type {EditorView, NodeView, ViewMutationRecord} from '@gravity-ui/markdown-editor/pm/view';
 import {headerClassNames} from '@gravity-ui/markdown-plugin-header';
 import {Portal} from '@gravity-ui/uikit';
 
-import {HeaderControls, STOP_EVENT_CLASSNAME} from './HeaderControls';
+import {STOP_EVENT_CLASSNAME} from '../const';
+
+import {HeaderControls} from './HeaderControls';
 
 const b = cn('header-view');
 
 export class WHeaderNodeView implements NodeView {
     readonly dom: HTMLElement;
+    readonly contentDOM: HTMLElement;
     private node: Node;
     private readonly view: EditorView;
     private readonly getPos: () => number | undefined;
@@ -22,8 +25,9 @@ export class WHeaderNodeView implements NodeView {
         this.getPos = getPos;
 
         this.dom = document.createElement('div');
-        this.dom.contentEditable = 'false';
         this.updateClassName();
+        this.contentDOM = this.dom.appendChild(document.createElement('div'));
+        this.contentDOM.className = b('content');
 
         this.renderItem = getReactRendererFromState(view.state).createItem(
             'header-controls',
@@ -33,6 +37,7 @@ export class WHeaderNodeView implements NodeView {
 
     update(node: Node) {
         if (node.type !== this.node.type) return false;
+        this.dom.classList.remove(...headerClassNames(this.node.attrs).split(' '));
         this.node = node;
         this.updateClassName();
         return true;
@@ -42,25 +47,23 @@ export class WHeaderNodeView implements NodeView {
         this.renderItem.remove();
     }
 
-    ignoreMutation() {
-        return true;
+    ignoreMutation(mutation: ViewMutationRecord) {
+        return mutation.type !== 'selection' && !this.contentDOM.contains(mutation.target);
     }
 
     stopEvent(event: Event) {
         const {target} = event;
-        // The target can be an icon or a text inside the marked controls.
         return target instanceof Element && target.closest(`.${STOP_EVENT_CLASSNAME}`) !== null;
     }
 
     private updateClassName() {
-        const {attrs} = this.node;
-        this.dom.className = b({source: Boolean(attrs.source)}, headerClassNames(attrs));
+        this.dom.classList.add(b(), ...headerClassNames(this.node.attrs).split(' '));
     }
 
     private renderControls() {
         return (
             <Portal container={this.dom}>
-                <HeaderControls view={this.view} getPos={this.getPos} block={this.dom} />
+                <HeaderControls view={this.view} getPos={this.getPos} />
             </Portal>
         );
     }

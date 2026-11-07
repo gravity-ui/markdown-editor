@@ -1,6 +1,6 @@
 # Header editor extension
 
-Header block for [@gravity-ui/markdown-editor](https://github.com/gravity-ui/markdown-editor): an empty block with independent height and width.
+Header block for [@gravity-ui/markdown-editor](https://github.com/gravity-ui/markdown-editor): a block container with independent height and width.
 
 ```ts
 import {useMarkdownEditor} from '@gravity-ui/markdown-editor';
@@ -12,13 +12,14 @@ const editor = useMarkdownEditor({
 ```
 
 `@gravity-ui/markdown-editor-header-extension/configs` exports the toolbar button that inserts the block: `headerItemView`, `headerItemWysiwyg`, and `headerItemMarkup`.
-Hovering the block shows a toolbar with settings, copy, and delete, and a drag handle on the left.
-The handle takes 20 px to the left of the block; `--g-md-editor-padding` provides this space.
-The settings panel on the right side of the page changes the height and width; each change is a separate undo step.
+Hovering, focusing, or selecting the block shows a toolbar with settings, copy, and delete.
+With the block selected or the cursor inside or next to it, Tab and Shift+Tab focus its controls.
+The settings panel opens inside the block, 16 px from its top and right edges, and shrinks to fit narrow blocks.
+Each height or width change is a separate undo step.
 
 The editor writes both attributes, including default values.
 Syntax, sizes, and the stylesheet for previews are in `@gravity-ui/markdown-plugin-header`.
-A block with text inside or a title keeps its Markdown when switching modes, and its size cannot be changed.
+Child blocks remain editable and are preserved when changing dimensions, copying, or switching modes.
 
 `HeaderSpecs` from `@gravity-ui/markdown-editor-header-extension/specs` adds only the schema and Markdown parsing and runs in Node.js.
 `Header` also needs the editor's React renderer, which the standard presets include.
