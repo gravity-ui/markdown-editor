@@ -17,6 +17,13 @@
         width: 100%;
         min-width: 0;
 
+        .g-text-input__control {
+            padding-block: 4px;
+
+            font-size: var(--g-text-body-1-font-size);
+            line-height: var(--g-text-body-1-line-height);
+        }
+
         .g-text-input__clear {
             --g-button-border-radius: var(--g-border-radius-l);
 

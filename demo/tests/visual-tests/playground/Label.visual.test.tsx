@@ -252,6 +252,7 @@ test.describe('Label', () => {
         const geometry = await editor.label.popup.evaluate((root) => {
             const label = document.querySelector('[contenteditable=true] .g-md-label-plugin');
             const field = root.querySelector('.g-text-input__content');
+            const control = root.querySelector('input');
             const clear = root.querySelector('.g-text-input__clear');
             const clearIcon = clear?.querySelector('svg');
             const colors = root.querySelector('.g-md-label-colors');
@@ -260,6 +261,7 @@ test.describe('Label', () => {
             if (
                 !label ||
                 !field ||
+                !control ||
                 !clear ||
                 !clearIcon ||
                 !colors ||
@@ -284,11 +286,13 @@ test.describe('Label', () => {
                 fieldWidth: round(input.width),
                 fieldHeight: round(input.height),
                 fieldRadius: getComputedStyle(field).borderRadius,
+                fieldFont: `${getComputedStyle(control).fontSize}/${getComputedStyle(control).lineHeight}`,
                 clear: {
                     width: round(button.width),
                     height: round(button.height),
                     radius: getComputedStyle(clear, '::before').borderRadius,
                     icon: round(icon.width),
+                    right: round(input.right - button.right),
                 },
                 left: round(input.left - panel.left),
                 right: round(panel.right - input.right),
@@ -308,7 +312,8 @@ test.describe('Label', () => {
             fieldWidth: 208,
             fieldHeight: 28,
             fieldRadius: '10px',
-            clear: {width: 24, height: 24, radius: '8px', icon: 14},
+            fieldFont: '13px/18px',
+            clear: {width: 24, height: 24, radius: '8px', icon: 14, right: 2},
             left: 16,
             right: 16,
             top: 16,
