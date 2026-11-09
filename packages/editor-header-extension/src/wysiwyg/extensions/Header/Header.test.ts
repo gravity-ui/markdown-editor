@@ -144,7 +144,7 @@ describe('Header extension', () => {
             const doc = markupParser.parse(markup);
             expect(doc.childCount).toBe(1);
             expect(doc.child(0).type.name).toBe('header');
-            expect(doc.child(0).childCount).toBe(1);
+            expect(doc.child(0).childCount).toBe(3);
         },
     );
 
@@ -239,7 +239,7 @@ describe('Header extension', () => {
 
     it('should not insert a header inside a header', () => {
         const editor = createView(':::header\nText\n:::');
-        editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 2)));
+        editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 6)));
         expect(insertHeader(editor.state)).toBe(false);
     });
 
@@ -257,7 +257,9 @@ describe('Header extension', () => {
         });
         view = editor;
         // From "ne" in the first paragraph to "Tw" in the second one.
-        editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 3, 9)));
+        editor.dispatch(
+            editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 7, 13)),
+        );
         const data = new Map<string, string>();
         const clipboardData = {
             clearData: () => data.clear(),
@@ -294,8 +296,10 @@ describe('Header extension', () => {
     });
 
     it('should apply content DOM edits to the document', async () => {
-        const editor = createNodeView(':::header\nBefore\n:::');
-        const paragraph = (editor.nodeDOM(0) as HTMLElement).querySelector('p');
+        const editor = createNodeView(':::header\n:::header-title\nBefore\n:::\n:::');
+        const paragraph = (editor.nodeDOM(0) as HTMLElement).querySelector(
+            '.g-md-header-plugin__title p',
+        );
         expect(paragraph).not.toBeNull();
         paragraph?.replaceChildren(document.createTextNode('After'));
         await expect.poll(() => editor.state.doc.firstChild?.textContent).toBe('After');

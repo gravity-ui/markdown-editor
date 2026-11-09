@@ -1,4 +1,4 @@
-import {useId} from 'react';
+import {type ReactNode, useId} from 'react';
 
 import {Xmark} from '@gravity-ui/icons';
 import {cn} from '@gravity-ui/markdown-editor';
@@ -12,7 +12,7 @@ import {Button, Icon, Text} from '@gravity-ui/uikit';
 import {i18n} from '../../../../../i18n';
 import {STOP_EVENT_CLASSNAME} from '../../const';
 
-import {DimensionSelect} from './DimensionSelect';
+import {SettingsSelect} from './SettingsSelect';
 
 import './HeaderSettings.scss';
 
@@ -22,9 +22,10 @@ type HeaderSettingsProps = {
     dimensions: HeaderDimensions;
     onChange: (attrs: Partial<HeaderDimensions>) => void;
     onClose: () => void;
+    children: ReactNode;
 };
 
-export function HeaderSettings({dimensions, onChange, onClose}: HeaderSettingsProps) {
+export function HeaderSettings({dimensions, onChange, onClose, children}: HeaderSettingsProps) {
     const titleId = useId();
     return (
         // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Escape closes the dialog
@@ -60,7 +61,7 @@ export function HeaderSettings({dimensions, onChange, onClose}: HeaderSettingsPr
                     <Icon data={Xmark} size={16} />
                 </Button>
             </div>
-            <DimensionSelect
+            <SettingsSelect
                 autoFocus
                 label={i18n('height')}
                 value={dimensions.height}
@@ -68,13 +69,14 @@ export function HeaderSettings({dimensions, onChange, onClose}: HeaderSettingsPr
                 format={(value) => value.toUpperCase()}
                 onUpdate={(value) => onChange({height: value})}
             />
-            <DimensionSelect
+            <SettingsSelect
                 label={i18n('width')}
                 value={dimensions.width}
                 values={headerWidths}
                 format={(value) => (value === 'full' ? i18n('full-width') : value.toUpperCase())}
                 onUpdate={(value) => onChange({width: value})}
             />
+            {children}
         </section>
     );
 }

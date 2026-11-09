@@ -1,9 +1,12 @@
 import {cn} from '@gravity-ui/markdown-editor';
 import {getReactRendererFromState} from '@gravity-ui/markdown-editor/extensions';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
+import type {Command} from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView, NodeView, ViewMutationRecord} from '@gravity-ui/markdown-editor/pm/view';
 import {
     type HeaderDimensions,
+    type HeaderTextAttrs,
+    type HeaderTitleAttrs,
     headerClassNames,
     headerDimensions,
 } from '@gravity-ui/markdown-plugin-header';
@@ -12,9 +15,11 @@ import {createPortal} from 'react-dom';
 
 import {setHeaderDimensions} from '../commands';
 import {STOP_EVENT_CLASSNAME, headerControlButtons, headerControlsClassName} from '../const';
+import {setHeaderTextVisibility, setHeaderTitleAttrs} from '../text/commands';
 
 import {HeaderControls} from './HeaderControls';
 import {HeaderSettings} from './Settings/HeaderSettings';
+import {TextSettings} from './Settings/TextSettings';
 
 import './NodeView.scss';
 
@@ -64,9 +69,7 @@ export class WHeaderNodeView implements NodeView {
     }
 
     ignoreMutation(mutation: ViewMutationRecord) {
-        if (this.contentDOM.contains(mutation.target)) return false;
-        // Text selected in the toolbar or the settings panel stays selected for copying.
-        return mutation.type !== 'selection' || mutation.target !== this.dom;
+        return mutation.type !== 'selection' && !this.contentDOM.contains(mutation.target);
     }
 
     stopEvent(event: Event) {
@@ -89,10 +92,19 @@ export class WHeaderNodeView implements NodeView {
         (headerControlButtons(this.dom)[0] ?? this.view).focus();
     };
 
-    private readonly changeDimensions = (attrs: Partial<HeaderDimensions>) => {
+    private run(command: (pos: number) => Command) {
         const pos = this.getPos();
-        if (pos !== undefined) setHeaderDimensions(pos, attrs)(this.view.state, this.view.dispatch);
-    };
+        if (pos !== undefined) command(pos)(this.view.state, this.view.dispatch);
+    }
+
+    private readonly changeDimensions = (attrs: Partial<HeaderDimensions>) =>
+        this.run((pos) => setHeaderDimensions(pos, attrs));
+
+    private readonly changeTitle = (attrs: Partial<HeaderTitleAttrs>) =>
+        this.run((pos) => setHeaderTitleAttrs(pos, attrs));
+
+    private readonly changeTextVisibility = (slot: keyof HeaderTextAttrs, visible: boolean) =>
+        this.run((pos) => setHeaderTextVisibility(pos, slot, visible));
 
     private renderControls() {
         return (
@@ -111,7 +123,13 @@ export class WHeaderNodeView implements NodeView {
                             dimensions={headerDimensions(this.node.attrs)}
                             onChange={this.changeDimensions}
                             onClose={this.closeSettings}
-                        />,
+                        >
+                            <TextSettings
+                                header={this.node}
+                                onTitleChange={this.changeTitle}
+                                onVisibilityChange={this.changeTextVisibility}
+                            />
+                        </HeaderSettings>,
                         this.dom,
                     )}
             </>

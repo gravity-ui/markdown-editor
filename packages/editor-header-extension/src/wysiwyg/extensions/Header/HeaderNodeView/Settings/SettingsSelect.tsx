@@ -5,7 +5,7 @@ import {Select, Text} from '@gravity-ui/uikit';
 
 const b = cn('header-settings');
 
-type DimensionSelectProps<T extends string> = {
+type SettingsSelectProps<T extends string> = {
     label: string;
     value: T;
     values: readonly T[];
@@ -14,14 +14,14 @@ type DimensionSelectProps<T extends string> = {
     autoFocus?: boolean;
 };
 
-export function DimensionSelect<T extends string>({
+export function SettingsSelect<T extends string>({
     label,
     value,
     values,
     format,
     onUpdate,
     autoFocus,
-}: DimensionSelectProps<T>) {
+}: SettingsSelectProps<T>) {
     const labelId = useId();
     const controlRef = useRef<HTMLButtonElement>(null);
     useEffect(() => {
