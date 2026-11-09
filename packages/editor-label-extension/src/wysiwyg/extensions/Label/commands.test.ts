@@ -23,6 +23,7 @@ import {
 import {labelClassName, labelCn} from '@gravity-ui/markdown-plugin-label';
 import {describe, expect, it} from 'vitest';
 
+import {Label} from './Label';
 import {LabelAttr, LabelSpecs, labelNodeName} from './LabelSpecs';
 import {
     editSelectedLabel,
@@ -35,6 +36,7 @@ import {
     selectLabelOnRight,
     updateLabel,
 } from './commands';
+import {addLabelAction} from './const';
 import {getLabelCursorState, labelCursorPlugin} from './plugins/LabelCursorPlugin';
 import {isLabelEdited, labelEditPlugin} from './plugins/LabelEditPlugin';
 import {removeEmptyLabelPlugin} from './plugins/RemoveEmptyLabelPlugin';
@@ -400,6 +402,38 @@ describe('Label editing regressions', () => {
         const {tr} = applyCommand(state, insertLabel('Label'));
         expect(json(tr.doc)).toEqual(json(doc(p('hello ', label(grayLabel('world'))))));
         expect(isLabelEdited(state.apply(tr))).toBe(true);
+    });
+
+    it('should not replace a selected label with a new one', () => {
+        const pmDoc = doc(p('a', label(grayLabel('Draft')), 'b'));
+        const {res, tr} = applyCommand(stateWithSelectedLabel(pmDoc, 2), insertLabel(''));
+
+        expect(res).toBe(false);
+        expect(tr).toBeUndefined();
+    });
+
+    it('should edit a selected label on the toolbar action', () => {
+        const {rawActions} = new ExtensionsManager({
+            extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(Label),
+        }).build();
+        const pmDoc = doc(p('a', label(grayLabel('Draft')), 'b'));
+        const view = createView(stateWithSelectedLabel(pmDoc, 2, [labelEditPlugin()]));
+        rawActions[addLabelAction].run(view.state, view.dispatch, view);
+
+        expect(json(view.state.doc)).toEqual(json(pmDoc));
+        expect(isLabelEdited(view.state)).toBe(true);
+    });
+
+    it('should keep the caption of a label inside the selected text', () => {
+        const pmDoc = doc(p('a ', label(grayLabel('Draft')), ' b'));
+        const state = EditorState.create({
+            schema,
+            doc: pmDoc,
+            selection: TextSelection.create(pmDoc, 1, 6),
+        });
+        const {tr} = applyCommand(state, insertLabel(''));
+
+        expect(json(tr.doc)).toEqual(json(doc(p(label(grayLabel('a Draft b'))))));
     });
 
     it('should insert typing after a passively selected label', () => {

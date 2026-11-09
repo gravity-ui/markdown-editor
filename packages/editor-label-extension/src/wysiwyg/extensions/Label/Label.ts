@@ -1,8 +1,9 @@
 import {isNodeSelection} from '@gravity-ui/markdown-editor';
 import type {Action, ExtensionAuto} from '@gravity-ui/markdown-editor/core';
+import {chainCommands} from '@gravity-ui/markdown-editor/pm/commands';
 
 import {LabelSpecs, labelNodeType} from './LabelSpecs';
-import {insertLabel, labelKeymap} from './commands';
+import {editSelectedLabel, insertLabel, labelKeymap} from './commands';
 import {addLabelAction} from './const';
 import {existingLabelsPlugin} from './plugins/ExistingLabelsPlugin';
 import {labelCursorPlugin} from './plugins/LabelCursorPlugin';
@@ -26,7 +27,7 @@ export const Label: ExtensionAuto = (builder) => {
 
     builder.addAction(addLabelAction, ({schema}) => {
         const type = labelNodeType(schema);
-        const cmd = insertLabel('');
+        const cmd = chainCommands(editSelectedLabel, insertLabel(''));
 
         return {
             isActive: (state) =>
