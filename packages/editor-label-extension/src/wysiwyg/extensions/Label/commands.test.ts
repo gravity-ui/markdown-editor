@@ -13,10 +13,17 @@ import {
 } from '@gravity-ui/markdown-editor/pm/state';
 import {builders} from '@gravity-ui/markdown-editor/pm/test-builder';
 import type {DecorationSet, EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {BaseSchemaSpecs, CodeBlockSpecs, CodeSpecs} from '@gravity-ui/markdown-editor/specs';
+import {
+    BaseNode,
+    BaseSchemaSpecs,
+    CodeBlockSpecs,
+    CodeSpecs,
+    codeBlockNodeName,
+} from '@gravity-ui/markdown-editor/specs';
+import {labelClassName, labelCn} from '@gravity-ui/markdown-plugin-label';
 import {describe, expect, it} from 'vitest';
 
-import {LabelAttr, LabelSpecs} from './LabelSpecs';
+import {LabelAttr, LabelSpecs, labelNodeName} from './LabelSpecs';
 import {
     editSelectedLabel,
     insertLabel,
@@ -37,7 +44,12 @@ const {schema} = new ExtensionsManager({
         builder.use(BaseSchemaSpecs, {}).use(CodeBlockSpecs, {}).use(CodeSpecs).use(LabelSpecs),
 }).buildDeps();
 
-const {doc, paragraph: p, code_block: code, label} = builders(schema);
+const {doc, p, code, label} = builders<'doc' | 'p' | 'code' | 'label'>(schema, {
+    doc: {nodeType: BaseNode.Doc},
+    p: {nodeType: BaseNode.Paragraph},
+    code: {nodeType: codeBlockNodeName},
+    label: {nodeType: labelNodeName},
+});
 
 const json = (node: Node) => node.toJSON();
 
@@ -192,16 +204,13 @@ describe('Label editing state', () => {
         const view = createView(stateWithCursor(pmDoc, 1, [plugin]));
         const root = document.createElement('div');
         const labelDom = document.createElement('span');
-        labelDom.className = 'g-md-label';
-        labelDom.innerHTML =
-            '<span class="g-label__text"><span class="g-label__content">Draft</span></span>';
+        labelDom.className = labelClassName;
+        labelDom.innerHTML = `<span class="${labelCn('text')}">Draft</span>`;
         root.append(labelDom);
-        Object.assign(view, {dom: root, posAtDOM: (node: Node) => (node === labelDom ? 2 : -1)});
+        Object.assign(view, {dom: root, posAtDOM: (dom: Element) => (dom === labelDom ? 2 : -1)});
 
         const event = new MouseEvent('mousedown', {button: 0, cancelable: true});
-        Object.defineProperty(event, 'target', {
-            value: labelDom.querySelector('.g-label__content'),
-        });
+        Object.defineProperty(event, 'target', {value: labelDom.firstElementChild});
         const handled = plugin.props.handleDOMEvents?.mousedown?.call(plugin, view, event);
 
         expect(handled).toBe(true);
