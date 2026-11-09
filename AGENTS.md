@@ -120,7 +120,7 @@ Published `@gravity-ui/*` packages live directly in `packages/`. The npm name st
 
 ## Package structure
 
-Editor packages keep code apart by editor mode: `wysiwyg/` holds ProseMirror code, `markup/` holds CodeMirror code, `toolbar/` holds toolbar items for both modes.
+Editor packages split code by mode:
 
 ```
 src/
@@ -135,30 +135,26 @@ src/
       items.ts
     wysiwyg/
       items.ts
-      presets.ts
+      presets.ts   # optional
     markup/
       items.ts
-      presets.ts
-    items.ts
-    presets.ts
+      presets.ts   # optional
+    items.ts       # both modes
+    presets.ts     # both modes, optional
 ```
 
-- `toolbar/view/items.ts` holds the `view` part of toolbar items; `toolbar/wysiwyg/items.ts` and `toolbar/markup/items.ts` hold the mode parts; `toolbar/items.ts` combines them into items for both modes.
-- `presets.ts` files are optional.
-
-Exports in `package.json` follow the same split:
+Exports in `package.json`:
 
 | Export | Contents |
 |--------|----------|
 | `.` | Toolbars, WYSIWYG and markup entities |
-| `./wysiwyg` | WYSIWYG entities only: extensions, toolbar items and presets |
-| `./wysiwyg/specs` | WYSIWYG specs only: spec extensions and constants |
+| `./wysiwyg` | WYSIWYG entities only: extensions, toolbar items without `markup` |
+| `./wysiwyg/specs` | WYSIWYG specs only: spec extensions, constants |
 | `./wysiwyg/utils` | WYSIWYG utils, optional |
-| `./markup` | Markup entities only: CodeMirror commands and extensions, toolbar items and presets |
+| `./markup` | Markup entities only: CodeMirror commands and extensions, toolbar items without `wysiwyg` |
 | `./markup/utils` | Markup utils, optional |
-
-- A toolbar item from `./wysiwyg` has no `markup` part (`Omit<ToolbarItem, 'markup'>`); one from `./markup` has no `wysiwyg` part (`Omit<ToolbarItem, 'wysiwyg'>`).
-- Only the root editor package exports the WYSIWYG core through `./wysiwyg/core` and re-exports ProseMirror and CodeMirror packages through `./pm/*` and `./cm/*`.
+| `./wysiwyg/core` | WYSIWYG core, root editor package only |
+| `./pm/*`, `./cm/*` | ProseMirror and CodeMirror re-exports, root editor package only |
 
 ## Documentation
 
