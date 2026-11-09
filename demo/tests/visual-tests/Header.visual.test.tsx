@@ -111,7 +111,7 @@ test.describe('Header', () => {
             .getByRole('button', {name: 'Settings', exact: true});
         await block.hover();
         await settingsButton.click();
-        const settings = page.getByRole('dialog', {name: 'Block settings'});
+        const settings = page.getByRole('dialog', {name: 'Banner settings'});
         const height = settings.getByRole('combobox', {name: 'Height', exact: true});
         await expect(settings).toBeVisible();
         await expect(height).toBeFocused();
@@ -161,7 +161,11 @@ test.describe('Header', () => {
             .getByRole('toolbar')
             .getByRole('button', {name: 'Settings', exact: true})
             .click();
-        const settings = page.getByRole('dialog', {name: 'Block settings'});
+        const settings = page.getByRole('dialog', {name: 'Banner settings'});
+        await settings.getByText('Banner settings', {exact: true}).selectText();
+        // The editor handles selection changes asynchronously.
+        await page.evaluate(() => new Promise(requestAnimationFrame));
+        expect(await page.evaluate(() => getSelection()?.toString())).toBe('Banner settings');
         await settings.getByRole('combobox', {name: 'Height', exact: true}).click();
         await page.getByRole('option', {name: 'L', exact: true}).click();
         await settings.getByRole('button', {name: 'Close', exact: true}).click();
@@ -192,7 +196,7 @@ test.describe('Header', () => {
         await expect(settingsButton).toBeFocused();
         await expect(block.locator('.g-md-header-view__controls')).toHaveCSS('opacity', '1');
         await settingsButton.press('Enter');
-        const settings = page.getByRole('dialog', {name: 'Block settings'});
+        const settings = page.getByRole('dialog', {name: 'Banner settings'});
         const height = settings.getByRole('combobox', {name: 'Height', exact: true});
         await expect(height).toBeFocused();
         await height.press('Escape');
@@ -234,7 +238,7 @@ test.describe('Header on mobile', () => {
         const block = page.locator('.ProseMirror .g-md-header-plugin');
         await block.hover();
         await block.getByRole('button', {name: 'Settings', exact: true}).click();
-        const settings = page.getByRole('dialog', {name: 'Block settings'});
+        const settings = page.getByRole('dialog', {name: 'Banner settings'});
         await expect(settings).toBeVisible();
         const blockBounds = await block.boundingBox();
         const panelBounds = await settings.boundingBox();

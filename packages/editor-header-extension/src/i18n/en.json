@@ -1,6 +1,6 @@
 {
-  "insert": "Header",
-  "title": "Block settings",
+  "insert": "Banner",
+  "title": "Banner settings",
   "height": "Height",
   "width": "Width",
   "full-width": "Full width",

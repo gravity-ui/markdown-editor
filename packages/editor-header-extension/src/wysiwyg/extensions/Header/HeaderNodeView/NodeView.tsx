@@ -64,7 +64,9 @@ export class WHeaderNodeView implements NodeView {
     }
 
     ignoreMutation(mutation: ViewMutationRecord) {
-        return mutation.type !== 'selection' && !this.contentDOM.contains(mutation.target);
+        if (this.contentDOM.contains(mutation.target)) return false;
+        // Text selected in the toolbar or the settings panel stays selected for copying.
+        return mutation.type !== 'selection' || mutation.target !== this.dom;
     }
 
     stopEvent(event: Event) {
