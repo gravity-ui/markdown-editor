@@ -1,9 +1,8 @@
 import {directiveParser, registerContainerDirective} from '@diplodoc/directive';
 import type {PluginSimple} from 'markdown-it';
 
-import {headerClassNames} from './classname';
+import {headerAttrs} from './classname';
 import {headerTokenName} from './const';
-import {headerDimensions} from './dimensions';
 
 export const headerPlugin: PluginSimple = (md) => {
     md.use(directiveParser());
@@ -13,8 +12,7 @@ export const headerPlugin: PluginSimple = (md) => {
         container: {
             tag: 'div',
             token: headerTokenName,
-            attrs: ({attrs}) => ({class: headerClassNames(attrs ?? {})}),
-            meta: ({attrs}) => headerDimensions(attrs ?? {}),
+            attrs: ({attrs}) => headerAttrs(attrs ?? {}),
         },
     });
 };

@@ -2,18 +2,14 @@ import {useId} from 'react';
 
 import {Xmark} from '@gravity-ui/icons';
 import {cn} from '@gravity-ui/markdown-editor';
-import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {
     type HeaderDimensions,
-    headerDimensions,
     headerHeights,
     headerWidths,
 } from '@gravity-ui/markdown-plugin-header';
 import {Button, Icon, Text} from '@gravity-ui/uikit';
-import {createPortal} from 'react-dom';
 
 import {i18n} from '../../../../i18n';
-import {headerNodeType} from '../HeaderSpecs';
 import {STOP_EVENT_CLASSNAME} from '../const';
 
 import {DimensionSelect} from './DimensionSelect';
@@ -23,21 +19,14 @@ import './HeaderSettings.scss';
 const b = cn('header-settings');
 
 type HeaderSettingsProps = {
-    view: EditorView;
-    pos: number;
-    onClose: () => void;
+    dimensions: HeaderDimensions;
     onChange: (attrs: Partial<HeaderDimensions>) => void;
+    onClose: () => void;
 };
 
-export function HeaderSettings({view, pos, onClose, onChange}: HeaderSettingsProps) {
+export function HeaderSettings({dimensions, onChange, onClose}: HeaderSettingsProps) {
     const titleId = useId();
-    const node = view.state.doc.nodeAt(pos);
-    if (node?.type !== headerNodeType(view.state.schema)) return null;
-    const block = view.nodeDOM(pos);
-    if (!(block instanceof HTMLElement)) return null;
-    const {height, width} = headerDimensions(node.attrs);
-    // uikit `Portal` makes the panel controls untabbable once focus leaves the panel.
-    return createPortal(
+    return (
         // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Escape closes the dialog
         <section
             className={b(null, STOP_EVENT_CLASSNAME)}
@@ -74,19 +63,18 @@ export function HeaderSettings({view, pos, onClose, onChange}: HeaderSettingsPro
             <DimensionSelect
                 autoFocus
                 label={i18n('height')}
-                value={height}
+                value={dimensions.height}
                 values={headerHeights}
                 format={(value) => value.toUpperCase()}
                 onUpdate={(value) => onChange({height: value})}
             />
             <DimensionSelect
                 label={i18n('width')}
-                value={width}
+                value={dimensions.width}
                 values={headerWidths}
                 format={(value) => (value === 'full' ? i18n('full-width') : value.toUpperCase())}
                 onUpdate={(value) => onChange({width: value})}
             />
-        </section>,
-        block,
+        </section>
     );
 }

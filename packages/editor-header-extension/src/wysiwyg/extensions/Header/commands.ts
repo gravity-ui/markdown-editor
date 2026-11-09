@@ -37,7 +37,7 @@ export const setHeaderDimensions =
     (state, dispatch) => {
         const node = headerAt(state, pos);
         if (!node) return false;
-        // Attribute steps keep the node position, which the open settings track.
+        // Attribute steps keep the node view, so the open settings panel stays open.
         const tr = closeHistory(state.tr);
         for (const name of ['height', 'width'] as const) {
             const value = attrs[name];

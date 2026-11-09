@@ -22,6 +22,7 @@ const md = new MarkdownIt().use(headerPlugin);
 | `width`   | `s` 600 px, `m` 900 px, `l` 1200 px, `full` (container width) | `m`     |
 
 The block is rendered as `div.g-md-header-plugin` with the modifiers `_height_{s,m,l}` and `_width_{s,m,l,full}`.
+The `data-height` and `data-width` attributes of the element and of the opening token hold the same dimensions.
 The block is left-aligned; the width is a `max-width`, so the block never exceeds its container.
 Sizes are set by `--g-md-header-plugin-height-{s,m,l}` and `--g-md-header-plugin-width-{s,m,l}`.
 Margins are set by `--g-md-header-plugin-margin-block` (`0 var(--g-spacing-5)` by default) and `--g-md-header-plugin-margin-inline` (`0` by default).

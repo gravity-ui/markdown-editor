@@ -5,7 +5,6 @@ import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {Button, Icon} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../i18n';
-import {openHeaderSettings} from '../Settings';
 import {copyHeader, removeHeader} from '../commands';
 import {STOP_EVENT_CLASSNAME} from '../const';
 
@@ -16,9 +15,10 @@ const b = cn('header-view');
 type HeaderControlsProps = {
     view: EditorView;
     getPos: () => number | undefined;
+    onOpenSettings: () => void;
 };
 
-export function HeaderControls({view, getPos}: HeaderControlsProps) {
+export function HeaderControls({view, getPos, onOpenSettings}: HeaderControlsProps) {
     const run = (command: (pos: number) => Command) => () => {
         const pos = getPos();
         if (pos !== undefined) command(pos)(view.state, view.dispatch, view);
@@ -26,12 +26,7 @@ export function HeaderControls({view, getPos}: HeaderControlsProps) {
 
     return (
         <div className={b('toolbar', STOP_EVENT_CLASSNAME)} role="toolbar" contentEditable={false}>
-            <Button
-                view="flat"
-                size="m"
-                aria-label={i18n('settings')}
-                onClick={run(openHeaderSettings)}
-            >
+            <Button view="flat" size="m" aria-label={i18n('settings')} onClick={onOpenSettings}>
                 <Icon data={Gear} size={16} />
             </Button>
             <Button view="flat" size="m" aria-label={i18n('copy')} onClick={run(copyHeader)}>

@@ -1,7 +1,7 @@
 import {cn} from '@bem-react/classname';
 
 import {headerClassName} from './const';
-import {type HeaderDimensions, headerDimensions, headerHeights, headerWidths} from './dimensions';
+import {headerDimensions} from './dimensions';
 
 const b = cn(headerClassName);
 
@@ -9,14 +9,16 @@ export function headerClassNames(attrs: {height?: unknown; width?: unknown}) {
     return b(headerDimensions(attrs));
 }
 
-export function headerDimensionsFromClassName(className: string) {
-    const classes = new Set(className.split(/\s+/));
-    const hasModifier = (mods: Partial<HeaderDimensions>) =>
-        b(mods)
-            .split(' ')
-            .every((name) => classes.has(name));
-    return headerDimensions({
-        height: headerHeights.find((height) => hasModifier({height})),
-        width: headerWidths.find((width) => hasModifier({width})),
-    });
+/** Modifiers style the block; data attributes carry its dimensions for parsing. */
+export function headerAttrs(attrs: {height?: unknown; width?: unknown}) {
+    const dimensions = headerDimensions(attrs);
+    return {
+        class: b(dimensions),
+        'data-height': dimensions.height,
+        'data-width': dimensions.width,
+    };
+}
+
+export function headerDimensionsFromAttrs(getAttr: (name: string) => string | null | undefined) {
+    return headerDimensions({height: getAttr('data-height'), width: getAttr('data-width')});
 }

@@ -1,9 +1,9 @@
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {
+    headerAttrs,
     headerClassName,
-    headerClassNames,
     headerDefaults,
-    headerDimensionsFromClassName,
+    headerDimensionsFromAttrs,
 } from '@gravity-ui/markdown-plugin-header';
 
 import {headerNodeName} from './const';
@@ -22,9 +22,9 @@ export const HeaderSchemaSpecs: ExtensionAuto = (builder) => {
         parseDOM: [
             {
                 tag: `div.${headerClassName}`,
-                getAttrs: (dom) => headerDimensionsFromClassName(dom.className),
+                getAttrs: (dom) => headerDimensionsFromAttrs((name) => dom.getAttribute(name)),
             },
         ],
-        toDOM: (node) => ['div', {class: headerClassNames(node.attrs)}, 0],
+        toDOM: (node) => ['div', headerAttrs(node.attrs), 0],
     }));
 };

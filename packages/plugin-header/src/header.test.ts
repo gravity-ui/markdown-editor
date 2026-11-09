@@ -6,7 +6,7 @@ import {headerHeights, headerPlugin, headerWidths} from './index';
 const md = new MarkdownIt().use(headerPlugin);
 
 const html = (height: string, width: string) =>
-    `<div class="g-md-header-plugin g-md-header-plugin_height_${height} g-md-header-plugin_width_${width}"></div>\n`;
+    `<div class="g-md-header-plugin g-md-header-plugin_height_${height} g-md-header-plugin_width_${width}" data-height="${height}" data-width="${width}"></div>\n`;
 
 describe('Header Markdown', () => {
     for (const height of headerHeights) {
@@ -53,7 +53,8 @@ describe('Header Markdown', () => {
             'paragraph_close',
             'header_close',
         ]);
-        expect(tokens[0].meta).toEqual({height: 's', width: 'm'});
+        expect(tokens[0].attrGet('data-height')).toBe('s');
+        expect(tokens[0].attrGet('data-width')).toBe('m');
         expect(md.render(markup)).toContain('<p>Text <strong>with formatting</strong></p>');
     });
 
@@ -110,9 +111,8 @@ describe('Header Markdown', () => {
     });
 
     it('should assign independent default dimensions to an empty block', () => {
-        expect(md.parse(':::header{height="m"}\n:::', {})[0].meta).toEqual({
-            height: 'm',
-            width: 'm',
-        });
+        const [token] = md.parse(':::header{height="s"}\n:::', {});
+        expect(token.attrGet('data-height')).toBe('s');
+        expect(token.attrGet('data-width')).toBe('m');
     });
 });

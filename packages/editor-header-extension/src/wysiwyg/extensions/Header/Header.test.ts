@@ -14,7 +14,6 @@ import {
     EditorState,
     NodeSelection,
     TextSelection,
-    type Transaction,
 } from '@gravity-ui/markdown-editor/pm/state';
 import {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {
@@ -31,7 +30,6 @@ import {afterEach, describe, expect, it} from 'vitest';
 import {insertHeader as insertHeaderMarkup} from '../../../markup/commands/insertHeader';
 
 import {HeaderSpecs} from './HeaderSpecs';
-import {headerSettingsKey, headerSettingsPlugin, openHeaderSettings} from './Settings';
 import {copyHeader, insertHeader, removeHeader, setHeaderDimensions} from './commands';
 
 import {Header} from '.';
@@ -167,7 +165,7 @@ describe('Header extension', () => {
     it.each(['\n', '<br>'])('should preserve an empty HTML header containing %j', (content) => {
         const container = document.createElement('div');
         container.innerHTML =
-            '<div class="g-md-header-plugin g-md-header-plugin_height_l g-md-header-plugin_width_full">' +
+            '<div class="g-md-header-plugin" data-height="l" data-width="full">' +
             content +
             '</div>';
         const doc = DOMParser.fromSchema(schema).parse(container);
@@ -301,23 +299,5 @@ describe('Header extension', () => {
         expect(paragraph).not.toBeNull();
         paragraph?.replaceChildren(document.createTextNode('After'));
         await expect.poll(() => editor.state.doc.firstChild?.textContent).toBe('After');
-    });
-
-    it('should track the open settings and close them when the header is removed', () => {
-        let state = EditorState.create({
-            schema,
-            doc: markupParser.parse('Before\n\n:::header\n:::'),
-            plugins: [headerSettingsPlugin()],
-        });
-        const dispatch = (tr: Transaction) => {
-            state = state.apply(tr);
-        };
-        const pos = state.doc.child(0).nodeSize;
-        openHeaderSettings(pos)(state, dispatch);
-        expect(headerSettingsKey.getState(state)).toBe(pos);
-        dispatch(state.tr.insertText('New ', 1));
-        expect(headerSettingsKey.getState(state)).toBe(pos + 4);
-        removeHeader(pos + 4)(state, dispatch);
-        expect(headerSettingsKey.getState(state)).toBeNull();
     });
 });

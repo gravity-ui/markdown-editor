@@ -3,7 +3,6 @@ import type {Action, ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {WHeaderNodeView} from './HeaderNodeView';
 import {headerKeymap} from './HeaderNodeView/keymap';
 import {HeaderSpecs, headerNodeName} from './HeaderSpecs';
-import {headerSettingsPlugin} from './Settings';
 import {insertHeader} from './commands';
 import {insertHeaderAction} from './const';
 
@@ -17,7 +16,6 @@ export const Header: ExtensionAuto = (builder) => {
             () => (node, view, getPos) => new WHeaderNodeView(node, view, getPos),
         )
         .addAction(insertHeaderAction, () => ({isEnable: insertHeader, run: insertHeader}))
-        .addPlugin(headerSettingsPlugin)
         // Blocks inside the header handle Tab first.
         .addKeymap(headerKeymap, builder.Priority.Low);
 };

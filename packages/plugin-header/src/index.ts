@@ -1,4 +1,4 @@
-export {headerClassNames, headerDimensionsFromClassName} from './classname';
+export {headerAttrs, headerClassNames, headerDimensionsFromAttrs} from './classname';
 export {headerClassName, headerTokenName} from './const';
 export {
     type HeaderDimensions,
