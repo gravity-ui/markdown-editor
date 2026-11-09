@@ -6,7 +6,9 @@ import {LabelAttr, labelNodeType} from '../../LabelSpecs';
 /** A label with an empty caption exists only while it is selected. */
 export const removeEmptyLabelPlugin = () =>
     new Plugin({
-        appendTransaction(_trs, _oldState, state) {
+        appendTransaction(trs, _oldState, state) {
+            if (!trs.some((tr) => tr.docChanged || tr.selectionSet)) return null;
+
             const selectedPos = isNodeSelection(state.selection) ? state.selection.from : null;
             const type = labelNodeType(state.schema);
             const empty: {pos: number; size: number}[] = [];

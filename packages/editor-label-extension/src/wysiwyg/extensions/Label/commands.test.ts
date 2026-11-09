@@ -413,6 +413,14 @@ describe('Empty label plugin', () => {
 
         expect(json(state.apply(tr).doc)).toEqual(json(doc(p('text'))));
     });
+
+    it('should skip a transaction that changes neither the document nor the selection', () => {
+        const pmDoc = doc(p('text', label(grayLabel(''))));
+        const state = stateWithCursor(pmDoc, 1, [removeEmptyLabelPlugin()]);
+
+        expect(json(state.apply(state.tr.setMeta('test', true)).doc)).toEqual(json(pmDoc));
+        expect(json(state.apply(state.tr.insertText('x', 1)).doc)).toEqual(json(doc(p('xtext'))));
+    });
 });
 
 describe('Label editing regressions', () => {
