@@ -70,6 +70,9 @@ test.describe('Label', () => {
         await editor.switchMode('wysiwyg');
     });
 
+    /** The page fits the playground with its margins and the popup of the first label. */
+    const fitPopupPage = (page: Page) => page.setViewportSize({width: 852, height: 580});
+
     /** Puts the cursor before the label of the second paragraph: `Before |[Draft] after`. */
     const placeCursorBeforeLabel = async (page: Page, editor: MarkdownEditorPage) => {
         const line = editor.locators.contenteditable.locator('p').nth(1);
@@ -111,6 +114,7 @@ test.describe('Label', () => {
         editor,
         expectScreenshot,
     }) => {
+        await fitPopupPage(page);
         await placeCursorBeforeLabel(page, editor);
 
         const contenteditable = editor.locators.contenteditable;
@@ -123,7 +127,7 @@ test.describe('Label', () => {
         await expect(contenteditable.locator('.fake-cursor')).toHaveCount(0);
         expect(await isEditorFocused(page)).toBe(true);
 
-        await expectScreenshot({nameSuffix: 'passive popover'});
+        await expectScreenshot({fullPage: true, nameSuffix: 'passive popover'});
 
         await editor.press('ArrowRight');
         await expect(editor.label.popup).toBeHidden();
@@ -188,6 +192,7 @@ test.describe('Label', () => {
         expectScreenshot,
         editor,
     }) => {
+        await fitPopupPage(page);
         await editor.label.labels.first().click();
 
         await expect(page.getByRole('dialog', {name: 'Label'})).toBeVisible();
@@ -206,7 +211,7 @@ test.describe('Label', () => {
         await page.mouse.move(0, 0);
         await wait.tooltipsHidden();
         await wait.markupPreview(':label[Draft]{color=green}');
-        await expectScreenshot({nameSuffix: 'edit popover'});
+        await expectScreenshot({fullPage: true, nameSuffix: 'edit popover'});
     });
 
     test('should mark the selected color with a ring @wysiwyg', async ({
