@@ -39,8 +39,11 @@ The arrows step through three positions around a label: before it, the label its
 At both edges the editor draws the cursor of inline code, and typed text goes outside the label.
 
 The editor writes `color` only for a color other than `gray`.
+In the caption it escapes `\`, `[`, `]`, `|` and `&` before an HTML entity, and writes a line break as a space, so the label stays inside a table cell.
+A selected label is kept: the `addLabel` action opens it for editing.
 `LabelSpecs` adds only the schema, Markdown parsing, and serialization, and runs in Node.js.
 
 ## Markdown editor
 
 `insertLabel` wraps the selection into `:label[…]`; with an empty selection the cursor stays inside the brackets.
+Unescaped brackets of the selected text are escaped.
