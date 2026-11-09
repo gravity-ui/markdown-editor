@@ -20,7 +20,7 @@ const markup = dd`
 const isEditorFocused = (page: Page) =>
     page.evaluate(() => document.activeElement?.getAttribute('contenteditable') === 'true');
 
-/** Sizes of the label in the layout: Figma «Wiki • Редактор», frame «Ревью лейбл». */
+/** Sizes of the label in the text line. */
 const measure = (root: Locator) =>
     root.evaluate((element) => {
         const [plain, withLabel] = Array.from(element.querySelectorAll('p'));
@@ -103,7 +103,7 @@ test.describe('Label', () => {
         await expect(preview.locator('.g-md-label-plugin')).toHaveCount(7);
         expectLabelMetrics(await measure(preview));
 
-        await expectScreenshot({component: preview});
+        await expectScreenshot();
     });
 
     test('should open the popover on arrows without moving the focus @wysiwyg', async ({
@@ -223,23 +223,48 @@ test.describe('Label', () => {
 
     test('should lay out the popup as in the design @wysiwyg', async ({editor}) => {
         await editor.label.labels.first().click();
+        await editor.label.waitForPopupAnimations();
         const geometry = await editor.label.popup.evaluate((root) => {
-            const field = root.querySelector('.g-text-input');
+            const label = document.querySelector('[contenteditable=true] .g-md-label-plugin');
+            const field = root.querySelector('.g-text-input__content');
+            const clear = root.querySelector('.g-text-input__clear');
+            const clearIcon = clear?.querySelector('svg');
             const colors = root.querySelector('.g-md-label-colors');
             const popup = root.closest('.g-popup');
             const swatches = Array.from(root.querySelectorAll('.g-md-label-colors__swatch'));
-            if (!field || !colors || !popup || swatches.length < 2) {
+            if (
+                !label ||
+                !field ||
+                !clear ||
+                !clearIcon ||
+                !colors ||
+                !popup ||
+                swatches.length < 2
+            ) {
                 throw new Error('Missing popup content');
             }
+            const anchor = label.getBoundingClientRect();
+            const frame = popup.getBoundingClientRect();
             const panel = root.getBoundingClientRect();
             const input = field.getBoundingClientRect();
+            const button = clear.getBoundingClientRect();
+            const icon = clearIcon.getBoundingClientRect();
             const palette = colors.getBoundingClientRect();
             const [first, second] = swatches.map((swatch) => swatch.getBoundingClientRect());
             const round = (n: number) => Math.round(n);
             return {
+                offset: round(frame.top - anchor.bottom),
+                alignLeft: round(frame.left - anchor.left),
                 width: round(panel.width),
                 fieldWidth: round(input.width),
                 fieldHeight: round(input.height),
+                fieldRadius: getComputedStyle(field).borderRadius,
+                clear: {
+                    width: round(button.width),
+                    height: round(button.height),
+                    radius: getComputedStyle(clear, '::before').borderRadius,
+                    icon: round(icon.width),
+                },
                 left: round(input.left - panel.left),
                 right: round(panel.right - input.right),
                 top: round(input.top - panel.top),
@@ -251,11 +276,14 @@ test.describe('Label', () => {
                 popupRadius: getComputedStyle(popup).borderRadius,
             };
         });
-        // Figma «Wiki • Редактор», frame «Ревью лейбл»; radii come from the Gravity theme.
         expect(geometry).toEqual({
+            offset: 8,
+            alignLeft: 0,
             width: 240,
             fieldWidth: 208,
             fieldHeight: 28,
+            fieldRadius: '10px',
+            clear: {width: 24, height: 24, radius: '8px', icon: 14},
             left: 16,
             right: 16,
             top: 16,
@@ -263,8 +291,8 @@ test.describe('Label', () => {
             paddingBottom: '16px',
             swatch: {width: 28, height: 28},
             swatchGap: 8,
-            swatchRadius: '6px',
-            popupRadius: '10px',
+            swatchRadius: '10px',
+            popupRadius: '16px',
         });
     });
 
@@ -429,7 +457,7 @@ test.describe('Label', () => {
         await line.click();
         await editor.press('Home');
         await editor.press('Shift+ArrowRight', 5);
-        await page.getByRole('button', {name: 'Label', exact: true}).click();
+        await editor.clickMainToolbarButton('Label');
         await expect(editor.label.input).toBeFocused();
         await expect(editor.label.input).toHaveValue('Plain');
         await page.keyboard.type('Ready');
@@ -442,7 +470,6 @@ test.describe('Label', () => {
         editor,
     }) => {
         await editor.label.labels.first().click();
-        const suggestions = editor.label.suggestions;
         await expect(editor.label.suggestion('Green, Green')).toBeVisible();
         await page.evaluate(() => {
             const view = (window.mdEditor as {_wysiwygView?: EditorView} | undefined)?._wysiwygView;
@@ -467,8 +494,7 @@ test.describe('Label', () => {
         editor,
     }) => {
         await editor.label.labels.first().click();
-        const suggestions = editor.label.suggestions;
-        await expect(suggestions.getByRole('button')).toHaveCount(6);
+        await expect(editor.label.suggestions.getByRole('button')).toHaveCount(6);
         const green = editor.label.suggestion('Green, Green');
         await green.focus();
         await page.keyboard.press('ArrowDown');
@@ -484,20 +510,13 @@ test.describe('Label', () => {
     });
 
     test('should update a long caption live without moving the left aligned popup @wysiwyg', async ({
-        page,
         editor,
     }) => {
         await editor.label.labels.first().click();
-        await page.locator('.g-md-label-popup').evaluate(async (element) => {
-            await Promise.all(
-                element.getAnimations({subtree: true}).map((animation) => animation.finished),
-            );
-        });
+        await editor.label.waitForPopupAnimations();
         const before = await editor.label.popup.boundingBox();
         if (!before) throw new Error('Missing popup');
-        const options = await editor.label.popup
-            .getByRole('group', {name: 'Labels on this page'})
-            .textContent();
+        const options = await editor.label.suggestions.textContent();
         for (const text of [
             'A',
             'A longer caption with spaces',
@@ -509,11 +528,7 @@ test.describe('Label', () => {
             if (!after) throw new Error('Missing popup after typing');
             expect(Math.abs(after.x - before.x)).toBeLessThanOrEqual(1);
             expect(Math.abs(after.y - before.y)).toBeLessThanOrEqual(1);
-            expect(
-                await editor.label.popup
-                    .getByRole('group', {name: 'Labels on this page'})
-                    .textContent(),
-            ).toBe(options);
+            expect(await editor.label.suggestions.textContent()).toBe(options);
         }
         await editor.label.color('Red').click();
         await expect(editor.label.input).toHaveValue('A longer caption with spaces '.repeat(8));

@@ -146,15 +146,16 @@ class YfmNote {
 type LabelCursorSide = 'before' | 'selected' | 'after';
 
 class Label {
-    protected readonly page: Page;
-    protected readonly expect: Expect;
     readonly labels: Locator;
     readonly popup: Locator;
+    readonly popupRoot: Locator;
     readonly input: Locator;
     readonly clearButton: Locator;
     readonly colors: Locator;
     readonly selectedColor: Locator;
     readonly suggestions: Locator;
+    protected readonly page: Page;
+    protected readonly expect: Expect;
 
     constructor(page: Page, expect: Expect) {
         this.page = page;
@@ -163,6 +164,7 @@ class Label {
             .getByTestId('g-md-editor-mode')
             .locator('[contenteditable=true] .g-md-label-plugin');
         this.popup = page.locator('.g-md-label-tooltip');
+        this.popupRoot = page.locator('.g-md-label-popup');
         this.input = this.popup.locator('input[type=text], input:not([type])');
         this.clearButton = this.popup.locator('.g-text-input__clear');
         this.colors = this.popup.locator('.g-md-label-colors');
@@ -176,6 +178,15 @@ class Label {
 
     suggestion(name: string) {
         return this.suggestions.getByRole('button', {name, exact: true});
+    }
+
+    /** Waits for the popup to finish its opening transition. */
+    async waitForPopupAnimations() {
+        await this.popupRoot.evaluate(async (element) => {
+            await Promise.all(
+                element.getAnimations({subtree: true}).map((animation) => animation.finished),
+            );
+        });
     }
 
     /** Position and caret rectangle of the WYSIWYG selection. */
