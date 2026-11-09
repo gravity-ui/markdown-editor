@@ -7,6 +7,19 @@ import {headerClassNames} from './classname';
 import {headerTokenName} from './const';
 import {headerDimensions} from './dimensions';
 
+const getLine = (state: StateBlock, line: number) =>
+    state.src.slice(state.bMarks[line] + state.tShift[line], state.eMarks[line]);
+
+// A table checks body lines for terminators after it pushes its opening tokens.
+const blockLevel = (state: StateBlock) => {
+    if (state.parentType === 'table') {
+        for (let i = state.tokens.length - 1; i >= 0; i--) {
+            if (state.tokens[i].type === 'table_open') return state.tokens[i].level;
+        }
+    }
+    return state.level;
+};
+
 export const headerPlugin: PluginSimple = (md) => {
     // The directive parser scans closing markers without accounting for code blocks.
     // Use it for opening syntax only; parse children with the main block parser.
@@ -24,25 +37,23 @@ export const headerPlugin: PluginSimple = (md) => {
 
     const containers = new WeakMap<
         StateBlock,
-        {level: number; endLine: number; closeLine: number}
+        {level: number; blkIndent: number; endLine: number; closeLine: number}
     >();
+    const unclosed = new WeakMap<StateBlock, Set<string>>();
 
     md.block.ruler.before(
         'fence',
         'header_close',
         (state, startLine, _endLine, silent) => {
             const container = containers.get(state);
+            if (!container || state.sCount[startLine] - container.blkIndent >= 4) return false;
+            if (!/^:{3,}\s*$/.test(getLine(state, startLine))) return false;
+            // Inside a nested block, only a line dedented out of it belongs to the container.
             if (
-                !container ||
-                container.level !== state.level ||
-                state.sCount[startLine] - state.blkIndent >= 4
+                blockLevel(state) !== container.level &&
+                state.sCount[startLine] >= state.blkIndent
             )
                 return false;
-            const line = state.src.slice(
-                state.bMarks[startLine] + state.tShift[startLine],
-                state.eMarks[startLine],
-            );
-            if (!/^:{3,}\s*$/.test(line)) return false;
             if (!silent) {
                 container.closeLine = startLine;
                 state.line = container.endLine;
@@ -54,11 +65,11 @@ export const headerPlugin: PluginSimple = (md) => {
 
     md.block.ruler.before('fence', 'header', (state, startLine, endLine, silent) => {
         if (state.sCount[startLine] - state.blkIndent >= 4) return false;
-        const line = state.src.slice(
-            state.bMarks[startLine] + state.tShift[startLine],
-            state.eMarks[startLine],
-        );
+        const line = getLine(state, startLine);
         if (!/^:{3,}\s*header(?=[{\s]|$)/i.test(line)) return false;
+        // An outer rollback re-parses these lines; the same attempt fails again.
+        const attempt = `${startLine}:${endLine}:${state.blkIndent}`;
+        if (unclosed.get(state)?.has(attempt)) return false;
         const opening = openingParser.parse(line + '\n:::', {})[0];
         if (opening?.type !== `${headerTokenName}_open`) return false;
         if (silent) return true;
@@ -73,7 +84,7 @@ export const headerPlugin: PluginSimple = (md) => {
         token.attrs = opening.attrs;
         token.meta = opening.meta;
         token.markup = opening.markup;
-        const container = {level: state.level, endLine, closeLine: -1};
+        const container = {level: state.level, blkIndent: state.blkIndent, endLine, closeLine: -1};
         containers.set(state, container);
         state.parentType = 'header' as StateBlock['parentType'];
         state.lineMax = endLine;
@@ -87,6 +98,7 @@ export const headerPlugin: PluginSimple = (md) => {
             state.tokens.length = oldTokenCount;
             state.level = oldLevel;
             state.line = startLine;
+            unclosed.set(state, (unclosed.get(state) ?? new Set<string>()).add(attempt));
             return false;
         }
         token.map = [startLine, container.closeLine + 1];

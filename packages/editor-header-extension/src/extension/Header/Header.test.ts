@@ -152,6 +152,16 @@ describe('Header extension', () => {
         },
     );
 
+    it.each([':::header\n- a\n- b\n:::', ':::header\n1. a\n2. b\n:::', ':::header\n> a\n:::'])(
+        'should close the header right after a child block in %j',
+        (markup) => {
+            const doc = markupParser.parse(markup);
+            expect(doc.childCount).toBe(1);
+            expect(doc.child(0).type.name).toBe('header');
+            expect(doc.child(0).childCount).toBe(1);
+        },
+    );
+
     it('should preserve child blocks when changing dimensions and copying', () => {
         const editor = createView(':::header\nKeep **text**\n:::');
         const content = editor.state.doc.child(0).content;

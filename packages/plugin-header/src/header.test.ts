@@ -1,7 +1,7 @@
 import MarkdownIt from 'markdown-it';
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
 
-import headerPlugin, {headerHeights, headerWidths} from './index';
+import {headerHeights, headerPlugin, headerWidths} from './index';
 
 const md = new MarkdownIt().use(headerPlugin);
 
@@ -68,6 +68,7 @@ describe('Header Markdown', () => {
         ':::header\n\n```text\n:::\n```\n\nAfter\n:::',
         ':::header\n\n    :::\n\nAfter\n:::',
         ':::header\n\n~~~~text\n:::\n~~~\n~~~~\n\nAfter\n:::',
+        ':::header\n- a\n\n  ```\n  :::\n  ```\n\nAfter\n:::',
     ])('should keep code delimiters inside the container in %j', (markup) => {
         const tokens = md.parse(markup, {});
         expect(tokens[0].type).toBe('header_open');
@@ -86,6 +87,36 @@ describe('Header Markdown', () => {
         expect(
             tokens.filter((token) => token.type === 'inline').map((token) => token.content),
         ).toEqual(['Inner', 'Outer']);
+    });
+
+    const expectContainer = (markup: string, contents: string[]) => {
+        const tokens = md.parse(markup, {});
+        expect(tokens[0].type).toBe('header_open');
+        expect(tokens[tokens.length - 1].type).toBe('header_close');
+        expect(
+            tokens.filter((token) => token.type === 'inline').map((token) => token.content),
+        ).toEqual(contents);
+    };
+
+    it.each([
+        [':::header\n- a\n- b\n:::', ['a', 'b']],
+        [':::header\n1. a\n2. b\n:::', ['a', 'b']],
+        [':::header\n- a\n  - b\n:::', ['a', 'b']],
+        [':::header\n> a\n:::', ['a']],
+        [':::header\n:::header\n- a\n:::\n- b\n:::', ['a', 'b']],
+        [':::header\n| a |\n| - |\n| b |\n:::', ['a', 'b']],
+    ])('should close the container right after a child block in %j', expectContainer);
+
+    it.each([
+        [':::header\n- a\n  :::\n:::', ['a\n:::']],
+        [':::header\n> a\n> :::\n:::', ['a\n:::']],
+    ])('should keep an indented delimiter in a nested block as text in %j', expectContainer);
+
+    it('should tokenize each unclosed container once', () => {
+        const parser = new MarkdownIt().use(headerPlugin);
+        const tokenize = vi.spyOn(parser.block, 'tokenize');
+        parser.parse(Array(20).fill(':::header').join('\n\n'), {});
+        expect(tokenize).toHaveBeenCalledTimes(21);
     });
 
     it.each([':::header\nUnclosed', '    :::header\n    :::'])(

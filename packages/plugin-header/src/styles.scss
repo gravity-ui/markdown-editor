@@ -1,10 +1,8 @@
 .g-md-header-plugin {
-    box-sizing: border-box;
     max-width: var(--_--width);
     min-height: var(--_--height);
     margin: 0 0 20px;
 
-    border: 2px dashed var(--g-color-line-generic);
     border-radius: var(--g-border-radius-2xl, 16px);
 
     &_height_s {

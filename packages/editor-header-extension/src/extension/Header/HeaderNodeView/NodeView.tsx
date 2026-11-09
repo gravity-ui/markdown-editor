@@ -9,6 +9,8 @@ import {STOP_EVENT_CLASSNAME} from '../const';
 
 import {HeaderControls} from './HeaderControls';
 
+import './NodeView.scss';
+
 const b = cn('header-view');
 
 export class WHeaderNodeView implements NodeView {
