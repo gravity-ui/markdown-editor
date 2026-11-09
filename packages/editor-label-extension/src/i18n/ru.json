@@ -9,5 +9,6 @@
   "color_red": "Красный",
   "color_purple": "Фиолетовый",
   "color": "Цвет",
-  "existing_labels": "Метки на странице"
+  "existing_labels": "Метки на странице",
+  "existing_label": "{{caption}}, цвет: {{color}}"
 }

@@ -495,7 +495,7 @@ test.describe('Label', () => {
         editor,
     }) => {
         await editor.label.labels.first().click();
-        await expect(editor.label.suggestion('Green, Green')).toBeVisible();
+        await expect(editor.label.suggestion('Green, color: green')).toBeVisible();
         await page.evaluate(() => {
             const view = (window.mdEditor as {_wysiwygView?: EditorView} | undefined)?._wysiwygView;
             if (!view) throw new Error('Missing editor');
@@ -508,8 +508,8 @@ test.describe('Label', () => {
                 view.state.tr.setNodeMarkup(target, undefined, {text: 'Ready', color: 'red'}),
             );
         });
-        await expect(editor.label.suggestion('Green, Green')).toHaveCount(0);
-        await expect(editor.label.suggestion('Ready, Red')).toBeVisible();
+        await expect(editor.label.suggestion('Green, color: green')).toHaveCount(0);
+        await expect(editor.label.suggestion('Ready, color: red')).toBeVisible();
         await expect(editor.label.input).toHaveValue('Draft');
         await expect(editor.label.input).toBeFocused();
     });
@@ -520,10 +520,10 @@ test.describe('Label', () => {
     }) => {
         await editor.label.labels.first().click();
         await expect(editor.label.suggestions.getByRole('button')).toHaveCount(6);
-        const green = editor.label.suggestion('Green, Green');
+        const green = editor.label.suggestion('Green, color: green');
         await green.focus();
         await page.keyboard.press('ArrowDown');
-        await expect(editor.label.suggestion('Yellow, Yellow')).toBeFocused();
+        await expect(editor.label.suggestion('Yellow, color: yellow')).toBeFocused();
         await page.keyboard.press('ArrowUp');
         await expect(green).toBeFocused();
         await page.keyboard.press('Enter');

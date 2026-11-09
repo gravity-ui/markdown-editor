@@ -9,5 +9,6 @@
   "color_red": "Red",
   "color_purple": "Purple",
   "color": "Color",
-  "existing_labels": "Labels on this page"
+  "existing_labels": "Labels on this page",
+  "existing_label": "{{caption}}, color: {{color}}"
 }

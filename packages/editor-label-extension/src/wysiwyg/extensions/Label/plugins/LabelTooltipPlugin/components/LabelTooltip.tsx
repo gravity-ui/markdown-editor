@@ -116,7 +116,10 @@ export function LabelTooltip({node, pos, view, editId, suggestions}: LabelToolti
                             view="flat"
                             size="m"
                             title={suggestion.text}
-                            aria-label={`${suggestion.text}, ${i18n(`color_${suggestion.color}`)}`}
+                            aria-label={i18n('existing_label', {
+                                caption: suggestion.text,
+                                color: i18n(`color_${suggestion.color}`).toLowerCase(),
+                            })}
                             onClick={() => {
                                 update({
                                     [LabelAttr.Text]: suggestion.text,
