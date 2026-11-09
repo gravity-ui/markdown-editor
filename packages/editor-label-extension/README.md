@@ -23,6 +23,7 @@ Syntax, colors, and the stylesheet for previews are in `@gravity-ui/markdown-plu
 ## Visual editor
 
 `toolbarLabelItem` inserts an empty gray label in place of the selection and opens its window; selected text becomes the caption.
+With an image or another node selected, the label is inserted after it.
 The empty label shows the placeholder «Set status», which is never saved.
 
 The window stands under the label by its left edge.
@@ -30,8 +31,9 @@ It holds the caption field with a clear button and a row of six color swatches; 
 Below them, up to twenty other labels of the document are listed, nearest first; a click copies the caption and the color.
 
 - A click on a label and an insertion open the window and move the focus to the caption field.
-- A label reached with `ArrowLeft` or `ArrowRight` opens the window and keeps the focus in the editor; `Enter` moves the focus to the caption field.
+- A label reached with `ArrowLeft` or `ArrowRight` opens the window and keeps the focus in the editor; `Enter` or `Tab` moves the focus to the caption field.
 - The clear button empties the caption and keeps the window open.
+- A shortcut with `Ctrl` or `Cmd` on a color or a page label, such as undo, runs in the editor and returns the focus to it.
 - `Escape`, `Enter` in the caption field, or a click outside closes the window and puts the cursor after the label.
 - A label with an empty caption is removed when the window closes or the selection leaves it.
 
@@ -41,7 +43,10 @@ At both edges the editor draws the cursor of inline code, and typed text goes ou
 The editor writes `color` only for a color other than `gray`.
 In the caption it escapes `\`, `[`, `]`, `|` and `&` before an HTML entity, and writes a line break as a space, so the label stays inside a table cell.
 A selected label is kept: the `addLabel` action opens it for editing.
+Copied as plain text, a label gives its caption.
+
 `LabelSpecs` adds only the schema, Markdown parsing, and serialization, and runs in Node.js.
+`Label` also needs the editor's React renderer, which the standard presets include.
 
 ## Markdown editor
 
