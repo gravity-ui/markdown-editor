@@ -25,6 +25,7 @@ import type {Extension} from '@gravity-ui/markdown-editor/cm/state';
 import {FoldingHeading} from '@gravity-ui/markdown-editor/extensions/additional/FoldingHeading/index.js';
 import {Mermaid} from '@gravity-ui/markdown-editor/extensions/additional/Mermaid/index.js';
 import {YfmHtmlBlock} from '@gravity-ui/markdown-editor/extensions/additional/YfmHtmlBlock/index.js';
+import {Label} from '@gravity-ui/markdown-editor-label-extension';
 import {LatexExtension} from '@gravity-ui/markdown-editor-latex-extension';
 import {YfmPageConstructorExtension} from '@gravity-ui/markdown-editor-page-constructor-extension';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
@@ -206,6 +207,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                             },
                         })
                         .use(FoldingHeading)
+                        .use(Label)
                         .use(YfmHtmlBlock, {
                             useConfig: useYfmHtmlBlockStyles,
                             sanitize: htmlBlockDefaultSanitizer,

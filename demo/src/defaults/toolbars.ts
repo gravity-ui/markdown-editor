@@ -8,6 +8,7 @@ import {
     yfmHtmlBlockItemView,
     yfmHtmlBlockItemWysiwyg,
 } from '@gravity-ui/markdown-editor/toolbars';
+import {toolbarLabelItem} from '@gravity-ui/markdown-editor-label-extension';
 import {
     latexBlockItemView,
     latexBlockItemWysiwyg,
@@ -20,6 +21,7 @@ import {
 } from '@gravity-ui/markdown-editor-page-constructor-extension/configs';
 
 const pageConstructor = 'pageConstructor';
+const label = 'label';
 
 export const playgroundToolbarsPreset: ToolbarsPreset = {
     items: {
@@ -29,6 +31,7 @@ export const playgroundToolbarsPreset: ToolbarsPreset = {
         [Action.mermaid]: {view: mermaidItemView, wysiwyg: mermaidItemWysiwyg},
         [pageConstructor]: {view: pageConstructorItemView, wysiwyg: pageConstructorItemWysiwyg},
         [Action.htmlBlock]: {view: yfmHtmlBlockItemView, wysiwyg: yfmHtmlBlockItemWysiwyg},
+        [label]: toolbarLabelItem,
     },
     orders: {
         ...full.orders,
@@ -40,7 +43,18 @@ export const playgroundToolbarsPreset: ToolbarsPreset = {
                 Action.mermaid,
                 pageConstructor,
                 Action.htmlBlock,
+                label,
             ],
         ],
+    },
+};
+
+/** The playground toolbars with the label button in the main toolbars. */
+export const labelToolbarsPreset: ToolbarsPreset = {
+    items: playgroundToolbarsPreset.items,
+    orders: {
+        ...playgroundToolbarsPreset.orders,
+        [Toolbar.wysiwygMain]: [...full.orders[Toolbar.wysiwygMain], [label]],
+        [Toolbar.markupMain]: [...full.orders[Toolbar.markupMain], [label]],
     },
 };

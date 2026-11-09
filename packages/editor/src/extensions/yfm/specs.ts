@@ -2,7 +2,6 @@ export * from './Checkbox/CheckboxSpecs';
 export * from './Color/ColorSpecs';
 export * from './Emoji/EmojiSpecs';
 export * from './ImgSize/ImgSizeSpecs';
-export * from './Label/LabelSpecs';
 export * from './Monospace/MonospaceSpecs';
 export * from './Video/VideoSpecs';
 export * from './YfmConfigs/YfmConfigsSpecs';

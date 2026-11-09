@@ -28,7 +28,6 @@ const names = [
     'image',
     'imagePopup',
     'italic',
-    'label',
     'liftListItem',
     'link',
     'mark',

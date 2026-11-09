@@ -26,7 +26,6 @@ import {
     imageItemView,
     imagePopupItemView,
     italicItemView,
-    labelItemView,
     liftListItemView,
     linkItemView,
     listsListItemView,
@@ -66,7 +65,6 @@ import {
     hruleItemWysiwyg,
     imageItemWysiwyg,
     italicItemWysiwyg,
-    labelItemWysiwyg,
     liftListItemWysiwyg,
     linkItemWysiwyg,
     markedItemWysiwyg,
@@ -446,10 +444,6 @@ const full: ToolbarsPreset = {
             view: emojiItemView,
             wysiwyg: emojiItemWysiwyg,
         },
-        [Action.label]: {
-            view: labelItemView,
-            wysiwyg: labelItemWysiwyg,
-        },
     },
     orders: {
         ...yfm.orders,
@@ -491,7 +485,6 @@ const full: ToolbarsPreset = {
                 Action.emoji,
                 Action.file,
                 Action.tabs,
-                Action.label,
             ],
         ],
         [Toolbar.wysiwygMain]: [
@@ -529,7 +522,7 @@ const full: ToolbarsPreset = {
                     items: [Action.codeInline, Action.codeBlock],
                 },
             ],
-            [Action.image, Action.file, Action.table, Action.checkbox, Action.label],
+            [Action.image, Action.file, Action.table, Action.checkbox],
         ],
         [Toolbar.wysiwygHidden]: [[Action.horizontalRule, Action.emoji, Action.tabs]],
     },

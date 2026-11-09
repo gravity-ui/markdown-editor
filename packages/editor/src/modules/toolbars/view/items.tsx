@@ -5,7 +5,6 @@ import {gptHotKeys} from 'src/extensions/additional/GPT/constants';
 import {i18n as i18nGpt} from 'src/i18n/gpt/extension';
 import {i18n as i18nHint} from 'src/i18n/hints';
 import {i18n} from 'src/i18n/menubar';
-import {i18n as i18nLabel} from 'src/i18n/label';
 import {Action as A, formatter as f} from 'src/shortcuts';
 import {ToolbarDataType} from 'src/toolbar/types';
 
@@ -311,14 +310,6 @@ export const liftListItemView: ToolbarItemView = {
     title: i18n.bind(null, 'list__action_lift'),
     icon: icons.lift,
     hotkey: f.toView(A.LiftListItem),
-};
-
-// ---- Label ----
-export const labelItemView: ToolbarItemView = {
-    type: ToolbarDataType.SingleButton,
-    title: i18nLabel.bind(null, 'button'),
-    icon: icons.label,
-    aliases: ['badge', 'status', 'tag'],
 };
 
 // ---- Toggle Heading Folding ----

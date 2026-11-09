@@ -20,7 +20,6 @@ import {
     HtmlBlockIcon,
     ImageIcon,
     ItalicIcon,
-    LabelIcon,
     LiftIcon,
     LinkIcon,
     ListBlIcon,
@@ -85,7 +84,6 @@ type Icon =
     | 'mermaid'
     | 'html'
     | 'foldingHeading'
-    | 'label'
     | 'gpt';
 
 type Icons = Record<Icon, ToolbarIconData>;
@@ -146,8 +144,6 @@ export const icons: Icons = {
     mermaid: {data: MermaidIcon},
 
     foldingHeading: {data: FoldingHeadingIcon},
-
-    label: {data: LabelIcon},
 
     gpt: {data: GPTIcon},
 };

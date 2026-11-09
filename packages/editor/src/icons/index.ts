@@ -35,7 +35,6 @@ export {
     QuoteClose as QuoteIcon,
     Scissors as CutIcon,
     Sticker as NoteIcon,
-    Tag as LabelIcon,
     Paperclip as FileIcon,
     Minus as HRuleIcon,
     //

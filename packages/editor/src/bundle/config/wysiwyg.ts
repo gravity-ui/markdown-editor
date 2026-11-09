@@ -9,7 +9,6 @@ import type {
     SelectionContextItemData,
 } from '../../extensions/behavior/SelectionContext';
 import {i18n as i18nHint} from '../../i18n/hints';
-import {i18n as i18nLabel} from '../../i18n/label';
 import {i18n} from '../../i18n/menubar';
 import {Action as A, formatter as f} from '../../shortcuts';
 import type {MarkdownEditorPreset} from '../preset-base-types';
@@ -232,15 +231,6 @@ export const wTabsItemData: WToolbarSingleItemData = {
     isActive: (e) => e.actions.toYfmTabs.isActive(),
     isEnable: (e) => e.actions.toYfmTabs.isEnable(),
 };
-export const wLabelItemData: WToolbarSingleItemData = {
-    id: ActionName.label,
-    type: ToolbarDataType.SingleButton,
-    title: i18nLabel.bind(null, 'button'),
-    icon: icons.label,
-    exec: (e) => e.actions.addLabel.run(),
-    isActive: (e) => e.actions.addLabel?.isActive() ?? false,
-    isEnable: (e) => e.actions.addLabel?.isEnable() ?? false,
-};
 /** @deprecated Use wLatexInlineItemData from `@gravity-ui/markdown-editor-latex-extension` */
 export const wMathInlineItemData: WToolbarSingleItemData = {
     id: ActionName.math_inline,
@@ -449,7 +439,6 @@ export const wCommandMenuConfig: WToolbarItemData[] = [
     wEmojiItemData,
     wFileItemData,
     wTabsItemData,
-    wLabelItemData,
 ];
 export const wHiddenData = wCommandMenuConfig;
 
@@ -518,7 +507,7 @@ export const wToolbarConfig: WToolbarData = [
             data: [wCodeItemData, wCodeBlockItemData],
         },
     ],
-    [wImageItemData, wFileItemData, wTableItemData, wCheckboxItemData, wLabelItemData],
+    [wImageItemData, wFileItemData, wTableItemData, wCheckboxItemData],
 ];
 
 export const wSelectionMenuConfig: SelectionContextConfig = [
@@ -777,7 +766,6 @@ export const wCommandMenuConfigByPreset: Record<MarkdownEditorPreset, WToolbarIt
         wEmojiItemData,
         wFileItemData,
         wTabsItemData,
-        wLabelItemData,
     ],
 };
 export const wHiddenDataByPreset: Record<MarkdownEditorPreset, WToolbarItemData[]> = {

@@ -2,7 +2,6 @@ export * from './Checkbox';
 export * from './Color';
 export * from './Emoji';
 export * from './ImgSize';
-export * from './Label';
 export * from './Monospace';
 export * from './Video';
 export * from './YfmConfigs';
