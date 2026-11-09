@@ -1,8 +1,8 @@
 import type {EditorView} from '@codemirror/view';
 import {describe, expect, it, vi} from 'vitest';
 
-import {ReactRenderStorage} from '../../extensions';
 import {Logger2} from '../../logger';
+import {ReactRenderStorage} from '../../modules/react-renderer';
 import {DirectiveSyntaxContext} from '../../utils/directive';
 
 import {createCodemirror} from './create';

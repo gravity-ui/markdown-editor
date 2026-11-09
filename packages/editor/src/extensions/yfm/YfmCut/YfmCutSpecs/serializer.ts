@@ -25,7 +25,7 @@ function getSerializerTokens({
         [CutNode.CutTitle]: (state, node, parent) => {
             if (isDirectiveCut(parent)) {
                 state.write(':::cut [');
-                state.renderInline(node);
+                state.renderInline(node, {textLineBreaks: 'space'});
                 state.write(']');
                 state.ensureNewLine();
                 state.closeBlock();
@@ -33,7 +33,7 @@ function getSerializerTokens({
             }
 
             state.write('{% cut "');
-            if (node.nodeSize > 2) state.renderInline(node);
+            if (node.nodeSize > 2) state.renderInline(node, {textLineBreaks: 'space'});
             else state.write(getPlaceholderContent(node));
             state.write('" %}\n');
             state.write('\n');
