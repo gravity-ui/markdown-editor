@@ -1,6 +1,6 @@
 import {InlineAtomPlugin} from '@gravity-ui/markdown-editor';
 import type {Keymap} from '@gravity-ui/markdown-editor/core';
-import type {Node, NodeType} from '@gravity-ui/markdown-editor/pm/model';
+import type {NodeType} from '@gravity-ui/markdown-editor/pm/model';
 import {
     type Command,
     type EditorState,
@@ -34,10 +34,6 @@ const findLabel = (state: EditorState, pos: number) => {
     return node?.type === labelNodeType(state.schema) ? node : null;
 };
 
-/** A label inside the selected text keeps its caption in the new label. */
-const labelCaption = (node: Node): string =>
-    node.type === labelNodeType(node.type.schema) ? node.attrs[LabelAttr.Text] : '';
-
 export const insertLabel =
     (text: string): Command =>
     (state, dispatch) => {
@@ -52,7 +48,7 @@ export const insertLabel =
                 from,
                 to,
                 type.create({
-                    [LabelAttr.Text]: state.doc.textBetween(from, to, '', labelCaption) || text,
+                    [LabelAttr.Text]: state.doc.textBetween(from, to) || text,
                     [LabelAttr.Color]: defaultLabelColor,
                 }),
             );

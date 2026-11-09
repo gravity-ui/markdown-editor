@@ -231,6 +231,12 @@ describe('Label extension', () => {
         parseHtml(`<p>${dom.outerHTML}</p>`, doc(p(node)));
     });
 
+    it('should copy the caption as plain text', () => {
+        const node = doc(p('Status: ', label(attrs('Done', 'green')), '.'));
+
+        expect(node.textBetween(0, node.content.size, '\n\n')).toBe('Status: Done.');
+    });
+
     it('should preserve a caption equal to the placeholder', () => {
         const node = label(attrs('Set status', 'gray'));
         const dom = toDom(node);

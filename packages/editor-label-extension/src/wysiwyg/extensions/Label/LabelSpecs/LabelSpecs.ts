@@ -52,6 +52,7 @@ export const LabelSpecs: ExtensionAuto = (builder) => {
             selectable: true,
             allowSelection: true,
             fakeCursor: true,
+            leafText: (node) => node.attrs[LabelAttr.Text],
             attrs: {
                 [LabelAttr.Text]: {default: ''},
                 [LabelAttr.Color]: {default: defaultLabelColor},
