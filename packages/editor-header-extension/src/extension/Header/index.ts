@@ -6,6 +6,7 @@ import {HeaderSpecs, headerNodeName} from './HeaderSpecs';
 import {headerSettingsPlugin} from './Settings';
 import {insertHeader} from './commands';
 import {insertHeaderAction} from './const';
+import {headerTitleKeymap} from './text/commands';
 
 import '@gravity-ui/markdown-plugin-header/styles.css';
 
@@ -18,7 +19,8 @@ export const Header: ExtensionAuto = (builder) => {
         )
         .addAction(insertHeaderAction, () => ({isEnable: insertHeader, run: insertHeader}))
         .addPlugin(headerSettingsPlugin)
-        .addKeymap(headerKeymap);
+        .addKeymap(headerKeymap)
+        .addKeymap(headerTitleKeymap, builder.Priority.High);
 };
 
 declare global {

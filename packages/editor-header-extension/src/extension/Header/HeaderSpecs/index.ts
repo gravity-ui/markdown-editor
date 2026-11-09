@@ -4,7 +4,14 @@ import {HeaderParserSpecs} from './parser';
 import {HeaderSchemaSpecs} from './schema';
 import {HeaderSerializerSpecs} from './serializer';
 
-export {headerNodeName, headerNodeType} from './const';
+export {
+    headerContentNodeName,
+    headerContentNodeType,
+    headerNodeName,
+    headerNodeType,
+    headerTitleNodeName,
+    headerTitleNodeType,
+} from './const';
 
 export const HeaderSpecs: ExtensionAuto = (builder) => {
     builder.use(HeaderSchemaSpecs).use(HeaderParserSpecs).use(HeaderSerializerSpecs);

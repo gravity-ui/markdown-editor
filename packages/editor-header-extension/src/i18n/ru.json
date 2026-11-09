@@ -7,5 +7,20 @@
   "close": "Закрыть",
   "settings": "Настройки",
   "copy": "Копировать",
-  "remove": "Удалить"
+  "remove": "Удалить",
+  "text": "Текст",
+  "show-title": "Заголовок",
+  "show-description": "Описание",
+  "title-size": "Размер заголовка",
+  "title-color": "Цвет заголовка",
+  "title-placeholder": "Заголовок",
+  "description-placeholder": "Описание",
+  "color-auto": "Авто",
+  "color-gray": "Серый",
+  "color-yellow": "Жёлтый",
+  "color-orange": "Оранжевый",
+  "color-red": "Красный",
+  "color-green": "Зелёный",
+  "color-blue": "Синий",
+  "color-violet": "Фиолетовый"
 }

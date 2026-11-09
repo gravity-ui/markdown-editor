@@ -16,7 +16,8 @@ import {headerNodeType} from '../HeaderSpecs';
 import {setHeaderDimensions} from '../commands';
 import {STOP_EVENT_CLASSNAME} from '../const';
 
-import {DimensionSelect} from './DimensionSelect';
+import {SettingsSelect} from './SettingsSelect';
+import {TextSettings} from './TextSettings';
 
 import './HeaderSettings.scss';
 
@@ -60,14 +61,14 @@ export function HeaderSettings({view, pos, onClose}: HeaderSettingsProps) {
                         <Icon data={Xmark} size={16} />
                     </Button>
                 </div>
-                <DimensionSelect
+                <SettingsSelect
                     label={i18n('height')}
                     value={height}
                     values={headerHeights}
                     format={(value) => value.toUpperCase()}
                     onUpdate={(value) => update({height: value})}
                 />
-                <DimensionSelect
+                <SettingsSelect
                     label={i18n('width')}
                     value={width}
                     values={headerWidths}
@@ -76,6 +77,7 @@ export function HeaderSettings({view, pos, onClose}: HeaderSettingsProps) {
                     }
                     onUpdate={(value) => update({width: value})}
                 />
+                <TextSettings view={view} pos={pos} />
             </section>
         </Portal>
     );

@@ -145,8 +145,9 @@ test.describe('Header', () => {
         );
         await editor.switchMode('wysiwyg');
         const block = page.locator('.ProseMirror .g-md-header-plugin');
+        const paragraph = block.locator('.g-md-header-view__content > p');
         await expect(block.locator('strong')).toHaveText('text');
-        await block.locator('p').click();
+        await paragraph.click();
         await editor.press('End');
         await editor.pressSequentially(' edited');
         await block.hover();
@@ -163,7 +164,7 @@ test.describe('Header', () => {
         expect(markup).toContain(':::header{height="l" width="s"}');
         expect(markup).toContain('edited');
         await editor.switchMode('wysiwyg');
-        await expect(block.locator('p')).toHaveText('Keep text edited');
+        await expect(paragraph).toHaveText('Keep text edited');
         await expect(block.locator('strong')).toContainText('text');
         await expect(block).toHaveClass(/g-md-header-plugin_height_l/);
     });

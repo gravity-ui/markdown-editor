@@ -5,7 +5,7 @@ import type {HeaderDimensions} from '@gravity-ui/markdown-plugin-header';
 
 import {headerNodeType} from './HeaderSpecs';
 
-function headerAt(state: EditorState, pos: number) {
+export function headerAt(state: EditorState, pos: number) {
     const node = state.doc.nodeAt(pos);
     return node?.type === headerNodeType(state.schema) ? node : null;
 }
@@ -23,8 +23,8 @@ export const insertHeader: Command = (state, dispatch) => {
         // A split paragraph puts the replaced range inside its first half.
         const $start = tr.doc.resolve(start);
         const headerPos = $start.nodeAfter?.type === type ? start : $start.after();
-        // `+ 2` skips the opening tokens of the header and of its paragraph.
-        dispatch(tr.setSelection(TextSelection.create(tr.doc, headerPos + 2)).scrollIntoView());
+        // `+ 3` skips the opening tokens of the header, its title and the title paragraph.
+        dispatch(tr.setSelection(TextSelection.create(tr.doc, headerPos + 3)).scrollIntoView());
     }
     return true;
 };

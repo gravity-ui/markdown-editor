@@ -1,5 +1,19 @@
-export {headerClassNames, headerDimensionsFromClassName} from './classname';
-export {headerClassName, headerTokenName} from './const';
+export {
+    headerClassNames,
+    headerContentAttrsFromClassName,
+    headerContentClassName,
+    headerContentClassNames,
+    headerDimensionsFromClassName,
+    headerTitleAttrsFromClassName,
+    headerTitleClassName,
+    headerTitleClassNames,
+} from './classname';
+export {
+    headerClassName,
+    headerContentTokenName,
+    headerTitleTokenName,
+    headerTokenName,
+} from './const';
 export {
     type HeaderDimensions,
     type HeaderHeight,
@@ -10,3 +24,15 @@ export {
     headerWidths,
 } from './dimensions';
 export {headerPlugin} from './directive';
+export {
+    type HeaderSlotAttrs,
+    type HeaderTextAttrs,
+    type HeaderTextColor,
+    type HeaderTitleAttrs,
+    type HeaderTitleSize,
+    headerTextColors,
+    headerTitleDefaults,
+    headerTitleSizes,
+    normalizeHeaderTextAttrs,
+    normalizeHeaderTitleAttrs,
+} from './text';

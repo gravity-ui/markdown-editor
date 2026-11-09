@@ -7,5 +7,20 @@
   "close": "Close",
   "settings": "Settings",
   "copy": "Copy",
-  "remove": "Delete"
+  "remove": "Delete",
+  "text": "Text",
+  "show-title": "Title",
+  "show-description": "Description",
+  "title-size": "Title size",
+  "title-color": "Title color",
+  "title-placeholder": "Title",
+  "description-placeholder": "Description",
+  "color-auto": "Auto",
+  "color-gray": "Gray",
+  "color-yellow": "Yellow",
+  "color-orange": "Orange",
+  "color-red": "Red",
+  "color-green": "Green",
+  "color-blue": "Blue",
+  "color-violet": "Violet"
 }
