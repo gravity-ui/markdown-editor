@@ -75,6 +75,16 @@ export function LabelTooltip({node, pos, view, editId, suggestions}: LabelToolti
                     event.preventDefault();
                     event.stopPropagation();
                     close();
+                    return;
+                }
+                // Shortcuts from a button, such as undo, run in the editor.
+                if (
+                    (event.ctrlKey || event.metaKey) &&
+                    event.target !== inputRef.current &&
+                    view.someProp('handleKeyDown', (handle) => handle(view, event.nativeEvent))
+                ) {
+                    event.preventDefault();
+                    view.focus();
                 }
             }}
         >

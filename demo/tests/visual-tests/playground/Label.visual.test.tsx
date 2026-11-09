@@ -574,6 +574,17 @@ test.describe('Label', () => {
         ).toHaveAttribute('data-placeholder', 'Set status');
         await expect(editor.label.labels).toHaveCount(8);
     });
+
+    test('should undo a color change from the popup @wysiwyg', async ({page, editor}) => {
+        await editor.label.labels.first().click();
+        await editor.label.color('Red').click();
+        await expect(editor.label.labels.first()).toHaveAttribute('data-color', 'red');
+
+        await page.keyboard.press('ControlOrMeta+z');
+        await expect(editor.label.labels.first()).toHaveAttribute('data-color', 'blue');
+        expect(await isEditorFocused(page)).toBe(true);
+        await expect(editor.label.selectedColor).toHaveAttribute('aria-label', 'Blue');
+    });
     test('should delete a label with Backspace and restore it on undo @wysiwyg', async ({
         editor,
     }) => {
