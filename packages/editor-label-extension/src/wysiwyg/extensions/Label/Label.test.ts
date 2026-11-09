@@ -2,6 +2,7 @@
 import {ExtensionsManager} from '@gravity-ui/markdown-editor/core';
 import {DOMParser, DOMSerializer, type Node} from '@gravity-ui/markdown-editor/pm/model';
 import {builders} from '@gravity-ui/markdown-editor/pm/test-builder';
+import {Transform} from '@gravity-ui/markdown-editor/pm/transform';
 import {
     BaseNode,
     BaseSchemaSpecs,
@@ -164,6 +165,17 @@ describe('Label extension', () => {
 
     it('should keep a pipe in the caption inside a YFM table', () => {
         expectRoundTrip('#|\n|| :label[x\\|y]{color=red} | b ||\n|#', [attrs('x|y', 'red')]);
+    });
+
+    it('should keep a table row when the caption has a line break', () => {
+        const table = markupParser.parse('| a | b |\n|---|---|\n| :label[x]{color=red} | c |');
+        let pos = -1;
+        table.descendants((child, offset) => {
+            if (child.type.name === labelNodeName) pos = offset;
+        });
+        const node = new Transform(table).setNodeMarkup(pos, null, attrs('x\ny', 'red')).doc;
+
+        expect(serializer.serialize(node)).toContain('|:label[x y]{color=red}|c|');
     });
 
     it.each([
