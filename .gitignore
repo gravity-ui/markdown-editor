@@ -46,7 +46,6 @@ test-results/
 # AI
 plans
 .claude
-!.claude/CLAUDE.md
 .cursor
 .codex
 .gemini
