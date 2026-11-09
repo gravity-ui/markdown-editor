@@ -190,7 +190,7 @@ test.describe('Label', () => {
     }) => {
         await editor.label.labels.first().click();
 
-        await expect(editor.label.popup).toBeVisible();
+        await expect(page.getByRole('dialog', {name: 'Label'})).toBeVisible();
         await expect(editor.label.input).toBeFocused();
 
         const selected = editor.label.selectedColor;

@@ -61,7 +61,7 @@ export function LabelTooltip({node, pos, view, editId, suggestions}: LabelToolti
     return (
         <div
             className={b()}
-            role="group"
+            role="dialog"
             aria-label={i18n('button')}
             onKeyDownCapture={(event) => {
                 const controls = event.currentTarget.querySelectorAll(
