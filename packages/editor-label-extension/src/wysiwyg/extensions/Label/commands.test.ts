@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import {isMac} from '@gravity-ui/markdown-editor';
+import {InlineAtomPlugin, isMac} from '@gravity-ui/markdown-editor';
 import {ExtensionsManager} from '@gravity-ui/markdown-editor/core';
 import {keydownHandler} from '@gravity-ui/markdown-editor/pm/keymap';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
@@ -26,21 +26,17 @@ import {labelClassName, labelCn} from '@gravity-ui/markdown-plugin-label';
 import {describe, expect, it} from 'vitest';
 
 import {Label} from './Label';
-import {LabelAttr, LabelSpecs, labelNodeName} from './LabelSpecs';
+import {LabelAttr, LabelSpecs, labelNodeName, labelNodeType} from './LabelSpecs';
 import {
     editSelectedLabel,
     insertLabel,
     labelKeymap,
-    leaveLabelToLeft,
-    leaveLabelToRight,
     removeEmptyLabel,
-    selectLabelOnLeft,
-    selectLabelOnRight,
     updateLabel,
 } from './commands';
 import {addLabelAction} from './const';
-import {getLabelCursorState, labelCursorPlugin} from './plugins/LabelCursorPlugin';
-import {isLabelEdited, labelEditPlugin} from './plugins/LabelEditPlugin';
+import {labelCursorPlugin} from './plugins/LabelCursorPlugin';
+import {getLabelEditId, labelEditPlugin} from './plugins/LabelEditPlugin';
 import {removeEmptyLabelPlugin} from './plugins/RemoveEmptyLabelPlugin';
 
 const {schema} = new ExtensionsManager({
@@ -62,6 +58,14 @@ const {doc, p, code, img, label} = builders<'doc' | 'p' | 'code' | 'img' | 'labe
 });
 
 const json = (node: Node) => node.toJSON();
+
+const selectLabelOnLeft = InlineAtomPlugin.selectAdjacentInlineAtom(labelNodeType, 'left');
+const selectLabelOnRight = InlineAtomPlugin.selectAdjacentInlineAtom(labelNodeType, 'right');
+const leaveLabelToLeft = InlineAtomPlugin.leaveSelectedInlineAtom(labelNodeType, 'left');
+const leaveLabelToRight = InlineAtomPlugin.leaveSelectedInlineAtom(labelNodeType, 'right');
+const getLabelCursorState = (state: EditorState) =>
+    InlineAtomPlugin.getInlineAtomCursorState(state, labelNodeType(state.schema));
+const isLabelEdited = (state: EditorState) => getLabelEditId(state) !== null;
 
 const applyCommand = (state: EditorState, command: Command) => {
     let tr: Transaction | undefined;

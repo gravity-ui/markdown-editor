@@ -1,1 +1,1 @@
-export {getLabelEditId, isLabelEdited, labelEditPlugin, startLabelEdit} from './plugin';
+export {getLabelEditId, labelEditPlugin, startLabelEdit} from './plugin';

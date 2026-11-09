@@ -1,1 +1,1 @@
-export {getLabelCursorState, labelCursorPlugin} from './plugin';
+export {labelCursorPlugin} from './plugin';

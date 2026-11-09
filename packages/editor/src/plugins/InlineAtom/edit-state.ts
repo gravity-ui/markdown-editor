@@ -29,7 +29,6 @@ export type InlineAtomEditing = {
     plugin: () => Plugin<InlineAtomEdit>;
     /** Selects the atom at `pos` and opens it for editing. */
     start: (tr: Transaction, pos: number) => Transaction;
-    isEdited: (state: EditorState) => boolean;
     /** Id of the latest request to edit the selected atom; every click or insertion gets a new one. */
     getEditId: (state: EditorState) => number | null;
 };
@@ -102,7 +101,6 @@ export function createInlineAtomEditing({
     return {
         plugin,
         start,
-        isEdited: (state) => (key.getState(state) ?? null) !== null,
         getEditId: (state) => key.getState(state)?.id ?? null,
     };
 }

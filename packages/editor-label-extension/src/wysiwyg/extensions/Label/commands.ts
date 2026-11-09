@@ -95,11 +95,6 @@ export const editSelectedLabel: Command = (state, dispatch) => {
     return true;
 };
 
-export const selectLabelOnLeft = InlineAtomPlugin.selectAdjacentInlineAtom(labelNodeType, 'left');
-export const selectLabelOnRight = InlineAtomPlugin.selectAdjacentInlineAtom(labelNodeType, 'right');
-export const leaveLabelToLeft = InlineAtomPlugin.leaveSelectedInlineAtom(labelNodeType, 'left');
-export const leaveLabelToRight = InlineAtomPlugin.leaveSelectedInlineAtom(labelNodeType, 'right');
-
 export const labelKeymap: Keymap = InlineAtomPlugin.createInlineAtomKeymap(
     labelNodeType,
     editSelectedLabel,
