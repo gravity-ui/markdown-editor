@@ -47,6 +47,51 @@ jobs:
             save HEAD "$file" "$report/actual/${file#demo/$snapshots/}"
           done
           cd "$report" && pnpm dlx reg-cli@0.19.0-rc3 actual expected diff -R index.html -I -M 0.1
+          # Selectors and variables match the report UI bundled in reg-cli 0.19.0-rc3
+          cat >> index.html <<'EOF'
+          <style>
+          :root {
+            --_1mfv1t42: #f6f8fa;
+            --_1mfv1t43: #d0d7de;
+            --_1mfv1t45: rgba(175, 184, 193, 0.2);
+            --_1mfv1t46: #1f2328;
+            --_1mfv1t47: #656d76;
+            --_1mfv1t48: #0969da;
+            --_1mfv1t49: #0969da;
+            --_1mfv1t4a: #1f2328;
+            --_1mfv1t4c: #1a7f37;
+            --_1mfv1t4d: #0969da;
+            --_1mfv1t4e: #cf222e;
+            --_1mfv1t4f: #656d76;
+            --_1mfv1t4g: 0 1px 0 #d0d7de;
+            --_1mfv1t4h: 0 1px 3px rgba(31, 35, 40, 0.12), 0 8px 24px rgba(66, 74, 83, 0.12);
+            --_1mfv1t4i: 0 0 0 1px #d0d7de;
+            --_1mfv1t4j: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            --_1mfv1t4k: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+            --_1mfv1t4l: 1.25rem;
+            --_1mfv1t4m: 0.875rem;
+            --_1mfv1t4n: 0.875rem;
+            --_1mfv1t4o: 0.875rem;
+            --_1mfv1t4p: 0.875rem;
+            --_1mfv1t4r: 0.875rem;
+            --_1mfv1t41j: 48px;
+            --_1mfv1t41l: 0 0 0 2px rgba(9, 105, 218, 0.4);
+          }
+          body { background: #fff; color: #1f2328; font-family: var(--_1mfv1t4j); font-size: 14px; }
+          ._1mfv1t41m, ._1mfv1t41n, ._1mfv1t41o, ._1mfv1t41v { text-transform: none; }
+          .gq0v1f0 { margin: 26px 0 16px 48px; }
+          .gq0v1f1, .gq0v1f1:first-of-type { margin: 16px 0 8px; }
+          ._6cmcx41:hover { box-shadow: 0 0 0 1px #8c959f; }
+          ._6cmcx45 { padding: 8px 12px; }
+          ._17e4as80, .ajvpct0 { height: 32px; }
+          .o8exlx2 { height: 48px; }
+          ._1o20hjp0 { padding: 12px 16px; }
+          ._1cgvgx23 { padding: 24px; border-radius: 6px; }
+          .c11qtb0, .gddkb26 { border-radius: 6px; }
+          .wdpnl50, .wdpnl50:before { height: 32px; border-radius: 6px; }
+          .icov5c0 { transform: scale(0.6); }
+          </style>
+          EOF
 
       - name: Upload Playwright Report
         if: always()
