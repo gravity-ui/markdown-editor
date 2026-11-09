@@ -6,10 +6,8 @@ import {findDomRefAtPos, findParentNodeOfType, findSelectedNodeOfType} from 'pro
 import type {EditorView} from 'prosemirror-view';
 
 import {cn} from '../../classname';
-import {
-    type RendererItem,
-    getReactRendererFromState,
-} from '../../extensions/behavior/ReactRenderer';
+import {getReactRendererFromState} from '../../extensions/behavior/ReactRenderer';
+import type {RendererItem} from '../../modules/react-renderer';
 import {ErrorLoggerBoundary} from '../../react-utils/ErrorBoundary';
 
 import {EditorPopup} from './EditorPopup';

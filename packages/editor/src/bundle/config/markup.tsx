@@ -11,6 +11,7 @@ import {
     insertYfmTable,
     insertYfmTabs,
     liftListItem,
+    openEmojiSuggest,
     redo,
     redoDepth,
     sinkListItem,
@@ -76,7 +77,6 @@ export type {
 const noop = () => {};
 const inactive = () => false;
 const enable = () => true;
-const disable = () => false;
 
 export const mUndoItemData: MToolbarSingleItemData = {
     id: ActionName.undo,
@@ -343,10 +343,9 @@ export const mEmojiItemData: MToolbarSingleItemData = {
     title: i18n.bind(null, 'emoji'),
     icon: icons.emoji,
     type: ToolbarDataType.SingleButton,
-    exec: noop,
-    hintWhenDisabled: i18n.bind(null, 'emoji__hint'),
+    exec: (e) => openEmojiSuggest(e.cm),
     isActive: inactive,
-    isEnable: disable,
+    isEnable: (e) => !e.cm.state.readOnly && e.cm.state.selection.main.empty,
 };
 
 /** @deprecated Use mLatexListItem from `@gravity-ui/markdown-editor-latex-extension` */

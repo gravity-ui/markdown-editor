@@ -5,4 +5,5 @@ import {composeStories} from './utils/compose-stories';
 export const YFMStories = composeStories(DefaultYFMStories, {
     stickyToolbar: false,
     devTools: false,
+    syncMarkupToUrl: false,
 });
