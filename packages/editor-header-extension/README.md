@@ -11,11 +11,20 @@ const editor = useMarkdownEditor({
 });
 ```
 
-`@gravity-ui/markdown-editor-header-extension/configs` exports the toolbar button that inserts the block: `headerItemView`, `headerItemWysiwyg`, and `headerItemMarkup`.
+| Entry point                                                  | Exports                                                                                                  |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `@gravity-ui/markdown-editor-header-extension`               | `Header`, the Markdown command `insertHeader`, and the toolbar button `toolbarHeaderItem` for both modes |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header` and `toolbarHeaderItem` for the visual editor                                                   |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs` and `headerNodeName`                                                                       |
+| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader` and `toolbarHeaderItem` for the Markdown editor                                           |
+
+`toolbarHeaderItem` inserts the block.
+In the visual editor, the button is disabled inside another header.
 Hovering, focusing, or selecting the block shows a toolbar with settings, copy, and delete.
-With the block selected or the cursor inside or next to it, Tab and Shift+Tab focus its controls.
+With the block selected or the cursor inside or next to it, Tab and Shift+Tab focus its controls; lists, tables, and code blocks inside the block handle these keys first.
 The settings panel opens inside the block, 16 px from its top and right edges, and shrinks to fit narrow blocks.
 The panel sets the height and width, shows or hides the title and the description, and sets the title size and color.
+Opening the panel focuses the height select; Escape or the close button closes it and returns focus to the settings button.
 `Mod-Alt-1`…`Mod-Alt-6` set the title size while the cursor is in the title.
 Each change is a separate undo step.
 
@@ -26,5 +35,5 @@ The title and the description are edited in place.
 Other child blocks remain editable and are preserved when changing dimensions, copying, or switching modes.
 A new or empty block holds an empty title and description, and insertion puts the cursor into the title.
 
-`HeaderSpecs` from `@gravity-ui/markdown-editor-header-extension/specs` adds only the schema and Markdown parsing and runs in Node.js.
+`HeaderSpecs` adds only the schema, Markdown parsing, and serialization, and runs in Node.js.
 `Header` also needs the editor's React renderer, which the standard presets include.

@@ -2,10 +2,11 @@ import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
 import {
-    headerContentAttrsFromClassName,
+    headerContentAttrs,
+    headerContentFromAttrs,
     headerPlugin,
-    headerTitleAttrsFromClassName,
-    headerTitleClassNames,
+    headerTitleAttrs,
+    headerTitleFromAttrs,
     normalizeHeaderTextAttrs,
     normalizeHeaderTitleAttrs,
 } from './index';
@@ -13,9 +14,9 @@ import {
 const md = new MarkdownIt().use(headerPlugin);
 
 const root =
-    '<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m">';
-const title = (size = '2', color = 'auto', modifiers = '') =>
-    `<div class="g-md-header-plugin__title g-md-header-plugin__title_size_${size} g-md-header-plugin__title_color_${color}${modifiers}">`;
+    '<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m" data-height="s" data-width="m">';
+const title = (size = '2', color = 'auto', hidden = false) =>
+    `<div class="g-md-header-plugin__title g-md-header-plugin__title_size_${size} g-md-header-plugin__title_color_${color}${hidden ? ' g-md-header-plugin__title_hidden' : ''}" data-size="${size}" data-color="${color}"${hidden ? ' data-hidden="true"' : ''}>`;
 const content = '<div class="g-md-header-plugin__content">';
 
 describe('Header text', () => {
@@ -30,8 +31,8 @@ describe('Header text', () => {
         [
             ':::header{title="false" description="false"}\n:::header-title{size="1" color="red"}\nTitle\n:::\n:::header-content\nText\n:::\n:::',
             `${root}\n` +
-                `${title('1', 'red', ' g-md-header-plugin__title_hidden')}\n<p>Title</p>\n</div>\n` +
-                '<div class="g-md-header-plugin__content g-md-header-plugin__content_hidden">\n<p>Text</p>\n</div>\n' +
+                `${title('1', 'red', true)}\n<p>Title</p>\n</div>\n` +
+                '<div class="g-md-header-plugin__content g-md-header-plugin__content_hidden" data-hidden="true">\n<p>Text</p>\n</div>\n' +
                 '</div>\n',
         ],
         [
@@ -89,21 +90,26 @@ describe('Header text', () => {
         [':::header\n:::header-title{size="7"}\nA\n:::\n:::', title()],
         [':::header\n:::header-title{color="pink"}\nA\n:::\n:::', title()],
         [':::header\n:::header-title{align="left" size="3"}\nA\n:::\n:::', title('3')],
+        [':::header\n:::header-title{hidden="true"}\nA\n:::\n:::', title()],
         [':::header\n:::header-content{size="1"}\nA\n:::\n:::', content],
         [':::header{title="no"}\n:::header-title\nA\n:::\n:::', title()],
     ])('should skip unsupported attributes and values in %j', (markup, opening) => {
         expect(md.render(markup)).toContain(`${opening}\n<p>A</p>`);
     });
 
-    it('should pass slot attributes in the token meta', () => {
+    it('should pass slot attributes in the data attributes of the tokens', () => {
         const tokens = md.parse(
             ':::header{description="false"}\n:::header-title{size="4" color="blue"}\nA\n:::\n:::header-content\nB\n:::\n:::',
             {},
         );
-        const meta = (type: string) => tokens.find((token) => token.type === type)?.meta;
-        expect(meta('header_open')).toEqual({height: 's', width: 'm'});
-        expect(meta('header-title_open')).toEqual({size: '4', color: 'blue', hidden: false});
-        expect(meta('header-content_open')).toEqual({hidden: true});
+        const getAttr = (type: string) => (name: string) =>
+            tokens.find((token) => token.type === type)?.attrGet(name);
+        expect(headerTitleFromAttrs(getAttr('header-title_open'))).toEqual({
+            size: '4',
+            color: 'blue',
+            hidden: false,
+        });
+        expect(headerContentFromAttrs(getAttr('header-content_open'))).toEqual({hidden: true});
     });
 
     it('should normalize text attributes', () => {
@@ -123,18 +129,16 @@ describe('Header text', () => {
         expect(normalizeHeaderTextAttrs({title: 'no'})).toEqual({title: true, description: true});
     });
 
-    it('should read slot attributes back from class names', () => {
-        const attrs = {size: '5', color: 'violet', hidden: true};
-        expect(headerTitleAttrsFromClassName(headerTitleClassNames(attrs))).toEqual(attrs);
-        expect(headerTitleAttrsFromClassName('g-md-header-plugin__title')).toEqual({
-            size: '2',
-            color: 'auto',
-            hidden: false,
+    it('should read slot attributes back from data attributes', () => {
+        const read = (attrs: Record<string, string>) => (name: string) => attrs[name];
+        const attrs = {size: '5', color: 'violet', hidden: true} as const;
+        expect(headerTitleFromAttrs(read(headerTitleAttrs(attrs)))).toEqual(attrs);
+        expect(headerTitleFromAttrs(read({}))).toEqual({size: '2', color: 'auto', hidden: false});
+        expect(headerContentFromAttrs(read(headerContentAttrs({hidden: true})))).toEqual({
+            hidden: true,
         });
-        expect(
-            headerContentAttrsFromClassName(
-                'g-md-header-plugin__content g-md-header-plugin__content_hidden',
-            ),
-        ).toEqual({hidden: true});
+        expect(headerContentAttrs({hidden: true}).class).toBe(
+            'g-md-header-plugin__content g-md-header-plugin__content_hidden',
+        );
     });
 });

@@ -3,12 +3,10 @@ import type {Meta, StoryObj} from '@storybook/react';
 import {HeaderExample} from './Header';
 
 export default {
-    title: 'Extensions / YFM / Landing / Header',
+    title: 'Extensions / Landing / Header',
     component: HeaderExample,
 } satisfies Meta<typeof HeaderExample>;
-export const Wysiwyg: StoryObj<typeof HeaderExample> = {};
-export const Markdown: StoryObj<typeof HeaderExample> = {args: {mode: 'markup'}};
-export const Text: StoryObj<typeof HeaderExample> = {
+export const Header: StoryObj<typeof HeaderExample> = {
     args: {
         initial: [
             ':::header{height="m" width="m"}',

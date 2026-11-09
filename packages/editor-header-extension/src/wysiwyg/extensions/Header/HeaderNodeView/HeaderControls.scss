@@ -1,0 +1,21 @@
+.g-md-header-view {
+    &__toolbar {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+
+        padding: 4px;
+
+        border-radius: var(--g-border-radius-l);
+        background-color: var(--g-color-base-float);
+        box-shadow: 0 1px 5px var(--g-color-sfx-shadow);
+    }
+
+    &__divider {
+        width: 1px;
+        height: 16px;
+        margin: 0 6px;
+
+        background-color: var(--g-color-line-generic);
+    }
+}

@@ -24,7 +24,7 @@ test.describe('Header text', () => {
         editor,
         expectScreenshot,
     }) => {
-        await mount(<HeaderStories.Text />);
+        await mount(<HeaderStories.Header />);
         const view = page.locator('.g-md-editor-component');
         const header = page.locator('.ProseMirror .g-md-header-plugin');
         const title = header.locator('.g-md-header-plugin__title');
@@ -50,7 +50,9 @@ test.describe('Header text', () => {
         page,
         editor,
     }) => {
-        await mount(<HeaderStories.Wysiwyg />);
+        await mount(
+            <HeaderStories.Header initial={':::header{height="s" width="m"}\n\n:::\n\nAfter'} />,
+        );
         const header = page.locator('.ProseMirror .g-md-header-plugin');
         await header.locator('.g-md-header-plugin__title').click();
         await editor.pressSequentially('New title');
@@ -79,7 +81,7 @@ test.describe('Header text', () => {
         editor,
         expectScreenshot,
     }) => {
-        await mount(<HeaderStories.Text />);
+        await mount(<HeaderStories.Header />);
         const header = page.locator('.ProseMirror .g-md-header-plugin');
         const settings = await openSettings(page);
         await settings.getByRole('combobox', {name: 'Title size', exact: true}).click();
@@ -118,7 +120,7 @@ test.describe('Header text', () => {
         page,
         editor,
     }) => {
-        await mount(<HeaderStories.Text />);
+        await mount(<HeaderStories.Header />);
         const title = page.locator('.ProseMirror .g-md-header-plugin__title');
         await title.click();
         await editor.press('Control+Alt+3');
@@ -133,7 +135,7 @@ test.describe('Header text', () => {
     test('should keep long text inside the block', async ({mount, page, expectScreenshot}) => {
         const long = 'Long-title-without-spaces-'.repeat(12);
         await mount(
-            <HeaderStories.Text
+            <HeaderStories.Header
                 initial={`:::header\n\n:::header-title\n${long}\n:::\n\n:::header-content\n${'Text '.repeat(150)}\n:::\n\n:::`}
             />,
         );

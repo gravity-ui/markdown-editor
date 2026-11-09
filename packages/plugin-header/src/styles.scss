@@ -1,7 +1,44 @@
+$title-sizes: (
+    1: (
+        32px,
+        40px,
+    ),
+    2: (
+        24px,
+        28px,
+    ),
+    3: (
+        20px,
+        24px,
+    ),
+    4: (
+        17px,
+        24px,
+    ),
+    5: (
+        15px,
+        20px,
+    ),
+    6: (
+        13px,
+        18px,
+    ),
+);
+$colors: (
+    gray: #808080,
+    yellow: #ffd700,
+    orange: #f80,
+    red: #c00,
+    green: #080,
+    blue: #04b,
+    violet: #f0f,
+);
+
 .g-md-header-plugin {
     max-width: var(--_--width);
     min-height: var(--_--height);
-    margin: 0 0 20px;
+    margin-block: var(--g-md-header-plugin-margin-block, 0 var(--g-spacing-5, 20px));
+    margin-inline: var(--g-md-header-plugin-margin-inline, 0);
 
     border-radius: var(--g-border-radius-2xl, 16px);
 
@@ -31,5 +68,47 @@
 
     &_width_full {
         --_--width: none;
+    }
+
+    &__title,
+    &__content {
+        overflow-wrap: anywhere;
+
+        & > :first-child {
+            margin-top: 0;
+        }
+
+        & > :last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    &__title {
+        margin-bottom: 8px;
+
+        font-weight: var(--g-text-header-font-weight, 600);
+
+        @each $size, $values in $title-sizes {
+            &_size_#{$size} {
+                font-size: var(--yfm-font-size-h#{$size}, nth($values, 1));
+                line-height: var(--yfm-font-line-height-h#{$size}, nth($values, 2));
+            }
+        }
+
+        @each $color, $value in $colors {
+            &_color_#{$color} {
+                color: var(--yfm-colorify-#{$color}, #{$value});
+            }
+        }
+    }
+
+    &__content {
+        font-size: var(--g-md-header-plugin-content-font-size, 14px);
+        line-height: var(--g-md-header-plugin-content-line-height, 20px);
+    }
+
+    &__title_hidden,
+    &__content_hidden {
+        display: none;
     }
 }

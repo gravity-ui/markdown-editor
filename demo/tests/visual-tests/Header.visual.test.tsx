@@ -27,7 +27,7 @@ const dimensions = [
 test.describe('Header', () => {
     test('should apply default sizes', async ({mount, page}) => {
         await mount(
-            <HeaderStories.Wysiwyg
+            <HeaderStories.Header
                 width={1280}
                 initial={`${dimensions.map(([height, width]) => header(height, width)).join('\n\n')}\n\nAfter`}
             />,
@@ -52,7 +52,7 @@ test.describe('Header', () => {
     test('should render dimensions', async ({mount, page, expectScreenshot}) => {
         await mount(
             <div style={smallSizes}>
-                <HeaderStories.Wysiwyg
+                <HeaderStories.Header
                     width={300}
                     initial={dimensions
                         .map(([height, width]) => header(height, width))
@@ -71,7 +71,7 @@ test.describe('Header', () => {
     }) => {
         await mount(
             <div style={smallSizes}>
-                <HeaderStories.Wysiwyg
+                <HeaderStories.Header
                     width={160}
                     initial={['s', 'm', 'l', 'full']
                         .map((width) => header('s', width))
@@ -92,9 +92,9 @@ test.describe('Header', () => {
     });
 
     test('should show the toolbar on hover', async ({mount, page, expectScreenshot}) => {
-        await mount(<HeaderStories.Wysiwyg width={660} initial={`${header('s', 's')}\n\nAfter`} />);
+        await mount(<HeaderStories.Header width={660} initial={`${header('s', 's')}\n\nAfter`} />);
         await page.locator('.ProseMirror .g-md-header-plugin').hover();
-        await expect(page.locator('.g-md-header-view__toolbar')).toHaveCSS('opacity', '1');
+        await expect(page.locator('.g-md-header-view__controls')).toHaveCSS('opacity', '1');
         await expectScreenshot({component: page.locator('.g-md-editor-component')});
     });
 
@@ -103,21 +103,27 @@ test.describe('Header', () => {
         page,
         expectScreenshot,
     }) => {
-        await mount(<HeaderStories.Wysiwyg width={660} initial={`${header('s', 's')}\n\nAfter`} />);
+        await mount(<HeaderStories.Header width={660} initial={`${header('s', 's')}\n\nAfter`} />);
         const view = page.locator('.g-md-editor-component');
         const block = page.locator('.ProseMirror .g-md-header-plugin');
-        await block.hover();
-        await page
+        const settingsButton = page
             .locator('.g-md-header-view__toolbar')
-            .getByRole('button', {name: 'Settings', exact: true})
-            .click();
+            .getByRole('button', {name: 'Settings', exact: true});
+        await block.hover();
+        await settingsButton.click();
         const settings = page.getByRole('dialog', {name: 'Block settings'});
+        const height = settings.getByRole('combobox', {name: 'Height', exact: true});
         await expect(settings).toBeVisible();
+        await expect(height).toBeFocused();
         await expectScreenshot({component: view});
 
-        await settings.getByRole('combobox', {name: 'Height', exact: true}).click();
+        await height.click();
         await expect(page.getByRole('option')).toHaveText(['S', 'M', 'L']);
         await expectScreenshot({component: view, nameSuffix: 'height list'});
+        await page.keyboard.press('Escape');
+        await expect(page.getByRole('option')).toHaveCount(0);
+        await expect(settings).toBeVisible();
+        await height.click();
         await page.getByRole('option', {name: 'M', exact: true}).click();
         await expect(block).toHaveClass(/g-md-header-plugin_height_m/);
 
@@ -129,7 +135,7 @@ test.describe('Header', () => {
 
         await settings.getByRole('button', {name: 'Close', exact: true}).click();
         await expect(settings).toBeHidden();
-        await expect(page.locator('.ProseMirror')).toBeFocused();
+        await expect(settingsButton).toBeFocused();
     });
 
     test('should preserve edited content and dimensions when switching modes', async ({
@@ -138,7 +144,8 @@ test.describe('Header', () => {
         editor,
     }) => {
         await mount(
-            <HeaderStories.Markdown
+            <HeaderStories.Header
+                mode="markup"
                 width={660}
                 initial={':::header{width="s"}\nKeep **text**\n:::'}
             />,
@@ -169,12 +176,12 @@ test.describe('Header', () => {
         await expect(block).toHaveClass(/g-md-header-plugin_height_l/);
     });
 
-    test('should support keyboard controls and restore editor focus', async ({
+    test('should support keyboard controls and return focus to the settings button', async ({
         mount,
         page,
         editor,
     }) => {
-        await mount(<HeaderStories.Wysiwyg width={660} initial={`${header('s', 's')}\n\nAfter`} />);
+        await mount(<HeaderStories.Header width={660} initial={`${header('s', 's')}\n\nAfter`} />);
         const block = page.locator('.ProseMirror .g-md-header-plugin');
         const toolbar = block.getByRole('toolbar');
         const settingsButton = toolbar.getByRole('button', {name: 'Settings', exact: true});
@@ -184,9 +191,16 @@ test.describe('Header', () => {
         await editor.press('ControlOrMeta+Home');
         await editor.press('Tab');
         await expect(settingsButton).toBeFocused();
-        await expect(toolbar).toHaveCSS('opacity', '1');
+        await expect(block.locator('.g-md-header-view__controls')).toHaveCSS('opacity', '1');
         await settingsButton.press('Enter');
         const settings = page.getByRole('dialog', {name: 'Block settings'});
+        const height = settings.getByRole('combobox', {name: 'Height', exact: true});
+        await expect(height).toBeFocused();
+        await height.press('Escape');
+        await expect(settings).toBeHidden();
+        await expect(settingsButton).toBeFocused();
+
+        await settingsButton.press('Enter');
         await expect(settings).toBeVisible();
         await settingsButton.press('Tab');
         await copy.press('Tab');
@@ -194,7 +208,8 @@ test.describe('Header', () => {
         const close = settings.getByRole('button', {name: 'Close', exact: true});
         await expect(close).toBeFocused();
         await close.press('Enter');
-        await expect(page.locator('.ProseMirror')).toBeFocused();
+        await expect(settings).toBeHidden();
+        await expect(settingsButton).toBeFocused();
 
         await editor.press('Shift+Tab');
         await expect(remove).toBeFocused();
@@ -210,13 +225,13 @@ test.describe('Header on mobile', () => {
     test.use({viewport: {width: 375, height: 812}});
 
     test('should fit a mobile viewport', async ({mount, page, expectScreenshot}) => {
-        await mount(<HeaderStories.Wysiwyg width={335} />);
+        await mount(<HeaderStories.Header width={335} />);
         await expect(page.locator('.ProseMirror .g-md-header-plugin')).toBeVisible();
         await expectScreenshot({component: page.locator('.g-md-editor-component')});
     });
 
     test('should keep settings inside a narrow block', async ({mount, page, expectScreenshot}) => {
-        await mount(<HeaderStories.Wysiwyg width={335} />);
+        await mount(<HeaderStories.Header width={335} />);
         const block = page.locator('.ProseMirror .g-md-header-plugin');
         await block.hover();
         await block.getByRole('button', {name: 'Settings', exact: true}).click();

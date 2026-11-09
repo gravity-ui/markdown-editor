@@ -1,66 +1,59 @@
+import {withNaming} from '@bem-react/classname';
+
 import {headerClassName} from './const';
-import {type HeaderDimensions, headerDimensions, headerHeights, headerWidths} from './dimensions';
-import {
-    type HeaderTitleAttrs,
-    headerTextColors,
-    headerTitleSizes,
-    normalizeHeaderTitleAttrs,
-} from './text';
+import {headerDimensions} from './dimensions';
+import {type HeaderSlotAttrs, type HeaderTitleAttrs, normalizeHeaderTitleAttrs} from './text';
 
-export const headerTitleClassName = `${headerClassName}__title`;
-export const headerContentClassName = `${headerClassName}__content`;
+const b = withNaming({e: '__', m: '_'})(headerClassName);
 
-const modifier = (name: keyof HeaderDimensions, value: string) =>
-    `${headerClassName}_${name}_${value}`;
+export const headerTitleClassName = b('title');
+export const headerContentClassName = b('content');
 
-const titleModifier = (name: keyof HeaderTitleAttrs, value: string) =>
-    `${headerTitleClassName}_${name}_${value}`;
-
-const hiddenModifier = (element: string) => `${element}_hidden`;
+type GetAttr = (name: string) => string | null | undefined;
 
 export function headerClassNames(attrs: {height?: unknown; width?: unknown}) {
-    const {height, width} = headerDimensions(attrs);
-    return `${headerClassName} ${modifier('height', height)} ${modifier('width', width)}`;
+    return b(headerDimensions(attrs));
 }
 
-export function headerDimensionsFromClassName(className: string) {
-    const classes = className.split(/\s+/);
-    return headerDimensions({
-        height: headerHeights.find((value) => classes.includes(modifier('height', value))),
-        width: headerWidths.find((value) => classes.includes(modifier('width', value))),
-    });
-}
-
-export function headerTitleClassNames(attrs: {size?: unknown; color?: unknown; hidden?: unknown}) {
-    const {size, color} = normalizeHeaderTitleAttrs(attrs);
-    const classes = [
-        headerTitleClassName,
-        titleModifier('size', size),
-        titleModifier('color', color),
-    ];
-    if (attrs.hidden === true) classes.push(hiddenModifier(headerTitleClassName));
-    return classes.join(' ');
-}
-
-export function headerContentClassNames(attrs: {hidden?: unknown}) {
-    return attrs.hidden === true
-        ? `${headerContentClassName} ${hiddenModifier(headerContentClassName)}`
-        : headerContentClassName;
-}
-
-export function headerTitleAttrsFromClassName(className: string) {
-    const classes = className.split(/\s+/);
+/** Modifiers style the block; data attributes carry its dimensions for parsing. */
+export function headerAttrs(attrs: {height?: unknown; width?: unknown}) {
+    const dimensions = headerDimensions(attrs);
     return {
-        ...normalizeHeaderTitleAttrs({
-            size: headerTitleSizes.find((value) => classes.includes(titleModifier('size', value))),
-            color: headerTextColors.find((value) =>
-                classes.includes(titleModifier('color', value)),
-            ),
-        }),
-        hidden: classes.includes(hiddenModifier(headerTitleClassName)),
+        class: b(dimensions),
+        'data-height': dimensions.height,
+        'data-width': dimensions.width,
     };
 }
 
-export function headerContentAttrsFromClassName(className: string) {
-    return {hidden: className.split(/\s+/).includes(hiddenModifier(headerContentClassName))};
+export function headerDimensionsFromAttrs(getAttr: GetAttr) {
+    return headerDimensions({height: getAttr('data-height'), width: getAttr('data-width')});
+}
+
+const hiddenAttrs = (hidden: boolean) => (hidden ? {'data-hidden': 'true'} : {});
+
+export function headerTitleAttrs(attrs: {size?: unknown; color?: unknown; hidden?: unknown}) {
+    const {size, color} = normalizeHeaderTitleAttrs(attrs);
+    const hidden = attrs.hidden === true;
+    return {
+        class: b('title', {size, color, hidden}),
+        'data-size': size,
+        'data-color': color,
+        ...hiddenAttrs(hidden),
+    };
+}
+
+export function headerContentAttrs(attrs: {hidden?: unknown}) {
+    const hidden = attrs.hidden === true;
+    return {class: b('content', {hidden}), ...hiddenAttrs(hidden)};
+}
+
+export function headerTitleFromAttrs(getAttr: GetAttr): HeaderTitleAttrs & HeaderSlotAttrs {
+    return {
+        ...normalizeHeaderTitleAttrs({size: getAttr('data-size'), color: getAttr('data-color')}),
+        hidden: getAttr('data-hidden') === 'true',
+    };
+}
+
+export function headerContentFromAttrs(getAttr: GetAttr): HeaderSlotAttrs {
+    return {hidden: getAttr('data-hidden') === 'true'};
 }

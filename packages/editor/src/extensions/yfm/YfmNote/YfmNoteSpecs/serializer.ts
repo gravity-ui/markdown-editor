@@ -15,7 +15,7 @@ const serializerTokens: Record<NoteNode, SerializerNodeToken> = {
         state.write(`{% note ${parent.attrs[NoteAttrs.Type]} `);
         if (node.nodeSize > 2) {
             state.write('"');
-            state.renderInline(node);
+            state.renderInline(node, {textLineBreaks: 'space'});
             state.write('"');
         } else {
             const placeholder = getPlaceholderContent(node);

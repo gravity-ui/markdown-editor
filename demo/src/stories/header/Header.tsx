@@ -6,31 +6,35 @@ import {
     type RenderPreview,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
-import {ToolbarName, full} from '@gravity-ui/markdown-editor/toolbars';
-import {Header} from '@gravity-ui/markdown-editor-header-extension';
-import {
-    headerItemMarkup,
-    headerItemView,
-    headerItemWysiwyg,
-} from '@gravity-ui/markdown-editor-header-extension/configs';
+import {ActionName as Action, ToolbarName, full} from '@gravity-ui/markdown-editor/toolbars';
+import {Header, toolbarHeaderItem} from '@gravity-ui/markdown-editor-header-extension';
 
 import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
 import {useEditorHandle} from '../../hooks/useEditorHandle';
 
+const mainToolbar = [
+    [Action.undo, Action.redo],
+    [Action.bold, Action.italic, Action.underline, Action.strike, Action.mono, Action.mark],
+    [Action.link],
+    ['header'],
+];
+
 const toolbars = {
     items: {
         ...full.items,
-        header: {view: headerItemView, wysiwyg: headerItemWysiwyg, markup: headerItemMarkup},
+        header: toolbarHeaderItem,
     },
     orders: {
         ...full.orders,
-        [ToolbarName.wysiwygHidden]: [[...full.orders[ToolbarName.wysiwygHidden].flat(), 'header']],
-        [ToolbarName.markupHidden]: [[...full.orders[ToolbarName.markupHidden].flat(), 'header']],
+        [ToolbarName.wysiwygMain]: mainToolbar,
+        [ToolbarName.markupMain]: mainToolbar,
+        [ToolbarName.wysiwygHidden]: [],
+        [ToolbarName.markupHidden]: [],
     },
 };
 
 export function HeaderExample({
-    initial = ':::header{height="s" width="m"}\n:::\n\nAfter',
+    initial = ':::header{height="s" width="m"}\n\n:::\n\nAfter',
     mode = 'wysiwyg',
     width = 1000,
 }: {

@@ -12,6 +12,7 @@ const md = new MarkdownIt().use(headerPlugin);
 
 ```markdown
 :::header{height="s" width="m"}
+
 :::
 ```
 
@@ -21,8 +22,10 @@ const md = new MarkdownIt().use(headerPlugin);
 | `width`   | `s` 600 px, `m` 900 px, `l` 1200 px, `full` (container width) | `m`     |
 
 The block is rendered as `div.g-md-header-plugin` with the modifiers `_height_{s,m,l}` and `_width_{s,m,l,full}`.
+The `data-height` and `data-width` attributes of the element and of the opening token hold the same dimensions.
 The block is left-aligned; the width is a `max-width`, so the block never exceeds its container.
 Sizes are set by `--g-md-header-plugin-height-{s,m,l}` and `--g-md-header-plugin-width-{s,m,l}`.
+Margins are set by `--g-md-header-plugin-margin-block` (`0 var(--g-spacing-5)` by default) and `--g-md-header-plugin-margin-inline` (`0` by default).
 The corner radius uses `--g-border-radius-2xl` (16 px by default).
 
 ## Title and description
@@ -52,8 +55,9 @@ Second paragraph.
 
 `header-title` is recognized only as the first block of `header`, and `header-content` only once per `header`; elsewhere they remain ordinary Markdown.
 The title is rendered as `div.g-md-header-plugin__title` with the modifiers `_size_{1-6}` and `_color_{color}`, the description as `div.g-md-header-plugin__content`.
-A hidden title or description gets the modifier `_hidden`.
-The title uses `--yfm-font-size-h{1-6}` and `--yfm-font-line-height-h{1-6}`, colors use `--yfm-colorify-{color}`.
+The `data-size` and `data-color` attributes of the title element and of its opening token hold the same values.
+A hidden title or description gets the modifier `_hidden` and the attribute `data-hidden="true"`.
+The title uses `--yfm-font-size-h{1-6}` and `--yfm-font-line-height-h{1-6}`, colors use `--yfm-colorify-{color}`, and an 8 px bottom margin separates it from the next block.
 The description uses `--g-md-header-plugin-content-font-size` (14 px) and `--g-md-header-plugin-content-line-height` (20 px).
 
 ## Parsing

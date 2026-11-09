@@ -1,12 +1,13 @@
 export {
+    headerAttrs,
     headerClassNames,
-    headerContentAttrsFromClassName,
+    headerContentAttrs,
     headerContentClassName,
-    headerContentClassNames,
-    headerDimensionsFromClassName,
-    headerTitleAttrsFromClassName,
+    headerContentFromAttrs,
+    headerDimensionsFromAttrs,
+    headerTitleAttrs,
     headerTitleClassName,
-    headerTitleClassNames,
+    headerTitleFromAttrs,
 } from './classname';
 export {
     headerClassName,

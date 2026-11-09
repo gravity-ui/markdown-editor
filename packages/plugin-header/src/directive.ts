@@ -8,10 +8,9 @@ import type {PluginSimple} from 'markdown-it';
 import type StateBlock from 'markdown-it/lib/rules_block/state_block';
 import type Token from 'markdown-it/lib/token';
 
-import {headerClassNames, headerContentClassNames, headerTitleClassNames} from './classname';
+import {headerAttrs, headerContentAttrs, headerTitleAttrs, headerTitleFromAttrs} from './classname';
 import {headerContentTokenName, headerTitleTokenName, headerTokenName} from './const';
-import {headerDimensions} from './dimensions';
-import {normalizeHeaderTextAttrs, normalizeHeaderTitleAttrs} from './text';
+import {normalizeHeaderTextAttrs} from './text';
 
 const titleOpen = `${headerTitleTokenName}_open`;
 const contentOpen = `${headerContentTokenName}_open`;
@@ -38,9 +37,13 @@ function canOpenSlot(state: StateBlock, open: string) {
     return open === titleOpen ? previous.length === 0 : !previous.includes(contentOpen);
 }
 
-function hideSlot(token: Token, classNames: (attrs: {hidden: boolean}) => string) {
-    token.meta = {...token.meta, hidden: true};
-    token.attrSet('class', classNames(token.meta));
+function hideSlot(token: Token) {
+    const getAttr = (name: string) => token.attrGet(name);
+    const attrs =
+        token.type === titleOpen
+            ? headerTitleAttrs({...headerTitleFromAttrs(getAttr), hidden: true})
+            : headerContentAttrs({hidden: true});
+    for (const [name, value] of Object.entries(attrs)) token.attrSet(name, value);
 }
 
 function tokenizeHeaderContent(
@@ -53,8 +56,8 @@ function tokenizeHeaderContent(
     const {title, description} = normalizeHeaderTextAttrs(attrs ?? {});
     for (const token of state.tokens.slice(start)) {
         if (token.level !== state.level) continue;
-        if (token.type === titleOpen && !title) hideSlot(token, headerTitleClassNames);
-        if (token.type === contentOpen && !description) hideSlot(token, headerContentClassNames);
+        if ((token.type === titleOpen && !title) || (token.type === contentOpen && !description))
+            hideSlot(token);
     }
 }
 
@@ -66,8 +69,7 @@ export const headerPlugin: PluginSimple = (md) => {
         container: {
             tag: 'div',
             token: headerTokenName,
-            attrs: ({attrs}) => ({class: headerClassNames(attrs ?? {})}),
-            meta: ({attrs}) => headerDimensions(attrs ?? {}),
+            attrs: ({attrs}) => headerAttrs(attrs ?? {}),
         },
         contentTokenizer: tokenizeHeaderContent,
     });
@@ -77,8 +79,7 @@ export const headerPlugin: PluginSimple = (md) => {
         container: {
             tag: 'div',
             token: headerTitleTokenName,
-            attrs: ({attrs}) => ({class: headerTitleClassNames(attrs ?? {})}),
-            meta: ({attrs}) => ({...normalizeHeaderTitleAttrs(attrs ?? {}), hidden: false}),
+            attrs: ({attrs}) => headerTitleAttrs(attrs ?? {}),
         },
     });
     registerContainerDirective(md, {
@@ -87,8 +88,7 @@ export const headerPlugin: PluginSimple = (md) => {
         container: {
             tag: 'div',
             token: headerContentTokenName,
-            attrs: () => ({class: headerContentClassNames({})}),
-            meta: () => ({hidden: false}),
+            attrs: () => headerContentAttrs({}),
         },
     });
 };

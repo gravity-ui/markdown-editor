@@ -1,5 +1,5 @@
 import {cn} from '../../../classname';
-import {Colors} from '../../../extensions';
+import {Colors} from '../../../extensions/yfm/Color/const';
 import {i18n} from '../../../i18n/menubar';
 import type {ToolbarBaseProps} from '../../../toolbar';
 import {icons} from '../../config/icons';
@@ -10,6 +10,7 @@ import {
 } from '../ToolbarButtonWithPopupMenu';
 
 import './ToolbarColors.scss';
+import '../../../extensions/yfm/Color/colors.scss';
 
 const b = cn('toolbar-colors');
 const textColorIcon = icons.textColor;
