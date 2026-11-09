@@ -6,27 +6,39 @@ import type {ToolbarData} from '../../../toolbar';
 
 import type {ContextConfig} from './types';
 
-const KEY_SEP = '|||';
+export function createToolbarDataResolver() {
+    let previousConfig: ContextConfig | undefined;
+    let previousResults: (boolean | void)[] = [];
+    let toolbarData: ToolbarData<ActionStorage> = [];
 
-export function getToolbarData(
-    config: ContextConfig,
-    editor: ActionStorage,
-    state: EditorState,
-): ToolbarData<ActionStorage> {
-    const conditionKey = config
-        .flatMap((groupData) =>
+    return (
+        config: ContextConfig,
+        editor: ActionStorage,
+        state: EditorState,
+    ): ToolbarData<ActionStorage> => {
+        const results = config.flatMap((groupData) =>
             groupData.map((item) => {
                 const {condition} = item;
                 if (condition === 'enabled') return item.isEnable(editor);
                 if (isFunction(condition)) return condition(state);
                 return true;
             }),
-        )
-        .join(KEY_SEP);
+        );
 
-    const results = conditionKey.split(KEY_SEP);
-    let idx = 0;
-    return config
-        .map((groupData) => groupData.filter(() => results[idx++] === 'true'))
-        .filter((groupData) => Boolean(groupData.length));
+        if (
+            config === previousConfig &&
+            results.length === previousResults.length &&
+            results.every((result, index) => result === previousResults[index])
+        ) {
+            return toolbarData;
+        }
+
+        let idx = 0;
+        toolbarData = config
+            .map((groupData) => groupData.filter(() => results[idx++] === true))
+            .filter((groupData) => Boolean(groupData.length));
+        previousConfig = config;
+        previousResults = results;
+        return toolbarData;
+    };
 }
