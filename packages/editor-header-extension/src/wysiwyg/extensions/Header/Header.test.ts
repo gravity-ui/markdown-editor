@@ -28,7 +28,7 @@ import {
 import {type HeaderDimensions, headerDefaults} from '@gravity-ui/markdown-plugin-header';
 import {afterEach, describe, expect, it} from 'vitest';
 
-import {insertHeaderMarkup} from '../../markup/commands';
+import {insertHeader as insertHeaderMarkup} from '../../../markup/commands/insertHeader';
 
 import {HeaderSpecs} from './HeaderSpecs';
 import {headerSettingsKey, headerSettingsPlugin, openHeaderSettings} from './Settings';

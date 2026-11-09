@@ -11,7 +11,14 @@ const editor = useMarkdownEditor({
 });
 ```
 
-`@gravity-ui/markdown-editor-header-extension/configs` exports the toolbar button that inserts the block: `headerItemView`, `headerItemWysiwyg`, and `headerItemMarkup`.
+| Entry point                                                  | Exports                                                                                                  |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `@gravity-ui/markdown-editor-header-extension`               | `Header`, the Markdown command `insertHeader`, and the toolbar button `toolbarHeaderItem` for both modes |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header` and `toolbarHeaderItem` for the visual editor                                                   |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs` and `headerNodeName`                                                                       |
+| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader` and `toolbarHeaderItem` for the Markdown editor                                           |
+
+`toolbarHeaderItem` inserts the block.
 In the visual editor, the button is disabled inside another header.
 Hovering, focusing, or selecting the block shows a toolbar with settings, copy, and delete.
 With the block selected or the cursor inside or next to it, Tab and Shift+Tab focus its controls; lists, tables, and code blocks inside the block handle these keys first.
@@ -24,5 +31,5 @@ Syntax, sizes, and the stylesheet for previews are in `@gravity-ui/markdown-plug
 Child blocks remain editable and are preserved when changing dimensions, copying, or switching modes.
 A new or empty block holds an empty paragraph, and insertion puts the cursor into it.
 
-`HeaderSpecs` from `@gravity-ui/markdown-editor-header-extension/specs` adds only the schema, Markdown parsing, and serialization, and runs in Node.js.
+`HeaderSpecs` adds only the schema, Markdown parsing, and serialization, and runs in Node.js.
 `Header` also needs the editor's React renderer, which the standard presets include.

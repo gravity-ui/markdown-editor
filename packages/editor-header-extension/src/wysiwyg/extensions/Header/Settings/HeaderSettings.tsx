@@ -12,7 +12,7 @@ import {
 import {Button, Icon, Text} from '@gravity-ui/uikit';
 import {createPortal} from 'react-dom';
 
-import {i18n} from '../../../i18n';
+import {i18n} from '../../../../i18n';
 import {headerNodeType} from '../HeaderSpecs';
 import {STOP_EVENT_CLASSNAME} from '../const';
 

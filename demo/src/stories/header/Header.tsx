@@ -7,12 +7,7 @@ import {
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
 import {ToolbarName, full} from '@gravity-ui/markdown-editor/toolbars';
-import {Header} from '@gravity-ui/markdown-editor-header-extension';
-import {
-    headerItemMarkup,
-    headerItemView,
-    headerItemWysiwyg,
-} from '@gravity-ui/markdown-editor-header-extension/configs';
+import {Header, toolbarHeaderItem} from '@gravity-ui/markdown-editor-header-extension';
 
 import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
 import {useEditorHandle} from '../../hooks/useEditorHandle';
@@ -20,7 +15,7 @@ import {useEditorHandle} from '../../hooks/useEditorHandle';
 const toolbars = {
     items: {
         ...full.items,
-        header: {view: headerItemView, wysiwyg: headerItemWysiwyg, markup: headerItemMarkup},
+        header: toolbarHeaderItem,
     },
     orders: {
         ...full.orders,

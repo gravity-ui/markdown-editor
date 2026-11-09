@@ -4,7 +4,7 @@ import type {Command} from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {Button, Icon} from '@gravity-ui/uikit';
 
-import {i18n} from '../../../i18n';
+import {i18n} from '../../../../i18n';
 import {openHeaderSettings} from '../Settings';
 import {copyHeader, removeHeader} from '../commands';
 import {STOP_EVENT_CLASSNAME} from '../const';

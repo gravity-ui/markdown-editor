@@ -37,24 +37,34 @@
         "default": "./build/cjs/index.js"
       }
     },
-    "./configs": {
+    "./markup": {
       "import": {
-        "types": "./build/esm/configs.d.ts",
-        "default": "./build/esm/configs.js"
+        "types": "./build/esm/markup/index.d.ts",
+        "default": "./build/esm/markup/index.js"
       },
       "require": {
-        "types": "./build/cjs/configs.d.ts",
-        "default": "./build/cjs/configs.js"
+        "types": "./build/cjs/markup/index.d.ts",
+        "default": "./build/cjs/markup/index.js"
       }
     },
-    "./specs": {
+    "./wysiwyg": {
       "import": {
-        "types": "./build/esm/specs.d.ts",
-        "default": "./build/esm/specs.js"
+        "types": "./build/esm/wysiwyg/index.d.ts",
+        "default": "./build/esm/wysiwyg/index.js"
       },
       "require": {
-        "types": "./build/cjs/specs.d.ts",
-        "default": "./build/cjs/specs.js"
+        "types": "./build/cjs/wysiwyg/index.d.ts",
+        "default": "./build/cjs/wysiwyg/index.js"
+      }
+    },
+    "./wysiwyg/specs": {
+      "import": {
+        "types": "./build/esm/wysiwyg/specs.d.ts",
+        "default": "./build/esm/wysiwyg/specs.js"
+      },
+      "require": {
+        "types": "./build/cjs/wysiwyg/specs.d.ts",
+        "default": "./build/cjs/wysiwyg/specs.js"
       }
     }
   },
