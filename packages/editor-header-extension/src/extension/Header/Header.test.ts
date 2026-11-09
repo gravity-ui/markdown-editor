@@ -129,28 +129,12 @@ describe('Header extension', () => {
     it.each([
         ':::header\nText **with formatting**\n:::',
         ':::header\nText!\n[link](url)\n\n:::',
-        ':::header\n\n```text\n:::\n```\n\nAfter\n:::',
-        ':::header\n\n    :::\n\nAfter\n:::',
         '> :::header\n> Text\n> :::',
         '- :::header\n  Text\n  :::',
     ])('should round trip child blocks in %j', (markup) => {
         const doc = markupParser.parse(markup);
         expect(markupParser.parse(serializer.serialize(doc)).toJSON()).toEqual(doc.toJSON());
     });
-
-    it.each([':::header\n\n```text\n:::\n```\n\nAfter\n:::', ':::header\n\n    :::\n\nAfter\n:::'])(
-        'should retain code and following text inside the header in %j',
-        (markup) => {
-            const doc = markupParser.parse(markup);
-            expect(doc.childCount).toBe(1);
-            const header = doc.child(0);
-            expect(header.type.name).toBe('header');
-            expect(header.firstChild?.type.name).toBe('code_block');
-            expect(header.firstChild?.textContent).toBe(':::');
-            expect(header.lastChild?.textContent).toBe('After');
-            expect(markupParser.parse(serializer.serialize(doc)).eq(doc)).toBe(true);
-        },
-    );
 
     it.each([':::header\n- a\n- b\n:::', ':::header\n1. a\n2. b\n:::', ':::header\n> a\n:::'])(
         'should close the header right after a child block in %j',

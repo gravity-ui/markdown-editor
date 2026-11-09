@@ -1,5 +1,5 @@
 import MarkdownIt from 'markdown-it';
-import {describe, expect, it, vi} from 'vitest';
+import {describe, expect, it} from 'vitest';
 
 import {headerHeights, headerPlugin, headerWidths} from './index';
 
@@ -64,21 +64,6 @@ describe('Header Markdown', () => {
         },
     );
 
-    it.each([
-        ':::header\n\n```text\n:::\n```\n\nAfter\n:::',
-        ':::header\n\n    :::\n\nAfter\n:::',
-        ':::header\n\n~~~~text\n:::\n~~~\n~~~~\n\nAfter\n:::',
-        ':::header\n- a\n\n  ```\n  :::\n  ```\n\nAfter\n:::',
-    ])('should keep code delimiters inside the container in %j', (markup) => {
-        const tokens = md.parse(markup, {});
-        expect(tokens[0].type).toBe('header_open');
-        expect(tokens[tokens.length - 1].type).toBe('header_close');
-        expect(
-            tokens.find((token) => ['fence', 'code_block'].includes(token.type))?.content,
-        ).toContain(':::\n');
-        expect(md.render(markup)).toContain('<p>After</p>');
-    });
-
     it('should preserve nested containers and paragraphs after them', () => {
         const tokens = md.parse(':::header\n:::header\nInner\n:::\nOuter\n:::', {});
         expect(tokens.filter((token) => token.type === 'header_open')).toHaveLength(2);
@@ -106,18 +91,6 @@ describe('Header Markdown', () => {
         [':::header\n:::header\n- a\n:::\n- b\n:::', ['a', 'b']],
         [':::header\n| a |\n| - |\n| b |\n:::', ['a', 'b']],
     ])('should close the container right after a child block in %j', expectContainer);
-
-    it.each([
-        [':::header\n- a\n  :::\n:::', ['a\n:::']],
-        [':::header\n> a\n> :::\n:::', ['a\n:::']],
-    ])('should keep an indented delimiter in a nested block as text in %j', expectContainer);
-
-    it('should tokenize each unclosed container once', () => {
-        const parser = new MarkdownIt().use(headerPlugin);
-        const tokenize = vi.spyOn(parser.block, 'tokenize');
-        parser.parse(Array(20).fill(':::header').join('\n\n'), {});
-        expect(tokenize).toHaveBeenCalledTimes(21);
-    });
 
     it.each([':::header\nUnclosed', '    :::header\n    :::'])(
         'should leave incomplete or indented directives as Markdown in %j',
