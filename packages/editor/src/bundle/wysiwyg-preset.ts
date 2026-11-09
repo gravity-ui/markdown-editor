@@ -279,6 +279,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
     builder.use(EditorModeKeymap, {
         onSubmit: opts.onSubmit,
         onCancel: opts.onCancel,
+        enableTabExitOnEscape: opts.enableTabExitOnEscape,
         ignoreKeysList,
     });
 };

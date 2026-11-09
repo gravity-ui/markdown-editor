@@ -78,7 +78,7 @@ export type PlaygroundProps = {
     style?: React.CSSProperties;
     storyAdditionalControls?: Record<string, any>;
     yfmMods?: YfmMods;
-} & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
+} & Pick<UseMarkdownEditorProps, 'enableTabExitOnEscape' | 'experimental' | 'wysiwygConfig'> &
     Pick<MarkdownEditorViewProps, 'enableSubmitInPreview' | 'hidePreviewAfterSubmit'>;
 
 logger.setLogger({
@@ -94,6 +94,7 @@ logger.setLogger({
 export const Playground = memo<PlaygroundProps>((props) => {
     const {
         mobile,
+        enableTabExitOnEscape = false,
         initial,
         syncMarkupToUrl = true,
         initialEditor,
@@ -166,6 +167,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         {
             logger,
             mobile,
+            enableTabExitOnEscape,
             preset: 'full',
             wysiwygConfig: {
                 placeholderOptions,
@@ -282,6 +284,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         },
         [
             mobile,
+            enableTabExitOnEscape,
             allowHTML,
             linkify,
             linkifyTlds,
@@ -305,7 +308,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
 
     useEffect(() => {
         function onCancel() {
-            alert('Editor: cancel');
+            console.info('Editor: cancel');
             return true;
         }
         function onSubmit() {

@@ -7,6 +7,15 @@ import {withToaster} from '../src/hocs/withToaster';
 
 const preview: Preview = {
     decorators: [withThemeProvider, withLang, withToaster],
+    args: {
+        enableTabExitOnEscape: false,
+    },
+    argTypes: {
+        enableTabExitOnEscape: {
+            name: 'Tab navigation after Escape',
+            control: 'boolean',
+        },
+    },
     parameters: {
         jsx: {showFunctions: true}, // To show functions in sources
         viewport: {

@@ -79,6 +79,7 @@ export type CreateCodemirrorParams = {
     placeholder: Parameters<typeof placeholder>[0];
     logger: Logger2.ILogger;
     onCancel: () => void;
+    enableTabExitOnEscape?: boolean;
     onSubmit: () => void;
     onChange: () => void;
     onDocChange: () => void;
@@ -109,6 +110,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         doc,
         reactRenderer,
         onCancel,
+        enableTabExitOnEscape = false,
         onScroll,
         onSubmit,
         onChange,
@@ -135,8 +137,29 @@ export function createCodemirror(params: CreateCodemirrorParams) {
     }
 
     const inputState = new InputState();
+    let allowTabExit = false;
+    const resetTabExit = (_event: Event, view: EditorView) => {
+        if (allowTabExit) {
+            allowTabExit = false;
+            view.setTabFocusMode(Number.NEGATIVE_INFINITY);
+        }
+    };
 
     extensions.push(
+        enableTabExitOnEscape
+            ? Prec.highest(
+                  EditorView.domEventHandlers({
+                      keydown(event, view) {
+                          if (!['Tab', 'Shift', 'Control', 'Alt', 'Meta'].includes(event.key)) {
+                              resetTabExit(event, view);
+                          }
+                      },
+                      blur: resetTabExit,
+                      mousedown: resetTabExit,
+                      beforeinput: resetTabExit,
+                  }),
+              )
+            : [],
         syntaxHighlighting(gravityHighlightStyle),
         LoggerFacet.of(logger),
         keymap.of([
@@ -158,8 +181,13 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             {
                 key: f.toCM(A.Cancel)!,
                 preventDefault: true,
-                run: () => {
+                run: (view) => {
                     onCancel();
+                    if (enableTabExitOnEscape && view.root.activeElement === view.contentDOM) {
+                        allowTabExit = true;
+                        // Numeric durations preserve the persistent mode enabled with Ctrl-M.
+                        view.setTabFocusMode(Number.POSITIVE_INFINITY);
+                    }
                     return true;
                 },
             },
