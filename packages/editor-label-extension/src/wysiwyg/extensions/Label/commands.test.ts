@@ -18,7 +18,9 @@ import {
     BaseSchemaSpecs,
     CodeBlockSpecs,
     CodeSpecs,
+    ImageSpecs,
     codeBlockNodeName,
+    imageNodeName,
 } from '@gravity-ui/markdown-editor/specs';
 import {labelClassName, labelCn} from '@gravity-ui/markdown-plugin-label';
 import {describe, expect, it} from 'vitest';
@@ -43,13 +45,19 @@ import {removeEmptyLabelPlugin} from './plugins/RemoveEmptyLabelPlugin';
 
 const {schema} = new ExtensionsManager({
     extensions: (builder) =>
-        builder.use(BaseSchemaSpecs, {}).use(CodeBlockSpecs, {}).use(CodeSpecs).use(LabelSpecs),
+        builder
+            .use(BaseSchemaSpecs, {})
+            .use(CodeBlockSpecs, {})
+            .use(CodeSpecs)
+            .use(ImageSpecs)
+            .use(LabelSpecs),
 }).buildDeps();
 
-const {doc, p, code, label} = builders<'doc' | 'p' | 'code' | 'label'>(schema, {
+const {doc, p, code, img, label} = builders<'doc' | 'p' | 'code' | 'img' | 'label'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     code: {nodeType: codeBlockNodeName},
+    img: {nodeType: imageNodeName},
     label: {nodeType: labelNodeName},
 });
 
@@ -100,6 +108,23 @@ describe('Label commands', () => {
         expect(tr.selection).toBeInstanceOf(NodeSelection);
         expect(tr.selection.from).toBe(5);
         expect(isLabelEdited(state.apply(tr))).toBe(true);
+    });
+
+    it('should insert a label after a selected image without replacing it', () => {
+        const pmDoc = doc(p('a', img({src: 'x.png'}), 'b'));
+        const state = EditorState.create({
+            schema,
+            doc: pmDoc,
+            selection: NodeSelection.create(pmDoc, 2),
+            plugins: [labelEditPlugin()],
+        });
+        const {res, tr} = applyCommand(state, insertLabel('Draft'));
+
+        expect(res).toBe(true);
+        expect(json(tr.doc)).toEqual(
+            json(doc(p('a', img({src: 'x.png'}), label(grayLabel('Draft')), 'b'))),
+        );
+        expect(tr.selection.from).toBe(3);
     });
 
     it('should not insert a label into a code block', () => {

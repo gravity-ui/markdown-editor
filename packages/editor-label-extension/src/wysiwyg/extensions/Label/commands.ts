@@ -45,7 +45,9 @@ export const insertLabel =
         if (!canInsertLabel(state, type)) return false;
 
         if (dispatch) {
-            const {from, to} = state.selection;
+            // A selected node, such as an image, stays before the new label.
+            const {to} = state.selection;
+            const from = state.selection instanceof NodeSelection ? to : state.selection.from;
             const tr = state.tr.replaceWith(
                 from,
                 to,
