@@ -6,10 +6,10 @@ import type {ActionStorage} from '../../../core';
 import {type Logger2, globalLogger} from '../../../logger';
 import type {RendererItem} from '../../../modules/react-renderer';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
+import type {ToolbarData} from '../../../toolbar';
 import {getReactRendererFromState} from '../ReactRenderer';
 
 import {TextSelectionTooltip} from './TextSelectionTooltip';
-import type {ContextConfig} from './types';
 
 export type {ContextGroupItemData, ContextGroupData, ContextConfig} from './types';
 
@@ -26,7 +26,7 @@ export class TooltipView {
 
     private readonly logger: Logger2.ILogger;
     private readonly actions: ActionStorage;
-    private menuConfig: ContextConfig;
+    private toolbarData: ToolbarData<ActionStorage> = [];
     private readonly placement: PopupPlacement;
     private readonly onPopupOpenChange: PopupProps['onOpenChange'];
 
@@ -35,15 +35,9 @@ export class TooltipView {
     private anchor: PopupProps['anchorElement'] = undefined;
     private _tooltipRenderItem: RendererItem | null = null;
 
-    constructor(
-        actions: ActionStorage,
-        menuConfig: ContextConfig,
-        logger: Logger2.ILogger,
-        params: TooltipViewParams,
-    ) {
+    constructor(actions: ActionStorage, logger: Logger2.ILogger, params: TooltipViewParams) {
         this.logger = logger;
         this.actions = actions;
-        this.menuConfig = menuConfig;
 
         const {flip, placement = 'bottom', onPopupOpenChange} = params;
         this.placement = flip ? placement : [placement];
@@ -54,9 +48,9 @@ export class TooltipView {
         return this.#isTooltipOpen;
     }
 
-    show(view: EditorView, config: ContextConfig) {
+    show(view: EditorView, toolbarData: ToolbarData<ActionStorage>) {
         this.view = view;
-        this.menuConfig = config;
+        this.toolbarData = toolbarData;
         this.#isTooltipOpen = true;
         this.visible = true;
         this.anchor ??= this.createVirtualElement(view);
@@ -98,9 +92,8 @@ export class TooltipView {
                 return (
                     <ErrorLoggerBoundary>
                         <TextSelectionTooltip
-                            config={this.menuConfig}
+                            toolbarData={this.toolbarData}
                             editor={this.actions}
-                            editorView={this.view}
                             focus={this.handleFocus}
                             onClick={this.handleClick}
                             popupPlacement={this.placement}
