@@ -1,6 +1,12 @@
 import {chainCommands} from 'prosemirror-commands';
 import type {NodeType, Schema} from 'prosemirror-model';
-import {type Command, type EditorState, NodeSelection, TextSelection} from 'prosemirror-state';
+import {
+    type Command,
+    type EditorState,
+    NodeSelection,
+    Selection,
+    TextSelection,
+} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
 
 import type {Keymap} from '../../core';
@@ -153,11 +159,20 @@ function findVerticalTarget(view: EditorView, pos: number, left: number, dir: 'u
     let top = dir === 'down' ? current.bottom + 1 : current.top - 1;
     for (; top >= bounds.top && top <= bounds.bottom; top += step * 4) {
         const found = view.posAtCoords({left, top});
-        // A hit in a block margin resolves before the textblock, not to a caret on another line.
-        if (!found || !view.state.doc.resolve(found.pos).parent.inlineContent) continue;
-        const coords = view.coordsAtPos(found.pos);
+        if (!found) continue;
+        let target = found.pos;
+        const $found = view.state.doc.resolve(target);
+        if (!$found.parent.inlineContent) {
+            // A hit in a block margin, such as a list marker, resolves before the textblock.
+            const near = Selection.findFrom($found, 1, true);
+            if (!near) continue;
+            const {top: nearTop, bottom: nearBottom} = view.coordsAtPos(near.from);
+            if (nearTop > top || nearBottom < top) continue;
+            target = near.from;
+        }
+        const coords = view.coordsAtPos(target);
         if (dir === 'down' ? coords.top >= current.bottom : coords.bottom <= current.top) {
-            return found.pos;
+            return target;
         }
     }
     return undefined;

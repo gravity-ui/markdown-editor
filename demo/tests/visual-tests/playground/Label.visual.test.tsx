@@ -899,6 +899,34 @@ test.describe('Label vertical navigation', () => {
         }
     });
 
+    test('should enter list items under and above a leading label @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+    }) => {
+        await mount(
+            <Playground
+                initial={':label[Top]\n\n- first\n- second\n\n:label[Bottom]'}
+                width="100%"
+                style={{width: 812}}
+            />,
+        );
+        await editor.switchMode('wysiwyg');
+        const expectLine = (line: string) =>
+            expect.poll(async () => (await editor.label.readCursor()).line).toBe(line);
+
+        await editor.label.placeCursor('before');
+        await expectLine('Bottom');
+        for (const line of ['second', 'first', 'Top']) {
+            await page.keyboard.press('ArrowUp');
+            await expectLine(line);
+        }
+        for (const line of ['first', 'second', 'Bottom']) {
+            await page.keyboard.press('ArrowDown');
+            await expectLine(line);
+        }
+    });
+
     test('should preserve the native preferred column when entering an atom-only line @wysiwyg', async ({
         mount,
         page,

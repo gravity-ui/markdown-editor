@@ -189,13 +189,23 @@ class Label {
         });
     }
 
-    /** Position and caret rectangle of the WYSIWYG selection. */
+    /** Position, text block and caret rectangle of the WYSIWYG selection. */
     async readCursor() {
         return this.page.evaluate(() => {
             const view = (window.mdEditor as unknown as {_wysiwygView: EditorView})._wysiwygView;
-            const {from, to} = view.state.selection;
+            const {from, to, $from} = view.state.selection;
+            const {parent} = $from;
             const rect = view.coordsAtPos(from);
-            return {pos: from, to, left: rect.left, top: rect.top, bottom: rect.bottom};
+            return {
+                pos: from,
+                to,
+                line: parent.textBetween(0, parent.content.size, '', (node) =>
+                    String(node.attrs.text ?? ''),
+                ),
+                left: rect.left,
+                top: rect.top,
+                bottom: rect.bottom,
+            };
         });
     }
 
