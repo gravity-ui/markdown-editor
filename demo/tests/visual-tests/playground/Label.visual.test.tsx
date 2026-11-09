@@ -241,6 +241,8 @@ test.describe('Label', () => {
 
         await page.mouse.move(0, 0);
         await wait.tooltipsHidden();
+        // The markup pane behind the edge of the popup shows the last color.
+        await wait.markupPreview(':label[Draft]{color=yellow}');
         await expectScreenshot({component: editor.label.popup, nameSuffix: 'focused swatch'});
     });
 
