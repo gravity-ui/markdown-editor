@@ -1,9 +1,9 @@
 import {get$Cursor, isNodeSelection, pType} from '@gravity-ui/markdown-editor';
 import type {Keymap} from '@gravity-ui/markdown-editor/core';
 import type {Command, EditorState} from '@gravity-ui/markdown-editor/pm/state';
-import {headerClassName} from '@gravity-ui/markdown-plugin-header';
 
 import {headerNodeType} from '../HeaderSpecs';
+import {headerControlButtons} from '../const';
 
 function headerPosition(state: EditorState): number | undefined {
     const {selection} = state;
@@ -39,9 +39,7 @@ const focusControls =
         if (pos === undefined) return false;
         const block = view.nodeDOM(pos);
         if (!(block instanceof HTMLElement)) return false;
-        const buttons = Array.from(
-            block.querySelectorAll<HTMLButtonElement>('[role="toolbar"] button'),
-        ).filter((button) => button.closest('.' + headerClassName) === block);
+        const buttons = headerControlButtons(block);
         const button = buttons[last ? buttons.length - 1 : 0];
         if (!button) return false;
         button.focus();

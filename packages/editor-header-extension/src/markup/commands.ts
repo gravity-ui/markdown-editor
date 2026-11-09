@@ -5,7 +5,7 @@ import {headerDefaults} from '@gravity-ui/markdown-plugin-header';
 export const insertHeaderMarkup: StateCommand = ({state, dispatch}) => {
     const tr = MarkupHelpers.replaceOrInsertAfter(
         state,
-        `:::header{height="${headerDefaults.height}" width="${headerDefaults.width}"}\n:::`,
+        `:::header{height="${headerDefaults.height}" width="${headerDefaults.width}"}\n\n:::`,
     );
     dispatch(state.update(tr));
     return true;

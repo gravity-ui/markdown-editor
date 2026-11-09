@@ -18,7 +18,8 @@ export const Header: ExtensionAuto = (builder) => {
         )
         .addAction(insertHeaderAction, () => ({isEnable: insertHeader, run: insertHeader}))
         .addPlugin(headerSettingsPlugin)
-        .addKeymap(headerKeymap);
+        // Blocks inside the header handle Tab first.
+        .addKeymap(headerKeymap, builder.Priority.Low);
 };
 
 declare global {

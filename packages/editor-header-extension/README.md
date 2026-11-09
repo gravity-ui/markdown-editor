@@ -12,9 +12,11 @@ const editor = useMarkdownEditor({
 ```
 
 `@gravity-ui/markdown-editor-header-extension/configs` exports the toolbar button that inserts the block: `headerItemView`, `headerItemWysiwyg`, and `headerItemMarkup`.
+In the visual editor, the button is disabled inside another header.
 Hovering, focusing, or selecting the block shows a toolbar with settings, copy, and delete.
-With the block selected or the cursor inside or next to it, Tab and Shift+Tab focus its controls.
+With the block selected or the cursor inside or next to it, Tab and Shift+Tab focus its controls; lists, tables, and code blocks inside the block handle these keys first.
 The settings panel opens inside the block, 16 px from its top and right edges, and shrinks to fit narrow blocks.
+Opening the panel focuses the height select; Escape or the close button closes it and returns focus to the settings button.
 Each height or width change is a separate undo step.
 
 The editor writes both attributes, including default values.

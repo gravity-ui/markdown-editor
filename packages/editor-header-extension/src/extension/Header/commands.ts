@@ -13,8 +13,11 @@ function headerAt(state: EditorState, pos: number) {
 export const insertHeader: Command = (state, dispatch) => {
     const $cursor = get$Cursor(state.selection);
     if ($cursor?.parent.type !== pType(state.schema)) return false;
+    const type = headerNodeType(state.schema);
+    for (let depth = $cursor.depth - 1; depth > 0; depth--) {
+        if ($cursor.node(depth).type === type) return false;
+    }
     if (dispatch) {
-        const type = headerNodeType(state.schema);
         const tr = state.tr.replaceSelectionWith(type.createAndFill()!);
         let start = 0;
         tr.mapping.maps[tr.mapping.maps.length - 1].forEach((_from, _to, newFrom) => {

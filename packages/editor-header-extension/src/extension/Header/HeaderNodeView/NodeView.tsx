@@ -5,7 +5,7 @@ import type {EditorView, NodeView, ViewMutationRecord} from '@gravity-ui/markdow
 import {headerClassNames} from '@gravity-ui/markdown-plugin-header';
 import {Portal} from '@gravity-ui/uikit';
 
-import {STOP_EVENT_CLASSNAME} from '../const';
+import {STOP_EVENT_CLASSNAME, headerControlsClassName} from '../const';
 
 import {HeaderControls} from './HeaderControls';
 
@@ -16,6 +16,7 @@ const b = cn('header-view');
 export class WHeaderNodeView implements NodeView {
     readonly dom: HTMLElement;
     readonly contentDOM: HTMLElement;
+    private readonly controlsDOM: HTMLElement;
     private node: Node;
     private readonly view: EditorView;
     private readonly getPos: () => number | undefined;
@@ -30,6 +31,10 @@ export class WHeaderNodeView implements NodeView {
         this.updateClassName();
         this.contentDOM = this.dom.appendChild(document.createElement('div'));
         this.contentDOM.className = b('content');
+        // `Portal` wraps the toolbar, so the visibility styles target this container.
+        this.controlsDOM = this.dom.appendChild(document.createElement('div'));
+        this.controlsDOM.className = headerControlsClassName;
+        this.controlsDOM.contentEditable = 'false';
 
         this.renderItem = getReactRendererFromState(view.state).createItem(
             'header-controls',
@@ -64,7 +69,7 @@ export class WHeaderNodeView implements NodeView {
 
     private renderControls() {
         return (
-            <Portal container={this.dom}>
+            <Portal container={this.controlsDOM}>
                 <HeaderControls view={this.view} getPos={this.getPos} />
             </Portal>
         );

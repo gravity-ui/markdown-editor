@@ -45,6 +45,17 @@ export function HeaderSettings({view, pos, onClose}: HeaderSettingsProps) {
                 contentEditable={false}
                 aria-labelledby={titleId}
                 data-qa="header-settings"
+                onKeyDown={(event) => {
+                    const target = event.target as Element;
+                    // Escape in an open Select or its list closes only the list.
+                    if (
+                        event.key === 'Escape' &&
+                        event.currentTarget.contains(target) &&
+                        !target.closest('[aria-expanded="true"]')
+                    ) {
+                        onClose();
+                    }
+                }}
             >
                 <div className={b('title')}>
                     <Text variant="subheader-3" id={titleId}>
@@ -61,6 +72,7 @@ export function HeaderSettings({view, pos, onClose}: HeaderSettingsProps) {
                     </Button>
                 </div>
                 <DimensionSelect
+                    autoFocus
                     label={i18n('height')}
                     value={height}
                     values={headerHeights}

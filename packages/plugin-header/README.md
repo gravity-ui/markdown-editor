@@ -12,6 +12,7 @@ const md = new MarkdownIt().use(headerPlugin);
 
 ```markdown
 :::header{height="s" width="m"}
+
 :::
 ```
 

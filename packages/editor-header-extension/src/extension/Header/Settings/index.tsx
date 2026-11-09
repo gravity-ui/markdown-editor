@@ -1,6 +1,8 @@
 import {getReactRendererFromState} from '@gravity-ui/markdown-editor/extensions';
 import {type Command, Plugin, PluginKey} from '@gravity-ui/markdown-editor/pm/state';
 
+import {headerControlButtons} from '../const';
+
 import {HeaderSettings} from './HeaderSettings';
 
 /** Position of the header whose settings are open. */
@@ -28,8 +30,12 @@ export const headerSettingsPlugin = () =>
         },
         view(view) {
             const close = () => {
+                const pos = headerSettingsKey.getState(view.state);
                 openHeaderSettings(null)(view.state, view.dispatch);
-                view.focus();
+                const block = typeof pos === 'number' ? view.nodeDOM(pos) : null;
+                const settingsButton =
+                    block instanceof HTMLElement ? headerControlButtons(block)[0] : undefined;
+                (settingsButton ?? view).focus();
             };
             const item = getReactRendererFromState(view.state).createItem('header-settings', () => {
                 const pos = headerSettingsKey.getState(view.state);

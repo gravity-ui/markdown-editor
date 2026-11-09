@@ -1,7 +1,11 @@
 // @vitest-environment jsdom
 import {EditorState as MarkupEditorState} from '@gravity-ui/markdown-editor/cm/state';
 import {ExtensionsManager} from '@gravity-ui/markdown-editor/core';
-import {ReactRenderStorage, ReactRendererExtension} from '@gravity-ui/markdown-editor/extensions';
+import {
+    Clipboard,
+    ReactRenderStorage,
+    ReactRendererExtension,
+} from '@gravity-ui/markdown-editor/extensions';
 import {history, redo, undo} from '@gravity-ui/markdown-editor/pm/history';
 import {DOMParser, DOMSerializer} from '@gravity-ui/markdown-editor/pm/model';
 import {
@@ -233,6 +237,37 @@ describe('Header extension', () => {
         expect(run(editor, insertHeader)).toBe(true);
         expect(editor.state.doc.textContent).toBe('abc');
         expect(editor.state.selection.$from.node(1).type.name).toBe('header');
+    });
+
+    it('should not insert a header inside a header', () => {
+        const editor = createView(':::header\nText\n:::');
+        editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 2)));
+        expect(insertHeader(editor.state)).toBe(false);
+    });
+
+    it('should copy only the selected text inside a header', () => {
+        const deps = new ExtensionsManager({
+            extensions: (builder) =>
+                builder.use(BaseSchemaSpecs, {}).use(Clipboard, {}).use(HeaderSpecs),
+        }).build();
+        const editor = new EditorView(document.createElement('div'), {
+            state: EditorState.create({
+                schema: deps.schema,
+                doc: deps.markupParser.parse(':::header\nOne\n\nTwo\n:::'),
+                plugins: deps.plugins,
+            }),
+        });
+        view = editor;
+        // From "ne" in the first paragraph to "Tw" in the second one.
+        editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 3, 9)));
+        const data = new Map<string, string>();
+        const clipboardData = {
+            clearData: () => data.clear(),
+            setData: (type: string, value: string) => data.set(type, value),
+        };
+        const event = {clipboardData, preventDefault() {}} as unknown as ClipboardEvent;
+        editor.someProp('handleDOMEvents', (handlers) => handlers.copy?.(editor, event));
+        expect(data.get('text/yfm')).toBe('ne\n\nTw');
     });
 
     it('should reject insertion over selected content', () => {
