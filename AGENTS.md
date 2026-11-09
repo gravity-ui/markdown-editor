@@ -2,7 +2,7 @@
 
 ## Following existing code
 
-Where this file says nothing, copy the closest existing example in the repository: folder structure, file names, demo stories, tests. Add a new kind of file only if the repository already has one like it.
+Where this file says nothing, copy the closest existing example in the repository: folder structure, file names, names of variables, functions, types and constants, class structure, React components and hooks, styles and CSS class names, i18n keys, exports, tests, demo stories. Add a new kind of file only if the repository already has one like it.
 
 ## Testing
 
