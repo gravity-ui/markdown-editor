@@ -295,12 +295,13 @@ export class MarkdownSerializerState {
         const shouldEscape = escape !== false && this.options.escape !== false;
         const lines = text.split('\n');
         for (let i = 0; i < lines.length; i++) {
+            const atLineStart = this.atBlockStart || (i === 0 && this.out.endsWith('\n'));
             this.write();
             // Escape ! before [ to prevent being parsed as image syntax
             if (escape === false && lines[i][0] === '[' && /(^|[^\\])!$/.test(this.out))
                 this.out = this.out.slice(0, this.out.length - 1) + '\\!';
             let text = lines[i];
-            if (shouldEscape) text = this.esc(text, this.atBlockStart)
+            if (shouldEscape) text = this.esc(text, atLineStart)
             if (this.escapeWhitespace) text = this.escWhitespace(text);
             if (this.escapeLeadingSpace && text) {
                 this.escapeLeadingSpace = false;
@@ -841,6 +842,7 @@ function isMarkdownWhitespaceOrPunctuation(char: string): boolean {
 function hasCodeBlockIndent(parent: Node): boolean {
     let columns = 0;
     let atStart = true;
+    let hasContent: boolean | undefined;
     for (const child of parent.content.content) {
         if (child.type.spec.isBreak) {
             if (child.type.spec.breakType === 'soft') return false;
@@ -856,6 +858,49 @@ function hasCodeBlockIndent(parent: Node): boolean {
             atStart = indent.length === text.length;
         }
         if (/\S/.test(text)) return columns >= 4;
+        if (columns >= 4 && hasNonMarkdownWhitespace(text)) {
+            hasContent ??= hasContentBeforeBlankLine(parent);
+            if (hasContent) return true;
+        }
+    }
+    return false;
+}
+
+function hasContentBeforeBlankLine(parent: Node): boolean {
+    let end = parent.childCount;
+    const lastType = parent.lastChild?.type;
+    for (let index = parent.childCount - 1; index >= 0; index--) {
+        const child = parent.child(index);
+        if (child.type !== lastType || !child.type.spec.isBreak) break;
+        end--;
+    }
+    const text = parent.content.content
+        .slice(0, end)
+        .map((node) => {
+            // Outer marks can remove whitespace-only code.
+            const codeOnly = node.marks.length === 1 && node.marks[0].type.spec.code;
+            if (node.isText && !codeOnly) return node.text ?? '';
+            if (!node.type.spec.isBreak) return '\ufffc';
+            return node.type.spec.breakType === 'hard' ? '\\\n' : '\n';
+        })
+        .join('');
+    let afterLineBreak = false;
+    for (let index = 0; index < text.length; index++) {
+        const char = text[index];
+        if (char.trim()) return true;
+        if (char === ' ' || char === '\t') continue;
+        const isLineBreak = char === '\r' || char === '\n';
+        if (afterLineBreak && isLineBreak) return false;
+        afterLineBreak = isLineBreak;
+        if (char === '\r' && text[index + 1] === '\n') index++;
+    }
+    return false;
+}
+
+function hasNonMarkdownWhitespace(text: string): boolean {
+    for (const char of text) {
+        if (char !== ' ' && char !== '\t' && char !== '\r' && char !== '\n' && !char.trim())
+            return true;
     }
     return false;
 }
