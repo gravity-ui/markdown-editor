@@ -14,7 +14,6 @@ import {createPortal} from 'react-dom';
 
 import {i18n} from '../../../i18n';
 import {headerNodeType} from '../HeaderSpecs';
-import {setHeaderDimensions} from '../commands';
 import {STOP_EVENT_CLASSNAME} from '../const';
 
 import {DimensionSelect} from './DimensionSelect';
@@ -27,17 +26,16 @@ type HeaderSettingsProps = {
     view: EditorView;
     pos: number;
     onClose: () => void;
+    onChange: (attrs: Partial<HeaderDimensions>) => void;
 };
 
-export function HeaderSettings({view, pos, onClose}: HeaderSettingsProps) {
+export function HeaderSettings({view, pos, onClose, onChange}: HeaderSettingsProps) {
     const titleId = useId();
     const node = view.state.doc.nodeAt(pos);
     if (node?.type !== headerNodeType(view.state.schema)) return null;
     const block = view.nodeDOM(pos);
     if (!(block instanceof HTMLElement)) return null;
     const {height, width} = headerDimensions(node.attrs);
-    const update = (attrs: Partial<HeaderDimensions>) =>
-        setHeaderDimensions(pos, attrs)(view.state, view.dispatch);
     // uikit `Portal` makes the panel controls untabbable once focus leaves the panel.
     return createPortal(
         // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Escape closes the dialog
@@ -79,14 +77,14 @@ export function HeaderSettings({view, pos, onClose}: HeaderSettingsProps) {
                 value={height}
                 values={headerHeights}
                 format={(value) => value.toUpperCase()}
-                onUpdate={(value) => update({height: value})}
+                onUpdate={(value) => onChange({height: value})}
             />
             <DimensionSelect
                 label={i18n('width')}
                 value={width}
                 values={headerWidths}
                 format={(value) => (value === 'full' ? i18n('full-width') : value.toUpperCase())}
-                onUpdate={(value) => update({width: value})}
+                onUpdate={(value) => onChange({width: value})}
             />
         </section>,
         block,

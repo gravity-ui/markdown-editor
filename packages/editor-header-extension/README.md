@@ -24,5 +24,5 @@ Syntax, sizes, and the stylesheet for previews are in `@gravity-ui/markdown-plug
 Child blocks remain editable and are preserved when changing dimensions, copying, or switching modes.
 A new or empty block holds an empty paragraph, and insertion puts the cursor into it.
 
-`HeaderSpecs` from `@gravity-ui/markdown-editor-header-extension/specs` adds only the schema and Markdown parsing and runs in Node.js.
+`HeaderSpecs` from `@gravity-ui/markdown-editor-header-extension/specs` adds only the schema, Markdown parsing, and serialization, and runs in Node.js.
 `Header` also needs the editor's React renderer, which the standard presets include.

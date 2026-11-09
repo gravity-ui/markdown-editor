@@ -1,6 +1,8 @@
 import {getReactRendererFromState} from '@gravity-ui/markdown-editor/extensions';
 import {type Command, Plugin, PluginKey} from '@gravity-ui/markdown-editor/pm/state';
+import type {HeaderDimensions} from '@gravity-ui/markdown-plugin-header';
 
+import {setHeaderDimensions} from '../commands';
 import {headerControlButtons} from '../const';
 
 import {HeaderSettings} from './HeaderSettings';
@@ -37,11 +39,17 @@ export const headerSettingsPlugin = () =>
                     block instanceof HTMLElement ? headerControlButtons(block)[0] : undefined;
                 (settingsButton ?? view).focus();
             };
+            // The panel can render an outdated position, so each change reads the current one.
+            const change = (attrs: Partial<HeaderDimensions>) => {
+                const pos = headerSettingsKey.getState(view.state);
+                if (typeof pos === 'number')
+                    setHeaderDimensions(pos, attrs)(view.state, view.dispatch);
+            };
             const item = getReactRendererFromState(view.state).createItem('header-settings', () => {
                 const pos = headerSettingsKey.getState(view.state);
                 return (
                     typeof pos === 'number' && (
-                        <HeaderSettings view={view} pos={pos} onClose={close} />
+                        <HeaderSettings view={view} pos={pos} onClose={close} onChange={change} />
                     )
                 );
             });
