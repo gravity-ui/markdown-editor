@@ -124,7 +124,7 @@ Published `@gravity-ui/*` packages live directly in `packages/`. The npm name st
 
 ## Package structure
 
-Editor packages split code by mode:
+New editor packages split code by mode:
 
 ```
 src/
