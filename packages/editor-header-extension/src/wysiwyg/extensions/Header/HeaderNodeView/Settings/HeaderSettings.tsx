@@ -9,8 +9,8 @@ import {
 } from '@gravity-ui/markdown-plugin-header';
 import {Button, Icon, Text} from '@gravity-ui/uikit';
 
-import {i18n} from '../../../../i18n';
-import {STOP_EVENT_CLASSNAME} from '../const';
+import {i18n} from '../../../../../i18n';
+import {STOP_EVENT_CLASSNAME} from '../../const';
 
 import {DimensionSelect} from './DimensionSelect';
 

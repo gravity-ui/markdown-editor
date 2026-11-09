@@ -10,11 +10,11 @@ import {
 import {Portal} from '@gravity-ui/uikit';
 import {createPortal} from 'react-dom';
 
-import {HeaderSettings} from '../Settings/HeaderSettings';
 import {setHeaderDimensions} from '../commands';
 import {STOP_EVENT_CLASSNAME, headerControlButtons, headerControlsClassName} from '../const';
 
 import {HeaderControls} from './HeaderControls';
+import {HeaderSettings} from './Settings/HeaderSettings';
 
 import './NodeView.scss';
 
