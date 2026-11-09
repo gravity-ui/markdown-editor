@@ -1,9 +1,9 @@
-import {cn} from '@bem-react/classname';
+import {withNaming} from '@bem-react/classname';
 
 import {normalizeLabelColor} from './colors';
 import {labelClassName, labelColorAttr} from './const';
 
-export const labelCn = cn(labelClassName);
+export const labelCn = withNaming({e: '__', m: '_', v: '_'})(labelClassName);
 
 /** The modifier styles the label; the data attribute carries its color for parsing. */
 export function labelAttrs(color: unknown) {
