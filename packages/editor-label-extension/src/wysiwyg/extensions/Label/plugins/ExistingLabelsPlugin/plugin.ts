@@ -34,7 +34,8 @@ export const getExistingLabels = (state: EditorState): readonly LabelOccurrence[
     existingLabelsKey.getState(state) ?? [];
 
 /** Labels with the same caption, regardless of case, and the same color are one suggestion. */
-const labelKey = ({text, color}: ExistingLabel) => JSON.stringify([text.trim().toLowerCase(), color]);
+const labelKey = ({text, color}: ExistingLabel) =>
+    JSON.stringify([text.trim().toLowerCase(), color]);
 
 export const getSuggestedLabels = (
     state: EditorState,
