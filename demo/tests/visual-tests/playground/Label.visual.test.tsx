@@ -164,6 +164,24 @@ test.describe('Label', () => {
         await expect(editor.label.popup).toBeVisible();
     });
 
+    test('should move the focus to the caption on Tab from a selected label @wysiwyg', async ({
+        page,
+        editor,
+    }) => {
+        await placeCursorBeforeLabel(page, editor);
+        await editor.press('ArrowRight');
+        await expect(editor.label.popup).toBeVisible();
+        expect(await isEditorFocused(page)).toBe(true);
+
+        await page.keyboard.press('Tab');
+        await expect(editor.label.input).toBeFocused();
+        await expect(editor.label.labels).toHaveCount(7);
+
+        await page.keyboard.press('Shift+Tab');
+        expect(await isEditorFocused(page)).toBe(true);
+        await expect(editor.label.popup).toBeVisible();
+    });
+
     test('should move the focus to the caption on a click @wysiwyg', async ({
         page,
         wait,

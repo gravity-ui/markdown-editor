@@ -236,7 +236,7 @@ const moveToLineEdgeAtInlineAtomBoundary =
 
 /**
  * Arrows step through three positions: the edge before the atom, the atom itself, the edge after it.
- * The selected atom shows its popover and keeps the focus in the editor; `Enter` runs `edit`.
+ * The selected atom shows its popover and keeps the focus in the editor; `Enter` and `Tab` run `edit`.
  */
 export const createInlineAtomKeymap = (nodeType: GetNodeType, edit: Command): Keymap => ({
     ArrowLeft: chainCommands(
@@ -253,4 +253,5 @@ export const createInlineAtomKeymap = (nodeType: GetNodeType, edit: Command): Ke
     Home: moveToLineEdgeAtInlineAtomBoundary(nodeType, 'home'),
     End: moveToLineEdgeAtInlineAtomBoundary(nodeType, 'end'),
     Enter: edit,
+    Tab: edit,
 });
