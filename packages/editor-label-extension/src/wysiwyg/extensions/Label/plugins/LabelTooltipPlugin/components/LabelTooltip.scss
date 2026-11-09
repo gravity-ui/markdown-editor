@@ -72,7 +72,7 @@
 }
 
 .g-md-label-popup {
-    --g-popup-border-radius: 16px;
+    --g-popup-border-radius: var(--g-border-radius-2xl, 16px);
     box-shadow:
         0 0 15px var(--g-color-sfx-shadow),
         0 0 2px rgb(0 0 0 / 5%);
