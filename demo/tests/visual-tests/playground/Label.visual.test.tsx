@@ -583,6 +583,9 @@ test.describe('Label', () => {
         editor,
     }) => {
         await editor.label.placeCursor('selected');
+        await expect(
+            editor.locators.toolbars.main.getByRole('button', {name: 'Label', exact: true}),
+        ).toHaveAttribute('aria-pressed', 'false');
         await editor.clickMainToolbarButton('Label');
 
         await expect(editor.label.input).toBeFocused();
