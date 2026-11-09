@@ -39,6 +39,7 @@ export function HeaderSettings({view, pos, onClose}: HeaderSettingsProps) {
         setHeaderDimensions(pos, attrs)(view.state, view.dispatch);
     return (
         <Portal container={block}>
+            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Escape closes the dialog */}
             <section
                 className={b(null, STOP_EVENT_CLASSNAME)}
                 role="dialog"
