@@ -33,22 +33,18 @@ export const existingLabelsPlugin = () =>
 export const getExistingLabels = (state: EditorState): readonly LabelOccurrence[] =>
     existingLabelsKey.getState(state) ?? [];
 
+/** Labels with the same caption, regardless of case, and the same color are one suggestion. */
+const labelKey = ({text, color}: ExistingLabel) => JSON.stringify([text.trim().toLowerCase(), color]);
+
 export const getSuggestedLabels = (
     state: EditorState,
     activePos: number,
 ): readonly ExistingLabel[] => {
     const unique = new Map<string, LabelOccurrence>();
-    const current = state.doc.nodeAt(activePos < 0 ? 0 : activePos);
-    const currentKey =
-        current?.type === labelNodeType(state.schema)
-            ? JSON.stringify([
-                  String(current.attrs[LabelAttr.Text]).trim().toLowerCase(),
-                  normalizeLabelColor(current.attrs[LabelAttr.Color]),
-              ])
-            : null;
+    const current = getExistingLabels(state).find((label) => label.pos === activePos);
+    const currentKey = current ? labelKey(current) : null;
     for (const label of getExistingLabels(state)) {
-        if (label.pos === activePos) continue;
-        const key = JSON.stringify([label.text.trim().toLowerCase(), label.color]);
+        const key = labelKey(label);
         if (key === currentKey) continue;
         const previous = unique.get(key);
         if (!previous || Math.abs(label.pos - activePos) < Math.abs(previous.pos - activePos))
