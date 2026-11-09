@@ -1,2 +1,3 @@
-export {Label, addLabelAction} from './Label';
+export {Label} from './Label';
+export {addLabelAction} from './const';
 export {LabelAttr, LabelSpecs, labelNodeName, labelNodeType} from './LabelSpecs';
