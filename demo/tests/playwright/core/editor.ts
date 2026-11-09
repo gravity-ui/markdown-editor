@@ -199,9 +199,7 @@ class Label {
             return {
                 pos: from,
                 to,
-                line: parent.textBetween(0, parent.content.size, '', (node) =>
-                    String(node.attrs.text ?? ''),
-                ),
+                line: parent.textContent,
                 left: rect.left,
                 top: rect.top,
                 bottom: rect.bottom,
