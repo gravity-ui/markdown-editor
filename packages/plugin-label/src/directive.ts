@@ -15,8 +15,9 @@ export const labelPlugin: PluginSimple = (md) => {
 
     for (const name of [labelDirectiveName, legacyLabelDirectiveName]) {
         registerInlineDirective(md, name, (state, params) => {
-            // markdown-it-directive leaves escape sequences in the caption to the handler
-            const text = md.utils.unescapeAll(params.content?.raw ?? '');
+            // markdown-it-directive leaves escape sequences in the caption to the handler.
+            // A line break becomes a space, so the caption stays on one line.
+            const text = md.utils.unescapeAll(params.content?.raw ?? '').replace(/\r\n?|\n/g, ' ');
             if (!text.trim()) return false;
 
             const token = state.push(labelTokenName, '', 0);

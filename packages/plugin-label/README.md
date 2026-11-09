@@ -40,6 +40,7 @@ The corners are fully rounded, a long caption is cut with an ellipsis at `--g-md
 The label is an inline directive of [`@diplodoc/directive`](https://github.com/diplodoc-platform/directive).
 The caption is plain text: Markdown inside it is not parsed, `\`, `[` and `]` are escaped with `\`.
 Any escaped punctuation character and an HTML entity are decoded, so `a\|b` gives `a|b` and `&amp;` gives `&`.
+A line break in the caption is read as a space.
 A directive with an empty caption remains text.
 An unknown attribute is skipped, and an unsupported color is replaced with `gray`.
 

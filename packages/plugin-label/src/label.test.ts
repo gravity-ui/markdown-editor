@@ -30,6 +30,18 @@ describe('Label Markdown', () => {
         );
     });
 
+    it('should write a line break in the caption as a space', () => {
+        const [paragraph] = md
+            .parse('Task :label[in\nprogress]{color=blue} now', {})
+            .filter((token) => token.type === 'inline');
+        const label = paragraph.children?.find((token) => token.content.includes('progress'));
+
+        expect(label?.content).toBe('in progress');
+        expect(md.render('Task :label[in\r\nprogress] now')).toBe(
+            `<p>Task ${html('gray', 'in progress')} now</p>\n`,
+        );
+    });
+
     it('should read the former status directive', () => {
         expect(md.renderInline(':status[done]{color=green}')).toBe(html('green', 'done'));
     });
