@@ -549,6 +549,56 @@ test.describe('Label', () => {
         ).toHaveAttribute('data-placeholder', 'Set status');
         await expect(editor.label.labels).toHaveCount(8);
     });
+    test('should delete a label with Backspace and restore it on undo @wysiwyg', async ({
+        editor,
+    }) => {
+        await editor.label.placeCursor('after');
+        await editor.press('Backspace');
+        await expect(editor.label.labels).toHaveCount(6);
+
+        await editor.press('ControlOrMeta+z');
+        await expect(editor.label.labels).toHaveCount(7);
+        await expect(editor.label.labels.last()).toHaveText('Purple');
+    });
+
+    test('should insert a new label after the selected one on the toolbar button @wysiwyg', async ({
+        editor,
+    }) => {
+        await editor.label.placeCursor('selected');
+        await editor.clickMainToolbarButton('Label');
+
+        await expect(editor.label.input).toBeFocused();
+        await expect(editor.label.input).toHaveValue('');
+        await expect(editor.label.labels).toHaveCount(8);
+        await expect(editor.label.labels.nth(6)).toHaveText('Purple');
+    });
+});
+
+test.describe('Label in a table', () => {
+    test('should keep a pipe in the caption through a mode round trip @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+    }) => {
+        await mount(
+            <Playground
+                initial={'| a | b |\n|---|---|\n| :label[x\\|y]{color=red} | c |'}
+                width="100%"
+                style={{width: 812}}
+            />,
+        );
+        await editor.switchMode('wysiwyg');
+        await expect(editor.label.labels).toHaveText('x|y');
+
+        await editor.switchMode('markup');
+        await editor.switchMode('wysiwyg');
+
+        await expect(editor.locators.contenteditable.locator('td')).toHaveCount(2);
+        await expect(editor.label.labels).toHaveText('x|y');
+        await expect
+            .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
+            .toContain(':label[x\\|y]{color=red}|c|');
+    });
 });
 
 test.describe('Label, former markup', () => {
