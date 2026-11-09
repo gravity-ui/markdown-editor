@@ -6,6 +6,10 @@ import {
     BaseNode,
     BaseSchemaSpecs,
     BlockquoteSpecs,
+    HeadingSpecs,
+    ListsSpecs,
+    TableSpecs,
+    YfmTableSpecs,
     blockquoteNodeName,
 } from '@gravity-ui/markdown-editor/specs';
 import {type LabelColor, labelColors, labelPlugin} from '@gravity-ui/markdown-plugin-label';
@@ -15,7 +19,15 @@ import {describe, expect, it} from 'vitest';
 import {LabelAttr, LabelSpecs, labelNodeName} from './LabelSpecs';
 
 const {schema, markupParser, serializer} = new ExtensionsManager({
-    extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(BlockquoteSpecs).use(LabelSpecs),
+    extensions: (builder) =>
+        builder
+            .use(BaseSchemaSpecs, {})
+            .use(BlockquoteSpecs)
+            .use(HeadingSpecs, {})
+            .use(ListsSpecs, {})
+            .use(TableSpecs, {})
+            .use(YfmTableSpecs, {})
+            .use(LabelSpecs),
 }).buildDeps();
 
 const {doc, p, bq, label} = builders<'doc' | 'p' | 'bq' | 'label'>(schema, {
@@ -40,6 +52,24 @@ const serialize = (node: Node, expected: string) =>
 const same = (markup: string, node: Node) => {
     parse(markup, node);
     serialize(node, markup);
+};
+
+const labelsOf = (node: Node) => {
+    const labels: unknown[] = [];
+    node.descendants((child) => {
+        if (child.type.name === labelNodeName) labels.push(child.attrs);
+    });
+    return labels;
+};
+
+/** Parses the markup, saves it and parses the result again. */
+const expectRoundTrip = (markup: string, labels: unknown[]) => {
+    const node = markupParser.parse(markup);
+    const saved = serializer.serialize(node);
+
+    expect(labelsOf(node)).toEqual(labels);
+    expectSameNode(markupParser.parse(saved), node);
+    return saved;
 };
 
 const toDom = (node: Node) => DOMSerializer.fromSchema(schema).serializeNode(node) as HTMLElement;
@@ -94,13 +124,65 @@ describe('Label extension', () => {
         same('> :label[On review]{color=blue}', doc(bq(p(label(attrs('On review', 'blue'))))));
     });
 
-    it.each(['[', '[x]', 'a [b', 'a [b] c', 'a] \\ [b]'])(
-        'should preserve the caption %s',
-        (caption) => {
-            const node = doc(p(label(attrs(caption, 'green'))));
-            parse(serializer.serialize(node), node);
-        },
-    );
+    it.each([
+        '[',
+        '[x]',
+        'a [b',
+        'a [b] c',
+        'a] \\ [b]',
+        'a|b',
+        'a&amp;b',
+        '&#123;',
+        '&copy',
+        'R&D',
+        '{color=red}',
+        ':label[x]',
+    ])('should preserve the caption %s', (caption) => {
+        const node = doc(p(label(attrs(caption, 'green'))));
+        parse(serializer.serialize(node), node);
+    });
+
+    it('should escape a pipe in the caption', () => {
+        same(':label[a\\|b]', doc(p(label(attrs('a|b', 'gray')))));
+    });
+
+    it('should escape an ampersand only before an HTML entity', () => {
+        same(':label[\\&amp; R&D]', doc(p(label(attrs('&amp; R&D', 'gray')))));
+    });
+
+    it('should decode an HTML entity in the caption', () => {
+        parse(':label[a&amp;b &#123;]', doc(p(label(attrs('a&b {', 'gray')))));
+    });
+
+    it('should keep a pipe in the caption inside a table', () => {
+        const saved = expectRoundTrip('| a | b |\n|---|---|\n| :label[x\\|y]{color=red} | c |', [
+            attrs('x|y', 'red'),
+        ]);
+
+        expect(saved).toContain(':label[x\\|y]{color=red}|c|');
+    });
+
+    it('should keep a pipe in the caption inside a YFM table', () => {
+        expectRoundTrip('#|\n|| :label[x\\|y]{color=red} | b ||\n|#', [attrs('x|y', 'red')]);
+    });
+
+    it.each([
+        ['heading', '# Release :label[Done]{color=green}'],
+        ['bullet list', '- :label[Done]{color=green} task'],
+        ['ordered list', '1. task :label[Done]{color=green}'],
+        ['nested quote', '> - > :label[Done]{color=green}'],
+    ])('should keep the label in a %s', (_, markup) => {
+        expect(expectRoundTrip(markup, [attrs('Done', 'green')])).toBe(markup);
+    });
+
+    it('should keep text in braces after a gray label as text', () => {
+        same(':label[x]\\{color=red\\}', doc(p(label(attrs('x', 'gray')), '{color=red}')));
+    });
+
+    it('should keep a long caption on one line', () => {
+        const caption = 'word '.repeat(100).trim();
+        same(`:label[${caption}]{color=blue}`, doc(p(label(attrs(caption, 'blue')))));
+    });
 
     it.each(['', '  '])('should omit an empty caption %j when saving', (caption) => {
         serialize(doc(p('a', label(attrs(caption, 'blue')), 'b')), 'ab');

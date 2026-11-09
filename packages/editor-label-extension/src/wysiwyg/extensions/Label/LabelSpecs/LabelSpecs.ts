@@ -16,7 +16,9 @@ import {i18n} from '../../../../i18n';
 
 import {LabelAttr, labelNodeName} from './const';
 
-const escapeLabelText = (text: string) => text.replace(/([\\[\]])/g, '\\$1');
+/** Escapes brackets, backslashes, table pipes and ampersands that start an HTML entity. */
+const escapeLabelText = (text: string) =>
+    text.replace(/[\\[\]|]|&(?=[a-z#][a-z0-9]{1,31};)/gi, '\\$&');
 
 /** Spans keep the label valid inside a paragraph; the placeholder stays out of the text. */
 const labelDomSpec = (color: unknown, text: string): DOMOutputSpec => [

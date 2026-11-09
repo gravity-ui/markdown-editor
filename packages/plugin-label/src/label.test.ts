@@ -68,6 +68,18 @@ describe('Label Markdown', () => {
         expect(md.renderInline(':label[a\\] b \\\\ c]')).toBe(html('gray', 'a] b \\ c'));
     });
 
+    it('should unescape a pipe and an ampersand in the caption', () => {
+        expect(md.renderInline(':label[a\\|b \\&amp;]')).toBe(html('gray', 'a|b &amp;amp;'));
+    });
+
+    it('should decode an HTML entity in the caption', () => {
+        expect(md.renderInline(':label[a&amp;b]')).toBe(html('gray', 'a&amp;b'));
+    });
+
+    it('should keep a label with an escaped pipe inside a table cell', () => {
+        expect(md.render('| a |\n|---|\n| :label[x\\|y] |')).toContain(html('gray', 'x|y'));
+    });
+
     it('should keep markup characters in the caption as plain text', () => {
         expect(md.renderInline(':label[**bold** `code`]')).toBe(html('gray', '**bold** `code`'));
     });
