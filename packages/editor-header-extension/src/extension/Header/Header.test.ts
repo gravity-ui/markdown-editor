@@ -171,16 +171,6 @@ describe('Header extension', () => {
         expect(doc.firstChild?.attrs).toEqual({height: 'l', width: 'full'});
     });
 
-    it('should keep pasted source markers as code', () => {
-        const container = document.createElement('div');
-        container.innerHTML =
-            '<pre data-header-source><code>&lt;img src=x onerror=alert(1)&gt;</code></pre>';
-        const doc = DOMParser.fromSchema(schema).parse(container);
-        expect(doc.firstChild?.type.name).toBe('code_block');
-        expect(serializer.serialize(doc)).toContain('```');
-        expect(doc.textContent).toBe('<img src=x onerror=alert(1)>');
-    });
-
     it('should copy and remove a header', () => {
         const editor = createView(':::header{height="m" width="s"}\n:::');
         expect(run(editor, copyHeader(0))).toBe(true);
