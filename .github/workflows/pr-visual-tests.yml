@@ -29,15 +29,6 @@ jobs:
         run: pnpm run ci:test:visual
         env:
           CI: 'true'
-          UPDATE_REQUEST: '1'
-
-      - name: Upload Snapshots
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: snapshots
-          path: ./demo/tests/visual-tests/__snapshots__
-          retention-days: 1
 
       - name: Upload Playwright Report
         if: always()
@@ -60,6 +51,3 @@ jobs:
         with:
           name: pr
           path: ./pr-id.txt
-
-      - name: Signal the finished snapshot update
-        run: exit 1
