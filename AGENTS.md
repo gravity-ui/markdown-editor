@@ -1,5 +1,9 @@
 # AGENTS.md — gravity-ui/markdown-editor
 
+## Following existing code
+
+Where this file says nothing, copy the closest existing example in the repository: folder structure, file names, names of variables, functions, types and constants, class structure, React components and hooks, styles and CSS class names, i18n keys, exports, tests, demo stories. Add a new kind of file only if the repository already has one like it.
+
 ## Testing
 
 **Always run visual (Playwright) tests in Docker. Never run them locally.**
@@ -117,6 +121,44 @@ Published `@gravity-ui/*` packages live directly in `packages/`. The npm name st
 
 - The directory name is the npm name without the `@gravity-ui/markdown-` prefix.
 - Examples: `packages/editor-header-extension` and `packages/plugin-header`.
+
+## Package structure
+
+New editor packages split code by mode:
+
+```
+src/
+  wysiwyg/
+    extensions/
+      <Extension>/
+  markup/
+    commands/
+      <command>.ts
+  toolbar/
+    view/
+      items.ts
+    wysiwyg/
+      items.ts
+      presets.ts   # optional
+    markup/
+      items.ts
+      presets.ts   # optional
+    items.ts       # both modes
+    presets.ts     # both modes, optional
+```
+
+Exports in `package.json`:
+
+| Export | Contents |
+|--------|----------|
+| `.` | Toolbars, WYSIWYG and markup entities |
+| `./wysiwyg` | WYSIWYG entities only: extensions, toolbar items without `markup` |
+| `./wysiwyg/specs` | WYSIWYG specs only: spec extensions, constants |
+| `./wysiwyg/utils` | WYSIWYG utils, optional |
+| `./markup` | Markup entities only: CodeMirror commands and extensions, toolbar items without `wysiwyg` |
+| `./markup/utils` | Markup utils, optional |
+| `./wysiwyg/core` | WYSIWYG core, root editor package only |
+| `./pm/*`, `./cm/*` | ProseMirror and CodeMirror re-exports, root editor package only |
 
 ## Documentation
 
