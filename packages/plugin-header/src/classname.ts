@@ -1,18 +1,22 @@
+import {cn} from '@bem-react/classname';
+
 import {headerClassName} from './const';
 import {type HeaderDimensions, headerDimensions, headerHeights, headerWidths} from './dimensions';
 
-const modifier = (name: keyof HeaderDimensions, value: string) =>
-    `${headerClassName}_${name}_${value}`;
+const b = cn(headerClassName);
 
 export function headerClassNames(attrs: {height?: unknown; width?: unknown}) {
-    const {height, width} = headerDimensions(attrs);
-    return `${headerClassName} ${modifier('height', height)} ${modifier('width', width)}`;
+    return b(headerDimensions(attrs));
 }
 
 export function headerDimensionsFromClassName(className: string) {
-    const classes = className.split(/\s+/);
+    const classes = new Set(className.split(/\s+/));
+    const hasModifier = (mods: Partial<HeaderDimensions>) =>
+        b(mods)
+            .split(' ')
+            .every((name) => classes.has(name));
     return headerDimensions({
-        height: headerHeights.find((value) => classes.includes(modifier('height', value))),
-        width: headerWidths.find((value) => classes.includes(modifier('width', value))),
+        height: headerHeights.find((height) => hasModifier({height})),
+        width: headerWidths.find((width) => hasModifier({width})),
     });
 }

@@ -1,7 +1,8 @@
 .g-md-header-plugin {
     max-width: var(--_--width);
     min-height: var(--_--height);
-    margin: 0 0 20px;
+    margin-block: var(--g-md-header-plugin-margin-block, 0 var(--g-spacing-5, 20px));
+    margin-inline: var(--g-md-header-plugin-margin-inline, 0);
 
     border-radius: var(--g-border-radius-2xl, 16px);
 
