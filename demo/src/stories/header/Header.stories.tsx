@@ -6,5 +6,4 @@ export default {
     title: 'Extensions / Landing / Header',
     component: HeaderExample,
 } satisfies Meta<typeof HeaderExample>;
-export const Wysiwyg: StoryObj<typeof HeaderExample> = {};
-export const Markdown: StoryObj<typeof HeaderExample> = {args: {mode: 'markup'}};
+export const Header: StoryObj<typeof HeaderExample> = {};

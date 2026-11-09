@@ -27,7 +27,7 @@ const dimensions = [
 test.describe('Header', () => {
     test('should apply default sizes', async ({mount, page}) => {
         await mount(
-            <HeaderStories.Wysiwyg
+            <HeaderStories.Header
                 width={1280}
                 initial={`${dimensions.map(([height, width]) => header(height, width)).join('\n\n')}\n\nAfter`}
             />,
@@ -52,7 +52,7 @@ test.describe('Header', () => {
     test('should render dimensions', async ({mount, page, expectScreenshot}) => {
         await mount(
             <div style={smallSizes}>
-                <HeaderStories.Wysiwyg
+                <HeaderStories.Header
                     width={300}
                     initial={dimensions
                         .map(([height, width]) => header(height, width))
@@ -71,7 +71,7 @@ test.describe('Header', () => {
     }) => {
         await mount(
             <div style={smallSizes}>
-                <HeaderStories.Wysiwyg
+                <HeaderStories.Header
                     width={160}
                     initial={['s', 'm', 'l', 'full']
                         .map((width) => header('s', width))
@@ -92,7 +92,7 @@ test.describe('Header', () => {
     });
 
     test('should show the toolbar on hover', async ({mount, page, expectScreenshot}) => {
-        await mount(<HeaderStories.Wysiwyg width={660} initial={`${header('s', 's')}\n\nAfter`} />);
+        await mount(<HeaderStories.Header width={660} initial={`${header('s', 's')}\n\nAfter`} />);
         await page.locator('.ProseMirror .g-md-header-plugin').hover();
         await expect(page.locator('.g-md-header-view__controls')).toHaveCSS('opacity', '1');
         await expectScreenshot({component: page.locator('.g-md-editor-component')});
@@ -103,7 +103,7 @@ test.describe('Header', () => {
         page,
         expectScreenshot,
     }) => {
-        await mount(<HeaderStories.Wysiwyg width={660} initial={`${header('s', 's')}\n\nAfter`} />);
+        await mount(<HeaderStories.Header width={660} initial={`${header('s', 's')}\n\nAfter`} />);
         const view = page.locator('.g-md-editor-component');
         const block = page.locator('.ProseMirror .g-md-header-plugin');
         const settingsButton = page
@@ -144,7 +144,8 @@ test.describe('Header', () => {
         editor,
     }) => {
         await mount(
-            <HeaderStories.Markdown
+            <HeaderStories.Header
+                mode="markup"
                 width={660}
                 initial={':::header{width="s"}\nKeep **text**\n:::'}
             />,
@@ -179,7 +180,7 @@ test.describe('Header', () => {
         page,
         editor,
     }) => {
-        await mount(<HeaderStories.Wysiwyg width={660} initial={`${header('s', 's')}\n\nAfter`} />);
+        await mount(<HeaderStories.Header width={660} initial={`${header('s', 's')}\n\nAfter`} />);
         const block = page.locator('.ProseMirror .g-md-header-plugin');
         const toolbar = block.getByRole('toolbar');
         const settingsButton = toolbar.getByRole('button', {name: 'Settings', exact: true});
@@ -223,13 +224,13 @@ test.describe('Header on mobile', () => {
     test.use({viewport: {width: 375, height: 812}});
 
     test('should fit a mobile viewport', async ({mount, page, expectScreenshot}) => {
-        await mount(<HeaderStories.Wysiwyg width={335} />);
+        await mount(<HeaderStories.Header width={335} />);
         await expect(page.locator('.ProseMirror .g-md-header-plugin')).toBeVisible();
         await expectScreenshot({component: page.locator('.g-md-editor-component')});
     });
 
     test('should keep settings inside a narrow block', async ({mount, page, expectScreenshot}) => {
-        await mount(<HeaderStories.Wysiwyg width={335} />);
+        await mount(<HeaderStories.Header width={335} />);
         const block = page.locator('.ProseMirror .g-md-header-plugin');
         await block.hover();
         await block.getByRole('button', {name: 'Settings', exact: true}).click();
