@@ -118,7 +118,7 @@ export const ImageForm: React.FC<ImageFormProps> = ({
                                     placeholder="https://"
                                     autoFocus={autoFocus}
                                     className={b('input', {type: 'link'})}
-                                    onKeyPress={inputEnterKeyHandler}
+                                    onKeyDown={inputEnterKeyHandler}
                                 />
                             }
                         />
@@ -131,7 +131,7 @@ export const ImageForm: React.FC<ImageFormProps> = ({
                                     value={name}
                                     onUpdate={setName}
                                     className={b('input', {type: 'name'})}
-                                    onKeyPress={inputEnterKeyHandler}
+                                    onKeyDown={inputEnterKeyHandler}
                                 />
                             }
                         />
@@ -145,7 +145,7 @@ export const ImageForm: React.FC<ImageFormProps> = ({
                                     value={alt}
                                     onUpdate={setAlt}
                                     className={b('input', {type: 'alt'})}
-                                    onKeyPress={inputEnterKeyHandler}
+                                    onKeyDown={inputEnterKeyHandler}
                                 />
                             }
                         />

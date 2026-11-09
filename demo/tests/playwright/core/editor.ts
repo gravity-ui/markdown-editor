@@ -346,7 +346,6 @@ class MarkdownEditorLocators {
     readonly settingsContent;
     readonly toolbars: MarkdownEditorToolbarsLocators;
     readonly toolbarMoreActionButton;
-    readonly toolbarActionDisabledHint;
     readonly cmAutocomplete;
 
     constructor(page: Page) {
@@ -367,7 +366,6 @@ class MarkdownEditorLocators {
         // editor
         this.contenteditable = this.editor.locator('[contenteditable=true]');
         this.toolbarMoreActionButton = this.editor.getByTestId('g-md-toolbar-more-action');
-        this.toolbarActionDisabledHint = page.getByTestId('g-md-toolbar-action-disabled-hint');
 
         this.cmAutocomplete = this.editor.locator('.cm-tooltip-autocomplete');
     }
@@ -672,21 +670,6 @@ export class MarkdownEditorPage {
             await this.clickMainToolbarMoreActionButton();
             await this.locators.toolbars.additional.waitFor({state: 'hidden'});
         }
-    }
-
-    /**
-     * Hovers over an action in the additional toolbar by its aria-label.
-     */
-    async hoverToolbarMoreAction(label: string) {
-        await this.locators.toolbars.additional.waitFor({state: 'visible'});
-        await this.getToolbarButton(label).hover({force: true});
-    }
-
-    /**
-     * Waits for the toolbar action disabled hint to become visible.
-     */
-    async waitForToolbarActionDisabledHint() {
-        await this.locators.toolbarActionDisabledHint.waitFor({state: 'visible'});
     }
 
     /**

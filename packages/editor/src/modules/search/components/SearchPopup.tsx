@@ -1,4 +1,4 @@
-import {useRef} from 'react';
+import {useEffect, useLayoutEffect, useRef, useState} from 'react';
 
 import {Popup} from '@gravity-ui/uikit';
 
@@ -39,6 +39,8 @@ export const SearchPopup: React.FC<SearchPopupProps> = ({
     ...props
 }) => {
     const {isCompact, searchState, handlers} = useSearch(props);
+    const [popupOpen, setPopupOpen] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
     const floatingRef = useRef<HTMLDivElement>(null);
     const {intersection} = useObserveIntersection({
         floatingRef,
@@ -47,11 +49,26 @@ export const SearchPopup: React.FC<SearchPopupProps> = ({
         observerOptions: intersectionTracking.observerOptions,
     });
 
+    useEffect(() => {
+        // TODO(next major): Require UIKit >= 7.39.0 and remove delayed opening.
+        // UIKit 7.13 needs its anchor registered before the popup opens.
+        setPopupOpen(open);
+    }, [open]);
+
+    useLayoutEffect(() => {
+        // The full form replaces the input while Popup stays open.
+        if (!isCompact) inputRef.current?.focus({preventScroll: true});
+    }, [isCompact]);
+
     return (
         <Popup
-            open={open}
+            open={popupOpen}
+            initialFocus={inputRef}
             qa={SearchQA.Panel}
             anchorElement={anchor}
+            // Fixed positioning prevents page scroll when search opens or expands.
+            // Keep it after the UIKit upgrade; removing it needs a separate fix and scroll checks.
+            strategy="fixed"
             placement="bottom-end"
             floatingRef={floatingRef}
             floatingStyles={{opacity: intersection ? 0.8 : 1}}
@@ -64,6 +81,7 @@ export const SearchPopup: React.FC<SearchPopupProps> = ({
         >
             {isCompact ? (
                 <SeachCompactView
+                    inputRef={inputRef}
                     counter={counter}
                     onClose={onClose}
                     value={searchState.search}
@@ -74,6 +92,7 @@ export const SearchPopup: React.FC<SearchPopupProps> = ({
                 />
             ) : (
                 <SearchCardView
+                    inputRef={inputRef}
                     counter={counter}
                     onClose={onClose}
                     searchState={searchState}
