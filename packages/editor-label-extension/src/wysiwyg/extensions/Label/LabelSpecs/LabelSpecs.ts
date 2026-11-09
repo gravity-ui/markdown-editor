@@ -31,12 +31,7 @@ const labelDomSpec = (color: unknown, text: string): DOMOutputSpec => [
         'span',
         {
             class: labelCn('text'),
-            ...(text
-                ? {}
-                : {
-                      'data-placeholder': i18n('default_caption'),
-                      'aria-label': i18n('default_caption'),
-                  }),
+            ...(text ? {} : {'data-placeholder': i18n('default_caption')}),
         },
         text,
     ],

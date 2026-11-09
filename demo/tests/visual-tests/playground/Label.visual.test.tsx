@@ -572,6 +572,9 @@ test.describe('Label', () => {
         await expect(
             editor.label.labels.locator('.g-md-label-plugin__text[data-placeholder]'),
         ).toHaveAttribute('data-placeholder', 'Set status');
+        await expect(editor.locators.contenteditable.locator('p').nth(1)).toMatchAriaSnapshot(
+            '- paragraph: Set status',
+        );
         await expect(editor.label.labels).toHaveCount(8);
     });
 
