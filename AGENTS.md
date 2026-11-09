@@ -1,5 +1,9 @@
 # AGENTS.md — gravity-ui/markdown-editor
 
+## Following existing code
+
+Where this file says nothing, copy the closest existing example in the repository: folder structure, file names, demo stories, tests. Add a new kind of file only if the repository already has one like it. For example, a new extension gets the same demo stories as similar extensions, without separate WYSIWYG and markup stories that no other extension has.
+
 ## Testing
 
 **Always run visual (Playwright) tests in Docker. Never run them locally.**
