@@ -119,25 +119,25 @@ test.describe('Label', () => {
 
         const contenteditable = editor.locators.contenteditable;
         await expect(contenteditable).toHaveClass(/no-cursor/);
-        await expect(contenteditable.locator('.fake-cursor')).toHaveCount(1);
+        await expect(editor.label.fakeCursor).toHaveCount(1);
         await expect(editor.label.popup).toBeHidden();
 
         await editor.press('ArrowRight');
         await expect(editor.label.popup).toBeVisible();
-        await expect(contenteditable.locator('.fake-cursor')).toHaveCount(0);
+        await expect(editor.label.fakeCursor).toHaveCount(0);
         expect(await isEditorFocused(page)).toBe(true);
 
         await expectScreenshot({fullPage: true, nameSuffix: 'passive popover'});
 
         await editor.press('ArrowRight');
         await expect(editor.label.popup).toBeHidden();
-        await expect(contenteditable.locator('.fake-cursor')).toHaveCount(1);
+        await expect(editor.label.fakeCursor).toHaveCount(1);
 
         await editor.pressSequentially('X');
         await expect(contenteditable.locator('p').nth(1)).toHaveText('Before DraftX after');
 
         await editor.press('ArrowLeft');
-        await expect(contenteditable.locator('.fake-cursor')).toHaveCount(1);
+        await expect(editor.label.fakeCursor).toHaveCount(1);
         await editor.press('ArrowLeft');
         await expect(editor.label.popup).toBeVisible();
         await editor.press('ArrowLeft');
@@ -574,9 +574,7 @@ test.describe('Label', () => {
         await expect(editor.label.popup).toBeVisible();
         await expect(editor.label.input).toBeFocused();
         await expect(editor.label.input).toHaveValue('');
-        await expect(
-            editor.label.labels.locator('.g-md-label-plugin__text[data-placeholder]'),
-        ).toHaveAttribute('data-placeholder', 'Set status');
+        await expect(editor.label.placeholder).toHaveAttribute('data-placeholder', 'Set status');
         await expect(editor.locators.contenteditable.locator('p').nth(1)).toMatchAriaSnapshot(
             '- paragraph: Set status',
         );
@@ -677,7 +675,7 @@ test.describe('Label boundary regressions', () => {
         await editor.label.labels.click();
         await page.keyboard.press('Escape');
         await editor.press('ArrowRight', 2);
-        await expect(content.locator('.fake-cursor')).toHaveCount(0);
+        await expect(editor.label.fakeCursor).toHaveCount(0);
         await page.keyboard.type('Q');
         await expect(content.locator('code')).toHaveText('cQode');
         await expect(editor.label.labels).toHaveText('L');
@@ -690,7 +688,7 @@ test.describe('Label boundary regressions', () => {
         await editor.label.labels.click();
         await page.keyboard.press('Escape');
         await editor.press('ArrowLeft', 2);
-        await expect(content.locator('.fake-cursor')).toHaveCount(1);
+        await expect(editor.label.fakeCursor).toHaveCount(1);
         await page.keyboard.type('Q');
         await expect(content.locator('code')).toHaveText('code');
         await expect(content.locator('p')).toHaveText('a codeQL z');

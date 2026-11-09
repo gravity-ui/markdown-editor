@@ -147,6 +147,9 @@ type LabelCursorSide = 'before' | 'selected' | 'after';
 
 class Label {
     readonly labels: Locator;
+    readonly placeholder: Locator;
+    /** The cursor drawn by the editor next to a label. */
+    readonly fakeCursor: Locator;
     readonly popup: Locator;
     readonly popupRoot: Locator;
     readonly input: Locator;
@@ -160,9 +163,12 @@ class Label {
     constructor(page: Page, expect: Expect) {
         this.page = page;
         this.expect = expect;
-        this.labels = page
+        const contenteditable = page
             .getByTestId('g-md-editor-mode')
-            .locator('[contenteditable=true] .g-md-label-plugin');
+            .locator('[contenteditable=true]');
+        this.labels = contenteditable.locator('.g-md-label-plugin');
+        this.placeholder = this.labels.locator('.g-md-label-plugin__text[data-placeholder]');
+        this.fakeCursor = contenteditable.locator('.fake-cursor');
         this.popup = page.locator('.g-md-label-tooltip');
         this.popupRoot = page.locator('.g-md-label-popup');
         this.input = this.popup.locator('input[type=text], input:not([type])');
