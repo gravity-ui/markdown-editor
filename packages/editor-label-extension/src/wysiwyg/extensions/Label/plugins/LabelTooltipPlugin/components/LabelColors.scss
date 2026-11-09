@@ -10,7 +10,7 @@ $swatch-colors: (
 
 .g-md-label-colors {
     display: flex;
-    gap: 8px;
+    gap: var(--g-spacing-2);
 
     &__swatch {
         flex-shrink: 0;
@@ -23,7 +23,7 @@ $swatch-colors: (
         cursor: pointer;
 
         border: 0;
-        border-radius: var(--g-border-radius-m);
+        border-radius: var(--g-border-radius-xl);
 
         appearance: none;
 

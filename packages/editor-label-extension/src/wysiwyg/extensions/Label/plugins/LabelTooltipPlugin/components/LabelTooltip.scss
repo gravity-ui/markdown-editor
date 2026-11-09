@@ -10,11 +10,21 @@
     padding: var(--g-spacing-4);
 
     &__input {
+        --g-text-input-border-radius: var(--g-border-radius-xl);
         display: block;
 
         box-sizing: border-box;
         width: 100%;
         min-width: 0;
+
+        .g-text-input__clear {
+            --g-button-border-radius: var(--g-border-radius-l);
+
+            .g-icon {
+                width: 14px;
+                height: 14px;
+            }
+        }
     }
 
     &__suggestions {
@@ -62,5 +72,8 @@
 }
 
 .g-md-label-popup {
-    border-radius: var(--g-border-radius-xl);
+    --g-popup-border-radius: 16px;
+    box-shadow:
+        0 0 15px var(--g-color-sfx-shadow),
+        0 0 2px rgb(0 0 0 / 5%);
 }

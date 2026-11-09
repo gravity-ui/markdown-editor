@@ -35,6 +35,7 @@ export interface BaseTooltipPluginOptions {
     nodeType: NodeType | MarkType;
     popupPlacement?: PopupPlacement;
     popupClassName?: string;
+    popupOffset?: PopupProps['offset'];
     disableHideOnEscapeKeyDown?: boolean;
 }
 
@@ -67,6 +68,7 @@ export class BaseTooltipPluginView implements PluginView {
     protected readonly nodeType: NodeType | MarkType;
     protected readonly popupPlacement?: PopupPlacement;
     protected readonly popupClassName?: string;
+    protected readonly popupOffset?: PopupProps['offset'];
     protected manualHidden = false;
     protected destroyed = false;
 
@@ -86,6 +88,7 @@ export class BaseTooltipPluginView implements PluginView {
         this.nodeType = options.nodeType;
         this.popupPlacement = options.popupPlacement;
         this.popupClassName = options.popupClassName;
+        this.popupOffset = options.popupOffset;
         this.disableHideOnEscapeKeyDown = options.disableHideOnEscapeKeyDown;
     }
 
@@ -253,6 +256,7 @@ export class BaseTooltipPluginView implements PluginView {
                 anchorElement={currentNode.dom}
                 placement={this.popupPlacement || defaultPlacement}
                 className={this.popupClassName}
+                offset={this.popupOffset}
                 onOpenChange={this.popupOpenChangeHandler}
             >
                 <div className={b()}>

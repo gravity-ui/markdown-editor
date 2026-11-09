@@ -1,4 +1,4 @@
-import {InlineAtomPlugin} from '@gravity-ui/markdown-editor';
+import {InlineAtomPlugin, cn} from '@gravity-ui/markdown-editor';
 import {Plugin} from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 
@@ -37,7 +37,8 @@ export const labelTooltipPlugin = () =>
                 idPrefix: 'label-tooltip',
                 nodeType: labelNodeType(view.state.schema),
                 popupPlacement: ['bottom-start', 'top-start', 'bottom-end', 'top-end'],
-                popupClassName: 'g-md-label-popup',
+                popupClassName: cn('label-popup')(),
+                popupOffset: 8,
                 getEditId: getLabelEditId,
                 content: (tooltipView, {node, pos}) => (
                     <LabelTooltip
