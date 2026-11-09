@@ -32,9 +32,9 @@
         }
     }
 
-    &:hover &__toolbar,
-    &:focus-within &__toolbar,
-    &.ProseMirror-selectednode &__toolbar {
+    &:hover > &__toolbar,
+    &:focus-within > &__toolbar,
+    &.ProseMirror-selectednode > &__toolbar {
         pointer-events: auto;
 
         opacity: 1;

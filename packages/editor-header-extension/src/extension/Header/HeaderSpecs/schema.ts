@@ -11,11 +11,10 @@ import {headerNodeName} from './const';
 export const HeaderSchemaSpecs: ExtensionAuto = (builder) => {
     builder.addNodeSpec(headerNodeName, () => ({
         group: 'block',
-        content: 'block*',
+        content: 'block+',
         defining: true,
         allowSelection: true,
         selectAll: 'node',
-        complex: 'root',
         attrs: {
             height: {default: headerDefaults.height},
             width: {default: headerDefaults.width},

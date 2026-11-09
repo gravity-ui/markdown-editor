@@ -1,6 +1,6 @@
 import {get$Cursor, pType, removeNode} from '@gravity-ui/markdown-editor';
 import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
-import type {Command, EditorState} from '@gravity-ui/markdown-editor/pm/state';
+import {type Command, type EditorState, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
 import type {HeaderDimensions} from '@gravity-ui/markdown-plugin-header';
 
 import {headerNodeType} from './HeaderSpecs';
@@ -13,9 +13,19 @@ function headerAt(state: EditorState, pos: number) {
 export const insertHeader: Command = (state, dispatch) => {
     const $cursor = get$Cursor(state.selection);
     if ($cursor?.parent.type !== pType(state.schema)) return false;
-    dispatch?.(
-        state.tr.replaceSelectionWith(headerNodeType(state.schema).create()).scrollIntoView(),
-    );
+    if (dispatch) {
+        const type = headerNodeType(state.schema);
+        const tr = state.tr.replaceSelectionWith(type.createAndFill()!);
+        let start = 0;
+        tr.mapping.maps[tr.mapping.maps.length - 1].forEach((_from, _to, newFrom) => {
+            start = newFrom;
+        });
+        // A split paragraph puts the replaced range inside its first half.
+        const $start = tr.doc.resolve(start);
+        const headerPos = $start.nodeAfter?.type === type ? start : $start.after();
+        // `+ 2` skips the opening tokens of the header and of its paragraph.
+        dispatch(tr.setSelection(TextSelection.create(tr.doc, headerPos + 2)).scrollIntoView());
+    }
     return true;
 };
 

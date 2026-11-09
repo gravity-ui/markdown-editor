@@ -92,7 +92,7 @@ describe('Header extension', () => {
         {height: 'm', width: 's'},
         {height: 'l', width: 'full'},
     ])('should round trip %j', ({height, width}) => {
-        const source = `:::header{height="${height}" width="${width}"}\n:::`;
+        const source = `:::header{height="${height}" width="${width}"}\n\n:::`;
         const doc = markupParser.parse(source);
         expect(doc.firstChild?.attrs).toEqual({height, width});
         expect(serializer.serialize(doc)).toBe(source);
@@ -123,7 +123,7 @@ describe('Header extension', () => {
     it('should skip an unsupported attribute and use the default for an unsupported value', () => {
         expect(
             serializer.serialize(markupParser.parse(':::header{height="xl" color="red"}\n:::')),
-        ).toBe(':::header{height="s" width="m"}\n:::');
+        ).toBe(':::header{height="s" width="m"}\n\n:::');
     });
 
     it.each([
@@ -175,10 +175,12 @@ describe('Header extension', () => {
         const editor = createView(':::header{height="m" width="s"}\n:::');
         expect(run(editor, copyHeader(0))).toBe(true);
         expect(serializer.serialize(editor.state.doc)).toBe(
-            ':::header{height="m" width="s"}\n:::\n\n:::header{height="m" width="s"}\n:::',
+            ':::header{height="m" width="s"}\n\n:::\n\n:::header{height="m" width="s"}\n\n:::',
         );
         expect(run(editor, removeHeader(0))).toBe(true);
-        expect(serializer.serialize(editor.state.doc)).toBe(':::header{height="m" width="s"}\n:::');
+        expect(serializer.serialize(editor.state.doc)).toBe(
+            ':::header{height="m" width="s"}\n\n:::',
+        );
         expect(run(editor, removeHeader(1))).toBe(false);
     });
 
@@ -205,6 +207,16 @@ describe('Header extension', () => {
         expect(editor.state.doc.firstChild?.type.name).toBe('paragraph');
     });
 
+    it('should keep the typed text inside a header inserted into an empty document', () => {
+        const editor = createView('');
+        editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 1)));
+        expect(run(editor, insertHeader)).toBe(true);
+        editor.dispatch(editor.state.tr.insertText('x'));
+        expect(editor.state.doc.childCount).toBe(1);
+        expect(editor.state.doc.firstChild?.type.name).toBe('header');
+        expect(editor.state.doc.firstChild?.textContent).toBe('x');
+    });
+
     it('should split a paragraph at the cursor when inserting a header', () => {
         const editor = createView('abcdef');
         editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 4)));
@@ -212,6 +224,15 @@ describe('Header extension', () => {
         expect(editor.state.doc.child(0).textContent).toBe('abc');
         expect(editor.state.doc.child(1).type.name).toBe('header');
         expect(editor.state.doc.child(2).textContent).toBe('def');
+        expect(editor.state.selection.$from.node(1).type.name).toBe('header');
+    });
+
+    it.each([1, 4])('should put the cursor into a header inserted at position %i', (pos) => {
+        const editor = createView('abc');
+        editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, pos)));
+        expect(run(editor, insertHeader)).toBe(true);
+        expect(editor.state.doc.textContent).toBe('abc');
+        expect(editor.state.selection.$from.node(1).type.name).toBe('header');
     });
 
     it('should reject insertion over selected content', () => {
