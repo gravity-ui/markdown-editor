@@ -162,10 +162,18 @@ test.describe('Header', () => {
             .getByRole('button', {name: 'Settings', exact: true})
             .click();
         const settings = page.getByRole('dialog', {name: 'Banner settings'});
-        await settings.getByText('Banner settings', {exact: true}).selectText();
-        // The editor handles selection changes asynchronously.
-        await page.evaluate(() => new Promise(requestAnimationFrame));
-        expect(await page.evaluate(() => getSelection()?.toString())).toBe('Banner settings');
+        await settings.getByText('Banner settings', {exact: true}).click({clickCount: 3});
+        // ProseMirror restores its own selection 20 ms after the editor gains focus.
+        await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 50)));
+        expect(
+            await page.evaluate(() => {
+                const selection = getSelection();
+                return {
+                    range: selection?.rangeCount ? selection.getRangeAt(0).toString().trim() : '',
+                    text: selection?.toString().trim(),
+                };
+            }),
+        ).toEqual({range: 'Banner settings', text: 'Banner settings'});
         await settings.getByRole('combobox', {name: 'Height', exact: true}).click();
         await page.getByRole('option', {name: 'L', exact: true}).click();
         await settings.getByRole('button', {name: 'Close', exact: true}).click();
