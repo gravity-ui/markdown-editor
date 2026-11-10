@@ -1,3 +1,4 @@
+import type MarkdownIt from 'markdown-it';
 import {EditorState, Plugin} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 import {describe, expect, it} from 'vitest';
@@ -11,6 +12,33 @@ import type {
     ExtensionNodeSpec,
 } from './ExtensionBuilder';
 import {ExtensionsManager} from './ExtensionsManager';
+
+const minimalSchema: Extension = (builder) => {
+    builder
+        .addNode('doc', () => ({
+            spec: {content: 'block+'},
+            fromMd: {tokenSpec: {name: 'doc', type: 'block', ignore: true}},
+            toMd: () => {},
+        }))
+        .addNode('paragraph', () => ({
+            spec: {group: 'block', content: 'inline*'},
+            fromMd: {tokenSpec: {name: 'paragraph', type: 'block'}},
+            toMd: () => {},
+        }))
+        .addNode('text', () => ({
+            spec: {group: 'inline'},
+            fromMd: {tokenSpec: {name: 'text', type: 'node', ignore: true}},
+            toMd: () => {},
+        }));
+};
+
+// Emits a token that belongs to no node and no mark — the shape of a yfm-lint token.
+const lintTokenPlugin = (md: MarkdownIt) => {
+    md.core.ruler.push('test_lint', (state) => {
+        state.tokens.push(new state.Token('__test_lint', '', 0));
+    });
+    return md;
+};
 
 describe('ExtensionsManager views', () => {
     it('should call node and mark view factories with the built dependencies', () => {
@@ -92,8 +120,45 @@ describe('ExtensionsManager views', () => {
     });
 });
 
+describe('ExtensionsManager parser-only tokens', () => {
+    it('should register a parser-only token in the parser without a node in the schema', () => {
+        const {schema, markupParser} = new ExtensionsManager({
+            extensions: (builder) =>
+                builder
+                    .use(minimalSchema)
+                    .configureMd(lintTokenPlugin)
+                    .addMarkdownTokenParserSpec('__test_lint', () => ({
+                        name: '__test_lint',
+                        type: 'node',
+                        ignore: true,
+                    })),
+        }).buildDeps();
+
+        expect(schema.nodes['__test_lint']).toBeUndefined();
+        // An unregistered token would make the parser throw
+        expect(markupParser.parse('hello').textContent).toBe('hello');
+    });
+
+    it('should not add a schema node for an extra parser token', () => {
+        const {schema, markupParser} = new ExtensionsManager({
+            extensions: (builder) =>
+                builder.use(minimalSchema).addMarkdownTokenParserSpec('fence', () => ({
+                    name: 'paragraph',
+                    type: 'block',
+                    noCloseToken: true,
+                })),
+        }).buildDeps();
+
+        expect(schema.nodes['fence']).toBeUndefined();
+
+        const doc = markupParser.parse('```\ncode\n```');
+        expect(doc.firstChild!.type.name).toBe('paragraph');
+        expect(doc.textContent.trim()).toBe('code');
+    });
+});
+
 describe('ExtensionsManager parser aliases', () => {
-    it('should parse multiple tokens into one node without adding mark aliases', () => {
+    it('should parse multiple tokens into one node, keeping the alias out of the schema', () => {
         const tokenSpec: ExtensionNodeSpec['fromMd']['tokenSpec'] = {
             name: 'test_block',
             type: 'block',
@@ -114,6 +179,7 @@ describe('ExtensionsManager parser aliases', () => {
             },
         }).buildDeps();
 
+        expect(result.schema.nodes.fence).toBeUndefined();
         expect(result.schema.marks.fence).toBeUndefined();
         for (const parser of ['markupParser', 'textParser'] as const) {
             for (const markup of ['    text\n', '```\ntext\n```']) {
@@ -125,7 +191,7 @@ describe('ExtensionsManager parser aliases', () => {
         }
     });
 
-    it('should parse multiple tokens into one mark without adding node aliases', () => {
+    it('should parse multiple tokens into one mark, keeping the alias out of the schema', () => {
         const tokenSpec: ExtensionMarkSpec['fromMd']['tokenSpec'] = {
             name: 'emphasis',
             type: 'mark',
@@ -142,6 +208,7 @@ describe('ExtensionsManager parser aliases', () => {
         }).buildDeps();
 
         expect(result.schema.nodes.strong).toBeUndefined();
+        expect(result.schema.marks.strong).toBeUndefined();
         for (const parser of ['markupParser', 'textParser'] as const) {
             for (const markup of ['*text*', '**text**']) {
                 const doc = result[parser].parse(markup);
