@@ -2,6 +2,7 @@ import {type ReactNode, StrictMode} from 'react';
 
 import {GalleryProvider} from '@gravity-ui/components';
 import {ThemeProvider} from '@gravity-ui/uikit';
+import {createPortal} from 'react-dom';
 import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 
@@ -55,6 +56,42 @@ describe('FilesGallery', () => {
         const dialog = document.querySelector('[role="dialog"]');
         expect(dialog?.textContent).toContain('Second');
         expect(dialog?.textContent).toContain('2 / 2');
+    });
+
+    it('should open images in an iframe and remove the click listener on unmount', async () => {
+        const iframe = document.body.appendChild(document.createElement('iframe'));
+        try {
+            const frame = iframe.contentDocument?.defaultView;
+            assert(frame);
+            const html = '<img src="/image.png" alt="Frame image">';
+            const update = (showGallery: boolean) =>
+                render(
+                    createPortal(
+                        <MarkdownViewer html={html}>
+                            {showGallery && <FilesGallery />}
+                        </MarkdownViewer>,
+                        frame.document.body,
+                    ),
+                );
+            await update(true);
+            const image = frame.document.querySelector('img');
+            assert(image);
+            const clickImage = async () => {
+                const event = new frame.MouseEvent('click', {bubbles: true, cancelable: true});
+                await act(async () => image.dispatchEvent(event));
+                return event.defaultPrevented;
+            };
+
+            expect(await clickImage()).toBe(true);
+            expect(document.querySelector('[role="dialog"]')?.textContent).toContain('Frame image');
+            await closeGallery();
+
+            await update(false);
+            expect(await clickImage()).toBe(false);
+        } finally {
+            await render(null);
+            iframe.remove();
+        }
     });
 
     it('should select the clicked image when URLs repeat', async () => {
@@ -400,6 +437,24 @@ describe('FilesGallery', () => {
         await update('new');
 
         expect(container.querySelector('.g-md-files-gallery')).toBe(wrapper);
+    });
+
+    it('should keep gallery styles until the last instance unmounts', async () => {
+        const html = '<img src="/image.png">';
+        const first = <FilesGallery key="first" />;
+        const second = <FilesGallery key="second" />;
+        const update = (...extensions: ReactNode[]) =>
+            render(<MarkdownViewer html={html}>{extensions}</MarkdownViewer>);
+
+        await update(first, second);
+        const wrapper = container.querySelector('.g-md-files-gallery');
+        assert(wrapper);
+
+        await update(second);
+        expect(wrapper.classList.contains('g-md-files-gallery')).toBe(true);
+
+        await update();
+        expect(wrapper.classList.contains('g-md-files-gallery')).toBe(false);
     });
 
     it('should remove its listener and styles without closing the open gallery', async () => {

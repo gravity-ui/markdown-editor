@@ -1,5 +1,7 @@
 import type {DependencyList} from 'react';
 
+import {getDomConstructor} from '../utils/dom-constructor';
+
 import type {ViewerEffect, ViewerEffectCleanup} from './types';
 
 export class ViewerLifecycle {
@@ -36,12 +38,14 @@ export class ViewerLifecycle {
 
     private start(key: symbol) {
         const entry = this.entries.get(key);
-        if (!entry || entry.run || !this.root) return;
+        const root = this.root;
+        if (!entry || entry.run || !root) return;
 
-        const run: EffectRun = {controller: new AbortController()};
+        const Controller = getDomConstructor(root, 'AbortController');
+        const run: EffectRun = {controller: new Controller()};
         entry.run = run;
         try {
-            run.cleanup = entry.setup({root: this.root, signal: run.controller.signal});
+            run.cleanup = entry.setup({root, signal: run.controller.signal});
         } catch (error) {
             entry.run = undefined;
             run.controller.abort();

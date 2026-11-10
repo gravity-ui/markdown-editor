@@ -1,3 +1,4 @@
+import {getDomConstructor} from '../../../utils/dom-constructor';
 import type {FilesGallerySource} from '../types';
 
 import {getMediaType, normalizeMimeType} from './media-type';
@@ -5,7 +6,8 @@ import {getMediaType, normalizeMimeType} from './media-type';
 const dataUriMimeTypeRegex = /^data:([^;,]+)/i;
 
 export function readResource(element: Element): FilesGallerySource | null {
-    const isImage = element instanceof HTMLImageElement;
+    const ImageElement = getDomConstructor(element, 'HTMLImageElement');
+    const isImage = element instanceof ImageElement;
     if (!isImage && element.tagName !== 'A') return null;
 
     const url = isImage
