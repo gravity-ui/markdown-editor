@@ -95,7 +95,7 @@ export const BaseSchemaSpecs: ExtensionAuto<BaseSchemaSpecsOptions> = (builder, 
                     state.write('\n');
                 }
             } else {
-                state.renderInline(node);
+                state.renderInline(node, {escapeLeadingIndent: true});
                 state.closeBlock(node);
             }
         });

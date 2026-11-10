@@ -1,12 +1,19 @@
+import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
-import {describe, it} from 'vitest';
+import {describe, expect, it} from 'vitest';
 
+import {dispatchPasteEvent} from '../../../../tests/dispatch-event';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
+import {WysiwygEditor} from '../../../core/Editor';
+import {YfmSpecsPreset} from '../../../presets/yfm-specs';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
+import {Clipboard} from '../../behavior/Clipboard';
 import {
     BlockquoteSpecs,
+    BoldSpecs,
+    CodeSpecs,
     ImageAttr,
     ImageSpecs,
     ItalicSpecs,
@@ -26,7 +33,9 @@ const {
     extensions: (builder) =>
         builder
             .use(BaseSchemaSpecs, {})
+            .use(BoldSpecs)
             .use(ItalicSpecs)
+            .use(CodeSpecs)
             .use(BlockquoteSpecs)
             .use(YfmNoteSpecs, {})
             .use(ImageSpecs),
@@ -153,5 +162,85 @@ note content
                 '</div></div>',
             doc(note(noteTitle('YfmNote title'), noteContent(p('YfmNote content')))),
         );
+    });
+});
+
+describe('single-line serialization', () => {
+    const blocks = [
+        {name: 'note title', markup: '{% note info "TITLE" %}\n\nbody\n\n{% endnote %}'},
+    ];
+    describe.each([
+        {name: 'LF', entity: '&#10;'},
+        {name: 'CR', entity: '&#13;'},
+        {name: 'CRLF', entity: '&#13;&#10;'},
+    ])('single-line serialization with $name', ({entity}) => {
+        it.each(blocks)('should normalize marked text in a $name', ({markup}) => {
+            const input = parser.parse(markup.replace('TITLE', `*&#32;x${entity}y*`));
+            const expected = parser.parse(markup.replace('TITLE', ' *x y*'));
+
+            expect(parser.parse(serializer.serialize(input))).toMatchNode(expected);
+        });
+    });
+
+    describe('single-line serialization with inline code', () => {
+        it.each(blocks)('should keep code and adjacent images in a $name', ({markup}) => {
+            const expected = parser.parse(markup.replace('TITLE', '**A** *`x y`* ![i](img)'));
+            let textPosition = -1;
+            expected.descendants((node, pos) => {
+                if (node.isText && node.text === 'x y') textPosition = pos;
+            });
+            expect(textPosition).toBeGreaterThan(-1);
+            const input = EditorState.create({doc: expected}).tr.insertText(
+                'x\ny',
+                textPosition,
+                textPosition + 3,
+            ).doc;
+
+            expect(parser.parse(serializer.serialize(input))).toMatchNode(expected);
+        });
+    });
+
+    describe('single-line editor input', () => {
+        it('should normalize encoded line endings loaded through the editor API', () => {
+            const editor = new WysiwygEditor({
+                initialContent: '{% note info "*&#32;x&#10;y*" %}\n\nbody\n\n{% endnote %}',
+                extensions: (builder) => builder.use(YfmSpecsPreset, {}),
+            });
+            try {
+                expect(editor.doc.textContent).toContain('x\ny');
+                expect(parser.parse(editor.getValue())).toMatchNode(
+                    parser.parse('{% note info " *x y*" %}\n\nbody\n\n{% endnote %}'),
+                );
+            } finally {
+                editor.destroy();
+            }
+        });
+
+        it('should normalize a pasted carriage return inside title code', () => {
+            const editor = new WysiwygEditor({
+                initialContent: '{% note info "`AB`" %}\n\nbody\n\n{% endnote %}',
+                extensions: (builder) => builder.use(YfmSpecsPreset, {}).use(Clipboard, {}),
+            });
+            try {
+                let textPosition = -1;
+                editor.doc.descendants((node, pos) => {
+                    if (node.isText && node.text === 'AB') textPosition = pos + 1;
+                });
+                expect(textPosition).toBeGreaterThan(-1);
+                const {view} = editor;
+                view.dispatch(
+                    view.state.tr.setSelection(TextSelection.create(editor.doc, textPosition)),
+                );
+
+                dispatchPasteEvent(view, {'text/plain': 'x\ry'});
+
+                expect(editor.doc.textContent).toContain('Ax\ryB');
+                expect(parser.parse(editor.getValue())).toMatchNode(
+                    parser.parse('{% note info "`Ax yB`" %}\n\nbody\n\n{% endnote %}'),
+                );
+            } finally {
+                editor.destroy();
+            }
+        });
     });
 });

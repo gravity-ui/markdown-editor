@@ -55,9 +55,11 @@ Built-in **toolbar presets** are available in the `gravity-ui/markdown-editor` r
 - `yfm`
 - `full`
 
-See their [items and orders](../packages/editor/src/modules/toolbars/presets.ts).
+See the [combined toolbar presets](../packages/editor/src/modules/toolbars/presets.ts) and the presets for [WYSIWYG](../packages/editor/src/modules/toolbars/wysiwyg/presets.ts) and [Markdown](../packages/editor/src/modules/toolbars/markup/presets.ts).
 
 The presets, the toolbar items and the `ActionName` and `ToolbarName` constants are exported from `@gravity-ui/markdown-editor/toolbars`, starting with version 15.48.0.
+
+The same entry point exports `wysiwygToolbarsPresets` and `markupToolbarsPresets`, keyed by the preset names above. Each contains only its mode's behavior and toolbar orders. Use the combined presets when the editor can switch between modes.
 
 > **Note:** These toolbar presets have the same names as editor presets for convenience. When you don't specify `toolbarsPreset`, the editor automatically selects the toolbar preset matching your editor preset name.
 
