@@ -33,7 +33,7 @@ import {afterEach, describe, expect, it} from 'vitest';
 import {insertHeader as insertHeaderMarkup} from '../../../markup/commands/insertHeader';
 
 import {HeaderSpecs, headerNodeName} from './HeaderSpecs';
-import {copyHeader, insertHeader, removeHeader, setHeaderDimensions} from './commands';
+import {copyHeader, insertHeader, removeHeader, setHeaderDimension} from './commands';
 
 import {Header} from '.';
 
@@ -167,7 +167,7 @@ describe('Header extension', () => {
     it('should preserve child blocks when changing dimensions and copying', () => {
         const editor = createView(':::header\nKeep **text**\n:::');
         const content = editor.state.doc.child(0).content;
-        expect(run(editor, setHeaderDimensions(0, {height: 'l'}))).toBe(true);
+        expect(run(editor, setHeaderDimension(0, 'height', 'l'))).toBe(true);
         expect(editor.state.doc.child(0).content.eq(content)).toBe(true);
         expect(run(editor, copyHeader(0))).toBe(true);
         expect(editor.state.doc.child(1).eq(editor.state.doc.child(0))).toBe(true);
@@ -204,8 +204,8 @@ describe('Header extension', () => {
 
     it('should update dimensions independently and undo each change', () => {
         const editor = createView();
-        expect(run(editor, setHeaderDimensions(0, {height: 'l'}))).toBe(true);
-        expect(run(editor, setHeaderDimensions(0, {width: 'full'}))).toBe(true);
+        expect(run(editor, setHeaderDimension(0, 'height', 'l'))).toBe(true);
+        expect(run(editor, setHeaderDimension(0, 'width', 'full'))).toBe(true);
         expect(dimensions(editor)).toEqual({height: 'l', width: 'full'});
         expect(undo(editor.state, editor.dispatch)).toBe(true);
         expect(dimensions(editor)).toEqual({height: 'l', width: 'm'});
@@ -302,7 +302,7 @@ describe('Header extension', () => {
         const editor = createNodeView('Before\n\n:::header\n:::');
         const pos = editor.state.doc.child(0).nodeSize;
         editor.dispatch(editor.state.tr.setSelection(NodeSelection.create(editor.state.doc, pos)));
-        expect(run(editor, setHeaderDimensions(pos, {height: 'l'}))).toBe(true);
+        expect(run(editor, setHeaderDimension(pos, 'height', 'l'))).toBe(true);
         expect(
             (editor.nodeDOM(pos) as HTMLElement).classList.contains('ProseMirror-selectednode'),
         ).toBe(true);

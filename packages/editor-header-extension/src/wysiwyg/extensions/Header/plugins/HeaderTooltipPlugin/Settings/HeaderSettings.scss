@@ -1,3 +1,7 @@
+$panel-width: 320px;
+$label-width: 120px;
+$viewport-inset: var(--g-spacing-4);
+
 .g-md-header-settings-popup {
     --g-popup-background-color: var(--g-color-base-modal);
     --g-popup-border-color: var(--g-color-line-generic);
@@ -18,8 +22,8 @@
     gap: var(--g-spacing-4);
 
     box-sizing: border-box;
-    width: min(320px, calc(100vw - 2 * var(--g-spacing-4)));
-    max-height: calc(100dvh - 2 * var(--g-spacing-4));
+    width: min($panel-width, calc(100vw - 2 * #{$viewport-inset}));
+    max-height: calc(100dvh - 2 * #{$viewport-inset});
     padding: var(--g-spacing-4);
 
     &__title {
@@ -38,7 +42,7 @@
     &__row {
         display: grid;
         align-items: center;
-        grid-template-columns: minmax(0, 120px) minmax(0, 1fr);
+        grid-template-columns: minmax(0, $label-width) minmax(0, 1fr);
         gap: var(--g-spacing-2);
 
         > * {

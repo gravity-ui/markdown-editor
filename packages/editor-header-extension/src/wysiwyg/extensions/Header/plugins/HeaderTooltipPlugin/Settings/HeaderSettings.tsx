@@ -18,14 +18,15 @@ import './HeaderSettings.scss';
 const b = cn('header-settings');
 const popupClassName = cn('header-settings-popup')();
 
-const inset = 16;
+const PANEL_INSET = 16;
+const CLOSE_ICON_SIZE = 16;
 
 // The Popup keeps at least 4 px of the panel over the anchor, so the anchor spans the block width.
 const insideTopEdge = (block: HTMLElement): PopupAnchorElement => ({
     contextElement: block,
     getBoundingClientRect: () => {
         const {top, left, width} = block.getBoundingClientRect();
-        return new DOMRect(left + inset, top + inset, width - 2 * inset, 0);
+        return new DOMRect(left + PANEL_INSET, top + PANEL_INSET, width - 2 * PANEL_INSET, 0);
     },
 });
 
@@ -35,7 +36,7 @@ type HeaderSettingsProps = {
     /** Receives focus when the panel closes. */
     button: HTMLElement | null;
     dimensions: HeaderDimensions;
-    onChange: (attrs: Partial<HeaderDimensions>) => void;
+    onChange: <K extends keyof HeaderDimensions>(name: K, value: HeaderDimensions[K]) => void;
     onClose: () => void;
 };
 
@@ -86,7 +87,7 @@ export function HeaderSettings({
                         aria-label={i18n('close')}
                         onClick={onClose}
                     >
-                        <Icon data={Xmark} size={16} />
+                        <Icon data={Xmark} size={CLOSE_ICON_SIZE} />
                     </Button>
                 </div>
                 <DimensionSelect
@@ -95,7 +96,7 @@ export function HeaderSettings({
                     value={dimensions.height}
                     values={headerHeights}
                     format={(value) => value.toUpperCase()}
-                    onUpdate={(value) => onChange({height: value})}
+                    onUpdate={(value) => onChange('height', value)}
                 />
                 <DimensionSelect
                     label={i18n('width')}
@@ -104,7 +105,7 @@ export function HeaderSettings({
                     format={(value) =>
                         value === 'full' ? i18n('full-width') : value.toUpperCase()
                     }
-                    onUpdate={(value) => onChange({width: value})}
+                    onUpdate={(value) => onChange('width', value)}
                 />
             </section>
         </Popup>

@@ -1,5 +1,4 @@
 import {get$Cursor, pType, removeNode} from '@gravity-ui/markdown-editor';
-import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
 import {type Command, type EditorState, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
 import type {HeaderDimensions} from '@gravity-ui/markdown-plugin-header';
 
@@ -32,19 +31,11 @@ export const insertHeader: Command = (state, dispatch) => {
     return true;
 };
 
-export const setHeaderDimensions =
-    (pos: number, attrs: Partial<HeaderDimensions>): Command =>
+export const setHeaderDimension =
+    <K extends keyof HeaderDimensions>(pos: number, name: K, value: HeaderDimensions[K]): Command =>
     (state, dispatch) => {
-        const node = headerAt(state, pos);
-        if (!node) return false;
-        // Attribute steps keep the node view that anchors the toolbar.
-        const tr = closeHistory(state.tr);
-        for (const name of ['height', 'width'] as const) {
-            const value = attrs[name];
-            if (value !== undefined && value !== node.attrs[name])
-                tr.setNodeAttribute(pos, name, value);
-        }
-        if (tr.docChanged) dispatch?.(tr);
+        if (!headerAt(state, pos)) return false;
+        dispatch?.(state.tr.setNodeAttribute(pos, name, value));
         return true;
     };
 

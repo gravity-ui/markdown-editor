@@ -18,6 +18,8 @@ const smallSizes = {
     '--g-md-header-plugin-width-l': '240px',
 } as CSSProperties;
 
+const SETTINGS_INSET = 16;
+
 const dimensions = [
     ['s', 'm'],
     ['s', 's'],
@@ -152,7 +154,7 @@ test.describe('Header', () => {
                     ]
                 );
             })
-            .toEqual([16, 16]);
+            .toEqual([SETTINGS_INSET, SETTINGS_INSET]);
         await expectScreenshot({component: editor.locators.component});
 
         await header.height.click();
