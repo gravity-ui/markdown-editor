@@ -1,4 +1,5 @@
 export type {
+    RenderInlineOptions,
     MarkdownSerializerState as SerializerState,
     SerializerNodeToken,
     SerializerMarkToken,
@@ -9,6 +10,8 @@ declare module 'prosemirror-model' {
     interface NodeSpec {
         /** Default false */
         isBreak?: boolean;
+        /** Markdown break kind. Set together with isBreak. */
+        breakType?: 'soft' | 'hard';
         /**
          * For non default textblocks.
          * Set true if textblock can contain line breaks (soft-break or/and hard-break).

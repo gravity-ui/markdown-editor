@@ -1,10 +1,10 @@
 import {describe, expect, it, vi} from 'vitest';
 
-import {ReactRenderStorage} from './index';
+import {ReactRenderStorage} from './storage';
 
-describe('ReactRenderer extension', () => {
+describe('ReactRenderStorage', () => {
     describe('Storage', () => {
-        it('should renturn empty items list', () => {
+        it('should return empty items list', () => {
             const items = new ReactRenderStorage().getItems();
             expect(items).toHaveLength(0);
         });
@@ -31,7 +31,19 @@ describe('ReactRenderer extension', () => {
             const item = storage.createItem('test', () => null);
             storage.on('update', listener);
             item.remove();
+            expect(storage.getItems()).toHaveLength(0);
             expect(listener).toBeCalledTimes(1);
+            expect(listener).toBeCalledWith(null);
+        });
+
+        it('should remove an item by its id', () => {
+            const storage = new ReactRenderStorage();
+            const removed = storage.createItem('removed', () => null);
+            const kept = storage.createItem('kept', () => null);
+
+            storage.removeItem(removed.id);
+
+            expect(storage.getItems().map((item) => item.id)).toEqual([kept.id]);
         });
 
         it('should emit event after call item.rerender()', () => {

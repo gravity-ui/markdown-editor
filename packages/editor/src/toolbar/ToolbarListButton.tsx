@@ -176,7 +176,14 @@ export function ToolbarListButton<E>({
                                                     {titleText}
                                                     {!disableHotkey && (
                                                         <div className={b('extra')}>
-                                                            {hotkey && <Hotkey value={hotkey} />}
+                                                            {hotkey && (
+                                                                <Hotkey
+                                                                    value={hotkey}
+                                                                    className={b('hotkey', {
+                                                                        disabled,
+                                                                    })}
+                                                                />
+                                                            )}
                                                             {hintText && (
                                                                 <HelpMark
                                                                     className={b('hint')}

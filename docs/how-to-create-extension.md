@@ -81,7 +81,9 @@ const MermaidExtension: ExtensionAuto<MermaidOptions> = (builder, options) => {
 };
 ```
 
-The factory receives the extension dependencies (`schema`, `textParser`, `markupParser`, `serializer`, `actions`) and returns a `NodeViewConstructor`; it runs after the schema is built. Marks are registered the same way with `addMarkView`, which expects a `MarkViewConstructor`.
+The factory receives the extension dependencies (`schema`, `textParser`, `markupParser`, `serializer`, `actions`, `getExporter`) and returns a `NodeViewConstructor`; it runs after the schema is built. Marks are registered the same way with `addMarkView`, which expects a `MarkViewConstructor`.
+
+See [Exporters](./core-exporters.md) for `getExporter`.
 
 The node must already be registered by `addNodeSpec` or `addNode`, and it can have only one view — a second registration for the same node throws.
 
@@ -90,5 +92,3 @@ See the [full example of the extension](https://github.com/gravity-ui/markdown-e
 #### 3. Add Plugins
 
 The extension can be enhanced with [plugins](https://prosemirror.net/docs/guide/#state.plugins) as needed. Check out the [YfmTable extension](https://github.com/gravity-ui/markdown-editor/tree/main/src/extensions/yfm/YfmTable/plugins/YfmTableControls) example, where plugins add a panel (a pop-up window) for working with columns and rows.
-
-

@@ -23,17 +23,16 @@ updates:
         patterns:
           - "actions/*"
 
-  # npm — root
+  # npm — pnpm workspace. The shared pnpm-lock.yaml is updated only from the workspace root.
   - package-ecosystem: npm
     directory: "/"
     schedule:
       interval: monthly
     cooldown:
-      default-days: 7
-    exclude-paths:
-      - "demo"
-      - "packages/*"
-      - "infra/*"
+      default-days: 15
+      exclude:
+        - "@diplodoc/*"
+        - "@gravity-ui/*"
     groups:
       commitlint:
         patterns:
@@ -48,21 +47,6 @@ updates:
         patterns:
           - "vitest"
           - "@vitest/*"
-    ignore:
-      - dependency-name: "*"
-        update-types:
-          - "version-update:semver-major"
-      - dependency-name: "@diplodoc/*"
-      - dependency-name: "@gravity-ui/*"
-
-  # npm — demo
-  - package-ecosystem: npm
-    directory: "/demo"
-    schedule:
-      interval: monthly
-    cooldown:
-      default-days: 7
-    groups:
       babel:
         patterns:
           - "@babel/*"
@@ -75,22 +59,6 @@ updates:
         patterns:
           - "@playwright/*"
           - "playwright"
-    ignore:
-      - dependency-name: "*"
-        update-types:
-          - "version-update:semver-major"
-      - dependency-name: "@diplodoc/*"
-      - dependency-name: "@gravity-ui/*"
-
-  # npm — packages/*
-  - package-ecosystem: npm
-    directories:
-      - "/packages/*"
-    schedule:
-      interval: monthly
-    cooldown:
-      default-days: 15
-    groups:
       prosemirror:
         patterns:
           - "orderedmap"
@@ -100,25 +68,6 @@ updates:
           - "@lezer/*"
           - "@codemirror/*"
           - "codemirror"
-    ignore:
-      - dependency-name: "*"
-        update-types:
-          - "version-update:semver-major"
-      - dependency-name: "@diplodoc/*"
-      - dependency-name: "@gravity-ui/*"
-
-  # npm — infra/*
-  - package-ecosystem: npm
-    directories:
-      - "/infra/*"
-    schedule:
-      interval: monthly
-    cooldown:
-      default-days: 7
-      exclude:
-        - "@diplodoc/*"
-        - "@gravity-ui/*"
-    groups:
       gulp:
         patterns:
           - "gulp"
@@ -129,3 +78,13 @@ updates:
       - dependency-name: "*"
         update-types:
           - "version-update:semver-major"
+      # Names instead of @diplodoc/* and @gravity-ui/*: packages from these scopes in infra/* stay updatable.
+      - dependency-name: "@diplodoc/*-extension"
+      - dependency-name: "@diplodoc/themes"
+      - dependency-name: "@diplodoc/transform"
+      - dependency-name: "@diplodoc/utils"
+      - dependency-name: "@gravity-ui/components"
+      - dependency-name: "@gravity-ui/i18n"
+      - dependency-name: "@gravity-ui/icons"
+      - dependency-name: "@gravity-ui/page-constructor"
+      - dependency-name: "@gravity-ui/uikit"

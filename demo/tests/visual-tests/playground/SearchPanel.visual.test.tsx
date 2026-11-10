@@ -19,6 +19,73 @@ test.describe('SearchPanel', () => {
         await mount(<Playground initial={markup} />);
     });
 
+    test('should focus editor after changing mode', async ({editor}) => {
+        await editor.switchMode('markup');
+        await expect(editor.locators.contenteditable).toBeFocused();
+        await editor.switchMode('wysiwyg');
+        await expect(editor.locators.contenteditable).toBeFocused();
+    });
+
+    for (const mode of ['wysiwyg', 'markup'] as const) {
+        test(`should keep page scroll when opening and expanding search in ${mode}`, async ({
+            editor,
+            page,
+        }) => {
+            await editor.switchMode(mode);
+            await page.locator('.playwright-wrapper-test').evaluate((element) => {
+                element.style.setProperty('padding-top', '1000px');
+                element.style.setProperty('padding-bottom', '1000px');
+            });
+            await editor.focus();
+            await page.evaluate(() => window.scrollTo(0, 1000));
+            await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1000);
+
+            await editor.press('ControlOrMeta+f');
+            const searchInput = editor.searchPanel.searchInputLocator.locator('input');
+            await expect(searchInput).toBeFocused();
+            expect(await page.evaluate(() => window.scrollY)).toBe(1000);
+
+            await editor.searchPanel.expand();
+            await expect(searchInput).toBeFocused();
+            await page.waitForLoadState('networkidle');
+            expect(await page.evaluate(() => window.scrollY)).toBe(1000);
+        });
+
+        test(`should focus search on open and expand in ${mode}`, async ({editor, page}) => {
+            await editor.switchMode(mode);
+            await editor.focus();
+            await editor.press('ControlOrMeta+f');
+
+            const searchInput = editor.searchPanel.searchInputLocator.locator('input');
+            await expect(searchInput).toBeFocused();
+            await searchInput.press('Tab');
+            await expect(editor.searchPanel.expandButtonLocator).toBeFocused();
+            await editor.searchPanel.expandButtonLocator.press('Enter');
+            await expect(searchInput).toBeFocused();
+
+            await searchInput.press('Tab');
+            await page.waitForLoadState('networkidle');
+            await expect(
+                editor.searchPanel.caseSensitiveCheckboxLocator.getByRole('checkbox'),
+            ).toBeFocused();
+        });
+
+        test(`should keep replacement focus after expanding search in ${mode}`, async ({
+            editor,
+            page,
+        }) => {
+            await editor.switchMode(mode);
+            await editor.focus();
+            await editor.press('ControlOrMeta+f');
+            await editor.searchPanel.expand();
+
+            const replaceInput = editor.searchPanel.replaceInputLocator.locator('input');
+            await replaceInput.click();
+            await page.waitForLoadState('networkidle');
+            await expect(replaceInput).toBeFocused();
+        });
+    }
+
     test.describe('mode:wysiwyg', () => {
         test.beforeEach(async ({editor}) => {
             await editor.switchMode('wysiwyg');
