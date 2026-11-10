@@ -1,5 +1,5 @@
 import {Action as A, Key as K, ModKey as MK} from './const';
-import {formatter} from './formatter';
+import {formatter} from './registry';
 
 formatter
     .set(A.__debug, [MK.Mod, MK.Option, ']'])
