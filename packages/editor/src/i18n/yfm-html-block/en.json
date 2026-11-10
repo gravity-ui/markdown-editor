@@ -1,0 +1,16 @@
+{
+  "edit_element": "Edit element",
+  "text": "Text",
+  "attributes": "Attributes",
+  "attribute_name": "Name",
+  "attribute_value": "Value",
+  "add_attribute": "Add attribute",
+  "remove_attribute": "Remove attribute",
+  "invalid_attribute_name": "Invalid attribute name or changed preview structure",
+  "edit_target_changed": "The selected element has changed",
+  "cancel": "Cancel",
+  "save": "Save",
+  "visual": "Visual",
+  "attributes_hint": "HTML attributes control links, images and appearance.",
+  "attributes_help": "About attributes"
+}
