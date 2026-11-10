@@ -60,6 +60,7 @@ These run visual tests outside Docker and produce unreliable results.
 - The viewport width and height fit the content, without empty space around it.
 - A popup is captured in the real editor, in the test that opens it. A popup component mounted on its own misses changes in how the editor renders it.
 - Each mode gets its own `test()` with the mode tag (`@wysiwyg`, `@markup`) in its name, without `for` loops.
+- Every test name carries the tag of the mode it checks; a test that switches modes carries both, `@wysiwyg @markup`. The tag is part of the screenshot file name, so renaming a test renames its screenshots.
 - Locators and actions for a block live in its class, not in the test file. A block of `packages/editor` has its class in `demo/tests/playwright/core/editor.ts`; a block of an extension package has its class and fixture in `demo/tests/playwright/core/extensions/<block>.ts`.
 
 ## Code style
