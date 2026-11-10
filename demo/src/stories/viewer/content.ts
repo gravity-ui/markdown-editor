@@ -79,17 +79,28 @@ const nextSteps = dd`
     {% endcut %}
 `;
 
+const feedback = dd`
+    ## React feedback
+
+    This block is rendered by a React extension inside a prepared host. Hide feedback to restore its fallback.
+
+    <section data-demo-block-container>
+    <p data-demo-block-fallback>Feedback is unavailable.</p>
+    <div data-demo-block-id="feedback"></div>
+    </section>
+`;
+
 export const documents = [
     {
         label: 'Version 1',
-        source: [introduction, readingGuide, codeExample, reference].join('\n\n'),
+        source: [introduction, readingGuide, codeExample, reference, feedback].join('\n\n'),
     },
     {
         label: 'Version 2',
-        source: [introduction, reference, updatedReadingGuide, codeExample].join('\n\n'),
+        source: [introduction, reference, updatedReadingGuide, codeExample, feedback].join('\n\n'),
     },
     {
         label: 'Version 3',
-        source: [introduction, codeExample, reference, nextSteps].join('\n\n'),
+        source: [introduction, codeExample, reference, nextSteps, feedback].join('\n\n'),
     },
 ];
