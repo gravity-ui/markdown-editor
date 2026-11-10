@@ -1,16 +1,14 @@
-import {Plugin} from 'prosemirror-state';
-
 import type {ExtensionAuto, Keymap} from '../../../core';
 import {Action as A, formatter as f} from '../../../shortcuts';
 import {VERSION} from '../../../version';
+import type {TabExitOnEscapeController} from '../TabExitOnEscape';
 
 export type EditorModeKeymapOptions = {
     /** Submit handler. Return true to stop propagation. */
     onSubmit?(): boolean;
     /** Cancel handler. Return true to stop propagation. */
     onCancel?(): boolean;
-    /** @default false */
-    enableTabExitOnEscape?: boolean;
+    tabExitOnEscape?: TabExitOnEscapeController;
     ignoreKeysList?: string[];
 };
 
@@ -18,46 +16,6 @@ export type EditorModeKeymapOptions = {
  * Use this extension if you need to handle form actions like cancel and/or submit.
  */
 export const EditorModeKeymap: ExtensionAuto<EditorModeKeymapOptions> = (builder, opts) => {
-    let allowTabExit = false;
-    const resetTabExit = () => {
-        allowTabExit = false;
-        return false;
-    };
-
-    if (opts.enableTabExitOnEscape)
-        builder.addPlugin(
-            () =>
-                new Plugin({
-                    props: {
-                        handleDOMEvents: {
-                            keydown(view, event) {
-                                if (!allowTabExit || event.target !== view.dom) return false;
-
-                                if (event.key === 'Tab') {
-                                    return true;
-                                }
-
-                                if (['Shift', 'Control', 'Alt', 'Meta'].includes(event.key)) {
-                                    return false;
-                                }
-
-                                return resetTabExit();
-                            },
-                            blur: resetTabExit,
-                            mousedown: resetTabExit,
-                            beforeinput: resetTabExit,
-                            paste: resetTabExit,
-                            cut: resetTabExit,
-                            drop: resetTabExit,
-                            compositionstart: resetTabExit,
-                            pointerdown: resetTabExit,
-                            input: resetTabExit,
-                        },
-                    },
-                }),
-            builder.Priority.Highest,
-        );
-
     builder.addKeymap(() => {
         const bindings: Keymap = {};
         const {onCancel, onSubmit} = opts;
@@ -68,8 +26,7 @@ export const EditorModeKeymap: ExtensionAuto<EditorModeKeymapOptions> = (builder
         if (onCancel)
             bindings[f.toPM(A.Cancel)!] = (_state, _dispatch, view) => {
                 const result = onCancel();
-                allowTabExit =
-                    Boolean(opts.enableTabExitOnEscape) && result && Boolean(view?.hasFocus());
+                opts.tabExitOnEscape?.setAllowed(result && Boolean(view?.hasFocus()));
                 logger.event({event: 'cancel', result});
                 return result;
             };

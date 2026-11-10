@@ -2,10 +2,14 @@ import {TextSelection} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
+import {DataTransferMock} from '../../../../tests/event-mock';
 import {BundlePreset} from '../../../bundle/wysiwyg-preset';
 import {WysiwygEditor} from '../../../core';
 import {ReactRenderStorage} from '../../../modules/react-renderer';
 import {DirectiveSyntaxContext} from '../../../utils/directive';
+import {getAutocompleteState, openAutocomplete} from '../Autocomplete';
+import {openSearch} from '../Search/commands';
+import {pluginKey as searchPluginKey} from '../Search/const';
 
 const mountedEditors: {editor: WysiwygEditor; host: HTMLElement}[] = [];
 
@@ -16,20 +20,23 @@ afterEach(() => {
     }
 });
 
-function createEditor(enableTabExitOnEscape = true) {
+function createEditor(
+    enableTabExitOnEscape = true,
+    options: {initialContent?: string; mobile?: boolean; searchPanel?: boolean} = {},
+) {
     const host = document.createElement('div');
     document.body.append(host);
     const onCancel = vi.fn(() => true);
     const editor = new WysiwygEditor({
         domElem: host,
-        initialContent: '```\ntext\n```',
+        initialContent: options.initialContent ?? '```\ntext\n```',
         extensions: (builder) =>
             builder.use(BundlePreset, {
                 preset: 'commonmark',
                 reactRenderer: new ReactRenderStorage(),
                 directiveSyntax: new DirectiveSyntaxContext(undefined),
-                searchPanel: false,
-                mobile: true,
+                searchPanel: options.searchPanel ?? false,
+                mobile: options.mobile ?? true,
                 enableTabExitOnEscape,
                 onCancel,
             }),
@@ -77,6 +84,73 @@ describe('EditorModeKeymap in BundlePreset', () => {
 
         expect(pressKey(view, 'Tab').defaultPrevented).toBe(true);
         expect(view.state.doc.textContent).toBe('\ttext');
+    });
+
+    it('should restore code indentation after a paste without a preceding keydown', () => {
+        const {view, onCancel} = createEditor();
+        const clipboardData = new DataTransferMock();
+        clipboardData.setData('text/plain', 'pasted');
+        const paste = new Event('paste', {bubbles: true, cancelable: true});
+        Object.defineProperty(paste, 'clipboardData', {value: clipboardData});
+
+        pressKey(view, 'Escape');
+        expect(onCancel).toHaveBeenCalledOnce();
+        view.dom.dispatchEvent(paste);
+
+        expect(paste.defaultPrevented).toBe(true);
+        expect(view.state.doc.textContent).toBe('pastedtext');
+        expect(view.hasFocus()).toBe(true);
+        expect(pressKey(view, 'Tab').defaultPrevented).toBe(true);
+        expect(view.state.doc.textContent).toBe('pasted\ttext');
+    });
+
+    it('should close search before allowing Tab exit on a subsequent Escape', () => {
+        const {view, onCancel} = createEditor(true, {mobile: false, searchPanel: true});
+        openSearch(view.state, view.dispatch);
+        expect(searchPluginKey.getState(view.state)?.open).toBe(true);
+
+        pressKey(view, 'Escape');
+
+        expect(searchPluginKey.getState(view.state)?.open).toBe(false);
+        expect(onCancel).not.toHaveBeenCalled();
+        expect(pressKey(view, 'Tab').defaultPrevented).toBe(true);
+
+        pressKey(view, 'Escape');
+
+        expect(onCancel).toHaveBeenCalledOnce();
+        expect(pressKey(view, 'Tab').defaultPrevented).toBe(false);
+    });
+
+    it('should close the selection toolbar before allowing Tab exit on a subsequent Escape', () => {
+        const {view, onCancel} = createEditor(true, {initialContent: 'text', mobile: false});
+        view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, 1, 5)));
+
+        pressKey(view, 'Escape');
+
+        expect(onCancel).not.toHaveBeenCalled();
+        expect(pressKey(view, 'Tab').defaultPrevented).toBe(true);
+
+        pressKey(view, 'Escape');
+
+        expect(onCancel).toHaveBeenCalledOnce();
+        expect(pressKey(view, 'Tab').defaultPrevented).toBe(false);
+    });
+
+    it('should close the command menu before allowing Tab exit on a subsequent Escape', () => {
+        const {view, onCancel} = createEditor(true, {initialContent: 'text', mobile: false});
+        openAutocomplete(view, '/');
+        expect(getAutocompleteState(view.state)?.active).toBe(true);
+
+        pressKey(view, 'Escape');
+
+        expect(getAutocompleteState(view.state)?.active).toBe(false);
+        expect(onCancel).not.toHaveBeenCalled();
+        expect(pressKey(view, 'Tab').defaultPrevented).toBe(true);
+
+        pressKey(view, 'Escape');
+
+        expect(onCancel).toHaveBeenCalledOnce();
+        expect(pressKey(view, 'Tab').defaultPrevented).toBe(false);
     });
 
     it.each(['Shift', 'Control', 'Alt', 'Meta'])(
