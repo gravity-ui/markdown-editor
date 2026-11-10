@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-editor",
-  "version": "15.49.0",
+  "version": "15.50.0",
   "description": "Markdown wysiwyg and markup editor",
   "license": "MIT",
   "repository": {
@@ -196,7 +196,7 @@
     "@types/markdown-it": "catalog:",
     "base64-arraybuffer": "1.0.2",
     "is-number": "^7.0.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.18.1",
     "markdown-it-attrs": "^4.2.0",
     "markdown-it-emoji": "2.0.2",
     "markdown-it-ins": "^4.0.0",
@@ -226,7 +226,7 @@
     "ts-dedent": "2.3.0",
     "tslib": "catalog:ts",
     "uc.micro": "1.0.6",
-    "uuid": "14.0.2"
+    "uuid": "14.0.3"
   },
   "devDependencies": {
     "@diplodoc/cut-extension": "catalog:peer-diplodoc",
