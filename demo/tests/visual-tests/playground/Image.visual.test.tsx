@@ -23,9 +23,10 @@ test.describe('Images', () => {
             wait,
         }) => {
             await editor.assertAdditionalToolbarButtonEnabled('Image');
+            // Key presses made while the menu is open do not always reach the editor
+            await editor.hideToolbarMoreMenu();
 
-            await editor.focus();
-            await editor.press('ArrowDown', 2);
+            await editor.clickLastBlockAndPressEnd();
             await editor.press('Enter');
 
             await editor.clickAdditionalToolbarButton('Image');
@@ -57,8 +58,7 @@ test.describe('Images', () => {
         });
 
         test('should insert via command menu @wysiwyg', async ({page, editor, actions, wait}) => {
-            await editor.focus();
-            await editor.press('ArrowDown', 2);
+            await editor.clickLastBlockAndPressEnd();
             await editor.press('Enter');
 
             await editor.openCommandMenuToolbar('im');
@@ -95,8 +95,7 @@ test.describe('Images', () => {
             expectScreenshot,
         }) => {
             await editor.switchMode('markup');
-            await editor.focus();
-            await editor.press('ArrowDown', 2);
+            await editor.clickLastBlockAndPressEnd();
             await editor.press('Enter');
 
             await editor.clickAdditionalToolbarButton('Image');
