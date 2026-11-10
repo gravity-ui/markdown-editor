@@ -98,6 +98,7 @@ const SplitModeView = forwardRef<HTMLDivElement, SplitModeProps>(({editor}, ref)
 
     return (
         <div
+            data-editor-preview=""
             className={b('outer', {
                 vertical: editor.splitMode === 'vertical',
             })}
