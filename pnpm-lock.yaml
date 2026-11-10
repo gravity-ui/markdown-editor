@@ -98,6 +98,19 @@ catalogs:
     react-dom:
       specifier: 18.2.0
       version: 18.2.0
+  react19:
+    '@types/react':
+      specifier: ^19.0.0
+      version: 19.3.0
+    '@types/react-dom':
+      specifier: ^19.0.0
+      version: 19.3.0
+    react:
+      specifier: ^19.0.0
+      version: 19.3.1
+    react-dom:
+      specifier: ^19.0.0
+      version: 19.3.1
   testing:
     '@vitest/coverage-v8':
       specifier: 5.0.1
@@ -192,6 +205,9 @@ importers:
       '@gravity-ui/markdown-editor-page-constructor-extension':
         specifier: workspace:*
         version: link:../packages/page-constructor-extension
+      '@gravity-ui/markdown-viewer':
+        specifier: workspace:*
+        version: link:../packages/viewer
       '@gravity-ui/page-constructor':
         specifier: catalog:peer-gravity
         version: 7.25.0(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
@@ -573,8 +589,8 @@ importers:
         specifier: 1.0.6
         version: 1.0.6
       uuid:
-        specifier: 14.0.2
-        version: 14.0.2
+        specifier: 14.0.3
+        version: 14.0.3
     devDependencies:
       '@diplodoc/cut-extension':
         specifier: catalog:peer-diplodoc
@@ -870,6 +886,73 @@ importers:
       typescript:
         specifier: catalog:ts
         version: 5.9.3
+
+  packages/viewer:
+    dependencies:
+      '@bem-react/classname':
+        specifier: ^1.6.0
+        version: 1.6.0
+      tslib:
+        specifier: catalog:ts
+        version: 2.8.1
+    devDependencies:
+      '@gravity-ui/uikit':
+        specifier: catalog:peer-gravity
+        version: 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@markdown-editor/gulp-tasks':
+        specifier: workspace:*
+        version: link:../../infra/gulp-tasks
+      '@markdown-editor/linters':
+        specifier: workspace:*
+        version: link:../../infra/linters
+      '@markdown-editor/tsconfig':
+        specifier: workspace:*
+        version: link:../../infra/tsconfig
+      '@markdown-editor/vitest-config':
+        specifier: workspace:*
+        version: link:../../infra/vitest-config
+      '@markdown-viewer-tests/react19':
+        specifier: workspace:*
+        version: link:tests/react19
+      '@types/react':
+        specifier: catalog:react
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: catalog:react
+        version: 18.2.25
+      gulp-cli:
+        specifier: 'catalog:'
+        version: 3.1.0
+      jsdom:
+        specifier: 25.0.1
+        version: 25.0.1
+      react:
+        specifier: catalog:react
+        version: 18.2.0
+      react-dom:
+        specifier: catalog:react
+        version: 18.2.0(react@18.2.0)
+      typescript:
+        specifier: catalog:ts
+        version: 5.9.3
+      vitest:
+        specifier: catalog:testing
+        version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.106.1)(terser@5.51.2)(yaml@2.9.1))
+
+  packages/viewer/tests/react19:
+    dependencies:
+      '@types/react':
+        specifier: catalog:react19
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: catalog:react19
+        version: 19.3.0(@types/react@19.3.0)
+      react:
+        specifier: catalog:react19
+        version: 19.3.1
+      react-dom:
+        specifier: catalog:react19
+        version: 19.3.1(react@19.3.1)
 
 packages:
 
@@ -3455,8 +3538,16 @@ packages:
   '@types/react-dom@18.2.25':
     resolution: {integrity: sha512-o/V48vf4MQh7juIKZU2QGDfli6p1+OOi5oXx36Hffpc9adsHeXjVp8rHuPkjd8VT8sOJ2Zp05HR7CdpGTIUFUA==}
 
+  '@types/react-dom@19.3.0':
+    resolution: {integrity: sha512-ZI7bU42mZXXKHn/qNLEw2IrbiINU7X5+vfgdixBHkCNpYWXjKgfQ/P+uyGb5CjOLB9UcnTeg3rylQtV2hym44Q==}
+    peerDependencies:
+      '@types/react': ^19.3.0
+
   '@types/react@18.2.79':
     resolution: {integrity: sha512-RwGAGXPl9kSXwdNTafkOEuFrTBD5SA2B3iEB96xi8+xu5ddUa/cpvyVCSNn+asgLCTHkb5ZxN8gbuibYJi4s1w==}
+
+  '@types/react@19.3.0':
+    resolution: {integrity: sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==}
 
   '@types/resolve@1.20.6':
     resolution: {integrity: sha512-A4STmOXPhMUtHH+S6ymgE2GiBSMqf4oTvcQZMcHzokuTLVYzXTB8ttjcgxOVaAp2lGwEdzZ0J+cRbbeevQj1UQ==}
@@ -4717,6 +4808,9 @@ packages:
 
   csstype@3.1.1:
     resolution: {integrity: sha512-DJR/VvkAvSZW9bTouZue2sSxDwdTN92uHjqeKVm+0dAqdfNykRzQ95tay8aXMBAAPpUiq4Qcug2L7neoRh2Egw==}
+
+  csstype@3.2.3:
+    resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
   cytoscape-cose-bilkent@4.1.0:
     resolution: {integrity: sha512-wgQlVIUJF13Quxiv5e1gstZ08rnZj2XaLHGoFMYXz7SkNfCDOOteKBE6SYRfA9WxxI/iBc3ajfDoc6hb/MRAHQ==}
@@ -7717,6 +7811,11 @@ packages:
     peerDependencies:
       react: ^18.2.0
 
+  react-dom@19.3.1:
+    resolution: {integrity: sha512-Y0bARz53lhEC1NMCASs0/j+faB/zqt3R8hpvg1e8+61ZVJ4UL0UdC4cBbXfZMcIuhrfgeILTLe+ZeBCavQPtKQ==}
+    peerDependencies:
+      react: ^19.3.1
+
   react-error-boundary@3.1.4:
     resolution: {integrity: sha512-uM9uPzZJTF6wRQORmSrvOIgt4lJ9MC1sNgEOj2XGsDTRE4kmpWxg7ENK9EWNKJRMAOY9z0MuF4yIfl6gp4sotA==}
     engines: {node: '>=10', npm: '>=6'}
@@ -7815,6 +7914,10 @@ packages:
 
   react@18.2.0:
     resolution: {integrity: sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==}
+    engines: {node: '>=0.10.0'}
+
+  react@19.3.1:
+    resolution: {integrity: sha512-QNhWdt7nrgVWWQG58QuGsAR3jv3Hbe4mb4vz7w2csnHavciZJgda1CPNaldF6eVxv90ud3jUXpKlHL69gO38yw==}
     engines: {node: '>=0.10.0'}
 
   read-pkg@3.0.0:
@@ -8080,6 +8183,9 @@ packages:
 
   scheduler@0.23.0:
     resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
+
+  scheduler@0.28.0:
+    resolution: {integrity: sha512-juorfCmIkIw8tT+p5BXSm6PJjQF/ycEYmKyzURCIt/RaZIhL+PulbQ9Yu2z1HdOJDdqDTlxA1+xKBmHXJsczAw==}
 
   schema-utils@3.3.0:
     resolution: {integrity: sha512-pN/yOAvcC+5rQ5nERGuwrjLlYvLTbCibnZ1I7B1LaiAz9BRBlE9GMgE/eqV30P7aJQUf7Ddimy/RsbYO/GrVGg==}
@@ -8814,8 +8920,8 @@ packages:
     resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
     hasBin: true
 
-  uuid@14.0.2:
-    resolution: {integrity: sha512-xZe/16rV4aa+HGSOCiY2YeLT1OybRLrrkL/Rqaq7p7GMVXjFh+6wN4oMYgjFmnSnhY8t6Xpdl2l9qmnHYuMHwQ==}
+  uuid@14.0.3:
+    resolution: {integrity: sha512-Sc5u1VVln93y1Xnz4R+CunOZc7R9LUcTmhj7Rc7Eg3HVcf7rVn2FOoa812fe0W8p3jD7xeoGSYbfqCGGH2B6xw==}
     hasBin: true
 
   uuid@9.0.1:
@@ -10376,6 +10482,15 @@ snapshots:
       - markdown-it
       - react
 
+  '@diplodoc/cut-extension@1.1.7(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@19.3.1)':
+    dependencies:
+      '@diplodoc/directive': 0.3.6(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+      '@diplodoc/utils': 2.3.6(react@19.3.1)
+    transitivePeerDependencies:
+      - '@types/markdown-it'
+      - markdown-it
+      - react
+
   '@diplodoc/directive@0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)':
     dependencies:
       markdown-it-directive: 2.0.6(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
@@ -10513,6 +10628,10 @@ snapshots:
     optionalDependencies:
       react: 18.2.0
 
+  '@diplodoc/tabs-extension@3.10.7(react@19.3.1)':
+    optionalDependencies:
+      react: 19.3.1
+
   '@diplodoc/themes@1.2.0': {}
 
   '@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)':
@@ -10647,6 +10766,10 @@ snapshots:
   '@diplodoc/utils@2.3.6(react@18.2.0)':
     optionalDependencies:
       react: 18.2.0
+
+  '@diplodoc/utils@2.3.6(react@19.3.1)':
+    optionalDependencies:
+      react: 19.3.1
 
   '@dual-bundle/import-meta-resolve@4.2.1': {}
 
@@ -12371,10 +12494,18 @@ snapshots:
     dependencies:
       '@types/react': 18.2.79
 
+  '@types/react-dom@19.3.0(@types/react@19.3.0)':
+    dependencies:
+      '@types/react': 19.3.0
+
   '@types/react@18.2.79':
     dependencies:
       '@types/prop-types': 15.7.5
       csstype: 3.1.1
+
+  '@types/react@19.3.0':
+    dependencies:
+      csstype: 3.2.3
 
   '@types/resolve@1.20.6': {}
 
@@ -13756,6 +13887,8 @@ snapshots:
       rrweb-cssom: 0.7.1
 
   csstype@3.1.1: {}
+
+  csstype@3.2.3: {}
 
   cytoscape-cose-bilkent@4.1.0(cytoscape@3.33.1):
     dependencies:
@@ -16232,7 +16365,7 @@ snapshots:
       roughjs: 4.6.6
       stylis: 4.3.6
       ts-dedent: 2.3.0
-      uuid: 14.0.2
+      uuid: 14.0.3
 
   micromark-core-commonmark@1.1.0:
     dependencies:
@@ -17338,6 +17471,11 @@ snapshots:
       react: 18.2.0
       scheduler: 0.23.0
 
+  react-dom@19.3.1(react@19.3.1):
+    dependencies:
+      react: 19.3.1
+      scheduler: 0.28.0
+
   react-error-boundary@3.1.4(react@18.2.0):
     dependencies:
       '@babel/runtime': 7.29.2
@@ -17453,6 +17591,8 @@ snapshots:
   react@18.2.0:
     dependencies:
       loose-envify: 1.4.0
+
+  react@19.3.1: {}
 
   read-pkg@3.0.0:
     dependencies:
@@ -17770,6 +17910,8 @@ snapshots:
   scheduler@0.23.0:
     dependencies:
       loose-envify: 1.4.0
+
+  scheduler@0.28.0: {}
 
   schema-utils@3.3.0:
     dependencies:
@@ -18621,7 +18763,7 @@ snapshots:
 
   uuid@11.1.0: {}
 
-  uuid@14.0.2: {}
+  uuid@14.0.3: {}
 
   uuid@9.0.1: {}
 
