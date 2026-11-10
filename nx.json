@@ -2,7 +2,7 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "targetDefaults": {
     "build": {
-      "dependsOn": ["^build", "clean"]
+      "dependsOn": ["^build"]
     },
     "test": {
       "dependsOn": ["^build"]

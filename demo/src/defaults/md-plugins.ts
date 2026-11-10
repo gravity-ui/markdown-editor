@@ -29,8 +29,6 @@ import sub from '@gravity-ui/markdown-editor/markdown-it/sub';
 import {headerPlugin} from '@gravity-ui/markdown-plugin-header';
 import type {PluginWithParams} from 'markdown-it/lib';
 
-import '@gravity-ui/markdown-plugin-header/styles.css';
-
 export const LATEX_RUNTIME = 'extension:latex';
 export const MERMAID_RUNTIME = 'extension:mermaid';
 export const YFM_HTML_BLOCK_RUNTIME = 'extension:yfm-html-block';

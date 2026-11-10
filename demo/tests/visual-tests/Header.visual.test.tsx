@@ -64,7 +64,7 @@ test.describe('Header', () => {
             .toMatch(/:::header\{height="\w+" width="\w+"\}\n\n:::/);
     });
 
-    test('should render dimensions @wysiwyg', async ({mount, page, header, expectScreenshot}) => {
+    test('should render dimensions @wysiwyg', async ({mount, editor, header, expectScreenshot}) => {
         await mount(
             <div style={smallSizes}>
                 <HeaderStories.Header
@@ -77,12 +77,12 @@ test.describe('Header', () => {
         );
         await expect(header.blocks).toHaveCount(4);
         await header.hideToolbar();
-        await expectScreenshot({component: page.locator('.g-md-editor-component')});
+        await expectScreenshot({component: editor.locators.component});
     });
 
     test('should constrain each width to a narrow column @wysiwyg', async ({
         mount,
-        page,
+        editor,
         header,
         expectScreenshot,
     }) => {
@@ -105,7 +105,7 @@ test.describe('Header', () => {
         expect([medium, large]).toEqual([full, full]);
         expect(full).toBeLessThan(180);
         await header.hideToolbar();
-        await expectScreenshot({component: page.locator('.g-md-editor-component')});
+        await expectScreenshot({component: editor.locators.component});
     });
 
     test('should show the toolbar when the cursor is in the block @wysiwyg', async ({
@@ -120,7 +120,7 @@ test.describe('Header', () => {
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await expect(header.toolbar).toBeVisible();
-        await expectScreenshot({fullPage: true});
+        await expectScreenshot({component: editor.locators.component});
     });
 
     test('should change dimensions in the settings panel @wysiwyg', async ({
@@ -153,11 +153,11 @@ test.describe('Header', () => {
                 );
             })
             .toEqual([16, 16]);
-        await expectScreenshot({fullPage: true});
+        await expectScreenshot({component: editor.locators.component});
 
         await header.height.click();
         await expect(header.options).toHaveText(['S', 'M', 'L']);
-        await expectScreenshot({fullPage: true, nameSuffix: 'height list'});
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'height list'});
         await page.keyboard.press('Escape');
         await expect(header.options).toHaveCount(0);
         await expect(header.settings).toBeVisible();
@@ -166,7 +166,7 @@ test.describe('Header', () => {
 
         await header.width.click();
         await expect(header.options).toHaveText(['S', 'M', 'L', 'Full width']);
-        await expectScreenshot({fullPage: true, nameSuffix: 'width list'});
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'width list'});
         await header.option('M').click();
         await expect(header.blocks).toHaveClass(/g-md-header-plugin_width_m/);
 
@@ -289,14 +289,14 @@ test.describe('Header on mobile', () => {
 
     test('should fit a mobile viewport @wysiwyg', async ({
         mount,
-        page,
+        editor,
         header,
         expectScreenshot,
     }) => {
         await mount(<HeaderStories.Header width={335} />);
         await expect(header.blocks).toBeVisible();
         await header.hideToolbar();
-        await expectScreenshot({component: page.locator('.g-md-editor-component')});
+        await expectScreenshot({component: editor.locators.component});
     });
 
     test('should keep the settings inside a mobile viewport @wysiwyg', async ({
@@ -306,7 +306,7 @@ test.describe('Header on mobile', () => {
         header,
         expectScreenshot,
     }) => {
-        await mount(<HeaderStories.Header width={335} />);
+        await mount(<HeaderStories.Header width={375} />, {rootStyle: {padding: 0}});
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await header.openSettings();
@@ -319,6 +319,6 @@ test.describe('Header on mobile', () => {
         ).toBe(true);
         await header.select(header.width, 'Full width');
         await expect(header.blocks).toHaveClass(/g-md-header-plugin_width_full/);
-        await expectScreenshot({fullPage: true});
+        await expectScreenshot({component: editor.locators.component});
     });
 });

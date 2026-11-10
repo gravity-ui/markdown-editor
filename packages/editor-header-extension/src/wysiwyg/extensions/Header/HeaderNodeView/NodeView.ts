@@ -5,7 +5,7 @@ import {headerClassNames} from '@gravity-ui/markdown-plugin-header';
 
 import './NodeView.scss';
 
-const b = cn('header-view');
+const b = cn('header-nodeview');
 
 export class WHeaderNodeView implements NodeView {
     readonly dom: HTMLElement;

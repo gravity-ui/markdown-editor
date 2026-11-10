@@ -25,6 +25,8 @@ import {
 } from '../defaults/md-plugins';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 
+import '@gravity-ui/markdown-plugin-header/styles.css';
+
 const ML_ATTR = 'data-ml';
 const mermaidConfig: MermaidConfig = {theme: 'forest'};
 
