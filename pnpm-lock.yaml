@@ -505,8 +505,8 @@ importers:
         specifier: ^7.0.0
         version: 7.0.0
       lodash:
-        specifier: ^4.17.21
-        version: 4.17.23
+        specifier: ^4.18.1
+        version: 4.18.1
       markdown-it-attrs:
         specifier: ^4.2.0
         version: 4.2.0(markdown-it@13.0.2)
@@ -11013,7 +11013,7 @@ snapshots:
   '@gravity-ui/date-utils@2.5.6':
     dependencies:
       dayjs: 1.11.10
-      lodash: 4.17.23
+      lodash: 4.18.1
 
   '@gravity-ui/dynamic-forms@5.13.2(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(final-form@4.20.10)(react-dom@18.2.0(react@18.2.0))(react-final-form@6.5.9(final-form@4.20.10)(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
@@ -11024,7 +11024,7 @@ snapshots:
       '@gravity-ui/icons': 2.13.0(react@18.2.0)
       '@gravity-ui/uikit': 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       final-form: 4.20.10
-      lodash: 4.17.23
+      lodash: 4.18.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       react-final-form: 6.5.9(final-form@4.20.10)(react@18.2.0)
