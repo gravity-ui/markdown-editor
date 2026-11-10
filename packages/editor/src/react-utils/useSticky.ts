@@ -4,17 +4,38 @@ import {useEffectOnce, useLatest} from 'react-use';
 
 import {REFLOW_EVENTS} from 'src/utils/dom';
 
-export function useSticky<T extends HTMLElement>(elemRef: React.RefObject<T>) {
+const CONTAINER_EVENTS = new Set<keyof WindowEventMap>([
+    'scroll',
+    'touchstart',
+    'touchmove',
+    'touchend',
+]);
+
+export function useSticky<T extends HTMLElement>(
+    elemRef: React.RefObject<T>,
+    scrollContainerRef?: React.RefObject<HTMLElement>,
+) {
     const [sticky, setSticky] = useState(false);
     const stickyRef = useLatest(sticky);
 
     useEffectOnce(() => {
         let rafId: number | null = null;
+        const scrollContainer = scrollContainerRef?.current ?? null;
+
+        const naturalTopFromContainer =
+            scrollContainer && elemRef.current
+                ? elemRef.current.getBoundingClientRect().top -
+                  scrollContainer.getBoundingClientRect().top -
+                  scrollContainer.clientTop
+                : null;
+
+        const getTarget = (eventName: keyof WindowEventMap): EventTarget =>
+            CONTAINER_EVENTS.has(eventName) && scrollContainer ? scrollContainer : window;
 
         observe();
 
         for (const eventName of REFLOW_EVENTS) {
-            window.addEventListener(eventName, scheduleObserve, true);
+            getTarget(eventName).addEventListener(eventName, scheduleObserve, true);
         }
 
         return () => {
@@ -22,7 +43,7 @@ export function useSticky<T extends HTMLElement>(elemRef: React.RefObject<T>) {
                 cancelAnimationFrame(rafId);
             }
             for (const eventName of REFLOW_EVENTS) {
-                window.removeEventListener(eventName, scheduleObserve, true);
+                getTarget(eventName).removeEventListener(eventName, scheduleObserve, true);
             }
         };
 
@@ -36,9 +57,15 @@ export function useSticky<T extends HTMLElement>(elemRef: React.RefObject<T>) {
         function observe() {
             rafId = null;
             if (!elemRef.current) return;
-            const refPageOffset = elemRef.current.getBoundingClientRect().top;
             const stickyOffset = parseInt(getComputedStyle(elemRef.current).top, 10);
-            const stickyActive = refPageOffset <= stickyOffset;
+
+            let stickyActive: boolean;
+            if (scrollContainer !== null && naturalTopFromContainer !== null) {
+                stickyActive = scrollContainer.scrollTop >= naturalTopFromContainer - stickyOffset;
+            } else {
+                const refPageOffset = elemRef.current.getBoundingClientRect().top;
+                stickyActive = refPageOffset <= stickyOffset;
+            }
 
             if (stickyActive && !stickyRef.current) setSticky(true);
             else if (!stickyActive && stickyRef.current) setSticky(false);
