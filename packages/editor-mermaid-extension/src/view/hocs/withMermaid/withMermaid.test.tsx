@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import {forwardRef} from 'react';
 
 import {createRoot} from 'react-dom/client';

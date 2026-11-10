@@ -41,6 +41,16 @@ it('should regenerate temporary pages for every discovered extension', () => {
         );
         addSource(
             root,
+            'packages/editor-mermaid-extension/src/wysiwyg/extensions/Mermaid/Mermaid.ts',
+            'export const Mermaid: ExtensionAuto<MermaidOptions> = () => {};',
+        );
+        addSource(
+            root,
+            'packages/editor-mermaid-extension/src/wysiwyg/extensions/Mermaid/index.ts',
+            "export {Mermaid} from './Mermaid';",
+        );
+        addSource(
+            root,
             'packages/page-constructor-extension/src/extension/index.ts',
             'export const YfmPageConstructorExtension: ExtensionAuto = () => {};',
         );
@@ -54,6 +64,7 @@ it('should regenerate temporary pages for every discovered extension', () => {
         expect(names).toEqual([
             'Bold',
             'Italic',
+            'Mermaid',
             'YfmPageConstructorExtension',
             'YfmPageConstructorSpecsExtension',
         ]);

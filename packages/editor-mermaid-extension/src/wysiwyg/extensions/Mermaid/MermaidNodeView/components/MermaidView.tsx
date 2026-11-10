@@ -1,24 +1,27 @@
 import {useEffect, useMemo, useState} from 'react';
 
 import {Ellipsis as DotsIcon} from '@gravity-ui/icons';
+import {
+    SharedStateKey,
+    cn,
+    removeNode,
+    useAutoSave,
+    useBooleanState,
+    useElementState,
+    useSharedEditingState,
+} from '@gravity-ui/markdown-editor';
+import {DelayedTextArea} from '@gravity-ui/markdown-editor/_/react-utils/components/DelayedTextArea.js';
+import type {Node} from '@gravity-ui/markdown-editor/pm/model';
+import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {Button, Icon, Loader, Menu, Overlay, Popup, useThemeType} from '@gravity-ui/uikit';
 import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
-import type {Node} from 'prosemirror-model';
-import type {EditorView} from 'prosemirror-view';
 
-import {SharedStateKey} from 'src/extensions/behavior/SharedState';
-import {DelayedTextArea} from 'src/react-utils/components/DelayedTextArea';
-import {useSharedEditingState} from 'src/react-utils/useSharedEditingState';
+import {i18n} from '../../../../../i18n';
+import type {MermaidOptions} from '../../Mermaid';
+import {MermaidConsts} from '../../MermaidSpecs';
+import type {MermaidEntitySharedState} from '../../types';
 
-import {cn} from '../../../../classname';
-import {i18n} from '../../../../i18n/common';
-import {useAutoSave, useBooleanState, useElementState} from '../../../../react-utils';
-import {removeNode} from '../../../../utils';
-import {MermaidConsts} from '../MermaidSpecs/const';
-import type {MermaidOptions} from '../index';
-import type {MermaidEntitySharedState} from '../types';
-
-export const cnMermaid = cn('Mermaid');
+export const cnMermaid = cn('mermaid-nodeview');
 
 export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
 
@@ -80,13 +83,13 @@ const MermaidPreview: React.FC<{
     }, [mermaidInstance, text, theme, options.theme]);
 
     if (error) {
-        return <div className={b('Error')}>{error && <div>{error}</div>}</div>;
+        return <div className={b('error')}>{error && <div>{error}</div>}</div>;
     }
 
     const loading = !svg || updating;
 
     return (
-        <div className={b('Preview', {loading})}>
+        <div className={b('preview', {loading})}>
             {svg && <div className="mermaid" dangerouslySetInnerHTML={{__html: svg}} />}
             <Overlay visible={loading}>
                 <Loader />
@@ -112,7 +115,7 @@ const DiagramEditMode: React.FC<{
     return (
         <div className={b()}>
             <MermaidPreview mermaidInstance={mermaidInstance} text={value} options={options} />
-            <div className={b('Editor')}>
+            <div className={b('editor')}>
                 <div>
                     <DelayedTextArea
                         controlProps={{
@@ -124,7 +127,7 @@ const DiagramEditMode: React.FC<{
                         autoFocus
                     />
                 </div>
-                <div className={b('Controls')}>
+                <div className={b('controls')}>
                     <div>
                         <Button onClick={onCancel} view={'flat'}>
                             <span className={STOP_EVENT_CLASSNAME}>
