@@ -11,6 +11,10 @@ import {CodeTextWrappingToggleButton} from './TextWrappingButton';
 import './YfmCodeBlockActions.scss';
 
 const b = cn('yfm-code-block');
+const blockClass = b();
+const blockInstances = new WeakMap<HTMLElement, SetBlockOwner[]>();
+
+type SetBlockOwner = (ownsBlock: boolean) => void;
 
 export interface YfmCodeBlockActionsProps {
     /** @default true */
@@ -50,17 +54,7 @@ function CodeBlockActions({
 }: {element: HTMLElement} & Required<Omit<YfmCodeBlockActionsProps, 'codeBlockSelector'>>) {
     const [ownsBlock, setOwnsBlock] = useState(false);
 
-    useClientLayoutEffect(() => {
-        const className = b();
-        if (element.classList.contains(className)) {
-            setOwnsBlock(false);
-            return undefined;
-        }
-
-        element.classList.add(className);
-        setOwnsBlock(true);
-        return () => element.classList.remove(className);
-    }, [element]);
+    useClientLayoutEffect(() => registerBlockActions(element, setOwnsBlock), [element]);
 
     if (!ownsBlock) return null;
 
@@ -70,6 +64,34 @@ function CodeBlockActions({
             {copyButton && <ClipboardButton size="m" text={() => getCodeBlockText(element)} />}
         </>
     );
+}
+
+function registerBlockActions(element: HTMLElement, setOwnsBlock: SetBlockOwner) {
+    const queue = blockInstances.get(element) ?? [];
+    const isFirst = queue.length === 0;
+    const canJoin = !isFirst || !element.classList.contains(blockClass);
+    setOwnsBlock(isFirst && canJoin);
+    if (!canJoin) return undefined;
+
+    if (isFirst) {
+        blockInstances.set(element, queue);
+        element.classList.add(blockClass);
+    }
+    queue.push(setOwnsBlock);
+
+    return () => {
+        const index = queue.indexOf(setOwnsBlock);
+        queue.splice(index, 1);
+        if (index !== 0) return;
+
+        const nextOwner = queue[0];
+        if (nextOwner) {
+            nextOwner(true);
+        } else {
+            blockInstances.delete(element);
+            element.classList.remove(blockClass);
+        }
+    };
 }
 
 function getCodeBlockTextDefault(element: HTMLElement) {

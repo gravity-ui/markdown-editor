@@ -1,4 +1,4 @@
-import {type ReactNode, StrictMode} from 'react';
+import {Fragment, type ReactNode, StrictMode} from 'react';
 
 import {ThemeProvider} from '@gravity-ui/uikit';
 import {type Root, createRoot} from 'react-dom/client';
@@ -67,23 +67,42 @@ describe('YfmCodeBlockActions', () => {
         expect(writeText).toHaveBeenCalledWith('echo "$HOME"\n');
     });
 
-    it('should attach actions from only one extension to a code block', () => {
+    it.each([
+        {mode: 'without StrictMode', Wrapper: Fragment},
+        {mode: 'with StrictMode', Wrapper: StrictMode},
+    ])('should keep one action owner and transfer it on removal $mode', ({Wrapper}) => {
         const html = '<div class="yfm-clipboard"><pre><code>Code</code></pre></div>';
-        function update(showSecond: boolean) {
+        const wrapping = <YfmCodeBlockActions key="wrap" copyButton={false} />;
+        const copying = <YfmCodeBlockActions key="copy" lineWrappingButton={false} />;
+        function update(...actions: ReactNode[]) {
             render(
-                <MarkdownViewer html={html}>
-                    <YfmCodeBlockActions />
-                    {showSecond && <YfmCodeBlockActions />}
-                </MarkdownViewer>,
+                <Wrapper>
+                    <MarkdownViewer html={html}>{actions}</MarkdownViewer>
+                </Wrapper>,
             );
         }
-        update(true);
-        expect(container.querySelectorAll('button')).toHaveLength(2);
 
-        update(false);
-        expect(
-            container.querySelector('.yfm-clipboard')?.classList.contains('g-md-yfm-code-block'),
-        ).toBe(true);
+        update(wrapping, copying);
+        const host = container.querySelector('.yfm-clipboard');
+        assert(host);
+        const buttonLabels = () =>
+            Array.from(host.querySelectorAll('button'), (button) =>
+                button.getAttribute('aria-label'),
+            );
+        expect(buttonLabels()).toEqual(['Text wrapping']);
+
+        update(wrapping);
+        expect(buttonLabels()).toEqual(['Text wrapping']);
+        expect(host.classList.contains('g-md-yfm-code-block')).toBe(true);
+
+        update(wrapping, copying);
+        update(copying);
+        expect(buttonLabels()).toEqual(['Copy']);
+        expect(host.classList.contains('g-md-yfm-code-block')).toBe(true);
+
+        update();
+        expect(buttonLabels()).toEqual([]);
+        expect(host.classList.contains('g-md-yfm-code-block')).toBe(false);
     });
 
     it('should keep text wrapping when the button is disabled', () => {
