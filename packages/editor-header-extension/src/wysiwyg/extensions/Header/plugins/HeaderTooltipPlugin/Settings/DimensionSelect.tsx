@@ -1,4 +1,4 @@
-import {useEffect, useRef} from 'react';
+import type {Ref} from 'react';
 
 import {cn} from '@gravity-ui/markdown-editor';
 import {Select, Text, useUniqId} from '@gravity-ui/uikit';
@@ -11,7 +11,7 @@ type DimensionSelectProps<T extends string> = {
     values: readonly T[];
     format: (value: T) => string;
     onUpdate: (value: T) => void;
-    autoFocus?: boolean;
+    controlRef?: Ref<HTMLButtonElement>;
 };
 
 export function DimensionSelect<T extends string>({
@@ -20,13 +20,9 @@ export function DimensionSelect<T extends string>({
     values,
     format,
     onUpdate,
-    autoFocus,
+    controlRef,
 }: DimensionSelectProps<T>) {
     const labelId = useUniqId();
-    const controlRef = useRef<HTMLButtonElement>(null);
-    useEffect(() => {
-        if (autoFocus) controlRef.current?.focus();
-    }, [autoFocus]);
     return (
         <div className={b('row')}>
             <Text variant="body-1" id={labelId}>

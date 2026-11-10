@@ -1,4 +1,4 @@
-import {useMemo} from 'react';
+import {useMemo, useRef} from 'react';
 
 import {Xmark} from '@gravity-ui/icons';
 import {cn} from '@gravity-ui/markdown-editor';
@@ -48,6 +48,7 @@ export function HeaderSettings({
 }: HeaderSettingsProps) {
     const titleId = useUniqId();
     const anchorElement = useMemo(() => block && insideTopEdge(block), [block]);
+    const heightRef = useRef<HTMLButtonElement>(null);
     return (
         <Popup
             open
@@ -56,6 +57,8 @@ export function HeaderSettings({
             // Without fallback placements, the panel stays in the corner.
             placement={['bottom-end']}
             offset={0}
+            // Focus set before the panel is positioned skips `returnFocus`.
+            initialFocus={heightRef}
             returnFocus={{current: button}}
             onOpenChange={(open, event, reason) => {
                 // The settings button toggles the panel on its own click.
@@ -87,7 +90,7 @@ export function HeaderSettings({
                     </Button>
                 </div>
                 <DimensionSelect
-                    autoFocus
+                    controlRef={heightRef}
                     label={i18n('height')}
                     value={dimensions.height}
                     values={headerHeights}
