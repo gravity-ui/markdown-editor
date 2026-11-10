@@ -272,7 +272,7 @@ Several extensions can add separate slots to the same target. Each extension mus
 - Replacing HTML creates new DOM elements, even if their IDs stay the same. To keep state across HTML updates, store it above `ViewerTargets` and use a stable, unique ID for each target.
 - Removing an extension removes its slots and portal content. Other extensions' slots and the original HTML stay in place.
 
-Portal children unmount before React removes their slot. The target may already be detached from the document. Do not rely on an attached target in `useEffect` cleanup or on a fixed cleanup order between extensions.
+When `html` changes, `useViewerEffect` cleanup runs before the viewer replaces the old HTML. Portal children follow React's cleanup timing. Their target may already be detached from the document. If cleanup needs the old HTML in place, use `useViewerEffect` in the extension that renders `ViewerTargets`. Cleanup order between extensions is unspecified.
 
 On the server, the viewer renders the prepared HTML and its regular React children. `ViewerTargets` adds no slots or portal content. It adds them on the client after hydration.
 
@@ -317,7 +317,7 @@ The result inside the host is:
 
 The viewer marks each slot with `data-markdown-viewer-slot`. Import `VIEWER_SLOT_ATTRIBUTE` to use this attribute name. Its value is not part of the API. Do not add the attribute to prepared HTML or change it in an extension.
 
-React owns each slot and its content. Use `inspectViewerNode(root, node)` to check whether a node belongs to the viewer's HTML content. Pass the `root` from `useViewerEffect`. The helper accepts any `Node`, including text nodes. The package also exports the `ViewerNodeInfo` type.
+React owns each slot and its content. Keep the targets that `ViewerTargets` uses inside the viewer. Use `inspectViewerNode(root, node)` to check whether a node belongs to the viewer's HTML content. Pass the `root` from `useViewerEffect`. The helper accepts any `Node`, including text nodes. The package also exports the `ViewerNodeInfo` type.
 
 | Result                               | Meaning                                                       |
 | ------------------------------------ | ------------------------------------------------------------- |

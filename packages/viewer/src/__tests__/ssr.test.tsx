@@ -42,6 +42,6 @@ it('should render prepared hosts without accessing the DOM or rendering portals 
 
 it('should reject ViewerTargets outside MarkdownViewer', () => {
     expect(() => renderToString(<ViewerTargets selector="h2">{() => null}</ViewerTargets>)).toThrow(
-        'inside MarkdownViewer',
+        'ViewerTargets must be used inside MarkdownViewer',
     );
 });

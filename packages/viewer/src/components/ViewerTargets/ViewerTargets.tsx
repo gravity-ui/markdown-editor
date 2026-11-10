@@ -1,9 +1,10 @@
-import {type ReactElement, type ReactNode, useState} from 'react';
+import {type ReactElement, type ReactNode, useContext, useState} from 'react';
 
 import type {DOMProps} from '@gravity-ui/uikit';
 import {createPortal} from 'react-dom';
 
 import {useViewerEffect} from '../../hooks/use-viewer-effect';
+import {ViewerContext} from '../../lifecycle/context';
 import {inspectViewerNode} from '../../utils/inspect-viewer-node';
 
 import {VIEWER_SLOT_ATTRIBUTE} from './constants';
@@ -21,6 +22,9 @@ export function ViewerTargets({
     style,
     children,
 }: ViewerTargetsProps): ReactElement | null {
+    const lifecycle = useContext(ViewerContext);
+    if (!lifecycle) throw new Error('ViewerTargets must be used inside MarkdownViewer');
+
     const [{targets}, setState] = useState(() => ({
         targets: new Map<HTMLElement, number>(),
         nextKey: 0,
@@ -28,10 +32,12 @@ export function ViewerTargets({
 
     useViewerEffect(
         ({root}) => {
+            const HTMLElementConstructor =
+                root.ownerDocument.defaultView?.HTMLElement ?? HTMLElement;
             const hosts: HTMLElement[] = [];
             for (const target of Array.from(root.querySelectorAll(selector))) {
                 if (
-                    target instanceof HTMLElement &&
+                    target instanceof HTMLElementConstructor &&
                     inspectViewerNode(root, target).kind === 'content'
                 ) {
                     hosts.push(target);

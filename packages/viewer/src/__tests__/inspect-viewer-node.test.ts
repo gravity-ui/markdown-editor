@@ -144,24 +144,20 @@ describe('inspectViewerNode', () => {
         expect(inspectViewerNode(root, paragraph)).toEqual({kind: 'content', hasSlots: false});
     });
 
-    it('should inspect slot changes without changing earlier results', () => {
+    it('should report current slot markers and preserve earlier results', () => {
         const root = document.createElement('div');
         const heading = document.createElement('h2');
         const slot = document.createElement('span');
-        root.append(heading);
-        const before = inspectViewerNode(root, heading);
-
         slot.setAttribute(VIEWER_SLOT_ATTRIBUTE, '');
         heading.append(slot);
-        const after = inspectViewerNode(root, heading);
+        root.append(heading);
 
-        expect(before).toEqual({kind: 'content', hasSlots: false});
-        expect(after).toEqual({kind: 'content', hasSlots: true});
+        const before = inspectViewerNode(root, heading);
 
         slot.removeAttribute(VIEWER_SLOT_ATTRIBUTE);
 
         expect(inspectViewerNode(root, heading)).toEqual({kind: 'content', hasSlots: false});
-        expect(after).toEqual({kind: 'content', hasSlots: true});
+        expect(before).toEqual({kind: 'content', hasSlots: true});
     });
 
     it('should inspect the current location after a node moves', () => {

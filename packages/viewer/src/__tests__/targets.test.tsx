@@ -46,6 +46,29 @@ describe('ViewerTargets', () => {
         expect(slot?.querySelector('button')?.textContent).toBe('Copy link');
     });
 
+    it('should render slots when the viewer is mounted in an iframe document', () => {
+        const iframe = document.createElement('iframe');
+        container.append(iframe);
+        const frameDocument = iframe.contentDocument;
+        assert(frameDocument);
+        const frameContainer = frameDocument.body.appendChild(frameDocument.createElement('div'));
+        const frameRoot = createRoot(frameContainer);
+
+        try {
+            act(() =>
+                frameRoot.render(
+                    <MarkdownViewer html="<h2>Title</h2>">
+                        <ViewerTargets selector="h2">{() => <button>Action</button>}</ViewerTargets>
+                    </MarkdownViewer>,
+                ),
+            );
+
+            expect(frameContainer.querySelector('h2 button')?.textContent).toBe('Action');
+        } finally {
+            act(() => frameRoot.unmount());
+        }
+    });
+
     it('should update an inline callback without searching again or resetting portal state', () => {
         const content = createRef<HTMLDivElement>();
         function render(label: string) {
