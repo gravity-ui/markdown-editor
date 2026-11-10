@@ -1,0 +1,24 @@
+.demo-layout {
+    display: flex;
+    gap: 16px;
+
+    margin: 8px 0;
+    padding: 8px;
+
+    border: 1px dashed var(--g-color-line-generic-accent);
+    border-radius: 4px;
+
+    &__cell {
+        flex: 1;
+
+        min-width: 0;
+        padding: 8px;
+
+        border: 1px dashed var(--g-color-line-generic);
+        border-radius: 4px;
+    }
+
+    &__tooltip {
+        padding: 4px 8px;
+    }
+}
