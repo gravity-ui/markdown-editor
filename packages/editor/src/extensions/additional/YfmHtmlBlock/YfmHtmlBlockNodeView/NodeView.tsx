@@ -15,7 +15,7 @@ export class WYfmHtmlBlockNodeView implements NodeView {
     private node: Node;
     private readonly view;
     private readonly getPos;
-    private readonly options: YfmHtmlBlockOptions = {};
+    private readonly options: YfmHtmlBlockOptions;
     private readonly renderItem;
 
     constructor({
@@ -62,7 +62,7 @@ export class WYfmHtmlBlockNodeView implements NodeView {
 
     stopEvent(e: Event) {
         const target = e.target as Element;
-        return target.classList.contains(STOP_EVENT_CLASSNAME);
+        return Boolean(target.closest?.(`.${STOP_EVENT_CLASSNAME}`));
     }
 
     private validateEntityId() {
@@ -84,7 +84,7 @@ export class WYfmHtmlBlockNodeView implements NodeView {
         }
     }
 
-    private onChange(attrs: {[YfmHtmlBlockConsts.NodeAttrs.srcdoc]: string}) {
+    private onChange(attrs: Partial<Node['attrs']>) {
         const pos = this.getPos();
         if (pos === undefined) return;
 
