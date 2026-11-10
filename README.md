@@ -1,8 +1,24 @@
+# Markdown Editor
+
+[![npm package](https://img.shields.io/npm/v/@gravity-ui/markdown-editor?logo=npm)](https://www.npmjs.com/package/@gravity-ui/markdown-editor) [![CI](https://img.shields.io/github/actions/workflow/status/gravity-ui/markdown-editor/ci.yml?branch=main&label=CI)](https://github.com/gravity-ui/markdown-editor/actions/workflows/ci.yml?query=branch:main) [![Release](https://img.shields.io/github/actions/workflow/status/gravity-ui/markdown-editor/release.yml?branch=main&label=Release)](https://github.com/gravity-ui/markdown-editor/actions/workflows/release.yml?query=branch:main) [![storybook](https://img.shields.io/badge/Storybook-deployed-ff4685?logo=storybook)](https://preview.gravity-ui.com/md-editor/) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/gravity-ui/markdown-editor)
+
+WYSIWYG and markup editor for Markdown.
+
+<!--GITHUB_BLOCK-->
+
 ![Markdown Editor](https://github.com/user-attachments/assets/0b4e5f65-54cf-475f-9c68-557a4e9edb46)
 
-# @gravity-ui/markdown-editor &middot; [![npm package](https://img.shields.io/npm/v/@gravity-ui/markdown-editor)](https://www.npmjs.com/package/@gravity-ui/markdown-editor) [![CI](https://img.shields.io/github/actions/workflow/status/gravity-ui/markdown-editor/ci.yml?branch=main&label=CI)](https://github.com/gravity-ui/markdown-editor/actions/workflows/ci.yml?query=branch:main) [![Release](https://img.shields.io/github/actions/workflow/status/gravity-ui/markdown-editor/release.yml?branch=main&label=Release)](https://github.com/gravity-ui/markdown-editor/actions/workflows/release.yml?query=branch:main) [![storybook](https://img.shields.io/badge/Storybook-deployed-ff4685)](https://preview.gravity-ui.com/md-editor/)
+## Resources
 
-## Markdown wysiwyg and markup editor
+### [Website](https://gravity-ui.com/libraries/markdown-editor)
+
+### [Storybook](https://preview.gravity-ui.com/md-editor/)
+
+### [Community](https://t.me/gravity_ui)
+
+<!--/GITHUB_BLOCK-->
+
+## Description
 
 MarkdownEditor is a powerful tool for working with Markdown, which combines WYSIWYG and Markup modes. This means that you can create and edit content in a convenient visual mode, as well as have full control over the markup.
 
