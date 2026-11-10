@@ -1,9 +1,9 @@
 import type {HotkeyProps} from '@gravity-ui/uikit';
 import type {EditorState} from 'prosemirror-state';
 
-import type {ActionStorage} from '../../core';
-import type {CodeEditor} from '../../markup';
-import type {ToolbarBaseProps, ToolbarDataType, ToolbarIconData} from '../../toolbar';
+import type {ActionStorage} from 'src/core';
+import type {CodeEditor} from 'src/markup';
+import type {ToolbarBaseProps, ToolbarDataType, ToolbarIconData} from 'src/toolbar';
 
 // Items
 export type ToolbarItemId = string & {};

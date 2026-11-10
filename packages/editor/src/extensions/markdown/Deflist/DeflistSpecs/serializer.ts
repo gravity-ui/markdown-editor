@@ -8,7 +8,7 @@ const serializerTokens: Record<DeflistNode, SerializerNodeToken> = {
     },
 
     [DeflistNode.Term]: (state, node) => {
-        state.renderInline(node);
+        state.renderInline(node, {textLineBreaks: 'space'});
         state.ensureNewLine();
     },
 
