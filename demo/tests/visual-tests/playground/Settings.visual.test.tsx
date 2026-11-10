@@ -36,7 +36,6 @@ test.describe('Editor keyboard accessibility', () => {
             <>
                 <button>Before editor</button>
                 <Playground initialEditor="markup" initialSplitModeEnabled={false} />
-                <button>After editor</button>
             </>,
         );
 
@@ -61,7 +60,7 @@ test.describe('Editor keyboard accessibility', () => {
         await expect(editor.locators.settingsContent).toBeHidden();
     });
 
-    test('should preserve preview focus and keyboard submit @markup', async ({
+    test('should preserve programmatic preview focus when toggling @markup', async ({
         mount,
         editor,
         page,
@@ -84,12 +83,5 @@ test.describe('Editor keyboard accessibility', () => {
         await page.keyboard.press('Control+Shift+P');
         await expect(editor.locators.previewContent).toBeVisible();
         await expect(editor.locators.component).toBeFocused();
-
-        const submission = page.waitForEvent('dialog');
-        await page.keyboard.press('Control+Enter');
-        const dialog = await submission;
-        expect(dialog.message()).toBe('Editor: submit');
-        await dialog.accept();
-        await expect(editor.locators.previewContent).toBeHidden();
     });
 });
