@@ -27,12 +27,12 @@ export function MarkdownViewerDemo({documents = defaultDocuments}: MarkdownViewe
     );
 
     return (
-        <Flex className={cn(null, sp({p: 6}))} direction="column" gap={3}>
+        <Flex className={cn(null, sp({p: 6}))} direction="column" gap="spacing-3">
             <Flex
                 className={cn('toolbar')}
                 alignItems="center"
                 justifyContent="space-between"
-                gap={4}
+                gap="spacing-4"
             >
                 <Text variant="subheader-2">MarkdownViewer</Text>
                 <SegmentedRadioGroup
@@ -48,7 +48,7 @@ export function MarkdownViewerDemo({documents = defaultDocuments}: MarkdownViewe
             <Flex
                 alignItems="center"
                 justifyContent="space-between"
-                gap={4}
+                gap="spacing-4"
                 className={sp({mt: 1})}
             >
                 <Text as="p" variant="body-2" color="secondary">
