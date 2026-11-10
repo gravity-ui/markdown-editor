@@ -3,6 +3,7 @@ import {defineConfig, globalIgnores} from 'eslint/config';
 
 export default defineConfig(
     globalIgnores([
+        '**/dist',
         '**/build',
         '**/coverage',
         '**/node_modules',
@@ -31,6 +32,13 @@ export default defineConfig(
                     allowDeclarations: true,
                 },
             ],
+        },
+    },
+    {
+        files: ['./packages/viewer/tests/**/*'],
+        settings: {
+            // Keep viewer imports in the same group before and after a build.
+            'import/internal-regex': '^@gravity-ui/markdown-viewer(?:/|$)',
         },
     },
     {

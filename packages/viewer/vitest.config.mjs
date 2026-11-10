@@ -17,6 +17,8 @@ export default mergeConfig(
         define: {__VIEWER_REACT_MAJOR__: JSON.stringify(react19 ? '19' : '18')},
         resolve: {
             alias: {
+                '@gravity-ui/uikit/i18n': requireReact.resolve('@gravity-ui/uikit/i18n'),
+                '@gravity-ui/uikit': requireReact.resolve('@gravity-ui/uikit'),
                 react: dirname(requireReact.resolve('react/package.json')),
                 'react-dom': dirname(requireReact.resolve('react-dom/package.json')),
             },
