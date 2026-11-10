@@ -1,6 +1,7 @@
+import {EditorState} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 import dd from 'ts-dedent';
-import {afterAll, beforeAll, describe, it} from 'vitest';
+import {afterAll, beforeAll, describe, expect, it} from 'vitest';
 
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
@@ -9,6 +10,8 @@ import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {
     BlockquoteSpecs,
+    BoldSpecs,
+    CodeSpecs,
     ImageAttr,
     ImageSpecs,
     ItalicSpecs,
@@ -27,7 +30,9 @@ function buildDeps() {
             builder.context.set('directiveSyntax', directiveContext);
             builder
                 .use(BaseSchemaSpecs, {})
+                .use(BoldSpecs)
                 .use(ItalicSpecs)
+                .use(CodeSpecs)
                 .use(BlockquoteSpecs)
                 .use(YfmCutSpecs, {})
                 .use(ImageSpecs);
@@ -333,6 +338,56 @@ describe('YfmCut extension', () => {
             it('should preserve directive cut syntax', () => {
                 const {serialize} = buildCheckers();
                 serialize(PM_DOC.DirectiveCut, MARKUP.DirectiveSyntax);
+            });
+            describe('single-line serialization', () => {
+                const blocks = [
+                    {name: 'cut title', markup: '{% cut "TITLE" %}\n\nbody\n\n{% endcut %}'},
+                    {name: 'directive cut title', markup: ':::cut [TITLE]\n\nbody\n\n:::'},
+                ];
+                describe.each([
+                    {name: 'LF', entity: '&#10;'},
+                    {name: 'CR', entity: '&#13;'},
+                    {name: 'CRLF', entity: '&#13;&#10;'},
+                ])('single-line serialization with $name', ({entity}) => {
+                    it.each(blocks)('should normalize marked text in a $name', ({markup}) => {
+                        const {markupParser: cutParser, serializer: cutSerializer} = buildDeps();
+                        const input = cutParser.parse(
+                            markup.replace('TITLE', `*&#32;x${entity}y*`),
+                        );
+                        const expected = cutParser.parse(markup.replace('TITLE', ' *x y*'));
+
+                        expect(cutParser.parse(cutSerializer.serialize(input))).toMatchNode(
+                            expected,
+                        );
+                    });
+                });
+
+                describe('single-line serialization with inline code', () => {
+                    it.each(blocks)(
+                        'should keep code and adjacent images in a $name',
+                        ({markup}) => {
+                            const {markupParser: cutParser, serializer: cutSerializer} =
+                                buildDeps();
+                            const expected = cutParser.parse(
+                                markup.replace('TITLE', '**A** *`x y`* ![i](img)'),
+                            );
+                            let textPosition = -1;
+                            expected.descendants((node, pos) => {
+                                if (node.isText && node.text === 'x y') textPosition = pos;
+                            });
+                            expect(textPosition).toBeGreaterThan(-1);
+                            const input = EditorState.create({doc: expected}).tr.insertText(
+                                'x\ny',
+                                textPosition,
+                                textPosition + 3,
+                            ).doc;
+
+                            expect(cutParser.parse(cutSerializer.serialize(input))).toMatchNode(
+                                expected,
+                            );
+                        },
+                    );
+                });
             });
         });
 

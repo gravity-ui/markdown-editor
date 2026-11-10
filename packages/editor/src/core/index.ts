@@ -17,6 +17,7 @@ export type {
 } from './ExtensionBuilder';
 export type {Parser, ParserToken} from './types/parser';
 export type {
+    RenderInlineOptions,
     Serializer,
     SerializerState,
     SerializerNodeToken,
@@ -26,3 +27,11 @@ export type {NodeViewConstructor, MarkViewConstructor} from './types/node-views'
 
 export type {MarkdownParserDynamicModifierConfig} from './markdown/MarkdownParser';
 export type {MarkdownSerializerDynamicModifierConfig} from './markdown/MarkdownSerializerDynamicModifier';
+
+export type {
+    Exporter,
+    ExporterFactory,
+    ExporterFactoryContext,
+    ExporterRegistration,
+    ExporterStorage,
+} from './exporters/types';

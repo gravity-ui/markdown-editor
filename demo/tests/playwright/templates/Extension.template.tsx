@@ -12,7 +12,7 @@ test.describe('%%name%%', () => {
          /* TODO: add initialMarkup */
       `;
 
-        await mount(<Playground initial={initialMarkup} />);
+        await mount(<Playground initial={initialMarkup} syncMarkupToUrl={false} />);
     });
 
     test.describe('insert', () => {

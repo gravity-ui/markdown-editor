@@ -12,6 +12,19 @@ export default mergeConfig(
                 '#cm': fileURLToPath(new URL('./src/cm', import.meta.url)),
                 '#pm': fileURLToPath(new URL('./src/pm', import.meta.url)),
                 src: fileURLToPath(new URL('./src', import.meta.url)),
+                // Use ESM so all plugins share one ProseMirror state module.
+                'prosemirror-autocomplete': fileURLToPath(
+                    new URL(
+                        './node_modules/prosemirror-autocomplete/dist/esm/index.js',
+                        import.meta.url,
+                    ),
+                ),
+                'prosemirror-codemark': fileURLToPath(
+                    new URL(
+                        './node_modules/prosemirror-codemark/dist/esm/index.js',
+                        import.meta.url,
+                    ),
+                ),
             },
         },
         test: {

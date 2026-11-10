@@ -19,7 +19,7 @@
     "test": "vitest run src/*.test.mjs"
   },
   "dependencies": {
-    "@diplodoc/cli": "5.63.0",
+    "@diplodoc/cli": "5.64.1",
     "typescript": "catalog:ts"
   },
   "devDependencies": {

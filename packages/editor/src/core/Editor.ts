@@ -1,4 +1,5 @@
 import type {PresetName} from 'markdown-it';
+import type {Node, Schema} from 'prosemirror-model';
 import {EditorState} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 
@@ -10,6 +11,7 @@ import {WysiwygContentHandler} from './ContentHandler';
 import type {Extension} from './ExtensionBuilder';
 import {ExtensionsManager} from './ExtensionsManager';
 import {SchemaDynamicModifier} from './SchemaDynamicModifier';
+import type {Exporter, ExporterRegistration, ExporterStorage} from './exporters/types';
 import {MarkdownParserDynamicModifier} from './markdown/MarkdownParser';
 import {MarkdownSerializerDynamicModifier} from './markdown/MarkdownSerializer';
 import type {TransformFn} from './markdown/ProseMirrorTransformer';
@@ -35,6 +37,7 @@ export type WysiwygEditorOptions = {
     /** markdown markup */
     initialContent?: string;
     extensions?: Extension;
+    exporters?: readonly ExporterRegistration[];
     /** @default 'default' */
     mdPreset?: PresetName;
     allowHTML?: boolean;
@@ -51,13 +54,22 @@ export type WysiwygEditorOptions = {
     logger?: Logger2.ILogger;
 };
 
-export class WysiwygEditor implements CommonEditor, ActionStorage {
+export class WysiwygEditor implements CommonEditor, ActionStorage, ExporterStorage {
+    #getExporter: ExporterStorage['getExporter'];
     #view: EditorView;
     #serializer: Serializer;
     #parser: Parser;
     #actions: ActionsManager;
     #contentHandler: ContentHandler;
     #escapeConfig?: EscapeConfig;
+
+    get doc(): Node {
+        return this.#view.state.doc;
+    }
+
+    get schema(): Schema {
+        return this.#view.state.schema;
+    }
 
     get dom() {
         return this.#view.dom;
@@ -84,6 +96,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
         domElem,
         initialContent = '',
         extensions = () => {},
+        exporters,
         allowHTML,
         mdPreset,
         linkify,
@@ -117,6 +130,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
             plugins,
             rawActions,
             actions,
+            getExporter,
         } = ExtensionsManager.process(
             extensions,
             {
@@ -125,6 +139,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
                 linkifyTlds,
                 pmTransformers,
                 dynamicModifiers,
+                exporters,
             },
             logger,
         );
@@ -161,6 +176,7 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
                 this.#view,
             ) as WysiwygEditor.Actions,
         );
+        this.#getExporter = getExporter;
         this.#serializer = serializer;
         this.#parser = parser;
         this.#contentHandler = new WysiwygContentHandler(this.#view, parser);
@@ -169,6 +185,10 @@ export class WysiwygEditor implements CommonEditor, ActionStorage {
 
     action<T extends keyof WysiwygEditor.Actions>(actionName: T): WysiwygEditor.Actions[T] {
         return this.#actions.action(actionName);
+    }
+
+    getExporter<E extends Exporter>(name: string): E {
+        return this.#getExporter<E>(name);
     }
 
     focus() {
