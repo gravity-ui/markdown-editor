@@ -205,12 +205,18 @@ importers:
       '@gravity-ui/markdown-editor':
         specifier: workspace:*
         version: link:../packages/editor
+      '@gravity-ui/markdown-editor-header-extension':
+        specifier: workspace:*
+        version: link:../packages/editor-header-extension
       '@gravity-ui/markdown-editor-latex-extension':
         specifier: workspace:*
         version: link:../packages/latex-extension
       '@gravity-ui/markdown-editor-page-constructor-extension':
         specifier: workspace:*
         version: link:../packages/page-constructor-extension
+      '@gravity-ui/markdown-plugin-header':
+        specifier: workspace:*
+        version: link:../packages/plugin-header
       '@gravity-ui/markdown-viewer':
         specifier: workspace:*
         version: link:../packages/viewer
@@ -747,6 +753,16 @@ importers:
         version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.106.1)(terser@5.51.2)(yaml@2.9.1))
 
   packages/editor-header-extension:
+    dependencies:
+      '@gravity-ui/icons':
+        specifier: ^2.12.0
+        version: 2.23.0(react@18.2.0)
+      '@gravity-ui/markdown-plugin-header':
+        specifier: workspace:^*
+        version: link:../plugin-header
+      tslib:
+        specifier: catalog:ts
+        version: 2.8.1
     devDependencies:
       '@gravity-ui/markdown-editor':
         specifier: workspace:*
@@ -760,15 +776,36 @@ importers:
       '@markdown-editor/tsconfig':
         specifier: workspace:*
         version: link:../../infra/tsconfig
+      '@markdown-editor/vitest-config':
+        specifier: workspace:*
+        version: link:../../infra/vitest-config
+      '@types/react':
+        specifier: catalog:react
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: catalog:react
+        version: 18.2.25
       gulp-cli:
         specifier: 'catalog:'
         version: 3.1.0
+      jsdom:
+        specifier: 25.0.1
+        version: 25.0.1
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
+      react:
+        specifier: catalog:react
+        version: 18.2.0
+      react-dom:
+        specifier: catalog:react
+        version: 18.2.0(react@18.2.0)
       typescript:
         specifier: catalog:ts
         version: 5.9.3
+      vitest:
+        specifier: catalog:testing
+        version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.106.1)(terser@5.51.2)(yaml@2.9.1))
 
   packages/latex-extension:
     dependencies:
@@ -879,9 +916,18 @@ importers:
 
   packages/plugin-header:
     dependencies:
+      '@bem-react/classname':
+        specifier: ^1.6.0
+        version: 1.8.0
+      '@diplodoc/directive':
+        specifier: ^0.4.0
+        version: 0.4.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       '@types/markdown-it':
         specifier: 'catalog:'
         version: 13.0.9
+      tslib:
+        specifier: catalog:ts
+        version: 2.8.1
     devDependencies:
       '@markdown-editor/gulp-tasks':
         specifier: workspace:*
@@ -892,6 +938,9 @@ importers:
       '@markdown-editor/tsconfig':
         specifier: workspace:*
         version: link:../../infra/tsconfig
+      '@markdown-editor/vitest-config':
+        specifier: workspace:*
+        version: link:../../infra/vitest-config
       gulp-cli:
         specifier: 'catalog:'
         version: 3.1.0
@@ -904,6 +953,9 @@ importers:
       typescript:
         specifier: catalog:ts
         version: 5.9.3
+      vitest:
+        specifier: catalog:testing
+        version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.106.1)(terser@5.51.2)(yaml@2.9.1))
 
   packages/viewer:
     dependencies:
@@ -1862,6 +1914,8 @@ packages:
 
   '@diplodoc/cut-extension@1.1.1':
     resolution: {integrity: sha512-+D7IPDrLg+ANhVusUA9t7n+sXpGzuoq9Lsr8BzgDBv8KWKD0DLGNfhspHKqi1prVVM8BZadmVR4BLsnTrV3zcA==}
+
+  '@diplodoc/cut-extension@1.1.7': {}
 
   '@diplodoc/cut-extension@1.1.8':
     resolution: {integrity: sha512-4/RfQUpar56o4zU20Xdana1zaIeMOKovQAx/FkBV/QY2FtwgLXKnzP9gF88mMJX0rvWu8rZAOgYgW+17TJ87tA==}
@@ -10468,6 +10522,15 @@ snapshots:
     dependencies:
       '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       '@diplodoc/utils': 2.2.2(react@18.2.0)
+    transitivePeerDependencies:
+      - '@types/markdown-it'
+      - markdown-it
+      - react
+
+  '@diplodoc/cut-extension@1.1.7(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@19.3.1)':
+    dependencies:
+      '@diplodoc/directive': 0.3.6(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+      '@diplodoc/utils': 2.3.6(react@19.3.1)
     transitivePeerDependencies:
       - '@types/markdown-it'
       - markdown-it
