@@ -2,6 +2,7 @@ import {useMemo, useState} from 'react';
 
 import transform from '@diplodoc/transform';
 import {MarkdownViewer, cnYFM} from '@gravity-ui/markdown-viewer';
+import {YfmCodeBlockActions} from '@gravity-ui/markdown-viewer/extensions';
 import {Button, Flex, SegmentedRadioGroup, Text, sp} from '@gravity-ui/uikit';
 
 import {cn} from './cn';
@@ -15,14 +16,18 @@ import '@diplodoc/transform/dist/css/yfm.css';
 
 interface MarkdownViewerDemoProps {
     documents?: readonly {label: string; source: string}[];
+    showFeedbackToggle?: boolean;
 }
 
-export function MarkdownViewerDemo({documents = defaultDocuments}: MarkdownViewerDemoProps) {
+export function MarkdownViewerDemo({
+    documents = defaultDocuments,
+    showFeedbackToggle = true,
+}: MarkdownViewerDemoProps) {
     const [documentIndex, setDocumentIndex] = useState(0);
     const [showFeedback, setShowFeedback] = useState(true);
     const document = documents[documentIndex];
     const result = useMemo(
-        () => transform(document.source, {allowHTML: true}).result,
+        () => transform(document.source, {allowHTML: true, codeLineWrapping: true}).result,
         [document.source],
     );
 
@@ -44,25 +49,14 @@ export function MarkdownViewerDemo({documents = defaultDocuments}: MarkdownViewe
                         content: label,
                     }))}
                 />
-            </Flex>
-            <Flex
-                alignItems="center"
-                justifyContent="space-between"
-                gap={4}
-                className={sp({mt: 1})}
-            >
-                <Text as="p" variant="body-2" color="secondary">
-                    Open sections and heading help marks, then switch versions. Sections keep their
-                    open or closed state even when their title or position changes. Help marks show
-                    heading IDs and preserve opening counts by ID across versions. Hide feedback to
-                    see the fallback text.
-                </Text>
-                <Button
-                    className={cn('feedback-toggle')}
-                    onClick={() => setShowFeedback((value) => !value)}
-                >
-                    {showFeedback ? 'Hide feedback' : 'Show feedback'}
-                </Button>
+                {showFeedbackToggle && (
+                    <Button
+                        className={cn('feedback-toggle')}
+                        onClick={() => setShowFeedback((value) => !value)}
+                    >
+                        {showFeedback ? 'Hide feedback' : 'Show feedback'}
+                    </Button>
+                )}
             </Flex>
             <MarkdownViewer
                 html={result.html}
@@ -76,6 +70,7 @@ export function MarkdownViewerDemo({documents = defaultDocuments}: MarkdownViewe
             >
                 <PreserveCutState />
                 <TargetHelp />
+                <YfmCodeBlockActions />
                 {showFeedback && <Feedback />}
             </MarkdownViewer>
         </Flex>
