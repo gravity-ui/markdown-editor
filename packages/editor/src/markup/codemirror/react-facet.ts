@@ -1,6 +1,6 @@
 import {Facet} from '@codemirror/state';
 
-import type {ReactRenderStorage} from '../../extensions/behavior/ReactRenderer';
+import type {ReactRenderStorage} from 'src/modules/react-renderer';
 
 export const ReactRendererFacet = Facet.define<ReactRenderStorage, ReactRenderStorage>({
     combine: (value) => value[0],
