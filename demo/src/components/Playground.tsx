@@ -29,16 +29,15 @@ import {LatexExtension} from '@gravity-ui/markdown-editor-latex-extension';
 import {YfmPageConstructorExtension} from '@gravity-ui/markdown-editor-page-constructor-extension';
 import {Button, DropdownMenu} from '@gravity-ui/uikit';
 
-import {getPlugins} from '../defaults/md-plugins';
 import {playgroundToolbarsPreset} from '../defaults/toolbars';
 import {useLogs} from '../hooks/useLogs';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 import {randomDelay} from '../utils/delay';
 import {parseInsertedUrlAsImage} from '../utils/imageUrl';
-import {debouncedUpdateLocation as updateLocation} from '../utils/location';
+import {updateLocation} from '../utils/location';
 
 import {PlaygroundLayout, b} from './PlaygroundLayout';
-import {SplitModePreview} from './SplitModePreview';
+import {SplitModePreviewLazy} from './SplitModePreviewLazy';
 
 const fileUploadHandler: FileUploadHandler = async (file) => {
     console.info('[Playground] Uploading file: ' + file.name);
@@ -49,6 +48,7 @@ const fileUploadHandler: FileUploadHandler = async (file) => {
 export type PlaygroundProps = {
     mobile?: boolean;
     initial?: MarkupString;
+    syncMarkupToUrl?: boolean;
     allowHTML?: boolean;
     settingsVisible?: boolean | SettingItems[];
     initialEditor?: MarkdownEditorMode;
@@ -62,6 +62,7 @@ export type PlaygroundProps = {
     splitModeOrientation?: 'horizontal' | 'vertical' | false;
     searchPanel?: boolean;
     stickyToolbar?: boolean;
+    devTools?: boolean;
     initialSplitModeEnabled?: boolean;
     renderPreviewDefined?: boolean;
     height?: CSSProperties['height'];
@@ -94,6 +95,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
     const {
         mobile,
         initial,
+        syncMarkupToUrl = true,
         initialEditor,
         initialSplitModeEnabled,
         settingsVisible,
@@ -107,6 +109,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         splitModeOrientation,
         searchPanel,
         stickyToolbar,
+        devTools,
         renderPreviewDefined,
         height,
         width,
@@ -130,23 +133,25 @@ export const Playground = memo<PlaygroundProps>((props) => {
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
 
     useEffect(() => {
-        updateLocation(mdRaw);
-    }, [mdRaw]);
+        if (!syncMarkupToUrl) return undefined;
+        const timeout = setTimeout(() => updateLocation(mdRaw), 500);
+        return () => clearTimeout(timeout);
+    }, [mdRaw, syncMarkupToUrl]);
 
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md, directiveSyntax}) => (
-            <SplitModePreview
+            <SplitModePreviewLazy
                 getValue={getValue}
                 allowHTML={md.html}
                 linkify={md.linkify}
                 linkifyTlds={md.linkifyTlds}
                 breaks={md.breaks}
                 needToSanitizeHtml={sanitizeHtml}
-                plugins={getPlugins({
+                pluginsOptions={{
                     directiveSyntax,
                     table_ignoreSplittersInBlockMath: true,
                     table_ignoreSplittersInInlineMath: true,
-                })}
+                }}
                 disableMarkdownItAttrs={disableMarkdownItAttrs}
                 htmlRuntimeConfig={{disabledModes: disabledHTMLBlockModes}}
             />
@@ -163,7 +168,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             mobile,
             preset: 'full',
             wysiwygConfig: {
-                placeholderOptions: placeholderOptions,
+                placeholderOptions,
                 disableMarkdownAttrs: disableMarkdownItAttrs,
                 extensions: (builder) => {
                     builder
@@ -354,6 +359,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         <PlaygroundLayout
             style={style}
             editor={mdEditor}
+            devTools={devTools}
             viewHeight={height}
             viewWidth={width}
             view={({className}) => (

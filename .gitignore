@@ -29,7 +29,6 @@ dist/
 coverage/
 storybook-static/
 .eslintcache
-demo/src/docs
 debug-storybook.log
 
 # legacy generated docs

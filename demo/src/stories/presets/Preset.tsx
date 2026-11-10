@@ -16,8 +16,8 @@ import {VERSION} from '@gravity-ui/markdown-editor/_/version.js';
 
 import {WysiwygSelection} from '../../components/PMSelection';
 import {WysiwygDevTools} from '../../components/ProseMirrorDevTools';
-import {SplitModePreview} from '../../components/SplitModePreview';
-import {plugins} from '../../defaults/md-plugins';
+import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
+import {useEditorHandle} from '../../hooks/useEditorHandle';
 import {useLogs} from '../../hooks/useLogs';
 import {block} from '../../utils/cn';
 import {randomDelay} from '../../utils/delay';
@@ -41,6 +41,7 @@ export type PresetDemoProps = {
     linkifyTlds?: string | string[];
     splitModeOrientation?: 'horizontal' | 'vertical' | false;
     stickyToolbar?: boolean;
+    devTools?: boolean;
     height?: React.CSSProperties['height'];
     toolbarsPreset?: ToolbarsPreset;
     wysiwygConfig?: MarkdownEditorWysiwygConfig;
@@ -57,6 +58,7 @@ export const Preset = memo<PresetDemoProps>((props) => {
         linkifyTlds,
         splitModeOrientation,
         stickyToolbar,
+        devTools = true,
         height,
         toolbarsPreset,
         wysiwygConfig,
@@ -67,14 +69,13 @@ export const Preset = memo<PresetDemoProps>((props) => {
 
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md}) => (
-            <SplitModePreview
+            <SplitModePreviewLazy
                 getValue={getValue}
                 allowHTML={md.html}
                 linkify={md.linkify}
                 linkifyTlds={md.linkifyTlds}
                 breaks={md.breaks}
                 needToSanitizeHtml
-                plugins={plugins}
             />
         ),
         [],
@@ -113,6 +114,7 @@ export const Preset = memo<PresetDemoProps>((props) => {
     });
 
     useLogs(mdEditor.logger);
+    useEditorHandle(mdEditor);
 
     useEffect(() => {
         function onChange() {
@@ -149,7 +151,7 @@ export const Preset = memo<PresetDemoProps>((props) => {
                             settingsVisible={settingsVisible}
                             editor={mdEditor}
                         />
-                        <WysiwygDevTools editor={mdEditor} />
+                        {devTools && <WysiwygDevTools editor={mdEditor} />}
                         <WysiwygSelection editor={mdEditor} className={b('pm-selection')} />
                     </div>
                 </StrictMode>

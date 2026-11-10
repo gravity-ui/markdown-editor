@@ -3,8 +3,7 @@ import {
     type ToolbarsPreset,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
-import {ToolbarName as Toolbar} from '@gravity-ui/markdown-editor/_/modules/toolbars/constants.js';
-import {full} from '@gravity-ui/markdown-editor/_/modules/toolbars/presets.js';
+import {ToolbarName as Toolbar, full} from '@gravity-ui/markdown-editor/toolbars';
 
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {useLogs} from '../../hooks/useLogs';

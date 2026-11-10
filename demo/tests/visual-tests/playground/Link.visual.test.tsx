@@ -1,3 +1,4 @@
+import type {Page} from '@playwright/test';
 import dd from 'ts-dedent';
 
 import {expect, test} from 'playwright/core';
@@ -11,6 +12,96 @@ test.describe('Link', () => {
         await mount(<Playground initial={initialMarkup} width="100%" style={{width: 812}} />);
         await page.setViewportSize({height: 500, width: 812});
         await editor.switchMode('wysiwyg');
+    });
+
+    test.describe('single-character selection', () => {
+        test.beforeEach(async ({editor, actions, page}) => {
+            await editor.fill('before a after');
+            await editor.press('ControlOrMeta+End');
+            await actions.pressFocused('ArrowLeft', ' after'.length);
+            await actions.pressFocused('Shift+ArrowLeft');
+            await expectTextSelection(page, {from: 8, to: 9});
+            await actions.pressFocused('ControlOrMeta+k');
+            await expect(page.locator('.g-md-link-tooltip-view')).toBeVisible();
+        });
+
+        test('should save a single-character link @wysiwyg', async ({editor, actions, page}) => {
+            const popup = page.locator('.g-md-link-tooltip-view');
+
+            await popup.locator('input').fill('https://example.com');
+            await actions.pressFocused('Enter');
+
+            const link = editor.getBySelectorInContenteditable('a');
+            await expect(link).toHaveText('a');
+            await expect(link).toHaveAttribute('href', 'https://example.com');
+            await expect(popup).toBeHidden();
+        });
+
+        test('should cancel a single-character link without leaving an empty link @wysiwyg', async ({
+            editor,
+            actions,
+            page,
+        }) => {
+            await actions.pressFocused('Escape');
+
+            await expect(page.locator('.g-md-link-tooltip-view')).toBeHidden();
+            await expect(editor.getBySelectorInContenteditable('a')).toHaveCount(0);
+            await expect(editor.getByTextInContenteditable('before a after')).toBeVisible();
+        });
+    });
+
+    test.describe('selection with a trailing line break and spaces', () => {
+        test.beforeEach(async ({editor, actions, page}) => {
+            await editor.fill('before word');
+            await editor.press('ControlOrMeta+End');
+            await editor.press('Shift+Enter');
+            await editor.pressSequentially('   after');
+            await actions.pressFocused('ArrowLeft', 'after'.length);
+            await actions.pressFocused('Shift+ArrowLeft', 'word'.length + 1 + 3);
+            await expectTextSelection(page, {from: 8, to: 16});
+            await actions.pressFocused('ControlOrMeta+k');
+            await expect(page.locator('.g-md-link-tooltip-view')).toBeVisible();
+        });
+
+        test('should save a link with a trailing line break and spaces @wysiwyg', async ({
+            editor,
+            actions,
+            page,
+        }) => {
+            const popup = page.locator('.g-md-link-tooltip-view');
+
+            await popup.locator('input').fill('https://example.com');
+            await actions.pressFocused('Enter');
+
+            await expect(popup).toBeHidden();
+            const link = editor.getBySelectorInContenteditable('a');
+            await expect(link).toHaveCount(1);
+            await expect(link).toHaveText('word');
+            await expect(link).toHaveAttribute('href', 'https://example.com');
+            await expect(editor.getBySelectorInContenteditable('br')).toHaveCount(1);
+            await expect(editor.getBySelectorInContenteditable('p')).toHaveText(
+                'before word   after',
+            );
+            await editor.switchMode('markup');
+            await expect(
+                editor.getByTextInContenteditable('[word](https://example.com)'),
+            ).toBeVisible();
+        });
+
+        test('should cancel a link with a trailing line break and spaces @wysiwyg', async ({
+            editor,
+            actions,
+            page,
+        }) => {
+            await actions.pressFocused('Escape');
+
+            await expect(page.locator('.g-md-link-tooltip-view')).toBeHidden();
+            await expect(editor.getBySelectorInContenteditable('a')).toHaveCount(0);
+            await expect(editor.getBySelectorInContenteditable('br')).toHaveCount(1);
+            await expect(editor.getBySelectorInContenteditable('p')).toHaveText(
+                'before word   after',
+            );
+        });
     });
 
     test('should insert via toolbar @wysiwyg', async ({browserName, editor, actions, wait}) => {
@@ -162,6 +253,7 @@ test.describe('Link', () => {
         await actions.fillFocused('gravity-ui.com');
 
         await page.mouse.move(0, 0);
+        await wait.tooltipsHidden();
         await expectScreenshot({nameSuffix: 'form-with-url'});
 
         await page.mouse.click(0, 0);
@@ -170,3 +262,10 @@ test.describe('Link', () => {
         await expect(editor.getByTextInContenteditable('gravity-ui.com')).toBeVisible();
     });
 });
+
+async function expectTextSelection(page: Page, {from, to}: {from: number; to: number}) {
+    // Wait for the editor state, not just the browser selection, before opening the popup.
+    await expect(page.locator('.playground__pm-selection')).toHaveText(
+        new RegExp(`TextSelection\\s*From: ${from}\\s*To: ${to}`),
+    );
+}

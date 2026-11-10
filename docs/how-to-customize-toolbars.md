@@ -51,11 +51,15 @@ Built-in **toolbar presets** are available in the `gravity-ui/markdown-editor` r
 
 - `zero`
 - `commonmark`
-- `default`
+- `default` — exported as `defaultPreset`
 - `yfm`
 - `full`
 
-See their [items and orders](../packages/editor/src/modules/toolbars/presets.ts).
+See the [combined toolbar presets](../packages/editor/src/modules/toolbars/presets.ts) and the presets for [WYSIWYG](../packages/editor/src/modules/toolbars/wysiwyg/presets.ts) and [Markdown](../packages/editor/src/modules/toolbars/markup/presets.ts).
+
+The presets, the toolbar items and the `ActionName` and `ToolbarName` constants are exported from `@gravity-ui/markdown-editor/toolbars`, starting with version 15.48.0.
+
+The same entry point exports `wysiwygToolbarsPresets` and `markupToolbarsPresets`, keyed by the preset names above. Each contains only its mode's behavior and toolbar orders. Use the combined presets when the editor can switch between modes.
 
 > **Note:** These toolbar presets have the same names as editor presets for convenience. When you don't specify `toolbarsPreset`, the editor automatically selects the toolbar preset matching your editor preset name.
 
@@ -65,6 +69,7 @@ See their [items and orders](../packages/editor/src/modules/toolbars/presets.ts)
 2. The `orders` key defines the display order of toolbar items.
 3. Every ID listed in `orders` must have a corresponding entry in the `items` dictionary.
 4. Each item used in a toolbar must also have its corresponding extension included in the editor's `extensions` section.
+5. The main and hidden toolbars come only from the preset, so extend the built-in preset that matches your editor preset.
 
 ### Example Configuration
 
@@ -84,6 +89,7 @@ The library provides a set of predefined toolbar presets that cannot be overridd
 - [Live demo (custom preset)](https://preview.gravity-ui.com/md-editor/?path=/story/extensions-presets--custom)
 - [Presets.stories.tsx](../demo/src/stories/presets/Presets.stories.tsx)
 - [presets.ts](../demo/src/stories/presets/presets.ts)
+- [toolbars.ts](../demo/src/defaults/toolbars.ts) — the playground preset: the built-in `full` preset extended with buttons of connected extensions
 
 #### Step 1: Define your custom toolbar preset
 
@@ -157,8 +163,8 @@ import type {ToolbarsPreset} from '@gravity-ui/markdown-editor';
 import {
     ActionName as Action,
     ToolbarName as Toolbar,
-} from '@gravity-ui/markdown-editor/_/modules/toolbars/constants.js';
-import {full} from '@gravity-ui/markdown-editor/_/modules/toolbars/presets.js';
+    full,
+} from '@gravity-ui/markdown-editor/toolbars';
 
 const customToolbarPreset: ToolbarsPreset = {
     items: full.items,

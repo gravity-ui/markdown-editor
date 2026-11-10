@@ -82,10 +82,11 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
                     '](' +
                     escapeParenthesesInUrl(mark.attrs[LinkAttr.Href]) +
                     (mark.attrs[LinkAttr.Title]
-                        ? ' ' + state.quote(mark.attrs[LinkAttr.Title])
+                        ? ` "${mark.attrs[LinkAttr.Title].replace(/[\\"]/g, '\\$&')}"`
                         : '') +
                     ')'
                 );
             },
+            mixable: true,
         }));
 };

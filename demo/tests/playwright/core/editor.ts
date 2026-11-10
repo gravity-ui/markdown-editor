@@ -346,7 +346,6 @@ class MarkdownEditorLocators {
     readonly settingsContent;
     readonly toolbars: MarkdownEditorToolbarsLocators;
     readonly toolbarMoreActionButton;
-    readonly toolbarActionDisabledHint;
     readonly cmAutocomplete;
 
     constructor(page: Page) {
@@ -367,7 +366,6 @@ class MarkdownEditorLocators {
         // editor
         this.contenteditable = this.editor.locator('[contenteditable=true]');
         this.toolbarMoreActionButton = this.editor.getByTestId('g-md-toolbar-more-action');
-        this.toolbarActionDisabledHint = page.getByTestId('g-md-toolbar-action-disabled-hint');
 
         this.cmAutocomplete = this.editor.locator('.cm-tooltip-autocomplete');
     }
@@ -601,8 +599,17 @@ export class MarkdownEditorPage {
     async switchMode(mode: MarkdownEditorMode) {
         if ((await this.getMode()) === mode) return;
 
-        await this.openSettingsPopup();
-        await this.locators.settingsContent.getByTestId(`g-md-settings-mode-${mode}`).click();
+        await this.page.evaluate((nextMode) => {
+            if (!window.mdEditor) {
+                throw new Error(
+                    'window.mdEditor is undefined: the mounted component must call useEditorHandle()',
+                );
+            }
+
+            // the settings menu hides the preview along with the mode change
+            window.mdEditor.setEditorMode(nextMode);
+            window.mdEditor.changePreviewVisible(false);
+        }, mode);
         await this.assertMode(mode);
     }
 
@@ -663,21 +670,6 @@ export class MarkdownEditorPage {
             await this.clickMainToolbarMoreActionButton();
             await this.locators.toolbars.additional.waitFor({state: 'hidden'});
         }
-    }
-
-    /**
-     * Hovers over an action in the additional toolbar by its aria-label.
-     */
-    async hoverToolbarMoreAction(label: string) {
-        await this.locators.toolbars.additional.waitFor({state: 'visible'});
-        await this.getToolbarButton(label).hover({force: true});
-    }
-
-    /**
-     * Waits for the toolbar action disabled hint to become visible.
-     */
-    async waitForToolbarActionDisabledHint() {
-        await this.locators.toolbarActionDisabledHint.waitFor({state: 'visible'});
     }
 
     /**
@@ -805,6 +797,22 @@ export class MarkdownEditorPage {
             element.focus();
             element.dispatchEvent(new ClipboardEvent('paste', {clipboardData}));
         }, data);
+    }
+
+    async dispatchClipboardEvent(type: 'copy' | 'cut'): Promise<PasteData> {
+        return this.locators.contenteditable.evaluate((element, eventType) => {
+            const clipboardData = new DataTransfer();
+            element.dispatchEvent(
+                new ClipboardEvent(eventType, {bubbles: true, cancelable: true, clipboardData}),
+            );
+
+            return Object.fromEntries(
+                Array.from(clipboardData.types, (dataType) => [
+                    dataType,
+                    clipboardData.getData(dataType),
+                ]),
+            ) as PasteData;
+        }, type);
     }
 
     /**

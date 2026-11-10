@@ -1,4 +1,4 @@
-import {useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 
 import {Popup, TextInput, type TextInputProps} from '@gravity-ui/uikit';
 import isNumber from 'is-number';
@@ -9,7 +9,6 @@ import {cn} from '../../../../../../classname';
 import Form from '../../../../../../forms/base';
 import {NumberInput} from '../../../../../../forms/components';
 import {i18n} from '../../../../../../i18n/forms';
-import {useAutoFocus} from '../../../../../../react-utils/useAutoFocus';
 import {enterKeyHandler} from '../../../../../../utils/handlers';
 import {LinkAttr, linkType} from '../../../../../markdown';
 import {ImgSizeAttr} from '../../../../../specs';
@@ -28,6 +27,7 @@ export const ImageForm: React.FC<{
     const {attrs, marks} = node;
     const link = marks.find((m) => m.type.name === linkType(view.state.schema).name);
 
+    const [open, setOpen] = useState(false);
     const [name, setName] = useState(attrs[ImgSizeAttr.Title] || '');
     const [alt, setAlt] = useState(attrs[ImgSizeAttr.Alt] || '');
     const [width, setWidth] = useState(attrs[ImgSizeAttr.Width] || '');
@@ -51,18 +51,26 @@ export const ImageForm: React.FC<{
                 : [],
         );
         unsetEdit();
+        view.focus();
     };
     const linkRef = useRef<HTMLInputElement>(null);
     const imageNameRef = useRef<HTMLInputElement>(null);
 
-    useAutoFocus(link ? linkRef : imageNameRef);
+    useEffect(() => {
+        // TODO(next major): Require UIKit >= 7.39.0 and use initialFocus without delayed opening.
+        // UIKit 7.13 needs its anchor registered before the popup opens.
+        setOpen(Boolean(anchorElement));
+    }, [anchorElement]);
 
     const inputEnterKeyHandler: TextInputProps['onKeyPress'] = enterKeyHandler(handleSubmit);
 
     return (
         <Popup
-            open
+            open={open}
             modal
+            initialFocus={link ? linkRef : imageNameRef}
+            // An outside click sets the cursor. Returning focus can scroll to the selected image.
+            returnFocus={false}
             anchorElement={anchorElement}
             placement={['bottom-start', 'top-start', 'bottom-end', 'top-end']}
             onOpenChange={(_open, _event, reason) => {

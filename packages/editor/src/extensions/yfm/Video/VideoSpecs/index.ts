@@ -79,7 +79,7 @@ export const VideoSpecs: ExtensionAuto<VideoSpecsOptions> = (builder, opts) => {
                                 type: 'text/html',
                                 width: String(options[service as VideoService].width),
                                 height: String(options[service as VideoService].height),
-                                src: src,
+                                src,
                                 frameborder: '0',
                                 webkitallowfullscreen: '',
                                 mozallowfullscreen: '',

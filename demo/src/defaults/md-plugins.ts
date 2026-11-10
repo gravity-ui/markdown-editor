@@ -33,7 +33,7 @@ export const MERMAID_RUNTIME = 'extension:mermaid';
 export const YFM_HTML_BLOCK_RUNTIME = 'extension:yfm-html-block';
 export const PAGE_CONSTRUCTOR_RUNTIME = 'extension:page-constructor';
 
-type GetPluginsOptions = {
+export type GetPluginsOptions = {
     directiveSyntax?: RenderPreviewParams['directiveSyntax'];
 } & Pick<
     YfmTablePluginOptions,
@@ -110,5 +110,3 @@ export function getPlugins({
 
     return extendedPlugins;
 }
-
-export const plugins = getPlugins();

@@ -10,13 +10,11 @@ import {
 import {
     ActionName as Action,
     ToolbarName as Toolbar,
-} from '@gravity-ui/markdown-editor/_/modules/toolbars/constants.js';
-import {
+    full,
     gptItemMarkup,
     gptItemView,
     gptItemWysiwyg,
-} from '@gravity-ui/markdown-editor/_/modules/toolbars/items.js';
-import {full} from '@gravity-ui/markdown-editor/_/modules/toolbars/presets.js';
+} from '@gravity-ui/markdown-editor/toolbars';
 
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {useLogs} from '../../hooks/useLogs';

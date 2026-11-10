@@ -17,15 +17,6 @@ enum TokenType {
     default = 'default',
 }
 
-/**
- * Remove suffixes from the node name.
- * Crops specified `openSuffix` and `closeSuffix` from the end of the given `tokName`.
- */
-function cropNodeName(tokName: string, openSuffix: string, closeSuffix: string): string {
-    const regex = new RegExp(`(${openSuffix})$|(${closeSuffix})$`);
-    return tokName.replace(regex, '');
-}
-
 type MarkdownParserOptions = {
     logger: Logger2.ILogger;
     pmTransformers: TransformFn[];
@@ -34,8 +25,6 @@ type MarkdownParserOptions = {
 
 export class MarkdownParser implements Parser {
     schema: Schema;
-    stack: Array<{type: NodeType; attrs?: TokenAttrs; content: Array<Node>}> = [];
-    marks: readonly Mark[];
     tokens: Record<string, ParserToken>;
     tokenizer: MarkdownIt;
     pmTransformers: TransformFn[];
@@ -51,7 +40,6 @@ export class MarkdownParser implements Parser {
     ) {
         this.schema = schema;
 
-        this.marks = Mark.none;
         this.tokens = tokens;
         this.tokenizer = tokenizer;
         this.pmTransformers = opts.pmTransformers;
@@ -80,17 +68,17 @@ export class MarkdownParser implements Parser {
         return this.tokenizer.linkify.match(text);
     }
 
-    parse(src: string): Node;
+    parse(src: string, markdownEnv?: object): Node;
     parse(tokens: Token[]): Node;
-    parse(src: string | Token[]) {
+    parse(src: string | Token[], markdownEnv: object = {}) {
         const time = Date.now();
 
         try {
-            this.stack = [{type: this.schema.topNodeType, content: []}];
+            const state = new MarkdownParseState(this.schema, this.tokens, this.dynamicModifier);
 
             let mdItTokens;
             try {
-                mdItTokens = typeof src === 'string' ? this.tokenizer.parse(src, {}) : src;
+                mdItTokens = typeof src === 'string' ? this.tokenizer.parse(src, markdownEnv) : src;
                 if (this.dynamicModifier) {
                     mdItTokens = this.dynamicModifier.processTokens(
                         mdItTokens,
@@ -104,14 +92,14 @@ export class MarkdownParser implements Parser {
                 throw e;
             }
 
-            this.parseTokens(mdItTokens);
+            state.parseTokens(mdItTokens);
 
             let doc;
 
             // If after parsing there are still unclosed nodes, close them by removing them from the stack.
             do {
-                doc = this.closeNode();
-            } while (this.stack.length);
+                doc = state.closeNode();
+            } while (state.stack.length);
 
             const pmTransformer = new ProseMirrorTransformer(this.pmTransformers);
 
@@ -120,6 +108,62 @@ export class MarkdownParser implements Parser {
             logger.metrics({component: 'parser', event: 'parse', duration: Date.now() - time});
             this.logger.metrics({component: 'parser', event: 'parse', duration: Date.now() - time});
         }
+    }
+}
+
+class MarkdownParseState {
+    stack: {
+        type: NodeType;
+        attrs?: TokenAttrs | null;
+        content: Node[];
+    }[];
+
+    // TODO(major): Store marks per stack frame. Check custom inline node serializers first.
+    private marks: readonly Mark[] = Mark.none;
+    private readonly schema: Schema;
+    private readonly tokens: Record<string, ParserToken>;
+    private readonly dynamicModifier: MarkdownParserDynamicModifier | null;
+
+    constructor(
+        schema: Schema,
+        tokens: Record<string, ParserToken>,
+        dynamicModifier: MarkdownParserDynamicModifier | null,
+    ) {
+        this.schema = schema;
+        this.tokens = tokens;
+        this.dynamicModifier = dynamicModifier;
+        this.stack = [{type: schema.topNodeType, content: []}];
+    }
+
+    parseTokens(tokens: Token[]) {
+        for (let i = 0; i < tokens.length; i++) {
+            const token = tokens[i];
+
+            if (this.handlePrimitiveToken(token)) continue;
+
+            const tokenSpec = this.getTokenSpec(token);
+
+            if (tokenSpec.ignore) continue;
+
+            const attrs =
+                tokenSpec.type === 'node' ||
+                tokenSpec.noCloseToken ||
+                this.getTokenType(token) === TokenType.open
+                    ? this.getTokenAttrs(token, tokenSpec, tokens, i)
+                    : undefined;
+
+            this.handleToken(token, tokenSpec, attrs);
+        }
+    }
+
+    closeNode() {
+        this.marks = Mark.none;
+        const info = this.stack.pop();
+        if (info) {
+            return this.addNode(info.type, info.attrs, info.content);
+        }
+
+        return null;
     }
 
     private top() {
@@ -137,8 +181,8 @@ export class MarkdownParser implements Parser {
         tokenSpec: ParserToken,
         tokenStream: Token[],
         i: number,
-    ): TokenAttrs | undefined {
-        let attrs: TokenAttrs | undefined = {};
+    ): TokenAttrs | null | undefined {
+        let attrs: TokenAttrs | null | undefined = {};
 
         if (tokenSpec.getAttrs) {
             attrs = tokenSpec.getAttrs(token, tokenStream, i);
@@ -164,7 +208,7 @@ export class MarkdownParser implements Parser {
         tokName = cropNodeName(tokName, openSuffix, closeSuffix);
 
         let tokenSpec: ParserToken | undefined;
-        if (tokName in this.tokens) {
+        if (Object.prototype.hasOwnProperty.call(this.tokens, tokName)) {
             tokenSpec = this.tokens[tokName];
         }
 
@@ -192,7 +236,7 @@ export class MarkdownParser implements Parser {
     private handlePrimitiveToken(token: Token) {
         switch (token.type) {
             case 'text':
-                this.addText(withoutTrailingNewline(token.content));
+                this.addText(token.content);
                 return true;
             case 'inline':
                 this.parseTokens(token.children || []);
@@ -207,7 +251,7 @@ export class MarkdownParser implements Parser {
         return false;
     }
 
-    private handleMark(token: Token, tokenSpec: ParserToken, attrs?: TokenAttrs) {
+    private handleMark(token: Token, tokenSpec: ParserToken, attrs?: TokenAttrs | null) {
         const schemaSpec = this.schema.marks[tokenSpec.name];
 
         if (tokenSpec.noCloseToken) {
@@ -239,14 +283,14 @@ export class MarkdownParser implements Parser {
         return spec;
     }
 
-    private handleNode(_token: Token, tokenSpec: ParserToken, attrs?: TokenAttrs) {
+    private handleNode(_token: Token, tokenSpec: ParserToken, attrs?: TokenAttrs | null) {
         const schemaSpec = this.getNodeSchema(tokenSpec);
 
         // Adding node as is, becasuse it doesn't contain content.
         this.addNode(schemaSpec, attrs);
     }
 
-    private handleBlock(token: Token, tokenSpec: ParserToken, attrs?: TokenAttrs) {
+    private handleBlock(token: Token, tokenSpec: ParserToken, attrs?: TokenAttrs | null) {
         const schemaSpec = this.getNodeSchema(tokenSpec);
 
         if (tokenSpec.noCloseToken) {
@@ -280,7 +324,7 @@ export class MarkdownParser implements Parser {
         }
     }
 
-    private handleToken(token: Token, tokenSpec: ParserToken, attrs?: TokenAttrs) {
+    private handleToken(token: Token, tokenSpec: ParserToken, attrs?: TokenAttrs | null) {
         switch (tokenSpec.type) {
             case 'mark':
                 this.handleMark(token, tokenSpec, attrs);
@@ -298,7 +342,7 @@ export class MarkdownParser implements Parser {
 
     //#region state methods
 
-    private addNode(type: NodeType, attrs?: Object, content?: Node[]) {
+    private addNode(type: NodeType, attrs?: TokenAttrs | null, content?: Node[]) {
         let node = type.createAndFill(attrs, content, this.marks);
         if (!node) {
             return null;
@@ -313,22 +357,8 @@ export class MarkdownParser implements Parser {
         return node;
     }
 
-    private openNode(type: NodeType, attrs?: TokenAttrs) {
-        this.stack.push({type: type, attrs, content: []});
-    }
-
-    private closeNode() {
-        // Marks operate within a node. Therefore, when we close the node, we reset the existing marks.
-        if (this.marks.length) {
-            this.marks = Mark.none;
-        }
-
-        const info = this.stack.pop();
-        if (info) {
-            return this.addNode(info.type, info.attrs, info.content);
-        }
-
-        return null;
+    private openNode(type: NodeType, attrs?: TokenAttrs | null) {
+        this.stack.push({type, attrs, content: []});
     }
 
     private addText(text: string) {
@@ -351,22 +381,15 @@ export class MarkdownParser implements Parser {
     }
 
     //#endregion
+}
 
-    private parseTokens(tokens: Token[]) {
-        for (let i = 0; i < tokens.length; i++) {
-            const token = tokens[i];
-
-            if (this.handlePrimitiveToken(token)) continue;
-
-            const tokenSpec = this.getTokenSpec(token);
-
-            if (tokenSpec.ignore) continue;
-
-            const attrs = this.getTokenAttrs(token, tokenSpec, tokens, i);
-
-            this.handleToken(token, tokenSpec, attrs);
-        }
-    }
+/**
+ * Remove suffixes from the node name.
+ * Crops specified `openSuffix` and `closeSuffix` from the end of the given `tokName`.
+ */
+function cropNodeName(tokName: string, openSuffix: string, closeSuffix: string): string {
+    const regex = new RegExp(`(${openSuffix})$|(${closeSuffix})$`);
+    return tokName.replace(regex, '');
 }
 
 // Checking if these are two text nodes and they have the same marks, then it merges them into one.
@@ -379,7 +402,7 @@ function maybeMerge(a: Node, b: Node) {
 }
 
 function withoutTrailingNewline(str: string) {
-    return str[str.length - 1] === '\n' || str.endsWith('\\n') ? str.slice(0, str.length - 1) : str;
+    return str[str.length - 1] === '\n' ? str.slice(0, str.length - 1) : str;
 }
 
 export type ProcessToken = (

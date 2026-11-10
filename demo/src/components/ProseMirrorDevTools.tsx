@@ -2,13 +2,13 @@ import {useEffect, useLayoutEffect} from 'react';
 
 import type {MarkdownEditorInstance} from '@gravity-ui/markdown-editor';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {applyDevTools, removeDevTools} from 'prosemirror-dev-toolkit';
 import {useEffectOnce, useUpdate} from 'react-use';
 
 export type WysiwygDevToolsProps = {
     editor: MarkdownEditorInstance;
 };
 
+/** The toolkit serializes both documents and diffs them on every transaction */
 export function WysiwygDevTools({editor}: WysiwygDevToolsProps) {
     const rerender = useUpdate();
     useEffectOnce(() => {
@@ -39,9 +39,19 @@ type ProseMirrorDevToolsProps = {
 
 function ProseMirrorDevTools({view}: ProseMirrorDevToolsProps) {
     useEffect(() => {
-        applyDevTools(view);
+        let unmounted = false;
+        let dispose: (() => void) | undefined;
+
+        // Keeps the toolkit out of the entry bundle of pages that render the editor without dev tools
+        import('prosemirror-dev-toolkit').then(({applyDevTools, removeDevTools}) => {
+            if (unmounted) return;
+            applyDevTools(view);
+            dispose = removeDevTools;
+        });
+
         return () => {
-            removeDevTools();
+            unmounted = true;
+            dispose?.();
         };
     }, [view]);
 

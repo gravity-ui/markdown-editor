@@ -52,14 +52,14 @@ function Editor({onSubmit}) {
 ```
 
 Полезные ссылки:
-- [Как подключить редактор в Create React App](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-getting-started-create-react-app--docs)
-- [Как добавить предварительный просмотр для режима разметки](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-getting-started-preview--docs)
-- [Как добавить расширение HTML](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-html-block--docs)
-- [Как добавить расширение Latex](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-latex-extension--docs)
-- [Как добавить расширение Mermaid](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-mermaid-extension--docs)
-- [Как создать собственное расширение](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-extension-creation--docs)
-- [Как добавить расширение GPT](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-extensions-gpt--docs)
-- [Как добавить расширение привязки текста в Markdown](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-develop-extension-with-popup--docs)
+- [Как подключить редактор в Create React App](https://gravity-ui.github.io/markdown-editor/getting-started/create-react-app.html)
+- [Как добавить предварительный просмотр для режима разметки](https://gravity-ui.github.io/markdown-editor/getting-started/preview.html)
+- [Как добавить расширение HTML](https://gravity-ui.github.io/markdown-editor/extensions/html-block.html)
+- [Как добавить расширение Latex](https://gravity-ui.github.io/markdown-editor/extensions/latex-extension.html)
+- [Как добавить расширение Mermaid](https://gravity-ui.github.io/markdown-editor/extensions/mermaid-extension.html)
+- [Как создать собственное расширение](https://gravity-ui.github.io/markdown-editor/develop/extension-creation.html)
+- [Как добавить расширение GPT](https://gravity-ui.github.io/markdown-editor/extensions/gpt.html)
+- [Как добавить расширение привязки текста в Markdown](https://gravity-ui.github.io/markdown-editor/develop/extension-with-popup.html)
 
 
 ### Разработка
@@ -86,4 +86,4 @@ configure({
 
 ### Участие в разработке
 
-- [Информация для контрибьюетров](https://preview.gravity-ui.com/md-editor/?path=/docs/docs-contributing--docs)
+- [Информация для контрибьюетров](https://gravity-ui.github.io/markdown-editor/contributing.html)

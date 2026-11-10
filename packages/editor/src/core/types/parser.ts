@@ -6,7 +6,7 @@ export type LinkMatch = Readonly<NonNullable<ReturnType<MarkdownIt['linkify']['m
 
 export interface Parser {
     /** Parse raw markup to prosemirror's root node */
-    parse(markup: string): Node;
+    parse(markup: string, markdownEnv?: object): Node;
     /** Parse markdown-it tokens stream to prosemirror's root node */
     parse(tokens: Token[]): Node;
     validateLink(url: string): boolean;
@@ -19,6 +19,7 @@ export interface Parser {
 export interface ParserToken {
     name: string;
     type: 'node' | 'block' | 'mark';
+    // TODO(major): Allow null in attrs and getAttrs return types.
     attrs?: {[name: string]: unknown};
     getAttrs?: (token: Token, tokens: Token[], index: number) => NonNullable<ParserToken['attrs']>;
     // It means that there is no closing token

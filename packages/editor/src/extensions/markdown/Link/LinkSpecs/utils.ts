@@ -39,7 +39,7 @@ export function isPlainURL(link: Mark, parent: Node, index: number, side: number
 }
 
 export function escapeParenthesesInUrl(url: string): string {
-    return url.replaceAll(/\(|\)/g, (p) => '\\' + p);
+    return url.replace(/[()"]/g, '\\$&');
 }
 
 // TODO: Remove this helper after https://github.com/gravity-ui/markdown-editor/issues/1263 is fixed.

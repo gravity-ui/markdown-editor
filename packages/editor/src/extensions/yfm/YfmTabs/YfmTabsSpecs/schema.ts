@@ -1,4 +1,5 @@
-import type {NodeSpec} from 'prosemirror-model';
+import {generateID} from '@diplodoc/transform/lib/plugins/utils.js';
+import type {Node, NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto} from '#core';
 import type {PlaceholderOptions} from 'src/utils/placeholder';
@@ -77,14 +78,14 @@ const getSchemaSpecs: (
     [TabsNode.Tabs]: {
         attrs: {
             [TabsAttrs.class]: {default: 'yfm-tabs'},
-            [TabsAttrs.dataDiplodocGroup]: {default: 'unknown'},
+            [TabsAttrs.dataDiplodocGroup]: {default: null},
             [TabsAttrs.dataDiplodocVariant]: {default: 'regular'},
         },
         content: `${TabsNode.TabsList} ${TabsNode.TabPanel}+`,
         group: 'block',
         parseDOM: [{tag: 'div.yfm-tabs'}],
         toDOM(node) {
-            return ['div', node.attrs, 0];
+            return ['div', getTabsDOMAttrs(node), 0];
         },
         selectable: true,
         selectAll: 'node',
@@ -110,13 +111,13 @@ const getSchemaSpecs: (
     [TabsNode.RadioTabs]: {
         attrs: {
             [TabsAttrs.class]: {default: 'yfm-tabs yfm-tabs-vertical'},
-            [TabsAttrs.dataDiplodocGroup]: {default: 'unknown'},
+            [TabsAttrs.dataDiplodocGroup]: {default: null},
             [TabsAttrs.dataDiplodocVariant]: {default: 'radio'},
         },
         content: `(${TabsNode.RadioTab} ${TabsNode.TabPanel})+`,
         group: 'block',
         toDOM(node) {
-            return ['div', node.attrs, 0];
+            return ['div', getTabsDOMAttrs(node), 0];
         },
         selectAll: 'node',
         complex: 'root',
@@ -189,3 +190,11 @@ export const YfmTabsSchemaSpecs: ExtensionAuto<YfmTabsSchemaOptions> = (builder,
         .addNodeSpec(TabsNode.RadioTabInput, () => schemaSpecs[TabsNode.RadioTabInput])
         .addNodeSpec(TabsNode.RadioTabLabel, () => schemaSpecs[TabsNode.RadioTabLabel]);
 };
+
+function getTabsDOMAttrs(node: Node) {
+    return {
+        ...node.attrs,
+        [TabsAttrs.dataDiplodocGroup]:
+            node.attrs[TabsAttrs.dataDiplodocGroup] ?? generateID('defaultTabsGroup'),
+    };
+}

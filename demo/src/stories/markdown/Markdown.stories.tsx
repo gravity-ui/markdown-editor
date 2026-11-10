@@ -68,7 +68,7 @@ export const PunctuationBoundaries: StoryObj<typeof component> = {
 export default {
     title: 'Extensions / Markdown',
     component,
-    args: args,
+    args,
     parameters: {
         controls: {
             exclude: excludedControls.concat('directiveSyntax'),

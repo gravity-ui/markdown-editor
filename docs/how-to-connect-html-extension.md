@@ -6,7 +6,7 @@ To integrate the HTML extensions in your editor, you will use the specified vers
 
 First to integrate this extension, you need to use the following versions of the packages:
 
-- @gravity-ui/markdown-editor version 13.4.0 or higher
+- @gravity-ui/markdown-editor version 15.48.0 or higher
 - @diplodoc/html-extension version 1.2.7 or higher
 
 ## Usage
@@ -16,7 +16,7 @@ First to integrate this extension, you need to use the following versions of the
 First, ensure that you have all the necessary packages installed. You can use npm or yarn to add them to your project:
 
 ```bash
-npm install @gravity-ui/markdown-editor@^13.4.0
+npm install @gravity-ui/markdown-editor@^15.48.0
 npm install @diplodoc/html-extension@^1.2.7
 ```
 
@@ -146,24 +146,29 @@ builder.use(YfmHtmlBlock, { useConfig: useYfmHtmlBlockStyles });
 
 ```
 
-### 5. Add Buttons to the Toolbar
+### 6. Add Buttons to the Toolbar
 
-```ts
+Add the button to the [toolbars preset](./how-to-customize-toolbars.md) and pass the preset to `MarkdownEditorView` through the `toolbarsPreset` prop. The example puts the HTML block into the slash menu and extends the built-in `full` preset; the main toolbars come only from the preset, so extend the one matching your editor preset:
+
+```tsx
+import type {ToolbarsPreset} from '@gravity-ui/markdown-editor';
 import {
-  mYfmHtmlBlockButton,
-} from '@gravity-ui/markdown-editor/bundle/config/markup';
+  ActionName as Action,
+  ToolbarName as Toolbar,
+  full,
+  yfmHtmlBlockItemView,
+  yfmHtmlBlockItemWysiwyg,
+} from '@gravity-ui/markdown-editor/toolbars';
 
-import {
-  wYfmHtmlBlockItemData,
-} from '@gravity-ui/markdown-editor';
-
-// add to useMarkdownEditor
-const mdEditor = useMarkdownEditor({
-  // ...
-  extensionOptions: {
-    commandMenu: {actions: [wYfmHtmlBlockItemData]},
+const toolbarsPreset: ToolbarsPreset = {
+  items: {
+    ...full.items,
+    [Action.htmlBlock]: {view: yfmHtmlBlockItemView, wysiwyg: yfmHtmlBlockItemWysiwyg},
   },
-});
-
+  orders: {
+    ...full.orders,
+    [Toolbar.wysiwygSlash]: [[...full.orders[Toolbar.wysiwygSlash].flat(), Action.htmlBlock]],
+  },
+};
 ```
 

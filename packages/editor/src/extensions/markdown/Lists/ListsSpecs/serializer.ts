@@ -17,7 +17,7 @@ const serializerTokens: Record<ListNode, SerializerNodeToken> = {
     },
 
     [ListNode.OrderedList]: (state, node) => {
-        const start = node.attrs[ListsAttr.Order] || 1;
+        const start = node.attrs[ListsAttr.Order] ?? 1;
         const maxW = String(start + node.childCount - 1).length;
         const space = state.repeat(' ', maxW + 2);
         state.renderList(node, space, (i: number, li: Node) => {

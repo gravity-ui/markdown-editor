@@ -54,6 +54,7 @@ test.describe('YfmTable', () => {
 
             await page.mouse.move(-50, -50);
 
+            await wait.tooltipsHidden();
             await expectScreenshot();
         });
 

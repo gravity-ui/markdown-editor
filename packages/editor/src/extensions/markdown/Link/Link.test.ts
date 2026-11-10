@@ -8,6 +8,7 @@ import {BoldSpecs, boldMarkName} from '../Bold/BoldSpecs';
 import {BreakNodeName, BreaksSpecs} from '../Breaks/BreaksSpecs';
 import {CodeSpecs, codeMarkName} from '../Code/CodeSpecs';
 import {ImageAttr, ImageSpecs, imageNodeName} from '../Image/ImageSpecs';
+import {ItalicSpecs, italicMarkName} from '../Italic/ItalicSpecs';
 
 import {LinkAttr, LinkSpecs, linkMarkName} from './LinkSpecs';
 
@@ -23,6 +24,7 @@ const {
             .use(ImageSpecs)
             .use(BreaksSpecs, {})
             .use(BoldSpecs)
+            .use(ItalicSpecs)
             .use(CodeSpecs)
             .addNodeSpec('anchor', () => ({inline: true, group: 'inline', content: 'text*'}))
             .addMarkdownTokenParserSpec('anchor', () => ({name: 'anchor', type: 'block'}))
@@ -34,8 +36,8 @@ const {
     options: {mdOpts: {linkify: true}},
 }).buildDeps();
 
-const {doc, p, a, lnk, lnk4, img, sb, hb, bold, anchor, code} = builders<
-    'doc' | 'p' | 'a' | 'lnk' | 'lnk4' | 'img' | 'sb' | 'hb' | 'bold' | 'anchor' | 'code'
+const {doc, p, a, lnk, lnk4, img, sb, hb, bold, italic, anchor, code} = builders<
+    'doc' | 'p' | 'a' | 'lnk' | 'lnk4' | 'img' | 'sb' | 'hb' | 'bold' | 'italic' | 'anchor' | 'code'
 >(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
@@ -43,6 +45,7 @@ const {doc, p, a, lnk, lnk4, img, sb, hb, bold, anchor, code} = builders<
     sb: {nodeType: BreakNodeName.SoftBreak},
     hb: {nodeType: BreakNodeName.HardBreak},
     bold: {markType: boldMarkName},
+    italic: {markType: italicMarkName},
     code: {markType: codeMarkName},
     anchor: {nodeType: 'anchor'},
     img: {
@@ -65,8 +68,39 @@ describe('Link extension', () => {
         same('[yandex](ya.ru)', doc(p(lnk('yandex'))));
     });
 
+    it('should keep bold open across a link', () => {
+        same('**foo [bar](ya.ru)**', doc(p(bold('foo ', lnk('bar')))));
+    });
+
+    it('should keep italic open across a link', () => {
+        same('*foo [bar](ya.ru)*', doc(p(italic('foo ', lnk('bar')))));
+    });
+
+    it('should keep a link open while formatting changes inside it', () => {
+        same('[**foo** *bar*](ya.ru)', doc(p(lnk(bold('foo'), ' ', italic('bar')))));
+    });
+
     it('should parse link with title', () => {
         same('[imageboard](4chan.org "4chan")', doc(p(lnk4('imageboard'))));
+    });
+
+    it('should escape quotes in a link destination', () => {
+        serialize(doc(p(a({[LinkAttr.Href]: 'foo%20"'}, 'text'))), String.raw`[text](foo%20\")`);
+    });
+
+    it('should preserve quotes and parentheses in a link title', () => {
+        same(
+            String.raw`[text](ya.ru "He said \"it's ((fine))\"")`,
+            doc(p(lnk({[LinkAttr.Title]: 'He said "it\'s ((fine))"'}, 'text'))),
+        );
+    });
+
+    it.each([
+        {title: String.raw`say \"hello"`, markup: String.raw`[text](ya.ru "say \\\"hello\"")`},
+        {title: String.raw`path\part`, markup: String.raw`[text](ya.ru "path\\part")`},
+        {title: 'ends\\', markup: String.raw`[text](ya.ru "ends\\")`},
+    ])('should preserve literal backslashes in a link title $title', ({title, markup}) => {
+        same(markup, doc(p(lnk({[LinkAttr.Title]: title}, 'text'))));
     });
 
     it('ensure no escapes in url', () => {
