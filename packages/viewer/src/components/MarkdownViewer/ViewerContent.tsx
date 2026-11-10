@@ -1,6 +1,6 @@
 import {Component, type HTMLAttributes, type ReactElement, type RefObject} from 'react';
 
-import {ViewerContext} from '../../lifecycle/context';
+import {ViewerContext, ViewerHtmlContext} from '../../lifecycle/context';
 import {ViewerLifecycle} from '../../lifecycle/viewer-lifecycle';
 import {cn} from '../../utils/classname';
 
@@ -56,7 +56,7 @@ export class ViewerContent extends Component<ViewerContentProps> {
                         className={b('content', className)}
                         dangerouslySetInnerHTML={{__html: html}}
                     />
-                    {children}
+                    <ViewerHtmlContext.Provider value={html}>{children}</ViewerHtmlContext.Provider>
                 </div>
             </ViewerContext.Provider>
         );
