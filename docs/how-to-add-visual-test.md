@@ -88,6 +88,14 @@ Tests use the configuration file `playwright.config.ts`. The build is handled by
 
 See more: [Playwright Test Components](https://playwright.dev/docs/test-components)
 
+## Reviewing screenshot changes
+
+The **Screenshot Diff** link in the visual test report comment opens a
+[reg-cli](https://github.com/reg-viz/reg-cli) report for the screenshot baselines
+changed in a pull request, compared with the target branch. Changed, new, and deleted
+screenshots are listed separately; screenshots without pixel changes are listed as
+passed. Each changed screenshot opens in Diff, Slide, 2up, Blend, and Toggle views.
+
 ## Writing Tests
 
 Creating tests occurs on a local machine, but using commands with the `:docker` postfix to avoid environmental differences.
