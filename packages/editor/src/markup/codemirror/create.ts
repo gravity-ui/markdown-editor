@@ -157,6 +157,12 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                       blur: resetTabExit,
                       mousedown: resetTabExit,
                       beforeinput: resetTabExit,
+                      paste: resetTabExit,
+                      cut: resetTabExit,
+                      drop: resetTabExit,
+                      compositionstart: resetTabExit,
+                      pointerdown: resetTabExit,
+                      input: resetTabExit,
                   }),
               )
             : [],

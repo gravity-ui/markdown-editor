@@ -34,22 +34,29 @@ export const EditorModeKeymap: ExtensionAuto<EditorModeKeymapOptions> = (builder
                                 if (!allowTabExit || event.target !== view.dom) return false;
 
                                 if (event.key === 'Tab') {
-                                    // Skip editor keymaps without preventing native focus navigation.
-                                    return !event.altKey && !event.ctrlKey && !event.metaKey;
+                                    return true;
                                 }
 
-                                if (!['Shift', 'Control', 'Alt', 'Meta'].includes(event.key)) {
-                                    resetTabExit();
+                                if (['Shift', 'Control', 'Alt', 'Meta'].includes(event.key)) {
+                                    return false;
                                 }
-                                return false;
+
+                                return resetTabExit();
                             },
                             blur: resetTabExit,
                             mousedown: resetTabExit,
                             beforeinput: resetTabExit,
+                            paste: resetTabExit,
+                            cut: resetTabExit,
+                            drop: resetTabExit,
+                            compositionstart: resetTabExit,
+                            pointerdown: resetTabExit,
+                            input: resetTabExit,
                         },
                     },
                 }),
-            builder.Priority.Highest,
+            // Reset before Clipboard's Highest-priority paste handler consumes the event.
+            builder.Priority.Highest + 1,
         );
 
     builder.addKeymap(() => {
