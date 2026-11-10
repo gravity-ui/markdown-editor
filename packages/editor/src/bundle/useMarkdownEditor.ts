@@ -1,15 +1,17 @@
 import {useLayoutEffect, useMemo} from 'react';
 
-import type {Extension} from '../core';
-import {getPMTransformers} from '../core/markdown/ProseMirrorTransformer/getTransformers';
-import {ReactRenderStorage} from '../extensions';
-import {Logger2, globalLogger} from '../logger';
-import {DirectiveSyntaxContext} from '../utils/directive';
+import {Logger2, globalLogger} from 'src/logger';
+import {ReactRenderStorage} from 'src/modules/react-renderer';
+import {DirectiveSyntaxContext} from 'src/utils/directive';
+import {SafeEventEmitter} from 'src/utils/event-emitter';
 
-import {EditorImpl, type EditorInt} from './Editor';
+import {EditorImpl, type EditorOptions} from './Editor';
 import type {MarkdownEditorInstance} from './editor-public-types';
-import type {MarkdownEditorMode, MarkdownEditorOptions, MarkdownEditorPreset} from './types';
-import {BundlePreset} from './wysiwyg-preset';
+import {useMarkupCore} from './markup/useMarkupCore';
+import type {EditorEventMap} from './shared/events';
+import type {EditorMarkupState} from './shared/types';
+import type {MarkdownEditorMode, MarkdownEditorOptions} from './types';
+import {useWysiwygCore} from './wysiwyg/useWysiwygCore';
 
 export type UseMarkdownEditorProps = MarkdownEditorOptions;
 
@@ -17,82 +19,45 @@ export function useMarkdownEditor(
     props: UseMarkdownEditorProps,
     deps: React.DependencyList = [],
 ): MarkdownEditorInstance {
-    const editor = useMemo<EditorInt>(() => {
-        const {
-            md = {},
-            initial = {},
-            handlers = {},
-            experimental = {},
-            config = {},
-            markupConfig = {},
-            wysiwygConfig = {},
-            logger = new Logger2(),
-            mobile,
-        } = props;
-
-        const preset: MarkdownEditorPreset = props.preset ?? 'full';
-        const renderStorage = new ReactRenderStorage();
-
-        const pmTransformers = getPMTransformers({
-            emptyRowTransformer: experimental.preserveEmptyRows,
-        });
-
-        const directiveSyntax = new DirectiveSyntaxContext(experimental.directiveSyntax);
-
-        const extensions: Extension = (builder) => {
-            const extensionOptions = wysiwygConfig.extensionOptions;
-
-            builder.use(BundlePreset, {
-                ...extensionOptions,
-                emoji: {...config.emoji, ...extensionOptions?.emoji},
-                directiveSyntax,
-                preset,
-                reactRenderer: renderStorage,
-                onCancel: () => {
-                    editor.emit('cancel', null);
-                    return true;
-                },
-                onSubmit: () => {
-                    editor.emit('submit', null);
-                    return true;
-                },
-                disableMdAttrs: wysiwygConfig.disableMarkdownAttrs,
-                preserveEmptyRows: experimental.preserveEmptyRows,
-                placeholderOptions: wysiwygConfig.placeholderOptions,
-                mdBreaks: md.breaks,
-                fileUploadHandler: handlers.uploadFile,
-                needToSetDimensionsForUploadedImages:
-                    experimental.needToSetDimensionsForUploadedImages,
-                enableNewImageSizeCalculation: experimental.enableNewImageSizeCalculation,
-                mobile,
-                searchPanel: wysiwygConfig.searchPanel ?? true,
-            });
-            {
-                const extraExtensions = wysiwygConfig.extensions;
-                if (extraExtensions) {
-                    builder.use(extraExtensions, props.wysiwygConfig?.extensionOptions);
-                }
-            }
-        };
-
-        return new EditorImpl({
+    const {
+        options: editorOptions,
+        events,
+        markupState: editorMarkupState,
+        getInitialMarkup,
+    } = useMemo(() => {
+        const logger = props.logger ?? new Logger2();
+        const options: EditorOptions = {
             ...props,
             logger,
-            preset,
-            renderStorage,
-            directiveSyntax,
-            pmTransformers,
-            md,
-            initial,
-            handlers,
-            experimental,
-            markupConfig,
-            wysiwygConfig: {
-                ...wysiwygConfig,
-                extensions,
-            },
-        });
+            preset: props.preset ?? 'full',
+            renderStorage: new ReactRenderStorage(),
+            directiveSyntax: new DirectiveSyntaxContext(props.experimental?.directiveSyntax),
+        };
+        const markupState: EditorMarkupState = {markup: props.initial?.markup ?? ''};
+        return {
+            options,
+            markupState,
+            getInitialMarkup: () => markupState.markup,
+            events: new SafeEventEmitter<EditorEventMap>({
+                onError: (error) => {
+                    logger.error(error);
+                    globalLogger.error(error);
+                },
+            }),
+        };
     }, deps);
+    const wysiwyg = useWysiwygCore(editorOptions, events, getInitialMarkup);
+    const markup = useMarkupCore(editorOptions, events, getInitialMarkup);
+    const editor = useMemo(
+        () =>
+            new EditorImpl(editorOptions, {
+                events,
+                wysiwyg,
+                markup,
+                markupState: editorMarkupState,
+            }),
+        [editorOptions, events, wysiwyg, markup, editorMarkupState],
+    );
 
     useLayoutEffect(() => {
         function onToolbarAction({editorMode, id}: {editorMode: MarkdownEditorMode; id: string}) {

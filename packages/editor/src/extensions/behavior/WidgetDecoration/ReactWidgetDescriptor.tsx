@@ -1,8 +1,9 @@
 import {Portal} from '@gravity-ui/uikit';
 import type {EditorView} from 'prosemirror-view';
 
+import type {RendererItem} from '../../../modules/react-renderer';
 import {ErrorLoggerBoundary} from '../../../react-utils/ErrorBoundary';
-import {type RendererItem, getReactRendererFromState} from '../ReactRenderer';
+import {getReactRendererFromState} from '../ReactRenderer';
 
 import {WidgetDescriptor} from './WidgetDescriptor';
 

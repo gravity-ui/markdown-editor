@@ -40,3 +40,8 @@ declare module 'markdown-it-ins' {
     declare const plugin: PluginSimple;
     export = plugin;
 }
+
+declare module 'uc.micro/categories/P/regex.js' {
+    const punctuation: RegExp;
+    export = punctuation;
+}

@@ -5,7 +5,13 @@ import {ActionName, ToolbarName} from '../../../modules/toolbars/constants';
 import {textContextItemWisywig} from '../../../modules/toolbars/items';
 import {commonmark, defaultPreset, full, yfm, zero} from '../../../modules/toolbars/presets';
 import type {ToolbarsPreset} from '../../../modules/toolbars/types';
-import {wCommandMenuConfigByPreset, wSelectionMenuConfigByPreset} from '../../config/wysiwyg';
+import {mHiddenData, mToolbarConfig} from '../../config/markup';
+import {
+    wCommandMenuConfigByPreset,
+    wHiddenData,
+    wSelectionMenuConfigByPreset,
+    wToolbarConfig,
+} from '../../config/wysiwyg';
 import type {MarkdownEditorPreset} from '../../types';
 import {ToolbarDataType} from '../types';
 
@@ -13,6 +19,7 @@ import {
     createSelectionToolbarConfig,
     createSlashToolbarConfig,
     getContextualToolbarsConfig,
+    getToolbarsConfigs,
 } from './toolbarsConfigs';
 
 const presets = {zero, commonmark, default: defaultPreset, yfm, full};
@@ -25,6 +32,38 @@ const migratedIds: Record<string, string> = {
     yfm_cut: ActionName.cut,
 };
 const migrateId = ({id}: {id: string}) => migratedIds[id] ?? id;
+
+describe('Toolbar configuration priority', () => {
+    const props = {
+        markupToolbarConfig: mToolbarConfig,
+        wysiwygToolbarConfig: wToolbarConfig,
+        markupHiddenActionsConfig: mHiddenData,
+        wysiwygHiddenActionsConfig: wHiddenData,
+    };
+
+    it('should use each direct configuration before the preset default', () => {
+        const result = getToolbarsConfigs({props, preset: 'zero'});
+
+        for (const key of Object.keys(props) as (keyof typeof props)[]) {
+            expect(result[key]).toBe(props[key]);
+        }
+    });
+
+    it('should use toolbarsPreset before all deprecated configurations', () => {
+        const result = getToolbarsConfigs({
+            props,
+            preset: 'full',
+            toolbarsPreset: {items: {}, orders: {}},
+        });
+
+        expect(result).toEqual({
+            markupToolbarConfig: [[]],
+            wysiwygToolbarConfig: [[]],
+            markupHiddenActionsConfig: [],
+            wysiwygHiddenActionsConfig: [],
+        });
+    });
+});
 
 describe('Contextual toolbar presets', () => {
     it.each(Object.keys(presets) as MarkdownEditorPreset[])(
