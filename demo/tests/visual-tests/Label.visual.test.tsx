@@ -6,8 +6,7 @@ import dd from 'ts-dedent';
 import {expect, test} from 'playwright/core';
 import type {MarkdownEditorPage} from 'playwright/core/editor';
 
-import {LabelPlayground} from './Label.helpers';
-import {Playground} from './Playground.helpers';
+import {LabelStories} from './Label.helpers';
 
 const markup = dd`
     Plain line of the paragraph text
@@ -47,6 +46,10 @@ const measure = (root: Locator) =>
         };
     });
 
+/** Checks the collapsed WYSIWYG selection at the position. */
+const expectCursor = (editor: MarkdownEditorPage, pos: number) =>
+    expect.poll(() => editor.label.readCursor()).toMatchObject({pos, to: pos});
+
 const expectLabelMetrics = (metrics: Awaited<ReturnType<typeof measure>>) => {
     expect(metrics.labelCount).toBe(7);
     expect(metrics.fontSize).toBe('15px');
@@ -64,31 +67,31 @@ const expectLabelMetrics = (metrics: Awaited<ReturnType<typeof measure>>) => {
 };
 
 test.describe('Label', () => {
-    test.beforeEach(async ({mount, page, editor}) => {
-        await mount(<LabelPlayground initial={markup} />);
+    test.beforeEach(async ({mount, page}) => {
+        await mount(<LabelStories.Label width={812} initial={markup} />);
         await page.setViewportSize({height: 500, width: 812});
-        await editor.switchMode('wysiwyg');
     });
 
-    /** The page fits the playground with its margins and the popup of the first label. */
-    const fitPopupPage = (page: Page) => page.setViewportSize({width: 852, height: 580});
+    /** The page fits the editor with its margins and the popup of the first label. */
+    const fitPopupPage = (page: Page) => page.setViewportSize({width: 852, height: 448});
 
     /** Puts the cursor before the label of the second paragraph: `Before |[Draft] after`. */
-    const placeCursorBeforeLabel = async (page: Page, editor: MarkdownEditorPage) => {
+    const placeCursorBeforeLabel = async (editor: MarkdownEditorPage) => {
         const line = editor.locators.contenteditable.locator('p').nth(1);
         await line.click({position: {x: 1, y: 10}});
         await editor.press('Home');
         await editor.press('ArrowRight', 'Before '.length);
-        await expect(page.locator('.playground__pm-selection')).toContainText('Cursor: 42');
+        await expectCursor(editor, 42);
     };
 
     test('should render the palette in the WYSIWYG mode @wysiwyg', async ({
+        page,
         editor,
         expectScreenshot,
     }) => {
         expectLabelMetrics(await measure(editor.locators.contenteditable));
 
-        await expectScreenshot();
+        await expectScreenshot({component: page.locator('.g-md-editor-component')});
     });
 
     test('should render the palette in the preview @markup', async ({
@@ -106,7 +109,7 @@ test.describe('Label', () => {
         await expect(preview.locator('.g-md-label-plugin')).toHaveCount(7);
         expectLabelMetrics(await measure(preview));
 
-        await expectScreenshot();
+        await expectScreenshot({component: page.locator('.g-md-editor-component')});
     });
 
     test('should open the popover on arrows without moving the focus @wysiwyg', async ({
@@ -115,7 +118,7 @@ test.describe('Label', () => {
         expectScreenshot,
     }) => {
         await fitPopupPage(page);
-        await placeCursorBeforeLabel(page, editor);
+        await placeCursorBeforeLabel(editor);
 
         const contenteditable = editor.locators.contenteditable;
         await expect(contenteditable).toHaveClass(/no-cursor/);
@@ -153,7 +156,7 @@ test.describe('Label', () => {
         editor,
         wait,
     }) => {
-        await placeCursorBeforeLabel(page, editor);
+        await placeCursorBeforeLabel(editor);
         await editor.press('ArrowRight');
         await expect(editor.label.popup).toBeVisible();
 
@@ -172,7 +175,7 @@ test.describe('Label', () => {
         page,
         editor,
     }) => {
-        await placeCursorBeforeLabel(page, editor);
+        await placeCursorBeforeLabel(editor);
         await editor.press('ArrowRight');
         await expect(editor.label.popup).toBeVisible();
         expect(await isEditorFocused(page)).toBe(true);
@@ -210,7 +213,9 @@ test.describe('Label', () => {
         await editor.label.input.press('End');
         await page.mouse.move(0, 0);
         await wait.tooltipsHidden();
-        await wait.markupPreview(':label[Draft]{color=green}');
+        await expect
+            .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
+            .toContain(':label[Draft]{color=green}');
         await expectScreenshot({fullPage: true, nameSuffix: 'edit popover'});
     });
 
@@ -241,8 +246,9 @@ test.describe('Label', () => {
 
         await page.mouse.move(0, 0);
         await wait.tooltipsHidden();
-        // The markup pane behind the edge of the popup shows the last color.
-        await wait.markupPreview(':label[Draft]{color=yellow}');
+        await expect
+            .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
+            .toContain(':label[Draft]{color=yellow}');
         await expectScreenshot({component: editor.label.popup, nameSuffix: 'focused swatch'});
     });
 
@@ -459,7 +465,7 @@ test.describe('Label', () => {
         page,
         editor,
     }) => {
-        await placeCursorBeforeLabel(page, editor);
+        await placeCursorBeforeLabel(editor);
         await editor.press('ArrowRight');
         await page.keyboard.type('Q');
         await expect(editor.label.labels).toHaveCount(7);
@@ -626,13 +632,11 @@ test.describe('Label in a table', () => {
         editor,
     }) => {
         await mount(
-            <Playground
+            <LabelStories.Label
                 initial={'| a | b |\n|---|---|\n| :label[x\\|y]{color=red} | c |'}
-                width="100%"
-                style={{width: 812}}
+                width={812}
             />,
         );
-        await editor.switchMode('wysiwyg');
         await expect(editor.label.labels).toHaveText('x|y');
 
         await editor.switchMode('markup');
@@ -648,14 +652,7 @@ test.describe('Label in a table', () => {
 
 test.describe('Label, former markup', () => {
     test('should read the former status directive @wysiwyg', async ({mount, editor}) => {
-        await mount(
-            <Playground
-                initial=":status[Old]{color=teal} text"
-                width="100%"
-                style={{width: 812}}
-            />,
-        );
-        await editor.switchMode('wysiwyg');
+        await mount(<LabelStories.Label initial=":status[Old]{color=teal} text" width={812} />);
 
         await expect(editor.label.labels).toHaveCount(1);
         await expect(editor.label.labels.first()).toHaveText('Old');
@@ -669,8 +666,7 @@ test.describe('Label boundary regressions', () => {
         page,
         editor,
     }) => {
-        await mount(<Playground initial=":label[L]`code` z" width="100%" style={{width: 812}} />);
-        await editor.switchMode('wysiwyg');
+        await mount(<LabelStories.Label initial=":label[L]`code` z" width={812} />);
         const content = editor.locators.contenteditable;
         await editor.label.labels.click();
         await page.keyboard.press('Escape');
@@ -682,8 +678,7 @@ test.describe('Label boundary regressions', () => {
     });
 
     test('should leave preceding code outside the mark @wysiwyg', async ({mount, page, editor}) => {
-        await mount(<Playground initial="a `code`:label[L] z" width="100%" style={{width: 812}} />);
-        await editor.switchMode('wysiwyg');
+        await mount(<LabelStories.Label initial="a `code`:label[L] z" width={812} />);
         const content = editor.locators.contenteditable;
         await editor.label.labels.click();
         await page.keyboard.press('Escape');
@@ -696,35 +691,29 @@ test.describe('Label boundary regressions', () => {
 
     test('should move to the line end and next line from the leading label @wysiwyg', async ({
         mount,
-        page,
         editor,
     }) => {
         await mount(
-            <Playground
-                initial={':label[Lead] middle tail\n\nNext line'}
-                width="100%"
-                style={{width: 812}}
-            />,
+            <LabelStories.Label initial={':label[Lead] middle tail\n\nNext line'} width={812} />,
         );
-        await editor.switchMode('wysiwyg');
         await editor.locators.contenteditable
             .locator('p')
             .first()
             .click({position: {x: 100, y: 8}});
         await editor.press('Home');
-        await expect(page.locator('.playground__pm-selection')).toContainText(/Cursor: 1$/);
+        await expectCursor(editor, 1);
         await editor.press('End');
-        await expect(page.locator('.playground__pm-selection')).toContainText(/Cursor: 14$/);
+        await expectCursor(editor, 14);
         for (let i = 0; i < 3; i++) {
             // Repeated clicks within 500 ms select words/paragraphs in ProseMirror.
             // Control+Home updates ProseMirror through the native selectionchange event.
             await editor.press('Control+Home');
-            await expect(page.locator('.playground__pm-selection')).toContainText(/Cursor: 1$/);
+            await expectCursor(editor, 1);
             await editor.press('End');
-            await expect(page.locator('.playground__pm-selection')).toContainText(/Cursor: 14$/);
+            await expectCursor(editor, 14);
             await editor.press('Home');
             await editor.press('ArrowDown');
-            await expect(page.locator('.playground__pm-selection')).toContainText(/Cursor: 16$/);
+            await expectCursor(editor, 16);
         }
     });
 });
@@ -759,13 +748,11 @@ test.describe('Label vertical navigation', () => {
         editor,
     }) => {
         await mount(
-            <Playground
+            <LabelStories.Label
                 initial={'abcdefghijklmnop\n\nprefix :label[Middle] suffix\n\nabcdefghijklmnop'}
-                width="100%"
-                style={{width: 812}}
+                width={812}
             />,
         );
-        await editor.switchMode('wysiwyg');
         await expectNeighboringLines(page, editor);
     });
 
@@ -775,15 +762,13 @@ test.describe('Label vertical navigation', () => {
         editor,
     }) => {
         await mount(
-            <Playground
+            <LabelStories.Label
                 initial={
                     '> abcdefghijklmnop\n>\n> prefix :label[Middle] suffix\n>\n> abcdefghijklmnop'
                 }
-                width="100%"
-                style={{width: 812}}
+                width={812}
             />,
         );
-        await editor.switchMode('wysiwyg');
         await expectNeighboringLines(page, editor);
     });
 
@@ -793,13 +778,11 @@ test.describe('Label vertical navigation', () => {
         editor,
     }) => {
         await mount(
-            <Playground
+            <LabelStories.Label
                 initial={'- abcdefghijklmnop\n- prefix :label[Middle] suffix\n- abcdefghijklmnop'}
-                width="100%"
-                style={{width: 812}}
+                width={812}
             />,
         );
-        await editor.switchMode('wysiwyg');
         await expectNeighboringLines(page, editor);
     });
 
@@ -809,13 +792,11 @@ test.describe('Label vertical navigation', () => {
         editor,
     }) => {
         await mount(
-            <Playground
+            <LabelStories.Label
                 initial={'abcdefghijklmnop\n\n`code`:label[Middle]`after`\n\nabcdefghijklmnop'}
-                width="100%"
-                style={{width: 812}}
+                width={812}
             />,
         );
-        await editor.switchMode('wysiwyg');
         await expectNeighboringLines(page, editor);
     });
 
@@ -825,13 +806,11 @@ test.describe('Label vertical navigation', () => {
         editor,
     }) => {
         await mount(
-            <Playground
+            <LabelStories.Label
                 initial={'abcdefghijklmnop\n\n:label[Only]\n\nabcdefghijklmnop'}
-                width="100%"
-                style={{width: 812}}
+                width={812}
             />,
         );
-        await editor.switchMode('wysiwyg');
         await expectNeighboringLines(page, editor);
     });
 
@@ -841,15 +820,13 @@ test.describe('Label vertical navigation', () => {
         editor,
     }) => {
         await mount(
-            <Playground
+            <LabelStories.Label
                 initial={
                     'abcdefghijklmnopqrstuvwxyz\n\nx\n\nprefix :label[Middle] suffix\n\nx\n\nabcdefghijklmnopqrstuvwxyz'
                 }
-                width="100%"
-                style={{width: 812}}
+                width={812}
             />,
         );
-        await editor.switchMode('wysiwyg');
         for (const key of ['ArrowUp', 'ArrowDown']) {
             await editor.label.placeCursor('after');
             const initial = await editor.label.readCursor();
@@ -873,13 +850,11 @@ test.describe('Label vertical navigation', () => {
         editor,
     }) => {
         await mount(
-            <Playground
+            <LabelStories.Label
                 initial={'abcdefghij '.repeat(5) + ':label[Middle] ' + 'abcdefghij '.repeat(7)}
-                width="100%"
-                style={{width: 240}}
+                width={240}
             />,
         );
-        await editor.switchMode('wysiwyg');
         for (const side of ['before', 'after'] as const) {
             for (const key of ['ArrowUp', 'ArrowDown']) {
                 await editor.label.placeCursor(side);
@@ -906,7 +881,7 @@ test.describe('Label vertical navigation', () => {
         editor,
     }) => {
         await mount(
-            <Playground
+            <LabelStories.Label
                 initial={
                     'prefix :label[Middle] suffix\n\n' +
                     Array.from(
@@ -914,12 +889,10 @@ test.describe('Label vertical navigation', () => {
                         (_, i) => `Line ${i} with enough text for navigation`,
                     ).join('\n\n')
                 }
-                width="100%"
-                style={{width: 812}}
+                width={812}
             />,
         );
         await page.setViewportSize({width: 812, height: 500});
-        await editor.switchMode('wysiwyg');
         await editor.label.placeCursor('after');
         let previous = (await editor.label.readCursor()).pos;
         for (let i = 0; i < 16; i++) {
@@ -950,13 +923,11 @@ test.describe('Label vertical navigation', () => {
         editor,
     }) => {
         await mount(
-            <Playground
+            <LabelStories.Label
                 initial={':label[Top]\n\n- first\n- second\n\n:label[Bottom]'}
-                width="100%"
-                style={{width: 812}}
+                width={812}
             />,
         );
-        await editor.switchMode('wysiwyg');
         const expectLine = (line: string) =>
             expect.poll(async () => (await editor.label.readCursor()).line).toBe(line);
 
@@ -978,13 +949,12 @@ test.describe('Label vertical navigation', () => {
         editor,
     }) => {
         await mount(
-            <Playground
+            <LabelStories.Label
                 initial={'abcdefghijklmnopqrstuvwxyz\n\n:label[L]\n\nabcdefghijklmnopqrstuvwxyz'}
-                width="100%"
-                style={{width: 812}}
+                width={812}
             />,
         );
-        await editor.switchMode('wysiwyg');
+        await editor.focus();
         for (const key of ['ArrowDown', 'ArrowUp']) {
             await page.evaluate((direction) => {
                 const view = (window.mdEditor as unknown as {_wysiwygView: EditorView})
