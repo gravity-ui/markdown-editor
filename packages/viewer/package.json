@@ -68,7 +68,7 @@
     "@markdown-viewer-tests/react19": "workspace:*"
   },
   "peerDependencies": {
-    "@gravity-ui/uikit": "^7.34.0",
+    "@gravity-ui/uikit": "^8.0.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
