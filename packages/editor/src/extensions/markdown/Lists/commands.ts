@@ -62,15 +62,27 @@ type SelectedItems = {
     after: number[];
 };
 
-/** A non-empty selection that ends at the start of a block leaves that block unselected. */
-function getSelectionEnd({$from, $to, empty}: Selection): number {
-    let end = $to.pos;
-    if (!empty) {
-        for (let depth = $to.depth; depth > 0 && end === $to.start(depth); depth--) {
-            end = $to.before(depth);
-        }
+/**
+ * A block is not selected when the selection only ends at its start or only starts at the end
+ * of its text. An empty block at the selection start is selected. A selection that leaves
+ * no block selected is a cursor at `$from`.
+ */
+function getSelectedRange({$from, $to}: Selection): {from: number; to: number} {
+    let from = $from.pos;
+    for (
+        let depth = $from.depth;
+        depth > 0 && from === $from.end(depth) && from > $from.start(depth);
+        depth--
+    ) {
+        from = $from.after(depth);
     }
-    return Math.max(end, $from.pos);
+
+    let to = $to.pos;
+    for (let depth = $to.depth; depth > 0 && to === $to.start(depth); depth--) {
+        to = $to.before(depth);
+    }
+
+    return from < to ? {from, to} : {from: $from.pos, to: $from.pos};
 }
 
 /** Nested lists are not the item's own content: their items are selected separately. */
@@ -115,8 +127,7 @@ function findSelectedItems(
     itemType: NodeType,
     canMove: (index: number) => boolean,
 ): SelectedItems | null {
-    const {from} = selection;
-    const to = getSelectionEnd(selection);
+    const {from, to} = getSelectedRange(selection);
     const groups: ItemGroup[] = [];
     let lastStart = -1;
     let lastEnd = -1;
@@ -171,6 +182,11 @@ function liftListEnd(tr: Transaction, range: NodeRange) {
     if (target !== null) tr.lift(range, target);
 }
 
+function joinLists(tr: Transaction, pos: number) {
+    const {nodeBefore, nodeAfter} = tr.doc.resolve(pos);
+    if (nodeBefore && nodeBefore.type === nodeAfter?.type && canJoin(tr.doc, pos)) tr.join(pos);
+}
+
 /** Items from the end of a list become nested in the item before them. */
 function nestListEnd(tr: Transaction, range: NodeRange, itemType: NodeType) {
     if (range.startIndex === 0) return;
@@ -179,7 +195,7 @@ function nestListEnd(tr: Transaction, range: NodeRange, itemType: NodeType) {
     const slice = new Slice(Fragment.from(itemType.create(null, parent.copy())), 1, 0);
     tr.step(new ReplaceAroundStep(start - 1, end, start, end, slice, 1, true));
     // the item may already end with a nested list
-    if (canJoin(tr.doc, start - 1)) tr.join(start - 1);
+    joinLists(tr, start - 1);
 }
 
 /** `liftToOuterList` from `prosemirror-schema-list` for a range. */
@@ -221,16 +237,17 @@ function liftOutOfList(tr: Transaction, range: NodeRange) {
         atStart ? 0 : 1,
         atEnd ? 0 : 1,
     );
-    tr.step(
-        new ReplaceAroundStep(
-            start - (atStart ? 1 : 0),
-            end + (atEnd ? 1 : 0),
-            start + 1,
-            end - 1,
-            slice,
-            atStart ? 0 : 1,
-        ),
+    const step = new ReplaceAroundStep(
+        start - (atStart ? 1 : 0),
+        end + (atEnd ? 1 : 0),
+        start + 1,
+        end - 1,
+        slice,
+        atStart ? 0 : 1,
     );
+    tr.step(step);
+    // a nested list of the last item stands next to the rest of the list
+    if (!atEnd) joinLists(tr, step.getMap().map(end - 1, -1));
 }
 
 /**

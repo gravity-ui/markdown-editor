@@ -293,6 +293,50 @@ describe('sinkSelectedListItems', () => {
             doc(ul(li(p('one'), ul(li(p('two')))), li(p('three')))),
         ));
 
+    it('should not sink the item whose text ends at the start of the selection', () =>
+        apply(
+            doc(ul(li(p('one')), li(p('two<a>')), li(p('thr<b>ee')))),
+            sink,
+            doc(ul(li(p('one')), li(p('two<a>'), ul(li(p('thr<b>ee')))))),
+        ));
+
+    it('should sink only the items between the end of one item and the start of another', () =>
+        apply(
+            doc(
+                ul(
+                    li(p('one')),
+                    li(p('two<a>')),
+                    li(p('three'), ul(li(p('four')), li(p('<b>five')), li(p('six')))),
+                    li(p('seven')),
+                ),
+            ),
+            sink,
+            doc(
+                ul(
+                    li(p('one')),
+                    li(
+                        p('two<a>'),
+                        ul(li(p('three'), ul(li(p('four')))), li(p('<b>five')), li(p('six'))),
+                    ),
+                    li(p('seven')),
+                ),
+            ),
+        ));
+
+    it('should sink an empty item at the start of the selection', () =>
+        apply(
+            doc(ul(li(p('one')), li(p('<a>')), li(p('thr<b>ee')))),
+            sink,
+            doc(ul(li(p('one'), ul(li(p('<a>')), li(p('thr<b>ee')))))),
+        ));
+
+    it('should sink the first item of a selection that covers only the gap between two items', () =>
+        apply(
+            doc(ul(li(p('one')), li(p('two<a>')), li(p('<b>three')))),
+            sink,
+            doc(ul(li(p('one'), ul(li(p('two<a>')))), li(p('<b>three')))),
+        ));
+
     it('should sink the selected items of each list', () =>
         apply(
             doc(ul(li(p('one')), li(p('t<a>wo'))), p('text'), ul(li(p('three')), li(p('fo<b>ur')))),
@@ -501,6 +545,44 @@ describe('liftSelectedListItems', () => {
             doc(ul(li(p('one')), li(p('two'), ul(li(p('three')))))),
         ));
 
+    it('should not lift the item whose text ends at the start of the selection', () =>
+        apply(
+            doc(ul(li(p('one'), ul(li(p('two<a>')), li(p('thr<b>ee')))))),
+            lift,
+            doc(ul(li(p('one'), ul(li(p('two<a>')))), li(p('thr<b>ee')))),
+        ));
+
+    it('should lift only the items between the end of one item and the start of another', () =>
+        apply(
+            doc(
+                ul(
+                    li(p('one')),
+                    li(p('two<a>')),
+                    li(
+                        p('three'),
+                        ul(li(p('four')), li(p('<b>five')), li(p('six'), ul(li(p('seven'))))),
+                    ),
+                    li(p('eight')),
+                ),
+            ),
+            lift,
+            doc(
+                ul(li(p('one')), li(p('two<a>'))),
+                p('three'),
+                ul(
+                    li(p('four'), ul(li(p('<b>five')), li(p('six'), ul(li(p('seven')))))),
+                    li(p('eight')),
+                ),
+            ),
+        ));
+
+    it('should lift an empty item at the start of the selection', () =>
+        apply(
+            doc(ul(li(p('one'), ul(li(p('<a>')), li(p('thr<b>ee')))))),
+            lift,
+            doc(ul(li(p('one')), li(p('<a>')), li(p('thr<b>ee')))),
+        ));
+
     it('should lift the selected items of each list', () =>
         apply(
             doc(
@@ -524,6 +606,20 @@ describe('liftSelectedListItems', () => {
             doc(ul(li(p('one'), ul(li(p('t<a>wo'), ol(li(p('th<b>ree')), li(p('four')))))))),
             lift,
             doc(ul(li(p('one')), li(p('two'), ol(li(p('three'), ol(li(p('four')))))))),
+        ));
+
+    it('should keep the type of the following items that become nested', () =>
+        apply(
+            doc(ul(li(p('one'), ul(li(p('t<a>w<b>o'), ol(li(p('three')))), li(p('four')))))),
+            lift,
+            doc(ul(li(p('one')), li(p('t<a>w<b>o'), ol(li(p('three'))), ul(li(p('four')))))),
+        ));
+
+    it('should join a nested list of a lifted item with the rest of the list', () =>
+        apply(
+            doc(p('te<a>xt'), ul(li(p('o<b>ne'), ul(li(p('two')))), li(p('three')))),
+            lift,
+            doc(p('te<a>xt'), p('o<b>ne'), ul(li(p('two')), li(p('three')))),
         ));
 
     it('should not lift outside of a list', () =>
@@ -561,13 +657,23 @@ describe('several selected list items', () => {
         return ul(...items);
     }
 
-    function findText(node: Node, text: string): number {
-        let found = -1;
+    function findTextblocks(node: Node) {
+        const blocks: {text: string; start: number; end: number}[] = [];
         node.descendants((child, pos) => {
-            if (child.isTextblock && child.textContent === text) found = pos + 1;
+            if (child.isTextblock) {
+                blocks.push({
+                    text: child.textContent,
+                    start: pos + 1,
+                    end: pos + child.nodeSize - 1,
+                });
+            }
             return !child.isTextblock;
         });
-        return found;
+        return blocks;
+    }
+
+    function findText(node: Node, text: string): number {
+        return findTextblocks(node).find((block) => block.text === text)?.start ?? -1;
     }
 
     function run(state: EditorState, command: Command): EditorState {
@@ -590,16 +696,18 @@ describe('several selected list items', () => {
             const last = first + Math.floor(random() * (texts.length - first));
             const state = EditorState.create({doc: initial, plugins: [mergeListsPlugin()]});
 
+            // the selection may start at the end of the previous block and end at the start
+            // of the next one
+            const blocks = findTextblocks(initial);
+            const firstIndex = blocks.findIndex((block) => block.text === texts[first]);
+            const lastIndex = blocks.findIndex((block) => block.text === texts[last]);
+            const before = random() < 0.5 ? blocks[firstIndex - 1] : undefined;
+            const after = random() < 0.5 ? blocks[lastIndex + 1] : undefined;
+            const from = before ? before.end : blocks[firstIndex].start;
+            const to = after ? after.start : blocks[lastIndex].start + 1;
+
             const all = run(
-                state.apply(
-                    state.tr.setSelection(
-                        TextSelection.create(
-                            initial,
-                            findText(initial, texts[first]),
-                            findText(initial, texts[last]) + 1,
-                        ),
-                    ),
-                ),
+                state.apply(state.tr.setSelection(TextSelection.create(initial, from, to))),
                 command,
             );
 
@@ -611,6 +719,41 @@ describe('several selected list items', () => {
             }
 
             ist(all.doc, oneByOne.doc, eq);
+        }
+    });
+
+    it('should move them like one by one when the keys are pressed in turn', () => {
+        const random = createRandom(2);
+        for (let n = 0; n < 300; n++) {
+            const texts: string[] = [];
+            const initial = doc(createList(random, texts), p('text'), createList(random, texts));
+            const first = Math.floor(random() * texts.length);
+            const last = first + Math.floor(random() * (texts.length - first));
+            const selected = texts.slice(first, last + 1);
+            let state = EditorState.create({
+                doc: initial,
+                plugins: [mergeListsPlugin()],
+                selection: TextSelection.create(
+                    initial,
+                    findText(initial, texts[first]),
+                    findText(initial, texts[last]) + 1,
+                ),
+            });
+
+            for (let key = 0; key < 4; key++) {
+                const fromTop = random() < 0.5;
+                let oneByOne = state;
+                for (const text of fromTop ? selected : [...selected].reverse()) {
+                    const cursor = TextSelection.create(oneByOne.doc, findText(oneByOne.doc, text));
+                    oneByOne = run(
+                        oneByOne.apply(oneByOne.tr.setSelection(cursor)),
+                        fromTop ? sink : liftListItem(schema.nodes.list_item),
+                    );
+                }
+
+                state = run(state, fromTop ? sink : lift);
+                ist(state.doc, oneByOne.doc, eq);
+            }
         }
     });
 });
