@@ -1,5 +1,32 @@
 # Changelog
 
+## [15.50.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.49.0...markdown-editor-v15.50.0) (2026-11-10)
+
+
+### Features
+
+* add emoji suggestions in markup mode and shared editor config ([#1383](https://github.com/gravity-ui/markdown-editor/issues/1383)) ([098146e](https://github.com/gravity-ui/markdown-editor/commit/098146e296549bd3c23b201d5e61fb74897120a9))
+* **toolbars:** add separate WYSIWYG and markup toolbar presets ([#1407](https://github.com/gravity-ui/markdown-editor/issues/1407)) ([c1d6375](https://github.com/gravity-ui/markdown-editor/commit/c1d63759aff2b70ec3a1db1487819060b6d3b572))
+
+
+### Bug Fixes
+
+* **bundle:** recover from failed mode changes ([#1405](https://github.com/gravity-ui/markdown-editor/issues/1405)) ([21d2dd7](https://github.com/gravity-ui/markdown-editor/commit/21d2dd765eebcb37647df2e697be0ece57af9633))
+* **core:** preserve multiline text and formatting in serializer ([#1391](https://github.com/gravity-ui/markdown-editor/issues/1391)) ([2efd3b0](https://github.com/gravity-ui/markdown-editor/commit/2efd3b01a4e2be6a874c3a1efe6386172c823a0a))
+* **core:** preserve serializer formatting across whitespace and inline code ([#1388](https://github.com/gravity-ui/markdown-editor/issues/1388)) ([3a50b6e](https://github.com/gravity-ui/markdown-editor/commit/3a50b6eb77cfad25675b3382613b3e03223101a0))
+* **core:** preserve Unicode indentation and line-start text in serializer ([#1418](https://github.com/gravity-ui/markdown-editor/issues/1418)) ([5e1c772](https://github.com/gravity-ui/markdown-editor/commit/5e1c772dc7abeb4b6b428bd816e73801ca6650df))
+* **core:** prevent indented paragraphs from becoming code blocks in serializer ([#1414](https://github.com/gravity-ui/markdown-editor/issues/1414)) ([01ea65a](https://github.com/gravity-ui/markdown-editor/commit/01ea65ab362ca414f7f12e1cbb3688328734c427))
+* **Link:** enable link creation for a single character ([#1321](https://github.com/gravity-ui/markdown-editor/issues/1321)) ([420acbc](https://github.com/gravity-ui/markdown-editor/commit/420acbcee51d9f938ffca44e91b1d1957e5be368))
+* prevent form submission during input composition ([#1423](https://github.com/gravity-ui/markdown-editor/issues/1423)) ([981c392](https://github.com/gravity-ui/markdown-editor/commit/981c392c868828ade9bc0ba5125aab624329dea7))
+* repair local declaration imports ([#1419](https://github.com/gravity-ui/markdown-editor/issues/1419)) ([d30e8c7](https://github.com/gravity-ui/markdown-editor/commit/d30e8c77df7ddbabdaa1335ba2b8b4a811bafb89))
+* skip upload updates after editor destruction ([#1417](https://github.com/gravity-ui/markdown-editor/issues/1417)) ([3fdfd96](https://github.com/gravity-ui/markdown-editor/commit/3fdfd96a2a72cf2d40e8cef4e84cd5bcf3b50003))
+
+
+### Refactoring
+
+* **bundle:** share lazy markup and wysiwyg cores ([#1420](https://github.com/gravity-ui/markdown-editor/issues/1420)) ([cdb3b59](https://github.com/gravity-ui/markdown-editor/commit/cdb3b59dbc4e1555f6004d911b106a451da26dd8))
+* move React rendering to a shared module ([#1406](https://github.com/gravity-ui/markdown-editor/issues/1406)) ([a19df7b](https://github.com/gravity-ui/markdown-editor/commit/a19df7bfd3c6ffd65afbee2b929ba2397a156e07))
+
 ## [15.49.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.48.2...markdown-editor-v15.49.0) (2026-10-26)
 
 
