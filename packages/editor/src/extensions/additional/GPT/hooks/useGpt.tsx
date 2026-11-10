@@ -140,7 +140,9 @@ export const useGpt = <
 
     const handleCustomPromptKeyDown = useCallback<NonNullable<TextInputProps['onKeyDown']>>(
         async (event) => {
-            if (!isEnter(event) || event.nativeEvent.isComposing) {
+            const {isComposing, keyCode} = event.nativeEvent;
+            // IME confirmation may report keyCode 229 after isComposing becomes false.
+            if (!isEnter(event) || isComposing || keyCode === 229) {
                 return;
             }
 
