@@ -371,8 +371,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         },
                         [className],
                     )}
-                    // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Preserve keyboard navigation and the preview focus target without button semantics.
-                    tabIndex={0}
+                    tabIndex={-1}
                 >
                     <EditorWrapper
                         autofocus={autofocus}
