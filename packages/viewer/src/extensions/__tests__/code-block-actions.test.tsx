@@ -47,6 +47,45 @@ describe('YfmCodeBlockActions', () => {
         expect(writeText).toHaveBeenCalledWith('  const a = 1;\n  a++;\n');
     });
 
+    it.each([
+        {layout: 'plain', code: '<span class="yfm-code-prompt">$ </span>echo "$HOME"'},
+        {
+            layout: 'wrapped',
+            code: '<span class="yfm-line-number">1</span><span class="yfm-line"><span class="yfm-code-prompt">$ </span>echo "$HOME"</span>',
+        },
+    ])('should skip shell prompt markup in $layout code', async ({code}) => {
+        render(
+            <MarkdownViewer
+                html={`<div class="yfm-code-floating-container"><pre><code>${code}\n</code></pre></div>`}
+            >
+                <YfmCodeBlockActions />
+            </MarkdownViewer>,
+        );
+
+        await act(async () => getButton().click());
+
+        expect(writeText).toHaveBeenCalledWith('echo "$HOME"\n');
+    });
+
+    it('should attach actions from only one extension to a code block', () => {
+        const html = '<div class="yfm-clipboard"><pre><code>Code</code></pre></div>';
+        function update(showSecond: boolean) {
+            render(
+                <MarkdownViewer html={html}>
+                    <YfmCodeBlockActions />
+                    {showSecond && <YfmCodeBlockActions />}
+                </MarkdownViewer>,
+            );
+        }
+        update(true);
+        expect(container.querySelectorAll('button')).toHaveLength(2);
+
+        update(false);
+        expect(
+            container.querySelector('.yfm-clipboard')?.classList.contains('g-md-yfm-code-block'),
+        ).toBe(true);
+    });
+
     it('should keep text wrapping when the button is disabled', () => {
         const html = '<div class="yfm-clipboard"><pre><code>Long line</code></pre></div>';
         const update = (lineWrappingButton?: boolean) =>
@@ -77,7 +116,7 @@ describe('YfmCodeBlockActions', () => {
 
     it('should remove actions without resetting text wrapping', () => {
         const html =
-            '<div class="yfm-clipboard"><pre><code class="wrap">Code</code></pre><button class="yfm-clipboard-button">Built-in copy</button></div>';
+            '<div class="yfm-clipboard"><pre><code>Code</code></pre><button class="yfm-clipboard-button">Built-in copy</button></div>';
         render(
             <MarkdownViewer html={html}>
                 <YfmCodeBlockActions />
@@ -86,12 +125,12 @@ describe('YfmCodeBlockActions', () => {
         const host = container.querySelector('.yfm-clipboard');
         const wrap = getButton('Text wrapping');
         assert(host);
-        expect(wrap.getAttribute('aria-pressed')).toBe('true');
         act(() => wrap.click());
+        expect(wrap.getAttribute('aria-pressed')).toBe('true');
 
         render(<MarkdownViewer html={html} />);
 
-        expect(container.querySelector('code')?.classList.contains('wrap')).toBe(false);
+        expect(container.querySelector('code')?.classList.contains('wrap')).toBe(true);
         expect(host.classList.contains('g-md-yfm-code-block')).toBe(false);
         expect(container.querySelectorAll('button')).toHaveLength(1);
         expect(container.querySelector('button')?.textContent).toBe('Built-in copy');

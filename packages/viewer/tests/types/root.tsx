@@ -14,6 +14,12 @@ import {
     cnYFM,
     useViewerEffect,
 } from '@gravity-ui/markdown-viewer';
+import {
+    YfmCodeBlockActions,
+    type YfmCodeBlockActionsProps,
+} from '@gravity-ui/markdown-viewer/extensions';
+
+import type * as SourceExtensions from '../../src/extensions';
 
 export function Consumer() {
     const mods: YFMMods = {'no-list-reset': true};
@@ -65,3 +71,5 @@ expectTypeOf(useViewerEffect).parameters.toEqualTypeOf<[ViewerEffect, Dependency
 expectTypeOf(cnYFM).parameter(0).toEqualTypeOf<YFMMods | null | undefined>();
 expectTypeOf<ViewerTargetsProps['children']>().parameter(0).toEqualTypeOf<HTMLElement>();
 expectTypeOf<ViewerTargetsProps['className']>().toEqualTypeOf<string | undefined>();
+expectTypeOf(YfmCodeBlockActions).toEqualTypeOf<typeof SourceExtensions.YfmCodeBlockActions>();
+expectTypeOf<YfmCodeBlockActionsProps>().toEqualTypeOf<SourceExtensions.YfmCodeBlockActionsProps>();

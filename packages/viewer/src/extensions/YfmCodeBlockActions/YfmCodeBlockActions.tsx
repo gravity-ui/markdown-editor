@@ -1,4 +1,4 @@
-import type {ReactElement} from 'react';
+import {type ReactElement, useState} from 'react';
 
 import {ClipboardButton} from '@gravity-ui/uikit';
 
@@ -48,13 +48,21 @@ function CodeBlockActions({
     lineWrappingButton,
     getCodeBlockText,
 }: {element: HTMLElement} & Required<Omit<YfmCodeBlockActionsProps, 'codeBlockSelector'>>) {
+    const [ownsBlock, setOwnsBlock] = useState(false);
+
     useClientLayoutEffect(() => {
-        const hadClass = element.classList.contains(b());
-        element.classList.add(b());
-        return () => {
-            if (!hadClass) element.classList.remove(b());
-        };
+        const className = b();
+        if (element.classList.contains(className)) {
+            setOwnsBlock(false);
+            return undefined;
+        }
+
+        element.classList.add(className);
+        setOwnsBlock(true);
+        return () => element.classList.remove(className);
     }, [element]);
+
+    if (!ownsBlock) return null;
 
     return (
         <>
@@ -68,8 +76,9 @@ function getCodeBlockTextDefault(element: HTMLElement) {
     const codeElement = element.querySelector('pre code');
     if (!codeElement) return '';
 
-    return Array.from(codeElement.childNodes)
-        .filter((node) => !(node instanceof Element && node.classList.contains('yfm-line-number')))
-        .map((node) => node.textContent)
-        .join('');
+    const copy = codeElement.cloneNode(true) as Element;
+    copy.querySelectorAll('.yfm-line-number, .yfm-code-prompt').forEach((decoration) => {
+        decoration.remove();
+    });
+    return copy.textContent ?? '';
 }

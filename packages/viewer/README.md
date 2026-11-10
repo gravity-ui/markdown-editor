@@ -108,7 +108,7 @@ The `@gravity-ui/markdown-viewer/extensions` entry point also exports the `YfmCo
 
 Use a stable selector for containers with `pre code`. The wrapping button toggles the `wrap` class on `pre code`.
 
-Disabling the button or removing the extension keeps the current wrapping state. Removing the extension also restores the built-in controls.
+Disabling the button or removing the extension leaves the `wrap` class as it is. Removing the extension restores the built-in controls. After removal, text wrapping depends on the styles for the code block.
 
 </details>
 

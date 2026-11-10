@@ -1,4 +1,4 @@
 {
   "extends": "./tsconfig.react19.json",
-  "include": ["root.tsx", "extensions.tsx"]
+  "include": ["root.tsx"]
 }
