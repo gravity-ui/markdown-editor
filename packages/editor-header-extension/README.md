@@ -24,7 +24,8 @@ A cursor in the block opens a toolbar with copy and delete.
 With the block selected or the cursor inside or next to it, Tab and Shift+Tab focus its controls; lists, tables, and code blocks inside the block handle these keys first.
 
 The editor writes both attributes, including default values.
-Syntax, sizes, and the stylesheet for previews are in `@gravity-ui/markdown-plugin-header`.
+Syntax, sizes, and shared styles for WYSIWYG and previews are in `@gravity-ui/markdown-plugin-header`.
+`Header` imports those styles; previews import `@gravity-ui/markdown-plugin-header/styles.css`.
 Child blocks remain editable and are preserved when copying or switching modes.
 A new or empty block holds an empty paragraph, and insertion puts the cursor into it.
 

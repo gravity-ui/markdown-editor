@@ -64,7 +64,7 @@ test.describe('Header', () => {
             .toMatch(/:::header\{height="\w+" width="\w+"\}\n\n:::/);
     });
 
-    test('should render dimensions @wysiwyg', async ({mount, page, header, expectScreenshot}) => {
+    test('should render dimensions @wysiwyg', async ({mount, editor, header, expectScreenshot}) => {
         await mount(
             <div style={smallSizes}>
                 <HeaderStories.Header
@@ -77,12 +77,12 @@ test.describe('Header', () => {
         );
         await expect(header.blocks).toHaveCount(4);
         await header.hideToolbar();
-        await expectScreenshot({component: page.locator('.g-md-editor-component')});
+        await expectScreenshot({component: editor.locators.component});
     });
 
     test('should constrain each width to a narrow column @wysiwyg', async ({
         mount,
-        page,
+        editor,
         header,
         expectScreenshot,
     }) => {
@@ -105,7 +105,7 @@ test.describe('Header', () => {
         expect([medium, large]).toEqual([full, full]);
         expect(full).toBeLessThan(180);
         await header.hideToolbar();
-        await expectScreenshot({component: page.locator('.g-md-editor-component')});
+        await expectScreenshot({component: editor.locators.component});
     });
 
     test('should show the toolbar when the cursor is in the block @wysiwyg', async ({
@@ -120,7 +120,7 @@ test.describe('Header', () => {
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await expect(header.toolbar).toBeVisible();
-        await expectScreenshot({fullPage: true});
+        await expectScreenshot({component: editor.locators.component});
     });
 
     test('should preserve edits when switching modes @wysiwyg @markup', async ({
@@ -182,13 +182,13 @@ test.describe('Header on mobile', () => {
 
     test('should fit a mobile viewport @wysiwyg', async ({
         mount,
-        page,
+        editor,
         header,
         expectScreenshot,
     }) => {
         await mount(<HeaderStories.Header width={335} />);
         await expect(header.blocks).toBeVisible();
         await header.hideToolbar();
-        await expectScreenshot({component: page.locator('.g-md-editor-component')});
+        await expectScreenshot({component: editor.locators.component});
     });
 });

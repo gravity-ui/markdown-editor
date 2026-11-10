@@ -9,8 +9,8 @@ import {
 import {ActionName as Action, ToolbarName, full} from '@gravity-ui/markdown-editor/toolbars';
 import {Header, toolbarHeaderItem} from '@gravity-ui/markdown-editor-header-extension';
 
+import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
-import {useEditorHandle} from '../../hooks/useEditorHandle';
 
 const mainToolbar = [
     [Action.undo, Action.redo],
@@ -51,10 +51,19 @@ export function HeaderExample({
         wysiwygConfig: {extensions: (builder) => builder.use(Header)},
         markupConfig: {renderPreview},
     });
-    useEditorHandle(editor);
     return (
-        <div style={{width, maxWidth: '100%'}}>
-            <MarkdownEditorView editor={editor} toolbarsPreset={toolbars} stickyToolbar={false} />
-        </div>
+        <PlaygroundLayout
+            editor={editor}
+            viewWidth={width}
+            view={({className}) => (
+                <MarkdownEditorView
+                    qa="demo-md-editor"
+                    className={className}
+                    editor={editor}
+                    toolbarsPreset={toolbars}
+                    stickyToolbar={false}
+                />
+            )}
+        />
     );
 }
