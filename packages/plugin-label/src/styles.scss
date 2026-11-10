@@ -1,0 +1,53 @@
+.g-md-label-plugin {
+    display: inline-flex;
+
+    box-sizing: border-box;
+    max-width: var(--g-md-label-plugin-max-width, min(180px, 100%));
+    padding: 1px 9px;
+
+    font-family: var(--g-text-body-font-family);
+    font-size: var(--g-text-body-1-font-size, 13px);
+    font-weight: var(--g-text-body-font-weight);
+    line-height: var(--g-text-body-1-line-height, 18px);
+
+    color: var(--_--text-color);
+    border-radius: 1000px;
+    background-color: var(--_--bg-color);
+
+    &__text {
+        overflow: hidden;
+
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    &_color_gray {
+        --_--bg-color: var(--g-color-base-neutral-light);
+        --_--text-color: var(--g-color-text-complementary);
+    }
+
+    &_color_green {
+        --_--bg-color: var(--g-color-base-positive-light);
+        --_--text-color: var(--g-color-text-positive-heavy);
+    }
+
+    &_color_yellow {
+        --_--bg-color: var(--g-color-base-warning-light);
+        --_--text-color: var(--g-color-text-warning-heavy);
+    }
+
+    &_color_blue {
+        --_--bg-color: var(--g-color-base-info-light);
+        --_--text-color: var(--g-color-text-info-heavy);
+    }
+
+    &_color_red {
+        --_--bg-color: var(--g-color-base-danger-light);
+        --_--text-color: var(--g-color-text-danger-heavy);
+    }
+
+    &_color_purple {
+        --_--bg-color: var(--g-color-base-utility-light);
+        --_--text-color: var(--g-color-text-utility-heavy);
+    }
+}

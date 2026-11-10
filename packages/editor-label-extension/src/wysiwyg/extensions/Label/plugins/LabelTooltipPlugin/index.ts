@@ -1,0 +1,1 @@
+export {labelTooltipPlugin} from './plugin';

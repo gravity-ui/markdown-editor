@@ -1,0 +1,1 @@
+export {labelCursorPlugin} from './plugin';

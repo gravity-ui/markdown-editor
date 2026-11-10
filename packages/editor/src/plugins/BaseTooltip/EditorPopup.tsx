@@ -3,7 +3,10 @@ import {useLayoutEffect} from 'react';
 import {useFloatingRootContext} from '@floating-ui/react';
 import {Popup, type PopupProps} from '@gravity-ui/uikit';
 
-type EditorPopupProps = Pick<PopupProps, 'children' | 'placement' | 'offset' | 'onOpenChange'> & {
+type EditorPopupProps = Pick<
+    PopupProps,
+    'children' | 'placement' | 'offset' | 'onOpenChange' | 'className'
+> & {
     editorElement: HTMLElement;
     anchorElement: Element | null;
 };

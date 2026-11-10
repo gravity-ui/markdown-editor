@@ -1,5 +1,7 @@
 import type {DataTransferType, MarkdownEditorMode} from '@gravity-ui/markdown-editor';
 import {SearchQA} from '@gravity-ui/markdown-editor/_/modules/search/qa.js';
+import type {Selection} from '@gravity-ui/markdown-editor/pm/state';
+import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import type {Expect, Locator, Page} from '@playwright/test';
 
 type YfmTableCellMenuType = 'row' | 'column';
@@ -138,6 +140,101 @@ class YfmNote {
     async clickYfmNoteToolbarButton(label: string) {
         const button = this.yfmNoteToolbar.getByLabel(label);
         await button.click();
+    }
+}
+
+type LabelCursorSide = 'before' | 'selected' | 'after';
+
+class Label {
+    readonly labels: Locator;
+    readonly placeholder: Locator;
+    /** The cursor drawn by the editor next to a label. */
+    readonly fakeCursor: Locator;
+    readonly popup: Locator;
+    readonly popupRoot: Locator;
+    readonly input: Locator;
+    readonly clearButton: Locator;
+    readonly colors: Locator;
+    readonly selectedColor: Locator;
+    readonly suggestions: Locator;
+    protected readonly page: Page;
+    protected readonly expect: Expect;
+
+    constructor(page: Page, expect: Expect) {
+        this.page = page;
+        this.expect = expect;
+        const contenteditable = page
+            .getByTestId('g-md-editor-mode')
+            .locator('[contenteditable=true]');
+        this.labels = contenteditable.locator('.g-md-label-plugin');
+        this.placeholder = this.labels.locator('.g-md-label-plugin__text[data-placeholder]');
+        this.fakeCursor = contenteditable.locator('.fake-cursor');
+        this.popup = page.locator('.g-md-label-tooltip');
+        this.popupRoot = page.locator('.g-md-label-popup');
+        this.input = this.popup.locator('input[type=text], input:not([type])');
+        this.clearButton = this.popup.locator('.g-text-input__clear');
+        this.colors = this.popup.locator('.g-md-label-colors');
+        this.selectedColor = this.colors.locator('[aria-pressed=true]');
+        this.suggestions = this.popup.getByRole('group', {name: 'Labels on this page'});
+    }
+
+    color(name: string) {
+        return this.colors.getByLabel(name, {exact: true});
+    }
+
+    suggestion(name: string) {
+        return this.suggestions.getByRole('button', {name, exact: true});
+    }
+
+    /** Waits for the popup to finish its opening transition. */
+    async waitForPopupAnimations() {
+        await this.popupRoot.evaluate(async (element) => {
+            await Promise.all(
+                element.getAnimations({subtree: true}).map((animation) => animation.finished),
+            );
+        });
+    }
+
+    /** Position, text block and caret rectangle of the WYSIWYG selection. */
+    async readCursor() {
+        return this.page.evaluate(() => {
+            const view = (window.mdEditor as unknown as {_wysiwygView: EditorView})._wysiwygView;
+            const {from, to, $from} = view.state.selection;
+            const {parent} = $from;
+            const rect = view.coordsAtPos(from);
+            return {
+                pos: from,
+                to,
+                line: parent.textContent,
+                left: rect.left,
+                top: rect.top,
+                bottom: rect.bottom,
+            };
+        });
+    }
+
+    /** Puts the cursor next to the last label of the document or selects it. */
+    async placeCursor(side: LabelCursorSide) {
+        await this.page.evaluate((edge) => {
+            const view = (window.mdEditor as unknown as {_wysiwygView: EditorView})._wysiwygView;
+            let pos = 0;
+            view.state.doc.descendants((node, offset) => {
+                if (node.type.name === 'label') pos = offset;
+            });
+            const SelectionClass = view.state.selection.constructor as typeof Selection;
+            const selection = SelectionClass.near(
+                view.state.doc.resolve(pos + (edge === 'after' ? 1 : 0)),
+            );
+            view.dispatch(view.state.tr.setSelection(selection).setStoredMarks([]));
+            view.focus();
+        }, side);
+        if (side === 'selected') await this.page.keyboard.press('ArrowRight');
+        await this.expect
+            .poll(async () => {
+                const {pos, to} = await this.readCursor();
+                return to - pos;
+            })
+            .toBe(side === 'selected' ? 1 : 0);
     }
 }
 
@@ -386,6 +483,7 @@ export class MarkdownEditorPage {
     readonly link;
     readonly searchPanel;
     readonly codeBlock;
+    readonly label;
     protected readonly page: Page;
     protected readonly expect: Expect;
 
@@ -401,6 +499,7 @@ export class MarkdownEditorPage {
         this.link = new Link(page, expect);
         this.searchPanel = new SearchPanel(page);
         this.codeBlock = new CodeBlock(page);
+        this.label = new Label(page, expect);
     }
 
     /**

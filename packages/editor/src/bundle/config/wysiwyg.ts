@@ -10,7 +10,6 @@ import type {
 } from '../../extensions/behavior/SelectionContext';
 import {i18n as i18nHint} from '../../i18n/hints';
 import {i18n} from '../../i18n/menubar';
-import {i18n as i18nStatus} from '../../i18n/status';
 import {Action as A, formatter as f} from '../../shortcuts';
 import type {MarkdownEditorPreset} from '../preset-base-types';
 import {ToolbarDataType} from '../toolbar/types';
@@ -232,15 +231,6 @@ export const wTabsItemData: WToolbarSingleItemData = {
     isActive: (e) => e.actions.toYfmTabs.isActive(),
     isEnable: (e) => e.actions.toYfmTabs.isEnable(),
 };
-export const wStatusItemData: WToolbarSingleItemData = {
-    id: ActionName.status,
-    type: ToolbarDataType.SingleButton,
-    title: i18nStatus.bind(null, 'button'),
-    icon: icons.status,
-    exec: (e) => e.actions.addStatus.run(),
-    isActive: (e) => e.actions.addStatus?.isActive() ?? false,
-    isEnable: (e) => e.actions.addStatus?.isEnable() ?? false,
-};
 /** @deprecated Use wLatexInlineItemData from `@gravity-ui/markdown-editor-latex-extension` */
 export const wMathInlineItemData: WToolbarSingleItemData = {
     id: ActionName.math_inline,
@@ -449,7 +439,6 @@ export const wCommandMenuConfig: WToolbarItemData[] = [
     wEmojiItemData,
     wFileItemData,
     wTabsItemData,
-    wStatusItemData,
 ];
 export const wHiddenData = wCommandMenuConfig;
 
@@ -518,7 +507,7 @@ export const wToolbarConfig: WToolbarData = [
             data: [wCodeItemData, wCodeBlockItemData],
         },
     ],
-    [wImageItemData, wFileItemData, wTableItemData, wCheckboxItemData, wStatusItemData],
+    [wImageItemData, wFileItemData, wTableItemData, wCheckboxItemData],
 ];
 
 export const wSelectionMenuConfig: SelectionContextConfig = [
@@ -777,7 +766,6 @@ export const wCommandMenuConfigByPreset: Record<MarkdownEditorPreset, WToolbarIt
         wEmojiItemData,
         wFileItemData,
         wTabsItemData,
-        wStatusItemData,
     ],
 };
 export const wHiddenDataByPreset: Record<MarkdownEditorPreset, WToolbarItemData[]> = {
