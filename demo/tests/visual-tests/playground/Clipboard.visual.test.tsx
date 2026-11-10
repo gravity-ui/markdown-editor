@@ -31,7 +31,7 @@ test.describe('Clipboard', () => {
 
         await editor.switchMode('wysiwyg');
         await editor.paste(emphasisMarkup);
-        await editor.press(keys.selectAll);
+        await editor.selectTextIn();
         await editor.press(keys.copy);
 
         await editor.switchMode('markup');
