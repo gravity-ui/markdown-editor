@@ -55,6 +55,10 @@ const config: StorybookConfig = {
             type: 'asset/resource' as const,
             generator: {emit: false},
         });
+        config.module.rules.push({
+            test: /\.html$/,
+            type: 'asset/source' as const,
+        });
 
         config.watchOptions ||= {};
         config.watchOptions.ignored = /node_modules([\\]+|\/)+(?!@gravity-ui\/markdown-editor)/;
