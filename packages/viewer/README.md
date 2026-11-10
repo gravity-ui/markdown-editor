@@ -350,6 +350,8 @@ if (info.kind !== 'content' || info.hasSlots) return;
 element.replaceChildren(result);
 ```
 
+During effect setup, `hasSlots` only sees slots already in the DOM. A target can receive a slot later in the same update.
+
 During cleanup, repeat the slot check and undo only your own changes. Do not restore saved `innerHTML` over another extension's slots.
 
 Inspect the element you will change, including elements found with `closest()`.

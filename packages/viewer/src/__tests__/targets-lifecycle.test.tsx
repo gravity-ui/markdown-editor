@@ -102,6 +102,34 @@ describe('ViewerTargets lifecycle', () => {
         expect(container.querySelectorAll('[data-markdown-viewer-slot]')).toHaveLength(1);
     });
 
+    it.each([
+        {change: 'a new host ID', nextId: 'b'},
+        {change: 'the same host ID', nextId: 'a'},
+    ])('should use hosts from the current HTML when data changes with $change', ({nextId}) => {
+        function render(id: string, label: string) {
+            const labels = new Map([[id, label]]);
+            act(() =>
+                root.render(
+                    <MarkdownViewer html={`<h2 id="${id}" data-label="${label}">Title</h2>`}>
+                        <ViewerTargets selector="h2[id]">
+                            {(host) => {
+                                const currentLabel = labels.get(host.id);
+                                assert(currentLabel);
+                                expect(host.dataset.label).toBe(currentLabel);
+                                return <button>{currentLabel}</button>;
+                            }}
+                        </ViewerTargets>
+                    </MarkdownViewer>,
+                ),
+            );
+        }
+
+        render('a', 'First');
+        render(nextId, 'Second');
+
+        expect(container.querySelector('h2 button')?.textContent).toBe('Second');
+    });
+
     it('should keep hosts and slots when only an effect dependency changes', () => {
         const setups: number[] = [];
         function Effect({value}: {value: number}) {
