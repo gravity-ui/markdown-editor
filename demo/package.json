@@ -35,6 +35,7 @@
     "@gravity-ui/markdown-editor": "workspace:*",
     "@gravity-ui/markdown-editor-latex-extension": "workspace:*",
     "@gravity-ui/markdown-editor-page-constructor-extension": "workspace:*",
+    "@gravity-ui/markdown-viewer": "workspace:*",
     "@gravity-ui/page-constructor": "catalog:peer-gravity",
     "@gravity-ui/uikit": "catalog:peer-gravity",
     "markdown-it": "catalog:peers"
@@ -48,12 +49,12 @@
     "@markdown-editor/markup-url": "workspace:*",
     "@playwright/experimental-ct-react": "1.62.1",
     "@playwright/test": "1.62.1",
-    "@storybook/addon-docs": "10.6.0",
+    "@storybook/addon-docs": "10.6.3",
     "@storybook/addon-webpack5-compiler-babel": "4.0.1",
-    "@storybook/cli": "10.6.0",
+    "@storybook/cli": "10.6.3",
     "@storybook/preset-scss": "1.0.3",
-    "@storybook/react": "10.6.0",
-    "@storybook/react-webpack5": "10.6.0",
+    "@storybook/react": "10.6.3",
+    "@storybook/react-webpack5": "10.6.3",
     "@types/markdown-it": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:react",
@@ -70,25 +71,23 @@
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "react-use": "catalog:",
-    "storybook": "10.6.0",
+    "storybook": "10.6.3",
     "stylelint": "catalog:linters",
     "ts-dedent": "2.3.0",
     "typescript": "catalog:ts",
     "url": "0.11.4",
-    "webpack": "^5.111.1"
+    "webpack": "^5.112.2"
   },
   "nx": {
     "targets": {
       "playwright": {
         "dependsOn": [
-          "^clean",
-          "^build"
+          "prepare-deps"
         ]
       },
       "sb:build": {
         "dependsOn": [
-          "^clean",
-          "^build"
+          "prepare-deps"
         ],
         "outputs": [
           "{projectRoot}/demo/storybook-static"
@@ -98,10 +97,24 @@
       "sb:start": {
         "continuous": true,
         "dependsOn": [
-          "^clean",
           "^build",
           "watch-deps"
         ]
+      },
+      "clean-deps": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pnpm run clean"
+        }
+      },
+      "prepare-deps": {
+        "dependsOn": [
+          "clean-deps"
+        ],
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pnpm exec nx build-deps @markdown-editor/demo"
+        }
       },
       "build-deps": {
         "dependsOn": [
