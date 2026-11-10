@@ -7,7 +7,6 @@ import {Playground, type PlaygroundProps} from './Playground';
 export type PlaygroundMiniProps = Pick<
     PlaygroundProps,
     | 'mobile'
-    | 'enableTabExitOnEscape'
     | 'initialEditor'
     | 'settingsVisible'
     | 'breaks'
