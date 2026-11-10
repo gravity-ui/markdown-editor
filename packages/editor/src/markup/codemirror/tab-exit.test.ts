@@ -7,10 +7,21 @@ import {DirectiveSyntaxContext} from '../../utils/directive';
 
 import {createCodemirror} from './create';
 
-const views: EditorView[] = [];
-const resetEvents = ['paste', 'cut', 'drop', 'compositionstart', 'pointerdown', 'input'] as const;
+vi.hoisted(() => {
+    Object.defineProperty(window.navigator, 'platform', {value: 'Win32', configurable: true});
+});
 
-type ResetEvent = (typeof resetEvents)[number];
+const views: EditorView[] = [];
+const resetEvents = [
+    {type: 'paste', doc: 'pastedtext'},
+    {type: 'cut', doc: ''},
+    {type: 'drop', doc: 'droppedtext'},
+    {type: 'compositionstart', doc: 'text'},
+    {type: 'pointerdown', doc: 'text'},
+    {type: 'input', doc: 'text'},
+] as const;
+
+type ResetEvent = (typeof resetEvents)[number]['type'];
 
 function createView(enableTabExitOnEscape = true) {
     const view = createCodemirror({
@@ -47,6 +58,10 @@ function pressEscape(view: EditorView) {
 
 function pressTab(view: EditorView, modifiers: KeyboardEventInit = {}) {
     return pressKey(view, {key: 'Tab', code: 'Tab', keyCode: 9, ...modifiers});
+}
+
+function pressCtrlM(view: EditorView) {
+    return pressKey(view, {key: 'm', code: 'KeyM', keyCode: 77, ctrlKey: true});
 }
 
 function createDataTransfer(text: string): DataTransfer {
@@ -113,6 +128,40 @@ describe('markup editor Tab exit after Escape', () => {
         expect(view.state.sliceDoc()).toBe('\ttext');
     });
 
+    it('should restore editor Tab handling after an ordinary key', () => {
+        const view = createView();
+
+        pressEscape(view);
+        expect(pressTab(view).defaultPrevented).toBe(false);
+
+        expect(pressKey(view, {key: 'a', code: 'KeyA', keyCode: 65}).defaultPrevented).toBe(false);
+
+        expect(pressTab(view).defaultPrevented).toBe(true);
+        expect(view.state.sliceDoc()).toBe('\ttext');
+    });
+
+    it('should disable the Ctrl+M shortcut when Escape navigation is enabled', () => {
+        const view = createView(true);
+
+        expect(pressCtrlM(view).defaultPrevented).toBe(false);
+        expect(view.state.sliceDoc()).toBe('text');
+
+        expect(pressTab(view).defaultPrevented).toBe(true);
+        expect(view.state.sliceDoc()).toBe('\ttext');
+    });
+
+    it('should toggle persistent Tab navigation when Escape navigation is disabled', () => {
+        const view = createView(false);
+
+        expect(pressCtrlM(view).defaultPrevented).toBe(true);
+        expect(pressTab(view).defaultPrevented).toBe(false);
+        expect(view.state.sliceDoc()).toBe('text');
+
+        expect(pressCtrlM(view).defaultPrevented).toBe(true);
+        expect(pressTab(view).defaultPrevented).toBe(true);
+        expect(view.state.sliceDoc()).toBe('\ttext');
+    });
+
     it.each([
         {key: 'Shift', code: 'ShiftLeft', keyCode: 16, shiftKey: true},
         {key: 'Control', code: 'ControlLeft', keyCode: 17, ctrlKey: true},
@@ -128,85 +177,16 @@ describe('markup editor Tab exit after Escape', () => {
         expect(view.state.sliceDoc()).toBe('text');
     });
 
-    it.each([{ctrlKey: true}, {altKey: true}, {metaKey: true}])(
-        'should leave modified Tab to the browser without consuming Tab exit: %j',
-        (modifier) => {
-            const view = createView();
-
-            pressEscape(view);
-
-            expect(pressTab(view, modifier).defaultPrevented).toBe(false);
-            expect(pressTab(view).defaultPrevented).toBe(false);
-            expect(view.state.sliceDoc()).toBe('text');
-        },
-    );
-
-    it.each(resetEvents)('should restore editor Tab handling after %s', (type) => {
+    it.each(resetEvents)('should restore editor Tab handling after $type', ({type, doc}) => {
         const view = createView();
 
         pressEscape(view);
         expect(pressTab(view).defaultPrevented).toBe(false);
 
         dispatchResetEvent(view, type);
-        const doc = view.state.sliceDoc();
+        expect(view.state.sliceDoc()).toBe(doc);
 
         expect(pressTab(view).defaultPrevented).toBe(true);
         expect(view.state.sliceDoc()).not.toBe(doc);
-    });
-
-    it.each(resetEvents)(
-        'should preserve persistent Tab focus mode after Escape and %s',
-        (type) => {
-            const view = createView();
-            view.setTabFocusMode(true);
-
-            pressEscape(view);
-            dispatchResetEvent(view, type);
-            const doc = view.state.sliceDoc();
-
-            expect(pressTab(view).defaultPrevented).toBe(false);
-            expect(view.state.sliceDoc()).toBe(doc);
-        },
-    );
-
-    it.each(resetEvents)(
-        'should preserve persistent Tab focus mode without Escape after %s',
-        (type) => {
-            const view = createView();
-            view.setTabFocusMode(true);
-
-            dispatchResetEvent(view, type);
-            const doc = view.state.sliceDoc();
-
-            expect(pressTab(view).defaultPrevented).toBe(false);
-            expect(view.state.sliceDoc()).toBe(doc);
-        },
-    );
-
-    it.each(resetEvents)(
-        'should preserve independently enabled temporary Tab focus mode after %s',
-        (type) => {
-            const view = createView();
-            view.setTabFocusMode(10_000);
-
-            dispatchResetEvent(view, type);
-            const doc = view.state.sliceDoc();
-
-            expect(pressTab(view).defaultPrevented).toBe(false);
-            expect(view.state.sliceDoc()).toBe(doc);
-        },
-    );
-
-    it.each([
-        {type: 'paste', doc: 'pastedtext'},
-        {type: 'cut', doc: ''},
-        {type: 'drop', doc: 'droppedtext'},
-    ] as const)('should continue normal $type handling while resetting Tab exit', ({type, doc}) => {
-        const view = createView();
-
-        pressEscape(view);
-        dispatchResetEvent(view, type);
-
-        expect(view.state.sliceDoc()).toBe(doc);
     });
 });

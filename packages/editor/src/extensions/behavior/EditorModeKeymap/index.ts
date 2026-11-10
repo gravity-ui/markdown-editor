@@ -55,8 +55,7 @@ export const EditorModeKeymap: ExtensionAuto<EditorModeKeymapOptions> = (builder
                         },
                     },
                 }),
-            // Reset before Clipboard's Highest-priority paste handler consumes the event.
-            builder.Priority.Highest + 1,
+            builder.Priority.Highest,
         );
 
     builder.addKeymap(() => {

@@ -152,6 +152,7 @@ class SeachPluginView implements PluginView {
 
     private _onChange = (config: SearchState) => {
         const {state, dispatch} = this._view;
+        if (!pluginKey.getState(state)?.open) return;
 
         const query = new SearchQuery({
             search: config.search,

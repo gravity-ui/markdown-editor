@@ -6,10 +6,16 @@ import {
 
 import {useEditorHandle} from '../../src/hooks/useEditorHandle';
 
-export function TabNavigation({mode}: {mode: MarkdownEditorMode}) {
+export function TabNavigation({
+    mode,
+    enableTabExitOnEscape = true,
+}: {
+    mode: MarkdownEditorMode;
+    enableTabExitOnEscape?: boolean;
+}) {
     const editor = useMarkdownEditor({
         initial: {markup: 'Text', mode, toolbarVisible: false},
-        enableTabExitOnEscape: true,
+        enableTabExitOnEscape,
     });
 
     useEditorHandle(editor);

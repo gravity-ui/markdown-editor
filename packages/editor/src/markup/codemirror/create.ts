@@ -6,6 +6,7 @@ import {
     indentWithTab,
     insertNewlineKeepIndent,
     insertTab,
+    toggleTabFocusMode,
 } from '@codemirror/commands';
 import {syntaxHighlighting} from '@codemirror/language';
 import {type Extension, Prec, type StateCommand} from '@codemirror/state';
@@ -137,12 +138,8 @@ export function createCodemirror(params: CreateCodemirrorParams) {
     }
 
     const inputState = new InputState();
-    let allowTabExit = false;
     const resetTabExit = (_event: Event, view: EditorView) => {
-        if (allowTabExit) {
-            allowTabExit = false;
-            view.setTabFocusMode(Number.NEGATIVE_INFINITY);
-        }
+        view.setTabFocusMode(false);
     };
 
     extensions.push(
@@ -190,9 +187,7 @@ export function createCodemirror(params: CreateCodemirrorParams) {
                 run: (view) => {
                     onCancel();
                     if (enableTabExitOnEscape && view.root.activeElement === view.contentDOM) {
-                        allowTabExit = true;
-                        // Numeric durations preserve the persistent mode enabled with Ctrl-M.
-                        view.setTabFocusMode(Number.POSITIVE_INFINITY);
+                        view.setTabFocusMode(true);
                     }
                     return true;
                 },
@@ -221,9 +216,10 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             // toggleBlockComment, is the only one left without. Its command stays reachable via
             // Mod-/, since markdown has no line comment syntax and toggleComment then falls back
             // to block comments.
-            ...defaultKeymap.filter(
-                (binding) => !(isMac() && (binding.mac || binding.key) === 'Alt-A'),
-            ),
+            ...defaultKeymap.filter((binding) => {
+                if (enableTabExitOnEscape && binding.run === toggleTabFocusMode) return false;
+                return !(isMac() && (binding.mac || binding.key) === 'Alt-A');
+            }),
             ...(disabledExtensions.history ? [] : historyKeymap),
             ...keymaps,
         ]),

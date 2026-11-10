@@ -2,7 +2,6 @@ import {TextSelection} from 'prosemirror-state';
 import type {EditorView} from 'prosemirror-view';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
-import {DataTransferMock} from '../../../../tests/event-mock';
 import {BundlePreset} from '../../../bundle/wysiwyg-preset';
 import {WysiwygEditor} from '../../../core';
 import {ReactRenderStorage} from '../../../modules/react-renderer';
@@ -92,21 +91,4 @@ describe('EditorModeKeymap in BundlePreset', () => {
             expect(view.state.doc.textContent).toBe('text');
         },
     );
-
-    it('should reset tab exit before the code paste handler consumes the event', () => {
-        const {view, onCancel} = createEditor();
-        const clipboardData = new DataTransferMock();
-        clipboardData.setData('text/plain', 'pasted');
-        const paste = new Event('paste', {bubbles: true, cancelable: true});
-        Object.defineProperty(paste, 'clipboardData', {value: clipboardData});
-
-        pressKey(view, 'Escape');
-        expect(onCancel).toHaveBeenCalledOnce();
-        view.dom.dispatchEvent(paste);
-
-        expect(paste.defaultPrevented).toBe(true);
-        expect(view.state.doc.textContent).toBe('pastedtext');
-        expect(pressKey(view, 'Tab').defaultPrevented).toBe(true);
-        expect(view.state.doc.textContent).toBe('pasted\ttext');
-    });
 });

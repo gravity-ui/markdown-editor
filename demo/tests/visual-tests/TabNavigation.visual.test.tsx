@@ -82,4 +82,46 @@ test.describe('Tab navigation after Escape', () => {
         await editor.press('Tab');
         await expect(page.getByRole('button', {name: 'After editor', exact: true})).toBeFocused();
     });
+
+    test('should ignore the persistent Tab focus shortcut when Escape navigation is enabled @markup', async ({
+        mount,
+        editor,
+        page,
+    }) => {
+        await mount(<TabNavigation mode="markup" />);
+        await editor.assertMode('markup');
+
+        await editor.focus();
+        await editor.press('Control+m');
+        await editor.press('Tab');
+        await expect(editor.locators.contenteditable).toBeFocused();
+
+        await editor.press('Escape');
+        await editor.press('Tab');
+        await expect(page.getByRole('button', {name: 'After editor', exact: true})).toBeFocused();
+    });
+
+    test('should toggle persistent Tab focus when Escape navigation is disabled @markup', async ({
+        mount,
+        editor,
+        page,
+    }) => {
+        await mount(<TabNavigation mode="markup" enableTabExitOnEscape={false} />);
+        await editor.assertMode('markup');
+
+        await editor.focus();
+        await editor.press('Control+m');
+        await editor.press('Tab');
+        await expect(page.getByRole('button', {name: 'After editor', exact: true})).toBeFocused();
+
+        await editor.focus();
+        await editor.press('x');
+        await editor.press('Tab');
+        await expect(page.getByRole('button', {name: 'After editor', exact: true})).toBeFocused();
+
+        await editor.focus();
+        await editor.press('Control+m');
+        await editor.press('Tab');
+        await expect(editor.locators.contenteditable).toBeFocused();
+    });
 });
