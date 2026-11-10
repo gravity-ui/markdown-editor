@@ -20,13 +20,14 @@ import type {ToolbarsPreset} from '../modules/toolbars/types';
 import {useSticky} from '../react-utils';
 import {isMac} from '../utils';
 
-import type {Editor, EditorInt} from './Editor';
+import type {EditorInt} from './Editor';
 import {HorizontalDrag} from './HorizontalDrag';
 import {MarkupEditorView} from './MarkupEditorView';
 import {SplitModeView} from './SplitModeView';
 import {WysiwygEditorView} from './WysiwygEditorView';
 import {useMarkdownEditorContext} from './context';
 import {cnEditorComponent} from './editor-classname';
+import type {MarkdownEditorInstance} from './editor-public-types';
 import {EditorSettings, type EditorSettingsProps, type SettingItems} from './settings';
 import {stickyCn} from './sticky';
 import type {ToolbarConfigs} from './toolbar/types';
@@ -265,7 +266,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
 EditorWrapper.displayName = 'EditorWrapper';
 
 type ViewProps = {
-    editor?: Editor;
+    editor?: MarkdownEditorInstance;
     autofocus?: boolean;
     // MAJOR: rename to settings
     /** @default true */

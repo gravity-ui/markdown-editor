@@ -56,14 +56,14 @@ const serializerTokens: Record<TableNode, SerializerNodeToken> = {
 
     [TableNode.HeaderCell]: (state, node) => {
         state.write('|');
-        state.renderInline(node);
+        state.renderInline(node, {textLineBreaks: 'space'});
         state.closeBlock(node);
     },
 
     [TableNode.DataCell]: (state, node) => {
         state.write('|');
 
-        state.renderInline(node);
+        state.renderInline(node, {textLineBreaks: 'space'});
         state.closeBlock(node);
     },
 };

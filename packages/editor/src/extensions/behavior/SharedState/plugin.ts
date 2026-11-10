@@ -6,6 +6,7 @@ import type {SharedPluginState, TrMeta} from './types';
 /** @internal */
 export const pluginKey = new PluginKey<SharedPluginState>('shared-state');
 
+/** @internal */
 export const pluginSpec: PluginSpec<SharedPluginState> = {
     key: pluginKey,
     state: {

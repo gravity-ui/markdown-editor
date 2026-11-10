@@ -19,8 +19,8 @@ export function headingToMarkdown({
         renderMarkup(...args);
         const escapeHashOnlyHeading =
             node.content.content.every((child) => child.isText) &&
-            /^#+[ \t]*$/.test(node.textContent);
-        state.renderInline(node, escapeHashOnlyHeading);
+            /^#+[ \t\r\n]*$/.test(node.textContent);
+        state.renderInline(node, {atBlockStart: escapeHashOnlyHeading, textLineBreaks: 'space'});
         renderAttributes?.(...args);
         state.closeBlock(node);
     };

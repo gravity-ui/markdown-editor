@@ -9,7 +9,7 @@ import {
     WidgetType,
 } from '@codemirror/view';
 
-import type {RendererItem} from '../../../extensions';
+import type {RendererItem} from '../../../modules/react-renderer';
 import {type FileUploadHandler, type FileUploadResult, getProportionalSize} from '../../../utils';
 import {FileUploadHandlerFacet} from '../files-upload-facet';
 import {LoggerFacet} from '../logger-facet';

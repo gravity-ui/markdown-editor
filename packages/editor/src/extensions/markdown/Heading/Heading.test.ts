@@ -1,5 +1,5 @@
 import {builders} from 'prosemirror-test-builder';
-import {describe, it} from 'vitest';
+import {describe, expect, it} from 'vitest';
 
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
@@ -8,7 +8,7 @@ import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {BoldSpecs, boldMarkName} from '../Bold/BoldSpecs';
 import {ImageAttr, ImageSpecs, imageNodeName} from '../Image/ImageSpecs';
 
-import {HeadingSpecs} from './HeadingSpecs';
+import {HeadingSpecs, headingToMarkdown} from './HeadingSpecs';
 import {headingLevelAttr, headingNodeName} from './const';
 
 const {
@@ -40,6 +40,29 @@ const {doc, b, p, h, h1, h2, h3, h4, h5, h6, img} = builders<
 const {same, parse, serialize} = createMarkupChecker({parser, serializer});
 
 describe('Heading extension', () => {
+    it.each(['\n', '\r', '\r\n'])('should normalize %j inside a renamed heading', (ending) => {
+        const deps = new ExtensionsManager({
+            extensions: (builder) =>
+                builder
+                    .use(BaseSchemaSpecs, {})
+                    .addNodeSpec('title', () => ({
+                        content: 'inline*',
+                        group: 'block',
+                        attrs: {[headingLevelAttr]: {default: 1}},
+                    }))
+                    .addMarkdownTokenParserSpec('heading', () => ({
+                        name: 'title',
+                        type: 'block',
+                        getAttrs: (token) => ({[headingLevelAttr]: Number(token.tag.slice(1))}),
+                    }))
+                    .addNodeSerializerSpec('title', () => headingToMarkdown()),
+        }).buildDeps();
+        const title = deps.schema.nodes.title.create(null, deps.schema.text(`x${ending}y`));
+        const input = deps.schema.nodes.doc.create(null, title);
+
+        expect(deps.serializer.serialize(input)).toBe('# x y');
+    });
+
     it('should keep a hash before an image without extra escaping', () => {
         same('# #![](a.png)', doc(h1('#', img())));
     });
