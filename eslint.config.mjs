@@ -3,6 +3,7 @@ import {defineConfig, globalIgnores} from 'eslint/config';
 
 export default defineConfig(
     globalIgnores([
+        '**/dist',
         '**/build',
         '**/coverage',
         '**/node_modules',
@@ -10,6 +11,12 @@ export default defineConfig(
         '**/.cache*',
     ]),
     common,
+    {
+        files: ['**/src/**/*.{ts,tsx}'],
+        rules: {
+            'react-hooks/exhaustive-deps': ['warn', {additionalHooks: '^useViewerEffect$'}],
+        },
+    },
     {
         files: ['./packages/**/src/**/*'],
         rules: {
@@ -25,6 +32,13 @@ export default defineConfig(
                     allowDeclarations: true,
                 },
             ],
+        },
+    },
+    {
+        files: ['./packages/viewer/tests/**/*'],
+        settings: {
+            // Keep viewer imports in the same group before and after a build.
+            'import/internal-regex': '^@gravity-ui/markdown-viewer(?:/|$)',
         },
     },
     {
@@ -73,6 +87,40 @@ export default defineConfig(
                 typescript: {
                     alwaysTryTypes: true,
                     project: './packages/page-constructor-extension/tsconfig.json',
+                },
+            },
+        },
+    },
+    {
+        files: ['./packages/editor-header-extension/**/*'],
+        languageOptions: {
+            parserOptions: {
+                project: './packages/editor-header-extension/tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: './packages/editor-header-extension/tsconfig.json',
+                },
+            },
+        },
+    },
+    {
+        files: ['./packages/plugin-header/**/*'],
+        languageOptions: {
+            parserOptions: {
+                project: './packages/plugin-header/tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: './packages/plugin-header/tsconfig.json',
                 },
             },
         },

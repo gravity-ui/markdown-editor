@@ -2,10 +2,12 @@ packages:
   - 'demo'
   - 'infra/*'
   - 'packages/*'
+  - 'packages/viewer/tests/react19'
 
 catalog:
   '@types/markdown-it': ^13.0.0
   '@types/node': ^24.12.2
+  esbuild: 0.28.2
   gulp-cli: 3.1.0
   react-use: ^17.3.2
 
@@ -29,9 +31,9 @@ catalogs:
     '@diplodoc/transform': 4.75.1
 
   peer-gravity:
-    '@gravity-ui/components': 4.10.0
+    '@gravity-ui/components': 4.21.0
     '@gravity-ui/page-constructor': ^7.0.0
-    '@gravity-ui/uikit': ^7.13.1
+    '@gravity-ui/uikit': 7.39.0
 
   ts:
     tslib: ^2.3.1
@@ -48,8 +50,8 @@ catalogs:
     stylelint: 16.26.1
 
   react:
-    '@types/react': 18.0.28
-    '@types/react-dom': 18.0.11
+    '@types/react': 18.2.79
+    '@types/react-dom': 18.2.25
     react: 18.2.0
     react-dom: 18.2.0
   react16:
@@ -59,5 +61,7 @@ catalogs:
     react: ^17.0.0
     react-dom: ^17.0.0
   react19:
+    '@types/react': ^19.0.0
+    '@types/react-dom': ^19.0.0
     react: ^19.0.0
     react-dom: ^19.0.0

@@ -3,8 +3,8 @@ import {memo} from 'react';
 import type {QAProps} from '@gravity-ui/uikit';
 
 import {type ClassNameProps, cn} from '../classname';
-import {ReactRendererComponent} from '../extensions';
 import {globalLogger} from '../logger';
+import {ReactRendererComponent} from '../modules/react-renderer';
 import {useRenderTime} from '../react-utils/hooks';
 
 import type {EditorInt} from './Editor';

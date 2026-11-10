@@ -1,0 +1,78 @@
+import {useMemo, useState} from 'react';
+
+import transform from '@diplodoc/transform';
+import {MarkdownViewer, cnYFM} from '@gravity-ui/markdown-viewer';
+import {YfmCodeBlockActions} from '@gravity-ui/markdown-viewer/extensions';
+import {Button, Flex, SegmentedRadioGroup, Text, sp} from '@gravity-ui/uikit';
+
+import {cn} from './cn';
+import {documents as defaultDocuments} from './content';
+import {Feedback} from './extensions/Feedback';
+import {PreserveCutState} from './extensions/PreserveCutState';
+import {TargetHelp} from './extensions/TargetHelp';
+
+import './MarkdownViewerDemo.scss';
+import '@diplodoc/transform/dist/css/yfm.css';
+
+interface MarkdownViewerDemoProps {
+    documents?: readonly {label: string; source: string}[];
+    showFeedbackToggle?: boolean;
+}
+
+export function MarkdownViewerDemo({
+    documents = defaultDocuments,
+    showFeedbackToggle = true,
+}: MarkdownViewerDemoProps) {
+    const [documentIndex, setDocumentIndex] = useState(0);
+    const [showFeedback, setShowFeedback] = useState(true);
+    const document = documents[documentIndex];
+    const result = useMemo(
+        () => transform(document.source, {allowHTML: true, codeLineWrapping: true}).result,
+        [document.source],
+    );
+
+    return (
+        <Flex className={cn(null, sp({p: 6}))} direction="column" gap={3}>
+            <Flex
+                className={cn('toolbar')}
+                alignItems="center"
+                justifyContent="space-between"
+                gap={4}
+            >
+                <Text variant="subheader-2">MarkdownViewer</Text>
+                <SegmentedRadioGroup
+                    aria-label="Document version"
+                    value={String(documentIndex)}
+                    onUpdate={(value) => setDocumentIndex(Number(value))}
+                    options={documents.map(({label}, index) => ({
+                        value: String(index),
+                        content: label,
+                    }))}
+                />
+                {showFeedbackToggle && (
+                    <Button
+                        className={cn('feedback-toggle')}
+                        onClick={() => setShowFeedback((value) => !value)}
+                    >
+                        {showFeedback ? 'Hide feedback' : 'Show feedback'}
+                    </Button>
+                )}
+            </Flex>
+            <MarkdownViewer
+                html={result.html}
+                className={cnYFM(
+                    {'no-list-reset': true, 'no-stripe-table': true},
+                    cn('content', sp({p: 6})),
+                )}
+                qa="demo-markdown-viewer"
+                role="region"
+                aria-label="MarkdownViewer playground"
+            >
+                <PreserveCutState />
+                <TargetHelp />
+                <YfmCodeBlockActions />
+                {showFeedback && <Feedback />}
+            </MarkdownViewer>
+        </Flex>
+    );
+}

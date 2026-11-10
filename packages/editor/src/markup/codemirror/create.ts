@@ -22,8 +22,8 @@ import {InputState} from 'src/utils/input-state';
 
 import {ActionName} from '../../bundle/config/action-names';
 import type {EventMap} from '../../bundle/events';
-import type {ReactRenderStorage} from '../../extensions';
 import {type Logger2, globalLogger} from '../../logger';
+import type {ReactRenderStorage} from '../../modules/react-renderer';
 import {Action as A, formatter as f} from '../../shortcuts';
 import type {Receiver} from '../../utils';
 import {DataTransferType, shouldSkipHtmlConversion} from '../../utils/clipboard';
