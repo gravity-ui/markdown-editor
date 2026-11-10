@@ -17,6 +17,7 @@ export type {
 } from './ExtensionBuilder';
 export type {Parser, ParserToken} from './types/parser';
 export type {
+    RenderInlineOptions,
     Serializer,
     SerializerState,
     SerializerNodeToken,

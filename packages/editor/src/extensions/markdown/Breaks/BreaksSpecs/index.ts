@@ -29,6 +29,7 @@ export const BreaksSpecs: ExtensionAuto<BreaksSpecsOptions> = (builder, opts) =>
             group: 'inline break',
             marks: '',
             isBreak: true,
+            breakType: 'hard',
             selectable: false,
             parseDOM: preferredBreak === 'hard' ? parseDOM : undefined,
             toDOM() {
@@ -58,6 +59,7 @@ export const BreaksSpecs: ExtensionAuto<BreaksSpecsOptions> = (builder, opts) =>
             group: 'inline break',
             marks: '',
             isBreak: true,
+            breakType: 'soft',
             selectable: false,
             parseDOM: preferredBreak === 'soft' ? parseDOM : undefined,
             toDOM() {
