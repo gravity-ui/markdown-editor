@@ -1,5 +1,9 @@
 # AGENTS.md — gravity-ui/markdown-editor
 
+## Following existing code
+
+Where this file says nothing, copy the closest existing example in the repository: folder structure, file names, names of variables, functions, types and constants, class structure, React components and hooks, styles and CSS class names, i18n keys, exports, tests, demo stories. Add a new kind of file only if the repository already has one like it.
+
 ## Testing
 
 **Always run visual (Playwright) tests in Docker. Never run them locally.**
@@ -50,6 +54,14 @@ For more details on filtering and updating snapshots see [`docs/how-to-add-visua
 
 These run visual tests outside Docker and produce unreliable results.
 
+### Screenshots
+
+- A screenshot of editor content includes the toolbar.
+- The viewport width and height fit the content, without empty space around it.
+- A popup is captured in the real editor, in the test that opens it. A popup component mounted on its own misses changes in how the editor renders it.
+- Each mode gets its own `test()` with the mode tag (`@wysiwyg`, `@markup`) in its name, without `for` loops.
+- Locators and actions for a block live in its class in `demo/tests/playwright/core/editor.ts`, not in the test file.
+
 ## Code style
 
 Prettier owns formatting, ESLint and Stylelint own the rest. One command applies the fixes of all three:
@@ -66,6 +78,87 @@ It covers `*.{js,jsx,mjs,ts,tsx,css,scss}` across the whole repository. Its outp
 - Write code the way the linter wants it from the start: `T[]` instead of `Array<T>`, object shorthand (`{foo}` instead of `{foo: foo}`), inline type imports (`import {type Foo} from './foo'`).
 - Where the linter is silent, follow the file you are editing.
 - Shared rules live in `infra/linters/`; per-package overrides are in the root `eslint.config.mjs`.
+
+## Extensions
+
+An extension `Block` in `packages/editor/src/extensions/` has this layout:
+
+```
+Block/
+  BlockSpecs/
+    index.ts
+    const.ts
+    BlockSpecs.ts
+  BlockNodeView/
+    components/
+      <React components>
+    index.ts
+    BlockNodeView.ts
+  plugins/
+    BlockPlugin/
+      index.ts
+      plugin.ts
+  Block.ts
+  index.ts
+```
+
+- `Block.ts` holds the extension; every `index.ts` only re-exports.
+- `BlockSpecs/` holds the schema, the parser and the serializer; `const.ts` holds node and attribute names.
+- A NodeView is a class in `BlockNodeView/`; its React components live in `components/`.
+- Class names come from `cn`; element state is a modifier.
+- A markdown-it plugin emits one token stream; extra data goes to `token.meta`.
+- A markdown-it plugin only parses. The serializer lives in the extension and writes through `state`.
+
+## Package naming
+
+Published `@gravity-ui/*` packages live directly in `packages/`. The npm name starts with the target (`editor`, `viewer` or `plugin`), and the entity name comes before its kind:
+
+| Package | npm name | Directory |
+|---------|----------|-----------|
+| Editor extension | `@gravity-ui/markdown-editor-<name>-extension` | `packages/editor-<name>-extension` |
+| Viewer extension | `@gravity-ui/markdown-viewer-<name>-extension` | `packages/viewer-<name>-extension` |
+| markdown-it plugin | `@gravity-ui/markdown-plugin-<name>` | `packages/plugin-<name>` |
+
+- The directory name is the npm name without the `@gravity-ui/markdown-` prefix.
+- Examples: `packages/editor-header-extension` and `packages/plugin-header`.
+
+## Package structure
+
+New editor packages split code by mode:
+
+```
+src/
+  wysiwyg/
+    extensions/
+      <Extension>/
+  markup/
+    commands/
+      <command>.ts
+  toolbar/
+    view/
+      items.ts
+    wysiwyg/
+      items.ts
+      presets.ts   # optional
+    markup/
+      items.ts
+      presets.ts   # optional
+    items.ts       # both modes
+    presets.ts     # both modes, optional
+```
+
+Exports in `package.json`:
+
+| Export | Contents |
+|--------|----------|
+| `.` | Toolbars, WYSIWYG and markup entities |
+| `./wysiwyg` | WYSIWYG entities only: extensions, toolbar items without `markup` |
+| `./wysiwyg/specs` | WYSIWYG specs only: spec extensions, constants |
+| `./wysiwyg/utils` | WYSIWYG utils, optional |
+| `./markup` | Markup entities only: CodeMirror commands and extensions, toolbar items without `wysiwyg` |
+| `./markup/utils` | Markup utils, optional |
+| `./wysiwyg/core` | WYSIWYG core, root editor package only |
+| `./pm/*`, `./cm/*` | ProseMirror and CodeMirror re-exports, root editor package only |
 
 ## Documentation
 

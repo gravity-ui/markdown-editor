@@ -34,8 +34,16 @@ test.describe('Images', () => {
             const addByLinkTab = page.getByText('Add by link').first().locator('..');
             await wait.visible(addByLinkTab);
 
+            const form = page.locator('.g-popup', {has: page.getByRole('tablist')});
+            await page.mouse.move(-1, -1);
+            await wait.tooltipsHidden();
+            await expectScreenshot({component: form, nameSuffix: 'upload-form'});
+
             await addByLinkTab.click();
             await wait.timeout();
+
+            await page.mouse.move(-1, -1);
+            await expectScreenshot({component: form, nameSuffix: 'link-form'});
 
             await actions.fillFocused(`/assets/test-image.jpg`);
             await wait.timeout();
@@ -79,7 +87,13 @@ test.describe('Images', () => {
             ).toBeVisible();
         });
 
-        test('should insert via toolbar @markup', async ({editor, wait, actions, page}) => {
+        test('should insert via toolbar @markup', async ({
+            editor,
+            wait,
+            actions,
+            page,
+            expectScreenshot,
+        }) => {
             await editor.switchMode('markup');
             await editor.focus();
             await editor.press('ArrowDown', 2);
@@ -91,8 +105,16 @@ test.describe('Images', () => {
             const addByLinkTab = page.getByText('Add by link').first().locator('..');
             await wait.visible(addByLinkTab);
 
+            const form = page.locator('.g-popup', {has: page.getByRole('tablist')});
+            await page.mouse.move(-1, -1);
+            await wait.tooltipsHidden();
+            await expectScreenshot({component: form, nameSuffix: 'upload-form'});
+
             await addByLinkTab.click();
             await wait.timeout();
+
+            await page.mouse.move(-1, -1);
+            await expectScreenshot({component: form, nameSuffix: 'link-form'});
 
             await actions.fillFocused(`/assets/test-image.jpg`);
             await wait.timeout();
