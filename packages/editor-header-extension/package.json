@@ -82,6 +82,7 @@
   },
   "devDependencies": {
     "@gravity-ui/markdown-editor": "workspace:*",
+    "@gravity-ui/uikit": "catalog:peer-gravity",
     "@markdown-editor/gulp-tasks": "workspace:*",
     "@markdown-editor/linters": "workspace:*",
     "@markdown-editor/tsconfig": "workspace:*",
@@ -98,6 +99,7 @@
   },
   "peerDependencies": {
     "@gravity-ui/markdown-editor": "workspace:^15.49.0",
+    "@gravity-ui/uikit": "^7.1.0",
     "react": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
     "react-dom": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },

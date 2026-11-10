@@ -6,12 +6,13 @@ import {
     ReactRenderStorage,
     ReactRendererExtension,
 } from '@gravity-ui/markdown-editor/extensions';
-import {history, undo} from '@gravity-ui/markdown-editor/pm/history';
+import {history, redo, undo} from '@gravity-ui/markdown-editor/pm/history';
 import {DOMParser, DOMSerializer} from '@gravity-ui/markdown-editor/pm/model';
 import {
     AllSelection,
     type Command,
     EditorState,
+    NodeSelection,
     TextSelection,
 } from '@gravity-ui/markdown-editor/pm/state';
 import {builders} from '@gravity-ui/markdown-editor/pm/test-builder';
@@ -32,7 +33,7 @@ import {afterEach, describe, expect, it} from 'vitest';
 import {insertHeader as insertHeaderMarkup} from '../../../markup/commands/insertHeader';
 
 import {HeaderSpecs, headerNodeName} from './HeaderSpecs';
-import {copyHeader, insertHeader, removeHeader} from './commands';
+import {copyHeader, insertHeader, removeHeader, setHeaderDimensions} from './commands';
 
 import {Header} from '.';
 
@@ -163,8 +164,11 @@ describe('Header extension', () => {
         },
     );
 
-    it('should preserve child blocks when copying', () => {
+    it('should preserve child blocks when changing dimensions and copying', () => {
         const editor = createView(':::header\nKeep **text**\n:::');
+        const content = editor.state.doc.child(0).content;
+        expect(run(editor, setHeaderDimensions(0, {height: 'l'}))).toBe(true);
+        expect(editor.state.doc.child(0).content.eq(content)).toBe(true);
         expect(run(editor, copyHeader(0))).toBe(true);
         expect(editor.state.doc.child(1).eq(editor.state.doc.child(0))).toBe(true);
         const container = document.createElement('div');
@@ -196,6 +200,19 @@ describe('Header extension', () => {
             ':::header{height="m" width="s"}\n\n:::',
         );
         expect(run(editor, removeHeader(1))).toBe(false);
+    });
+
+    it('should update dimensions independently and undo each change', () => {
+        const editor = createView();
+        expect(run(editor, setHeaderDimensions(0, {height: 'l'}))).toBe(true);
+        expect(run(editor, setHeaderDimensions(0, {width: 'full'}))).toBe(true);
+        expect(dimensions(editor)).toEqual({height: 'l', width: 'full'});
+        expect(undo(editor.state, editor.dispatch)).toBe(true);
+        expect(dimensions(editor)).toEqual({height: 'l', width: 'm'});
+        expect(undo(editor.state, editor.dispatch)).toBe(true);
+        expect(dimensions(editor)).toEqual({height: 's', width: 'm'});
+        expect(redo(editor.state, editor.dispatch)).toBe(true);
+        expect(dimensions(editor)).toEqual({height: 'l', width: 'm'});
     });
 
     it('should insert an empty header and undo the insertion', () => {
@@ -279,6 +296,17 @@ describe('Header extension', () => {
             expect(run(editor, insertHeader)).toBe(false);
             expect(editor.state.doc).toBe(doc);
         }
+    });
+
+    it('should preserve the selected-node class after changing dimensions', () => {
+        const editor = createNodeView('Before\n\n:::header\n:::');
+        const pos = editor.state.doc.child(0).nodeSize;
+        editor.dispatch(editor.state.tr.setSelection(NodeSelection.create(editor.state.doc, pos)));
+        expect(run(editor, setHeaderDimensions(pos, {height: 'l'}))).toBe(true);
+        expect(
+            (editor.nodeDOM(pos) as HTMLElement).classList.contains('ProseMirror-selectednode'),
+        ).toBe(true);
+        expect(editor.state.selection).toBeInstanceOf(NodeSelection);
     });
 
     it('should apply content DOM edits to the document', async () => {
