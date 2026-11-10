@@ -1,6 +1,5 @@
-import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
+import type {ExtensionAuto} from '#core';
 
-import {CutNode} from './const';
 import {YfmCutParserSpecs} from './parser';
 import {type YfmCutSchemaOptions, YfmCutSchemaSpecs} from './schema';
 import {YfmCutSerializerSpecs} from './serializer';
@@ -16,27 +15,8 @@ declare global {
     }
 }
 
-export type YfmCutSpecsOptions = YfmCutSchemaOptions & {
-    /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    cutView?: ExtensionNodeSpec['view'];
-    /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    cutTitleView?: ExtensionNodeSpec['view'];
-    /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    cutContentView?: ExtensionNodeSpec['view'];
-};
+export type YfmCutSpecsOptions = YfmCutSchemaOptions & {};
 
 export const YfmCutSpecs: ExtensionAuto<YfmCutSpecsOptions> = (builder, opts) => {
     builder.use(YfmCutSchemaSpecs, opts).use(YfmCutParserSpecs).use(YfmCutSerializerSpecs);
-
-    if (opts.cutView) {
-        builder.addNodeView(CutNode.Cut, opts.cutView);
-    }
-
-    if (opts.cutTitleView) {
-        builder.addNodeView(CutNode.CutTitle, opts.cutTitleView);
-    }
-
-    if (opts.cutContentView) {
-        builder.addNodeView(CutNode.CutContent, opts.cutContentView);
-    }
 };
