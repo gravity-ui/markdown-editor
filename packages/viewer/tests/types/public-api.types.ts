@@ -1,4 +1,4 @@
-import {type DependencyList, createRef} from 'react';
+import {type DependencyList, createElement, createRef} from 'react';
 
 import {expectTypeOf} from 'vitest';
 
@@ -13,19 +13,17 @@ import {
     useViewerEffect,
 } from '../../src';
 
-export function Consumer() {
+export function shouldAcceptViewerProps() {
     const mods: YFMMods = {'no-list-reset': true};
-    return (
-        <MarkdownViewer
-            html="<p>Text</p>"
-            ref={createRef<HTMLDivElement>()}
-            className={cnYFM(mods)}
-            qa="document"
-        />
-    );
+    return createElement(MarkdownViewer, {
+        html: '<p>Text</p>',
+        ref: createRef<HTMLDivElement>(),
+        className: cnYFM(mods),
+        qa: 'document',
+    });
 }
 
-export function Extension() {
+export function shouldAcceptSynchronousSetup() {
     const effect: ViewerEffect = ({root, signal}: ViewerEffectContext) => {
         const element: HTMLDivElement = root;
         const abort: AbortSignal = signal;
@@ -35,8 +33,15 @@ export function Extension() {
     return null;
 }
 
-// @ts-expect-error Use html for prepared content.
-export const raw = <MarkdownViewer html="" dangerouslySetInnerHTML={{__html: ''}} />;
+export function shouldRejectDangerouslySetInnerHTML() {
+    const props: MarkdownViewerProps = {
+        html: '',
+        // @ts-expect-error Use html for prepared content.
+        dangerouslySetInnerHTML: {__html: ''},
+    };
+    return createElement(MarkdownViewer, props);
+}
+
 // @ts-expect-error Async setup cannot return synchronous cleanup.
 export const asyncSetup: ViewerEffect = async () => undefined;
 

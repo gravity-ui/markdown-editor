@@ -15,7 +15,7 @@
   "scripts": {
     "clean": "gulp clean",
     "build": "gulp build",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit && run-p test:types:*",
     "lint": "run-p -cs lint:*",
     "lint:js": "eslint './**/*.{js,jsx,mjs,ts,tsx}'",
     "lint:styles": "stylelint './**/*.{css,scss}' --allow-empty-input",
@@ -72,8 +72,5 @@
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
-  "sideEffects": [
-    "*.css",
-    "*.scss"
-  ]
+  "sideEffects": false
 }

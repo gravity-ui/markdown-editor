@@ -70,6 +70,25 @@ The package exports the `MarkdownViewerProps` type.
 
 </details>
 
+<details>
+<summary>Next.js App Router</summary>
+
+To use the viewer from a Server Component, import it through a Client Component.
+
+```tsx
+'use client';
+
+import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
+
+export function ViewerClient({html}: {html: string}) {
+  return <MarkdownViewer html={html} />;
+}
+```
+
+Render `<ViewerClient html={html} />` from your Server Component. Define extensions that use `useViewerEffect` on the client side of the boundary.
+
+</details>
+
 ### Add an extension
 
 Add a child component with `useViewerEffect` to work with the HTML root. This example tracks clicks and removes its listener during cleanup:
@@ -116,7 +135,13 @@ If HTML and dependencies change together, setup runs once. A new setup function 
 
 Effects only run on the client. Each run gets a new signal.
 
-Separate extensions have no fixed execution order. Put steps that need a fixed order in one extension. If one cleanup throws, other cleanup functions still run. Handle expected errors and release resources if setup fails. The hook throws an error outside a viewer.
+Separate extensions have no fixed execution order. Put steps that need a fixed order in one extension. The hook throws an error outside a viewer.
+
+- On first mount or when HTML changes, a setup error stops the remaining setups. Place an error boundary above `MarkdownViewer` to catch it.
+- If an extension mounts after the viewer is ready, a boundary around that extension can catch its setup error.
+- If a cleanup throws, the viewer runs the other cleanups in the same stop before passing the error to React.
+
+Handle expected errors in the extension. If setup fails, the viewer aborts its signal. Release any resources that the signal does not manage.
 
 The package exports these types:
 
