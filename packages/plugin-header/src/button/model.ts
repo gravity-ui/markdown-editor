@@ -1,5 +1,7 @@
-import {withNaming} from '@bem-react/classname';
 import type MarkdownIt from 'markdown-it';
+
+export const buttonTokenName = 'button';
+export const buttonClassName = 'g-md-button-plugin';
 
 export const buttonViews = ['action', 'normal', 'outline', 'flat'] as const;
 export const buttonColors = [
@@ -17,7 +19,7 @@ export type ButtonColor = (typeof buttonColors)[number];
 export type ButtonTarget = (typeof buttonTargets)[number];
 export type ButtonStyle = {view: ButtonView; color: ButtonColor; target: ButtonTarget};
 /** An empty `href` means a button without an address. */
-export type ButtonAttrs = ButtonStyle & {href: string};
+export type ButtonModel = ButtonStyle & {href: string};
 
 /** Colors of each view; the first one replaces a color the view lacks. */
 export const buttonViewColors: Readonly<Record<ButtonView, readonly ButtonColor[]>> = {
@@ -27,8 +29,10 @@ export const buttonViewColors: Readonly<Record<ButtonView, readonly ButtonColor[
     flat: ['standard', 'gray', 'blue', 'green', 'yellow', 'red', 'violet'],
 };
 
-export const buttonDefaults: Readonly<Omit<ButtonStyle, 'color'>> = {
+export const buttonDefaults: Readonly<ButtonModel> = {
+    href: '',
     view: 'action',
+    color: 'standard',
     target: '_self',
 };
 
@@ -59,19 +63,4 @@ export function normalizeButtonHref(md: MarkdownIt, value: unknown): string {
     if (typeof value !== 'string' || !value.trim()) return '';
     const href = md.normalizeLink(value.trim());
     return md.validateLink(href) && !/^data:/i.test(href) ? href : '';
-}
-
-export const buttonTokenName = 'button';
-export const buttonClassName = 'g-md-button-plugin';
-const b = withNaming({e: '__', m: '_'})(buttonClassName);
-
-export function buttonAttrs({view, color, target, href}: ButtonAttrs) {
-    return {
-        class: b({view, color}),
-        ...(href ? {href} : {}),
-        ...(target === '_self' ? {} : {target}),
-        ...(target === '_blank' ? {rel: 'noopener noreferrer'} : {}),
-        'data-view': view,
-        'data-color': color,
-    };
 }

@@ -1,8 +1,10 @@
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {
+    type ButtonModel,
     buttonAttrs,
     buttonClassName,
-    normalizeButtonStyle,
+    buttonDefaults,
+    buttonFromAttrs,
 } from '@gravity-ui/markdown-plugin-header';
 
 import {buttonNodeName} from './const';
@@ -13,10 +15,10 @@ export const ButtonSchemaSpecs: ExtensionAuto = (builder) => {
         draggable: true,
         selectable: true,
         attrs: {
-            href: {default: ''},
-            view: {default: 'action'},
-            color: {default: 'standard'},
-            target: {default: '_self'},
+            href: {default: buttonDefaults.href},
+            view: {default: buttonDefaults.view},
+            color: {default: buttonDefaults.color},
+            target: {default: buttonDefaults.target},
             content: {default: ''},
         },
         parseDOM: [
@@ -24,23 +26,11 @@ export const ButtonSchemaSpecs: ExtensionAuto = (builder) => {
                 tag: `a.${buttonClassName}`,
                 priority: 60,
                 getAttrs: (dom) => ({
-                    ...normalizeButtonStyle({
-                        view: dom.getAttribute('data-view'),
-                        color: dom.getAttribute('data-color'),
-                        target: dom.getAttribute('target'),
-                    }),
-                    href: dom.getAttribute('href') ?? '',
-                    content: dom.getAttribute('data-button-content') ?? dom.textContent ?? '',
+                    ...buttonFromAttrs((name) => dom.getAttribute(name)),
+                    content: dom.textContent ?? '',
                 }),
             },
         ],
-        toDOM: (node) => [
-            'a',
-            {
-                ...buttonAttrs({...normalizeButtonStyle(node.attrs), href: node.attrs.href}),
-                'data-button-content': node.attrs.content,
-            },
-            node.attrs.content.trim(),
-        ],
+        toDOM: (node) => ['a', buttonAttrs(node.attrs as ButtonModel), node.attrs.content],
     }));
 };

@@ -1,5 +1,5 @@
-export {headerAttrs, headerClassNames, headerDimensionsFromAttrs} from './classname';
-export {headerClassName, headerTokenName} from './const';
+export {headerAttrs, headerClassNames, headerDimensionsFromAttrs} from './header/attrs';
+export {headerClassName, headerTokenName} from './header/model';
 export {
     type HeaderDimensions,
     type HeaderHeight,
@@ -8,18 +8,8 @@ export {
     headerDimensions,
     headerHeights,
     headerWidths,
-} from './dimensions';
-export {headerPlugin} from './directive';
-export {buttonPlugin} from './button-directive';
-export {
-    buttonAttrs,
-    buttonClassName,
-    buttonTokenName,
-    buttonDefaults,
-    buttonViewColors,
-    buttonViews,
-    buttonTargets,
-    normalizeButtonStyle,
-    normalizeButtonHref,
-    type ButtonAttrs,
-} from './button';
+} from './header/model';
+export {headerPlugin} from './header/plugin';
+export {buttonPlugin} from './button/plugin';
+export {buttonAttrs, buttonFromAttrs} from './button/attrs';
+export {type ButtonModel, buttonDefaults, buttonClassName, buttonTokenName} from './button/model';
