@@ -12,11 +12,9 @@ import {MarkdownViewer, cnYFM} from '@gravity-ui/markdown-viewer';
 import {
     FilesGallery,
     type FilesGallerySource,
-    HeadingAnchors,
     HeadingEditButtons,
     YfmCodeBlockActions,
 } from '@gravity-ui/markdown-viewer/extensions';
-import {sp} from '@gravity-ui/uikit';
 import type MarkdownIt from 'markdown-it';
 import {useDebounce} from 'react-use';
 
@@ -29,7 +27,6 @@ import {
     getPlugins,
 } from '../defaults/md-plugins';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
-import {getHeadingHref, navigateToHeading} from '../utils/heading-links';
 import {lineNumbersPlugin} from '../utils/line-numbers';
 
 import {DiplodocHtml} from './viewer-extensions/DiplodocHtml';
@@ -137,9 +134,8 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
             <MarkdownViewer
                 qa="demo-md-preview"
                 html={result.html}
-                className={cnYFM({'no-list-reset': true}, ['demo-preview', sp({pl: 6})])}
+                className={cnYFM({'no-list-reset': true}, 'demo-preview')}
             >
-                <HeadingAnchors getHref={getHeadingHref} onClick={navigateToHeading} />
                 {onHeadingEdit && (
                     <HeadingEditButtons
                         onClick={(_event, {line}) => {
