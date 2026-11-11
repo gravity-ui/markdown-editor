@@ -2,30 +2,30 @@ import assert from 'node:assert/strict';
 
 import {createElement} from 'react';
 
+import {GalleryProvider} from '@gravity-ui/components';
 import {renderToString} from 'react-dom/server';
 
 import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
-import viewerCjs = require('@gravity-ui/markdown-viewer');
-import {YfmCodeBlockActions} from '@gravity-ui/markdown-viewer/extensions';
-import extensionsCjs = require('@gravity-ui/markdown-viewer/extensions');
+import {FilesGallery, YfmCodeBlockActions} from '@gravity-ui/markdown-viewer/extensions';
 
 assert.equal(typeof document, 'undefined');
 
-for (const consumer of [
-    {MarkdownViewer, YfmCodeBlockActions},
-    {
-        MarkdownViewer: viewerCjs.MarkdownViewer,
-        YfmCodeBlockActions: extensionsCjs.YfmCodeBlockActions,
-    },
-]) {
-    assert.equal(typeof consumer.YfmCodeBlockActions, 'function');
-    const html = '<div class="yfm-clipboard"><pre><code>Prepared code</code></pre></div>';
-    const result = renderToString(
+assert.equal(typeof YfmCodeBlockActions, 'function');
+assert.equal(typeof FilesGallery, 'function');
+const html =
+    '<div class="yfm-clipboard"><pre><code>Prepared code</code></pre></div><img src="image.png" alt="Image">';
+const result = renderToString(
+    createElement(
+        GalleryProvider,
+        null,
         createElement(
-            consumer.MarkdownViewer,
+            MarkdownViewer,
             {html},
-            createElement(consumer.YfmCodeBlockActions, {lineWrappingButton: true}),
+            createElement(YfmCodeBlockActions, {lineWrappingButton: true}),
+            createElement(FilesGallery, {
+                getCopyUrl: () => assert.fail('Gallery callbacks must not run on the server'),
+            }),
         ),
-    );
-    assert.ok(result.includes(html));
-}
+    ),
+);
+assert.ok(result.includes(html));

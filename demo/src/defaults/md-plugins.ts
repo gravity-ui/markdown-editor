@@ -1,11 +1,10 @@
 import {transform as yfmCut} from '@diplodoc/cut-extension';
 import {transform as yfmFile} from '@diplodoc/file-extension';
 import {transform as foldingHeadings} from '@diplodoc/folding-headings-extension';
-import '@diplodoc/folding-headings-extension/runtime';
 import {transform as yfmHtmlBlock} from '@diplodoc/html-extension';
 import {transform as latex} from '@diplodoc/latex-extension';
 import {transform as mermaid} from '@diplodoc/mermaid-extension';
-import {transform as yfmPageConstructor} from '@diplodoc/page-constructor-extension';
+import {transform as yfmPageConstructor} from '@diplodoc/page-constructor-extension/plugin/csr';
 import {transform as yfmTabs} from '@diplodoc/tabs-extension';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';
 import checkbox from '@diplodoc/transform/lib/plugins/checkbox';
@@ -26,6 +25,7 @@ import {bare as emoji} from '@gravity-ui/markdown-editor/markdown-it/emoji';
 import ins from '@gravity-ui/markdown-editor/markdown-it/ins';
 import mark from '@gravity-ui/markdown-editor/markdown-it/mark';
 import sub from '@gravity-ui/markdown-editor/markdown-it/sub';
+import {headerPlugin} from '@gravity-ui/markdown-plugin-header';
 import type {PluginWithParams} from 'markdown-it/lib';
 
 export const LATEX_RUNTIME = 'extension:latex';
@@ -83,6 +83,7 @@ export function getPlugins({
             }),
     ];
     const extendedPlugins = defaultPlugins.concat(
+        headerPlugin,
         (md) => md.use(emoji, {defs: emojiDefs}),
         checkbox,
         (md) => md.use(color, {escape: true, defaultClassName: colorClassName}),

@@ -3,6 +3,7 @@ import {type ReactElement, useState} from 'react';
 import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {ViewerTargets} from '../../components/ViewerTargets/ViewerTargets';
+import {createClassRegistration} from '../../utils/class-registration';
 import {cn} from '../../utils/classname';
 import {useClientLayoutEffect} from '../../utils/use-client-layout-effect';
 
@@ -11,10 +12,7 @@ import {CodeTextWrappingToggleButton} from './TextWrappingButton';
 import './YfmCodeBlockActions.scss';
 
 const b = cn('yfm-code-block');
-const blockClass = b();
-const blockInstances = new WeakMap<HTMLElement, SetBlockOwner[]>();
-
-type SetBlockOwner = (ownsBlock: boolean) => void;
+const registerBlockActions = createClassRegistration(b());
 
 export interface YfmCodeBlockActionsProps {
     /** @default true */
@@ -64,34 +62,6 @@ function CodeBlockActions({
             {copyButton && <ClipboardButton size="m" text={() => getCodeBlockText(element)} />}
         </>
     );
-}
-
-function registerBlockActions(element: HTMLElement, setOwnsBlock: SetBlockOwner) {
-    const queue = blockInstances.get(element) ?? [];
-    const isFirst = queue.length === 0;
-    const canJoin = !isFirst || !element.classList.contains(blockClass);
-    setOwnsBlock(isFirst && canJoin);
-    if (!canJoin) return undefined;
-
-    if (isFirst) {
-        blockInstances.set(element, queue);
-        element.classList.add(blockClass);
-    }
-    queue.push(setOwnsBlock);
-
-    return () => {
-        const index = queue.indexOf(setOwnsBlock);
-        queue.splice(index, 1);
-        if (index !== 0) return;
-
-        const nextOwner = queue[0];
-        if (nextOwner) {
-            nextOwner(true);
-        } else {
-            blockInstances.delete(element);
-            element.classList.remove(blockClass);
-        }
-    };
 }
 
 function getCodeBlockTextDefault(element: HTMLElement) {
