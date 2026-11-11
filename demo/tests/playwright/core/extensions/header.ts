@@ -51,10 +51,6 @@ export class HeaderBlock {
             .getByRole('radio', {name: value, exact: true});
     }
 
-    get dialogs() {
-        return this.page.getByRole('dialog');
-    }
-
     get background() {
         return this.settings.getByRole('button', {name: 'Background No background', exact: true});
     }

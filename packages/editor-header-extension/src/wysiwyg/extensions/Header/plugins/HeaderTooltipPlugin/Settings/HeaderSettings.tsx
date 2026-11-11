@@ -1,4 +1,4 @@
-import {useMemo, useRef} from 'react';
+import {useLayoutEffect, useMemo, useRef, useState} from 'react';
 
 import {Xmark} from '@gravity-ui/icons';
 import {cn} from '@gravity-ui/markdown-editor';
@@ -13,13 +13,13 @@ import {i18n} from '../../../../../../i18n';
 
 import {DimensionSelect} from './DimensionSelect';
 import {SettingsFields} from './SettingsFields';
-import {PANEL_INSET} from './const';
-import {useHeaderSettingsSize} from './useHeaderSettingsSize';
 
 import './HeaderSettings.scss';
 
 const b = cn('header-settings');
 
+const PANEL_INSET = 16;
+const PANEL_MAX_HEIGHT = 720;
 const CLOSE_ICON_SIZE = 16;
 
 // The Popup keeps at least 4 px of the panel over the anchor, so the anchor spans the block width.
@@ -30,6 +30,29 @@ const insideTopEdge = (block: HTMLElement): PopupAnchorElement => ({
         return new DOMRect(left + PANEL_INSET, top + PANEL_INSET, width - 2 * PANEL_INSET, 0);
     },
 });
+
+/** The panel ends `PANEL_INSET` px above the bottom edge of the viewport. */
+function useMaxHeight(anchor: PopupAnchorElement | null) {
+    const [maxHeight, setMaxHeight] = useState<number>();
+
+    useLayoutEffect(() => {
+        if (!anchor) return undefined;
+
+        const update = () => {
+            const {top} = anchor.getBoundingClientRect();
+            setMaxHeight(Math.min(PANEL_MAX_HEIGHT, window.innerHeight - top - PANEL_INSET));
+        };
+        update();
+
+        const controller = new AbortController();
+        window.addEventListener('resize', update, {signal: controller.signal});
+        // Scroll events do not bubble; the capture phase covers every scroll container.
+        window.addEventListener('scroll', update, {capture: true, signal: controller.signal});
+        return () => controller.abort();
+    }, [anchor]);
+
+    return maxHeight;
+}
 
 type HeaderSettingsProps = {
     /** The panel opens inside this banner, at its top right corner. */
@@ -51,8 +74,7 @@ export function HeaderSettings({
     const titleId = useUniqId();
     const anchorElement = useMemo(() => block && insideTopEdge(block), [block]);
     const heightRef = useRef<HTMLButtonElement>(null);
-    const panelStyle = useHeaderSettingsSize(block);
-
+    const maxHeight = useMaxHeight(anchorElement);
     return (
         <Popup
             open
@@ -74,7 +96,7 @@ export function HeaderSettings({
         >
             <section
                 className={b()}
-                style={panelStyle}
+                style={{maxHeight}}
                 role="dialog"
                 aria-labelledby={titleId}
                 data-qa="header-settings"
@@ -83,7 +105,13 @@ export function HeaderSettings({
                     <Text variant="subheader-3" id={titleId}>
                         {i18n('title')}
                     </Text>
-                    <Button view="flat" size="l" aria-label={i18n('close')} onClick={onClose}>
+                    <Button
+                        className={b('close')}
+                        view="flat"
+                        size="l"
+                        aria-label={i18n('close')}
+                        onClick={onClose}
+                    >
                         <Icon data={Xmark} size={CLOSE_ICON_SIZE} />
                     </Button>
                 </div>

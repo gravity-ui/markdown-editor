@@ -22,28 +22,24 @@ export function SettingsSection({
     return (
         <>
             <Divider />
-            <div className={b('section')}>
-                <div className={b('title')}>
-                    <Text className={b('section-title')} variant="subheader-2">
-                        {title}
-                    </Text>
-                    <Button
-                        view="flat-secondary"
-                        size="m"
-                        aria-label={title}
-                        aria-expanded={expanded}
-                        aria-controls={contentId}
-                        onClick={() => {
-                            setExpanded(!expanded);
-                            logClick(`${action} section button`);
-                        }}
-                    >
-                        <Icon data={expanded ? ChevronUp : ChevronDown} size={16} />
-                    </Button>
-                </div>
-                <div className={b('fields')} id={contentId} hidden={!expanded}>
-                    {children}
-                </div>
+            <div className={b('title')}>
+                <Text variant="subheader-2">{title}</Text>
+                <Button
+                    view="flat-secondary"
+                    size="m"
+                    aria-label={title}
+                    aria-expanded={expanded}
+                    aria-controls={contentId}
+                    onClick={() => {
+                        setExpanded(!expanded);
+                        logClick(`${action} section button`);
+                    }}
+                >
+                    <Icon data={expanded ? ChevronUp : ChevronDown} size={16} />
+                </Button>
+            </div>
+            <div className={b('fields', {hidden: !expanded})} id={contentId}>
+                {children}
             </div>
         </>
     );

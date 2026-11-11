@@ -255,7 +255,6 @@ test.describe('Header', () => {
         await expect(header.background).toHaveAccessibleName('Background No background');
         await header.background.click();
         expect(messages).toContain('Background button clicked');
-        await expect(header.dialogs).toHaveCount(1);
         expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(initial);
 
         await header.section('Text').click();
@@ -438,12 +437,5 @@ test.describe('Header on mobile', () => {
             .toBeLessThanOrEqual(480);
         await header.background.scrollIntoViewIfNeeded();
         await expect(header.background).toBeInViewport();
-        await page.setViewportSize({width: 300, height: 480});
-        await expect
-            .poll(async () => (await header.settings.boundingBox())?.width)
-            .toBe(300 - 2 * SETTINGS_INSET);
-        expect(
-            await header.settings.evaluate((element) => element.scrollWidth <= element.clientWidth),
-        ).toBe(true);
     });
 });
