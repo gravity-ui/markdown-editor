@@ -1,20 +1,13 @@
 import {liftEmptyBlock} from 'prosemirror-commands';
-import {
-    Fragment,
-    type Node,
-    NodeRange,
-    type NodeType,
-    type ResolvedPos,
-    Slice,
-} from 'prosemirror-model';
+import {Fragment, type Node, NodeRange, type NodeType, Slice} from 'prosemirror-model';
 import {wrapInList} from 'prosemirror-schema-list';
 import type {Command, Selection, Transaction} from 'prosemirror-state';
-import {ReplaceAroundStep, canJoin, liftTarget} from 'prosemirror-transform';
+import {ReplaceAroundStep, liftTarget} from 'prosemirror-transform';
 
 import {joinPreviousBlock} from '../../../commands/join';
 import {get$CursorAtBlockStart} from '../../../utils/selection';
 
-import {findAnyParentList, isListNode, isListOrItemNode} from './utils';
+import {findAnyParentList, isListItemNode, isListNode, isListOrItemNode} from './utils';
 
 export function toList(listType: NodeType): Command {
     return (state, dispatch) => {
@@ -48,19 +41,6 @@ export function liftEmptyListItem(itemType: NodeType): Command {
         return liftEmptyBlock(state, dispatch);
     };
 }
-
-/** Positions inside the first and the last item of a range of adjacent items of one list. */
-type ItemGroup = {first: number; last: number};
-
-type SelectedItems = {
-    /** Selected items in document order. An item nested in a selected item moves with it. */
-    groups: ItemGroup[];
-    /**
-     * For each list nested in the last selected item: a position inside the first item that
-     * starts after the selection end. Reverse document order.
-     */
-    after: number[];
-};
 
 /**
  * A block is not selected when the selection only ends at its start or only starts at the end
@@ -99,176 +79,128 @@ function touchesOwnContent(node: Node, start: number, from: number, to: number):
     return false;
 }
 
-function findItemsAfter($end: ResolvedPos, itemDepth: number): number[] {
-    const result: number[] = [];
-    // `depth` is the depth of an item that contains `$end`
-    for (let depth = itemDepth; depth <= $end.depth; depth += 2) {
-        const item = $end.node(depth);
-        const inChild = $end.depth > depth;
-        const index = $end.index(depth);
-        for (let i = item.childCount - 1; i >= index + (inChild ? 1 : 0); i--) {
-            if (isListNode(item.child(i))) result.push($end.posAtIndex(i, depth) + 2);
-        }
+/** Adjacent selected items: `start` is inside the first one, `end` is right after the last one. */
+type Run = {start: number; end: number};
 
-        const list = inChild ? item.child(index) : null;
-        if (!list || !isListNode(list)) break;
-
-        const inItem = $end.depth > depth + 1;
-        const next = $end.index(depth + 1) + (inItem ? 1 : 0);
-        if (next < list.childCount) result.push($end.posAtIndex(next, depth + 1) + 1);
-        if (!inItem) break;
-    }
-    return result;
-}
-
-function findSelectedItems(
-    doc: Node,
-    selection: Selection,
-    itemType: NodeType,
-    canMove: (index: number) => boolean,
-): SelectedItems | null {
+/**
+ * `runs` go in document order: an item nested in a selected item moves with it. For each list
+ * nested in the last selected item, `after` has a position inside its first item after
+ * the selection end.
+ */
+function findSelectedItems(doc: Node, selection: Selection, itemType: NodeType, sink: boolean) {
     const {from, to} = getSelectedRange(selection);
-    const groups: ItemGroup[] = [];
-    let lastStart = -1;
-    let lastEnd = -1;
+    const runs: Run[] = [];
+    const after: number[] = [];
+    let last = -1;
+    let end = -1;
 
     doc.nodesBetween(from, to, (node, pos, _parent, index) => {
         if (node.type !== itemType) return !node.isTextblock;
-        if (!canMove(index) || !touchesOwnContent(node, pos + 1, from, to)) return true;
+        // the first item of a list has no item to sink into
+        if ((sink && index === 0) || !touchesOwnContent(node, pos + 1, from, to)) return true;
 
         // a position inside an item points into the same item after any step of these commands
-        if (pos === lastEnd) groups[groups.length - 1].last = pos + 1;
-        else groups.push({first: pos + 1, last: pos + 1});
-        lastStart = pos;
-        lastEnd = pos + node.nodeSize;
+        if (pos !== end) runs.push({start: pos + 1, end});
+        last = pos;
+        end = runs[runs.length - 1].end = pos + node.nodeSize;
         return false;
     });
-    if (!groups.length) return null;
+    if (to >= end) return {runs, after};
 
-    const after =
-        to < lastEnd ? findItemsAfter(doc.resolve(to), doc.resolve(lastStart).depth + 1) : [];
-    return {groups, after};
+    let prev = -1;
+    doc.nodesBetween(to, end, (node, pos) => {
+        // down to the selection end through the last selected item, its lists and their items
+        if (pos < last || (pos < to && node.type === itemType)) return true;
+        if (node.type !== itemType) return isListNode(node);
+
+        if (pos !== prev) after.push(pos + 1);
+        prev = pos + node.nodeSize;
+        return false;
+    });
+    return {runs, after};
 }
 
-function getItemsRange(tr: Transaction, {first, last}: ItemGroup): NodeRange {
-    const $from = tr.doc.resolve(tr.mapping.map(first));
-    const $to = tr.doc.resolve(tr.mapping.map(last));
-    return new NodeRange($from, $to, $from.depth - 1);
+/**
+ * The items of a list up to `to` or to the end of the list. They start with the item that
+ * holds `from`, or with the item after `from` when it stands between items.
+ */
+function getItems(doc: Node, from: number, to?: number): NodeRange {
+    const $from = doc.resolve(from);
+    const depth = $from.depth - (isListNode($from.parent) ? 0 : 1);
+    return new NodeRange($from, doc.resolve(to ?? $from.end(depth)), depth);
 }
 
-/** The items of the list at `depth` from `$from` to the end of the list. */
-function getListEndRange($from: ResolvedPos, depth = $from.depth - 1): NodeRange {
-    return new NodeRange($from, $from.doc.resolve($from.end(depth)), depth);
+/** `sinkListItem` from `prosemirror-schema-list` for the items from `from` to `to`. */
+function nestItems(tr: Transaction, sink: boolean, from: number, to?: number) {
+    const {parent, startIndex, start, end} = getItems(tr.doc, from, to);
+    if (startIndex === 0 || start === end) return;
+
+    const {type, lastChild} = parent.child(startIndex - 1);
+    const nested = lastChild?.type === parent.type;
+    // a list made by sinking has default attributes
+    const list = sink ? parent.type.create() : parent;
+    const inner = list.copy(Fragment.from(nested ? type.create() : null));
+    const slice = new Slice(Fragment.from(type.create(null, inner)), nested ? 3 : 1, 0);
+    tr.step(new ReplaceAroundStep(start - (nested ? 3 : 1), end, start, end, slice, 1, true));
 }
 
-/** `sinkListItem` from `prosemirror-schema-list` for a range. */
-function sinkRange(tr: Transaction, range: NodeRange, itemType: NodeType) {
-    const {parent, start, end} = range;
-    const nodeBefore = parent.child(range.startIndex - 1);
-    const nestedBefore = nodeBefore.lastChild?.type === parent.type;
-    const inner = Fragment.from(nestedBefore ? itemType.create() : null);
-    const slice = new Slice(
-        Fragment.from(itemType.create(null, Fragment.from(parent.type.create(null, inner)))),
-        nestedBefore ? 3 : 1,
-        0,
-    );
-
-    tr.step(new ReplaceAroundStep(start - (nestedBefore ? 3 : 1), end, start, end, slice, 1, true));
-}
-
-/** Items from the end of a list become the following siblings of the item that holds the list. */
-function liftListEnd(tr: Transaction, range: NodeRange) {
-    const target = liftTarget(range);
-    if (target !== null) tr.lift(range, target);
-}
-
-function joinLists(tr: Transaction, pos: number) {
-    const {nodeBefore, nodeAfter} = tr.doc.resolve(pos);
-    if (nodeBefore && nodeBefore.type === nodeAfter?.type && canJoin(tr.doc, pos)) tr.join(pos);
-}
-
-/** Items from the end of a list become nested in the item before them. */
-function nestListEnd(tr: Transaction, range: NodeRange, itemType: NodeType) {
-    if (range.startIndex === 0) return;
-
-    const {start, end, parent} = range;
-    const slice = new Slice(Fragment.from(itemType.create(null, parent.copy())), 1, 0);
-    tr.step(new ReplaceAroundStep(start - 1, end, start, end, slice, 1, true));
-    // the item may already end with a nested list
-    joinLists(tr, start - 1);
-}
-
-/** `liftToOuterList` from `prosemirror-schema-list` for a range. */
-function liftToOuterList(tr: Transaction, range: NodeRange, itemType: NodeType) {
-    if (liftTarget(range) === null) return;
-
-    const {start, end, depth} = range;
-    if (end < range.$to.end(depth)) {
-        nestListEnd(tr, getListEndRange(tr.doc.resolve(end), depth), itemType);
-    }
-    liftListEnd(tr, getListEndRange(tr.doc.resolve(start), depth));
-}
-
-/** `liftOutOfList` from `prosemirror-schema-list` for a range. */
-function liftOutOfList(tr: Transaction, range: NodeRange) {
-    const {parent: list, start, startIndex, endIndex, depth} = range;
-    const atStart = startIndex === 0;
-    const atEnd = endIndex === list.childCount;
-
+/** The blocks of the items fit in place of their list or after the items that stay in it. */
+function canLeaveList({$from, parent, depth, startIndex, endIndex}: NodeRange): boolean {
     const blocks: Node[] = [];
-    for (let i = startIndex; i < endIndex; i++) list.child(i).forEach((node) => blocks.push(node));
-    const content = Fragment.from(blocks).append(atEnd ? Fragment.empty : Fragment.from(list));
-    const container = range.$from.node(depth - 1);
-    const index = range.$from.index(depth - 1);
-    if (!container.canReplace(index + (atStart ? 0 : 1), index + 1, content)) return;
+    for (let i = startIndex; i < endIndex; i++)
+        parent.child(i).forEach((node) => blocks.push(node));
+    // the items after the lifted ones make a list of their own
+    if (endIndex < parent.childCount) blocks.push(parent);
 
-    // merges the items into a single one
-    let end = range.end;
-    for (let pos = end, i = endIndex - 1; i > startIndex; i--) {
-        pos -= list.child(i).nodeSize;
-        tr.delete(pos - 1, pos + 1);
-        end -= 2;
+    const container = $from.node(depth - 1);
+    const index = $from.index(depth - 1);
+    return container.canReplace(index + (startIndex ? 1 : 0), index + 1, Fragment.from(blocks));
+}
+
+/**
+ * `liftListItem` from `prosemirror-schema-list` for the items from `from` to `to`. The items
+ * after `to` become nested in the item before them.
+ */
+function liftItems(tr: Transaction, from: number, to?: number) {
+    const range = getItems(tr.doc, from, to);
+    const {parent, depth, startIndex, endIndex, end} = range;
+    const nested = isListItemNode(range.$from.node(depth - 1));
+    const target = nested ? liftTarget(range) : depth - 1;
+    if (target === null || (!nested && !canLeaveList(range))) return;
+
+    // every step stands after `from`
+    if (to !== undefined) nestItems(tr, false, to);
+    if (nested) {
+        tr.lift(getItems(tr.doc, from), target);
+        return;
     }
-
-    // strips off the surrounding list
-    const emptyList = Fragment.from(list.copy(Fragment.empty));
-    const slice = new Slice(
-        (atStart ? Fragment.empty : emptyList).append(atEnd ? Fragment.empty : emptyList),
-        atStart ? 0 : 1,
-        atEnd ? 0 : 1,
-    );
-    const step = new ReplaceAroundStep(
-        start - (atStart ? 1 : 0),
-        end + (atEnd ? 1 : 0),
-        start + 1,
-        end - 1,
-        slice,
-        atStart ? 0 : 1,
-    );
-    tr.step(step);
-    // a nested list of the last item stands next to the rest of the list
-    if (!atEnd) joinLists(tr, step.getMap().map(end - 1, -1));
+    for (let i = endIndex - 1, pos = end; i > startIndex; i--) {
+        pos -= parent.child(i).nodeSize;
+        tr.join(pos);
+    }
+    const $from = tr.doc.resolve(from);
+    tr.lift(new NodeRange($from, tr.doc.resolve($from.end()), $from.depth), target);
 }
 
-/**
- * Moves the selected items one level deeper, as if each of them were moved in turn from top
- * to bottom. An item without a previous sibling stays in place. Unselected nested items keep
- * their level.
- */
-export function sinkSelectedListItems(itemType: NodeType): Command {
+function moveSelectedListItems(itemType: NodeType, sink: boolean): Command {
     return ({tr, selection}, dispatch) => {
-        const selected = findSelectedItems(tr.doc, selection, itemType, (index) => index > 0);
-        if (!selected) return false;
+        const {runs, after} = findSelectedItems(tr.doc, selection, itemType, sink);
+        if (!runs.length) return false;
 
         if (dispatch) {
-            for (const group of selected.groups) {
-                sinkRange(tr, getItemsRange(tr, group), itemType);
+            const map = (pos: number) => tr.mapping.map(pos);
+            if (sink) {
+                for (const {start, end} of runs) nestItems(tr, true, map(start), map(end));
+                // sunk together with the last selected item, the items after the selection
+                // return to their level
+                for (const pos of after.reverse()) liftItems(tr, map(pos));
+            } else {
+                // nested one level deeper, the items after the selection keep their level
+                // when the last selected item is lifted
+                for (const pos of after) nestItems(tr, false, map(pos));
+                for (const {start, end} of runs.reverse()) liftItems(tr, map(start), map(end));
             }
-            // sunk together with the last selected item, the items after the selection
-            // return to their level
-            for (const pos of selected.after) {
-                liftListEnd(tr, getListEndRange(tr.doc.resolve(tr.mapping.map(pos))));
-            }
+            if (!tr.docChanged) return false;
             dispatch(tr.scrollIntoView());
         }
         return true;
@@ -276,34 +208,16 @@ export function sinkSelectedListItems(itemType: NodeType): Command {
 }
 
 /**
- * Moves the selected items one level up, as if each of them were moved in turn from bottom
- * to top. Items nested in the last selected item move with it. Other unselected items keep
- * their level.
+ * Moves each selected item one level deeper. An item without a previous sibling stays in place.
+ * Unselected nested items keep their level.
  */
-export function liftSelectedListItems(itemType: NodeType): Command {
-    return ({tr, selection}, dispatch) => {
-        const selected = findSelectedItems(tr.doc, selection, itemType, () => true);
-        if (!selected) return false;
+export const sinkSelectedListItems = (itemType: NodeType) => moveSelectedListItems(itemType, true);
 
-        if (dispatch) {
-            // nested one level deeper, the items after the selection keep their level
-            // when the last selected item is lifted
-            for (const pos of selected.after.reverse()) {
-                nestListEnd(tr, getListEndRange(tr.doc.resolve(tr.mapping.map(pos))), itemType);
-            }
-            for (const group of selected.groups.reverse()) {
-                const range = getItemsRange(tr, group);
-                if (range.$from.node(range.depth - 1).type === itemType) {
-                    liftToOuterList(tr, range, itemType);
-                } else {
-                    liftOutOfList(tr, range);
-                }
-            }
-            dispatch(tr.scrollIntoView());
-        }
-        return true;
-    };
-}
+/**
+ * Moves each selected item one level up. Items nested in the last selected item move with it.
+ * Other unselected items keep their level.
+ */
+export const liftSelectedListItems = (itemType: NodeType) => moveSelectedListItems(itemType, false);
 
 /** @deprecated use `sinkSelectedListItems` */
 export const sinkOnlySelectedListItem = sinkSelectedListItems;

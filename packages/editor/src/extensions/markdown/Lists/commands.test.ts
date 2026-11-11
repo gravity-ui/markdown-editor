@@ -1,5 +1,5 @@
 import ist from 'ist';
-import type {Node} from 'prosemirror-model';
+import {type Node, Schema} from 'prosemirror-model';
 import {liftListItem} from 'prosemirror-schema-list';
 import {
     type Command,
@@ -8,7 +8,7 @@ import {
     Selection,
     TextSelection,
 } from 'prosemirror-state';
-import {blockquote, doc, eq, li, ol, p, schema, ul} from 'prosemirror-test-builder';
+import {blockquote, builders, doc, eq, hr, li, ol, p, schema, ul} from 'prosemirror-test-builder';
 import {describe, expect, it} from 'vitest';
 
 import {liftSelectedListItems, sinkSelectedListItems} from 'src/extensions/markdown/Lists/commands';
@@ -27,9 +27,13 @@ function selFor(doc: Node) {
 }
 
 function apply(doc: Node, command: Command, result: Node | null) {
-    let state = EditorState.create({doc, selection: selFor(doc)});
-    // eslint-disable-next-line no-return-assign
-    command(state, (tr) => (state = state.apply(tr)));
+    const initial = EditorState.create({doc, selection: selFor(doc)});
+    let state = initial;
+    const moved = command(initial, (tr) => {
+        state = initial.apply(tr);
+    });
+    ist(moved, Boolean(result));
+    if (result) ist(command(initial), true);
     ist(state.doc, result || doc, eq);
     // eslint-disable-next-line no-eq-null
     if (result && (result as any).tag.a != null) ist(state.selection, selFor(result), eq);
@@ -376,6 +380,78 @@ describe('sinkSelectedListItems', () => {
             doc(ul(li(p('one'), ol(li(p('two'))), ul(li(p('three')), li(p('four')))))),
         ));
 
+    it('should keep the type of a nested list that moves with its item', () =>
+        apply(
+            doc(ul(li(p('one')), li(p('t<a>wo'), ol(li(p('thr<b>ee')))))),
+            sink,
+            doc(ul(li(p('one'), ul(li(p('two'), ol(li(p('three')))))))),
+        ));
+
+    it('should give default attributes to the list made by sinking', () =>
+        apply(
+            doc(ol({order: 5}, li(p('one')), li(p('t<a><b>wo')))),
+            sink,
+            doc(ol({order: 5}, li(p('one'), ol(li(p('two')))))),
+        ));
+
+    it('should keep the level of the items of every nested list of the sunk item', () =>
+        apply(
+            doc(ul(li(p('one')), li(p('t<a><b>wo'), ul(li(p('three'))), ol(li(p('four')))))),
+            sink,
+            doc(ul(li(p('one'), ul(li(p('two')), li(p('three')), li(p('four')))))),
+        ));
+
+    it('should sink an item as a whole when a paragraph between its nested lists is selected', () =>
+        apply(
+            doc(
+                ul(
+                    li(p('one')),
+                    li(
+                        p('two'),
+                        ul(li(p('th<a>ree'))),
+                        p('four'),
+                        ul(li(p('fi<b>ve')), li(p('six'))),
+                    ),
+                ),
+            ),
+            sink,
+            doc(
+                ul(
+                    li(
+                        p('one'),
+                        ul(
+                            li(p('two'), ul(li(p('three'))), p('four'), ul(li(p('five')))),
+                            li(p('six')),
+                        ),
+                    ),
+                ),
+            ),
+        ));
+
+    it('should sink an item when a block without text is selected in it', () =>
+        apply(
+            doc(ul(li(p('one')), li(p('two'), '<a>', hr()))),
+            sink,
+            doc(ul(li(p('one'), ul(li(p('two'), hr()))))),
+        ));
+
+    it('should sink an item when the cursor is in a block inside its block', () =>
+        apply(
+            doc(ul(li(p('one')), li(p('two'), blockquote(p('th<a><b>ree'))))),
+            sink,
+            doc(ul(li(p('one'), ul(li(p('two'), blockquote(p('three'))))))),
+        ));
+
+    it('should sink adjacent items in one step', () => {
+        const initial = doc(ul(li(p('one')), li(p('t<a>wo')), li(p('three')), li(p('fo<b>ur'))));
+        const state = EditorState.create({doc: initial, selection: selFor(initial)});
+        let steps = 0;
+        sink(state, (tr) => {
+            steps = tr.steps.length;
+        });
+        expect(steps).toBe(1);
+    });
+
     it('should sink several groups of items in one transaction', () => {
         const initial = doc(
             ul(li(p('one'), ul(li(p('two')), li(p('th<a>ree')))), li(p('fo<b>ur'))),
@@ -621,6 +697,63 @@ describe('liftSelectedListItems', () => {
             lift,
             doc(p('te<a>xt'), p('o<b>ne'), ul(li(p('two')), li(p('three')))),
         ));
+
+    it('should keep the list attributes of the following items that become nested', () =>
+        apply(
+            doc(ul(li(p('one'), ol({order: 5}, li(p('t<a><b>wo')), li(p('three')))))),
+            lift,
+            doc(ul(li(p('one')), li(p('two'), ol({order: 5}, li(p('three')))))),
+        ));
+
+    it('should keep the list attributes of the items that stay after the lifted one', () =>
+        apply(
+            doc(ol({order: 5}, li(p('o<a><b>ne')), li(p('two')))),
+            lift,
+            doc(p('one'), ol({order: 5}, li(p('two')))),
+        ));
+
+    it('should lift an item as a whole when a paragraph between its nested lists is selected', () =>
+        apply(
+            doc(ul(li(p('o<a>ne'), ul(li(p('two'))), p('three'), ul(li(p('fo<b>ur')))))),
+            lift,
+            doc(p('one'), ul(li(p('two'))), p('three'), ul(li(p('four')))),
+        ));
+
+    it('should move the blocks after a nested list to a new item when its item is lifted', () =>
+        apply(
+            doc(ul(li(p('one'), ul(li(p('t<a><b>wo'))), p('three')))),
+            lift,
+            doc(ul(li(p('one')), li(p('two')), li(p('three')))),
+        ));
+
+    it('should not lift when the item that holds the list cannot be split', () =>
+        apply(
+            doc(ul(li(p('one'), ul(li(p('t<a><b>wo')), li(p('three'))), blockquote(p('four'))))),
+            lift,
+            null,
+        ));
+
+    it('should not lift when the blocks of the item do not fit in place of its list', () => {
+        const nodes = schema.spec.nodes.addToEnd('box', {content: 'bullet_list', group: 'block'});
+        const boxed = builders(new Schema({nodes, marks: schema.spec.marks}));
+        apply(
+            boxed.doc(boxed.box(boxed.bullet_list(boxed.list_item(boxed.paragraph('o<a><b>ne'))))),
+            liftSelectedListItems(boxed.schema.nodes.list_item),
+            null,
+        );
+    });
+
+    it('should lift adjacent items in one step', () => {
+        const initial = doc(
+            ul(li(p('one'), ul(li(p('t<a>wo')), li(p('three')), li(p('fo<b>ur'))))),
+        );
+        const state = EditorState.create({doc: initial, selection: selFor(initial)});
+        let steps = 0;
+        lift(state, (tr) => {
+            steps = tr.steps.length;
+        });
+        expect(steps).toBe(1);
+    });
 
     it('should not lift outside of a list', () =>
         apply(doc(p('o<a>ne'), p('t<b>wo'), ul(li(p('three')))), lift, null));
