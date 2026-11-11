@@ -2,19 +2,6 @@ $panel-width: 320px;
 $label-width: 120px;
 $viewport-inset: var(--g-spacing-4);
 
-.g-md-header-settings-popup {
-    --g-popup-background-color: var(--g-color-base-modal);
-    --g-popup-border-color: var(--g-color-line-generic);
-    --g-popup-border-radius: var(--g-spacing-4);
-
-    // `.g-popup` sets a larger shadow with the same specificity.
-    &.g-popup {
-        box-shadow:
-            0 0 0 1px var(--g-color-line-generic),
-            0 1px 5px var(--g-color-sfx-shadow);
-    }
-}
-
 .g-md-header-settings {
     display: flex;
     overflow: auto;
