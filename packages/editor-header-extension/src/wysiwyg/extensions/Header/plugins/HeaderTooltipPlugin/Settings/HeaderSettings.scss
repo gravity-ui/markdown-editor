@@ -1,5 +1,4 @@
 $panel-width: 320px;
-$panel-height: 720px;
 $label-width: 120px;
 
 .g-md-header-settings {
@@ -9,8 +8,7 @@ $label-width: 120px;
     gap: var(--g-spacing-4);
 
     box-sizing: border-box;
-    width: min($panel-width, var(--g-md-header-settings-available-width, 100vw));
-    max-height: min($panel-height, var(--g-md-header-settings-available-height, 100dvh));
+    width: $panel-width;
     padding: var(--g-spacing-4);
 
     > * {
@@ -45,7 +43,7 @@ $label-width: 120px;
     &__row {
         display: grid;
         align-items: center;
-        grid-template-columns: minmax(0, $label-width) minmax(0, 1fr);
+        grid-template-columns: minmax(0, $label-width) minmax(min-content, 1fr);
         gap: var(--g-spacing-2);
 
         min-height: var(--g-spacing-7);

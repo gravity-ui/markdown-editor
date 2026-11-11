@@ -1,4 +1,4 @@
-import {type CSSProperties, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import {useMemo, useRef} from 'react';
 
 import {Xmark} from '@gravity-ui/icons';
 import {cn} from '@gravity-ui/markdown-editor';
@@ -13,12 +13,13 @@ import {i18n} from '../../../../../../i18n';
 
 import {DimensionSelect} from './DimensionSelect';
 import {SettingsFields} from './SettingsFields';
+import {PANEL_INSET} from './const';
+import {useHeaderSettingsSize} from './useHeaderSettingsSize';
 
 import './HeaderSettings.scss';
 
 const b = cn('header-settings');
 
-const PANEL_INSET = 16;
 const CLOSE_ICON_SIZE = 16;
 
 // The Popup keeps at least 4 px of the panel over the anchor, so the anchor spans the block width.
@@ -50,43 +51,7 @@ export function HeaderSettings({
     const titleId = useUniqId();
     const anchorElement = useMemo(() => block && insideTopEdge(block), [block]);
     const heightRef = useRef<HTMLButtonElement>(null);
-    const [availableSize, setAvailableSize] = useState<{width: number; height: number}>();
-
-    useLayoutEffect(() => {
-        if (!block) return undefined;
-        const controller = new AbortController();
-        let frame: number | undefined;
-        const updateSize = () => {
-            frame = undefined;
-            const width = Math.max(0, window.innerWidth - 2 * PANEL_INSET);
-            const height = Math.max(
-                0,
-                window.innerHeight - block.getBoundingClientRect().top - 2 * PANEL_INSET,
-            );
-            setAvailableSize((previous) =>
-                previous?.width === width && previous.height === height
-                    ? previous
-                    : {width, height},
-            );
-        };
-        const scheduleUpdate = () => {
-            if (frame === undefined) frame = requestAnimationFrame(updateSize);
-        };
-        const onScroll = (event: Event) => {
-            // Only ancestor scrolling can move the banner's anchor.
-            if (event.target instanceof Node && event.target.contains(block)) scheduleUpdate();
-        };
-        updateSize();
-        const observer = new ResizeObserver(scheduleUpdate);
-        observer.observe(block);
-        window.addEventListener('resize', scheduleUpdate, {signal: controller.signal});
-        window.addEventListener('scroll', onScroll, {capture: true, signal: controller.signal});
-        return () => {
-            controller.abort();
-            observer.disconnect();
-            if (frame !== undefined) cancelAnimationFrame(frame);
-        };
-    }, [block]);
+    const panelStyle = useHeaderSettingsSize(block);
 
     return (
         <Popup
@@ -109,14 +74,7 @@ export function HeaderSettings({
         >
             <section
                 className={b()}
-                style={
-                    {
-                        '--g-md-header-settings-available-height':
-                            availableSize === undefined ? undefined : `${availableSize.height}px`,
-                        '--g-md-header-settings-available-width':
-                            availableSize === undefined ? undefined : `${availableSize.width}px`,
-                    } as CSSProperties
-                }
+                style={panelStyle}
                 role="dialog"
                 aria-labelledby={titleId}
                 data-qa="header-settings"

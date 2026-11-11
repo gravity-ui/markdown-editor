@@ -1,8 +1,4 @@
-import {type ReactNode, useState} from 'react';
-
 import {
-    ChevronDown,
-    ChevronUp,
     ObjectsAlignBottom,
     ObjectsAlignCenterHorizontal,
     ObjectsAlignCenterVertical,
@@ -12,135 +8,16 @@ import {
     SquareMinus,
 } from '@gravity-ui/icons';
 import {cn} from '@gravity-ui/markdown-editor';
-import {
-    Button,
-    Divider,
-    Icon,
-    type IconData,
-    SegmentedRadioGroup,
-    Switch,
-    Text,
-    useUniqId,
-} from '@gravity-ui/uikit';
+import {Button, Icon, Text, useUniqId} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
 
+import {AlignmentSelect} from './AlignmentSelect';
+import {SettingsSection} from './SettingsSection';
+import {SettingsSwitch} from './SettingsSwitch';
+import {logClick} from './utils';
+
 const b = cn('header-settings');
-
-function logClick(name: string) {
-    // eslint-disable-next-line no-console -- Settings actions are demonstration placeholders.
-    console.log(`${name} clicked`);
-}
-
-function SettingsSection({
-    title,
-    action,
-    children,
-}: {
-    title: string;
-    action: string;
-    children: ReactNode;
-}) {
-    const [expanded, setExpanded] = useState(true);
-    const contentId = useUniqId();
-    return (
-        <>
-            <Divider />
-            <div className={b('section')}>
-                <div className={b('title')}>
-                    <Text className={b('section-title')} variant="subheader-2">
-                        {title}
-                    </Text>
-                    <Button
-                        view="flat-secondary"
-                        size="m"
-                        aria-label={title}
-                        aria-expanded={expanded}
-                        aria-controls={contentId}
-                        onClick={() => {
-                            setExpanded(!expanded);
-                            logClick(`${action} section button`);
-                        }}
-                    >
-                        <Icon data={expanded ? ChevronUp : ChevronDown} size={16} />
-                    </Button>
-                </div>
-                <div className={b('fields')} id={contentId} hidden={!expanded}>
-                    {children}
-                </div>
-            </div>
-        </>
-    );
-}
-
-function SettingsSwitch({
-    label,
-    action,
-    defaultChecked = false,
-}: {
-    label: string;
-    action: string;
-    defaultChecked?: boolean;
-}) {
-    const [checked, setChecked] = useState(defaultChecked);
-    const controlId = useUniqId();
-    return (
-        <div className={b('row')}>
-            <Text as="label" variant="body-1" htmlFor={controlId}>
-                {label}
-            </Text>
-            <Switch
-                id={controlId}
-                size="m"
-                checked={checked}
-                onUpdate={(value) => {
-                    setChecked(value);
-                    logClick(`${action} toggle`);
-                }}
-            />
-        </div>
-    );
-}
-
-function AlignmentSelect({
-    label,
-    defaultValue,
-    options,
-}: {
-    label: string;
-    defaultValue: string;
-    options: {value: string; label: string; icon: IconData; action: string}[];
-}) {
-    const [value, setValue] = useState(defaultValue);
-    const labelId = useUniqId();
-    return (
-        <div className={b('row')}>
-            <Text variant="body-1" id={labelId}>
-                {label}
-            </Text>
-            <SegmentedRadioGroup
-                size="m"
-                aria-labelledby={labelId}
-                value={value}
-                onUpdate={setValue}
-            >
-                {options.map((option) => (
-                    <SegmentedRadioGroup.Option
-                        key={option.value}
-                        value={option.value}
-                        title={option.label}
-                        controlProps={{
-                            'aria-label': option.label,
-                            onClick: () => logClick(`${option.action} button`),
-                        }}
-                    >
-                        <Icon data={option.icon} size={16} />
-                    </SegmentedRadioGroup.Option>
-                ))}
-            </SegmentedRadioGroup>
-        </div>
-    );
-}
 
 export function SettingsFields() {
     const backgroundLabelId = useUniqId();

@@ -438,5 +438,12 @@ test.describe('Header on mobile', () => {
             .toBeLessThanOrEqual(480);
         await header.background.scrollIntoViewIfNeeded();
         await expect(header.background).toBeInViewport();
+        await page.setViewportSize({width: 300, height: 480});
+        await expect
+            .poll(async () => (await header.settings.boundingBox())?.width)
+            .toBe(300 - 2 * SETTINGS_INSET);
+        expect(
+            await header.settings.evaluate((element) => element.scrollWidth <= element.clientWidth),
+        ).toBe(true);
     });
 });
