@@ -1,9 +1,13 @@
-import {Copy, TrashBin} from '@gravity-ui/icons';
+import {Copy, Gear, TrashBin} from '@gravity-ui/icons';
 import {Toolbar, type ToolbarData, ToolbarDataType, cn} from '@gravity-ui/markdown-editor';
+import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
+import {headerDimensions} from '@gravity-ui/markdown-plugin-header';
 
 import {i18n} from '../../../../../i18n';
-import {copyHeader, removeHeader} from '../../commands';
+import {copyHeader, removeHeader, setHeaderDimension} from '../../commands';
+
+import {HeaderSettings} from './Settings/HeaderSettings';
 
 import './HeaderToolbar.scss';
 
@@ -17,12 +21,34 @@ const isEnable = () => true;
 
 type HeaderToolbarProps = {
     view: EditorView;
+    node: Node;
     pos: number;
+    block: HTMLElement | null;
 };
 
-export function HeaderToolbar({view, pos}: HeaderToolbarProps) {
+export function HeaderToolbar({view, node, pos, block}: HeaderToolbarProps) {
     const data: ToolbarData<EditorView> = [
         [
+            {
+                id: 'header-settings',
+                type: ToolbarDataType.ButtonPopup,
+                icon: {data: Gear},
+                title: i18n('settings'),
+                isActive,
+                isEnable,
+                exec: () => {},
+                renderPopup: ({anchorElement, hide}) => (
+                    <HeaderSettings
+                        block={block}
+                        button={anchorElement}
+                        dimensions={headerDimensions(node.attrs)}
+                        onChange={(name, value) =>
+                            setHeaderDimension(pos, name, value)(view.state, view.dispatch)
+                        }
+                        onClose={hide}
+                    />
+                ),
+            },
             {
                 id: 'header-copy',
                 type: ToolbarDataType.SingleButton,

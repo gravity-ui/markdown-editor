@@ -5,8 +5,13 @@ import {test as base, expect} from '../index';
 export class HeaderBlock {
     readonly blocks: Locator;
     readonly toolbar: Locator;
-    readonly copyButton: Locator;
+    readonly settingsButton: Locator;
     readonly removeButton: Locator;
+    readonly settings: Locator;
+    readonly height: Locator;
+    readonly width: Locator;
+    readonly closeButton: Locator;
+    readonly options: Locator;
     protected readonly page: Page;
     protected readonly expect: Expect;
 
@@ -15,8 +20,17 @@ export class HeaderBlock {
         this.expect = expect;
         this.blocks = page.locator('.ProseMirror .g-md-header-plugin');
         this.toolbar = page.getByTestId('g-md-toolbar-header');
-        this.copyButton = this.toolbar.getByRole('button', {name: 'Copy', exact: true});
+        this.settingsButton = this.toolbar.getByRole('button', {name: 'Settings', exact: true});
         this.removeButton = this.toolbar.getByRole('button', {name: 'Delete', exact: true});
+        this.settings = page.getByRole('dialog', {name: 'Banner settings'});
+        this.height = this.settings.getByRole('combobox', {name: 'Height', exact: true});
+        this.width = this.settings.getByRole('combobox', {name: 'Width', exact: true});
+        this.closeButton = this.settings.getByRole('button', {name: 'Close', exact: true});
+        this.options = page.getByRole('option');
+    }
+
+    option(name: string) {
+        return this.page.getByRole('option', {name, exact: true});
     }
 
     /** The editor opens with the cursor in the first block, which shows its toolbar. */
@@ -24,6 +38,16 @@ export class HeaderBlock {
         await this.expect(this.toolbar).toBeVisible();
         await this.page.keyboard.press('Escape');
         await this.expect(this.toolbar).toBeHidden();
+    }
+
+    async openSettings() {
+        await this.settingsButton.click();
+        await this.expect(this.settings).toBeVisible();
+    }
+
+    async select(control: Locator, value: string) {
+        await control.click();
+        await this.option(value).click();
     }
 }
 

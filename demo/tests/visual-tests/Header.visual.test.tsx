@@ -18,6 +18,8 @@ const smallSizes = {
     '--g-md-header-plugin-width-l': '240px',
 } as CSSProperties;
 
+const SETTINGS_INSET = 16;
+
 const dimensions = [
     ['s', 'm'],
     ['s', 's'],
@@ -123,7 +125,99 @@ test.describe('Header', () => {
         await expectScreenshot({component: editor.locators.component});
     });
 
-    test('should preserve edits when switching modes @wysiwyg @markup', async ({
+    test('should change dimensions in the settings panel @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+        expectScreenshot,
+    }) => {
+        await mount(
+            <HeaderStories.Header width={660} initial={`${headerMarkup('s', 's')}\n\nAfter`} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await header.openSettings();
+        await expect(header.height).toBeFocused();
+        // Distances from the top and right edges of the block to the panel.
+        await expect
+            .poll(async () => {
+                const [blockBox, settingsBox] = await Promise.all([
+                    header.blocks.boundingBox(),
+                    header.settings.boundingBox(),
+                ]);
+                return (
+                    blockBox &&
+                    settingsBox && [
+                        Math.round(settingsBox.y - blockBox.y),
+                        Math.round(blockBox.x + blockBox.width - settingsBox.x - settingsBox.width),
+                    ]
+                );
+            })
+            .toEqual([SETTINGS_INSET, SETTINGS_INSET]);
+        await expectScreenshot({component: editor.locators.component});
+
+        await header.height.click();
+        await expect(header.options).toHaveText(['S', 'M', 'L']);
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'height list'});
+        await page.keyboard.press('Escape');
+        await expect(header.options).toHaveCount(0);
+        await expect(header.settings).toBeVisible();
+        await header.select(header.height, 'M');
+        await expect(header.blocks).toHaveClass(/g-md-header-plugin_height_m/);
+
+        await header.width.click();
+        await expect(header.options).toHaveText(['S', 'M', 'L', 'Full width']);
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'width list'});
+        await header.option('M').click();
+        await expect(header.blocks).toHaveClass(/g-md-header-plugin_width_m/);
+
+        await header.closeButton.click();
+        await expect(header.settings).toBeHidden();
+        await expect(header.settingsButton).toBeFocused();
+    });
+
+    test('should close the settings on a second click of the settings button @wysiwyg', async ({
+        mount,
+        editor,
+        header,
+    }) => {
+        await mount(
+            <HeaderStories.Header width={660} initial={`${headerMarkup('s', 's')}\n\nAfter`} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await header.openSettings();
+        await header.settingsButton.click();
+        await expect(header.settings).toBeHidden();
+    });
+
+    test('should select the settings text with the mouse @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+    }) => {
+        await mount(
+            <HeaderStories.Header width={660} initial={`${headerMarkup('s', 's')}\n\nAfter`} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await header.openSettings();
+
+        for (const text of ['Banner settings', 'Height', 'Width']) {
+            const box = await header.settings.getByText(text, {exact: true}).boundingBox();
+            if (!box) throw new Error(`"${text}" is not rendered`);
+            const y = box.y + box.height / 2;
+            await page.mouse.move(box.x + 1, y);
+            await page.mouse.down();
+            await page.mouse.move(box.x + box.width - 2, y, {steps: 5});
+            await page.mouse.up();
+            expect(await page.evaluate(() => getSelection()?.toString().trim())).toBe(text);
+        }
+    });
+
+    test('should close the settings and preserve edits when switching modes @wysiwyg @markup', async ({
         mount,
         page,
         editor,
@@ -141,17 +235,21 @@ test.describe('Header', () => {
         await header.blocks.locator('p').click();
         await editor.press('End');
         await editor.pressSequentially(' edited');
+        await header.openSettings();
+        await header.select(header.height, 'L');
         await editor.switchMode('markup');
+        await expect(header.settings).toBeHidden();
         const markup = await page.evaluate(() => window.mdEditor?.getValue());
-        expect(markup).toContain(':::header{height="s" width="s"}');
+        expect(markup).toContain(':::header{height="l" width="s"}');
         expect(markup).toContain('edited');
         await editor.switchMode('wysiwyg');
         await expect(header.blocks.locator('p')).toHaveText('Keep text edited');
         await expect(header.blocks.locator('strong')).toContainText('text');
-        await expect(header.blocks).toHaveClass(/g-md-header-plugin_width_s/);
+        await expect(header.blocks).toHaveClass(/g-md-header-plugin_height_l/);
+        await expect(header.settings).toBeHidden();
     });
 
-    test('should move focus to the toolbar with Tab and Shift+Tab @wysiwyg', async ({
+    test('should support keyboard controls and return focus to the settings button @wysiwyg', async ({
         mount,
         page,
         editor,
@@ -163,10 +261,21 @@ test.describe('Header', () => {
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await editor.press('Tab');
-        await expect(header.copyButton).toBeFocused();
+        await expect(header.settingsButton).toBeFocused();
+        await header.settingsButton.press('Enter');
+        await expect(header.height).toBeFocused();
+        await header.height.press('Escape');
+        await expect(header.settings).toBeHidden();
+        await expect(header.settingsButton).toBeFocused();
 
-        await editor.focus();
-        await editor.press('ControlOrMeta+Home');
+        await header.settingsButton.press('Enter');
+        await expect(header.height).toBeFocused();
+        await header.height.press('Shift+Tab');
+        await expect(header.closeButton).toBeFocused();
+        await header.closeButton.press('Enter');
+        await expect(header.settings).toBeHidden();
+        await expect(header.settingsButton).toBeFocused();
+
         await editor.press('Shift+Tab');
         await expect(header.removeButton).toBeFocused();
         await header.removeButton.press('Enter');
@@ -189,6 +298,29 @@ test.describe('Header on mobile', () => {
         await mount(<HeaderStories.Header width={335} />);
         await expect(header.blocks).toBeVisible();
         await header.hideToolbar();
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should keep the settings inside a mobile viewport @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+        expectScreenshot,
+    }) => {
+        await mount(<HeaderStories.Header width={375} />, {rootStyle: {padding: 0}});
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await header.openSettings();
+        const bounds = await header.settings.boundingBox();
+        if (!bounds) throw new Error('Settings must have bounds');
+        expect(bounds.x).toBeGreaterThanOrEqual(0);
+        expect(bounds.x + bounds.width).toBeLessThanOrEqual(page.viewportSize()?.width ?? 0);
+        expect(
+            await header.settings.evaluate((element) => element.scrollWidth <= element.clientWidth),
+        ).toBe(true);
+        await header.select(header.width, 'Full width');
+        await expect(header.blocks).toHaveClass(/g-md-header-plugin_width_full/);
         await expectScreenshot({component: editor.locators.component});
     });
 });
