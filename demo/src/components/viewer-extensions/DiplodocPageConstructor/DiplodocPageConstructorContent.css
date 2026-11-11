@@ -1,0 +1,3 @@
+/* Load integration styles after the Page Constructor component styles. */
+
+@import '@diplodoc/page-constructor-extension/styles';

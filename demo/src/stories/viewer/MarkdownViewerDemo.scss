@@ -3,6 +3,8 @@
 }
 
 .markdown-viewer-demo__content {
+    --yfm-color-text: var(--g-color-text-primary);
+
     overflow: hidden;
 
     border: 1px solid var(--g-color-line-generic);
