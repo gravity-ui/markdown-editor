@@ -1,4 +1,6 @@
-.g-md-heading-edit {
+@use '../../variables' as v;
+
+.#{v.$ns}heading-edit {
     position: relative;
 
     padding-inline-end: calc(24px + var(--g-spacing-1));

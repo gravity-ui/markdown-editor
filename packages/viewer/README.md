@@ -243,7 +243,7 @@ The extension hides the built-in Diplodoc heading controls while mounted. Headin
 
 The button sits 24 px before the heading. If the container clips overflow, leave at least 24 px of space before the heading.
 
-The button uses the page background. Set `--g-md-heading-anchor-background-color` on a colored container to use another opaque color.
+The button uses the page background. Set `--g-mdv-heading-anchor-background-color` on a colored container to use another opaque color.
 
 </details>
 

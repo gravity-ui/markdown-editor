@@ -477,12 +477,12 @@ describe('FilesGallery', () => {
                 </MarkdownViewer>,
             );
         await update('old');
-        const wrapper = container.querySelector('.g-md-files-gallery');
+        const wrapper = container.querySelector('.g-mdv-files-gallery');
         assert(wrapper);
 
         await update('new');
 
-        expect(container.querySelector('.g-md-files-gallery')).toBe(wrapper);
+        expect(container.querySelector('.g-mdv-files-gallery')).toBe(wrapper);
     });
 
     it('should keep gallery styles until the last instance unmounts', async () => {
@@ -493,14 +493,14 @@ describe('FilesGallery', () => {
             render(<MarkdownViewer html={html}>{extensions}</MarkdownViewer>);
 
         await update(first, second);
-        const wrapper = container.querySelector('.g-md-files-gallery');
+        const wrapper = container.querySelector('.g-mdv-files-gallery');
         assert(wrapper);
 
         await update(second);
-        expect(wrapper.classList.contains('g-md-files-gallery')).toBe(true);
+        expect(wrapper.classList.contains('g-mdv-files-gallery')).toBe(true);
 
         await update();
-        expect(wrapper.classList.contains('g-md-files-gallery')).toBe(false);
+        expect(wrapper.classList.contains('g-mdv-files-gallery')).toBe(false);
     });
 
     it('should remove its listener and styles without closing the open gallery', async () => {
@@ -512,7 +512,7 @@ describe('FilesGallery', () => {
         );
         await click('img');
         await render(<MarkdownViewer html={html} />);
-        expect(container.querySelector('.g-md-files-gallery')).toBeNull();
+        expect(container.querySelector('.g-mdv-files-gallery')).toBeNull();
         expect(document.querySelector('[role="dialog"]')?.textContent).toContain('Image');
         await closeGallery();
         expect((await click('img')).defaultPrevented).toBe(false);

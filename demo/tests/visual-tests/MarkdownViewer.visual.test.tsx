@@ -11,7 +11,7 @@ test.describe('MarkdownViewer code block actions', () => {
     test('should hide native controls and show actions on focus', async ({page}) => {
         const viewer = page.getByTestId('demo-markdown-viewer');
         const block = viewer.locator('.yfm-code-floating-container');
-        const actions = block.locator('.g-md-yfm-code-block__actions');
+        const actions = block.locator('.g-mdv-yfm-code-block__actions');
 
         await expect(block.locator('.yfm-wrapping-button')).toBeHidden();
         await expect(block.locator('.yfm-clipboard-button')).toBeHidden();
@@ -29,7 +29,7 @@ test.describe('MarkdownViewer code block actions', () => {
     test('should move focus between actions with Tab', async ({page}) => {
         const actions = page
             .getByTestId('demo-markdown-viewer')
-            .locator('.g-md-yfm-code-block__actions');
+            .locator('.g-mdv-yfm-code-block__actions');
         const wrap = actions.getByRole('button', {name: 'Text wrapping'});
         const copy = actions.getByRole('button', {name: 'Copy', exact: true});
 
@@ -79,7 +79,7 @@ test.describe('MarkdownViewer code block actions', () => {
             .locator('.yfm-code-floating-container');
 
         await block.hover();
-        await expect(block.locator('.g-md-yfm-code-block__actions')).toHaveCSS('opacity', '1');
+        await expect(block.locator('.g-mdv-yfm-code-block__actions')).toHaveCSS('opacity', '1');
         await expectScreenshot({component: block, themes: ['light']});
 
         await block.getByRole('button', {name: 'Text wrapping'}).click();
