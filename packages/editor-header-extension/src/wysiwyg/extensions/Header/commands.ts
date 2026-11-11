@@ -1,5 +1,6 @@
 import {get$Cursor, pType, removeNode} from '@gravity-ui/markdown-editor';
 import {type Command, type EditorState, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
+import type {HeaderDimensions} from '@gravity-ui/markdown-plugin-header';
 
 import {headerNodeType} from './HeaderSpecs';
 
@@ -29,6 +30,14 @@ export const insertHeader: Command = (state, dispatch) => {
     }
     return true;
 };
+
+export const setHeaderDimension =
+    <K extends keyof HeaderDimensions>(pos: number, name: K, value: HeaderDimensions[K]): Command =>
+    (state, dispatch) => {
+        if (!headerAt(state, pos)) return false;
+        dispatch?.(state.tr.setNodeAttribute(pos, name, value));
+        return true;
+    };
 
 export const copyHeader =
     (pos: number): Command =>
