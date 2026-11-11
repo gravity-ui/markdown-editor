@@ -31,7 +31,7 @@ export function getMediaType({
     ) {
         return 'video';
     }
-    if (/^data:/i.test(url.trimStart())) return 'file';
+    if (/^(?:data:|[?#])/i.test(url.trimStart())) return 'file';
 
     let pathname: string;
     try {

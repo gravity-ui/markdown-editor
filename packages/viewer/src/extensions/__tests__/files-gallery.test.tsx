@@ -323,6 +323,26 @@ describe('FilesGallery', () => {
         expect(document.querySelector('[role="dialog"]')).toBeNull();
     });
 
+    it.each(['#section', '?view=1'])(
+        'should keep native navigation for %s on a page with a media path',
+        async (href) => {
+            const base = document.head.appendChild(document.createElement('base'));
+            base.href = '/files/photo.png';
+            try {
+                await render(
+                    <MarkdownViewer html={`<a href="${href}" target="_blank">Open</a>`}>
+                        <FilesGallery />
+                    </MarkdownViewer>,
+                );
+
+                expect((await click('a')).defaultPrevented).toBe(false);
+                expect(document.querySelector('[role="dialog"]')).toBeNull();
+            } finally {
+                base.remove();
+            }
+        },
+    );
+
     it('should keep native navigation without collecting other resources when the resolver skips a file', async () => {
         const resolveCustomItem = vi.fn(() => undefined);
         await render(
@@ -340,10 +360,10 @@ describe('FilesGallery', () => {
 
     it.each([
         {
-            source: 'an image URL',
-            html: '<a href="/image.png" title="Image">Open</a>',
+            source: 'an image URL with a query and fragment',
+            html: '<a href="/image.png?size=2#preview" title="Image">Open</a>',
             media: 'img',
-            url: '/image.png',
+            url: '/image.png?size=2#preview',
         },
         {
             source: 'a video URL',
