@@ -198,6 +198,76 @@ To cancel gallery opening, call `preventDefault()` in `onClickCapture`. A regula
 
 </details>
 
+### Heading anchors
+
+Add `HeadingAnchors` to show a `#` copy button for headings with unique IDs. The application provides links and handles navigation.
+
+```tsx
+import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
+import {HeadingAnchors} from '@gravity-ui/markdown-viewer/extensions';
+
+import '@gravity-ui/uikit/styles/styles.css';
+
+export function Document({html}: {html: string}) {
+  return (
+    <MarkdownViewer html={html}>
+      <HeadingAnchors
+        getHref={({id}) => `https://example.com/page#${encodeURIComponent(id)}`}
+        onClick={(_event, {id}) => {
+          window.history.pushState(window.history.state, '', `#${encodeURIComponent(id)}`);
+        }}
+      />
+    </MarkdownViewer>
+  );
+}
+```
+
+<details>
+<summary>Heading props and cleanup</summary>
+
+The extensions entry point exports `HeadingAnchorsProps` and `HeadingAnchorTarget`.
+
+Both callbacks receive `{id, element}` with the current ID and heading element.
+
+Keep focus on the button in `onClick` to show copy feedback.
+
+For folding headings, the copy button stops the click from bubbling so it does not toggle the section. Use `HeadingAnchors.onClick` to handle navigation.
+
+| Prop                      | Description                                                 |
+| ------------------------- | ----------------------------------------------------------- |
+| `getHref(heading)`        | Required. Return the link to copy. Called on click.         |
+| `onClick(event, heading)` | Optional. Handle navigation. Copy runs after this callback. |
+| `selector`                | Default: `h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]`.  |
+
+The extension hides the built-in Diplodoc heading controls while mounted. Heading IDs and content stay unchanged.
+
+The button sits 24 px before the heading. If the container clips overflow, leave at least 24 px of space before the heading.
+
+The button uses the page background. Set `--g-md-v-heading-anchor-background-color` on a colored container to use another opaque color.
+
+</details>
+
+### Heading edit buttons
+
+Add `HeadingEditButtons` to show a pencil on headings that carry a zero-based source line in `data-line`. The application handles opening the editor or moving the cursor.
+
+```tsx
+import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
+import {HeadingEditButtons} from '@gravity-ui/markdown-viewer/extensions';
+
+<MarkdownViewer html={html}>
+  <HeadingEditButtons onClick={(_event, {line}) => editAtLine(line)} />
+</MarkdownViewer>;
+```
+
+The extensions entry point also exports `HeadingEditButtonsProps` and `HeadingEditTarget`.
+
+| Prop                      | Description                                                                                                    |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `onClick(event, heading)` | Required. Receives the button click and `{line, element}` with the zero-based source line and heading element. |
+| `label`                   | Accessible button label. Defaults to localized “Edit”.                                                         |
+| `selector`                | CSS selector for target headings. Defaults to `h1`–`h6` with `data-line`.                                      |
+
 ### Add an extension
 
 Add a child component with `useViewerEffect` to work with the HTML root. This example tracks clicks and removes its listener during cleanup:
