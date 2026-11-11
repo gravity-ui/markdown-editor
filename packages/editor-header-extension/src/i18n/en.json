@@ -7,5 +7,6 @@
   "close": "Close",
   "settings": "Settings",
   "copy": "Copy",
-  "remove": "Delete"
+  "remove": "Delete",
+  "button-placeholder": "Button"
 }

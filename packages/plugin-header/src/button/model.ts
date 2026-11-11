@@ -36,6 +36,8 @@ export const buttonDefaults: Readonly<ButtonModel> = {
     target: '_self',
 };
 
+export const buttonDefaultColor = (view: ButtonView): ButtonColor => buttonViewColors[view][0];
+
 export function isButtonView(value: unknown): value is ButtonView {
     return (buttonViews as readonly unknown[]).includes(value);
 }
@@ -53,7 +55,7 @@ export function normalizeButtonStyle(attrs: {
     const colors = buttonViewColors[view];
     return {
         view,
-        color: colors.find((color) => color === attrs.color) ?? colors[0],
+        color: colors.find((color) => color === attrs.color) ?? buttonDefaultColor(view),
         target: isButtonTarget(attrs.target) ? attrs.target : buttonDefaults.target,
     };
 }

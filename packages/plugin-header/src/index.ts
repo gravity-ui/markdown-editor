@@ -12,4 +12,10 @@ export {
 export {headerPlugin} from './header/plugin';
 export {buttonPlugin} from './button/plugin';
 export {buttonAttrs, buttonFromAttrs} from './button/attrs';
-export {type ButtonModel, buttonDefaults, buttonClassName, buttonTokenName} from './button/model';
+export {
+    type ButtonModel,
+    buttonClassName,
+    buttonDefaultColor,
+    buttonDefaults,
+    buttonTokenName,
+} from './button/model';

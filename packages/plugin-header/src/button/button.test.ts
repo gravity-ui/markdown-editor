@@ -31,7 +31,7 @@ describe('Button Markdown', () => {
     });
     for (const [view, colors] of Object.entries(buttonViewColors)) {
         for (const color of colors) {
-            it(`should render ${view} ${color}`, () => {
+            it(`should pass the ${view} view with the ${color} color to the token`, () => {
                 const [token] = md.parse(
                     `:::button{view="${view}" color="${color}"}\nLabel\n:::`,
                     {},

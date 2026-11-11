@@ -56,3 +56,5 @@ Clicking it does not follow the link. Edit its text and attributes in Markdown m
 The complete body, including unsupported formatting and additional paragraphs, survives mode switches and copying.
 
 Button serialization omits default attributes; the default opening is `:::button`.
+
+An empty button shows the text "Button" in the visual editor and saves it as the body. Change the text with the editor `placeholder` option: `{placeholder: {button: 'Open'}}`.

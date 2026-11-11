@@ -7,5 +7,6 @@
   "close": "Закрыть",
   "settings": "Настройки",
   "copy": "Копировать",
-  "remove": "Удалить"
+  "remove": "Удалить",
+  "button-placeholder": "Кнопка"
 }

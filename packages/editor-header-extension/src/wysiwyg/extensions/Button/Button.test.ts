@@ -69,13 +69,11 @@ describe('Button extension', () => {
     });
     it.each([
         button,
-        ':::button\n:::',
         ':::button\n  **Bold** and [link](/page)\n\nSecond paragraph\n:::',
         `:::header\n${button}\n:::`,
         [button, button].join('\n\n'),
         `:::header\n${[button, button].join('\n\n')}\n:::`,
         '> :::button\n> Label\n> :::',
-        '> :::button\n> :::',
         '> :::button\n> Label\n>\n> :::',
         '- :::button\n  Label\n  :::',
     ])('should preserve button content across mode switches in %j', (source) => {
@@ -84,7 +82,6 @@ describe('Button extension', () => {
         expect(markupParser.parse(serialized).toJSON()).toEqual(doc.toJSON());
         const container = document.createElement('div');
         container.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
-        expect(container.innerHTML).not.toContain('data-button-content');
         const buttons = (root: Node) => {
             const result: unknown[] = [];
             root.descendants((node) => {
@@ -93,6 +90,33 @@ describe('Button extension', () => {
             return result;
         };
         expect(buttons(DOMParser.fromSchema(schema).parse(container))).toEqual(buttons(doc));
+    });
+    it.each([
+        [':::button\n:::', ':::button\nButton\n:::'],
+        ['> :::button\n> :::', '> :::button\n> Button\n> :::'],
+        [':::button{view="flat"}\n:::', ':::button{view="flat"}\nButton\n:::'],
+    ])('should save the placeholder as the label of an empty button in %j', (source, expected) => {
+        const doc = markupParser.parse(source);
+        expect(serializer.serialize(doc)).toBe(expected);
+    });
+    it('should show the placeholder in an empty button without changing its content', () => {
+        const deps = new ExtensionsManager({
+            extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(Button),
+        }).build();
+        const doc = deps.markupParser.parse(':::button\n:::');
+        const view = new EditorView(document.createElement('div'), {
+            state: EditorState.create({doc, schema: deps.schema}),
+            nodeViews: deps.nodeViews,
+        });
+        try {
+            expect((view.nodeDOM(0) as HTMLElement).textContent).toBe('Button');
+            expect(doc.firstChild?.attrs.content).toBe('');
+            const container = document.createElement('div');
+            container.append(DOMSerializer.fromSchema(deps.schema).serializeFragment(doc.content));
+            expect(container.textContent).toBe('');
+        } finally {
+            view.destroy();
+        }
     });
     it('should preserve the complete unsupported body', () => {
         const body = '**Bold**\n\nSecond paragraph\n<script>text</script>\n';

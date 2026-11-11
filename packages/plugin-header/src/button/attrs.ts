@@ -4,7 +4,15 @@ import {type ButtonModel, buttonClassName, normalizeButtonStyle} from './model';
 
 const b = cn(buttonClassName);
 
-export function buttonAttrs({view, color, target, href}: ButtonModel) {
+/** Modifiers style the button; data attributes carry its view and color for parsing. */
+export function buttonAttrs(attrs: {
+    view?: unknown;
+    color?: unknown;
+    target?: unknown;
+    href?: string;
+}) {
+    const {view, color, target} = normalizeButtonStyle(attrs);
+    const href = attrs.href ?? '';
     return {
         class: b({view, color}),
         ...(href ? {href} : {}),
