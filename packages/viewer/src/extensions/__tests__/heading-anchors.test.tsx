@@ -132,7 +132,7 @@ describe('HeadingAnchors', () => {
 
         update(false);
         expect(container.querySelectorAll('button')).toHaveLength(1);
-        expect(container.querySelector('h2')?.classList.contains('g-mdv-heading-anchor')).toBe(
+        expect(container.querySelector('h2')?.classList.contains('g-md-v-heading-anchor')).toBe(
             true,
         );
         await act(async () => getButton().click());

@@ -38,16 +38,16 @@
         var(--g-color-base-background) 92%,
         var(--g-color-text-info)
     );
-    --g-mdv-heading-anchor-background-color: var(--yfm-color-note-info-background);
+    --g-md-v-heading-anchor-background-color: var(--yfm-color-note-info-background);
 }
 
 .markdown-viewer-demo__content.yfm .cell-bg-green-light {
-    --g-mdv-heading-anchor-background-color: color-mix(
+    --g-md-v-heading-anchor-background-color: color-mix(
         in sRGB,
         var(--g-color-base-background) 85%,
         var(--g-color-text-positive)
     );
 
     color: var(--g-color-text-primary);
-    background-color: var(--g-mdv-heading-anchor-background-color);
+    background-color: var(--g-md-v-heading-anchor-background-color);
 }

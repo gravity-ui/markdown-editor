@@ -59,7 +59,7 @@ export const headingDocuments = [
     {
         label: 'Backgrounds',
         source: dd`
-            This example sets \`--g-mdv-heading-anchor-background-color\` in the demo CSS for the note and table cell.
+            This example sets \`--g-md-v-heading-anchor-background-color\` in the demo CSS for the note and table cell.
             Background colors are not detected automatically.
 
             {% note info %}

@@ -93,16 +93,16 @@ describe('YfmCodeBlockActions', () => {
 
         update(wrapping);
         expect(buttonLabels()).toEqual(['Text wrapping']);
-        expect(host.classList.contains('g-mdv-yfm-code-block')).toBe(true);
+        expect(host.classList.contains('g-md-v-yfm-code-block')).toBe(true);
 
         update(wrapping, copying);
         update(copying);
         expect(buttonLabels()).toEqual(['Copy']);
-        expect(host.classList.contains('g-mdv-yfm-code-block')).toBe(true);
+        expect(host.classList.contains('g-md-v-yfm-code-block')).toBe(true);
 
         update();
         expect(buttonLabels()).toEqual([]);
-        expect(host.classList.contains('g-mdv-yfm-code-block')).toBe(false);
+        expect(host.classList.contains('g-md-v-yfm-code-block')).toBe(false);
     });
 
     it('should keep text wrapping when the button is disabled', () => {
@@ -150,7 +150,7 @@ describe('YfmCodeBlockActions', () => {
         render(<MarkdownViewer html={html} />);
 
         expect(container.querySelector('code')?.classList.contains('wrap')).toBe(true);
-        expect(host.classList.contains('g-mdv-yfm-code-block')).toBe(false);
+        expect(host.classList.contains('g-md-v-yfm-code-block')).toBe(false);
         expect(container.querySelectorAll('button')).toHaveLength(1);
         expect(container.querySelector('button')?.textContent).toBe('Built-in copy');
     });
