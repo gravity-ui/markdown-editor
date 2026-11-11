@@ -1,9 +1,5 @@
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
-import {
-    buttonPlugin,
-    buttonTokenName,
-    normalizeButtonStyle,
-} from '@gravity-ui/markdown-plugin-header';
+import {buttonFromAttrs, buttonPlugin, buttonTokenName} from '@gravity-ui/markdown-plugin-header';
 
 import {buttonNodeName} from './const';
 export const ButtonParserSpecs: ExtensionAuto = (builder) => {
@@ -13,12 +9,7 @@ export const ButtonParserSpecs: ExtensionAuto = (builder) => {
             name: buttonNodeName,
             type: 'node',
             getAttrs: (token) => ({
-                ...normalizeButtonStyle({
-                    view: token.attrGet('data-view'),
-                    color: token.attrGet('data-color'),
-                    target: token.attrGet('target'),
-                }),
-                href: token.attrGet('href') ?? '',
+                ...buttonFromAttrs((name) => token.attrGet(name)),
                 content: token.content,
             }),
         }));

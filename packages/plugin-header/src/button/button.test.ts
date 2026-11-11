@@ -1,13 +1,32 @@
 import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
-import {buttonPlugin, buttonViewColors, headerPlugin} from './index';
+import {buttonAttrs, buttonFromAttrs, buttonPlugin, headerPlugin} from '../index';
+
+import {buttonDefaults, buttonViewColors} from './model';
 
 const md = new MarkdownIt({html: true}).use(buttonPlugin);
 describe('Button Markdown', () => {
+    it('should preserve the model through HTML attributes', () => {
+        const model = {
+            ...buttonDefaults,
+            href: '/help',
+            view: 'outline',
+            color: 'blue',
+            target: '_blank',
+        } as const;
+        const attrs = buttonAttrs(model);
+        expect(buttonFromAttrs((name) => attrs[name as keyof typeof attrs])).toEqual(model);
+    });
+    it('should render adjacent buttons without whitespace between their links', () => {
+        const markup = ':::button\nOne\n:::\n\n:::button\nTwo\n:::';
+        const html = md.render(markup);
+        expect(html).toContain('</a><a');
+        expect(html).not.toContain('</a>\n');
+    });
     it('should render a standalone button with defaults', () => {
         expect(md.render(':::button{href="/page"}\nRead more\n:::')).toBe(
-            '<a class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_standard" href="/page" data-view="action" data-color="standard">Read more</a>\n',
+            '<a class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_standard" href="/page" data-view="action" data-color="standard">Read more</a>',
         );
     });
     for (const [view, colors] of Object.entries(buttonViewColors)) {

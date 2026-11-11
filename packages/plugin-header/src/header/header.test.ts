@@ -1,7 +1,7 @@
 import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
-import {headerHeights, headerPlugin, headerWidths} from './index';
+import {headerHeights, headerPlugin, headerWidths} from '../index';
 
 const md = new MarkdownIt().use(headerPlugin);
 

@@ -1,7 +1,6 @@
 import {cn} from '@bem-react/classname';
 
-import {headerClassName} from './const';
-import {headerDimensions} from './dimensions';
+import {headerClassName, headerDimensions} from './model';
 
 const b = cn(headerClassName);
 

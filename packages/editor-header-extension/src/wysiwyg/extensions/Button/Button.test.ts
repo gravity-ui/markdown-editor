@@ -30,6 +30,23 @@ const button =
     ':::button{href="/page?a=1&b=2" view="outline" color="blue" target="_blank"}\nRead more\n:::';
 describe('Button extension', () => {
     it.each([
+        [':::button\nLabel\n:::', ':::button\nLabel\n:::'],
+        [
+            ':::button{view="action" color="standard" target="_self" href=""}\nLabel\n:::',
+            ':::button\nLabel\n:::',
+        ],
+        [
+            ':::button{view="normal" color="gray"}\nLabel\n:::',
+            ':::button{view="normal"}\nLabel\n:::',
+        ],
+        [
+            ':::button{view="outline" color="blue" target="_blank" href="/page"}\nLabel\n:::',
+            ':::button{href="/page" view="outline" color="blue" target="_blank"}\nLabel\n:::',
+        ],
+    ])('should omit defaults when saving %j', (source, expected) => {
+        expect(serializer.serialize(markupParser.parse(source))).toBe(expected);
+    });
+    it.each([
         button,
         ':::button\n:::',
         ':::button\n  **Bold** and [link](/page)\n\nSecond paragraph\n:::',
@@ -46,6 +63,7 @@ describe('Button extension', () => {
         expect(markupParser.parse(serialized).toJSON()).toEqual(doc.toJSON());
         const container = document.createElement('div');
         container.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
+        expect(container.innerHTML).not.toContain('data-button-content');
         const buttons = (root: Node) => {
             const result: unknown[] = [];
             root.descendants((node) => {
@@ -74,7 +92,7 @@ describe('Button extension', () => {
             const dom = view.nodeDOM(0) as HTMLElement;
             expect(doc.firstChild?.isAtom).toBe(true);
             expect(dom.contentEditable).toBe('false');
-            expect(dom.textContent).toBe('Read more');
+            expect(dom.textContent).toBe('Read more\n');
             expect(dom.dispatchEvent(new MouseEvent('click', {cancelable: true}))).toBe(false);
             view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, 0)));
             expect((view.state.selection as NodeSelection).node.type.name).toBe('button');
