@@ -4,6 +4,7 @@ import {MarkdownViewerDemo} from './MarkdownViewerDemo';
 import {
     codeBlockDocuments,
     galleryDocuments,
+    headingDocuments,
     htmlDocuments,
     latexDocuments,
     mermaidDocuments,
@@ -21,6 +22,11 @@ export const CodeBlockActions: StoryObj<typeof MarkdownViewerDemo> = {
 export const FilesGallery: StoryObj<typeof MarkdownViewerDemo> = {
     name: 'Files gallery',
     args: {documents: galleryDocuments, showFeedbackToggle: false},
+};
+
+export const HeadingLinks: StoryObj<typeof MarkdownViewerDemo> = {
+    name: 'Heading links',
+    args: {documents: headingDocuments, showFeedbackToggle: false},
 };
 
 export const Latex: StoryObj<typeof MarkdownViewerDemo> = {
