@@ -7,7 +7,7 @@ import {ReplaceAroundStep, liftTarget} from 'prosemirror-transform';
 import {joinPreviousBlock} from '../../../commands/join';
 import {get$CursorAtBlockStart} from '../../../utils/selection';
 
-import {findAnyParentList, isListItemNode, isListNode, isListOrItemNode} from './utils';
+import {findAnyParentList, isListNode, isListOrItemNode} from './utils';
 
 export function toList(listType: NodeType): Command {
     return (state, dispatch) => {
@@ -100,9 +100,11 @@ function findSelectedItems(doc: Node, selection: Selection, itemType: NodeType, 
         if ((sink && index === 0) || !touchesOwnContent(node, pos + 1, from, to)) return true;
 
         // a position inside an item points into the same item after any step of these commands
-        if (pos !== end) runs.push({start: pos + 1, end});
+        const itemEnd = pos + node.nodeSize;
+        if (pos === end) runs[runs.length - 1].end = itemEnd;
+        else runs.push({start: pos + 1, end: itemEnd});
         last = pos;
-        end = runs[runs.length - 1].end = pos + node.nodeSize;
+        end = itemEnd;
         return false;
     });
     if (to >= end) return {runs, after};
@@ -164,7 +166,7 @@ function canLeaveList({$from, parent, depth, startIndex, endIndex}: NodeRange): 
 function liftItems(tr: Transaction, from: number, to?: number) {
     const range = getItems(tr.doc, from, to);
     const {parent, depth, startIndex, endIndex, end} = range;
-    const nested = isListItemNode(range.$from.node(depth - 1));
+    const nested = range.$from.node(depth - 1).type === parent.child(startIndex).type;
     const target = nested ? liftTarget(range) : depth - 1;
     if (target === null || (!nested && !canLeaveList(range))) return;
 
