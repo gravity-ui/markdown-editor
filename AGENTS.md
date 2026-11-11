@@ -68,6 +68,9 @@ Block/
 - CSS blocks and elements are kebab-case: `.g-md-yfm-page-constructor__content`. A NodeView block ends with `-nodeview`.
 - A set of named constants is a plain object with `as const`.
 - Each field of a public options type has a comment with its behavior and default.
+- A markup command lives in its own file in `markup/commands/` and builds on `MarkupHelpers` from `@gravity-ui/markdown-editor`. Focus is the caller's job.
+- A value that stays the same between calls, such as a lookup set or a plugin list, is created once at module level or memoized.
+- A translation key is removed together with its last caller.
 - A markdown-it plugin emits one token stream; extra data goes to `token.meta`.
 - A markdown-it plugin only parses. The serializer lives in the extension and writes through `state`.
 
