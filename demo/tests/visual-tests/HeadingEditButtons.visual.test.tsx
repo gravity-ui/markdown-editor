@@ -23,14 +23,14 @@ test.describe('MarkdownViewer heading edit buttons', () => {
         const heading = page
             .getByTestId('demo-md-preview')
             .getByRole('heading', {name: headingText});
-        const button = heading.getByRole('button', {name: 'Edit section'});
+        const button = heading.getByRole('button', {name: 'Edit'});
         await button.focus();
         await expect(button.locator('..')).toHaveCSS('opacity', '1');
         const layout = await heading.evaluate((element) => {
             const text = Array.from(element.childNodes).find(
                 (node) => node.nodeType === Node.TEXT_NODE,
             );
-            const edit = element.querySelector('[aria-label="Edit section"]');
+            const edit = element.querySelector('[aria-label="Edit"]');
             if (!text || !edit) throw new Error('Heading text or edit button is missing');
             const range = document.createRange();
             range.selectNodeContents(text);
@@ -66,7 +66,7 @@ test.describe('MarkdownViewer heading edit buttons', () => {
         await page
             .getByTestId('demo-md-preview')
             .getByRole('heading', {name: headingText})
-            .getByRole('button', {name: 'Edit section'})
+            .getByRole('button', {name: 'Edit'})
             .click();
 
         await expect(page.getByTestId('demo-md-preview')).toHaveCount(0);

@@ -13,6 +13,7 @@ import {
     FilesGallery,
     type FilesGallerySource,
     HeadingAnchors,
+    HeadingEditButtons,
     YfmCodeBlockActions,
 } from '@gravity-ui/markdown-viewer/extensions';
 import {sp} from '@gravity-ui/uikit';
@@ -35,7 +36,6 @@ import {DiplodocHtml} from './viewer-extensions/DiplodocHtml';
 import {DiplodocLatex} from './viewer-extensions/DiplodocLatex';
 import {DiplodocMermaid} from './viewer-extensions/DiplodocMermaid';
 import {DiplodocPageConstructor} from './viewer-extensions/DiplodocPageConstructor';
-import {HeadingEditButtons} from './viewer-extensions/HeadingEditButtons';
 import type {TransformMeta} from './viewer-extensions/types';
 
 import '@diplodoc/cut-extension/runtime/styles.css';
@@ -142,7 +142,7 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
                 <HeadingAnchors getHref={getHeadingHref} onClick={navigateToHeading} />
                 {onHeadingEdit && (
                     <HeadingEditButtons
-                        onClick={(_event, line) => {
+                        onClick={(_event, {line}) => {
                             if (result.source === getValue()) onHeadingEdit(line, result.source);
                         }}
                     />

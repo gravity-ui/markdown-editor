@@ -247,6 +247,27 @@ The button uses the page background. Set `--g-md-heading-anchor-background-color
 
 </details>
 
+### Heading edit buttons
+
+Add `HeadingEditButtons` to show a pencil on headings that carry a zero-based source line in `data-line`. The application handles opening the editor or moving the cursor.
+
+```tsx
+import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
+import {HeadingEditButtons} from '@gravity-ui/markdown-viewer/extensions';
+
+<MarkdownViewer html={html}>
+  <HeadingEditButtons onClick={(_event, {line}) => editAtLine(line)} />
+</MarkdownViewer>;
+```
+
+The extensions entry point also exports `HeadingEditButtonsProps` and `HeadingEditTarget`.
+
+| Prop                      | Description                                                                                                    |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `onClick(event, heading)` | Required. Receives the button click and `{line, element}` with the zero-based source line and heading element. |
+| `label`                   | Accessible button label. Defaults to localized “Edit”.                                                         |
+| `selector`                | CSS selector for target headings. Defaults to `h1`–`h6` with `data-line`.                                      |
+
 ### Add an extension
 
 Add a child component with `useViewerEffect` to work with the HTML root. This example tracks clicks and removes its listener during cleanup:

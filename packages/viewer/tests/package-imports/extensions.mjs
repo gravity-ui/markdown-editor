@@ -42,6 +42,7 @@ test('should publish extension styles', async () => {
     assert.match(css, /\.g-md-files-gallery/);
     assert.match(css, /cursor: pointer/);
     assert.match(css, /\.g-md-heading-anchor/);
+    assert.match(css, /\.g-md-heading-edit__slot/);
 });
 
 test('should remove unused extensions and their dependencies from JavaScript', async (t) => {
@@ -68,7 +69,7 @@ test('should remove unused extensions and their dependencies from JavaScript', a
             if (bytesInOutput === 0) continue;
             assert.doesNotMatch(
                 input,
-                /\/(?:FilesGallery|YfmCodeBlockActions|HeadingAnchors|@gravity-ui\/components)\//,
+                /\/(?:FilesGallery|YfmCodeBlockActions|HeadingAnchors|HeadingEditButtons|@gravity-ui\/components)\//,
             );
         }
     }

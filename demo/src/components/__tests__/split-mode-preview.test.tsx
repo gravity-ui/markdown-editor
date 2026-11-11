@@ -33,7 +33,7 @@ describe('SplitModePreview heading editing', () => {
             );
         });
         await act(async () => vi.advanceTimersByTime(200));
-        const button = container.querySelector('button[aria-label="Edit section"]');
+        const button = container.querySelector('button[aria-label="Edit"]');
         assert(button instanceof HTMLButtonElement);
 
         source = 'New paragraph.\n\n# Heading';

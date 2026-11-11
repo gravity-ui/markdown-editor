@@ -1,12 +1,12 @@
 import type {ReactNode} from 'react';
 
-import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
-import {HeadingAnchors} from '@gravity-ui/markdown-viewer/extensions';
+import {ThemeProvider} from '@gravity-ui/uikit';
 import {type Root, createRoot} from 'react-dom/client';
-import {act} from 'react-dom/test-utils';
 import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {HeadingEditButtons} from '../HeadingEditButtons';
+import {act} from '../../../tests/utils/act';
+import {HeadingAnchors, HeadingEditButtons} from '../../extensions';
+import {MarkdownViewer} from '../../index';
 
 describe('HeadingEditButtons', () => {
     let container: HTMLDivElement;
@@ -23,7 +23,7 @@ describe('HeadingEditButtons', () => {
         container.remove();
     });
 
-    it('should pass the click event and zero-based source line', async () => {
+    it('should pass the click event, source line, and heading element', async () => {
         const onClick = vi.fn();
         await render(
             <MarkdownViewer html='<h1>Title</h1><h2 data-line="0">Heading</h2>'>
@@ -31,26 +31,57 @@ describe('HeadingEditButtons', () => {
             </MarkdownViewer>,
         );
 
-        const button = container.querySelector('button[aria-label="Edit section"]');
+        const heading = container.querySelector('h2');
+        assert(heading instanceof HTMLElement);
+        const button = container.querySelector('button[aria-label="Edit"]');
         assert(button instanceof HTMLButtonElement);
         expect(container.querySelector('h1 button')).toBeNull();
         await act(async () => button.click());
 
-        expect(onClick).toHaveBeenCalledExactlyOnceWith(
-            expect.objectContaining({target: button}),
-            0,
+        expect(onClick).toHaveBeenCalledOnce();
+        const [event, target] = onClick.mock.calls[0];
+        expect(event.target).toBe(button);
+        expect(target?.line).toBe(0);
+        expect(target?.element).toBe(heading);
+    });
+
+    it('should localize the default label for each viewer', async () => {
+        await render(
+            <>
+                <ThemeProvider lang="en">
+                    <MarkdownViewer html='<h2 id="en" data-line="0">Heading</h2>'>
+                        <HeadingEditButtons onClick={() => {}} />
+                    </MarkdownViewer>
+                </ThemeProvider>
+                <ThemeProvider lang="ru">
+                    <MarkdownViewer html='<h2 id="ru" data-line="0">Заголовок</h2>'>
+                        <HeadingEditButtons onClick={() => {}} />
+                    </MarkdownViewer>
+                </ThemeProvider>
+            </>,
+        );
+
+        expect(container.querySelector('#en button')?.getAttribute('aria-label')).toBe('Edit');
+        expect(container.querySelector('#ru button')?.getAttribute('aria-label')).toBe(
+            'Редактировать',
         );
     });
 
-    it('should use a custom heading selector', async () => {
+    it('should use a custom selector and label', async () => {
         await render(
             <MarkdownViewer html='<h1 data-line="0">Title</h1><h2 data-line="2">Section</h2>'>
-                <HeadingEditButtons selector="h2[data-line]" onClick={vi.fn()} />
+                <HeadingEditButtons
+                    selector="h2[data-line]"
+                    label="Edit this heading"
+                    onClick={vi.fn()}
+                />
             </MarkdownViewer>,
         );
 
         expect(container.querySelector('h1 button')).toBeNull();
-        expect(container.querySelector('h2 button')).toBeInstanceOf(HTMLButtonElement);
+        expect(container.querySelector('h2 button')?.getAttribute('aria-label')).toBe(
+            'Edit this heading',
+        );
     });
 
     it('should keep an edit click from toggling a folding heading', async () => {
@@ -62,7 +93,7 @@ describe('HeadingEditButtons', () => {
                 <HeadingEditButtons onClick={onClick} />
             </MarkdownViewer>,
         );
-        const button = container.querySelector('button[aria-label="Edit section"]');
+        const button = container.querySelector('button[aria-label="Edit"]');
         assert(button instanceof HTMLButtonElement);
 
         await act(async () => button.click());
@@ -80,7 +111,7 @@ describe('HeadingEditButtons', () => {
                 <HeadingEditButtons onClick={onClick} />
             </MarkdownViewer>,
         );
-        const button = container.querySelector('button[aria-label="Edit section"]');
+        const button = container.querySelector('button[aria-label="Edit"]');
         assert(button instanceof HTMLButtonElement);
         await act(async () => button.click());
 

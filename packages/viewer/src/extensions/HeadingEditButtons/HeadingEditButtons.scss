@@ -1,8 +1,8 @@
-:is(h1, h2, h3, h4, h5, h6):has(> .markdown-viewer-demo__heading-edit-slot) {
+:is(h1, h2, h3, h4, h5, h6):has(> .g-md-heading-edit__slot) {
     position: relative;
 }
 
-.markdown-viewer-demo__heading-edit-slot {
+.g-md-heading-edit__slot {
     position: absolute;
     inset-block-end: calc((1lh - 24px) / 2);
 
