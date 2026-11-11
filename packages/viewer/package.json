@@ -81,7 +81,7 @@
     "typescript": "catalog:ts",
     "@markdown-editor/vitest-config": "workspace:*",
     "vitest": "catalog:testing",
-    "jsdom": "25.0.1",
+    "jsdom": "catalog:testing",
     "esbuild": "catalog:",
     "@markdown-viewer-tests/react19": "workspace:*"
   },

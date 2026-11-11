@@ -140,6 +140,10 @@ export const Playground = memo<PlaygroundProps>((props) => {
         return () => clearTimeout(timeout);
     }, [mdRaw, syncMarkupToUrl]);
 
+    const htmlRuntimeConfig = useMemo(
+        () => ({disabledModes: disabledHTMLBlockModes}),
+        [disabledHTMLBlockModes],
+    );
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md, directiveSyntax}) => (
             <SplitModePreviewLazy
@@ -155,10 +159,10 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     table_ignoreSplittersInInlineMath: true,
                 }}
                 disableMarkdownItAttrs={disableMarkdownItAttrs}
-                htmlRuntimeConfig={{disabledModes: disabledHTMLBlockModes}}
+                htmlRuntimeConfig={htmlRuntimeConfig}
             />
         ),
-        [sanitizeHtml, disabledHTMLBlockModes, disableMarkdownItAttrs],
+        [sanitizeHtml, htmlRuntimeConfig, disableMarkdownItAttrs],
     );
 
     const logger = useMemo(() => new Logger2().nested({env: 'playground'}), []);
