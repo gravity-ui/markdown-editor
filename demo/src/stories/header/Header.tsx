@@ -7,7 +7,7 @@ import {
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
 import {ActionName as Action, ToolbarName, full} from '@gravity-ui/markdown-editor/toolbars';
-import {Header, toolbarHeaderItem} from '@gravity-ui/markdown-editor-header-extension';
+import {Button, Header, toolbarHeaderItem} from '@gravity-ui/markdown-editor-header-extension';
 
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
@@ -48,7 +48,7 @@ export function HeaderExample({
     );
     const editor = useMarkdownEditor({
         initial: {markup: initial, mode, toolbarVisible: true},
-        wysiwygConfig: {extensions: (builder) => builder.use(Header)},
+        wysiwygConfig: {extensions: (builder) => builder.use(Header).use(Button)},
         markupConfig: {renderPreview},
     });
     return (

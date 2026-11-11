@@ -34,3 +34,32 @@ The block is a container directive of [`@diplodoc/directive`](https://github.com
 An unknown attribute is skipped, and an unsupported value is replaced with the default: `:::header{height="xl" color="red"}` is an `s` × `m` block.
 The container parses its child blocks in the same Markdown token stream.
 Inline titles and destinations in the opening directive are not supported and remain ordinary Markdown.
+
+## Button
+
+Register `buttonPlugin` independently or together with `headerPlugin`:
+
+```ts
+import {buttonPlugin} from '@gravity-ui/markdown-plugin-header';
+md.use(buttonPlugin);
+```
+
+```markdown
+:::button{href="https://example.com" view="action" color="blue" target="_blank"}
+Read more
+:::
+```
+
+The body is plain text. Buttons work independently and inside Header.
+
+| Attribute | Values | Default |
+| --- | --- | --- |
+| `href` | Link address | Empty |
+| `view` | `action`, `normal`, `outline`, `flat` | `action` |
+| `color` | `standard`, `gray`, `blue`, `green`, `yellow`, `red`, `violet` | `standard` for action/flat, `gray` for normal/outline |
+| `target` | `_self`, `_blank`, `_parent`, `_top` | `_self` |
+
+`action` does not support gray; `normal` and `outline` do not support standard.
+Unsupported values use the defaults. Unknown attributes are ignored.
+Unsafe link addresses are omitted. New-tab links include `rel="noopener noreferrer"`.
+Colors use Gravity theme variables; the host application supplies their values.
