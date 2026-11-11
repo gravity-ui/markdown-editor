@@ -231,6 +231,8 @@ Both callbacks receive `{id, element}` with the current ID and heading element.
 
 Keep focus on the button in `onClick` to show copy feedback.
 
+For folding headings, the copy button stops the click from bubbling so it does not toggle the section. Use `HeadingAnchors.onClick` to handle navigation.
+
 | Prop                      | Description                                                 |
 | ------------------------- | ----------------------------------------------------------- |
 | `getHref(heading)`        | Required. Return the link to copy. Called on click.         |
@@ -238,6 +240,8 @@ Keep focus on the button in `onClick` to show copy feedback.
 | `selector`                | Default: `h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]`.  |
 
 The extension hides the built-in Diplodoc heading controls while mounted. Heading IDs and content stay unchanged.
+
+The button sits 24 px before the heading. If the container clips overflow, leave at least 24 px of space before the heading.
 
 The button uses the page background. Set `--g-md-heading-anchor-background-color` on a colored container to use another opaque color.
 

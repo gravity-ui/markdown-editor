@@ -1,8 +1,9 @@
-import type {MouseEvent} from 'react';
+import {type MouseEvent, useState} from 'react';
 
 import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {ViewerTargets} from '../../components/ViewerTargets';
+import {createClassRegistration} from '../../utils/class-registration';
 import {cn} from '../../utils/classname';
 import {useClientLayoutEffect} from '../../utils/use-client-layout-effect';
 
@@ -11,6 +12,7 @@ import {i18n} from './i18n';
 import './HeadingAnchors.scss';
 
 const b = cn('heading-anchor');
+const registerHeadingAnchor = createClassRegistration(b());
 
 export interface HeadingAnchorTarget {
     readonly id: string;
@@ -42,14 +44,11 @@ function HeadingAnchor({
     onClick,
 }: Omit<HeadingAnchorsProps, 'selector'> & {heading: HTMLElement}) {
     const {t} = i18n.useTranslation();
+    const [ownsHeading, setOwnsHeading] = useState(false);
 
-    useClientLayoutEffect(() => {
-        const hadClass = heading.classList.contains(b());
-        heading.classList.add(b());
-        return () => {
-            if (!hadClass) heading.classList.remove(b());
-        };
-    }, [heading]);
+    useClientLayoutEffect(() => registerHeadingAnchor(heading, setOwnsHeading), [heading]);
+
+    if (!ownsHeading) return null;
 
     return (
         <ClipboardButton

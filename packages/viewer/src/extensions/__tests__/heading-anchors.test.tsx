@@ -115,6 +115,28 @@ describe('HeadingAnchors', () => {
         expect(container.querySelector('h2')?.className).toBe('original');
     });
 
+    it('should keep one copy button when heading anchors overlap', async () => {
+        function update(first: boolean) {
+            render(
+                <MarkdownViewer html='<h2 id="overview">Overview</h2>'>
+                    {first && <HeadingAnchors getHref={() => '#first'} />}
+                    <HeadingAnchors getHref={() => '#second'} />
+                </MarkdownViewer>,
+            );
+        }
+
+        update(true);
+        expect(container.querySelectorAll('button')).toHaveLength(1);
+        await act(async () => getButton().click());
+        expect(writeText).toHaveBeenLastCalledWith('#first');
+
+        update(false);
+        expect(container.querySelectorAll('button')).toHaveLength(1);
+        expect(container.querySelector('h2')?.classList.contains('g-md-heading-anchor')).toBe(true);
+        await act(async () => getButton().click());
+        expect(writeText).toHaveBeenLastCalledWith('#second');
+    });
+
     it('should use a custom heading selector', () => {
         render(
             <MarkdownViewer html='<h2 id="overview">Overview</h2><h3 id="detail">Detail</h3>'>
