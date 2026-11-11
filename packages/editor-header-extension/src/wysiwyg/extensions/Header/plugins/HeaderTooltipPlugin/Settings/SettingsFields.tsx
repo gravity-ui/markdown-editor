@@ -45,10 +45,12 @@ function SettingsSection({
     const contentId = useUniqId();
     return (
         <>
-            <Divider />
+            <Divider className={b('divider')} />
             <div className={b('section')}>
                 <div className={b('title')}>
-                    <Text variant="subheader-2">{title}</Text>
+                    <Text className={b('section-title')} variant="subheader-2">
+                        {title}
+                    </Text>
                     <Button
                         view="flat-secondary"
                         size="m"
@@ -117,6 +119,7 @@ function AlignmentSelect({
                 {label}
             </Text>
             <SegmentedRadioGroup
+                className={b('alignment')}
                 size="m"
                 aria-labelledby={labelId}
                 value={value}
