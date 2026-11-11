@@ -44,3 +44,9 @@ These run visual tests outside Docker and produce unreliable results.
 - A popup is captured in the real editor, in the test that opens it. A popup component mounted on its own misses changes in how the editor renders it.
 - Each mode gets its own `test()`, without `for` loops. The test name carries the tag of the mode it checks, `@wysiwyg` or `@markup`; a test that switches modes carries both. The tag is part of the screenshot file name, so renaming a test renames its screenshots.
 - Locators and actions for a block live in its class, not in the test file. A block of `packages/editor` has its class in `demo/tests/playwright/core/editor.ts`; a block of an extension package has its class and fixture in `demo/tests/playwright/core/extensions/<block>.ts`.
+- Logic repeated across visual tests, such as waiting for a tooltip to hide, is a helper in `demo/tests/visual-tests/utils/`.
+
+## Stories
+
+- A story renders the editor inside `PlaygroundLayout`.
+- Usage examples live in `demo/src/stories/examples/`.
