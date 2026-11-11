@@ -1,5 +1,7 @@
 import dd from 'ts-dedent';
 
+import {galleryMarkup} from '../view/gallery/markup';
+
 const introduction = dd`
     # MarkdownViewer playground
 
@@ -152,6 +154,40 @@ export const codeBlockDocuments = [
             console.log(legacy, 'Legacy code blocks use the same copy and wrap actions. This line is long enough to show the difference when wrapping is enabled.');</code></pre>
             <button class="yfm-clipboard-button" type="button">Copy</button>
             </div>
+        `,
+    },
+];
+
+export const galleryCustomFile = {
+    url: 'https://raw.githubusercontent.com/gravity-ui/markdown-editor/main/README.md',
+    name: 'README.md',
+    mimetype: 'text/markdown',
+    preview: 'This Markdown file uses a custom preview from the application.',
+};
+
+export const galleryDocuments = [
+    {
+        label: 'Files gallery',
+        source: dd`
+            # Files gallery
+
+            Open an image or file, use the arrow keys to browse, then press Escape to return. Copy and download actions use URLs from the application.
+
+            ${galleryMarkup}
+
+            ## Custom file preview
+
+            The application can render other file types with its own resolver.
+
+            {% file src="${galleryCustomFile.url}" name="${galleryCustomFile.name}" type="${galleryCustomFile.mimetype}" %}
+
+            ## Ordinary links
+
+            These links open the documentation in a new tab.
+
+            <a href="https://gravity-ui.github.io/markdown-editor/" target="_blank" rel="noopener noreferrer">Markdown Editor documentation</a>
+
+            <a href="https://gravity-ui.github.io/markdown-editor/" target="_blank" rel="noopener noreferrer"><img src="https://octodex.github.com/images/minion.png" alt="Linked Minion" width="80"></a>
         `,
     },
 ];
