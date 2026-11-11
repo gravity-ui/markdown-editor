@@ -14,7 +14,7 @@ assert.equal(typeof extensions.YfmCodeBlockActions, 'function');
 assert.equal(typeof extensions.FilesGallery, 'function');
 assert.equal(typeof extensions.HeadingAnchors, 'function');
 const html =
-    '<h2 id="heading">Heading</h2><div class="yfm-clipboard"><pre><code>Prepared code</code></pre></div><img src="image.png" alt="Image">';
+    '<h2 id="heading" data-line="0">Heading</h2><div class="yfm-clipboard"><pre><code>Prepared code</code></pre></div><img src="image.png" alt="Image">';
 const result = reactDomServer.renderToString(
     react.createElement(
         components.GalleryProvider,
@@ -25,6 +25,9 @@ const result = reactDomServer.renderToString(
             react.createElement(extensions.YfmCodeBlockActions, {lineWrappingButton: true}),
             react.createElement(extensions.HeadingAnchors, {
                 getHref: () => assert.fail('Heading callbacks must not run on the server'),
+            }),
+            react.createElement(extensions.HeadingEditButtons, {
+                onClick: () => assert.fail('Heading edit callbacks must not run on the server'),
             }),
             react.createElement(extensions.FilesGallery, {
                 getCopyUrl: () => assert.fail('Gallery callbacks must not run on the server'),

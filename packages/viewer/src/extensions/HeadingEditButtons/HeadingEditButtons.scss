@@ -1,0 +1,25 @@
+.g-md-heading-edit {
+    position: relative;
+
+    padding-inline-end: calc(24px + var(--g-spacing-1));
+
+    &__slot {
+        position: absolute;
+        inset-block-end: calc((1lh - 24px) / 2);
+
+        display: inline-flex;
+
+        margin-inline-start: var(--g-spacing-1);
+
+        opacity: 0;
+
+        &:empty {
+            display: none;
+        }
+    }
+
+    &:hover > &__slot,
+    &__slot:focus-within {
+        opacity: 1;
+    }
+}

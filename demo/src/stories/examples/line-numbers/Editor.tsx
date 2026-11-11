@@ -5,8 +5,7 @@ import {MarkdownEditorView, useMarkdownEditor} from '@gravity-ui/markdown-editor
 import {MoveToLine} from '../../../components/MoveToLine';
 import {PlaygroundLayout} from '../../../components/PlaygroundLayout';
 import {markup} from '../../../defaults/content';
-
-import {lineNumbersPlugin} from './md-plugin';
+import {lineNumbersPlugin} from '../../../utils/line-numbers';
 
 export type EditorWithLineNumbersProps = {};
 
