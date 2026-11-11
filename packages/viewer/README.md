@@ -153,7 +153,9 @@ export function Document({html}: {html: string}) {
 }
 ```
 
-Images support `picture` and `srcset`. Ctrl/Meta/Shift/Alt-click and images inside links keep their normal behavior. Copy shows feedback in the button tooltip.
+Images support `picture` and `srcset`. Ctrl/Meta/Shift/Alt-click and images inside links keep their normal behavior.
+
+On desktop, the copy button shows feedback in a tooltip. On mobile, the menu closes after a tap. Use `onLinkCopied` to show a message after a successful copy.
 
 <details>
 <summary>Gallery props and HTML updates</summary>
@@ -162,7 +164,7 @@ The entry point exports `FilesGalleryProps`, `FilesGallerySource`, and `FilesGal
 
 Callbacks receive `source` with `url`, `type`, `element`, and optional `name` and `mimeType`. Callback inputs, including the item passed to `transformItem`, are shallow readonly in TypeScript.
 
-Image URLs use `currentSrc` (absolute), then the HTML `src` value. Links use the HTML `href` value. MIME values are lowercase without parameters. A supported MIME takes priority; otherwise, the URL path extension is used, ignoring query and fragment. An `img` always has type `image`.
+Image URLs use `currentSrc` (absolute), then the HTML `src` value. Links use the HTML `href` value. MIME values are lowercase without parameters. A supported MIME type takes priority. For HTTP(S) links, the gallery can also use the path extension, ignoring the query and fragment. An `img` always has type `image`.
 
 | Prop | Description |
 | ---- | ----------- |

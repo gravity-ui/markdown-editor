@@ -31,11 +31,13 @@ export function getMediaType({
     ) {
         return 'video';
     }
-    if (/^(?:data:|[?#])/i.test(url.trimStart())) return 'file';
+    if (/^[?#]/.test(url.trimStart())) return 'file';
 
     let pathname: string;
     try {
-        pathname = new URL(url, baseURI).pathname;
+        const parsed = new URL(url, baseURI);
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return 'file';
+        pathname = parsed.pathname;
     } catch {
         return 'file';
     }

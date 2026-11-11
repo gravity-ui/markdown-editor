@@ -1,7 +1,7 @@
 import {type ReactNode, StrictMode} from 'react';
 
 import {GalleryProvider} from '@gravity-ui/components';
-import {ThemeProvider} from '@gravity-ui/uikit';
+import {MobileProvider, ThemeProvider} from '@gravity-ui/uikit';
 import {createPortal} from 'react-dom';
 import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
@@ -56,6 +56,21 @@ describe('FilesGallery', () => {
         const dialog = document.querySelector('[role="dialog"]');
         expect(dialog?.textContent).toContain('Second');
         expect(dialog?.textContent).toContain('2 / 2');
+    });
+
+    it('should show a mobile gallery without a stray zero when there are no actions', async () => {
+        await render(
+            <MarkdownViewer html='<img src="/image.png" alt="Photo">'>
+                <FilesGallery />
+            </MarkdownViewer>,
+            {mobile: true},
+        );
+
+        await click('img');
+
+        const dialog = document.querySelector('[role="dialog"]');
+        expect(dialog?.textContent).toContain('Photo');
+        expect(dialog?.textContent).not.toContain('0');
     });
 
     it('should open images in an iframe and remove the click listener on unmount', async () => {
@@ -343,6 +358,17 @@ describe('FilesGallery', () => {
         },
     );
 
+    it('should keep native navigation for a mailto link with a media extension', async () => {
+        await render(
+            <MarkdownViewer html='<a href="mailto:team@example.png" target="_blank">Email</a>'>
+                <FilesGallery />
+            </MarkdownViewer>,
+        );
+
+        expect((await click('a')).defaultPrevented).toBe(false);
+        expect(document.querySelector('[role="dialog"]')).toBeNull();
+    });
+
     it('should keep native navigation without collecting other resources when the resolver skips a file', async () => {
         const resolveCustomItem = vi.fn(() => undefined);
         await render(
@@ -493,11 +519,13 @@ describe('FilesGallery', () => {
         expect(document.querySelector('[role="dialog"]')).toBeNull();
     });
 
-    async function render(children: ReactNode) {
+    async function render(children: ReactNode, {mobile = false} = {}) {
         await act(async () => {
             root.render(
                 <ThemeProvider lang="en">
-                    <GalleryProvider>{children}</GalleryProvider>
+                    <MobileProvider mobile={mobile}>
+                        <GalleryProvider>{children}</GalleryProvider>
+                    </MobileProvider>
                 </ThemeProvider>,
             );
         });
