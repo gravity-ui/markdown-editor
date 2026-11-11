@@ -1,4 +1,6 @@
-.g-md-heading-anchor {
+@use '../../variables' as v;
+
+.#{v.$ns}heading-anchor {
     position: relative;
 
     &__slot {
@@ -27,12 +29,12 @@
 
         border-radius: var(--g-border-radius-xs);
         background-color: var(
-            --g-md-heading-anchor-background-color,
+            --g-md-v-heading-anchor-background-color,
             var(--yfm-color-base, var(--g-color-base-background))
         );
     }
 }
 
-.g-md-viewer__content .g-md-heading-anchor > :is(.yfm-anchor, .yfm-clipboard-anchor) {
+.#{v.$ns}viewer__content .#{v.$ns}heading-anchor > :is(.yfm-anchor, .yfm-clipboard-anchor) {
     display: none;
 }

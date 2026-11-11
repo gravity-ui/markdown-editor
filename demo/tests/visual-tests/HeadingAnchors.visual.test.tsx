@@ -126,7 +126,7 @@ async function hoverHeadings(page: Page) {
     const {root} = await devtools.send('DOM.getDocument');
     const {nodeIds} = await devtools.send('DOM.querySelectorAll', {
         nodeId: root.nodeId,
-        selector: '[data-qa="demo-markdown-viewer"] .g-md-heading-anchor',
+        selector: '[data-qa="demo-markdown-viewer"] .g-md-v-heading-anchor',
     });
     for (const nodeId of nodeIds) {
         await devtools.send('CSS.forcePseudoState', {nodeId, forcedPseudoClasses: ['hover']});
