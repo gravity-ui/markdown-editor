@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import {ExtensionsManager} from '@gravity-ui/markdown-editor/core';
+import {history, redo, undo} from '@gravity-ui/markdown-editor/pm/history';
 import {DOMParser, DOMSerializer, type Node} from '@gravity-ui/markdown-editor/pm/model';
 import {EditorState, NodeSelection} from '@gravity-ui/markdown-editor/pm/state';
 import {EditorView} from '@gravity-ui/markdown-editor/pm/view';
@@ -12,6 +13,7 @@ import {
 import {describe, expect, it} from 'vitest';
 
 import {HeaderSpecs} from '../Header/HeaderSpecs';
+import {copyHeader, setHeaderDimension} from '../Header/commands';
 
 import {Button} from './Button';
 import {ButtonSpecs} from './ButtonSpecs';
@@ -29,6 +31,25 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
 const button =
     ':::button{href="/page?a=1&b=2" view="outline" color="blue" target="_blank"}\nRead more\n:::';
 describe('Button extension', () => {
+    it('should preserve buttons when resizing, undoing, and copying a header', () => {
+        const original = markupParser.parse(`:::header\n${button}\n:::`);
+        let state = EditorState.create({schema, doc: original, plugins: [history()]});
+        const dispatch = (transaction: Parameters<typeof state.apply>[0]) => {
+            state = state.apply(transaction);
+        };
+        const originalButton = original.child(0).child(0);
+        expect(setHeaderDimension(0, 'height', 'l')(state, dispatch)).toBe(true);
+        expect(setHeaderDimension(0, 'width', 'full')(state, dispatch)).toBe(true);
+        expect(state.doc.child(0).child(0).eq(originalButton)).toBe(true);
+        expect(undo(state, dispatch)).toBe(true);
+        expect(undo(state, dispatch)).toBe(true);
+        expect(state.doc.eq(original)).toBe(true);
+        expect(redo(state, dispatch)).toBe(true);
+        expect(redo(state, dispatch)).toBe(true);
+        expect(copyHeader(0)(state, dispatch)).toBe(true);
+        expect(state.doc.child(0).eq(state.doc.child(1))).toBe(true);
+        expect(markupParser.parse(serializer.serialize(state.doc)).eq(state.doc)).toBe(true);
+    });
     it.each([
         [':::button\nLabel\n:::', ':::button\nLabel\n:::'],
         [
