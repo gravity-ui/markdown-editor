@@ -10,3 +10,16 @@ export {
     headerWidths,
 } from './dimensions';
 export {headerPlugin} from './directive';
+export {buttonPlugin} from './button-directive';
+export {
+    buttonAttrs,
+    buttonClassName,
+    buttonTokenName,
+    buttonDefaults,
+    buttonViewColors,
+    buttonViews,
+    buttonTargets,
+    normalizeButtonStyle,
+    normalizeButtonHref,
+    type ButtonAttrs,
+} from './button';
