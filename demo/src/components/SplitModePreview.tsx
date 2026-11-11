@@ -29,8 +29,8 @@ import {
     getPlugins,
 } from '../defaults/md-plugins';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
-import {lineNumbersPlugin} from '../stories/examples/line-numbers/md-plugin';
-import {getHeadingHref, navigateToHeading} from '../stories/viewer/heading-links';
+import {getHeadingHref, navigateToHeading} from '../utils/heading-links';
+import {lineNumbersPlugin} from '../utils/line-numbers';
 
 import {DiplodocHtml} from './viewer-extensions/DiplodocHtml';
 import {DiplodocLatex} from './viewer-extensions/DiplodocLatex';

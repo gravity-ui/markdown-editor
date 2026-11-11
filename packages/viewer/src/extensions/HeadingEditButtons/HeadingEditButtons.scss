@@ -1,19 +1,25 @@
-:is(h1, h2, h3, h4, h5, h6):has(> .g-md-heading-edit__slot) {
+.g-md-heading-edit {
     position: relative;
-}
 
-.g-md-heading-edit__slot {
-    position: absolute;
-    inset-block-end: calc((1lh - 24px) / 2);
+    padding-inline-end: calc(24px + var(--g-spacing-1));
 
-    display: inline-flex;
+    &__slot {
+        position: absolute;
+        inset-block-end: calc((1lh - 24px) / 2);
 
-    margin-inline-start: var(--g-spacing-1);
+        display: inline-flex;
 
-    opacity: 0;
+        margin-inline-start: var(--g-spacing-1);
 
-    :is(h1, h2, h3, h4, h5, h6):hover > &,
-    &:focus-within {
+        opacity: 0;
+
+        &:empty {
+            display: none;
+        }
+    }
+
+    &:hover > &__slot,
+    &__slot:focus-within {
         opacity: 1;
     }
 }

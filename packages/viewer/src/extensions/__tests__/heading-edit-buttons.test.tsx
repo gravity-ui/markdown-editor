@@ -5,7 +5,7 @@ import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {act} from '../../../tests/utils/act';
-import {HeadingAnchors, HeadingEditButtons} from '../../extensions';
+import {HeadingEditButtons} from '../../extensions';
 import {MarkdownViewer} from '../../index';
 
 describe('HeadingEditButtons', () => {
@@ -43,6 +43,16 @@ describe('HeadingEditButtons', () => {
         expect(event.target).toBe(button);
         expect(target?.line).toBe(0);
         expect(target?.element).toBe(heading);
+    });
+
+    it('should skip headings with blank line metadata', async () => {
+        await render(
+            <MarkdownViewer html='<h2 data-line="">Empty</h2><h2 data-line="  ">Blank</h2>'>
+                <HeadingEditButtons onClick={vi.fn()} />
+            </MarkdownViewer>,
+        );
+
+        expect(container.querySelector('button')).toBeNull();
     });
 
     it('should localize the default label for each viewer', async () => {
@@ -102,21 +112,15 @@ describe('HeadingEditButtons', () => {
         expect(onParentClick).not.toHaveBeenCalled();
     });
 
-    it('should keep edit and anchor clicks independent', async () => {
-        const onClick = vi.fn();
-        const onAnchorClick = vi.fn();
+    it('should render one edit button when selectors overlap', async () => {
         await render(
-            <MarkdownViewer html='<h2 id="title" data-line="4">Heading</h2>'>
-                <HeadingAnchors getHref={() => '#title'} onClick={onAnchorClick} />
-                <HeadingEditButtons onClick={onClick} />
+            <MarkdownViewer html='<h2 data-line="4">Heading</h2>'>
+                <HeadingEditButtons onClick={vi.fn()} />
+                <HeadingEditButtons selector="h2[data-line]" onClick={vi.fn()} />
             </MarkdownViewer>,
         );
-        const button = container.querySelector('button[aria-label="Edit"]');
-        assert(button instanceof HTMLButtonElement);
-        await act(async () => button.click());
 
-        expect(onClick).toHaveBeenCalledOnce();
-        expect(onAnchorClick).not.toHaveBeenCalled();
+        expect(container.querySelectorAll('h2 button')).toHaveLength(1);
     });
 
     async function render(children: ReactNode) {

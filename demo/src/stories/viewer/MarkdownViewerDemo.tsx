@@ -24,13 +24,13 @@ import {DiplodocMermaid} from '../../components/viewer-extensions/DiplodocMermai
 import {DiplodocPageConstructor} from '../../components/viewer-extensions/DiplodocPageConstructor';
 import type {DiplodocMermaidOptions} from '../../components/viewer-extensions/types';
 import useYfmHtmlBlockStyles from '../../hooks/useYfmHtmlBlockStyles';
+import {getHeadingHref, navigateToHeading} from '../../utils/heading-links';
 
 import {cn} from './cn';
 import {documents as defaultDocuments, galleryCustomFile} from './content';
 import {Feedback} from './extensions/Feedback';
 import {PreserveCutState} from './extensions/PreserveCutState';
 import {TargetHelp} from './extensions/TargetHelp';
-import {getHeadingHref, navigateToHeading} from './heading-links';
 
 import './MarkdownViewerDemo.scss';
 import '@diplodoc/folding-headings-extension/runtime/styles.css';

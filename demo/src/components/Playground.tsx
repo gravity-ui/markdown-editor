@@ -319,6 +319,9 @@ export const Playground = memo<PlaygroundProps>((props) => {
         }
         if (mdEditor.previewVisible) {
             mdEditor.changePreviewVisible(false);
+            if (mdEditor.previewVisible) {
+                setHeadingEdit(null);
+            }
             return;
         }
         mdEditor.moveCursor({line: headingEdit.line});
