@@ -45,7 +45,7 @@ function SettingsSection({
     const contentId = useUniqId();
     return (
         <>
-            <Divider className={b('divider')} />
+            <Divider />
             <div className={b('section')}>
                 <div className={b('title')}>
                     <Text className={b('section-title')} variant="subheader-2">
@@ -119,7 +119,6 @@ function AlignmentSelect({
                 {label}
             </Text>
             <SegmentedRadioGroup
-                className={b('alignment')}
                 size="m"
                 aria-labelledby={labelId}
                 value={value}
@@ -145,6 +144,7 @@ function AlignmentSelect({
 
 export function SettingsFields() {
     const backgroundLabelId = useUniqId();
+    const backgroundValueId = useUniqId();
     return (
         <>
             <SettingsSection title={i18n('text')} action="Text">
@@ -158,19 +158,19 @@ export function SettingsFields() {
                         {
                             value: 'top',
                             label: i18n('top'),
-                            icon: ObjectsAlignLeft,
+                            icon: ObjectsAlignTop,
                             action: 'Align top',
                         },
                         {
                             value: 'center',
                             label: i18n('center'),
-                            icon: ObjectsAlignCenterHorizontal,
+                            icon: ObjectsAlignCenterVertical,
                             action: 'Align vertically center',
                         },
                         {
                             value: 'bottom',
                             label: i18n('bottom'),
-                            icon: ObjectsAlignRight,
+                            icon: ObjectsAlignBottom,
                             action: 'Align bottom',
                         },
                     ]}
@@ -182,19 +182,19 @@ export function SettingsFields() {
                         {
                             value: 'left',
                             label: i18n('left'),
-                            icon: ObjectsAlignTop,
+                            icon: ObjectsAlignLeft,
                             action: 'Align left',
                         },
                         {
                             value: 'center',
                             label: i18n('center'),
-                            icon: ObjectsAlignCenterVertical,
+                            icon: ObjectsAlignCenterHorizontal,
                             action: 'Align horizontally center',
                         },
                         {
                             value: 'right',
                             label: i18n('right'),
-                            icon: ObjectsAlignBottom,
+                            icon: ObjectsAlignRight,
                             action: 'Align right',
                         },
                     ]}
@@ -216,11 +216,11 @@ export function SettingsFields() {
                         view="outlined"
                         size="m"
                         width="max"
-                        aria-labelledby={backgroundLabelId}
+                        aria-labelledby={`${backgroundLabelId} ${backgroundValueId}`}
                         onClick={() => logClick('Background button')}
                     >
                         <Icon data={SquareMinus} size={16} />
-                        {i18n('no-background')}
+                        <span id={backgroundValueId}>{i18n('no-background')}</span>
                     </Button>
                 </div>
             </SettingsSection>

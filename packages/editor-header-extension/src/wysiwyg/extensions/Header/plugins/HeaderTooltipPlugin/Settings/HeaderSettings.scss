@@ -1,7 +1,6 @@
 $panel-width: 320px;
 $panel-height: 720px;
 $label-width: 120px;
-$viewport-inset: var(--g-spacing-4);
 
 .g-md-header-settings {
     display: flex;
@@ -10,11 +9,8 @@ $viewport-inset: var(--g-spacing-4);
     gap: var(--g-spacing-4);
 
     box-sizing: border-box;
-    width: min($panel-width, calc(100vw - 2 * #{$viewport-inset}));
-    max-height: min(
-        $panel-height,
-        var(--g-md-header-settings-available-height, calc(100dvh - 2 * #{$viewport-inset}))
-    );
+    width: min($panel-width, var(--g-md-header-settings-available-width, 100vw));
+    max-height: min($panel-height, var(--g-md-header-settings-available-height, 100dvh));
     padding: var(--g-spacing-4);
 
     > * {
@@ -40,21 +36,10 @@ $viewport-inset: var(--g-spacing-4);
         height: var(--g-spacing-7);
     }
 
-    // The Figma divider is a zero-height line between two 16 px gaps.
-    &__divider {
-        margin-block: -0.5px;
-    }
-
-    // Section titles sit 5 px from the top of the 28 px row, like row labels.
     &__section-title {
         align-self: flex-start;
 
-        margin-top: 5px;
-    }
-
-    // The 36 px button extends 4 px beyond the 28 px title row.
-    &__close {
-        margin-right: calc(-1 * var(--g-spacing-1));
+        margin-top: var(--g-spacing-1);
     }
 
     &__row {
@@ -71,21 +56,7 @@ $viewport-inset: var(--g-spacing-4);
     }
 
     &__background {
-        --g-button-padding: 6px;
+        --g-button-padding: var(--g-spacing-2);
         justify-content: flex-start;
-
-        .g-button__text {
-            align-self: center;
-
-            line-height: var(--g-text-body-1-line-height);
-        }
-    }
-
-    &__dimension .g-select-control {
-        padding: 5px 6px 5px 8px;
-    }
-
-    &__alignment .g-segmented-radio-group__option + .g-segmented-radio-group__option {
-        margin-inline-start: -1px;
     }
 }

@@ -252,9 +252,10 @@ test.describe('Header', () => {
         ).toHaveLength(2);
         expect(messages).toContain('Align right button clicked');
 
+        await expect(header.background).toHaveAccessibleName('Background No background');
         await header.background.click();
         expect(messages).toContain('Background button clicked');
-        await expect(page.getByRole('dialog')).toHaveCount(1);
+        await expect(header.dialogs).toHaveCount(1);
         expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(initial);
 
         await header.section('Text').click();

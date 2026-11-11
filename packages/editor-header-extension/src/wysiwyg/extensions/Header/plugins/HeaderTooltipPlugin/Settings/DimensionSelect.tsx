@@ -29,7 +29,6 @@ export function DimensionSelect<T extends string>({
                 {label}
             </Text>
             <Select
-                className={b('dimension')}
                 ref={controlRef}
                 size="m"
                 width="max"

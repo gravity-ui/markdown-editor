@@ -50,27 +50,41 @@ export function HeaderSettings({
     const titleId = useUniqId();
     const anchorElement = useMemo(() => block && insideTopEdge(block), [block]);
     const heightRef = useRef<HTMLButtonElement>(null);
-    const [availableHeight, setAvailableHeight] = useState<number>();
+    const [availableSize, setAvailableSize] = useState<{width: number; height: number}>();
 
     useLayoutEffect(() => {
         if (!block) return undefined;
-        const updateHeight = () => {
-            setAvailableHeight(
-                Math.max(
-                    0,
-                    window.innerHeight - block.getBoundingClientRect().top - 2 * PANEL_INSET,
-                ),
+        const controller = new AbortController();
+        let frame: number | undefined;
+        const updateSize = () => {
+            frame = undefined;
+            const width = Math.max(0, window.innerWidth - 2 * PANEL_INSET);
+            const height = Math.max(
+                0,
+                window.innerHeight - block.getBoundingClientRect().top - 2 * PANEL_INSET,
+            );
+            setAvailableSize((previous) =>
+                previous?.width === width && previous.height === height
+                    ? previous
+                    : {width, height},
             );
         };
-        updateHeight();
-        const observer = new ResizeObserver(updateHeight);
+        const scheduleUpdate = () => {
+            if (frame === undefined) frame = requestAnimationFrame(updateSize);
+        };
+        const onScroll = (event: Event) => {
+            // Only ancestor scrolling can move the banner's anchor.
+            if (event.target instanceof Node && event.target.contains(block)) scheduleUpdate();
+        };
+        updateSize();
+        const observer = new ResizeObserver(scheduleUpdate);
         observer.observe(block);
-        window.addEventListener('resize', updateHeight);
-        window.addEventListener('scroll', updateHeight, true);
+        window.addEventListener('resize', scheduleUpdate, {signal: controller.signal});
+        window.addEventListener('scroll', onScroll, {capture: true, signal: controller.signal});
         return () => {
+            controller.abort();
             observer.disconnect();
-            window.removeEventListener('resize', updateHeight);
-            window.removeEventListener('scroll', updateHeight, true);
+            if (frame !== undefined) cancelAnimationFrame(frame);
         };
     }, [block]);
 
@@ -98,7 +112,9 @@ export function HeaderSettings({
                 style={
                     {
                         '--g-md-header-settings-available-height':
-                            availableHeight === undefined ? undefined : `${availableHeight}px`,
+                            availableSize === undefined ? undefined : `${availableSize.height}px`,
+                        '--g-md-header-settings-available-width':
+                            availableSize === undefined ? undefined : `${availableSize.width}px`,
                     } as CSSProperties
                 }
                 role="dialog"
@@ -109,13 +125,7 @@ export function HeaderSettings({
                     <Text variant="subheader-3" id={titleId}>
                         {i18n('title')}
                     </Text>
-                    <Button
-                        className={b('close')}
-                        view="flat"
-                        size="l"
-                        aria-label={i18n('close')}
-                        onClick={onClose}
-                    >
+                    <Button view="flat" size="l" aria-label={i18n('close')} onClick={onClose}>
                         <Icon data={Xmark} size={CLOSE_ICON_SIZE} />
                     </Button>
                 </div>
