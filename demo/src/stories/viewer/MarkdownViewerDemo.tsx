@@ -15,18 +15,18 @@ import {
 } from '@gravity-ui/markdown-viewer/extensions';
 import {Button, Flex, SegmentedRadioGroup, Text, sp} from '@gravity-ui/uikit';
 
+import {DiplodocHtml} from '../../components/viewer-extensions/DiplodocHtml';
+import {DiplodocLatex} from '../../components/viewer-extensions/DiplodocLatex';
+import {DiplodocMermaid} from '../../components/viewer-extensions/DiplodocMermaid';
+import {DiplodocPageConstructor} from '../../components/viewer-extensions/DiplodocPageConstructor';
+import type {DiplodocMermaidOptions} from '../../components/viewer-extensions/types';
 import useYfmHtmlBlockStyles from '../../hooks/useYfmHtmlBlockStyles';
 
 import {cn} from './cn';
 import {documents as defaultDocuments, galleryCustomFile} from './content';
-import {DiplodocHtml} from './extensions/DiplodocHtml';
-import {DiplodocLatex} from './extensions/DiplodocLatex';
-import {DiplodocMermaid} from './extensions/DiplodocMermaid';
-import {DiplodocPageConstructor} from './extensions/DiplodocPageConstructor';
 import {Feedback} from './extensions/Feedback';
 import {PreserveCutState} from './extensions/PreserveCutState';
 import {TargetHelp} from './extensions/TargetHelp';
-import type {DiplodocMermaidOptions} from './extensions/types';
 
 import './MarkdownViewerDemo.scss';
 import '@diplodoc/transform/dist/css/yfm.css';

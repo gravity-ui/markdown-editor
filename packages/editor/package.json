@@ -257,7 +257,7 @@
     "gulp-cli": "catalog:",
     "highlight.js": "catalog:peers",
     "ist": "1.1.7",
-    "jsdom": "25.0.1",
+    "jsdom": "catalog:testing",
     "katex": "catalog:peers",
     "lowlight": "catalog:peers",
     "markdown-it": "catalog:peers",

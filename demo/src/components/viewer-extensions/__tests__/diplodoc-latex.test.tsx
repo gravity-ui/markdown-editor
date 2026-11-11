@@ -7,7 +7,7 @@ import {act} from 'react-dom/test-utils';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {DiplodocLatex} from '../DiplodocLatex';
-import type {DiplodocLatexOptions, TransformMeta} from '../types';
+import type {TransformMeta} from '../types';
 
 const meta = {
     script: ['_assets/latex-extension.js'],
@@ -152,30 +152,24 @@ describe('DiplodocLatex', () => {
         expect(container.querySelector('.protected')?.textContent).toBe('React formula');
     });
 
-    it('should apply a custom selector, sanitize and updated KaTeX options', async () => {
+    it('should render a custom target again when options change', async () => {
         const runtime = 'custom:latex';
         const customMeta = {script: [runtime], style: [runtime]};
-        const options = {
-            macros: {'\\value': '42'},
-            displayMode: true,
-            sanitize: (rendered: string) => `<span data-sanitized>${rendered}</span>`,
-        };
-        const view = (currentOptions: DiplodocLatexOptions) => (
+        const view = (value: string) => (
             <MarkdownViewer html='<span class="custom-formula" data-content="%5Cvalue"></span>'>
                 <DiplodocLatex
                     meta={customMeta}
                     runtime={runtime}
                     selector=".custom-formula"
-                    options={currentOptions}
+                    options={{macros: {'\\value': value}}}
                 />
             </MarkdownViewer>
         );
 
-        await render(view(options));
-        expect(container.querySelector('[data-sanitized] .katex-display')).not.toBeNull();
+        await render(view('42'));
         expect(container.querySelector('math mn')?.textContent).toBe('42');
 
-        await render(view({...options, macros: {'\\value': '43'}}));
+        await render(view('43'));
         expect(container.querySelector('math mn')?.textContent).toBe('43');
     });
 

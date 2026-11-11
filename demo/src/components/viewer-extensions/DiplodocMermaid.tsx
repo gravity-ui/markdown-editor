@@ -2,7 +2,7 @@ import {useMermaid} from '@diplodoc/mermaid-extension/react';
 import {inspectViewerNode, useViewerEffect} from '@gravity-ui/markdown-viewer';
 import {useThemeType} from '@gravity-ui/uikit';
 
-import {cn} from '../cn';
+import {block} from '../../utils/cn';
 
 import type {
     DiplodocMermaidOptions,
@@ -23,6 +23,7 @@ interface DiplodocMermaidProps {
     onError?: (error: unknown) => void;
 }
 
+const cn = block('diplodoc-mermaid');
 const defaultTheme: DiplodocMermaidTheme = {light: 'forest', dark: 'dark'};
 let pendingRender = Promise.resolve();
 
@@ -66,9 +67,9 @@ export function DiplodocMermaid({
 
                     // The runtime owns this child; React slots stay next to it.
                     const node = root.ownerDocument.createElement('div');
-                    node.className = cn('mermaid');
+                    node.className = cn();
                     node.setAttribute('data-content', target.getAttribute('data-content') || '');
-                    const previous = target.querySelector(`:scope > .${cn('mermaid')}`);
+                    const previous = target.querySelector(`:scope > .${cn()}`);
                     if (previous) {
                         previous.replaceWith(node);
                     } else {

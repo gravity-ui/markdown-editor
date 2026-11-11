@@ -26,11 +26,12 @@ import {
     getPlugins,
 } from '../defaults/md-plugins';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
-import {DiplodocHtml} from '../stories/viewer/extensions/DiplodocHtml';
-import {DiplodocLatex} from '../stories/viewer/extensions/DiplodocLatex';
-import {DiplodocMermaid} from '../stories/viewer/extensions/DiplodocMermaid';
-import {DiplodocPageConstructor} from '../stories/viewer/extensions/DiplodocPageConstructor';
-import type {TransformMeta} from '../stories/viewer/extensions/types';
+
+import {DiplodocHtml} from './viewer-extensions/DiplodocHtml';
+import {DiplodocLatex} from './viewer-extensions/DiplodocLatex';
+import {DiplodocMermaid} from './viewer-extensions/DiplodocMermaid';
+import {DiplodocPageConstructor} from './viewer-extensions/DiplodocPageConstructor';
+import type {TransformMeta} from './viewer-extensions/types';
 
 import '@diplodoc/cut-extension/runtime/styles.css';
 import '@diplodoc/folding-headings-extension/runtime/styles.css';
