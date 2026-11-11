@@ -90,7 +90,7 @@
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "gulp-cli": "catalog:",
-    "jsdom": "25.0.1",
+    "jsdom": "catalog:testing",
     "npm-run-all": "^4.1.5",
     "react": "catalog:react",
     "react-dom": "catalog:react",
@@ -99,7 +99,7 @@
   },
   "peerDependencies": {
     "@gravity-ui/markdown-editor": "workspace:^15.49.0",
-    "@gravity-ui/uikit": "^7.1.0",
+    "@gravity-ui/uikit": "^7.51.1",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },

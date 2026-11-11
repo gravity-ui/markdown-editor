@@ -17,7 +17,6 @@ import {SettingsFields} from './SettingsFields';
 import './HeaderSettings.scss';
 
 const b = cn('header-settings');
-const popupClassName = cn('header-settings-popup')();
 
 const PANEL_INSET = 16;
 const CLOSE_ICON_SIZE = 16;
@@ -78,7 +77,6 @@ export function HeaderSettings({
     return (
         <Popup
             open
-            className={popupClassName}
             anchorElement={anchorElement}
             // Without fallback placements, the panel stays in the corner.
             placement={['bottom-end']}

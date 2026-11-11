@@ -3,31 +3,6 @@ $panel-height: 720px;
 $label-width: 120px;
 $viewport-inset: var(--g-spacing-4);
 
-.g-md-header-settings-popup {
-    --g-text-body-1-font-size: 14px;
-    --g-text-body-1-line-height: 18px;
-    --g-text-body-short-font-size: 14px;
-    --g-text-body-short-line-height: 18px;
-    --g-text-subheader-1-font-size: 14px;
-    --g-text-subheader-1-line-height: 20px;
-    --g-text-subheader-2-font-size: 16px;
-    --g-text-subheader-2-line-height: 20px;
-    --g-text-subheader-3-font-size: 16px;
-    --g-text-subheader-3-line-height: 24px;
-    --g-text-subheader-font-weight: 500;
-    --g-border-radius-m: 10px;
-    --g-border-radius-l: 12px;
-
-    --g-popup-background-color: var(--g-color-base-modal);
-    --g-popup-border-color: var(--g-color-line-generic);
-    --g-popup-border-radius: var(--g-spacing-4);
-
-    // `.g-popup` sets a larger shadow with the same specificity.
-    &.g-popup {
-        box-shadow: 0 1px 5px var(--g-color-sfx-shadow);
-    }
-}
-
 .g-md-header-settings {
     display: flex;
     overflow: auto;
