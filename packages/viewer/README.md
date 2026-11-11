@@ -5,7 +5,7 @@ Render prepared HTML with React 18 or 19. Supports server rendering and hydratio
 ## Installation
 
 ```bash
-npm install @gravity-ui/markdown-viewer @gravity-ui/uikit react react-dom
+npm install @gravity-ui/markdown-viewer @gravity-ui/components @gravity-ui/uikit react react-dom
 ```
 
 ## Usage
@@ -128,6 +128,73 @@ export function ViewerClient({html}: {html: string}) {
 ```
 
 Render `<ViewerClient html={html} />` from your Server Component. Define extensions that use `useViewerEffect` on the client side of the boundary.
+
+</details>
+
+### Files gallery
+
+Add `FilesGallery` to open images, video links, and YFM file links. Wrap the viewer in `GalleryProvider`:
+
+```tsx
+import {GalleryProvider} from '@gravity-ui/components';
+import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
+import {FilesGallery} from '@gravity-ui/markdown-viewer/extensions';
+
+import '@gravity-ui/uikit/styles/styles.css';
+
+export function Document({html}: {html: string}) {
+  return (
+    <GalleryProvider>
+      <MarkdownViewer html={html}>
+        <FilesGallery getCopyUrl={({url}) => url} getDownloadUrl={({url}) => url} />
+      </MarkdownViewer>
+    </GalleryProvider>
+  );
+}
+```
+
+Images support `picture` and `srcset`. Ctrl/Meta/Shift/Alt-click and images inside links keep their normal behavior.
+
+On desktop, the copy button shows feedback in a tooltip. On mobile, the menu closes after a tap. Use `onLinkCopied` to show a message after a successful copy.
+
+<details>
+<summary>Gallery props and HTML updates</summary>
+
+The entry point exports `FilesGalleryProps`, `FilesGallerySource`, and `FilesGalleryItemType` (`'image' | 'video' | 'file'`).
+
+Callbacks receive `source` with `url`, `type`, `element`, and optional `name` and `mimeType`. Callback inputs, including the item passed to `transformItem`, are shallow readonly in TypeScript.
+
+Image URLs use `currentSrc` (absolute), then the HTML `src` value. Links use the HTML `href` value. MIME values are lowercase without parameters. A supported MIME type takes priority. For HTTP(S) links, the gallery can also use the path extension, ignoring the query and fragment. An `img` always has type `image`.
+
+| Prop | Description |
+| ---- | ----------- |
+| `additionalItems` | Readonly list of ready items placed before HTML items. Callbacks do not change them. |
+| `getCopyUrl(source)` | Return a URL for the copy action, or `undefined` to skip it. |
+| `getDownloadUrl(source)` | Return a URL for the download action, or `undefined` to skip it. |
+| `resolveCustomItem(source)` | Create an item for a source with type `file`, or return `undefined` to skip it. |
+| `transformItem(item, source)` | Replace the final item, or return `null` to exclude it. |
+| `onLinkCopied(url)` | Called only after a successful copy, with the copied URL. |
+
+For each HTML item, a standard item or `resolveCustomItem` result gets copy/download actions, then passes through `transformItem`. Resolver actions are kept. The transform result replaces the whole item.
+
+The clicked item is built first; if skipped, collection stops. Callbacks run once per discovered item on opening. Do not change the HTML from callbacks or keep DOM elements in returned items or actions.
+
+An open gallery keeps its items when HTML changes or `FilesGallery` unmounts. The next opening reads the current HTML. Items with the same URL stay separate; the clicked element sets the initial item.
+
+To cancel gallery opening, call `preventDefault()` in `onClickCapture`. A regular React `onClick` runs after the gallery's native listener. This also cancels native link navigation:
+
+```tsx
+<MarkdownViewer
+  html={html}
+  onClickCapture={(event) => {
+    if (event.target instanceof Element && event.target.closest('[data-no-gallery]')) {
+      event.preventDefault();
+    }
+  }}
+>
+  <FilesGallery />
+</MarkdownViewer>
+```
 
 </details>
 

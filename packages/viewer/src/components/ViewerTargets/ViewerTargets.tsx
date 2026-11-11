@@ -5,6 +5,7 @@ import {createPortal} from 'react-dom';
 
 import {useViewerEffect} from '../../hooks/use-viewer-effect';
 import {ViewerContext, ViewerHtmlContext} from '../../lifecycle/context';
+import {getDomConstructor} from '../../utils/dom-constructor';
 import {inspectViewerNode} from '../../utils/inspect-viewer-node';
 
 import {VIEWER_SLOT_ATTRIBUTE} from './constants';
@@ -34,12 +35,11 @@ export function ViewerTargets({
 
     useViewerEffect(
         ({root}) => {
-            const HTMLElementConstructor =
-                root.ownerDocument.defaultView?.HTMLElement ?? HTMLElement;
+            const HostElement = getDomConstructor(root, 'HTMLElement');
             const hosts: HTMLElement[] = [];
             for (const target of Array.from(root.querySelectorAll(selector))) {
                 if (
-                    target instanceof HTMLElementConstructor &&
+                    target instanceof HostElement &&
                     inspectViewerNode(root, target).kind === 'content'
                 ) {
                     hosts.push(target);

@@ -18,7 +18,9 @@ export default mergeConfig(
         resolve: {
             alias: {
                 '@gravity-ui/uikit/i18n': requireReact.resolve('@gravity-ui/uikit/i18n'),
+                '@gravity-ui/uikit/legacy': requireReact.resolve('@gravity-ui/uikit/legacy'),
                 '@gravity-ui/uikit': requireReact.resolve('@gravity-ui/uikit'),
+                '@gravity-ui/components': requireReact.resolve('@gravity-ui/components'),
                 react: dirname(requireReact.resolve('react/package.json')),
                 'react-dom': dirname(requireReact.resolve('react-dom/package.json')),
             },
