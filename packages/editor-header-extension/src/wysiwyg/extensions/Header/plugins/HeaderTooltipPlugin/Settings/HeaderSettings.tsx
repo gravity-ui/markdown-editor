@@ -1,4 +1,4 @@
-import {useMemo, useRef} from 'react';
+import {type CSSProperties, useLayoutEffect, useMemo, useRef, useState} from 'react';
 
 import {Xmark} from '@gravity-ui/icons';
 import {cn} from '@gravity-ui/markdown-editor';
@@ -12,6 +12,7 @@ import {Button, Icon, Popup, type PopupAnchorElement, Text, useUniqId} from '@gr
 import {i18n} from '../../../../../../i18n';
 
 import {DimensionSelect} from './DimensionSelect';
+import {SettingsFields} from './SettingsFields';
 
 import './HeaderSettings.scss';
 
@@ -50,6 +51,30 @@ export function HeaderSettings({
     const titleId = useUniqId();
     const anchorElement = useMemo(() => block && insideTopEdge(block), [block]);
     const heightRef = useRef<HTMLButtonElement>(null);
+    const [availableHeight, setAvailableHeight] = useState<number>();
+
+    useLayoutEffect(() => {
+        if (!block) return undefined;
+        const updateHeight = () => {
+            setAvailableHeight(
+                Math.max(
+                    0,
+                    window.innerHeight - block.getBoundingClientRect().top - 2 * PANEL_INSET,
+                ),
+            );
+        };
+        updateHeight();
+        const observer = new ResizeObserver(updateHeight);
+        observer.observe(block);
+        window.addEventListener('resize', updateHeight);
+        window.addEventListener('scroll', updateHeight, true);
+        return () => {
+            observer.disconnect();
+            window.removeEventListener('resize', updateHeight);
+            window.removeEventListener('scroll', updateHeight, true);
+        };
+    }, [block]);
+
     return (
         <Popup
             open
@@ -72,6 +97,12 @@ export function HeaderSettings({
         >
             <section
                 className={b()}
+                style={
+                    {
+                        '--g-md-header-settings-available-height':
+                            availableHeight === undefined ? undefined : `${availableHeight}px`,
+                    } as CSSProperties
+                }
                 role="dialog"
                 aria-labelledby={titleId}
                 data-qa="header-settings"
@@ -107,6 +138,7 @@ export function HeaderSettings({
                     }
                     onUpdate={(value) => onChange('width', value)}
                 />
+                <SettingsFields />
             </section>
         </Popup>
     );

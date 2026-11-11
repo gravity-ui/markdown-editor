@@ -33,6 +33,36 @@ export class HeaderBlock {
         return this.page.getByRole('option', {name, exact: true});
     }
 
+    toggle(name: string) {
+        return this.settings.getByRole('switch', {name, exact: true});
+    }
+
+    async clickToggle(name: string) {
+        await this.settings.getByText(name, {exact: true}).click();
+    }
+
+    section(name: string) {
+        return this.settings.getByRole('button', {name, exact: true});
+    }
+
+    alignment(direction: string, value: string) {
+        return this.settings
+            .getByRole('radiogroup', {name: direction, exact: true})
+            .getByRole('radio', {name: value, exact: true});
+    }
+
+    get background() {
+        return this.settings.getByRole('button', {name: 'Background', exact: true});
+    }
+
+    async scrollSettingsToTop() {
+        await this.settings.evaluate((element) => element.scrollTo(0, 0));
+    }
+
+    async scrollSettingsToBottom() {
+        await this.settings.evaluate((element) => element.scrollTo(0, element.scrollHeight));
+    }
+
     /** The editor opens with the cursor in the first block, which shows its toolbar. */
     async hideToolbar() {
         await this.expect(this.toolbar).toBeVisible();

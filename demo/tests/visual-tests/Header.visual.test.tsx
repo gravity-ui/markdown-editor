@@ -192,6 +192,108 @@ test.describe('Header', () => {
         await expect(header.settings).toBeHidden();
     });
 
+    test('should show all settings sections @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+        expectScreenshot,
+    }) => {
+        await page.setViewportSize({width: 740, height: 980});
+        await mount(<HeaderStories.Header width={660} />);
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await header.openSettings();
+        await expect(header.toggle('Title')).toBeChecked();
+        await expect(header.toggle('Description')).toBeChecked();
+        await expect(header.toggle('Button 1')).toBeChecked();
+        await expect(header.toggle('Button 2')).not.toBeChecked();
+        await expect(header.toggle('Button 3')).not.toBeChecked();
+        await expect(header.toggle('Image')).toBeChecked();
+        await expect(header.alignment('Vertically', 'Top')).toBeChecked();
+        await expect(header.alignment('Horizontally', 'Center')).toBeChecked();
+        await expectScreenshot({component: header.settings});
+        await header.scrollSettingsToBottom();
+        await expectScreenshot({component: header.settings, nameSuffix: 'background'});
+    });
+
+    test('should keep demonstration settings local and reset them on reopening @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+        expectScreenshot,
+    }) => {
+        await page.setViewportSize({width: 740, height: 980});
+        await mount(<HeaderStories.Header width={660} />);
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await header.openSettings();
+        const initial = await page.evaluate(() => window.mdEditor?.getValue());
+        const messages: string[] = [];
+        page.on('console', (message) => {
+            if (message.type() === 'log') messages.push(message.text());
+        });
+
+        for (const name of ['Title', 'Description', 'Button 1', 'Button 2', 'Button 3', 'Image']) {
+            const toggle = header.toggle(name);
+            const checked = await toggle.isChecked();
+            await header.clickToggle(name);
+            await expect(toggle).toBeChecked({checked: !checked});
+            expect(messages).toContain(`${name} toggle clicked`);
+        }
+        await header.alignment('Vertically', 'Bottom').click();
+        await header.alignment('Vertically', 'Bottom').click();
+        await header.alignment('Horizontally', 'Right').click();
+        await expect(header.alignment('Vertically', 'Bottom')).toBeChecked();
+        await expect(header.alignment('Horizontally', 'Right')).toBeChecked();
+        expect(
+            messages.filter((message) => message === 'Align bottom button clicked'),
+        ).toHaveLength(2);
+        expect(messages).toContain('Align right button clicked');
+
+        await header.background.click();
+        expect(messages).toContain('Background button clicked');
+        await expect(page.getByRole('dialog')).toHaveCount(1);
+        expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(initial);
+
+        await header.section('Text').click();
+        await expect(header.toggle('Title')).toBeHidden();
+        await expect(header.section('Text')).toHaveAttribute('aria-expanded', 'false');
+        await header.section('Text').press('Enter');
+        await expect(header.toggle('Title')).not.toBeChecked();
+        await expect(header.alignment('Vertically', 'Bottom')).toBeChecked();
+        expect(messages).toContain('Text section button clicked');
+
+        await header.select(header.height, 'M');
+        await expect(header.blocks).toHaveClass(/g-md-header-plugin_height_m/);
+        await expect(header.toggle('Title')).not.toBeChecked();
+        await header.toggle('Title').press('Space');
+        await expect(header.toggle('Title')).toBeChecked();
+        await header.section('Buttons').click();
+        await header.section('Image and background').click();
+        expect(messages).toContain('Buttons section button clicked');
+        expect(messages).toContain('Image and background section button clicked');
+        await header.scrollSettingsToTop();
+        await expectScreenshot({component: header.settings, nameSuffix: 'collapsed'});
+
+        await header.closeButton.click();
+        await header.openSettings();
+        await expect(header.toggle('Description')).toBeChecked();
+        await expect(header.toggle('Button 1')).toBeChecked();
+        await expect(header.toggle('Button 2')).not.toBeChecked();
+        await expect(header.toggle('Button 3')).not.toBeChecked();
+        await expect(header.toggle('Image')).toBeChecked();
+        await expect(header.alignment('Vertically', 'Top')).toBeChecked();
+        await expect(header.alignment('Horizontally', 'Center')).toBeChecked();
+        await expect(header.section('Buttons')).toHaveAttribute('aria-expanded', 'true');
+        await expect(header.section('Image and background')).toHaveAttribute(
+            'aria-expanded',
+            'true',
+        );
+        await expect(header.height).toHaveText('M');
+    });
+
     test('should select the settings text with the mouse @wysiwyg', async ({
         mount,
         page,
@@ -316,11 +418,24 @@ test.describe('Header on mobile', () => {
         if (!bounds) throw new Error('Settings must have bounds');
         expect(bounds.x).toBeGreaterThanOrEqual(0);
         expect(bounds.x + bounds.width).toBeLessThanOrEqual(page.viewportSize()?.width ?? 0);
+        expect(bounds.y).toBeGreaterThanOrEqual(0);
+        expect(bounds.y + bounds.height).toBeLessThanOrEqual(page.viewportSize()?.height ?? 0);
         expect(
             await header.settings.evaluate((element) => element.scrollWidth <= element.clientWidth),
         ).toBe(true);
         await header.select(header.width, 'Full width');
         await expect(header.blocks).toHaveClass(/g-md-header-plugin_width_full/);
         await expectScreenshot({component: editor.locators.component});
+        await header.background.scrollIntoViewIfNeeded();
+        await expect(header.background).toBeInViewport();
+        await page.setViewportSize({width: 375, height: 480});
+        await expect
+            .poll(async () => {
+                const settings = await header.settings.boundingBox();
+                return settings ? settings.y + settings.height : Infinity;
+            })
+            .toBeLessThanOrEqual(480);
+        await header.background.scrollIntoViewIfNeeded();
+        await expect(header.background).toBeInViewport();
     });
 });

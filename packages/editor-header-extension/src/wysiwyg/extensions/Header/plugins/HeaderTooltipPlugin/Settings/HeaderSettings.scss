@@ -1,4 +1,5 @@
 $panel-width: 320px;
+$panel-height: 720px;
 $label-width: 120px;
 $viewport-inset: var(--g-spacing-4);
 
@@ -9,9 +10,7 @@ $viewport-inset: var(--g-spacing-4);
 
     // `.g-popup` sets a larger shadow with the same specificity.
     &.g-popup {
-        box-shadow:
-            0 0 0 1px var(--g-color-line-generic),
-            0 1px 5px var(--g-color-sfx-shadow);
+        box-shadow: 0 1px 5px var(--g-color-sfx-shadow);
     }
 }
 
@@ -23,8 +22,28 @@ $viewport-inset: var(--g-spacing-4);
 
     box-sizing: border-box;
     width: min($panel-width, calc(100vw - 2 * #{$viewport-inset}));
-    max-height: calc(100dvh - 2 * #{$viewport-inset});
+    max-height: min(
+        $panel-height,
+        var(--g-md-header-settings-available-height, calc(100dvh - 2 * #{$viewport-inset}))
+    );
     padding: var(--g-spacing-4);
+
+    border: 1px solid var(--g-color-line-generic);
+
+    > * {
+        flex-shrink: 0;
+    }
+
+    &__section,
+    &__fields {
+        display: flex;
+        flex-direction: column;
+        gap: var(--g-spacing-4);
+    }
+
+    &__fields[hidden] {
+        display: none;
+    }
 
     &__title {
         display: flex;
@@ -45,8 +64,15 @@ $viewport-inset: var(--g-spacing-4);
         grid-template-columns: minmax(0, $label-width) minmax(0, 1fr);
         gap: var(--g-spacing-2);
 
+        min-height: var(--g-spacing-7);
+
         > * {
             min-width: 0;
         }
+    }
+
+    &__background {
+        --g-button-padding: 6px;
+        justify-content: flex-start;
     }
 }
