@@ -2,7 +2,7 @@ import {directiveParser, registerContainerDirective} from '@diplodoc/directive';
 import type {PluginSimple} from 'markdown-it';
 
 import {buttonAttrs} from './attrs';
-import {buttonTokenName, normalizeButtonHref, normalizeButtonStyle} from './model';
+import {buttonTokenName, normalizeButtonHref} from './model';
 
 export const buttonPlugin: PluginSimple = (md) => {
     md.use(directiveParser());
@@ -18,10 +18,7 @@ export const buttonPlugin: PluginSimple = (md) => {
             true,
         );
         token.attrs = Object.entries(
-            buttonAttrs({
-                ...normalizeButtonStyle(attrs),
-                href: normalizeButtonHref(md, attrs.href),
-            }),
+            buttonAttrs({...attrs, href: normalizeButtonHref(md, attrs.href)}),
         );
         return true;
     });

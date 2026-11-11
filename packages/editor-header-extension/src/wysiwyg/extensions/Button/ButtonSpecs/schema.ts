@@ -1,14 +1,17 @@
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {
-    type ButtonModel,
     buttonAttrs,
     buttonClassName,
     buttonDefaults,
     buttonFromAttrs,
 } from '@gravity-ui/markdown-plugin-header';
 
+import {i18n} from '../../../../i18n';
+
 import {buttonNodeName} from './const';
+
 export const ButtonSchemaSpecs: ExtensionAuto = (builder) => {
+    const placeholder = builder.context.get('placeholder')?.[buttonNodeName];
     builder.addNodeSpec(buttonNodeName, () => ({
         group: 'block',
         atom: true,
@@ -21,6 +24,7 @@ export const ButtonSchemaSpecs: ExtensionAuto = (builder) => {
             target: {default: buttonDefaults.target},
             content: {default: ''},
         },
+        placeholder: {content: placeholder ?? (() => i18n('button-placeholder'))},
         parseDOM: [
             {
                 tag: `a.${buttonClassName}`,
@@ -31,6 +35,6 @@ export const ButtonSchemaSpecs: ExtensionAuto = (builder) => {
                 }),
             },
         ],
-        toDOM: (node) => ['a', buttonAttrs(node.attrs as ButtonModel), node.attrs.content],
+        toDOM: (node) => ['a', buttonAttrs(node.attrs), node.attrs.content],
     }));
 };

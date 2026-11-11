@@ -107,6 +107,7 @@ $button-styles: (
     font-size: var(--g-text-body-1-font-size, 14px);
     line-height: var(--g-text-body-1-line-height, 18px);
     vertical-align: top;
+    white-space: normal;
     text-decoration: none;
 
     border-radius: var(--g-border-radius-l, 12px);
