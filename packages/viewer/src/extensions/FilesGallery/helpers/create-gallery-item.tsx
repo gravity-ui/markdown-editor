@@ -35,7 +35,7 @@ export function createGalleryItem(
     const downloadUrl = options.getDownloadUrl?.(source);
     if (downloadUrl) actions.push(getGalleryItemDownloadAction({downloadUrl}));
 
-    const result = {...item, actions};
+    const result = {...item, actions: actions.length ? actions : undefined};
     return options.transformItem ? options.transformItem(result, source) : result;
 }
 

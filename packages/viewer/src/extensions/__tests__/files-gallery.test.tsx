@@ -1,7 +1,7 @@
 import {type ReactNode, StrictMode} from 'react';
 
 import {GalleryProvider} from '@gravity-ui/components';
-import {ThemeProvider} from '@gravity-ui/uikit';
+import {MobileProvider, ThemeProvider} from '@gravity-ui/uikit';
 import {createPortal} from 'react-dom';
 import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
@@ -240,6 +240,27 @@ describe('FilesGallery', () => {
         await act(async () => copy.click());
 
         expect(onLinkCopied).not.toHaveBeenCalled();
+    });
+
+    it('should keep the mobile header without text for an item without actions', async () => {
+        await act(async () => {
+            root.render(
+                <ThemeProvider lang="en">
+                    <MobileProvider mobile>
+                        <GalleryProvider>
+                            <MarkdownViewer html='<img src="/image.png" alt="Image">'>
+                                <FilesGallery />
+                            </MarkdownViewer>
+                        </GalleryProvider>
+                    </MobileProvider>
+                </ThemeProvider>,
+            );
+        });
+        await click('img');
+
+        const header = document.querySelector('[role="dialog"] .gc-gallery-header-mobile__header');
+        assert(header);
+        expect(header.textContent).toBe('');
     });
 
     it('should keep an open snapshot and read new HTML on the next opening', async () => {
