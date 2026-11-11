@@ -1,7 +1,8 @@
 import {type ReactNode, StrictMode, Suspense, startTransition, useState} from 'react';
 
+import {createPortal} from 'react-dom';
 import {type Root, createRoot} from 'react-dom/client';
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {act} from '../../tests/utils/act';
 import {MarkdownViewer, type ViewerEffect, useViewerEffect} from '../index';
@@ -59,6 +60,43 @@ describe('MarkdownViewer lifecycle', () => {
         expect(events.slice(0, 2).sort()).toEqual(['abort one', 'abort two']);
         expect(events.slice(2, 4).sort()).toEqual(['cleanup one A', 'cleanup two A']);
         expect(events.slice(4).sort()).toEqual(['setup one B', 'setup two B']);
+    });
+
+    it('should remove a signal-bound listener from a viewer in an iframe', () => {
+        const iframe = document.body.appendChild(document.createElement('iframe'));
+        try {
+            const frameBody = iframe.contentDocument?.body;
+            assert(frameBody);
+            const onClick = vi.fn();
+            const setup: ViewerEffect = ({root: content, signal}) => {
+                content.addEventListener('click', onClick, {signal});
+            };
+
+            const renderInFrame = (extension?: ReactNode) =>
+                act(() =>
+                    root.render(
+                        createPortal(
+                            <MarkdownViewer html="<button>Click</button>">
+                                {extension}
+                            </MarkdownViewer>,
+                            frameBody,
+                        ),
+                    ),
+                );
+
+            renderInFrame(<Effect setup={setup} />);
+            const button = frameBody.querySelector('button');
+            assert(button);
+            button.click();
+            expect(onClick).toHaveBeenCalledTimes(1);
+
+            renderInFrame();
+            button.click();
+            expect(onClick).toHaveBeenCalledTimes(1);
+        } finally {
+            act(() => root.render(null));
+            iframe.remove();
+        }
     });
 
     it('should restart only the changed dependency and preserve HTML nodes', () => {
