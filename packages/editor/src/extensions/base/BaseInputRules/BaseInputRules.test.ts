@@ -30,12 +30,13 @@ describe('BaseInputRules', () => {
         });
         const view = new EditorView(document.createElement('div'), {state});
         const from = view.state.selection.from;
+        const deflt = () => view.state.tr.insertText('...', from, from);
         let handled = false;
         view.someProp('handleTextInput', (f) => {
-            handled = f(view, from, from, '...') || false;
+            handled = f(view, from, from, '...', deflt) || false;
         });
         if (!handled) {
-            view.dispatch(view.state.tr.insertText('...', from, from));
+            view.dispatch(deflt());
         }
         expect(view.state.doc).toMatchNode(doc(p('…')));
         view.destroy();
@@ -51,12 +52,13 @@ describe('BaseInputRules', () => {
         });
         const view = new EditorView(document.createElement('div'), {state});
         const from = view.state.selection.from;
+        const deflt = () => view.state.tr.insertText('...', from, from);
         let handled = false;
         view.someProp('handleTextInput', (f) => {
-            handled = f(view, from, from, '...') || false;
+            handled = f(view, from, from, '...', deflt) || false;
         });
         if (!handled) {
-            view.dispatch(view.state.tr.insertText('...', from, from));
+            view.dispatch(deflt());
         }
         expect(view.state.doc).toMatchNode(doc(p(c('foo...'))));
         view.destroy();
