@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-viewer",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "React viewer for prepared HTML with composable extensions",
   "license": "MIT",
   "repository": {
