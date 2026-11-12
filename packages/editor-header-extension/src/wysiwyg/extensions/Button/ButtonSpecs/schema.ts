@@ -9,6 +9,7 @@ import {
 import {i18n} from '../../../../i18n';
 
 import {buttonNodeName} from './const';
+import {buttonLabel} from './utils';
 
 export const ButtonSchemaSpecs: ExtensionAuto = (builder) => {
     const placeholder = builder.context.get('placeholder')?.[buttonNodeName];
@@ -35,6 +36,7 @@ export const ButtonSchemaSpecs: ExtensionAuto = (builder) => {
                 }),
             },
         ],
+        leafText: (node) => buttonLabel(node).trim(),
         toDOM: (node) => ['a', buttonAttrs(node.attrs), node.attrs.content],
     }));
 };
