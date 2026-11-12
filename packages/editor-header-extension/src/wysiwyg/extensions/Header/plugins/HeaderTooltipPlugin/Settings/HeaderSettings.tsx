@@ -2,7 +2,6 @@ import {useMemo, useRef} from 'react';
 
 import {limitShift, shift, size} from '@floating-ui/react';
 import {Xmark} from '@gravity-ui/icons';
-import {cn} from '@gravity-ui/markdown-editor';
 import {
     type HeaderDimensions,
     headerHeights,
@@ -13,11 +12,10 @@ import {Button, Icon, Popup, type PopupAnchorElement, Text, useUniqId} from '@gr
 import {i18n} from '../../../../../../i18n';
 
 import {DimensionSelect} from './DimensionSelect';
+import {cnHeaderSettings} from './HeaderSettings.classname';
 import {SettingsFields} from './SettingsFields';
 
 import './HeaderSettings.scss';
-
-const b = cn('header-settings');
 
 const PANEL_INSET = 16;
 // The title and both dimension selects stay visible.
@@ -86,17 +84,17 @@ export function HeaderSettings({
             }}
         >
             <section
-                className={b()}
+                className={cnHeaderSettings()}
                 role="dialog"
                 aria-labelledby={titleId}
                 data-qa="header-settings"
             >
-                <div className={b('title')}>
+                <div className={cnHeaderSettings('title')}>
                     <Text variant="subheader-3" id={titleId}>
                         {i18n('title')}
                     </Text>
                     <Button
-                        className={b('close')}
+                        className={cnHeaderSettings('close')}
                         view="flat"
                         size="l"
                         aria-label={i18n('close')}

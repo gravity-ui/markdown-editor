@@ -1,9 +1,8 @@
 import type {Ref} from 'react';
 
-import {cn} from '@gravity-ui/markdown-editor';
 import {Select, Text, useUniqId} from '@gravity-ui/uikit';
 
-const b = cn('header-settings');
+import {cnHeaderSettings} from './HeaderSettings.classname';
 
 type DimensionSelectProps<T extends string> = {
     label: string;
@@ -24,7 +23,7 @@ export function DimensionSelect<T extends string>({
 }: DimensionSelectProps<T>) {
     const labelId = useUniqId();
     return (
-        <div className={b('row')}>
+        <div className={cnHeaderSettings('row')}>
             <Text variant="body-1" id={labelId}>
                 {label}
             </Text>

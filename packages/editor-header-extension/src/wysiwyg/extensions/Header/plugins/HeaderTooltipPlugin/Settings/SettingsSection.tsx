@@ -1,12 +1,10 @@
 import {type ReactNode, useState} from 'react';
 
 import {ChevronDown, ChevronUp} from '@gravity-ui/icons';
-import {cn} from '@gravity-ui/markdown-editor';
-import {Button, Divider, Icon, Text, useUniqId} from '@gravity-ui/uikit';
+import {Button, Icon, Text, useUniqId} from '@gravity-ui/uikit';
 
+import {cnHeaderSettings} from './HeaderSettings.classname';
 import {logClick} from './utils';
-
-const b = cn('header-settings');
 
 export function SettingsSection({
     title,
@@ -20,9 +18,8 @@ export function SettingsSection({
     const [expanded, setExpanded] = useState(true);
     const contentId = useUniqId();
     return (
-        <>
-            <Divider />
-            <div className={b('title')}>
+        <div className={cnHeaderSettings('section')}>
+            <div className={cnHeaderSettings('title')}>
                 <Text variant="subheader-2">{title}</Text>
                 <Button
                     view="flat-secondary"
@@ -38,9 +35,9 @@ export function SettingsSection({
                     <Icon data={expanded ? ChevronUp : ChevronDown} size={16} />
                 </Button>
             </div>
-            <div className={b('fields', {hidden: !expanded})} id={contentId}>
+            <div className={cnHeaderSettings('fields', {hidden: !expanded})} id={contentId}>
                 {children}
             </div>
-        </>
+        </div>
     );
 }

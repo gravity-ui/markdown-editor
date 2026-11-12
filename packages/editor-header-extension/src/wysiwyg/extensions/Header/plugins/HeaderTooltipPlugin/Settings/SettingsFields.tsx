@@ -7,23 +7,22 @@ import {
     ObjectsAlignTop,
     SquareMinus,
 } from '@gravity-ui/icons';
-import {cn} from '@gravity-ui/markdown-editor';
-import {Button, Icon, Text, useUniqId} from '@gravity-ui/uikit';
+import {Button, Divider, Icon, Text, useUniqId} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
 
 import {AlignmentSelect} from './AlignmentSelect';
+import {cnHeaderSettings} from './HeaderSettings.classname';
 import {SettingsSection} from './SettingsSection';
 import {SettingsSwitch} from './SettingsSwitch';
 import {logClick} from './utils';
-
-const b = cn('header-settings');
 
 export function SettingsFields() {
     const backgroundLabelId = useUniqId();
     const backgroundValueId = useUniqId();
     return (
         <>
+            <Divider />
             <SettingsSection title={i18n('text')} action="Text">
                 <SettingsSwitch label={i18n('heading')} action="Title" defaultChecked />
                 <SettingsSwitch label={i18n('description')} action="Description" defaultChecked />
@@ -77,19 +76,21 @@ export function SettingsFields() {
                     ]}
                 />
             </SettingsSection>
+            <Divider />
             <SettingsSection title={i18n('buttons')} action="Buttons">
                 <SettingsSwitch label={i18n('button-1')} action="Button 1" defaultChecked />
                 <SettingsSwitch label={i18n('button-2')} action="Button 2" />
                 <SettingsSwitch label={i18n('button-3')} action="Button 3" />
             </SettingsSection>
+            <Divider />
             <SettingsSection title={i18n('image-and-background')} action="Image and background">
                 <SettingsSwitch label={i18n('image')} action="Image" defaultChecked />
-                <div className={b('row')}>
+                <div className={cnHeaderSettings('row')}>
                     <Text variant="body-1" id={backgroundLabelId}>
                         {i18n('background')}
                     </Text>
                     <Button
-                        className={b('background')}
+                        className={cnHeaderSettings('background')}
                         view="outlined"
                         size="m"
                         width="max"

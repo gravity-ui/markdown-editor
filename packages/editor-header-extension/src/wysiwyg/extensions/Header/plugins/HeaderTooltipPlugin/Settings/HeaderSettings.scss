@@ -18,6 +18,7 @@ $viewport-inset: var(--g-spacing-4);
         flex-shrink: 0;
     }
 
+    &__section,
     &__fields {
         display: flex;
         flex-direction: column;

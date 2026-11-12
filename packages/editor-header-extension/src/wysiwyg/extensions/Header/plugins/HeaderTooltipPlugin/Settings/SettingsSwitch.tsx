@@ -1,11 +1,9 @@
 import {useState} from 'react';
 
-import {cn} from '@gravity-ui/markdown-editor';
 import {Switch, Text, useUniqId} from '@gravity-ui/uikit';
 
+import {cnHeaderSettings} from './HeaderSettings.classname';
 import {logClick} from './utils';
-
-const b = cn('header-settings');
 
 export function SettingsSwitch({
     label,
@@ -19,7 +17,7 @@ export function SettingsSwitch({
     const [checked, setChecked] = useState(defaultChecked);
     const controlId = useUniqId();
     return (
-        <div className={b('row')}>
+        <div className={cnHeaderSettings('row')}>
             <Text as="label" variant="body-1" htmlFor={controlId}>
                 {label}
             </Text>

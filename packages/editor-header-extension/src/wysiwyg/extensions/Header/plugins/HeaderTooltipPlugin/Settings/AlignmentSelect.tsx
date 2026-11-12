@@ -1,11 +1,9 @@
 import {useState} from 'react';
 
-import {cn} from '@gravity-ui/markdown-editor';
 import {Icon, type IconData, SegmentedRadioGroup, Text, useUniqId} from '@gravity-ui/uikit';
 
+import {cnHeaderSettings} from './HeaderSettings.classname';
 import {logClick} from './utils';
-
-const b = cn('header-settings');
 
 export function AlignmentSelect({
     label,
@@ -19,7 +17,7 @@ export function AlignmentSelect({
     const [value, setValue] = useState(defaultValue);
     const labelId = useUniqId();
     return (
-        <div className={b('row')}>
+        <div className={cnHeaderSettings('row')}>
             <Text variant="body-1" id={labelId}>
                 {label}
             </Text>
