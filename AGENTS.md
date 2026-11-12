@@ -131,6 +131,12 @@ Exports in `package.json`:
 - A new package declares `react` and `react-dom` peers as `^18.0.0 || ^19.0.0`.
 - A third-party package used only by the demo goes to `devDependencies` of `demo/package.json`.
 
+## Imports
+
+- ProseMirror and CodeMirror modules come from `@gravity-ui/markdown-editor/pm/*` and `@gravity-ui/markdown-editor/cm/*`.
+- An editor module outside the public API is imported from `@gravity-ui/markdown-editor/_/…`, not copied.
+- Inside `packages/editor/src`, imports between top-level folders use the `src/` alias.
+
 ## Documentation
 
 Project docs live in `docs/`. Read the relevant file before working on the corresponding area:
