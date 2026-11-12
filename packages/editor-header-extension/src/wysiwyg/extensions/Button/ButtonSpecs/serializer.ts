@@ -2,6 +2,7 @@ import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {buttonDefaultColor, buttonDefaults} from '@gravity-ui/markdown-plugin-header';
 
 import {buttonNodeName} from './const';
+import {buttonLabel} from './utils';
 
 export const ButtonSerializerSpecs: ExtensionAuto = (builder) => {
     builder.addNodeSerializerSpec(buttonNodeName, () => (state, node) => {
@@ -9,17 +10,17 @@ export const ButtonSerializerSpecs: ExtensionAuto = (builder) => {
         const attrs = (['href', 'view', 'color', 'target'] as const)
             .filter((name) => node.attrs[name] !== defaults[name])
             .map((name) => {
-                const value = String(node.attrs[name]).replace(/([\\"])/g, '\\$1');
+                // The parser decodes entities, so an `&` that starts one is escaped.
+                const value = String(node.attrs[name]).replace(
+                    /[\\"]|&(?=[a-z#][a-z0-9]{1,31};)/gi,
+                    '\\$&',
+                );
                 return `${name}="${value}"`;
             })
             .join(' ');
-        const placeholder = node.type.spec.placeholder?.content;
-        const content: string = node.attrs.content.trim()
-            ? node.attrs.content
-            : ((typeof placeholder === 'function' ? placeholder(node) : placeholder) ?? '');
+        const label = buttonLabel(node);
         state.write(`:::button${attrs ? `{${attrs}}` : ''}\n`);
-        state.text(content.replace(/\n$/, ''), false);
-        state.ensureNewLine();
+        state.text(label.endsWith('\n') ? label : `${label}\n`, false);
         state.write(':::');
         state.closeBlock(node);
     });

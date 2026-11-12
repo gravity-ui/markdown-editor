@@ -1,12 +1,13 @@
-import {getPlaceholderContent} from '@gravity-ui/markdown-editor';
 import {DOMSerializer, type Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {NodeView} from '@gravity-ui/markdown-editor/pm/view';
+
+import {buttonLabel} from '../ButtonSpecs/utils';
 
 export class WButtonNodeView implements NodeView {
     readonly dom: HTMLElement;
     constructor(node: Node) {
         this.dom = DOMSerializer.fromSchema(node.type.schema).serializeNode(node) as HTMLElement;
-        if (!node.attrs.content.trim()) this.dom.textContent = getPlaceholderContent(node) ?? '';
+        this.dom.textContent = buttonLabel(node);
         this.dom.addEventListener('click', (event) => event.preventDefault());
     }
 }

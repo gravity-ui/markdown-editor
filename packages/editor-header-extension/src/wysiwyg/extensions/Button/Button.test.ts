@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import {ExtensionsManager} from '@gravity-ui/markdown-editor/core';
+import {Clipboard} from '@gravity-ui/markdown-editor/extensions';
 import {history, redo, undo} from '@gravity-ui/markdown-editor/pm/history';
 import {DOMParser, DOMSerializer, type Node} from '@gravity-ui/markdown-editor/pm/model';
 import {EditorState, NodeSelection} from '@gravity-ui/markdown-editor/pm/state';
@@ -76,6 +77,8 @@ describe('Button extension', () => {
         '> :::button\n> Label\n> :::',
         '> :::button\n> Label\n>\n> :::',
         '- :::button\n  Label\n  :::',
+        ':::button\nLabel\n\n\n:::',
+        ':::button{href="/search?q=&amp;copy;"}\nOpen\n:::',
     ])('should preserve button content across mode switches in %j', (source) => {
         const doc = markupParser.parse(source);
         const serialized = serializer.serialize(doc);
@@ -116,6 +119,41 @@ describe('Button extension', () => {
             const container = document.createElement('div');
             container.append(DOMSerializer.fromSchema(deps.schema).serializeFragment(doc.content));
             expect(container.textContent?.trim()).toBe('');
+        } finally {
+            view.destroy();
+        }
+    });
+    it('should keep an entity in the address as text', () => {
+        const doc = markupParser.parse(':::button{href="/search?q=&amp;copy;"}\nOpen\n:::');
+        expect(doc.firstChild?.attrs.href).toBe('/search?q=&copy;');
+        expect(serializer.serialize(doc)).toBe(':::button{href="/search?q=\\&copy;"}\nOpen\n:::');
+    });
+    it.each([
+        [':::button{href="/page"}\nRead more\n:::', 'Read more'],
+        [':::button\n:::', 'Button'],
+    ])('should copy the label of %j as plain text', (source, text) => {
+        const deps = new ExtensionsManager({
+            extensions: (builder) =>
+                builder.use(BaseSchemaSpecs, {}).use(Clipboard, {}).use(ButtonSpecs),
+        }).build();
+        const doc = deps.markupParser.parse(source);
+        const view = new EditorView(document.createElement('div'), {
+            state: EditorState.create({
+                schema: deps.schema,
+                doc,
+                plugins: deps.plugins,
+                selection: NodeSelection.create(doc, 0),
+            }),
+        });
+        try {
+            const data = new Map<string, string>();
+            const clipboardData = {
+                clearData: () => data.clear(),
+                setData: (type: string, value: string) => data.set(type, value),
+            };
+            const event = {clipboardData, preventDefault() {}} as unknown as ClipboardEvent;
+            view.someProp('handleDOMEvents', (handlers) => handlers.copy?.(view, event));
+            expect(data.get('text/plain')).toBe(text);
         } finally {
             view.destroy();
         }
