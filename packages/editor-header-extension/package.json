@@ -76,6 +76,7 @@
     "README.md"
   ],
   "dependencies": {
+    "@floating-ui/react": "^0.27.16",
     "@gravity-ui/icons": "^2.12.0",
     "@gravity-ui/markdown-plugin-header": "workspace:^*",
     "tslib": "catalog:ts"

@@ -10,8 +10,24 @@ $viewport-inset: var(--g-spacing-4);
 
     box-sizing: border-box;
     width: min($panel-width, calc(100vw - 2 * #{$viewport-inset}));
-    max-height: calc(100dvh - 2 * #{$viewport-inset});
+    max-height: var(--g-md-header-settings-max-height);
     padding: var(--g-spacing-4);
+
+    // A scrolling flex column shrinks the 1 px divider to zero.
+    > * {
+        flex-shrink: 0;
+    }
+
+    &__section,
+    &__fields {
+        display: flex;
+        flex-direction: column;
+        gap: var(--g-spacing-4);
+
+        &_hidden {
+            display: none;
+        }
+    }
 
     &__title {
         display: flex;
@@ -32,8 +48,15 @@ $viewport-inset: var(--g-spacing-4);
         grid-template-columns: minmax(0, $label-width) minmax(0, 1fr);
         gap: var(--g-spacing-2);
 
+        min-height: var(--g-spacing-7);
+
         > * {
             min-width: 0;
         }
+    }
+
+    &__background {
+        --g-button-padding: var(--g-spacing-2);
+        justify-content: flex-start;
     }
 }

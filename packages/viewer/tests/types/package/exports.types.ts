@@ -20,3 +20,5 @@ expectTypeOf<BuiltExtensions.FilesGalleryItemType>().toEqualTypeOf<SourceExtensi
 expectTypeOf<BuiltExtensions.FilesGalleryProps>().toEqualTypeOf<SourceExtensions.FilesGalleryProps>();
 expectTypeOf<BuiltExtensions.FilesGallerySource>().toEqualTypeOf<SourceExtensions.FilesGallerySource>();
 expectTypeOf<BuiltExtensions.YfmCodeBlockActionsProps>().toEqualTypeOf<SourceExtensions.YfmCodeBlockActionsProps>();
+expectTypeOf<BuiltExtensions.HeadingEditButtonsProps>().toEqualTypeOf<SourceExtensions.HeadingEditButtonsProps>();
+expectTypeOf<BuiltExtensions.HeadingEditTarget>().toEqualTypeOf<SourceExtensions.HeadingEditTarget>();

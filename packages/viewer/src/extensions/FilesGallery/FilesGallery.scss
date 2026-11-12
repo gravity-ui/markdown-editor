@@ -1,10 +1,12 @@
+@use '../../variables' as v;
+
 // Fallback for browsers without @scope.
 
-.g-md-files-gallery > .g-md-viewer__content img:not([data-markdown-viewer-slot] *) {
+.#{v.$ns}files-gallery > .#{v.$ns}viewer__content img:not([data-markdown-viewer-slot] *) {
     cursor: pointer;
 }
 
-@scope (.g-md-files-gallery > .g-md-viewer__content) to ([data-markdown-viewer-slot]) {
+@scope (.#{v.$ns}files-gallery > .#{v.$ns}viewer__content) to ([data-markdown-viewer-slot]) {
     img {
         cursor: pointer;
     }
