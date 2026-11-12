@@ -40,6 +40,7 @@ import './MarkdownEditorView.scss'; // eslint-disable-line import/order
 const b = cnEditorComponent;
 
 interface EditorWrapperProps extends QAProps, ToolbarConfigs, Omit<ViewProps, 'editor'> {
+    containerRef: React.RefObject<HTMLDivElement>;
     editor: EditorInt;
     editorMode: MarkdownEditorMode;
     isFocused: boolean;
@@ -47,6 +48,7 @@ interface EditorWrapperProps extends QAProps, ToolbarConfigs, Omit<ViewProps, 'e
 const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
     (
         {
+            containerRef,
             autofocus,
             editor,
             editorMode,
@@ -65,6 +67,16 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
         ref,
     ) => {
         const showPreview = editor.previewVisible;
+        const settingsButtonRef = useRef<HTMLButtonElement>(null);
+        const restoreSettingsFocusRef = useRef(false);
+
+        useLayoutEffect(() => {
+            if (restoreSettingsFocusRef.current) {
+                restoreSettingsFocusRef.current = false;
+                settingsButtonRef.current?.focus();
+            }
+        }, [editor.toolbarVisible]);
+
         const contextualConfig = useMemo(
             () => getContextualToolbarsConfig(toolbarsPreset),
             [toolbarsPreset],
@@ -126,6 +138,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
         );
         const onToolbarVisibilityChange = useCallback(
             (visible: boolean) => {
+                restoreSettingsFocusRef.current = visible !== editor.toolbarVisible;
                 editor.changeToolbarVisibility({visible});
             },
             [editor],
@@ -144,6 +157,34 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
         );
         const canRenderPreview = Boolean(
             editor.renderPreview && editorMode === 'markup' && !editor.splitModeEnabled,
+        );
+
+        useKey(
+            (event) =>
+                event.key === 'F10' &&
+                event.altKey &&
+                !event.ctrlKey &&
+                !event.metaKey &&
+                !event.shiftKey &&
+                !event.defaultPrevented &&
+                (event.target ===
+                    (editorMode === 'markup'
+                        ? editor.markupEditor.cm.contentDOM
+                        : editor.wysiwygEditor.dom) ||
+                    (showPreview && event.target === containerRef.current) ||
+                    isPreviewContentTarget(event.target, containerRef.current)),
+            (event) => {
+                const toolbarButton = containerRef.current?.querySelector<HTMLButtonElement>(
+                    '[role="toolbar"][aria-keyshortcuts="Alt+F10"] button:not(:disabled)[tabindex="0"]',
+                );
+                const button = toolbarButton ?? settingsButtonRef.current;
+                if (button) {
+                    event.preventDefault();
+                    button.focus();
+                }
+            },
+            {event: 'keydown'},
+            [containerRef, editor, editorMode, showPreview],
         );
 
         useKey(
@@ -170,6 +211,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
         );
 
         const settingsProps = {
+            settingsButtonRef,
             mode: editorMode,
             onModeChange,
             onShowPreviewChange,
@@ -199,7 +241,12 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             >
                 {showPreview ? (
                     <>
-                        <div className={b('preview-wrapper')}>
+                        <Settings
+                            key="preview"
+                            {...settingsProps}
+                            settingsVisible={settingsVisibleProp}
+                        />
+                        <div className={b('preview-wrapper')} data-editor-preview="">
                             {editor.renderPreview?.({
                                 getValue: editor.getValue,
                                 mode: 'preview',
@@ -207,10 +254,15 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 directiveSyntax: editor.directiveSyntax,
                             })}
                         </div>
-                        <Settings {...settingsProps} settingsVisible={settingsVisibleProp} />
                     </>
                 ) : (
                     <>
+                        <Settings
+                            key="editor"
+                            {...settingsProps}
+                            settingsVisible={!editor.toolbarVisible && settingsVisibleProp}
+                            renderPreviewButton={!editor.toolbarVisible && canRenderPreview}
+                        />
                         {editorMode === 'wysiwyg' && (
                             <WysiwygEditorView
                                 editor={editor}
@@ -251,11 +303,6 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 />
                             </MarkupEditorView>
                         )}
-                        <Settings
-                            {...settingsProps}
-                            settingsVisible={!editor.toolbarVisible && settingsVisibleProp}
-                            renderPreviewButton={!editor.toolbarVisible && canRenderPreview}
-                        />
                     </>
                 )}
             </div>
@@ -372,9 +419,10 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         [className],
                     )}
                     role="button"
-                    tabIndex={0}
+                    tabIndex={-1}
                 >
                     <EditorWrapper
+                        containerRef={divRef}
                         autofocus={autofocus}
                         editor={editor}
                         editorMode={editorMode}
@@ -443,6 +491,18 @@ function Settings(props: EditorSettingsProps & {stickyToolbar: boolean}) {
             )}
         </>
     );
+}
+
+function isPreviewContentTarget(target: EventTarget | null, container: HTMLDivElement | null) {
+    if (
+        !container ||
+        !(target instanceof Element) ||
+        target.closest(`.${b()}`) !== container ||
+        !target.closest('[data-editor-preview]')
+    )
+        return false;
+    const popup = target.closest('[data-floating-ui-placement], [role="dialog"]');
+    return !popup || !container.contains(popup);
 }
 
 function isPreviewKeyDown(e: KeyboardEvent) {

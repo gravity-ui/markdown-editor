@@ -7,6 +7,7 @@ import {typedMemo} from 'src/react-utils/memo';
 import {EventEmitter} from 'src/utils';
 
 import type {ClassNameProps} from '../classname';
+import {i18n as i18nBundle} from '../i18n/bundle';
 import {i18n} from '../i18n/menubar';
 import {useSticky} from '../react-utils/useSticky';
 import {
@@ -17,6 +18,7 @@ import {
     type ToolbarItemData,
     ToolbarProvider,
 } from '../toolbar';
+import {useToolbarNavigation} from '../toolbar/useToolbarNavigation';
 
 import type {EditorInt} from './Editor';
 import {stickyCn} from './sticky';
@@ -53,6 +55,7 @@ export function ToolbarView<T>({
     qa,
 }: ToolbarViewProps<T>) {
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const toolbarNavigation = useToolbarNavigation(wrapperRef);
     const isStickyActive = useSticky(wrapperRef) && stickyToolbar;
 
     const mobile = editor.mobile;
@@ -90,6 +93,10 @@ export function ToolbarView<T>({
         <div
             data-qa={qa}
             ref={wrapperRef}
+            role="toolbar"
+            aria-label={i18nBundle('settings_menubar')}
+            aria-keyshortcuts="Alt+F10"
+            {...toolbarNavigation}
             className={stickyCn.toolbar(
                 {
                     withSettings: settingsVisible,

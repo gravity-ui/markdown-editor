@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import {memo, useState} from 'react';
+import {memo, useCallback, useRef, useState} from 'react';
 
 import {Eye, Gear, LogoMarkdown} from '@gravity-ui/icons';
 import {
@@ -17,6 +17,7 @@ import {
     type QAProps,
     Text,
     sp,
+    useForkRef,
 } from '@gravity-ui/uikit';
 
 import {LAYOUT} from 'src/common/layout';
@@ -28,6 +29,7 @@ import {noop} from '../../lodash';
 import {useTargetZIndex} from '../../react-utils';
 import {useBooleanState} from '../../react-utils/hooks';
 import {ToolbarTooltipDelay} from '../../toolbar';
+import {useToolbarNavigation} from '../../toolbar/useToolbarNavigation';
 import {VERSION} from '../../version';
 import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
 
@@ -41,22 +43,46 @@ const bSettings = cn('editor-settings');
 const bContent = cn('settings-content');
 
 export type EditorSettingsProps = Omit<SettingsContentProps, 'onClose' | 'zIndex'> & {
+    settingsButtonRef?: React.Ref<HTMLButtonElement>;
     renderPreviewButton?: boolean;
     settingsVisible?: boolean | SettingItems[];
 };
 
 export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(props) {
-    const {className, onShowPreviewChange, showPreview, renderPreviewButton, settingsVisible} =
-        props;
+    const {
+        className,
+        onShowPreviewChange,
+        showPreview,
+        renderPreviewButton,
+        settingsVisible,
+        settingsButtonRef,
+    } = props;
     const [chevronElement, setChevronElement] = useState<HTMLButtonElement | null>(null);
+    const toolbarRef = useRef<HTMLDivElement>(null);
+    const standalone = !props.toolbarVisibility;
+    const toolbarNavigation = useToolbarNavigation(toolbarRef, standalone);
+    const buttonRef = useForkRef(setChevronElement, settingsButtonRef);
     const [popupShown, , hidePopup, togglePopup] = useBooleanState(false);
     const zIndex = useTargetZIndex(LAYOUT.STICKY_TOOLBAR);
+    const settingsLabel = i18n('settings_label');
+    // This UIKit version does not forward Popup's aria-label to the floating dialog.
+    const setPopupElement = useCallback(
+        (element: HTMLDivElement | null) => element?.setAttribute('aria-label', settingsLabel),
+        [settingsLabel],
+    );
 
     const areSettingsVisible =
         settingsVisible === true || (Array.isArray(settingsVisible) && settingsVisible.length > 0);
 
     return (
-        <div className={bSettings(null, className)}>
+        <div
+            ref={toolbarRef}
+            className={bSettings(null, className)}
+            role={standalone ? 'toolbar' : undefined}
+            aria-label={standalone ? settingsLabel : undefined}
+            aria-keyshortcuts={standalone ? 'Alt+F10' : undefined}
+            {...toolbarNavigation}
+        >
             {renderPreviewButton && (
                 <>
                     <ActionTooltip
@@ -88,28 +114,35 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
                         view="flat"
                         pin="round-round"
                         onClick={togglePopup}
-                        ref={setChevronElement}
+                        ref={buttonRef}
                         qa="g-md-settings-button"
                         className={bSettings('dropdown-button')}
-                        aria-label={i18n('settings_label')}
+                        aria-label={settingsLabel}
+                        aria-haspopup="dialog"
+                        aria-expanded={popupShown}
                     >
                         <Icon data={Gear} />
                     </Button>
-                    <Popup
-                        open={popupShown}
-                        anchorElement={chevronElement}
-                        placement={placement}
-                        onOpenChange={hidePopup}
-                        zIndex={zIndex}
-                    >
-                        <SettingsContent
-                            {...props}
-                            qa="g-md-settings-content"
-                            onClose={hidePopup}
-                            className={bSettings('content')}
+                    {popupShown && (
+                        <Popup
+                            open
+                            anchorElement={chevronElement}
+                            placement={placement}
+                            onOpenChange={hidePopup}
                             zIndex={zIndex}
-                        />
-                    </Popup>
+                            modal
+                            initialFocus={0}
+                            floatingRef={setPopupElement}
+                        >
+                            <SettingsContent
+                                {...props}
+                                qa="g-md-settings-content"
+                                onClose={hidePopup}
+                                className={bSettings('content')}
+                                zIndex={zIndex}
+                            />
+                        </Popup>
+                    )}
                 </>
             )}
         </div>
