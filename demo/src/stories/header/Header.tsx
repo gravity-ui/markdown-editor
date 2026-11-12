@@ -7,7 +7,11 @@ import {
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
 import {ActionName as Action, ToolbarName, full} from '@gravity-ui/markdown-editor/toolbars';
-import {Header, toolbarHeaderItem} from '@gravity-ui/markdown-editor-header-extension';
+import {
+    Header,
+    type HeaderOptions,
+    toolbarHeaderItem,
+} from '@gravity-ui/markdown-editor-header-extension';
 
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
@@ -18,6 +22,12 @@ const mainToolbar = [
     [Action.link],
     ['header'],
 ];
+
+const headerOptions = {
+    fileUploadHandler: async () => ({url: '/assets/test-image.jpg'}),
+    imageTypes: ['image/jpeg', 'image/gif', 'image/png'],
+    maxImageSize: 2 * 1024 * 1024,
+} satisfies HeaderOptions;
 
 const toolbars = {
     items: {
@@ -48,7 +58,7 @@ export function HeaderExample({
     );
     const editor = useMarkdownEditor({
         initial: {markup: initial, mode, toolbarVisible: true},
-        wysiwygConfig: {extensions: (builder) => builder.use(Header)},
+        wysiwygConfig: {extensions: (builder) => builder.use(Header, headerOptions)},
         markupConfig: {renderPreview},
     });
     return (

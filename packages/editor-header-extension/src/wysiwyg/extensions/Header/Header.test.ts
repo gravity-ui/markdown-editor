@@ -27,13 +27,25 @@ import {
     ListsSpecs,
     boldMarkName,
 } from '@gravity-ui/markdown-editor/specs';
-import {type HeaderDimensions, headerDefaults} from '@gravity-ui/markdown-plugin-header';
+import {
+    type HeaderDimensions,
+    headerBackgroundDefaults,
+    headerDefaults,
+} from '@gravity-ui/markdown-plugin-header';
 import {afterEach, describe, expect, it} from 'vitest';
 
 import {insertHeader as insertHeaderMarkup} from '../../../markup/commands/insertHeader';
 
 import {HeaderSpecs, headerNodeName} from './HeaderSpecs';
-import {copyHeader, insertHeader, removeHeader, setHeaderDimension} from './commands';
+import {
+    copyHeader,
+    insertHeader,
+    removeHeader,
+    setHeaderBackground,
+    setHeaderDimension,
+} from './commands';
+import {uploadHint} from './plugins/HeaderTooltipPlugin/Settings/utils';
+import {imageFileError, uploadHeaderImage} from './plugins/HeaderUploadPlugin';
 
 import {Header} from '.';
 
@@ -78,7 +90,7 @@ function createNodeView(markup: string) {
             builder
                 .use(BaseSchemaSpecs, {})
                 .use(ReactRendererExtension, new ReactRenderStorage())
-                .use(Header),
+                .use(Header, {}),
     }).build();
     view = new EditorView(document.createElement('div'), {
         state: EditorState.create({
@@ -99,7 +111,7 @@ describe('Header extension', () => {
     ])('should round trip %j', ({height, width}) => {
         const source = `:::header{height="${height}" width="${width}"}\n\n:::`;
         const doc = markupParser.parse(source);
-        expect(doc.firstChild?.attrs).toEqual({height, width});
+        expect(doc.firstChild?.attrs).toEqual({height, width, ...headerBackgroundDefaults});
         expect(serializer.serialize(doc)).toBe(source);
         const container = document.createElement('div');
         container.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
@@ -120,8 +132,9 @@ describe('Header extension', () => {
     });
 
     it('should use the same defaults in the schema and parser', () => {
-        expect(schema.nodes.header.create().attrs).toEqual(headerDefaults);
-        expect(markupParser.parse(':::header\n:::').firstChild?.attrs).toEqual(headerDefaults);
+        const defaults = {...headerDefaults, ...headerBackgroundDefaults};
+        expect(schema.nodes.header.create().attrs).toEqual(defaults);
+        expect(markupParser.parse(':::header\n:::').firstChild?.attrs).toEqual(defaults);
     });
 
     it('should insert the same dimensions in both editor modes', () => {
@@ -186,7 +199,11 @@ describe('Header extension', () => {
             '</div>';
         const doc = DOMParser.fromSchema(schema).parse(container);
         expect(doc.firstChild?.type.name).toBe('header');
-        expect(doc.firstChild?.attrs).toEqual({height: 'l', width: 'full'});
+        expect(doc.firstChild?.attrs).toEqual({
+            height: 'l',
+            width: 'full',
+            ...headerBackgroundDefaults,
+        });
     });
 
     it('should copy and remove a header', () => {
@@ -315,5 +332,194 @@ describe('Header extension', () => {
         expect(paragraph).not.toBeNull();
         paragraph?.replaceChildren(document.createTextNode('After'));
         await expect.poll(() => editor.state.doc.firstChild?.textContent).toBe('After');
+    });
+
+    it('should round trip background attributes with an escaped address', () => {
+        const source =
+            ':::header{height="s" width="m" bg-color="blue-light" bg-image="./.files/a \\"b\\" \\\\.jpg" bg-image-theme="dark" bg-image-blur="true"}\n\n:::';
+        const doc = markupParser.parse(source);
+        expect(doc.firstChild?.attrs).toEqual({
+            height: 's',
+            width: 'm',
+            'bg-color': 'blue-light',
+            'bg-image': './.files/a "b" \\.jpg',
+            'bg-image-theme': 'dark',
+            'bg-image-blur': true,
+        });
+        expect(serializer.serialize(doc)).toBe(source);
+        const container = document.createElement('div');
+        container.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
+        expect(DOMParser.fromSchema(schema).parse(container).toJSON()).toEqual(doc.toJSON());
+    });
+
+    it.each([
+        ':::header{bg-image-theme="system" bg-image-blur="false"}\n:::',
+        ':::header{bg-color="blue" bg-image-theme="sepia"}\n:::',
+        ':::header{bg-image-theme="dark" bg-image-blur="true"}\n:::',
+        `:::header{bg-image="${['javascript', 'alert(1)'].join(':')}"}\n:::`,
+        ':::header{bg-image="data:text/html,<b>"}\n:::',
+    ])('should not write default or unsupported background values from %j', (markup) => {
+        const doc = markupParser.parse(markup);
+        expect(doc.firstChild?.attrs).toEqual({...headerDefaults, ...headerBackgroundDefaults});
+        expect(serializer.serialize(doc)).toBe(':::header{height="s" width="m"}\n\n:::');
+    });
+
+    it('should change background attributes in one undo step', () => {
+        const editor = createView(':::header\nText\n:::');
+        const background = {
+            'bg-color': 'red-heavy',
+            'bg-image': '/a.png',
+            'bg-image-blur': true,
+        } as const;
+        expect(run(editor, setHeaderBackground(0, background))).toBe(true);
+        expect(serializer.serialize(editor.state.doc)).toBe(
+            ':::header{height="s" width="m" bg-color="red-heavy" bg-image="/a.png" bg-image-blur="true"}\n\nText\n\n:::',
+        );
+        expect(run(editor, setHeaderBackground(0, headerBackgroundDefaults))).toBe(true);
+        expect(serializer.serialize(editor.state.doc)).toBe(
+            ':::header{height="s" width="m"}\n\nText\n\n:::',
+        );
+        expect(undo(editor.state, editor.dispatch)).toBe(true);
+        expect(editor.state.doc.firstChild?.attrs['bg-color']).toBe('red-heavy');
+        expect(undo(editor.state, editor.dispatch)).toBe(true);
+        expect(editor.state.doc.firstChild?.attrs).toEqual({
+            ...headerDefaults,
+            ...headerBackgroundDefaults,
+        });
+        expect(run(editor, setHeaderBackground(2, {'bg-color': 'red-heavy'}))).toBe(false);
+    });
+
+    it('should reset the theme and the blur with the image', () => {
+        const editor = createView(
+            ':::header{bg-image="/a.png" bg-image-theme="dark" bg-image-blur="true"}\n:::',
+        );
+        expect(run(editor, setHeaderBackground(0, {'bg-image': null}))).toBe(true);
+        expect(serializer.serialize(editor.state.doc)).toBe(
+            ':::header{height="s" width="m"}\n\n:::',
+        );
+    });
+
+    it('should replace the image with a color in one undo step', () => {
+        const source =
+            ':::header{height="s" width="m" bg-image="/a.png" bg-image-theme="dark" bg-image-blur="true"}\n\n:::';
+        const editor = createView(source);
+        const color = {...headerBackgroundDefaults, 'bg-color': 'blue-light'} as const;
+        expect(run(editor, setHeaderBackground(0, color))).toBe(true);
+        expect(serializer.serialize(editor.state.doc)).toBe(
+            ':::header{height="s" width="m" bg-color="blue-light"}\n\n:::',
+        );
+        expect(undo(editor.state, editor.dispatch)).toBe(true);
+        expect(serializer.serialize(editor.state.doc)).toBe(source);
+    });
+
+    it('should render background attributes in the node view and remove them', () => {
+        const editor = createNodeView(
+            ':::header{bg-color="green-light" bg-image="/a.png" bg-image-theme="dark" bg-image-blur="true"}\n:::',
+        );
+        const dom = editor.nodeDOM(0) as HTMLElement;
+        expect(Array.from(dom.classList)).toEqual(
+            expect.arrayContaining([
+                'g-md-header-plugin_bg-color_green-light',
+                'g-md-header-plugin_bg-image',
+                'g-md-header-plugin_bg-image-blur',
+                'g-root',
+                'g-root_theme_dark',
+            ]),
+        );
+        expect(dom.getAttribute('data-bg-image')).toBe('/a.png');
+        expect(dom.getAttribute('style')).toBe('background-image:url("/a.png")');
+        expect(run(editor, setHeaderBackground(0, headerBackgroundDefaults))).toBe(true);
+        expect(dom.className).toBe(
+            'g-md-header-nodeview g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m',
+        );
+        expect(dom.hasAttribute('style')).toBe(false);
+        expect(dom.getAttributeNames().filter((name) => name.startsWith('data-bg-'))).toEqual([]);
+    });
+
+    describe('background upload', () => {
+        const file = new File(['image'], 'a.png', {type: 'image/png'});
+
+        function deferred() {
+            let resolve!: (result: {url: string}) => void;
+            const promise = new Promise<{url: string}>((done) => {
+                resolve = done;
+            });
+            return {handler: () => promise, resolve};
+        }
+
+        it('should write the address into the banner moved during the upload', async () => {
+            const editor = createNodeView(':::header\n:::');
+            const {handler, resolve} = deferred();
+            const upload = uploadHeaderImage(editor, 0, file, handler);
+            editor.dispatch(
+                editor.state.tr.insert(0, editor.state.schema.nodes.paragraph.create()),
+            );
+            resolve({url: '/a.png'});
+            await expect(upload).resolves.toBe(true);
+            expect(editor.state.doc.child(1).attrs['bg-image']).toBe('/a.png');
+        });
+
+        it('should discard the address when the banner is removed', async () => {
+            const editor = createNodeView(':::header\n:::\n\nAfter');
+            const {handler, resolve} = deferred();
+            const upload = uploadHeaderImage(editor, 0, file, handler);
+            editor.dispatch(editor.state.tr.delete(0, editor.state.doc.child(0).nodeSize));
+            const doc = editor.state.doc;
+            resolve({url: '/a.png'});
+            await expect(upload).resolves.toBe(false);
+            expect(editor.state.doc).toBe(doc);
+        });
+
+        it('should discard the address of an older upload into the same banner', async () => {
+            const editor = createNodeView(':::header\n:::');
+            const first = deferred();
+            const second = deferred();
+            const firstUpload = uploadHeaderImage(editor, 0, file, first.handler);
+            const secondUpload = uploadHeaderImage(editor, 0, file, second.handler);
+            first.resolve({url: '/first.png'});
+            await expect(firstUpload).resolves.toBe(false);
+            expect(editor.state.doc.child(0).attrs['bg-image']).toBeNull();
+            second.resolve({url: '/second.png'});
+            await expect(secondUpload).resolves.toBe(true);
+            expect(editor.state.doc.child(0).attrs['bg-image']).toBe('/second.png');
+        });
+
+        it('should reject an unsafe uploaded address', async () => {
+            const editor = createNodeView(':::header\n:::');
+            const {handler, resolve} = deferred();
+            const upload = uploadHeaderImage(editor, 0, file, handler);
+            resolve({url: 'blob:https://example.com/0f8c'});
+            await expect(upload).rejects.toThrow();
+            expect(editor.state.doc.child(0).attrs['bg-image']).toBeNull();
+        });
+
+        const png = new File(['image'], 'a.png', {type: 'image/png'});
+        const svg = new File(['image'], 'a.svg', {type: 'image/svg+xml'});
+        const text = new File(['text'], 'a.txt', {type: 'text/plain'});
+
+        it.each([
+            [png, {}, null],
+            [svg, {}, null],
+            [text, {}, 'type'],
+            [svg, {imageTypes: ['image/jpeg', 'image/png']}, 'type'],
+            [png, {imageTypes: ['image/jpeg', 'image/png']}, null],
+            [png, {maxImageSize: 5}, null],
+            [png, {maxImageSize: 4}, 'size'],
+        ])('should check %o against %o', (image, limits, error) => {
+            expect(imageFileError(image, limits)).toBe(error);
+        });
+
+        it.each([
+            [{}, null],
+            [{maxImageSize: 2 * 1024 * 1024}, 'Up to 2 MB'],
+            [{imageTypes: ['image/png']}, 'PNG'],
+            [
+                {imageTypes: ['image/jpeg', 'image/gif', 'image/png'], maxImageSize: 1536 * 1024},
+                'JPEG, GIF or PNG, up to 1.5 MB',
+            ],
+            [{imageTypes: ['image/svg+xml', 'image/webp']}, 'SVG or WEBP'],
+        ])('should build the upload hint from %o', (limits, hint) => {
+            expect(uploadHint(limits)).toBe(hint);
+        });
     });
 });
