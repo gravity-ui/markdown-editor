@@ -125,6 +125,12 @@ Exports in `package.json`:
 | `./wysiwyg/core` | WYSIWYG core, root editor package only |
 | `./pm/*`, `./cm/*` | ProseMirror and CodeMirror re-exports, root editor package only |
 
+## Dependencies
+
+- A package that published code imports at runtime goes to `dependencies`. The editor, UIKit and React are peers.
+- A new package declares `react` and `react-dom` peers as `^18.0.0 || ^19.0.0`.
+- A third-party package used only by the demo goes to `devDependencies` of `demo/package.json`.
+
 ## Documentation
 
 Project docs live in `docs/`. Read the relevant file before working on the corresponding area:
