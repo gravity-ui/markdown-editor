@@ -16,31 +16,32 @@ export const Button: StoryObj<typeof HeaderExample> = {
 
 export const InHeader: StoryObj<typeof HeaderExample> = {
     args: {
-        mode: 'markup',
         initial:
-            ':::button{href="https://example.com" view="action" color="blue"}\nRead more\n:::\n\n:::header{height="s" width="m"}\n\n# Welcome\n\n:::button{href="/help" view="outline" color="green"}\nHelp\n:::\n\n:::',
+            ':::header{height="s" width="m"}\n\n# Welcome\n\n:::button{href="/help" view="outline" color="green"}\nHelp\n:::\n\n:::',
     },
 };
 
-const buttonColors = {
-    action: ['standard', 'blue', 'green', 'yellow', 'red', 'violet'],
-    normal: ['gray', 'blue', 'green', 'yellow', 'red', 'violet'],
-    outline: ['gray', 'blue', 'green', 'yellow', 'red', 'violet'],
-    flat: ['standard', 'gray', 'blue', 'green', 'yellow', 'red', 'violet'],
-};
+// The order of the design: `standard` and `gray` first, then one row per color.
+const buttonRows = [
+    [
+        ['action', 'standard'],
+        ['flat', 'standard'],
+    ],
+    [
+        ['normal', 'gray'],
+        ['outline', 'gray'],
+        ['flat', 'gray'],
+    ],
+    ...['blue', 'green', 'yellow', 'red', 'violet'].map((color) =>
+        ['action', 'normal', 'outline', 'flat'].map((view) => [view, color]),
+    ),
+];
 
 export const Colors: StoryObj<typeof HeaderExample> = {
     args: {
-        width: 760,
-        initial: Object.entries(buttonColors)
-            .map(([view, colors]) =>
-                [
-                    view,
-                    ...colors.map(
-                        (color) => `:::button{view="${view}" color="${color}"}\n${color}\n:::`,
-                    ),
-                ].join('\n\n'),
-            )
+        initial: buttonRows
+            .flat()
+            .map(([view, color]) => `:::button{view="${view}" color="${color}"}\nButton\n:::`)
             .join('\n\n'),
     },
 };
