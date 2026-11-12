@@ -1,6 +1,7 @@
 import type {StoryObj} from '@storybook/react';
 
 import {MarkdownViewerDemo} from './MarkdownViewerDemo';
+import {RevealYfmElementDemo} from './RevealYfmElementDemo';
 import {
     codeBlockDocuments,
     galleryDocuments,
@@ -27,6 +28,11 @@ export const FilesGallery: StoryObj<typeof MarkdownViewerDemo> = {
 export const HeadingLinks: StoryObj<typeof MarkdownViewerDemo> = {
     name: 'Heading links',
     args: {documents: headingDocuments, showFeedbackToggle: false},
+};
+
+export const RevealElement: StoryObj<typeof RevealYfmElementDemo> = {
+    name: 'Reveal element',
+    render: () => <RevealYfmElementDemo />,
 };
 
 export const Latex: StoryObj<typeof MarkdownViewerDemo> = {

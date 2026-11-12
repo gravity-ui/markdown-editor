@@ -1,4 +1,5 @@
 export {YfmCodeBlockActions, type YfmCodeBlockActionsProps} from './extensions/YfmCodeBlockActions';
+export {RevealYfmElement, type RevealYfmElementProps} from './extensions/RevealYfmElement';
 export {
     HeadingAnchors,
     type HeadingAnchorsProps,

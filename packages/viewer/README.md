@@ -268,6 +268,47 @@ The extensions entry point also exports `HeadingEditButtonsProps` and `HeadingEd
 | `label`                   | Accessible button label. Defaults to localized “Edit”.                                                         |
 | `selector`                | CSS selector for target headings. Defaults to `h1`–`h6` with `data-line`.                                      |
 
+### Reveal a YFM element
+
+Add `RevealYfmElement` to open native `details`, YFM tabs, and folding heading sections around a target:
+
+```tsx
+import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
+import {RevealYfmElement} from '@gravity-ui/markdown-viewer/extensions';
+
+<MarkdownViewer html={html}>
+  <RevealYfmElement
+    key={navigationKey}
+    id={anchorId}
+    onReveal={(element) => element.scrollIntoView({block: 'start'})}
+  />
+</MarkdownViewer>;
+```
+
+Pass exactly one of `id` (literal ID), `selector` (first match), or `element` (DOM element). `null` cancels the request. Searches are scoped to this viewer.
+
+- `onReveal(element)` runs synchronously once per processed request, including already visible targets.
+- HTML updates retry missing targets but do not repeat completed requests. Callback changes do not trigger processing.
+- Change the target or React `key` to start a new request. Use `id` or `selector` to resolve targets in replacement HTML.
+
+Tabs require the application's Diplodoc tabs runtime, which may switch linked groups outside the viewer. Scrolling and focus remain under application and runtime control. Editable WYSIWYG content is unsupported.
+
+<details>
+<summary>Reveal without a viewer</summary>
+
+```ts
+import {revealYfmElement} from '@gravity-ui/markdown-viewer';
+
+const target = revealYfmElement({id: 'installation'}, {root: pageContainer});
+target?.scrollIntoView({block: 'start'});
+```
+
+`revealYfmElement` accepts an `Element`, `{id: string}`, `{selector: string}`, or `null`. Optional `root` bounds lookup and ancestor traversal, including itself. Without it, lookup uses `document`; a supplied element uses its own ancestors.
+
+Returns the processed element or `null` for missing or excluded targets. Both APIs exclude viewer slots, their descendants, and targets outside the root. Processing does not wait for runtimes or animations and does not guarantee visibility.
+
+</details>
+
 ### Add an extension
 
 Add a child component with `useViewerEffect` to work with the HTML root. This example tracks clicks and removes its listener during cleanup:

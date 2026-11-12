@@ -23,6 +23,10 @@ const result = reactDomServer.renderToString(
             viewer.MarkdownViewer,
             {html},
             react.createElement(extensions.YfmCodeBlockActions, {lineWrappingButton: true}),
+            react.createElement(extensions.RevealYfmElement, {
+                id: 'heading',
+                onReveal: () => assert.fail('Reveal callbacks must not run on the server'),
+            }),
             react.createElement(extensions.HeadingAnchors, {
                 getHref: () => assert.fail('Heading callbacks must not run on the server'),
             }),
