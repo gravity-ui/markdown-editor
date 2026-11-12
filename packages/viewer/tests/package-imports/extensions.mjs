@@ -39,8 +39,10 @@ test('should publish extension styles', async () => {
     const css = await readFile(require.resolve('@gravity-ui/markdown-viewer/styles.css'), 'utf8');
     assert.match(css, /white-space: pre-wrap/);
     assert.match(css, /\.yfm-clipboard-button/);
-    assert.match(css, /\.g-md-files-gallery/);
+    assert.match(css, /\.g-md-v-files-gallery(?![\w-])/);
     assert.match(css, /cursor: pointer/);
+    assert.match(css, /\.g-md-v-heading-anchor(?![\w-])/);
+    assert.match(css, /\.g-md-v-heading-edit__slot(?![\w-])/);
 });
 
 test('should remove unused extensions and their dependencies from JavaScript', async (t) => {
@@ -67,7 +69,7 @@ test('should remove unused extensions and their dependencies from JavaScript', a
             if (bytesInOutput === 0) continue;
             assert.doesNotMatch(
                 input,
-                /\/(?:FilesGallery|YfmCodeBlockActions|@gravity-ui\/components)\//,
+                /\/(?:FilesGallery|YfmCodeBlockActions|HeadingAnchors|HeadingEditButtons|@gravity-ui\/components)\//,
             );
         }
     }
