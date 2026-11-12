@@ -79,40 +79,82 @@ function touchesOwnContent(node: Node, start: number, from: number, to: number):
     return false;
 }
 
-/** Adjacent selected items: `start` is inside the first one, `end` is right after the last one. */
-type Run = {start: number; end: number};
+/**
+ * The items of a list up to `to`, the item that holds it included, or to the end of the list.
+ * They start with the item that holds `from`, or with the item after `from` when it stands
+ * between items.
+ */
+function getItems(doc: Node, from: number, to?: number): NodeRange {
+    const $from = doc.resolve(from);
+    const depth = $from.depth - (isListNode($from.parent) ? 0 : 1);
+    return new NodeRange($from, doc.resolve(to ?? $from.end(depth)), depth);
+}
+
+/** The blocks of the items fit in place of their list or after the items that stay in it. */
+function canLeaveList({$from, parent, depth, startIndex, endIndex}: NodeRange): boolean {
+    const blocks: Node[] = [];
+    for (let i = startIndex; i < endIndex; i++)
+        parent.child(i).forEach((node) => blocks.push(node));
+    // the items after the lifted ones make a list of their own
+    if (endIndex < parent.childCount) blocks.push(parent);
+
+    const container = $from.node(depth - 1);
+    const index = $from.index(depth - 1);
+    return container.canReplace(index + (startIndex ? 1 : 0), index + 1, Fragment.from(blocks));
+}
+
+const isNested = ({$from, parent, depth, startIndex}: NodeRange) =>
+    $from.node(depth - 1).type === parent.child(startIndex).type;
+
+/** The depth the items are lifted to, `null` when they stay in place. */
+function getLiftTarget(range: NodeRange): number | null {
+    if (isNested(range)) return liftTarget(range);
+    return canLeaveList(range) ? range.depth - 1 : null;
+}
+
+/** Adjacent selected items: `start` is inside the first one, `last` is inside the last one. */
+type Run = {start: number; last: number};
 
 /**
- * `runs` go in document order: an item nested in a selected item moves with it. For each list
- * nested in the last item of `runs`, `after` has a position inside its first item after
- * the selection end.
+ * `runs` go in document order. An item nested in a selected item moves with it when sinking and
+ * makes a run of its own when lifting. When sinking, for each list nested in the last item of
+ * `runs`, `after` has a position inside its first item after the selection end.
  */
 function findSelectedItems(doc: Node, selection: Selection, itemType: NodeType, sink: boolean) {
     const {from, to} = getSelectedRange(selection);
     const runs: Run[] = [];
     const after: number[] = [];
-    let last = -1;
+    let lastPos = -1;
     let end = -1;
+    let stuck = false;
 
     doc.nodesBetween(from, to, (node, pos, _parent, index) => {
+        if (stuck) return false;
         if (node.type !== itemType) return !node.isTextblock;
+        if (!touchesOwnContent(node, pos + 1, from, to)) return true;
         // the first item of a list has no item to sink into
-        if ((sink && index === 0) || !touchesOwnContent(node, pos + 1, from, to)) return true;
+        if (sink && index === 0) {
+            stuck = true;
+            return false;
+        }
 
-        // a position inside an item points into the same item after any step of these commands
-        const itemEnd = pos + node.nodeSize;
-        if (pos === end) runs[runs.length - 1].end = itemEnd;
-        else runs.push({start: pos + 1, end: itemEnd});
-        last = pos;
-        end = itemEnd;
-        return false;
+        // a position before the own content of an item points into the item with this content
+        // after any step of these commands
+        let start = pos + 1;
+        for (let i = 0; isListNode(node.child(i)); i++) start += node.child(i).nodeSize;
+        if (pos === end) runs[runs.length - 1].last = start;
+        else runs.push({start, last: start});
+        lastPos = pos;
+        end = pos + node.nodeSize;
+        return !sink;
     });
-    if (to >= end) return {runs, after};
+    if (stuck) return {runs: [], after};
+    if (!sink || to >= end) return {runs, after};
 
     let prev = -1;
     doc.nodesBetween(to, end, (node, pos) => {
         // down to the selection end through the last selected item, its lists and their items
-        if (pos < last || (pos < to && node.type === itemType)) return true;
+        if (pos < lastPos || (pos < to && node.type === itemType)) return true;
         if (node.type !== itemType) return isListNode(node);
 
         if (pos !== prev) after.push(pos + 1);
@@ -120,16 +162,6 @@ function findSelectedItems(doc: Node, selection: Selection, itemType: NodeType, 
         return false;
     });
     return {runs, after};
-}
-
-/**
- * The items of a list up to `to` or to the end of the list. They start with the item that
- * holds `from`, or with the item after `from` when it stands between items.
- */
-function getItems(doc: Node, from: number, to?: number): NodeRange {
-    const $from = doc.resolve(from);
-    const depth = $from.depth - (isListNode($from.parent) ? 0 : 1);
-    return new NodeRange($from, doc.resolve(to ?? $from.end(depth)), depth);
 }
 
 /** `sinkListItem` from `prosemirror-schema-list` for the items from `from` to `to`. */
@@ -146,33 +178,27 @@ function nestItems(tr: Transaction, from: number, to?: number, sink = false) {
     tr.step(new ReplaceAroundStep(start - (nested ? 3 : 1), end, start, end, slice, 1, true));
 }
 
-/** The blocks of the items fit in place of their list or after the items that stay in it. */
-function canLeaveList({$from, parent, depth, startIndex, endIndex}: NodeRange): boolean {
-    const blocks: Node[] = [];
-    for (let i = startIndex; i < endIndex; i++)
-        parent.child(i).forEach((node) => blocks.push(node));
-    // the items after the lifted ones make a list of their own
-    if (endIndex < parent.childCount) blocks.push(parent);
-
-    const container = $from.node(depth - 1);
-    const index = $from.index(depth - 1);
-    return container.canReplace(index + (startIndex ? 1 : 0), index + 1, Fragment.from(blocks));
-}
-
 /**
- * `liftListItem` from `prosemirror-schema-list` for the items from `from` to `to`. The items
- * after `to` become nested in the item before them.
+ * `liftListItem` from `prosemirror-schema-list` for the items from `from` to `to` or to the end
+ * of the list. The items after them become nested in the last one.
  */
 function liftItems(tr: Transaction, from: number, to?: number) {
     const range = getItems(tr.doc, from, to);
-    const {parent, depth, startIndex, endIndex, end} = range;
-    const nested = range.$from.node(depth - 1).type === parent.child(startIndex).type;
-    const target = nested ? liftTarget(range) : depth - 1;
-    if (target === null || (!nested && !canLeaveList(range))) return;
+    const {parent, startIndex, endIndex, end} = range;
+    const target = getLiftTarget(range);
+    if (target === null) {
+        if (endIndex - startIndex === 1) return;
+        // the items that cannot move together move one by one
+        for (let i = endIndex - 1, pos = end; i >= startIndex; i--) {
+            pos -= parent.child(i).nodeSize;
+            liftItems(tr, pos + 1, pos + 1);
+        }
+        return;
+    }
 
     // every step stands after `from`
-    if (to !== undefined) nestItems(tr, to);
-    if (nested) {
+    nestItems(tr, end);
+    if (isNested(range)) {
         tr.lift(getItems(tr.doc, from), target);
         return;
     }
@@ -181,7 +207,8 @@ function liftItems(tr: Transaction, from: number, to?: number) {
         tr.join(pos);
     }
     const $from = tr.doc.resolve(from);
-    tr.lift(new NodeRange($from, tr.doc.resolve($from.end()), $from.depth), target);
+    const $start = tr.doc.resolve($from.start());
+    tr.lift(new NodeRange($start, tr.doc.resolve($from.end()), $from.depth), target);
 }
 
 function moveSelectedListItems(itemType: NodeType, sink: boolean): Command {
@@ -192,15 +219,13 @@ function moveSelectedListItems(itemType: NodeType, sink: boolean): Command {
 
         const map = (pos: number) => tr.mapping.map(pos);
         if (sink) {
-            for (const {start, end} of runs) nestItems(tr, map(start), map(end), sink);
+            for (const {start, last} of runs) nestItems(tr, map(start), map(last), sink);
             // sunk together with the last item of `runs`, the items after the selection
             // return to their level
             for (const pos of after.reverse()) liftItems(tr, map(pos));
         } else {
-            // nested one level deeper, the items after the selection keep their level
-            // when the last item of `runs` is lifted
-            for (const pos of after) nestItems(tr, map(pos));
-            for (const {start, end} of runs.reverse()) liftItems(tr, map(start), map(end));
+            // an item nested in a selected item is lifted before it
+            for (const {start, last} of runs.reverse()) liftItems(tr, map(start), map(last));
         }
         if (!tr.docChanged) return false;
         dispatch(tr.scrollIntoView());
@@ -209,16 +234,14 @@ function moveSelectedListItems(itemType: NodeType, sink: boolean): Command {
 }
 
 /**
- * Moves each selected item one level deeper. An item without a previous sibling stays in place.
- * Unselected nested items keep their level.
+ * Moves each selected item one level deeper. Unselected nested items keep their level. When
+ * a selected item has no previous sibling, no item moves.
  */
-export const sinkSelectedListItems = (itemType: NodeType) => moveSelectedListItems(itemType, true);
+export const sinkOnlySelectedListItem = (itemType: NodeType) =>
+    moveSelectedListItems(itemType, true);
 
 /**
- * Moves each selected item one level up. Items nested in the last selected item move with it.
- * Other unselected items keep their level.
+ * Moves each selected item one level up like `liftListItem` from `prosemirror-schema-list`
+ * called for it, from the last item to the first. An item that cannot move stays in place.
  */
 export const liftSelectedListItems = (itemType: NodeType) => moveSelectedListItems(itemType, false);
-
-/** @deprecated use `sinkSelectedListItems` */
-export const sinkOnlySelectedListItem = sinkSelectedListItems;

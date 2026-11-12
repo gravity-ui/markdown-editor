@@ -1,6 +1,6 @@
 import type {ActionSpec, ExtensionDeps} from '../../../core';
 
-import {liftSelectedListItems, sinkSelectedListItems, toList} from './commands';
+import {liftSelectedListItems, sinkOnlySelectedListItem, toList} from './commands';
 import {ListNode} from './const';
 import {blType, isIntoListOfType, liType, olType} from './utils';
 
@@ -32,8 +32,8 @@ export const actions = {
 
     sinkListItem: ({schema}: ExtensionDeps): ActionSpec => {
         return {
-            isEnable: sinkSelectedListItems(liType(schema)),
-            run: sinkSelectedListItems(liType(schema)),
+            isEnable: sinkOnlySelectedListItem(liType(schema)),
+            run: sinkOnlySelectedListItem(liType(schema)),
         };
     },
 };

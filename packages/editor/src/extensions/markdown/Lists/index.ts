@@ -9,7 +9,7 @@ import {
     joinPrevList,
     liftEmptyListItem,
     liftSelectedListItems,
-    sinkSelectedListItems,
+    sinkOnlySelectedListItem,
     toList,
 } from './commands';
 import {ListAction} from './const';
@@ -35,12 +35,12 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
         if (olKey) bindings[olKey] = withLogAction('orderedList', toList(olType(schema)));
 
         return {
-            Tab: sinkSelectedListItems(liType(schema)),
+            Tab: sinkOnlySelectedListItem(liType(schema)),
             'Shift-Tab': liftSelectedListItems(liType(schema)),
             Backspace: liftEmptyListItem(liType(schema)),
 
             'Mod-[': liftSelectedListItems(liType(schema)),
-            'Mod-]': sinkSelectedListItems(liType(schema)),
+            'Mod-]': sinkOnlySelectedListItem(liType(schema)),
 
             ...bindings,
         };

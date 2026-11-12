@@ -14,7 +14,10 @@ import {describe, expect, it} from 'vitest';
 import {ExtensionsManager} from 'src/core';
 import {BaseNode, BaseSchemaSpecs} from 'src/extensions/base/specs';
 import {ListNode, ListsSpecs, liType} from 'src/extensions/markdown/Lists/ListsSpecs';
-import {liftSelectedListItems, sinkSelectedListItems} from 'src/extensions/markdown/Lists/commands';
+import {
+    liftSelectedListItems,
+    sinkOnlySelectedListItem,
+} from 'src/extensions/markdown/Lists/commands';
 import {mergeListsPlugin} from 'src/extensions/markdown/Lists/plugins/MergeListsPlugin';
 
 function selFor(doc: Node) {
@@ -42,10 +45,10 @@ function apply(doc: Node, command: Command, result: Node | null) {
     if (result && (result as any).tag.a != null) ist(state.selection, selFor(result), eq);
 }
 
-const sink = sinkSelectedListItems(schema.nodes.list_item);
+const sink = sinkOnlySelectedListItem(schema.nodes.list_item);
 const lift = liftSelectedListItems(schema.nodes.list_item);
 
-describe('sinkSelectedListItems', () => {
+describe('sinkOnlySelectedListItem', () => {
     it('should sink an item into the item before it', () =>
         apply(
             doc(ul(li(p('one')), li(p('t<a><b>wo')), li(p('three')))),
@@ -283,11 +286,14 @@ describe('sinkSelectedListItems', () => {
             ),
         ));
 
-    it('should leave the first item of a list in place and sink the other selected items', () =>
+    it('should not sink any item when the first item of a list is selected', () =>
+        apply(doc(ul(li(p('o<a>ne')), li(p('two')), li(p('thr<b>ee')))), sink, null));
+
+    it('should not sink any item when the first item of a nested list is selected', () =>
         apply(
-            doc(ul(li(p('o<a>ne')), li(p('two')), li(p('thr<b>ee')))),
+            doc(ul(li(p('one')), li(p('two'), ul(li(p('th<a>ree')))), li(p('fo<b>ur')))),
             sink,
-            doc(ul(li(p('o<a>ne'), ul(li(p('two')), li(p('thr<b>ee')))))),
+            null,
         ));
 
     it('should not sink when no selected item has a previous sibling', () =>
@@ -344,15 +350,18 @@ describe('sinkSelectedListItems', () => {
             doc(ul(li(p('one'), ul(li(p('two<a>')))), li(p('<b>three')))),
         ));
 
-    it('should sink the selected items of each list', () =>
+    it('should not sink any item when the selection covers the first item of another list', () =>
         apply(
             doc(ul(li(p('one')), li(p('t<a>wo'))), p('text'), ul(li(p('three')), li(p('fo<b>ur')))),
             sink,
-            doc(
-                ul(li(p('one'), ul(li(p('two'))))),
-                p('text'),
-                ul(li(p('three'), ul(li(p('four'))))),
-            ),
+            null,
+        ));
+
+    it('should sink the selected items when the selection ends outside of the list', () =>
+        apply(
+            doc(ul(li(p('one')), li(p('t<a>wo'))), p('thr<b>ee')),
+            sink,
+            doc(ul(li(p('one'), ul(li(p('t<a>wo'))))), p('thr<b>ee')),
         ));
 
     it('should sink a selected item node together with its nested items', () =>
@@ -680,11 +689,11 @@ describe('liftSelectedListItems', () => {
             doc(ul(li(p('one'), blockquote(p('two'), ul(li(p('three'))))))),
         ));
 
-    it('should keep the type of the nested lists of the lifted items', () =>
+    it('should move a lifted item to the list of its parent before the parent is lifted', () =>
         apply(
             doc(ul(li(p('one'), ul(li(p('t<a>wo'), ol(li(p('th<b>ree')), li(p('four')))))))),
             lift,
-            doc(ul(li(p('one')), li(p('two'), ol(li(p('three'), ol(li(p('four')))))))),
+            doc(ul(li(p('one')), li(p('two'), ul(li(p('three'), ol(li(p('four')))))))),
         ));
 
     it('should keep the type of the following items that become nested', () =>
@@ -715,11 +724,37 @@ describe('liftSelectedListItems', () => {
             doc(p('one'), ol({order: 5}, li(p('two')))),
         ));
 
-    it('should lift an item as a whole when a paragraph between its nested lists is selected', () =>
+    it('should keep in the list the blocks after a lifted nested item when their item is lifted', () =>
         apply(
             doc(ul(li(p('o<a>ne'), ul(li(p('two'))), p('three'), ul(li(p('fo<b>ur')))))),
             lift,
-            doc(p('one'), ul(li(p('two'))), p('three'), ul(li(p('four')))),
+            doc(p('one'), ul(li(p('two')), li(p('three')), li(p('four')))),
+        ));
+
+    it('should keep the level of the unselected content of an item lifted with its nested item', () =>
+        apply(
+            doc(
+                ol(
+                    li(p('one')),
+                    li(
+                        p('t<a>wo'),
+                        ul(li(p('th<b>ree')), li(p('four'))),
+                        p('five'),
+                        ol(li(p('six')), li(p('seven'))),
+                    ),
+                    li(p('eight')),
+                ),
+            ),
+            lift,
+            doc(
+                ol(li(p('one'))),
+                p('two'),
+                ol(
+                    li(p('three'), ul(li(p('four')))),
+                    li(p('five'), ol(li(p('six')), li(p('seven')))),
+                    li(p('eight')),
+                ),
+            ),
         ));
 
     it('should move the blocks after a nested list to a new item when its item is lifted', () =>
@@ -736,13 +771,83 @@ describe('liftSelectedListItems', () => {
             null,
         ));
 
-    it('should not lift when the blocks of the item do not fit in place of its list', () => {
-        const nodes = schema.spec.nodes.addToEnd('box', {content: 'bullet_list', group: 'block'});
-        const boxed = builders(new Schema({nodes, marks: schema.spec.marks}));
+    const boxed = builders(
+        new Schema({
+            nodes: schema.spec.nodes.addToEnd('box', {content: 'bullet_list', group: 'block'}),
+            marks: schema.spec.marks,
+        }),
+    );
+    const liftBoxed = liftSelectedListItems(boxed.schema.nodes.list_item);
+
+    it('should not lift when the blocks of the item do not fit in place of its list', () =>
         apply(
             boxed.doc(boxed.box(boxed.bullet_list(boxed.list_item(boxed.paragraph('o<a><b>ne'))))),
-            liftSelectedListItems(boxed.schema.nodes.list_item),
+            liftBoxed,
             null,
+        ));
+
+    it('should lift only the nested selected items of an item that cannot be lifted', () => {
+        const {box, bullet_list: list, list_item: item, paragraph} = boxed;
+        apply(
+            boxed.doc(
+                box(
+                    list(
+                        item(
+                            paragraph('o<a>ne'),
+                            list(item(paragraph('t<b>wo')), item(paragraph('three'))),
+                        ),
+                    ),
+                ),
+            ),
+            liftBoxed,
+            boxed.doc(
+                box(
+                    list(
+                        item(paragraph('o<a>ne')),
+                        item(paragraph('t<b>wo'), list(item(paragraph('three')))),
+                    ),
+                ),
+            ),
+        );
+    });
+
+    const boxedWith = (content: string) =>
+        builders(
+            new Schema({
+                nodes: schema.spec.nodes.addToEnd('box', {content, group: 'block'}),
+                marks: schema.spec.marks,
+            }),
+        );
+
+    it('should lift an item that can leave the list once the items after it have left', () => {
+        const b = boxedWith('bullet_list | bullet_list paragraph | paragraph paragraph');
+        apply(
+            b.doc(
+                b.box(
+                    b.bullet_list(
+                        b.list_item(b.paragraph('o<a>ne')),
+                        b.list_item(b.paragraph('t<b>wo')),
+                    ),
+                ),
+            ),
+            liftSelectedListItems(b.schema.nodes.list_item),
+            b.doc(b.box(b.paragraph('one'), b.paragraph('two'))),
+        );
+    });
+
+    it('should lift one by one the items that cannot be lifted together', () => {
+        const b = boxedWith('bullet_list | paragraph bullet_list | bullet_list paragraph');
+        apply(
+            b.doc(
+                b.box(
+                    b.bullet_list(
+                        b.list_item(b.paragraph('o<a>ne')),
+                        b.list_item(b.paragraph('t<b>wo')),
+                    ),
+                ),
+            ),
+            liftSelectedListItems(b.schema.nodes.list_item),
+            b.doc(b.box(b.bullet_list(b.list_item(b.paragraph('one'))), b.paragraph('two'))),
         );
     });
 
@@ -783,7 +888,7 @@ describe('several selected list items', () => {
         ul: {nodeType: ListNode.BulletList},
     });
     const itemType = liType(editorSchema);
-    const sinkAll = sinkSelectedListItems(itemType);
+    const sinkAll = sinkOnlySelectedListItem(itemType);
     const liftAll = liftSelectedListItems(itemType);
     const liftOne = liftListItem(itemType);
 
@@ -799,6 +904,15 @@ describe('several selected list items', () => {
             dispatch?.(tr);
         });
 
+    it('should lift an item that starts with a list after an item of this list', () =>
+        apply(
+            editor.doc(
+                editor.ul(editor.li(editor.ul(editor.li(editor.p('o<a>ne'))), editor.p('t<b>wo'))),
+            ),
+            liftAll,
+            editor.doc(editor.ul(editor.li(editor.p('one'))), editor.p('two')),
+        ));
+
     function createRandom(seed: number) {
         let state = seed;
         return () => {
@@ -807,13 +921,15 @@ describe('several selected list items', () => {
         };
     }
 
-    function createList(random: () => number, texts: string[], depth = 1): Node {
+    // `tails` adds a paragraph after the nested list of an item
+    function createList(random: () => number, texts: string[], tails: boolean, depth = 1): Node {
         const items: Node[] = [];
         for (let count = 1 + Math.floor(random() * 3); count > 0; count--) {
             const text = `item ${texts.length}`;
             texts.push(text);
             const nested =
-                depth < 4 && random() < 0.5 ? [createList(random, texts, depth + 1)] : [];
+                depth < 4 && random() < 0.5 ? [createList(random, texts, tails, depth + 1)] : [];
+            if (tails && nested.length && random() < 0.5) nested.push(editor.p(`${text} tail`));
             items.push(editor.li(editor.p(text), ...nested));
         }
         return editor.ul(...items);
@@ -847,16 +963,16 @@ describe('several selected list items', () => {
     }
 
     it.each([
-        {name: 'sink', command: sinkAll, single: sinkOne, fromTop: true},
-        {name: 'lift', command: liftAll, single: liftOne, fromTop: false},
-    ])('should $name them like one by one', ({command, single, fromTop}) => {
+        {name: 'sink', command: sinkAll, single: sinkOne, fromTop: true, tails: false},
+        {name: 'lift', command: liftAll, single: liftOne, fromTop: false, tails: true},
+    ])('should $name them like one by one', ({command, single, fromTop, tails}) => {
         const random = createRandom(1);
         for (let n = 0; n < 500; n++) {
             const texts: string[] = [];
             const initial = editor.doc(
-                createList(random, texts),
+                createList(random, texts, tails),
                 editor.p('text'),
-                createList(random, texts),
+                createList(random, texts, tails),
             );
             const first = Math.floor(random() * texts.length);
             const last = first + Math.floor(random() * (texts.length - first));
@@ -877,14 +993,22 @@ describe('several selected list items', () => {
                 command,
             );
 
-            const selected = texts.slice(first, last + 1);
+            // the paragraph after a nested list belongs to the item of this list
+            const touched = blocks.slice(firstIndex, lastIndex + 1).map((block) => block.text);
+            const selected = texts.filter(
+                (text) => touched.includes(text) || touched.includes(`${text} tail`),
+            );
             let oneByOne = state;
+            let stuck = false;
             for (const text of fromTop ? selected : selected.reverse()) {
                 const cursor = TextSelection.create(oneByOne.doc, findText(oneByOne.doc, text));
-                oneByOne = run(oneByOne.apply(oneByOne.tr.setSelection(cursor)), single);
+                const moved = oneByOne.apply(oneByOne.tr.setSelection(cursor));
+                oneByOne = run(moved, single);
+                stuck ||= oneByOne.doc === moved.doc;
             }
 
-            ist(all.doc, oneByOne.doc, eq);
+            // Tab moves no item when one of them cannot sink
+            ist(all.doc, command === sinkAll && stuck ? initial : oneByOne.doc, eq);
         }
     });
 
@@ -893,9 +1017,9 @@ describe('several selected list items', () => {
         for (let n = 0; n < 300; n++) {
             const texts: string[] = [];
             const initial = editor.doc(
-                createList(random, texts),
+                createList(random, texts, false),
                 editor.p('text'),
-                createList(random, texts),
+                createList(random, texts, false),
             );
             const first = Math.floor(random() * texts.length);
             const last = first + Math.floor(random() * (texts.length - first));
@@ -913,16 +1037,18 @@ describe('several selected list items', () => {
             for (let key = 0; key < 4; key++) {
                 const fromTop = random() < 0.5;
                 let oneByOne = state;
+                let stuck = false;
                 for (const text of fromTop ? selected : [...selected].reverse()) {
                     const cursor = TextSelection.create(oneByOne.doc, findText(oneByOne.doc, text));
-                    oneByOne = run(
-                        oneByOne.apply(oneByOne.tr.setSelection(cursor)),
-                        fromTop ? sinkOne : liftOne,
-                    );
+                    const moved = oneByOne.apply(oneByOne.tr.setSelection(cursor));
+                    oneByOne = run(moved, fromTop ? sinkOne : liftOne);
+                    // a text lifted out of its list is not an item
+                    stuck ||= oneByOne.doc === moved.doc && cursor.$from.node(-1).type === itemType;
                 }
 
+                const expected = fromTop && stuck ? state.doc : oneByOne.doc;
                 state = run(state, fromTop ? sinkAll : liftAll);
-                ist(state.doc, oneByOne.doc, eq);
+                ist(state.doc, expected, eq);
             }
         }
     });
