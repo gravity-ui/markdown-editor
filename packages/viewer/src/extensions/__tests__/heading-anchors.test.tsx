@@ -1,6 +1,6 @@
 import type {ReactNode} from 'react';
 
-import {ThemeProvider} from '@gravity-ui/uikit';
+import {Provider} from '@gravity-ui/uikit';
 import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 
@@ -153,16 +153,16 @@ describe('HeadingAnchors', () => {
     it('should use the language of each viewer', () => {
         render(
             <>
-                <ThemeProvider lang="en">
+                <Provider lang="en">
                     <MarkdownViewer html='<h2 id="en">English</h2>'>
                         <HeadingAnchors getHref={() => '/en'} />
                     </MarkdownViewer>
-                </ThemeProvider>
-                <ThemeProvider lang="ru">
+                </Provider>
+                <Provider lang="ru">
                     <MarkdownViewer html='<h2 id="ru">Русский</h2>'>
                         <HeadingAnchors getHref={() => '/ru'} />
                     </MarkdownViewer>
-                </ThemeProvider>
+                </Provider>
             </>,
         );
 

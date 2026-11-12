@@ -1,6 +1,6 @@
 import type {ReactNode} from 'react';
 
-import {ThemeProvider} from '@gravity-ui/uikit';
+import {Provider} from '@gravity-ui/uikit';
 import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 
@@ -58,16 +58,16 @@ describe('HeadingEditButtons', () => {
     it('should localize the default label for each viewer', async () => {
         await render(
             <>
-                <ThemeProvider lang="en">
+                <Provider lang="en">
                     <MarkdownViewer html='<h2 id="en" data-line="0">Heading</h2>'>
                         <HeadingEditButtons onClick={() => {}} />
                     </MarkdownViewer>
-                </ThemeProvider>
-                <ThemeProvider lang="ru">
+                </Provider>
+                <Provider lang="ru">
                     <MarkdownViewer html='<h2 id="ru" data-line="0">Заголовок</h2>'>
                         <HeadingEditButtons onClick={() => {}} />
                     </MarkdownViewer>
-                </ThemeProvider>
+                </Provider>
             </>,
         );
 
