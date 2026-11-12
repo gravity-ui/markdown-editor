@@ -7,7 +7,6 @@ import {
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
 import {Button} from '@gravity-ui/markdown-editor-header-extension';
-import {useThemeType} from '@gravity-ui/uikit';
 
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
@@ -28,7 +27,6 @@ export function ButtonExample({
     mode?: MarkdownEditorMode;
     width?: number;
 }) {
-    const theme = useThemeType();
     const renderPreview = useCallback<RenderPreview>(
         ({getValue}) => <SplitModePreviewLazy getValue={getValue} needToSanitizeHtml />,
         [],
@@ -40,7 +38,7 @@ export function ButtonExample({
     });
 
     return (
-        <div className={b({theme, palette})}>
+        <div className={b({palette})}>
             <PlaygroundLayout
                 editor={editor}
                 viewWidth={width}

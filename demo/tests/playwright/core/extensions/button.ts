@@ -56,6 +56,17 @@ export class ButtonBlock {
         }, color);
     }
 
+    getFilledBackgrounds(blocks = this.blocks) {
+        return blocks.evaluateAll((elements) =>
+            elements
+                .filter((element) => {
+                    const view = element.getAttribute('data-view');
+                    return view === 'action' || view === 'normal';
+                })
+                .map((element) => getComputedStyle(element).backgroundColor),
+        );
+    }
+
     getValues(blocks = this.blocks) {
         return blocks.evaluateAll((elements) =>
             elements.map((element) => ({

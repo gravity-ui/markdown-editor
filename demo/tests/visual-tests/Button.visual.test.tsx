@@ -38,6 +38,7 @@ test.describe('Button', () => {
         await mount(<ButtonStories.Colors />);
         await editor.assertMode('wysiwyg');
         await expect(button.blocks).toHaveCount(25);
+        expect(await button.getFilledBackgrounds()).not.toContain('rgba(0, 0, 0, 0)');
         await expect(button.content).toHaveCSS('grid-template-columns', '80px 80px 80px 80px');
         await expectScreenshot({component: editor.locators.component});
     });
@@ -70,6 +71,9 @@ test.describe('Button', () => {
         await page.mouse.move(0, 0);
         await wait.tooltipsHidden();
         await expect(button.variants).toHaveCount(25);
+        expect(await button.getFilledBackgrounds(button.variants)).not.toContain(
+            'rgba(0, 0, 0, 0)',
+        );
         await expect(button.preview).toHaveCSS('grid-template-columns', '80px 80px 80px 80px');
         expect(await button.getValues(button.variants)).toEqual(before);
         await expectScreenshot({component: editor.locators.component});
