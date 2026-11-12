@@ -1,27 +1,15 @@
 import type {Meta, StoryObj} from '@storybook/react';
 
-import {HeaderExample} from '../header/Header';
+import {ButtonExample} from './Button';
 
 export default {
     title: 'Extensions / Landing / Button',
-    component: HeaderExample,
-    args: {width: 660},
-} satisfies Meta<typeof HeaderExample>;
+    component: ButtonExample,
+    argTypes: {palette: {table: {disable: true}}},
+} satisfies Meta<typeof ButtonExample>;
 
-export const Button: StoryObj<typeof HeaderExample> = {
-    args: {
-        initial: ':::button{href="https://example.com"}\nRead more\n:::\n\nAfter',
-    },
-};
+export const Button: StoryObj<typeof ButtonExample> = {};
 
-export const InHeader: StoryObj<typeof HeaderExample> = {
-    args: {
-        initial:
-            ':::header{height="s" width="m"}\n\n# Welcome\n\n:::button{href="/help" view="outline" color="green"}\nHelp\n:::\n\n:::',
-    },
-};
-
-// The order of the design: `standard` and `gray` first, then one row per color.
 const buttonRows = [
     [
         ['action', 'standard'],
@@ -37,11 +25,13 @@ const buttonRows = [
     ),
 ];
 
-export const Colors: StoryObj<typeof HeaderExample> = {
+export const Colors: StoryObj<typeof ButtonExample> = {
+    name: 'States',
     args: {
+        palette: true,
         initial: buttonRows
             .flat()
-            .map(([view, color]) => `:::button{view="${view}" color="${color}"}\nButton\n:::`)
+            .map(([view, color]) => `:::button{view="${view}" color="${color}"}\nКнопка\n:::`)
             .join('\n\n'),
     },
 };

@@ -1,0 +1,111 @@
+.button-example {
+    // The preview palette is scoped to the demo; the plugin inherits the host theme.
+    --g-border-radius-l: 12px;
+    --g-text-body-1-font-size: 14px;
+    --g-text-body-1-line-height: 18px;
+    --g-color-base-brand: #5282ff;
+    --g-color-line-brand: #5282ff;
+    --g-color-line-utility: #8f52cccc;
+    --g-color-text-brand: #5282ff;
+
+    box-sizing: border-box;
+    width: fit-content;
+    padding: 16px;
+
+    border-radius: 16px;
+    background: var(--g-color-base-background);
+
+    &_theme_light {
+        --g-color-base-background: #ffffff;
+        --g-color-base-contrast: #000000;
+        --g-color-base-danger-heavy: #ea0805;
+        --g-color-base-danger-light: #ff040026;
+        --g-color-base-generic: #0000000d;
+        --g-color-base-info-light: #5282ff26;
+        --g-color-base-positive-heavy: #3ab935;
+        --g-color-base-positive-light: #3bc93526;
+        --g-color-base-utility-heavy: #854ebd;
+        --g-color-base-utility-light: #8f52cc26;
+        --g-color-base-warning-heavy: #ffdb4d;
+        --g-color-base-warning-light: #ffdb4d4d;
+        --g-color-line-danger: #ff0400cc;
+        --g-color-line-generic: #0000001a;
+        --g-color-line-positive: #3bc935cc;
+        --g-color-line-warning: #eac94a;
+        --g-color-text-brand-heavy: #4768c2;
+        --g-color-text-danger: #ea0805;
+        --g-color-text-danger-heavy: #c0100f;
+        --g-color-text-dark-primary: #000000d9;
+        --g-color-text-inverted-primary: #ffffff;
+        --g-color-text-light-primary: #ffffff;
+        --g-color-text-positive: #3ab935;
+        --g-color-text-positive-heavy: #379a34;
+        --g-color-text-primary: #000000d9;
+        --g-color-text-secondary: #00000080;
+        --g-color-text-utility: #854ebd;
+        --g-color-text-utility-heavy: #72479e;
+        --g-color-text-warning: #c0a645;
+        --g-color-text-warning-heavy: #c0600f;
+    }
+
+    &_theme_dark {
+        --g-color-base-background: #2d2c33;
+        --g-color-base-contrast: #ffffffd9;
+        --g-color-base-danger-heavy: #ea5b58;
+        --g-color-base-danger-light: #e8494533;
+        --g-color-base-generic: #ffffff1a;
+        --g-color-base-info-light: #5282ff33;
+        --g-color-base-positive-heavy: #6bbc68;
+        --g-color-base-positive-light: #5bb55733;
+        --g-color-base-utility-heavy: #9a63d1;
+        --g-color-base-utility-light: #8f52cc33;
+        --g-color-base-warning-heavy: #ffd01a;
+        --g-color-base-warning-light: #ffcb0033;
+        --g-color-line-danger: #e84945cc;
+        --g-color-line-generic: #ffffff26;
+        --g-color-line-positive: #5bb557cc;
+        --g-color-line-warning: #ffcb00cc;
+        --g-color-text-brand-heavy: #638fff;
+        --g-color-text-danger: #e84945;
+        --g-color-text-danger-heavy: #ea5b58;
+        --g-color-text-dark-primary: #000000e5;
+        --g-color-text-inverted-primary: #000000e5;
+        --g-color-text-light-primary: #ffffffd9;
+        --g-color-text-positive: #5bb557;
+        --g-color-text-positive-heavy: #6bbc68;
+        --g-color-text-primary: #ffffffd9;
+        --g-color-text-secondary: #ffffff80;
+        --g-color-text-utility: #9a63d1;
+        --g-color-text-utility-heavy: #a575d6;
+        --g-color-text-warning: #ffcb00;
+        --g-color-text-warning-heavy: #ffd01a;
+    }
+
+    .g-md-button-plugin {
+        min-width: 80px;
+    }
+
+    &_palette {
+        display: grid;
+        align-items: start;
+        grid-template-columns: repeat(4, 80px);
+        grid-template-rows: 28px repeat(6, 36px);
+        gap: 8px 17px;
+
+        width: 412px;
+        min-height: 338px;
+        padding: 15px 19px 30px 22px;
+
+        .g-md-button-plugin + .g-md-button-plugin {
+            margin-inline-start: 0;
+        }
+
+        .g-md-button-plugin_color_standard.g-md-button-plugin_view_flat {
+            grid-column: 4;
+        }
+
+        .g-md-button-plugin_color_gray.g-md-button-plugin_view_normal {
+            grid-column: 2;
+        }
+    }
+}
