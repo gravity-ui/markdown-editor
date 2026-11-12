@@ -7,7 +7,7 @@ export const buttonViews = ['action', 'normal', 'outline', 'flat'] as const;
 export const buttonColors = [
     'standard',
     'gray',
-    'blue',
+    'brand',
     'green',
     'yellow',
     'red',
@@ -23,10 +23,10 @@ export type ButtonModel = ButtonStyle & {href: string};
 
 /** Colors of each view; the first one replaces a color the view lacks. */
 export const buttonViewColors: Readonly<Record<ButtonView, readonly ButtonColor[]>> = {
-    action: ['standard', 'blue', 'green', 'yellow', 'red', 'violet'],
-    normal: ['gray', 'blue', 'green', 'yellow', 'red', 'violet'],
-    outline: ['gray', 'blue', 'green', 'yellow', 'red', 'violet'],
-    flat: ['standard', 'gray', 'blue', 'green', 'yellow', 'red', 'violet'],
+    action: ['standard', 'brand', 'green', 'yellow', 'red', 'violet'],
+    normal: ['gray', 'brand', 'green', 'yellow', 'red', 'violet'],
+    outline: ['gray', 'brand', 'green', 'yellow', 'red', 'violet'],
+    flat: ['standard', 'gray', 'brand', 'green', 'yellow', 'red', 'violet'],
 };
 
 export const buttonDefaults: Readonly<ButtonModel> = {

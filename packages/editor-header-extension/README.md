@@ -50,7 +50,7 @@ const editor = useMarkdownEditor({
 `Button` is also exported from `/wysiwyg`; `ButtonSpecs` and `buttonNodeName` are exported from `/wysiwyg/specs`.
 Register `buttonPlugin` from `@gravity-ui/markdown-plugin-header` in the Markdown preview.
 
-Enter `:::button{href="/page" view="action" color="blue"}` with a plain-text body and a closing `:::` in Markdown mode.
+Enter `:::button{href="/page" view="action" color="brand"}` with a plain-text body and a closing `:::` in Markdown mode.
 The visual editor displays a selectable, draggable block without settings or editable content.
 Clicking it does not follow the link. Edit its text and attributes in Markdown mode.
 The complete body, including unsupported formatting and additional paragraphs, survives mode switches and copying.
