@@ -261,9 +261,12 @@ test.describe('Header', () => {
         await expect(header.toggle('Title')).toBeHidden();
         await expect(header.section('Text')).toHaveAttribute('aria-expanded', 'false');
         await header.section('Text').press('Enter');
+        await expect(header.section('Text')).toHaveAttribute('aria-expanded', 'true');
         await expect(header.toggle('Title')).not.toBeChecked();
         await expect(header.alignment('Vertically', 'Bottom')).toBeChecked();
-        expect(messages).toContain('Text section button clicked');
+        expect(
+            messages.filter((message) => message === 'Text section button clicked'),
+        ).toHaveLength(2);
 
         await header.select(header.height, 'M');
         await expect(header.blocks).toHaveClass(/g-md-header-plugin_height_m/);
