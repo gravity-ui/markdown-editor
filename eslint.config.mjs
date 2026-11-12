@@ -35,6 +35,15 @@ export default defineConfig(
         },
     },
     {
+        // Types describe parameters and results; TSDoc in docs-gen holds only the summary.
+        files: ['./infra/docs-gen/**/*'],
+        rules: {
+            'jsdoc/require-param': 'off',
+            'jsdoc/require-param-type': 'off',
+            'jsdoc/require-returns': 'off',
+        },
+    },
+    {
         files: ['./packages/viewer/tests/**/*'],
         settings: {
             // Keep viewer imports in the same group before and after a build.
