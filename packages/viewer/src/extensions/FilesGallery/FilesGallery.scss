@@ -1,0 +1,13 @@
+@use '../../variables' as v;
+
+// Fallback for browsers without @scope.
+
+.#{v.$ns}files-gallery > .#{v.$ns}viewer__content img:not([data-markdown-viewer-slot] *) {
+    cursor: pointer;
+}
+
+@scope (.#{v.$ns}files-gallery > .#{v.$ns}viewer__content) to ([data-markdown-viewer-slot]) {
+    img {
+        cursor: pointer;
+    }
+}

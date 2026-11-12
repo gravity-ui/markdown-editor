@@ -5,7 +5,7 @@ Render prepared HTML with React 18 or 19. Supports server rendering and hydratio
 ## Installation
 
 ```bash
-npm install @gravity-ui/markdown-viewer @gravity-ui/uikit react react-dom
+npm install @gravity-ui/markdown-viewer @gravity-ui/components @gravity-ui/uikit react react-dom
 ```
 
 ## Usage
@@ -70,6 +70,48 @@ The package exports the `MarkdownViewerProps` type.
 
 </details>
 
+### YFM code block actions
+
+Add `YfmCodeBlockActions` to show UIKit copy and text wrapping buttons in Diplodoc code blocks. Copy keeps code whitespace and skips line numbers. The extension replaces the built-in YFM controls and does not load a Diplodoc runtime.
+
+The extension imports its styles. Import your content styles and use the application's UIKit `ThemeProvider` to set the language (`en` or `ru`).
+
+For server rendering with this extension, configure your bundler to handle CSS imports.
+
+```tsx
+import {MarkdownViewer, cnYFM} from '@gravity-ui/markdown-viewer';
+import {YfmCodeBlockActions} from '@gravity-ui/markdown-viewer/extensions';
+
+import '@gravity-ui/uikit/styles/styles.css';
+import '@diplodoc/transform/dist/css/yfm.css';
+
+export function Document({html}: {html: string}) {
+  return (
+    <MarkdownViewer html={html} className={cnYFM()}>
+      <YfmCodeBlockActions />
+    </MarkdownViewer>
+  );
+}
+```
+
+<details>
+<summary>Code block props and cleanup</summary>
+
+The `@gravity-ui/markdown-viewer/extensions` entry point also exports the `YfmCodeBlockActionsProps` type.
+
+| Prop                 | Default                                          | Description                                        |
+| -------------------- | ------------------------------------------------ | -------------------------------------------------- |
+| `copyButton`         | `true`                                           | Show the copy button.                              |
+| `lineWrappingButton` | `true`                                           | Show the text wrapping button.                     |
+| `codeBlockSelector`  | `'.yfm-clipboard, .yfm-code-floating-container'` | Select code block containers inside this viewer.   |
+| `getCodeBlockText`   | Text from `pre code` without line numbers        | Read the text to copy from the selected container. |
+
+Use a stable selector for containers with `pre code`. The wrapping button toggles the `wrap` class on `pre code`.
+
+Disabling the button or removing the extension leaves the `wrap` class as it is. Removing the extension restores the built-in controls. After removal, text wrapping depends on the styles for the code block.
+
+</details>
+
 <details>
 <summary>Next.js App Router</summary>
 
@@ -86,6 +128,184 @@ export function ViewerClient({html}: {html: string}) {
 ```
 
 Render `<ViewerClient html={html} />` from your Server Component. Define extensions that use `useViewerEffect` on the client side of the boundary.
+
+</details>
+
+### Files gallery
+
+Add `FilesGallery` to open images, video links, and YFM file links. Wrap the viewer in `GalleryProvider`:
+
+```tsx
+import {GalleryProvider} from '@gravity-ui/components';
+import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
+import {FilesGallery} from '@gravity-ui/markdown-viewer/extensions';
+
+import '@gravity-ui/uikit/styles/styles.css';
+
+export function Document({html}: {html: string}) {
+  return (
+    <GalleryProvider>
+      <MarkdownViewer html={html}>
+        <FilesGallery getCopyUrl={({url}) => url} getDownloadUrl={({url}) => url} />
+      </MarkdownViewer>
+    </GalleryProvider>
+  );
+}
+```
+
+Images support `picture` and `srcset`. Ctrl/Meta/Shift/Alt-click and images inside links keep their normal behavior.
+
+On desktop, the copy button shows feedback in a tooltip. On mobile, the menu closes after a tap. Use `onLinkCopied` to show a message after a successful copy.
+
+<details>
+<summary>Gallery props and HTML updates</summary>
+
+The entry point exports `FilesGalleryProps`, `FilesGallerySource`, and `FilesGalleryItemType` (`'image' | 'video' | 'file'`).
+
+Callbacks receive `source` with `url`, `type`, `element`, and optional `name` and `mimeType`. Callback inputs, including the item passed to `transformItem`, are shallow readonly in TypeScript.
+
+Image URLs use `currentSrc` (absolute), then the HTML `src` value. Links use the HTML `href` value. MIME values are lowercase without parameters. A supported MIME type takes priority. For HTTP(S) links, the gallery can also use the path extension, ignoring the query and fragment. An `img` always has type `image`.
+
+| Prop | Description |
+| ---- | ----------- |
+| `additionalItems` | Readonly list of ready items placed before HTML items. Callbacks do not change them. |
+| `getCopyUrl(source)` | Return a URL for the copy action, or `undefined` to skip it. |
+| `getDownloadUrl(source)` | Return a URL for the download action, or `undefined` to skip it. |
+| `resolveCustomItem(source)` | Create an item for a source with type `file`, or return `undefined` to skip it. |
+| `transformItem(item, source)` | Replace the final item, or return `null` to exclude it. |
+| `onLinkCopied(url)` | Called only after a successful copy, with the copied URL. |
+
+For each HTML item, a standard item or `resolveCustomItem` result gets copy/download actions, then passes through `transformItem`. Resolver actions are kept. The transform result replaces the whole item.
+
+The clicked item is built first; if skipped, collection stops. Callbacks run once per discovered item on opening. Do not change the HTML from callbacks or keep DOM elements in returned items or actions.
+
+An open gallery keeps its items when HTML changes or `FilesGallery` unmounts. The next opening reads the current HTML. Items with the same URL stay separate; the clicked element sets the initial item.
+
+To cancel gallery opening, call `preventDefault()` in `onClickCapture`. A regular React `onClick` runs after the gallery's native listener. This also cancels native link navigation:
+
+```tsx
+<MarkdownViewer
+  html={html}
+  onClickCapture={(event) => {
+    if (event.target instanceof Element && event.target.closest('[data-no-gallery]')) {
+      event.preventDefault();
+    }
+  }}
+>
+  <FilesGallery />
+</MarkdownViewer>
+```
+
+</details>
+
+### Heading anchors
+
+Add `HeadingAnchors` to show a `#` copy button for headings with unique IDs. The application provides links and handles navigation.
+
+```tsx
+import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
+import {HeadingAnchors} from '@gravity-ui/markdown-viewer/extensions';
+
+import '@gravity-ui/uikit/styles/styles.css';
+
+export function Document({html}: {html: string}) {
+  return (
+    <MarkdownViewer html={html}>
+      <HeadingAnchors
+        getHref={({id}) => `https://example.com/page#${encodeURIComponent(id)}`}
+        onClick={(_event, {id}) => {
+          window.history.pushState(window.history.state, '', `#${encodeURIComponent(id)}`);
+        }}
+      />
+    </MarkdownViewer>
+  );
+}
+```
+
+<details>
+<summary>Heading props and cleanup</summary>
+
+The extensions entry point exports `HeadingAnchorsProps` and `HeadingAnchorTarget`.
+
+Both callbacks receive `{id, element}` with the current ID and heading element.
+
+Keep focus on the button in `onClick` to show copy feedback.
+
+For folding headings, the copy button stops the click from bubbling so it does not toggle the section. Use `HeadingAnchors.onClick` to handle navigation.
+
+| Prop                      | Description                                                 |
+| ------------------------- | ----------------------------------------------------------- |
+| `getHref(heading)`        | Required. Return the link to copy. Called on click.         |
+| `onClick(event, heading)` | Optional. Handle navigation. Copy runs after this callback. |
+| `selector`                | Default: `h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]`.  |
+
+The extension hides the built-in Diplodoc heading controls while mounted. Heading IDs and content stay unchanged.
+
+The button sits 24 px before the heading. If the container clips overflow, leave at least 24 px of space before the heading.
+
+The button uses the page background. Set `--g-md-v-heading-anchor-background-color` on a colored container to use another opaque color.
+
+</details>
+
+### Heading edit buttons
+
+Add `HeadingEditButtons` to show a pencil on headings that carry a zero-based source line in `data-line`. The application handles opening the editor or moving the cursor.
+
+```tsx
+import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
+import {HeadingEditButtons} from '@gravity-ui/markdown-viewer/extensions';
+
+<MarkdownViewer html={html}>
+  <HeadingEditButtons onClick={(_event, {line}) => editAtLine(line)} />
+</MarkdownViewer>;
+```
+
+The extensions entry point also exports `HeadingEditButtonsProps` and `HeadingEditTarget`.
+
+| Prop                      | Description                                                                                                    |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `onClick(event, heading)` | Required. Receives the button click and `{line, element}` with the zero-based source line and heading element. |
+| `label`                   | Accessible button label. Defaults to localized “Edit”.                                                         |
+| `selector`                | CSS selector for target headings. Defaults to `h1`–`h6` with `data-line`.                                      |
+
+### Reveal a YFM element
+
+Add `RevealYfmElement` to open native `details`, YFM tabs, and folding heading sections around a target:
+
+```tsx
+import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
+import {RevealYfmElement} from '@gravity-ui/markdown-viewer/extensions';
+
+<MarkdownViewer html={html}>
+  <RevealYfmElement
+    key={navigationKey}
+    id={anchorId}
+    onReveal={(element) => element.scrollIntoView({block: 'start'})}
+  />
+</MarkdownViewer>;
+```
+
+Pass exactly one of `id` (literal ID), `selector` (CSS selector), or `element` (DOM element). `null` cancels the request. Searches are scoped to this viewer.
+
+- `onReveal(element)` runs synchronously once per processed request, including already visible targets.
+- HTML updates retry missing targets but do not repeat completed requests. Callback changes do not trigger processing.
+- Change the target or React `key` to start a new request. Use `id` or `selector` to resolve targets in replacement HTML.
+
+Tabs require the application's Diplodoc tabs runtime, which may switch linked groups outside the viewer. Scrolling and focus remain under application and runtime control. Editable WYSIWYG content is unsupported.
+
+<details>
+<summary>Reveal without a viewer</summary>
+
+```ts
+import {revealYfmElement} from '@gravity-ui/markdown-viewer';
+
+const target = revealYfmElement({id: 'installation'}, {root: pageContainer});
+target?.scrollIntoView({block: 'start'});
+```
+
+`revealYfmElement` accepts an `Element`, `{id: string}`, `{selector: string}`, or `null`. Optional `root` bounds lookup and ancestor traversal, including itself. Without it, lookup uses `document`; a supplied element uses its own ancestors.
+
+Returns the processed element or `null` for missing or excluded targets. Both APIs select the first ID or selector match outside viewer slots. Slots, their descendants, and targets outside the root are excluded. Processing does not wait for runtimes or animations and does not guarantee visibility.
 
 </details>
 
