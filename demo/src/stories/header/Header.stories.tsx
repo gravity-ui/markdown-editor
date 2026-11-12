@@ -7,33 +7,3 @@ export default {
     component: HeaderExample,
 } satisfies Meta<typeof HeaderExample>;
 export const Header: StoryObj<typeof HeaderExample> = {};
-
-export const Buttons: StoryObj<typeof HeaderExample> = {
-    args: {
-        mode: 'markup',
-        initial:
-            ':::button{href="https://example.com" view="action" color="blue"}\nRead more\n:::\n\n:::header{height="s" width="m"}\n\n# Welcome\n\n:::button{href="/help" view="outline" color="green"}\nHelp\n:::\n\n:::',
-    },
-};
-
-const buttonColors = {
-    action: ['standard', 'blue', 'green', 'yellow', 'red', 'violet'],
-    normal: ['gray', 'blue', 'green', 'yellow', 'red', 'violet'],
-    outline: ['gray', 'blue', 'green', 'yellow', 'red', 'violet'],
-    flat: ['standard', 'gray', 'blue', 'green', 'yellow', 'red', 'violet'],
-};
-
-export const ButtonColors: StoryObj<typeof HeaderExample> = {
-    args: {
-        initial: Object.entries(buttonColors)
-            .map(([view, colors]) =>
-                [
-                    view,
-                    ...colors.map(
-                        (color) => `:::button{view="${view}" color="${color}"}\n${color}\n:::`,
-                    ),
-                ].join('\n\n'),
-            )
-            .join('\n\n'),
-    },
-};
