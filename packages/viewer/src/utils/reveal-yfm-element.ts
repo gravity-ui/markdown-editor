@@ -43,15 +43,20 @@ export function revealYfmElement(
 
 function resolveTarget(target: RevealYfmTarget, root?: Element): Element | null {
     if ('nodeType' in target) return target;
-    const scope = root ?? (typeof document === 'undefined' ? undefined : document);
+    const scope = root ?? (typeof document === 'undefined' ? undefined : document.documentElement);
     if (!scope) return null;
-    if (target.id !== undefined) {
-        if (root?.getAttribute('id') === target.id) return root;
-        return (
-            Array.from(scope.querySelectorAll('[id]')).find((node) => node.id === target.id) ?? null
-        );
-    }
-    return root?.matches(target.selector) ? root : scope.querySelector(target.selector);
+
+    const selector = target.selector ?? '[id]';
+    const candidates = Array.from(scope.querySelectorAll(selector));
+    if (scope.matches(selector)) candidates.unshift(scope);
+
+    return (
+        candidates.find(
+            (node) =>
+                (target.id === undefined || node.id === target.id) &&
+                inspectViewerNode(scope, node).kind === 'content',
+        ) ?? null
+    );
 }
 
 function revealContainer(container: Element, target: Element, root: Element): void {

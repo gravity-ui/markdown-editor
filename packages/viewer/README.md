@@ -285,7 +285,7 @@ import {RevealYfmElement} from '@gravity-ui/markdown-viewer/extensions';
 </MarkdownViewer>;
 ```
 
-Pass exactly one of `id` (literal ID), `selector` (first match), or `element` (DOM element). `null` cancels the request. Searches are scoped to this viewer.
+Pass exactly one of `id` (literal ID), `selector` (CSS selector), or `element` (DOM element). `null` cancels the request. Searches are scoped to this viewer.
 
 - `onReveal(element)` runs synchronously once per processed request, including already visible targets.
 - HTML updates retry missing targets but do not repeat completed requests. Callback changes do not trigger processing.
@@ -305,7 +305,7 @@ target?.scrollIntoView({block: 'start'});
 
 `revealYfmElement` accepts an `Element`, `{id: string}`, `{selector: string}`, or `null`. Optional `root` bounds lookup and ancestor traversal, including itself. Without it, lookup uses `document`; a supplied element uses its own ancestors.
 
-Returns the processed element or `null` for missing or excluded targets. Both APIs exclude viewer slots, their descendants, and targets outside the root. Processing does not wait for runtimes or animations and does not guarantee visibility.
+Returns the processed element or `null` for missing or excluded targets. Both APIs select the first ID or selector match outside viewer slots. Slots, their descendants, and targets outside the root are excluded. Processing does not wait for runtimes or animations and does not guarantee visibility.
 
 </details>
 

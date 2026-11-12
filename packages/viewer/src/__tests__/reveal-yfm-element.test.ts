@@ -25,26 +25,42 @@ describe('revealYfmElement', () => {
         expect(revealYfmElement({id: ''}, {root: createRoot('')})).toBeNull();
     });
 
-    it('should reveal only the first selector match', () => {
-        const root = createRoot('<details><p>First</p></details><details><p>Second</p></details>');
+    it.each([{id: 'target'}, {selector: '.target'}])(
+        'should reveal the first content match after slot matches for %j',
+        (target) => {
+            const root = createRoot(`
+                <details>
+                    <div data-markdown-viewer-slot id="target" class="target">
+                        <p id="target" class="target">Slot content</p>
+                    </div>
+                </details>
+                <details><p id="target" class="target" data-content>First</p></details>
+                <details><p id="target" class="target">Second</p></details>
+            `);
 
-        expect(revealYfmElement({selector: 'p'}, {root})).toBe(root.querySelector('p'));
-        expect(Array.from(root.querySelectorAll('details'), (details) => details.open)).toEqual([
-            true,
-            false,
-        ]);
-    });
+            expect(revealYfmElement(target, {root})).toBe(root.querySelector('[data-content]'));
+            expect(Array.from(root.querySelectorAll('details'), (details) => details.open)).toEqual(
+                [false, true, false],
+            );
+        },
+    );
 
-    it('should search the document when root is omitted', () => {
-        const root = createRoot('<details><p id="document-target">Text</p></details>');
-        document.body.append(root);
-        try {
-            expect(revealYfmElement({id: 'document-target'})).toBe(root.querySelector('p'));
-            expect(root.querySelector('details')?.open).toBe(true);
-        } finally {
-            root.remove();
-        }
-    });
+    it.each([{id: 'document-target'}, {selector: '.document-target'}])(
+        'should skip slot matches in the document when root is omitted for %j',
+        (target) => {
+            const root = createRoot(`
+                <span data-markdown-viewer-slot id="document-target" class="document-target"></span>
+                <details><p id="document-target" class="document-target">Text</p></details>
+            `);
+            document.body.append(root);
+            try {
+                expect(revealYfmElement(target)).toBe(root.querySelector('p'));
+                expect(root.querySelector('details')?.open).toBe(true);
+            } finally {
+                root.remove();
+            }
+        },
+    );
 
     it('should reveal a detached element without an explicit root', () => {
         const root = createRoot('<details><p>Text</p></details>');
@@ -66,14 +82,18 @@ describe('revealYfmElement', () => {
         expect(outer.querySelector('details')?.open).toBe(false);
     });
 
-    it('should reveal the target container itself', () => {
-        const root = createRoot('<details id="target"><p>Text</p></details>');
-        const target = root.querySelector('details');
-        assert(target);
+    it.each([{id: 'target'}, {selector: 'details'}])(
+        'should reveal the root itself when it matches %j',
+        (target) => {
+            const root = createRoot('<details id="target"><p>Text</p></details>').querySelector(
+                'details',
+            );
+            assert(root);
 
-        expect(revealYfmElement({id: 'target'}, {root: target})).toBe(target);
-        expect(target.open).toBe(true);
-    });
+            expect(revealYfmElement(target, {root})).toBe(root);
+            expect(root.open).toBe(true);
+        },
+    );
 
     it('should reveal a target inside nested details', () => {
         const root = createRoot(
@@ -103,14 +123,17 @@ describe('revealYfmElement', () => {
         expect(outside.querySelector('details')?.open).toBe(false);
     });
 
-    it.each(['#slot', '#target'])('should reject a target in a slot: %s', (selector) => {
+    it.each(['slot', 'target'])('should reject a target in a slot: %s', (id) => {
         const root = createRoot(`
             <details>
                 <div data-markdown-viewer-slot id="slot"><span id="target">Text</span></div>
             </details>
         `);
+        const selector = `#${id}`;
 
+        expect(revealYfmElement({id}, {root})).toBeNull();
         expect(revealYfmElement({selector}, {root})).toBeNull();
+        expect(revealYfmElement(root.querySelector(selector), {root})).toBeNull();
         expect(root.querySelector('details')?.open).toBe(false);
     });
 
