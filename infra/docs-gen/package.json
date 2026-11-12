@@ -16,13 +16,14 @@
   "scripts": {
     "build": "node src/generate-docs.mjs && yfm -i ../../tmp/docs-src -o ../../dist/docs",
     "generate:extensions": "node src/generate-extension-pages.mjs",
-    "test": "vitest run src/*.test.mjs"
+    "test": "vitest run tests"
   },
   "dependencies": {
     "@diplodoc/cli": "5.64.1",
     "typescript": "catalog:ts"
   },
   "devDependencies": {
+    "markdown-it": "catalog:peers",
     "vitest": "catalog:testing"
   }
 }
