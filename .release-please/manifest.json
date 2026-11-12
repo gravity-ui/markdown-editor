@@ -2,5 +2,5 @@
   "packages/editor": "15.50.0",
   "packages/latex-extension": "0.1.1",
   "packages/page-constructor-extension": "0.1.1",
-  "packages/viewer": "0.0.0"
+  "packages/viewer": "1.0.0"
 }
