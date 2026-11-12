@@ -55,6 +55,17 @@ export class HeaderBlock {
         return this.settings.getByRole('button', {name: 'Background No background', exact: true});
     }
 
+    /** Collapses every section except the given ones. */
+    async setExpandedSections(...expanded: string[]) {
+        for (const name of ['Text', 'Buttons', 'Image and background']) {
+            const section = this.section(name);
+            const isExpanded = (await section.getAttribute('aria-expanded')) === 'true';
+            if (isExpanded !== expanded.includes(name)) await section.click();
+        }
+        // The pointer leaves the panel, so a screenshot shows no hovered button.
+        await this.page.mouse.move(0, 0);
+    }
+
     /** Distances from the top and right edges of the block to the panel. */
     async settingsInsets() {
         const [block, settings] = await Promise.all([
@@ -73,14 +84,6 @@ export class HeaderBlock {
     async settingsBottom() {
         const settings = await this.settings.boundingBox();
         return settings && Math.round(settings.y + settings.height);
-    }
-
-    async scrollSettingsToTop() {
-        await this.settings.evaluate((element) => element.scrollTo(0, 0));
-    }
-
-    async scrollSettingsToBottom() {
-        await this.settings.evaluate((element) => element.scrollTo(0, element.scrollHeight));
     }
 
     /** The editor opens with the cursor in the first block, which shows its toolbar. */

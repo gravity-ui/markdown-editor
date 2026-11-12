@@ -133,7 +133,6 @@ test.describe('Header', () => {
         header,
         expectScreenshot,
     }) => {
-        await page.setViewportSize({width: 700, height: 820});
         await mount(
             <HeaderStories.Header width={660} initial={`${headerMarkup('s', 's')}\n\nAfter`} />,
         );
@@ -142,11 +141,13 @@ test.describe('Header', () => {
         await header.openSettings();
         await expect(header.height).toBeFocused();
         await expect.poll(() => header.settingsInsets()).toEqual([SETTINGS_INSET, SETTINGS_INSET]);
-        await expectScreenshot({fullPage: true});
+        // The collapsed panel fits the editor frame.
+        await header.setExpandedSections();
+        await expectScreenshot();
 
         await header.height.click();
         await expect(header.options).toHaveText(['S', 'M', 'L']);
-        await expectScreenshot({fullPage: true, nameSuffix: 'height list'});
+        await expectScreenshot({nameSuffix: 'height list'});
         await page.keyboard.press('Escape');
         await expect(header.options).toHaveCount(0);
         await expect(header.settings).toBeVisible();
@@ -155,7 +156,7 @@ test.describe('Header', () => {
 
         await header.width.click();
         await expect(header.options).toHaveText(['S', 'M', 'L', 'Full width']);
-        await expectScreenshot({fullPage: true, nameSuffix: 'width list'});
+        await expectScreenshot({nameSuffix: 'width list'});
         await header.option('M').click();
         await expect(header.blocks).toHaveClass(/g-md-header-plugin_width_m/);
 
@@ -232,7 +233,7 @@ test.describe('Header', () => {
         header,
         expectScreenshot,
     }) => {
-        await page.setViewportSize({width: 700, height: 820});
+        await page.setViewportSize({width: 740, height: 980});
         await mount(<HeaderStories.Header width={660} />);
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
@@ -245,9 +246,15 @@ test.describe('Header', () => {
         await expect(header.toggle('Image')).toBeChecked();
         await expect(header.alignment('Vertically', 'Top')).toBeChecked();
         await expect(header.alignment('Horizontally', 'Center')).toBeChecked();
-        await expectScreenshot({fullPage: true});
-        await header.scrollSettingsToBottom();
-        await expectScreenshot({fullPage: true, nameSuffix: 'background'});
+        await header.setExpandedSections('Text');
+        await expectScreenshot({component: header.settings, nameSuffix: 'text'});
+        await header.setExpandedSections('Buttons');
+        await expectScreenshot({component: header.settings, nameSuffix: 'buttons'});
+        await header.setExpandedSections('Image and background');
+        await expectScreenshot({
+            component: header.settings,
+            nameSuffix: 'image and background',
+        });
     });
 
     test('should keep demonstration settings local and reset them on reopening @wysiwyg', async ({
@@ -257,7 +264,7 @@ test.describe('Header', () => {
         header,
         expectScreenshot,
     }) => {
-        await page.setViewportSize({width: 700, height: 820});
+        await page.setViewportSize({width: 740, height: 980});
         await mount(<HeaderStories.Header width={660} />);
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
@@ -310,8 +317,8 @@ test.describe('Header', () => {
         await header.section('Image and background').click();
         expect(messages).toContain('Buttons section button clicked');
         expect(messages).toContain('Image and background section button clicked');
-        await header.scrollSettingsToTop();
-        await expectScreenshot({fullPage: true, nameSuffix: 'collapsed'});
+        await header.setExpandedSections('Text');
+        await expectScreenshot({component: header.settings, nameSuffix: 'collapsed'});
 
         await header.closeButton.click();
         await header.openSettings();
@@ -461,7 +468,9 @@ test.describe('Header on mobile', () => {
         ).toBe(true);
         await header.select(header.width, 'Full width');
         await expect(header.blocks).toHaveClass(/g-md-header-plugin_width_full/);
-        await expectScreenshot({fullPage: true});
+        await header.setExpandedSections();
+        await expectScreenshot();
+        await header.setExpandedSections('Text', 'Buttons', 'Image and background');
         await header.background.scrollIntoViewIfNeeded();
         await expect(header.background).toBeInViewport();
         await page.setViewportSize({width: 375, height: 480});
