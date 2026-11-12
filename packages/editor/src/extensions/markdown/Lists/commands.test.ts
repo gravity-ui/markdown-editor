@@ -1,6 +1,6 @@
 import ist from 'ist';
-import {type Node, Schema} from 'prosemirror-model';
-import {liftListItem} from 'prosemirror-schema-list';
+import {type Node, NodeRange, Schema} from 'prosemirror-model';
+import {liftListItem, sinkListItem} from 'prosemirror-schema-list';
 import {
     type Command,
     EditorState,
@@ -11,6 +11,9 @@ import {
 import {blockquote, builders, doc, eq, hr, li, ol, p, schema, ul} from 'prosemirror-test-builder';
 import {describe, expect, it} from 'vitest';
 
+import {ExtensionsManager} from 'src/core';
+import {BaseNode, BaseSchemaSpecs} from 'src/extensions/base/specs';
+import {ListNode, ListsSpecs, liType} from 'src/extensions/markdown/Lists/ListsSpecs';
 import {liftSelectedListItems, sinkSelectedListItems} from 'src/extensions/markdown/Lists/commands';
 import {mergeListsPlugin} from 'src/extensions/markdown/Lists/plugins/MergeListsPlugin';
 
@@ -43,24 +46,24 @@ const sink = sinkSelectedListItems(schema.nodes.list_item);
 const lift = liftSelectedListItems(schema.nodes.list_item);
 
 describe('sinkSelectedListItems', () => {
-    it('can wrap a simple item in a list', () =>
+    it('should sink an item into the item before it', () =>
         apply(
             doc(ul(li(p('one')), li(p('t<a><b>wo')), li(p('three')))),
             sink,
             doc(ul(li(p('one'), ul(li(p('two')))), li(p('three')))),
         ));
 
-    it("won't wrap the first item in a sublist", () =>
+    it('should not sink the first item of a list', () =>
         apply(doc(ul(li(p('o<a><b>ne')), li(p('two')), li(p('three')))), sink, null));
 
-    it("will move an item's content into the item above", () =>
+    it('should add a sunk item to the nested list of the item before it', () =>
         apply(
             doc(ul(li(p('one')), li(p('...'), ul(li(p('two')))), li(p('t<a><b>hree')))),
             sink,
             doc(ul(li(p('one')), li(p('...'), ul(li(p('two')), li(p('three')))))),
         ));
 
-    it('transforms a complex nested list with selection markers', () =>
+    it('should sink a selected item together with its selected nested item', () =>
         apply(
             doc(
                 ul(
@@ -96,7 +99,7 @@ describe('sinkSelectedListItems', () => {
             ),
         ));
 
-    it('sinks a top-level list item with double selection markers into the previous item', () =>
+    it('should keep the level of the nested items of a sunk item', () =>
         apply(
             doc(
                 ul(
@@ -133,7 +136,7 @@ describe('sinkSelectedListItems', () => {
             ),
         ));
 
-    it('sinks nested list items into a deeper hierarchy when selection spans multiple items', () =>
+    it('should sink the selected items of one level', () =>
         apply(
             doc(
                 ul(
@@ -204,7 +207,7 @@ describe('sinkSelectedListItems', () => {
             ),
         ));
 
-    it('sinks a top-level list item with mixed selection markers from both levels', () =>
+    it('should sink the items when the selection goes from an outer level to a deeper one', () =>
         apply(
             doc(
                 ul(
@@ -770,6 +773,32 @@ describe('liftSelectedListItems', () => {
 });
 
 describe('several selected list items', () => {
+    const {schema: editorSchema} = new ExtensionsManager({
+        extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(ListsSpecs),
+    }).buildDeps();
+    const editor = builders<'doc' | 'p' | 'li' | 'ul'>(editorSchema, {
+        doc: {nodeType: BaseNode.Doc},
+        p: {nodeType: BaseNode.Paragraph},
+        li: {nodeType: ListNode.ListItem},
+        ul: {nodeType: ListNode.BulletList},
+    });
+    const itemType = liType(editorSchema);
+    const sinkAll = sinkSelectedListItems(itemType);
+    const liftAll = liftSelectedListItems(itemType);
+    const liftOne = liftListItem(itemType);
+
+    // `sinkListItem`, then the nested items of the sunk item return to their level
+    const sinkOne: Command = (state, dispatch) =>
+        sinkListItem(itemType)(state, (tr) => {
+            const {$from} = tr.selection;
+            if ($from.node(-1).childCount > 1) {
+                const $start = tr.doc.resolve($from.after() + 1);
+                const $end = tr.doc.resolve($start.end());
+                tr.lift(new NodeRange($start, $end, $start.depth), $start.depth - 2);
+            }
+            dispatch?.(tr);
+        });
+
     function createRandom(seed: number) {
         let state = seed;
         return () => {
@@ -785,9 +814,9 @@ describe('several selected list items', () => {
             texts.push(text);
             const nested =
                 depth < 4 && random() < 0.5 ? [createList(random, texts, depth + 1)] : [];
-            items.push(li(p(text), ...nested));
+            items.push(editor.li(editor.p(text), ...nested));
         }
-        return ul(...items);
+        return editor.ul(...items);
     }
 
     function findTextblocks(node: Node) {
@@ -818,13 +847,17 @@ describe('several selected list items', () => {
     }
 
     it.each([
-        {name: 'sink', command: sink, single: sink, fromTop: true},
-        {name: 'lift', command: lift, single: liftListItem(schema.nodes.list_item), fromTop: false},
+        {name: 'sink', command: sinkAll, single: sinkOne, fromTop: true},
+        {name: 'lift', command: liftAll, single: liftOne, fromTop: false},
     ])('should $name them like one by one', ({command, single, fromTop}) => {
         const random = createRandom(1);
         for (let n = 0; n < 500; n++) {
             const texts: string[] = [];
-            const initial = doc(createList(random, texts), p('text'), createList(random, texts));
+            const initial = editor.doc(
+                createList(random, texts),
+                editor.p('text'),
+                createList(random, texts),
+            );
             const first = Math.floor(random() * texts.length);
             const last = first + Math.floor(random() * (texts.length - first));
             const state = EditorState.create({doc: initial, plugins: [mergeListsPlugin()]});
@@ -859,7 +892,11 @@ describe('several selected list items', () => {
         const random = createRandom(2);
         for (let n = 0; n < 300; n++) {
             const texts: string[] = [];
-            const initial = doc(createList(random, texts), p('text'), createList(random, texts));
+            const initial = editor.doc(
+                createList(random, texts),
+                editor.p('text'),
+                createList(random, texts),
+            );
             const first = Math.floor(random() * texts.length);
             const last = first + Math.floor(random() * (texts.length - first));
             const selected = texts.slice(first, last + 1);
@@ -880,11 +917,11 @@ describe('several selected list items', () => {
                     const cursor = TextSelection.create(oneByOne.doc, findText(oneByOne.doc, text));
                     oneByOne = run(
                         oneByOne.apply(oneByOne.tr.setSelection(cursor)),
-                        fromTop ? sink : liftListItem(schema.nodes.list_item),
+                        fromTop ? sinkOne : liftOne,
                     );
                 }
 
-                state = run(state, fromTop ? sink : lift);
+                state = run(state, fromTop ? sinkAll : liftAll);
                 ist(state.doc, oneByOne.doc, eq);
             }
         }

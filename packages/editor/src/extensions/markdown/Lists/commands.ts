@@ -84,7 +84,7 @@ type Run = {start: number; end: number};
 
 /**
  * `runs` go in document order: an item nested in a selected item moves with it. For each list
- * nested in the last selected item, `after` has a position inside its first item after
+ * nested in the last item of `runs`, `after` has a position inside its first item after
  * the selection end.
  */
 function findSelectedItems(doc: Node, selection: Selection, itemType: NodeType, sink: boolean) {
@@ -133,7 +133,7 @@ function getItems(doc: Node, from: number, to?: number): NodeRange {
 }
 
 /** `sinkListItem` from `prosemirror-schema-list` for the items from `from` to `to`. */
-function nestItems(tr: Transaction, sink: boolean, from: number, to?: number) {
+function nestItems(tr: Transaction, from: number, to?: number, sink = false) {
     const {parent, startIndex, start, end} = getItems(tr.doc, from, to);
     if (startIndex === 0 || start === end) return;
 
@@ -171,7 +171,7 @@ function liftItems(tr: Transaction, from: number, to?: number) {
     if (target === null || (!nested && !canLeaveList(range))) return;
 
     // every step stands after `from`
-    if (to !== undefined) nestItems(tr, false, to);
+    if (to !== undefined) nestItems(tr, to);
     if (nested) {
         tr.lift(getItems(tr.doc, from), target);
         return;
@@ -188,23 +188,22 @@ function moveSelectedListItems(itemType: NodeType, sink: boolean): Command {
     return ({tr, selection}, dispatch) => {
         const {runs, after} = findSelectedItems(tr.doc, selection, itemType, sink);
         if (!runs.length) return false;
+        if (!dispatch) return true;
 
-        if (dispatch) {
-            const map = (pos: number) => tr.mapping.map(pos);
-            if (sink) {
-                for (const {start, end} of runs) nestItems(tr, true, map(start), map(end));
-                // sunk together with the last selected item, the items after the selection
-                // return to their level
-                for (const pos of after.reverse()) liftItems(tr, map(pos));
-            } else {
-                // nested one level deeper, the items after the selection keep their level
-                // when the last selected item is lifted
-                for (const pos of after) nestItems(tr, false, map(pos));
-                for (const {start, end} of runs.reverse()) liftItems(tr, map(start), map(end));
-            }
-            if (!tr.docChanged) return false;
-            dispatch(tr.scrollIntoView());
+        const map = (pos: number) => tr.mapping.map(pos);
+        if (sink) {
+            for (const {start, end} of runs) nestItems(tr, map(start), map(end), sink);
+            // sunk together with the last item of `runs`, the items after the selection
+            // return to their level
+            for (const pos of after.reverse()) liftItems(tr, map(pos));
+        } else {
+            // nested one level deeper, the items after the selection keep their level
+            // when the last item of `runs` is lifted
+            for (const pos of after) nestItems(tr, map(pos));
+            for (const {start, end} of runs.reverse()) liftItems(tr, map(start), map(end));
         }
+        if (!tr.docChanged) return false;
+        dispatch(tr.scrollIntoView());
         return true;
     };
 }
