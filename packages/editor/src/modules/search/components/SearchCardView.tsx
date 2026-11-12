@@ -49,12 +49,11 @@ export const SearchCardView: React.FC<SearchCardViewProps> = ({
     return (
         <Card
             size="l"
-            spacing={{pt: 4, pb: 5, pl: 5, pr: 5}}
             style={style}
-            className={b(null, className)}
+            className={b(null, [className, sp({pt: 4, pb: 5, pl: 5, pr: 5})])}
         >
             <Flex
-                spacing={{mb: 5}}
+                marginBlockEnd="spacing-5"
                 alignItems="center"
                 justifyContent="space-between"
                 className={b('header')}
@@ -119,7 +118,7 @@ export const SearchCardView: React.FC<SearchCardViewProps> = ({
                 />
             </FormRow>
 
-            <Flex justifyContent="flex-end" gap={2} className={b('footer')}>
+            <Flex justifyContent="flex-end" gap="spacing-2" className={b('footer')}>
                 <Button
                     size="l"
                     view="normal"

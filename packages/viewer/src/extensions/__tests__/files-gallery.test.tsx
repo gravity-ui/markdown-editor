@@ -522,7 +522,7 @@ describe('FilesGallery', () => {
     async function render(children: ReactNode, {mobile = false} = {}) {
         await act(async () => {
             root.render(
-                <ThemeProvider lang="en">
+                <ThemeProvider>
                     <MobileProvider mobile={mobile}>
                         <GalleryProvider>{children}</GalleryProvider>
                     </MobileProvider>

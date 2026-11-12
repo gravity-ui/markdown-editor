@@ -138,9 +138,11 @@ export const useGpt = <
         await makeRequest(onCustomPromptApply, gptRequestData);
     }, [customPrompt, makeRequest, markup, onCustomPromptApply]);
 
-    const handleCustomPromptKeyPress = useCallback<NonNullable<TextInputProps['onKeyPress']>>(
+    const handleCustomPromptKeyDown = useCallback<NonNullable<TextInputProps['onKeyDown']>>(
         async (event) => {
-            if (!isEnter(event)) {
+            const {isComposing, keyCode} = event.nativeEvent;
+            // IME confirmation may report keyCode 229 after isComposing becomes false.
+            if (!isEnter(event) || isComposing || keyCode === 229) {
                 return;
             }
 
@@ -208,7 +210,7 @@ export const useGpt = <
         handleLike,
         handleDislike,
         handleCustomPromptUpdate: setCustomPrompt,
-        handleCustomPromptKeyPress,
+        handleCustomPromptKeyDown,
         handleCustomPromptApply,
         handlePresetClick,
         handleTryAgain,

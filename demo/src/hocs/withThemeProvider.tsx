@@ -1,4 +1,4 @@
-import {ThemeProvider} from '@gravity-ui/uikit';
+import {Provider as ThemeProvider} from '@gravity-ui/uikit';
 import type {Decorator} from '@storybook/react';
 
 import '@gravity-ui/uikit/styles/styles.scss';

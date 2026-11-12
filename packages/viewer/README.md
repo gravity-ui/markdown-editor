@@ -74,7 +74,7 @@ The package exports the `MarkdownViewerProps` type.
 
 Add `YfmCodeBlockActions` to show UIKit copy and text wrapping buttons in Diplodoc code blocks. Copy keeps code whitespace and skips line numbers. The extension replaces the built-in YFM controls and does not load a Diplodoc runtime.
 
-The extension imports its styles. Import your content styles and use the application's UIKit `ThemeProvider` to set the language (`en` or `ru`).
+The extension imports its styles. Import your content styles and use the application's UIKit `Provider` to set the language (`en` or `ru`).
 
 For server rendering with this extension, configure your bundler to handle CSS imports.
 

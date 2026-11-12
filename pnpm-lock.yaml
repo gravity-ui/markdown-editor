@@ -70,14 +70,14 @@ catalogs:
       version: 4.75.1
   peer-gravity:
     '@gravity-ui/components':
-      specifier: 4.21.0
-      version: 4.21.0
+      specifier: 5.0.0
+      version: 5.0.0
     '@gravity-ui/page-constructor':
       specifier: ^7.0.0
       version: 7.25.0
     '@gravity-ui/uikit':
-      specifier: 7.39.0
-      version: 7.39.0
+      specifier: 8.0.0
+      version: 8.0.0
   peers:
     highlight.js:
       specifier: ^11.8.0
@@ -134,6 +134,9 @@ catalogs:
     typescript:
       specifier: ^5.9.3
       version: 5.9.3
+
+overrides:
+  '@gravity-ui/page-constructor>@gravity-ui/components': 5.0.0
 
 importers:
 
@@ -192,7 +195,7 @@ importers:
         version: 2.0.0(markdown-it@13.0.2)(react@18.2.0)
       '@diplodoc/page-constructor-extension':
         specifier: catalog:peer-diplodoc
-        version: 0.13.3(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.2.79)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+        version: 0.13.3(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.2.79)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@diplodoc/quote-link-extension':
         specifier: catalog:peer-diplodoc
         version: 0.1.3(react@18.2.0)
@@ -204,7 +207,7 @@ importers:
         version: 4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
       '@gravity-ui/components':
         specifier: catalog:peer-gravity
-        version: 4.21.0(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 5.0.0(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@gravity-ui/markdown-editor':
         specifier: workspace:*
         version: link:../packages/editor
@@ -225,10 +228,10 @@ importers:
         version: link:../packages/viewer
       '@gravity-ui/page-constructor':
         specifier: catalog:peer-gravity
-        version: 7.25.0(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+        version: 7.25.0(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
-        version: 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       markdown-it:
         specifier: catalog:peers
         version: 13.0.2
@@ -358,7 +361,7 @@ importers:
     dependencies:
       '@diplodoc/cli':
         specifier: 5.64.1
-        version: 5.64.1(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.2.0)(vitest@5.0.1)
+        version: 5.64.1(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@19.3.1)(strip-ansi@7.2.0)(vitest@5.0.1)
       typescript:
         specifier: catalog:ts
         version: 5.9.3
@@ -513,12 +516,18 @@ importers:
       '@gravity-ui/icons':
         specifier: ^2.12.0
         version: 2.13.0(react@18.2.0)
+      '@hello-pangea/dnd':
+        specifier: ^18.0.1
+        version: 18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@lezer/highlight':
         specifier: ^1.2.1
         version: 1.2.1
       '@lezer/markdown':
         specifier: ^1.4.0
         version: 1.4.0
+      '@tanstack/react-virtual':
+        specifier: ^3.13.12
+        version: 3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@types/is-number':
         specifier: ^7.0.1
         version: 7.0.3
@@ -606,6 +615,12 @@ importers:
       react-use:
         specifier: 'catalog:'
         version: 17.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      react-virtualized-auto-sizer:
+        specifier: ^1.0.26
+        version: 1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      react-window:
+        specifier: ^1.8.11
+        version: 1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       ts-dedent:
         specifier: 2.3.0
         version: 2.3.0
@@ -651,13 +666,13 @@ importers:
         version: 4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.8.0)(react@18.2.0)
       '@gravity-ui/components':
         specifier: catalog:peer-gravity
-        version: 4.21.0(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 5.0.0(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@gravity-ui/readme-validator':
         specifier: ^1.3.0
         version: 1.3.0
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
-        version: 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@markdown-editor/gulp-tasks':
         specifier: workspace:*
         version: link:../../infra/gulp-tasks
@@ -775,7 +790,7 @@ importers:
         version: link:../editor
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
-        version: 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@markdown-editor/gulp-tasks':
         specifier: workspace:*
         version: link:../../infra/gulp-tasks
@@ -818,9 +833,6 @@ importers:
 
   packages/latex-extension:
     dependencies:
-      '@gravity-ui/markdown-editor':
-        specifier: workspace:^15.38.1
-        version: link:../editor
       katex:
         specifier: ^0.16.9
         version: 0.16.47
@@ -828,10 +840,10 @@ importers:
         specifier: ^13.0.0
         version: 13.0.2
       react:
-        specifier: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+        specifier: ^18.0.0 || ^19.0.0
         version: 18.2.0
       react-dom:
-        specifier: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+        specifier: ^18.0.0 || ^19.0.0
         version: 18.2.0(react@18.2.0)
       tslib:
         specifier: catalog:ts
@@ -840,9 +852,12 @@ importers:
       '@diplodoc/latex-extension':
         specifier: catalog:peer-diplodoc
         version: 2.0.2(katex@0.16.47)(markdown-it@13.0.2)(react@18.2.0)
+      '@gravity-ui/markdown-editor':
+        specifier: workspace:*
+        version: link:../editor
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
-        version: 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@19.3.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@19.3.0)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@markdown-editor/gulp-tasks':
         specifier: workspace:*
         version: link:../../infra/gulp-tasks
@@ -873,16 +888,16 @@ importers:
     devDependencies:
       '@diplodoc/page-constructor-extension':
         specifier: catalog:peer-diplodoc
-        version: 0.13.3(@diplodoc/transform@4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.2.79)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+        version: 0.13.3(@diplodoc/transform@4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.2.79)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@gravity-ui/markdown-editor':
         specifier: workspace:*
         version: link:../editor
       '@gravity-ui/page-constructor':
         specifier: catalog:peer-gravity
-        version: 7.25.0(@diplodoc/transform@4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+        version: 7.25.0(@diplodoc/transform@4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
-        version: 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@markdown-editor/gulp-tasks':
         specifier: workspace:*
         version: link:../../infra/gulp-tasks
@@ -980,10 +995,10 @@ importers:
     devDependencies:
       '@gravity-ui/components':
         specifier: catalog:peer-gravity
-        version: 4.21.0(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 5.0.0(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
-        version: 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@markdown-editor/gulp-tasks':
         specifier: workspace:*
         version: link:../../infra/gulp-tasks
@@ -1031,10 +1046,10 @@ importers:
     dependencies:
       '@gravity-ui/components':
         specifier: catalog:peer-gravity
-        version: 4.21.0(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 5.0.0(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@tanstack/react-virtual@3.14.21(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react-virtualized-auto-sizer@1.0.26(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-window@1.8.11(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@gravity-ui/uikit':
         specifier: catalog:peer-gravity
-        version: 7.39.0(@babel/runtime@7.29.2)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@tanstack/react-virtual@3.14.21(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react-virtualized-auto-sizer@1.0.26(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-window@1.8.11(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       '@types/react':
         specifier: catalog:react19
         version: 19.3.0
@@ -1930,8 +1945,6 @@ packages:
   '@diplodoc/cut-extension@1.1.1':
     resolution: {integrity: sha512-+D7IPDrLg+ANhVusUA9t7n+sXpGzuoq9Lsr8BzgDBv8KWKD0DLGNfhspHKqi1prVVM8BZadmVR4BLsnTrV3zcA==}
 
-  '@diplodoc/cut-extension@1.1.7': {}
-
   '@diplodoc/cut-extension@1.1.8':
     resolution: {integrity: sha512-4/RfQUpar56o4zU20Xdana1zaIeMOKovQAx/FkBV/QY2FtwgLXKnzP9gF88mMJX0rvWu8rZAOgYgW+17TJ87tA==}
     engines: {node: '>=24', npm: '>=11.5.1'}
@@ -2332,12 +2345,12 @@ packages:
   '@floating-ui/utils@0.2.10':
     resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
 
-  '@gravity-ui/components@4.21.0':
-    resolution: {integrity: sha512-1VEE52bO8DPWc0bXOvQHBE0RallumrNRyPvN1ktwS2G/hTNCNPaJdwE8kb+4LuO0I1DX7WAcZJLUtsEzKsMB0A==}
+  '@gravity-ui/components@5.0.0':
+    resolution: {integrity: sha512-enw5bpw3kX+VJR2XBH1PqHNoaurPayY9hd31ahZUNuDQL5lcQ8aqVLVuDYKWKZT1F1Q2z7ICuNaTAOKdCMeFnA==}
     peerDependencies:
-      '@gravity-ui/uikit': ^7.39.0
-      react: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-      react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      '@gravity-ui/uikit': ^8.0.0
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
 
   '@gravity-ui/date-components@3.4.2':
     resolution: {integrity: sha512-3RWf2k2B8oeM3q90UutCnWFtiUBs6A7phqFd444UqA5hFCPG2AeH/RrCishNfQqOzdxlm3lZDSApLm4wnPrCcg==}
@@ -2434,11 +2447,27 @@ packages:
   '@gravity-ui/uikit-themer@1.8.0':
     resolution: {integrity: sha512-+xI4ojldwG016k5O6/66igrPk/aNu7LmqtD5vcLh8gy7XD4nOp9WFRjfWJJVH3gqxqWZlYAfBKa9EAR61xeISA==}
 
-  '@gravity-ui/uikit@7.39.0':
-    resolution: {integrity: sha512-mMFoxvdA5L4/P7oIw9hYF/GMBvCWc9V0u0NWLj600tJ/tV+MDYUgjTdi3U1YRzjK79Antr+4r+rvBt9cgxwnpQ==}
+  '@gravity-ui/uikit@8.0.0':
+    resolution: {integrity: sha512-4R6GDyQPuJWUXS1uFVX9f3DlJb1HYBBks2p7w2VDmBtsh/7NQNVYl+BAw5cPPxJBdqVd4YXyDBs7h2r0tgpvpg==}
     peerDependencies:
-      react: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-      react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      '@hello-pangea/dnd': ^18
+      '@tanstack/react-virtual': ^3
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+      react-virtualized-auto-sizer: ^1
+      react-window: ^1
+    peerDependenciesMeta:
+      '@hello-pangea/dnd':
+        optional: true
+      '@tanstack/react-virtual':
+        optional: true
+      '@types/react':
+        optional: true
+      react-virtualized-auto-sizer:
+        optional: true
+      react-window:
+        optional: true
 
   '@gulp-sourcemaps/identity-map@2.0.1':
     resolution: {integrity: sha512-Tb+nSISZku+eQ4X1lAkevcQa+jknn/OVUgZ3XCxEKIsLsqYuPoJwJOPQeaOk75X3WPftb29GWY1eqE7GLsXb1Q==}
@@ -2745,25 +2774,21 @@ packages:
     resolution: {integrity: sha512-AiwBgerLicRzcyEevqwDuP22Nj5nFFrjJsCeZ+D4rC2HmS4LdBzXb+BBuHAZTysCo9QClk1t9VuVwwKyorU7ZA==}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@nx/nx-linux-arm64-musl@22.7.10':
     resolution: {integrity: sha512-8GNi8v6Ej/TyAaVBiFRAwFYrqdje/dyFbPzpq895m3ow8zbPrYmoz/qizrgkRzBFulgkSxu33LXi388reVLi2w==}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@nx/nx-linux-x64-gnu@22.7.10':
     resolution: {integrity: sha512-spcDvoQK/mrSvnHFdophlwgzUoa8lYXAZTk15+w/gLpaowP5hR4mInhUWsU9VuEoe41J3x+FcFwmw01Djj6KNQ==}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@nx/nx-linux-x64-musl@22.7.10':
     resolution: {integrity: sha512-76PdpGIQ1PVA77sYM4Ons779Yx7y3H+Hlsax2HhifAv8dKhAz9/Lmhst9ZqS2zU5v03lGEnN77W4KZQHJBiltA==}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@nx/nx-win32-arm64-msvc@22.7.10':
     resolution: {integrity: sha512-dARAojqVyvE88Mt1ms6+UTb3TIAoo4xzkPaX05Qcmh/c8+SQgA24JuqiRp+4kRz1voYwFexRpWpcrfpKJ0Nr+Q==}
@@ -2822,56 +2847,48 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@oxc-parser/binding-linux-arm64-musl@0.127.0':
     resolution: {integrity: sha512-EoTCZneNFU/P2qrpEM+RHmQwt+CvDkyGESG6qhr7KaegXLZwePfbrkCDfAk8/rhxbDUVGsZILX+2tqPzFtoFWA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@oxc-parser/binding-linux-ppc64-gnu@0.127.0':
     resolution: {integrity: sha512-zALjmZYgxFLHjXeudcDF0xFGNydTAtkAeXAr2EuC17ywCyFxcmQra4w0BMde0Yi/re4Bi4iwEoEXtYN7l6eBLQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [ppc64]
     os: [linux]
-    libc: [glibc]
 
   '@oxc-parser/binding-linux-riscv64-gnu@0.127.0':
     resolution: {integrity: sha512-fPP8M6zQLS7Jz7o9d5ArUSuAuSK3e+WCYVrCpdzeCOejidtZExJ9tjhDrAd3HEPqARBCPmdpqxESPFqy44vkBQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [riscv64]
     os: [linux]
-    libc: [glibc]
 
   '@oxc-parser/binding-linux-riscv64-musl@0.127.0':
     resolution: {integrity: sha512-7IcC4Ao02oGpfnjt+X/oF4U2mllo2qoSkw5xxiXNKL9MCTsTiAC6616beOuehdxGcnz1bRoPC1RQ2f1GQDdN+g==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [riscv64]
     os: [linux]
-    libc: [musl]
 
   '@oxc-parser/binding-linux-s390x-gnu@0.127.0':
     resolution: {integrity: sha512-pbXIhiNFHoqWeqDNLiJ9JkpHz1IM9k4DXa66x+1GTWMG7iLxtkXgE53iiuKSXwmk3zIYmaPVfBvgcAhS583K4Q==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [s390x]
     os: [linux]
-    libc: [glibc]
 
   '@oxc-parser/binding-linux-x64-gnu@0.127.0':
     resolution: {integrity: sha512-MYCguB9RvBvlSd6gbuNI7QwiLoCCAlGnlRJFPrzLI6U1/9wkC/WK6LtBAUln55H1Ctqw45PWmqrobKoMhsYQzQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@oxc-parser/binding-linux-x64-musl@0.127.0':
     resolution: {integrity: sha512-5eY0B/bxf1xIUxb4NOTvOI3KWtBQfPWYyKAzgcrCt0mDibSZygVpO1Pz8bkeiSZ5Jj9+M09dkggG3H8I5d0Uyg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@oxc-parser/binding-openharmony-arm64@0.127.0':
     resolution: {integrity: sha512-Gld0ajrFTUXNtdw20fVBuTQx66FA75nIVg+//pPfR3sXkuABB4mTBhl3r9JNzrJpgW//qiwxf0nWXUWGJSL3UQ==}
@@ -2947,49 +2964,41 @@ packages:
     resolution: {integrity: sha512-CUEYvlX1Fk7E9kUMzuswru1J9HLxMwnpDeQGjQuI4ZH+iNCoa2X9T+pvyzrbsgl7WnIeTFTlNlHsRfVdf5g9/g==}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@oxc-resolver/binding-linux-arm64-musl@11.21.2':
     resolution: {integrity: sha512-ViN1ZibQyxwC67GpoP33oo+S9UyUnkog13vzQb9+v9bCNvrVzJuk0MRdacjtv/9xfRMVF/eqHFyl8YOeykI10Q==}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@oxc-resolver/binding-linux-ppc64-gnu@11.21.2':
     resolution: {integrity: sha512-CU1sCqWnhGqYD5I1HedHk5pujrn7ssDkNB/AEQd/pd3D/EojVSgJUlpbafwIbyhia3PgIfkvdFpRPWSALzVumA==}
     cpu: [ppc64]
     os: [linux]
-    libc: [glibc]
 
   '@oxc-resolver/binding-linux-riscv64-gnu@11.21.2':
     resolution: {integrity: sha512-jWVyZtIHca4Gb96x7dag+y69vlei7ffjrsveLkmf2ZhqEAz6ZSBnY1GWvgZUaZlwZP62A3xD092BW97Q5VGc+g==}
     cpu: [riscv64]
     os: [linux]
-    libc: [glibc]
 
   '@oxc-resolver/binding-linux-riscv64-musl@11.21.2':
     resolution: {integrity: sha512-LF29obFqNgBUgDX7rmUK7M4D0JQG5LxhYzn3xXmECcHU9aQAdWG7NiY052qybtesEdwHQXKNTWYQ7mTsybNvWg==}
     cpu: [riscv64]
     os: [linux]
-    libc: [musl]
 
   '@oxc-resolver/binding-linux-s390x-gnu@11.21.2':
     resolution: {integrity: sha512-+NYcm+cCHBbtdQQ3A4phQTSuVRYnNHz7wrl9XRAPEovcdoqi0mb1K5ZOl+jN54ZD+q1zz3V0vltbFJmzecJKmw==}
     cpu: [s390x]
     os: [linux]
-    libc: [glibc]
 
   '@oxc-resolver/binding-linux-x64-gnu@11.21.2':
     resolution: {integrity: sha512-UQqZDdG2r2HhAOsZEgufkIWHPQ886IUyuJQkoZByvzhW8j51R4UNzGBJFkTiTnLhQnggwJRdJgFWK4uY6ZVIMw==}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@oxc-resolver/binding-linux-x64-musl@11.21.2':
     resolution: {integrity: sha512-3Q9PMRjalWkT6NZ4jfujuqTCFwoWErg3y3BnOgb544B8IMw4PktiwWOigMfOHNRLMghZeJ7hpfpZf4CP7rV7Og==}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@oxc-resolver/binding-openharmony-arm64@11.21.2':
     resolution: {integrity: sha512-Eljeq3ndtyKhM+Es8LITi4Zl2htzuRZcrPMF3kMCsrILztvU6AjZ3FuEhHHKobPUB9rMpzLpJP5bDqXI7r+iog==}
@@ -3040,42 +3049,36 @@ packages:
     engines: {node: '>= 10.0.0'}
     cpu: [arm]
     os: [linux]
-    libc: [glibc]
 
   '@parcel/watcher-linux-arm-musl@2.5.1':
     resolution: {integrity: sha512-6E+m/Mm1t1yhB8X412stiKFG3XykmgdIOqhjWj+VL8oHkKABfu/gjFj8DvLrYVHSBNC+/u5PeNrujiSQ1zwd1Q==}
     engines: {node: '>= 10.0.0'}
     cpu: [arm]
     os: [linux]
-    libc: [musl]
 
   '@parcel/watcher-linux-arm64-glibc@2.5.1':
     resolution: {integrity: sha512-LrGp+f02yU3BN9A+DGuY3v3bmnFUggAITBGriZHUREfNEzZh/GO06FF5u2kx8x+GBEUYfyTGamol4j3m9ANe8w==}
     engines: {node: '>= 10.0.0'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@parcel/watcher-linux-arm64-musl@2.5.1':
     resolution: {integrity: sha512-cFOjABi92pMYRXS7AcQv9/M1YuKRw8SZniCDw0ssQb/noPkRzA+HBDkwmyOJYp5wXcsTrhxO0zq1U11cK9jsFg==}
     engines: {node: '>= 10.0.0'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@parcel/watcher-linux-x64-glibc@2.5.1':
     resolution: {integrity: sha512-GcESn8NZySmfwlTsIur+49yDqSny2IhPeZfXunQi48DMugKeZ7uy1FX83pO0X22sHntJ4Ub+9k34XQCX+oHt2A==}
     engines: {node: '>= 10.0.0'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@parcel/watcher-linux-x64-musl@2.5.1':
     resolution: {integrity: sha512-n0E2EQbatQ3bXhcH2D1XIAANAcTZkQICBPVaxMeaCVBtOpBZpWJuf7LwyWPSBDITb7In8mqQgJ7gH8CILCURXg==}
     engines: {node: '>= 10.0.0'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@parcel/watcher-win32-arm64@2.5.1':
     resolution: {integrity: sha512-RFzklRvmc3PkjKjry3hLF9wD7ppR4AKcWNzH7kXR7GUe0Igb3Nz8fyPwtZCSquGrhU5HhUNDr/mKBqj7tqA2Vw==}
@@ -3189,42 +3192,36 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@rolldown/binding-linux-arm64-musl@1.2.11':
     resolution: {integrity: sha512-AskzJUIKRLPxkruR1wLKewGbOw+EYfU/9lOrBFj4AFrEA8hPpKFnODWNu2WLaNs0QNkEb9QIJufmVZZIL/bJlg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@rolldown/binding-linux-ppc64-gnu@1.2.11':
     resolution: {integrity: sha512-qlUGAheh2yh8afH7QBgx0PrRHN85hKnNd78x8MeMhXivuevgd8vgf6/CstOzmNKY/lLTHvNTrPy98cLnAugzJw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [ppc64]
     os: [linux]
-    libc: [glibc]
 
   '@rolldown/binding-linux-s390x-gnu@1.2.11':
     resolution: {integrity: sha512-secpEad+0vCbSfn8upFySkDskv+bGPk3THSDS9Y89yc4rb4kzqHp8Dmyd9BkQW4SnhNXBZCl/6CrO//hZahNJQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [s390x]
     os: [linux]
-    libc: [glibc]
 
   '@rolldown/binding-linux-x64-gnu@1.2.11':
     resolution: {integrity: sha512-mOVBT3dPpkWm8XBWPmU4bf+U6dYDLeMo/9ojUmis4N0L5uu10qra5vOyngZ7/PSdoE4G9KvRt4bloRxNjLas7A==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@rolldown/binding-linux-x64-musl@1.2.11':
     resolution: {integrity: sha512-Is78i9A8Ui4SqcxUwFJ9uMmjDn58IbVTjFWYdQestFEgeuEmHMLGNriXnVJKkwG2YiZjw8cP0zCTyDMdDGtOOg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@rolldown/binding-openharmony-arm64@1.2.11':
     resolution: {integrity: sha512-dUCXneZ87INUMyQ0D+C0HrEBNUPNXHaPmU5GTjyKTJEiussw9Kaj5Ln8UztPe4epV/ffvgNBEadksdYhmW6xJA==}
@@ -3929,49 +3926,41 @@ packages:
     resolution: {integrity: sha512-34gw7PjDGB9JgePJEmhEqBhWvCiiWCuXsL9hYphDF7crW7UgI05gyBAi6MF58uGcMOiOqSJ2ybEeCvHcq0BCmQ==}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@unrs/resolver-binding-linux-arm64-musl@1.11.1':
     resolution: {integrity: sha512-RyMIx6Uf53hhOtJDIamSbTskA99sPHS96wxVE/bJtePJJtpdKGXO1wY90oRdXuYOGOTuqjT8ACccMc4K6QmT3w==}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@unrs/resolver-binding-linux-ppc64-gnu@1.11.1':
     resolution: {integrity: sha512-D8Vae74A4/a+mZH0FbOkFJL9DSK2R6TFPC9M+jCWYia/q2einCubX10pecpDiTmkJVUH+y8K3BZClycD8nCShA==}
     cpu: [ppc64]
     os: [linux]
-    libc: [glibc]
 
   '@unrs/resolver-binding-linux-riscv64-gnu@1.11.1':
     resolution: {integrity: sha512-frxL4OrzOWVVsOc96+V3aqTIQl1O2TjgExV4EKgRY09AJ9leZpEg8Ak9phadbuX0BA4k8U5qtvMSQQGGmaJqcQ==}
     cpu: [riscv64]
     os: [linux]
-    libc: [glibc]
 
   '@unrs/resolver-binding-linux-riscv64-musl@1.11.1':
     resolution: {integrity: sha512-mJ5vuDaIZ+l/acv01sHoXfpnyrNKOk/3aDoEdLO/Xtn9HuZlDD6jKxHlkN8ZhWyLJsRBxfv9GYM2utQ1SChKew==}
     cpu: [riscv64]
     os: [linux]
-    libc: [musl]
 
   '@unrs/resolver-binding-linux-s390x-gnu@1.11.1':
     resolution: {integrity: sha512-kELo8ebBVtb9sA7rMe1Cph4QHreByhaZ2QEADd9NzIQsYNQpt9UkM9iqr2lhGr5afh885d/cB5QeTXSbZHTYPg==}
     cpu: [s390x]
     os: [linux]
-    libc: [glibc]
 
   '@unrs/resolver-binding-linux-x64-gnu@1.11.1':
     resolution: {integrity: sha512-C3ZAHugKgovV5YvAMsxhq0gtXuwESUKc5MhEtjBpLoHPLYM+iuwSj3lflFwK3DPm68660rZ7G8BMcwSro7hD5w==}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@unrs/resolver-binding-linux-x64-musl@1.11.1':
     resolution: {integrity: sha512-rV0YSoyhK2nZ4vEswT/QwqzqQXw5I6CjoaYMOX0TqBlWhojUf8P94mvI7nuJTeaCkkds3QE4+zS8Ko+GdXuZtA==}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@unrs/resolver-binding-wasm32-wasi@1.11.1':
     resolution: {integrity: sha512-5u4RkfxJm+Ng7IWgkzi3qrFOvLvQYnPBmjmZQ8+szTK/b31fQCnleNl1GgEt7nIsZRIf5PLhPwT0WM+q45x/UQ==}
@@ -6743,28 +6732,24 @@ packages:
     engines: {node: '>= 12.0.0'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   lightningcss-linux-arm64-musl@1.33.0:
     resolution: {integrity: sha512-yiO5ROMuYQgXbC60yjZU5CYSFZGKXL0HFATXt9mHJn1+zW55oCtMI9NfcVhYLMFDL7gV7oBPon/EmMMGg2OvtQ==}
     engines: {node: '>= 12.0.0'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   lightningcss-linux-x64-gnu@1.33.0:
     resolution: {integrity: sha512-ar+Ju7LmcN0Jo4FpL4hpFybwNG9/3A/Br5KW2n2jyODg3MEZXaDYADdemoNS+BDNfMgKvylJLj4S5tyRActuAg==}
     engines: {node: '>= 12.0.0'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   lightningcss-linux-x64-musl@1.33.0:
     resolution: {integrity: sha512-RYiYbkokw0trfKqqzfF55lginwEPrD3OJDfTuJzFs1MK6iFnDenaz1fqLLtX4ITG3OktJQXOeTaw1awrBAlZPw==}
     engines: {node: '>= 12.0.0'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   lightningcss-win32-arm64-msvc@1.33.0:
     resolution: {integrity: sha512-1K+MPfLSFVpphzpdbfkhlWk6wBrTObBzS2T6db10PNOZgR9GoVsAWzwNyuhUYYbTp23j+4RrncfujZ4uAzXvwA==}
@@ -7998,6 +7983,7 @@ packages:
 
   react-waypoint@10.3.0:
     resolution: {integrity: sha512-iF1y2c1BsoXuEGz08NoahaLFIGI9gTUAAOKip96HUmylRT6DUtpgoBPjk/Y8dfcFVmfVDvUzWjNXpZyKTOV0SQ==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     peerDependencies:
       react: ^15.3.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
 
@@ -10510,15 +10496,15 @@ snapshots:
     dependencies:
       js-yaml: 4.1.1
 
-  '@diplodoc/cli@5.64.1(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@18.2.0)(strip-ansi@7.2.0)(vitest@5.0.1)':
+  '@diplodoc/cli@5.64.1(@types/markdown-it@13.0.9)(@types/node@25.2.1)(react@19.3.1)(strip-ansi@7.2.0)(vitest@5.0.1)':
     dependencies:
       '@diplodoc/ajv': 0.11.0
       '@diplodoc/client': 5.14.9
       '@diplodoc/color-extension': 1.0.0(markdown-it@13.0.2)
       '@diplodoc/liquid': 1.5.3
-      '@diplodoc/transform': 4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
-      '@diplodoc/translation': 1.10.3(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(markdown-it@13.0.2)(react@18.2.0)
-      '@diplodoc/utils': 2.3.6(react@18.2.0)
+      '@diplodoc/transform': 4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@19.3.1)
+      '@diplodoc/translation': 1.10.3(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(markdown-it@13.0.2)(react@19.3.1)
+      '@diplodoc/utils': 2.3.6(react@19.3.1)
       '@gravity-ui/uikit-themer': 1.8.0
       '@inquirer/prompts': 8.5.2(@types/node@25.2.1)
       chalk: 4.1.2
@@ -10569,19 +10555,19 @@ snapshots:
       - markdown-it
       - react
 
-  '@diplodoc/cut-extension@1.1.7(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@19.3.1)':
+  '@diplodoc/cut-extension@1.1.8(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
     dependencies:
-      '@diplodoc/directive': 0.3.6(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
-      '@diplodoc/utils': 2.3.6(react@19.3.1)
+      '@diplodoc/directive': 0.4.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+      '@diplodoc/utils': 2.3.6(react@18.2.0)
     transitivePeerDependencies:
       - '@types/markdown-it'
       - markdown-it
       - react
 
-  '@diplodoc/cut-extension@1.1.8(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)':
+  '@diplodoc/cut-extension@1.1.8(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@19.3.1)':
     dependencies:
       '@diplodoc/directive': 0.4.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
-      '@diplodoc/utils': 2.3.6(react@18.2.0)
+      '@diplodoc/utils': 2.3.6(react@19.3.1)
     transitivePeerDependencies:
       - '@types/markdown-it'
       - markdown-it
@@ -10668,12 +10654,12 @@ snapshots:
     optionalDependencies:
       react: 18.2.0
 
-  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.2.79)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.2.79)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
       '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       '@diplodoc/transform': 4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
       '@diplodoc/utils': 2.2.2(react@18.2.0)
-      '@gravity-ui/page-constructor': 7.25.0(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+      '@gravity-ui/page-constructor': 7.25.0(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       cheerio: 1.0.0
       js-yaml: 4.1.1
       lodash: 4.17.23
@@ -10687,12 +10673,12 @@ snapshots:
       - '@types/react'
       - react-is
 
-  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.2.79)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@diplodoc/page-constructor-extension@0.13.3(@diplodoc/transform@4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.2.79)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
       '@diplodoc/directive': 0.3.3(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       '@diplodoc/transform': 4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
       '@diplodoc/utils': 2.2.2(react@18.2.0)
-      '@gravity-ui/page-constructor': 7.25.0(@diplodoc/transform@4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+      '@gravity-ui/page-constructor': 7.25.0(@diplodoc/transform@4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       cheerio: 1.0.0
       js-yaml: 4.1.1
       lodash: 4.17.23
@@ -10823,13 +10809,44 @@ snapshots:
       - '@types/markdown-it'
       - react
 
-  '@diplodoc/translation@1.10.3(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(markdown-it@13.0.2)(react@18.2.0)':
+  '@diplodoc/transform@4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@19.3.1)':
+    dependencies:
+      '@diplodoc/cut-extension': 1.1.8(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@19.3.1)
+      '@diplodoc/directive': 0.4.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+      '@diplodoc/file-extension': 0.2.7(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
+      '@diplodoc/tabs-extension': 3.10.7(react@19.3.1)
+      '@diplodoc/utils': 2.3.6(react@19.3.1)
+      chalk: 4.1.2
+      cheerio: 1.2.0
+      css: 3.0.0
+      cssfilter: 0.0.10
+      get-root-node-polyfill: 1.0.0
+      github-slugger: 1.5.0
+      js-yaml: 4.3.2
+      lodash: 4.18.1
+      markdown-it: 13.0.2
+      markdown-it-attrs: 4.3.1(markdown-it@13.0.2)
+      markdown-it-deflist: 2.1.0
+      markdown-it-sup: 1.0.0
+      markdownlint: 0.32.1
+      markdownlint-rule-helpers: 0.17.2
+      quick-lru: 5.1.1
+      sanitize-html: 2.18.1
+      slugify: 1.6.6
+      ts-dedent: 2.3.0
+    optionalDependencies:
+      highlight.js: 11.11.1
+    transitivePeerDependencies:
+      - '@types/markdown-it'
+      - react
+
+  '@diplodoc/translation@1.10.3(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(markdown-it@13.0.2)(react@19.3.1)':
     dependencies:
       '@cospired/i18n-iso-languages': 4.2.0
       '@diplodoc/ajv': 0.11.0
       '@diplodoc/directive': 0.4.0(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
       '@diplodoc/sentenizer': 0.0.12
-      '@diplodoc/transform': 4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
+      '@diplodoc/transform': 4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@19.3.1)
       '@shellscape/i18n-iso-countries': 7.5.0-shellscape.v1
       ajv: 8.20.0
       ajv-keywords: 5.1.0(ajv@8.20.0)
@@ -11098,34 +11115,42 @@ snapshots:
 
   '@floating-ui/utils@0.2.10': {}
 
-  '@gravity-ui/components@4.21.0(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@gravity-ui/components@5.0.0(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@bem-react/classname': 1.8.0
       '@gravity-ui/date-utils': 2.5.6
       '@gravity-ui/icons': 2.23.0(react@18.2.0)
-      '@gravity-ui/uikit': 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      lodash: 4.18.1
+      '@gravity-ui/uikit': 8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
+      '@hello-pangea/dnd': 18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@tanstack/react-virtual': 3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      es-toolkit: 1.52.0
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       universal-cookie: 7.2.2
+    transitivePeerDependencies:
+      - '@types/react'
 
-  '@gravity-ui/components@4.21.0(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@gravity-ui/components@5.0.0(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@tanstack/react-virtual@3.14.21(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react-virtualized-auto-sizer@1.0.26(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-window@1.8.11(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@bem-react/classname': 1.8.0
       '@gravity-ui/date-utils': 2.5.6
       '@gravity-ui/icons': 2.23.0(react@19.3.1)
-      '@gravity-ui/uikit': 7.39.0(@babel/runtime@7.29.2)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      lodash: 4.18.1
+      '@gravity-ui/uikit': 8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@tanstack/react-virtual@3.14.21(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react-virtualized-auto-sizer@1.0.26(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-window@1.8.11(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
+      '@hello-pangea/dnd': 18.0.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@tanstack/react-virtual': 3.14.21(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      es-toolkit: 1.52.0
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
       universal-cookie: 7.2.2
+    transitivePeerDependencies:
+      - '@types/react'
 
-  '@gravity-ui/date-components@3.4.2(@gravity-ui/date-utils@2.5.6)(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@gravity-ui/date-components@3.4.2(@gravity-ui/date-utils@2.5.6)(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@bem-react/classname': 1.8.0
       '@gravity-ui/date-utils': 2.5.6
       '@gravity-ui/icons': 2.13.0(react@18.2.0)
-      '@gravity-ui/uikit': 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@gravity-ui/uikit': 8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@types/react': 18.2.79
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -11136,14 +11161,14 @@ snapshots:
       dayjs: 1.11.10
       lodash: 4.18.1
 
-  '@gravity-ui/dynamic-forms@5.13.2(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(final-form@4.20.10)(react-dom@18.2.0(react@18.2.0))(react-final-form@6.5.9(final-form@4.20.10)(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@gravity-ui/dynamic-forms@5.13.2(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(final-form@4.20.10)(react-dom@18.2.0(react@18.2.0))(react-final-form@6.5.9(final-form@4.20.10)(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
       '@bem-react/classname': 1.8.0
-      '@gravity-ui/date-components': 3.4.2(@gravity-ui/date-utils@2.5.6)(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@gravity-ui/date-components': 3.4.2(@gravity-ui/date-utils@2.5.6)(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@gravity-ui/date-utils': 2.5.6
       '@gravity-ui/i18n': 1.8.0
       '@gravity-ui/icons': 2.13.0(react@18.2.0)
-      '@gravity-ui/uikit': 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@gravity-ui/uikit': 8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       final-form: 4.20.10
       lodash: 4.18.1
       react: 18.2.0
@@ -11211,14 +11236,14 @@ snapshots:
     optionalDependencies:
       react: 19.3.1
 
-  '@gravity-ui/page-constructor@7.25.0(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@gravity-ui/page-constructor@7.25.0(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
       '@bem-react/classname': 1.8.0
       '@diplodoc/transform': 4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
-      '@gravity-ui/components': 4.21.0(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@gravity-ui/dynamic-forms': 5.13.2(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(final-form@4.20.10)(react-dom@18.2.0(react@18.2.0))(react-final-form@6.5.9(final-form@4.20.10)(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+      '@gravity-ui/components': 5.0.0(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@gravity-ui/dynamic-forms': 5.13.2(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(final-form@4.20.10)(react-dom@18.2.0(react@18.2.0))(react-final-form@6.5.9(final-form@4.20.10)(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@gravity-ui/i18n': 1.8.0
-      '@gravity-ui/uikit': 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@gravity-ui/uikit': 8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@react-spring/web': 9.7.5(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       ajv: 8.18.0
       ajv-keywords: 5.1.0(ajv@8.18.0)
@@ -11247,14 +11272,14 @@ snapshots:
       - react-dom
       - react-is
 
-  '@gravity-ui/page-constructor@7.25.0(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@gravity-ui/page-constructor@7.25.0(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
       '@bem-react/classname': 1.8.0
       '@diplodoc/transform': 4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
-      '@gravity-ui/components': 4.21.0(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@gravity-ui/dynamic-forms': 5.13.2(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(final-form@4.20.10)(react-dom@18.2.0(react@18.2.0))(react-final-form@6.5.9(final-form@4.20.10)(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+      '@gravity-ui/components': 5.0.0(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@gravity-ui/dynamic-forms': 5.13.2(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(final-form@4.20.10)(react-dom@18.2.0(react@18.2.0))(react-final-form@6.5.9(final-form@4.20.10)(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@gravity-ui/i18n': 1.8.0
-      '@gravity-ui/uikit': 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@gravity-ui/uikit': 8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@react-spring/web': 9.7.5(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       ajv: 8.18.0
       ajv-keywords: 5.1.0(ajv@8.18.0)
@@ -11283,14 +11308,14 @@ snapshots:
       - react-dom
       - react-is
 
-  '@gravity-ui/page-constructor@7.25.0(@diplodoc/transform@4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@gravity-ui/page-constructor@7.25.0(@diplodoc/transform@4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.1.1)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
       '@bem-react/classname': 1.8.0
       '@diplodoc/transform': 4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
-      '@gravity-ui/components': 4.21.0(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@gravity-ui/dynamic-forms': 5.13.2(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(final-form@4.20.10)(react-dom@18.2.0(react@18.2.0))(react-final-form@6.5.9(final-form@4.20.10)(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+      '@gravity-ui/components': 5.0.0(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@gravity-ui/dynamic-forms': 5.13.2(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(final-form@4.20.10)(react-dom@18.2.0(react@18.2.0))(react-final-form@6.5.9(final-form@4.20.10)(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@gravity-ui/i18n': 1.8.0
-      '@gravity-ui/uikit': 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@gravity-ui/uikit': 8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@react-spring/web': 9.7.5(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       ajv: 8.18.0
       ajv-keywords: 5.1.0(ajv@8.18.0)
@@ -11319,14 +11344,14 @@ snapshots:
       - react-dom
       - react-is
 
-  '@gravity-ui/page-constructor@7.25.0(@diplodoc/transform@4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
+  '@gravity-ui/page-constructor@7.25.0(@diplodoc/transform@4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)':
     dependencies:
       '@bem-react/classname': 1.8.0
       '@diplodoc/transform': 4.78.13(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0)
-      '@gravity-ui/components': 4.21.0(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@gravity-ui/dynamic-forms': 5.13.2(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(final-form@4.20.10)(react-dom@18.2.0(react@18.2.0))(react-final-form@6.5.9(final-form@4.20.10)(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+      '@gravity-ui/components': 5.0.0(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@gravity-ui/dynamic-forms': 5.13.2(@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(final-form@4.20.10)(react-dom@18.2.0(react@18.2.0))(react-final-form@6.5.9(final-form@4.20.10)(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
       '@gravity-ui/i18n': 1.8.0
-      '@gravity-ui/uikit': 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@gravity-ui/uikit': 8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@react-spring/web': 9.7.5(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       ajv: 8.18.0
       ajv-keywords: 5.1.0(ajv@8.18.0)
@@ -11386,53 +11411,77 @@ snapshots:
       chroma-js: 3.2.0
       lodash-es: 4.17.23
 
-  '@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@bem-react/classname': 1.8.0
       '@floating-ui/react': 0.27.16(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@gravity-ui/i18n': 1.8.0
       '@gravity-ui/icons': 2.23.0(react@18.2.0)
-      '@hello-pangea/dnd': 18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@tanstack/react-virtual': 3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@uiw/react-color': 2.10.3(@babel/runtime@7.29.2)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       blueimp-md5: 2.19.0
-      lodash: 4.18.1
+      es-toolkit: 1.52.0
       rc-slider: 11.1.9(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       react-transition-group: 4.4.5(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      react-virtualized-auto-sizer: 1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      react-window: 1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       tabbable: 6.2.0
       tslib: 2.8.1
-      use-sync-external-store: 1.6.0(react@18.2.0)
+    optionalDependencies:
+      '@hello-pangea/dnd': 18.0.1(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@tanstack/react-virtual': 3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@types/react': 18.2.79
+      react-virtualized-auto-sizer: 1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      react-window: 1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
     transitivePeerDependencies:
       - '@babel/runtime'
-      - '@types/react'
 
-  '@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@19.3.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@tanstack/react-virtual@3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@19.3.0)(react-dom@18.2.0(react@18.2.0))(react-virtualized-auto-sizer@1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-window@1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)':
+    dependencies:
+      '@bem-react/classname': 1.8.0
+      '@floating-ui/react': 0.27.16(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@gravity-ui/i18n': 1.8.0
+      '@gravity-ui/icons': 2.23.0(react@18.2.0)
+      '@uiw/react-color': 2.10.3(@babel/runtime@7.29.2)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      blueimp-md5: 2.19.0
+      es-toolkit: 1.52.0
+      rc-slider: 11.1.9(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      react-transition-group: 4.4.5(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      tabbable: 6.2.0
+      tslib: 2.8.1
+    optionalDependencies:
+      '@hello-pangea/dnd': 18.0.1(@types/react@19.3.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@tanstack/react-virtual': 3.14.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@types/react': 19.3.0
+      react-virtualized-auto-sizer: 1.0.26(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      react-window: 1.8.11(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+    transitivePeerDependencies:
+      - '@babel/runtime'
+
+  '@gravity-ui/uikit@8.0.0(@babel/runtime@7.29.2)(@hello-pangea/dnd@18.0.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@tanstack/react-virtual@3.14.21(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react-virtualized-auto-sizer@1.0.26(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-window@1.8.11(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@bem-react/classname': 1.8.0
       '@floating-ui/react': 0.27.16(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@gravity-ui/i18n': 1.8.0
       '@gravity-ui/icons': 2.23.0(react@19.3.1)
-      '@hello-pangea/dnd': 18.0.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      '@tanstack/react-virtual': 3.14.21(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@uiw/react-color': 2.10.3(@babel/runtime@7.29.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       blueimp-md5: 2.19.0
-      lodash: 4.18.1
+      es-toolkit: 1.52.0
       rc-slider: 11.1.9(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
       react-transition-group: 4.4.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      react-virtualized-auto-sizer: 1.0.26(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      react-window: 1.8.11(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       tabbable: 6.2.0
       tslib: 2.8.1
-      use-sync-external-store: 1.6.0(react@19.3.1)
+    optionalDependencies:
+      '@hello-pangea/dnd': 18.0.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@tanstack/react-virtual': 3.14.21(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@types/react': 19.3.0
+      react-virtualized-auto-sizer: 1.0.26(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      react-window: 1.8.11(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
     transitivePeerDependencies:
       - '@babel/runtime'
-      - '@types/react'
 
   '@gulp-sourcemaps/identity-map@2.0.1':
     dependencies:
@@ -11465,6 +11514,19 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
+  '@hello-pangea/dnd@18.0.1(@types/react@19.3.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+    dependencies:
+      '@babel/runtime': 7.29.2
+      css-box-model: 1.2.1
+      raf-schd: 4.0.3
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      react-redux: 9.3.0(@types/react@19.3.0)(react@18.2.0)(redux@5.0.1)
+      redux: 5.0.1
+    transitivePeerDependencies:
+      - '@types/react'
+    optional: true
+
   '@hello-pangea/dnd@18.0.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@babel/runtime': 7.29.2
@@ -11473,18 +11535,6 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
       react-redux: 9.3.0(@types/react@19.3.0)(react@19.3.1)(redux@5.0.1)
-      redux: 5.0.1
-    transitivePeerDependencies:
-      - '@types/react'
-
-  '@hello-pangea/dnd@18.0.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
-    dependencies:
-      '@babel/runtime': 7.29.2
-      css-box-model: 1.2.1
-      raf-schd: 4.0.3
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      react-redux: 9.3.0(@types/react@18.2.79)(react@18.2.0)(redux@5.0.1)
       redux: 5.0.1
     transitivePeerDependencies:
       - '@types/react'
@@ -17920,6 +17970,16 @@ snapshots:
       '@types/react': 18.2.79
       redux: 5.0.1
 
+  react-redux@9.3.0(@types/react@19.3.0)(react@18.2.0)(redux@5.0.1):
+    dependencies:
+      '@types/use-sync-external-store': 0.0.6
+      react: 18.2.0
+      use-sync-external-store: 1.6.0(react@18.2.0)
+    optionalDependencies:
+      '@types/react': 19.3.0
+      redux: 5.0.1
+    optional: true
+
   react-redux@9.3.0(@types/react@19.3.0)(react@19.3.1)(redux@5.0.1):
     dependencies:
       '@types/use-sync-external-store': 0.0.6
@@ -17990,6 +18050,7 @@ snapshots:
     dependencies:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
+    optional: true
 
   react-waypoint@10.3.0(react@18.2.0):
     dependencies:
@@ -18012,6 +18073,7 @@ snapshots:
       memoize-one: 5.2.1
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
+    optional: true
 
   react@18.2.0:
     dependencies:

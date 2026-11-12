@@ -75,12 +75,12 @@ export function MarkdownViewerDemo({
 
     return (
         <GalleryProvider>
-            <Flex className={cn(null, sp({p: 6}))} direction="column" gap={3}>
+            <Flex className={cn(null, sp({p: 6}))} direction="column" gap="spacing-3">
                 <Flex
                     className={cn('toolbar')}
                     alignItems="center"
                     justifyContent="space-between"
-                    gap={4}
+                    gap="spacing-4"
                 >
                     <Text variant="subheader-2">MarkdownViewer</Text>
                     {documents.length > 1 && (
