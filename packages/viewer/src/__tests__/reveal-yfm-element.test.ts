@@ -215,6 +215,30 @@ describe('revealYfmElement', () => {
         expect(root.querySelector('.yfm-tab-panel')?.classList.contains('active')).toBe(false);
     });
 
+    it('should click a dropdown tab without ARIA links after HTML sanitization', () => {
+        // Dropdown HTML after the default Diplodoc transform sanitizer.
+        const root = createRoot(`
+            <div class="yfm-tabs yfm-tabs-dropdown" data-diplodoc-variant="dropdown">
+                <div role="tablist" class="yfm-tabs-dropdown-select">-</div>
+                <ul class="yfm-tabs-dropdown-menu">
+                    <li class="yfm-tab" data-diplodoc-id="one" data-diplodoc-key="one">One</li>
+                    <li class="yfm-tab" data-diplodoc-id="two" data-diplodoc-key="two">Two</li>
+                </ul>
+                <div id="first" class="yfm-tab-panel" role="tabpanel" data-title="One"><p>First</p></div>
+                <div id="second" class="yfm-tab-panel" role="tabpanel" data-title="Two"><p>Second target</p></div>
+            </div>
+        `);
+        const clicks: EventTarget[] = [];
+        root.addEventListener('click', (event) => {
+            if (event.target) clicks.push(event.target);
+        });
+
+        revealYfmElement({selector: '#second p'}, {root});
+
+        expect(clicks).toEqual([root.querySelector('[data-diplodoc-key="two"]')]);
+        expect(root.querySelector('.yfm-tab-panel.active')).toBeNull();
+    });
+
     it.each(['remove', 'slot'])(
         'should stop when a tab handler changes target ownership by %s',
         (change) => {

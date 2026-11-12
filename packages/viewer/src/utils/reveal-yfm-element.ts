@@ -86,8 +86,13 @@ function findTabControl(panel: Element): Element | undefined {
     }
 
     const labelledBy = panel.getAttribute('aria-labelledby');
-    if (!labelledBy) return undefined;
-    return controls.find(
-        (tab) => tab.id === labelledBy || tab.getAttribute('data-diplodoc-id') === labelledBy,
-    );
+    if (labelledBy) {
+        const control = controls.find(
+            (tab) => tab.id === labelledBy || tab.getAttribute('data-diplodoc-id') === labelledBy,
+        );
+        if (control) return control;
+    }
+
+    const title = panel.getAttribute('data-title');
+    return title ? controls.find((tab) => tab.textContent?.trim() === title) : undefined;
 }
