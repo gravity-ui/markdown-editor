@@ -3,6 +3,12 @@ import type {CaptureScreenshotParams} from 'playwright/core/types';
 
 import {Playground} from './Playground.helpers';
 
+// These runtime controls are internal and excluded from the editor's public declarations.
+type ToolbarTestEditor = NonNullable<Window['mdEditor']> & {
+    changeSplitModeEnabled(opts: {splitModeEnabled: boolean}): void;
+    changeToolbarVisibility(opts: {visible: boolean}): void;
+};
+
 test.describe('Toolbar', () => {
     test.beforeEach(async ({mount}) => {
         await mount(<Playground initial="" />, {
@@ -139,7 +145,9 @@ test.describe('Toolbar keyboard navigation', () => {
         await editor.fill('[Preview text](#preview)');
         await page.evaluate(() => {
             if (!window.mdEditor) throw new Error('window.mdEditor is undefined');
-            window.mdEditor.changeSplitModeEnabled({splitModeEnabled: false});
+            (window.mdEditor as ToolbarTestEditor).changeSplitModeEnabled({
+                splitModeEnabled: false,
+            });
         });
 
         const preview = editor.locators.previewButton;
@@ -154,7 +162,7 @@ test.describe('Toolbar keyboard navigation', () => {
         await editor.focus();
         await page.evaluate(() => {
             if (!window.mdEditor) throw new Error('window.mdEditor is undefined');
-            window.mdEditor.changeToolbarVisibility({visible: false});
+            (window.mdEditor as ToolbarTestEditor).changeToolbarVisibility({visible: false});
         });
         await expect(editor.locators.toolbars.main).toBeHidden();
         const toolbar = page.getByRole('toolbar', {name: 'Settings', exact: true});
@@ -208,7 +216,7 @@ test.describe('Toolbar keyboard navigation', () => {
         await editor.fill('[Preview link](#preview)');
         await page.evaluate(() => {
             if (!window.mdEditor) throw new Error('window.mdEditor is undefined');
-            window.mdEditor.changeSplitModeEnabled({splitModeEnabled: true});
+            (window.mdEditor as ToolbarTestEditor).changeSplitModeEnabled({splitModeEnabled: true});
         });
         const link = editor.locators.previewContent.getByRole('link', {name: 'Preview link'});
         await expect(link).toBeVisible();
@@ -233,7 +241,7 @@ test.describe('Toolbar keyboard navigation', () => {
             await expect(editor.locators.contenteditable).toBeFocused();
             await page.evaluate(() => {
                 if (!window.mdEditor) throw new Error('window.mdEditor is undefined');
-                window.mdEditor.changeToolbarVisibility({visible: false});
+                (window.mdEditor as ToolbarTestEditor).changeToolbarVisibility({visible: false});
             });
 
             const controls = page.getByRole('toolbar', {name: 'Settings', exact: true});
@@ -285,7 +293,7 @@ test.describe('Toolbar keyboard navigation', () => {
 
             await page.evaluate(() => {
                 if (!window.mdEditor) throw new Error('window.mdEditor is undefined');
-                window.mdEditor.changeToolbarVisibility({visible: false});
+                (window.mdEditor as ToolbarTestEditor).changeToolbarVisibility({visible: false});
             });
             await expect(toolbar).toBeHidden();
             await page.keyboard.press('Alt+F10');
@@ -330,7 +338,7 @@ test.describe('Toolbar keyboard navigation', () => {
             await before.focus();
             await page.evaluate(() => {
                 if (!window.mdEditor) throw new Error('window.mdEditor is undefined');
-                window.mdEditor.changeToolbarVisibility({visible: false});
+                (window.mdEditor as ToolbarTestEditor).changeToolbarVisibility({visible: false});
             });
             await expect(toolbar).toBeHidden();
             await expect(before).toBeFocused();
