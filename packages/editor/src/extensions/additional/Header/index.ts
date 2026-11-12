@@ -1,13 +1,13 @@
 import type {ExtensionAuto} from '#core';
 
 import {HeaderSpecs} from './HeaderSpecs';
+import {headerToolbarPlugin} from './plugins/HeaderToolbar';
 
 import './index.scss';
-import './stub.scss';
 
 export * from './HeaderSpecs';
 
-/** Обложка страницы. В ВИЗИВИГ блок пока показан заглушкой с исходной разметкой. */
+/** Обложка страницы. */
 export const Header: ExtensionAuto = (builder) => {
-    builder.use(HeaderSpecs);
+    builder.use(HeaderSpecs).addPlugin(headerToolbarPlugin);
 };
