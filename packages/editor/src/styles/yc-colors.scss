@@ -1,15 +1,7 @@
-$colors: (
-    'gray': '--g-color-text-secondary',
-    'yellow': '--g-color-private-yellow-600-solid',
-    'orange': '--g-color-private-orange-500-solid',
-    'red': '--g-color-text-danger',
-    'green': '--g-color-text-positive',
-    'blue': '--g-color-text-info',
-    'violet': '--g-color-text-utility',
-);
+@use './palette' as *;
 
 .g-root {
-    @each $name, $value in $colors {
+    @each $name, $value in $palette-text {
         --yfm-color-text-#{$name}: var(#{$value});
     }
 }
@@ -18,7 +10,7 @@ $colors: (
     // for already colored to black text
     --yfm-colorify-black: var(--g-color-text-primary);
 
-    @each $name, $value in $colors {
+    @each $name, $value in $palette-text {
         --yfm-colorify-#{$name}: var(--yfm-color-text-#{$name});
     }
 }
