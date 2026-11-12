@@ -2,21 +2,71 @@ import {expect} from 'playwright/core';
 import {test} from 'playwright/core/extensions/button';
 
 import {ButtonStories} from './Button.helpers';
-import {HeaderStories} from './Header.helpers';
 
 test.describe('Button', () => {
-    test('should render every view and color', async ({mount, button, expectScreenshot}) => {
+    test('should render every view and color @wysiwyg', async ({
+        mount,
+        editor,
+        button,
+        expectScreenshot,
+    }) => {
         await mount(<ButtonStories.Colors />);
-        await expect(button.variants).toHaveCount(25);
-        await expect(button.preview).toHaveCSS('grid-template-columns', '80px 80px 80px 80px');
-        await expectScreenshot({component: button.preview});
+        await editor.assertMode('wysiwyg');
+        await expect(button.blocks).toHaveCount(25);
+        await expect(button.content).toHaveCSS('grid-template-columns', '80px 80px 80px 80px');
+        await expectScreenshot({component: editor.locators.component});
     });
 
-    test('should render a standalone button', async ({mount, button, expectScreenshot}) => {
+    test('should render a standalone button @wysiwyg', async ({
+        mount,
+        editor,
+        button,
+        expectScreenshot,
+    }) => {
         await mount(<ButtonStories.Button />);
+        await editor.assertMode('wysiwyg');
+        await expect(button.blocks).toHaveCount(1);
+        await expect(button.blocks).toHaveAttribute('href', 'https://example.com');
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should preview every view and color and preserve them across modes @wysiwyg @markup', async ({
+        mount,
+        page,
+        editor,
+        button,
+        wait,
+        expectScreenshot,
+    }) => {
+        await mount(<ButtonStories.Colors />);
+        const before = await button.getValues();
+        await editor.switchMode('markup');
+        await editor.switchPreview('visible');
+        await page.mouse.move(0, 0);
+        await wait.tooltipsHidden();
+        await expect(button.variants).toHaveCount(25);
+        await expect(button.preview).toHaveCSS('grid-template-columns', '80px 80px 80px 80px');
+        expect(await button.getValues(button.variants)).toEqual(before);
+        await expectScreenshot({component: editor.locators.component});
+        await editor.switchMode('wysiwyg');
+        expect(await button.getValues()).toEqual(before);
+    });
+
+    test('should preview a standalone button @markup', async ({
+        mount,
+        page,
+        editor,
+        button,
+        wait,
+        expectScreenshot,
+    }) => {
+        await mount(<ButtonStories.Button mode="markup" />);
+        await editor.switchPreview('visible');
+        await page.mouse.move(0, 0);
+        await wait.tooltipsHidden();
         await expect(button.variants).toHaveCount(1);
         await expect(button.variants).toHaveAttribute('href', 'https://example.com');
-        await expectScreenshot({component: button.preview});
+        await expectScreenshot({component: editor.locators.component});
     });
 
     test('should show the placeholder in an empty button @wysiwyg', async ({
@@ -25,7 +75,7 @@ test.describe('Button', () => {
         button,
         expectScreenshot,
     }) => {
-        await mount(<HeaderStories.Header initial={':::button\n:::\n\nAfter'} width={400} />);
+        await mount(<ButtonStories.Button initial={':::button\n:::\n\nAfter'} width={400} />);
         await expect(button.blocks).toHaveText('Button');
         await expectScreenshot({component: editor.locators.component});
     });

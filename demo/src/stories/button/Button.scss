@@ -8,12 +8,7 @@
     --g-color-line-utility: #8f52cccc;
     --g-color-text-brand: #5282ff;
 
-    box-sizing: border-box;
-    width: fit-content;
-    padding: 16px;
-
-    border-radius: 16px;
-    background: var(--g-color-base-background);
+    background-color: var(--g-color-base-background);
 
     &_theme_light {
         --g-color-base-background: #ffffff;
@@ -86,15 +81,22 @@
     }
 
     &_palette {
-        display: grid;
-        align-items: start;
-        grid-template-columns: repeat(4, 80px);
-        grid-template-rows: 28px repeat(6, 36px);
-        gap: 8px 17px;
+        .ProseMirror,
+        .demo-preview {
+            display: grid;
+            align-items: start;
+            grid-template-columns: repeat(4, 80px);
+            grid-template-rows: 28px repeat(6, 36px);
+            gap: 8px 17px;
 
-        width: 412px;
-        min-height: 338px;
-        padding: 15px 19px 30px 22px;
+            box-sizing: border-box;
+            min-height: 338px;
+            padding: 15px 19px 30px 22px;
+
+            > :not(.g-md-button-plugin) {
+                grid-column: 1 / -1;
+            }
+        }
 
         .g-md-button-plugin + .g-md-button-plugin {
             margin-inline-start: 0;
