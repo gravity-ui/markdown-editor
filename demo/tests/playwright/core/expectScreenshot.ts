@@ -64,7 +64,7 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
             await page.emulateMedia({colorScheme: 'light'});
             await waitForTheme('light');
 
-            expect.soft(await captureScreenshot()).toMatchSnapshot({
+            expect(await captureScreenshot()).toMatchSnapshot({
                 name: `${nameScreenshot} light.webp`,
             });
         }
@@ -73,7 +73,7 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
             await page.emulateMedia({colorScheme: 'dark'});
             await waitForTheme('dark');
 
-            expect.soft(await captureScreenshot()).toMatchSnapshot({
+            expect(await captureScreenshot()).toMatchSnapshot({
                 name: `${nameScreenshot} dark.webp`,
             });
         }
