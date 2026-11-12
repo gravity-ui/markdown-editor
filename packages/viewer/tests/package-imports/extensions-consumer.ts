@@ -10,6 +10,7 @@ import {
     FilesGallery,
     HeadingAnchors,
     HeadingEditButtons,
+    RevealYfmElement,
     YfmCodeBlockActions,
 } from '@gravity-ui/markdown-viewer/extensions';
 
@@ -28,6 +29,10 @@ const result = renderToString(
             MarkdownViewer,
             {html},
             createElement(YfmCodeBlockActions, {lineWrappingButton: true}),
+            createElement(RevealYfmElement, {
+                id: 'heading',
+                onReveal: () => assert.fail('Reveal callbacks must not run on the server'),
+            }),
             createElement(HeadingAnchors, {
                 getHref: () => assert.fail('Heading callbacks must not run on the server'),
             }),
