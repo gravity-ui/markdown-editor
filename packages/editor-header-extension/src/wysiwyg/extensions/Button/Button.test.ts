@@ -93,6 +93,8 @@ describe('Button extension', () => {
     });
     it.each([
         [':::button\n:::', ':::button\nButton\n:::'],
+        [':::button\n\n:::', ':::button\nButton\n:::'],
+        [':::button\n   \n:::', ':::button\nButton\n:::'],
         ['> :::button\n> :::', '> :::button\n> Button\n> :::'],
         [':::button{view="flat"}\n:::', ':::button{view="flat"}\nButton\n:::'],
     ])('should save the placeholder as the label of an empty button in %j', (source, expected) => {
@@ -103,17 +105,17 @@ describe('Button extension', () => {
         const deps = new ExtensionsManager({
             extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(Button),
         }).build();
-        const doc = deps.markupParser.parse(':::button\n:::');
+        const doc = deps.markupParser.parse(':::button\n\n:::');
         const view = new EditorView(document.createElement('div'), {
             state: EditorState.create({doc, schema: deps.schema}),
             nodeViews: deps.nodeViews,
         });
         try {
             expect((view.nodeDOM(0) as HTMLElement).textContent).toBe('Button');
-            expect(doc.firstChild?.attrs.content).toBe('');
+            expect(doc.firstChild?.attrs.content).toBe('\n');
             const container = document.createElement('div');
             container.append(DOMSerializer.fromSchema(deps.schema).serializeFragment(doc.content));
-            expect(container.textContent).toBe('');
+            expect(container.textContent?.trim()).toBe('');
         } finally {
             view.destroy();
         }

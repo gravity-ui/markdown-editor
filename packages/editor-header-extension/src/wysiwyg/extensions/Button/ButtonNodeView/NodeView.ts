@@ -6,7 +6,7 @@ export class WButtonNodeView implements NodeView {
     readonly dom: HTMLElement;
     constructor(node: Node) {
         this.dom = DOMSerializer.fromSchema(node.type.schema).serializeNode(node) as HTMLElement;
-        if (!node.attrs.content) this.dom.textContent = getPlaceholderContent(node) ?? '';
+        if (!node.attrs.content.trim()) this.dom.textContent = getPlaceholderContent(node) ?? '';
         this.dom.addEventListener('click', (event) => event.preventDefault());
     }
 }

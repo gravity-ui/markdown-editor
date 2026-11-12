@@ -1,9 +1,9 @@
 .button-example {
-    .g-md-button-plugin {
-        min-width: 80px;
-    }
-
     &_palette {
+        .g-md-button-plugin {
+            min-width: 80px;
+        }
+
         .ProseMirror,
         .demo-preview {
             display: grid;
