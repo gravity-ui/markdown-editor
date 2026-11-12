@@ -19,6 +19,7 @@ const smallSizes = {
 } as CSSProperties;
 
 const SETTINGS_INSET = 16;
+const SETTINGS_MIN_HEIGHT = 160;
 
 const dimensions = [
     ['s', 'm'],
@@ -132,6 +133,7 @@ test.describe('Header', () => {
         header,
         expectScreenshot,
     }) => {
+        await page.setViewportSize({width: 700, height: 820});
         await mount(
             <HeaderStories.Header width={660} initial={`${headerMarkup('s', 's')}\n\nAfter`} />,
         );
@@ -139,27 +141,12 @@ test.describe('Header', () => {
         await editor.press('ControlOrMeta+Home');
         await header.openSettings();
         await expect(header.height).toBeFocused();
-        // Distances from the top and right edges of the block to the panel.
-        await expect
-            .poll(async () => {
-                const [blockBox, settingsBox] = await Promise.all([
-                    header.blocks.boundingBox(),
-                    header.settings.boundingBox(),
-                ]);
-                return (
-                    blockBox &&
-                    settingsBox && [
-                        Math.round(settingsBox.y - blockBox.y),
-                        Math.round(blockBox.x + blockBox.width - settingsBox.x - settingsBox.width),
-                    ]
-                );
-            })
-            .toEqual([SETTINGS_INSET, SETTINGS_INSET]);
-        await expectScreenshot({component: editor.locators.component});
+        await expect.poll(() => header.settingsInsets()).toEqual([SETTINGS_INSET, SETTINGS_INSET]);
+        await expectScreenshot({fullPage: true});
 
         await header.height.click();
         await expect(header.options).toHaveText(['S', 'M', 'L']);
-        await expectScreenshot({component: editor.locators.component, nameSuffix: 'height list'});
+        await expectScreenshot({fullPage: true, nameSuffix: 'height list'});
         await page.keyboard.press('Escape');
         await expect(header.options).toHaveCount(0);
         await expect(header.settings).toBeVisible();
@@ -168,7 +155,7 @@ test.describe('Header', () => {
 
         await header.width.click();
         await expect(header.options).toHaveText(['S', 'M', 'L', 'Full width']);
-        await expectScreenshot({component: editor.locators.component, nameSuffix: 'width list'});
+        await expectScreenshot({fullPage: true, nameSuffix: 'width list'});
         await header.option('M').click();
         await expect(header.blocks).toHaveClass(/g-md-header-plugin_width_m/);
 
@@ -192,6 +179,52 @@ test.describe('Header', () => {
         await expect(header.settings).toBeHidden();
     });
 
+    test('should keep the settings usable near the bottom edge of the viewport @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+    }) => {
+        await page.setViewportSize({width: 700, height: 600});
+        await mount(
+            <HeaderStories.Header width={660} initial={`${headerMarkup('s', 's')}\n\nAfter`} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await header.openSettings();
+        const block = await header.blocks.boundingBox();
+        if (!block) throw new Error('The banner must have bounds');
+        // Less than the minimum height remains between the panel corner and the viewport bottom.
+        const height = Math.round(block.y) + 2 * SETTINGS_INSET + SETTINGS_MIN_HEIGHT - 20;
+        await page.setViewportSize({width: 700, height});
+        await expect.poll(() => header.settingsBottom()).toBe(height - SETTINGS_INSET);
+        expect((await header.settings.boundingBox())?.height).toBe(SETTINGS_MIN_HEIGHT);
+        await expect(header.closeButton).toBeInViewport({ratio: 1});
+        await expect(header.width).toBeInViewport({ratio: 1});
+    });
+
+    test('should fit the settings to the viewport after the banner moves @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+    }) => {
+        await page.setViewportSize({width: 700, height: 600});
+        await mount(
+            <HeaderStories.Header width={660} initial={`${headerMarkup('s', 's')}\n\nAfter`} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await header.openSettings();
+        await expect.poll(() => header.settingsBottom()).toBe(600 - SETTINGS_INSET);
+        // Content above the banner grows without resize or scroll events.
+        await page.locator('.playwright-wrapper-test').evaluate((element) => {
+            element.style.paddingTop = '120px';
+        });
+        await expect.poll(() => header.settingsInsets()).toEqual([SETTINGS_INSET, SETTINGS_INSET]);
+        await expect.poll(() => header.settingsBottom()).toBe(600 - SETTINGS_INSET);
+    });
+
     test('should show all settings sections @wysiwyg', async ({
         mount,
         page,
@@ -199,7 +232,7 @@ test.describe('Header', () => {
         header,
         expectScreenshot,
     }) => {
-        await page.setViewportSize({width: 740, height: 980});
+        await page.setViewportSize({width: 700, height: 820});
         await mount(<HeaderStories.Header width={660} />);
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
@@ -212,9 +245,9 @@ test.describe('Header', () => {
         await expect(header.toggle('Image')).toBeChecked();
         await expect(header.alignment('Vertically', 'Top')).toBeChecked();
         await expect(header.alignment('Horizontally', 'Center')).toBeChecked();
-        await expectScreenshot({component: header.settings});
+        await expectScreenshot({fullPage: true});
         await header.scrollSettingsToBottom();
-        await expectScreenshot({component: header.settings, nameSuffix: 'background'});
+        await expectScreenshot({fullPage: true, nameSuffix: 'background'});
     });
 
     test('should keep demonstration settings local and reset them on reopening @wysiwyg', async ({
@@ -224,7 +257,7 @@ test.describe('Header', () => {
         header,
         expectScreenshot,
     }) => {
-        await page.setViewportSize({width: 740, height: 980});
+        await page.setViewportSize({width: 700, height: 820});
         await mount(<HeaderStories.Header width={660} />);
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
@@ -278,7 +311,7 @@ test.describe('Header', () => {
         expect(messages).toContain('Buttons section button clicked');
         expect(messages).toContain('Image and background section button clicked');
         await header.scrollSettingsToTop();
-        await expectScreenshot({component: header.settings, nameSuffix: 'collapsed'});
+        await expectScreenshot({fullPage: true, nameSuffix: 'collapsed'});
 
         await header.closeButton.click();
         await header.openSettings();
@@ -428,7 +461,7 @@ test.describe('Header on mobile', () => {
         ).toBe(true);
         await header.select(header.width, 'Full width');
         await expect(header.blocks).toHaveClass(/g-md-header-plugin_width_full/);
-        await expectScreenshot({component: editor.locators.component});
+        await expectScreenshot({fullPage: true});
         await header.background.scrollIntoViewIfNeeded();
         await expect(header.background).toBeInViewport();
         await page.setViewportSize({width: 375, height: 480});

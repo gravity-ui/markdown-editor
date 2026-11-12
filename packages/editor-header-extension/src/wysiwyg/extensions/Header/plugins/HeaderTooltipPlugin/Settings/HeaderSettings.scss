@@ -10,6 +10,7 @@ $viewport-inset: var(--g-spacing-4);
 
     box-sizing: border-box;
     width: min($panel-width, calc(100vw - 2 * #{$viewport-inset}));
+    max-height: var(--g-md-header-settings-max-height);
     padding: var(--g-spacing-4);
 
     // A scrolling flex column shrinks the 1 px divider to zero.

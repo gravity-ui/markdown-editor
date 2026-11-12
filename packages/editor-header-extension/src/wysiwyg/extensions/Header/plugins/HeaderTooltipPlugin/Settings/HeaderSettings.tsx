@@ -1,5 +1,6 @@
-import {useLayoutEffect, useMemo, useRef, useState} from 'react';
+import {useMemo, useRef} from 'react';
 
+import {limitShift, shift, size} from '@floating-ui/react';
 import {Xmark} from '@gravity-ui/icons';
 import {cn} from '@gravity-ui/markdown-editor';
 import {
@@ -19,10 +20,12 @@ import './HeaderSettings.scss';
 const b = cn('header-settings');
 
 const PANEL_INSET = 16;
+// The title and both dimension selects stay visible.
+const PANEL_MIN_HEIGHT = 160;
 const PANEL_MAX_HEIGHT = 720;
 const CLOSE_ICON_SIZE = 16;
 
-// The Popup keeps at least 4 px of the panel over the anchor, so the anchor spans the block width.
+// `limitShift` keeps the panel over the anchor, so the anchor spans the block width.
 const insideTopEdge = (block: HTMLElement): PopupAnchorElement => ({
     contextElement: block,
     getBoundingClientRect: () => {
@@ -31,28 +34,18 @@ const insideTopEdge = (block: HTMLElement): PopupAnchorElement => ({
     },
 });
 
-/** The panel ends `PANEL_INSET` px above the bottom edge of the viewport. */
-function useMaxHeight(anchor: PopupAnchorElement | null) {
-    const [maxHeight, setMaxHeight] = useState<number>();
-
-    useLayoutEffect(() => {
-        if (!anchor) return undefined;
-
-        const update = () => {
-            const {top} = anchor.getBoundingClientRect();
-            setMaxHeight(Math.min(PANEL_MAX_HEIGHT, window.innerHeight - top - PANEL_INSET));
-        };
-        update();
-
-        const controller = new AbortController();
-        window.addEventListener('resize', update, {signal: controller.signal});
-        // Scroll events do not bubble; the capture phase covers every scroll container.
-        window.addEventListener('scroll', update, {capture: true, signal: controller.signal});
-        return () => controller.abort();
-    }, [anchor]);
-
-    return maxHeight;
-}
+// Replace the Popup defaults, so the panel stays in the corner instead of flipping.
+// It ends `PANEL_INSET` px above the viewport bottom; at `PANEL_MIN_HEIGHT` it moves up instead.
+const middlewares = [
+    size({
+        padding: PANEL_INSET,
+        apply: ({availableHeight, elements}) => {
+            const height = Math.max(PANEL_MIN_HEIGHT, Math.min(PANEL_MAX_HEIGHT, availableHeight));
+            elements.floating.style.setProperty('--g-md-header-settings-max-height', `${height}px`);
+        },
+    }),
+    shift({padding: PANEL_INSET, crossAxis: true, limiter: limitShift()}),
+];
 
 type HeaderSettingsProps = {
     /** The panel opens inside this banner, at its top right corner. */
@@ -74,14 +67,12 @@ export function HeaderSettings({
     const titleId = useUniqId();
     const anchorElement = useMemo(() => block && insideTopEdge(block), [block]);
     const heightRef = useRef<HTMLButtonElement>(null);
-    const maxHeight = useMaxHeight(anchorElement);
     return (
         <Popup
             open
             anchorElement={anchorElement}
-            // Without fallback placements, the panel stays in the corner.
-            placement={['bottom-end']}
-            offset={0}
+            placement="bottom-end"
+            floatingMiddlewares={middlewares}
             // Focus set before the panel is positioned skips `returnFocus`.
             initialFocus={heightRef}
             returnFocus={{current: button}}
@@ -96,7 +87,6 @@ export function HeaderSettings({
         >
             <section
                 className={b()}
-                style={{maxHeight}}
                 role="dialog"
                 aria-labelledby={titleId}
                 data-qa="header-settings"

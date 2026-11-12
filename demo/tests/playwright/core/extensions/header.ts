@@ -55,6 +55,26 @@ export class HeaderBlock {
         return this.settings.getByRole('button', {name: 'Background No background', exact: true});
     }
 
+    /** Distances from the top and right edges of the block to the panel. */
+    async settingsInsets() {
+        const [block, settings] = await Promise.all([
+            this.blocks.boundingBox(),
+            this.settings.boundingBox(),
+        ]);
+        return (
+            block &&
+            settings && [
+                Math.round(settings.y - block.y),
+                Math.round(block.x + block.width - settings.x - settings.width),
+            ]
+        );
+    }
+
+    async settingsBottom() {
+        const settings = await this.settings.boundingBox();
+        return settings && Math.round(settings.y + settings.height);
+    }
+
     async scrollSettingsToTop() {
         await this.settings.evaluate((element) => element.scrollTo(0, 0));
     }
