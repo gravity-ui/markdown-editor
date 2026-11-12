@@ -115,6 +115,7 @@ Exports in `package.json`:
 | `./wysiwyg/utils` | WYSIWYG utils, optional |
 | `./markup` | Markup entities only: CodeMirror commands and extensions, toolbar items without `wysiwyg` |
 | `./markup/utils` | Markup utils, optional |
+| `./view` | Static render entities: HOCs and hooks for rendered HTML, optional |
 | `./wysiwyg/core` | WYSIWYG core, root editor package only |
 | `./pm/*`, `./cm/*` | ProseMirror and CodeMirror re-exports, root editor package only |
 

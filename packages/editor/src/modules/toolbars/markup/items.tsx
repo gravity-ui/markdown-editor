@@ -6,7 +6,6 @@ import {
     insertBlockquoteLink,
     insertHRule,
     insertLink,
-    insertMermaidDiagram,
     insertYfmHtmlBlock,
     insertYfmTable,
     insertYfmTabs,
@@ -182,12 +181,6 @@ export const mathBlockItemMarkup: ToolbarItemMarkup = {
 
 export const yfmHtmlBlockItemMarkup: ToolbarItemMarkup = {
     exec: (e) => insertYfmHtmlBlock(e.cm),
-    isActive: inactive,
-    isEnable: enable,
-};
-
-export const mermaidItemMarkup: ToolbarItemMarkup = {
-    exec: (e) => insertMermaidDiagram(e.cm),
     isActive: inactive,
     isEnable: enable,
 };

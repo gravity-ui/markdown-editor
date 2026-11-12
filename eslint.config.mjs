@@ -109,6 +109,23 @@ export default defineConfig(
         },
     },
     {
+        files: ['./packages/editor-mermaid-extension/**/*'],
+        languageOptions: {
+            parserOptions: {
+                project: './packages/editor-mermaid-extension/tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: './packages/editor-mermaid-extension/tsconfig.json',
+                },
+            },
+        },
+    },
+    {
         files: ['./packages/plugin-header/**/*'],
         languageOptions: {
             parserOptions: {

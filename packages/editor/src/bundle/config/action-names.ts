@@ -37,7 +37,6 @@ const names = [
     /** @deprecated use mathInline */
     'math_inline',
     'mathInline',
-    'mermaid',
     'mono',
     'orderedList',
     'paragraph',

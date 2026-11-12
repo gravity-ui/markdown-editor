@@ -1,15 +1,17 @@
+import {
+    generateEntityId,
+    getReactRendererFromState,
+    isInvalidEntityId,
+} from '@gravity-ui/markdown-editor';
+import type {Node} from '@gravity-ui/markdown-editor/pm/model';
+import type {EditorView, NodeView} from '@gravity-ui/markdown-editor/pm/view';
 import {Portal} from '@gravity-ui/uikit';
 import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
-import type {Node} from 'prosemirror-model';
-import type {EditorView, NodeView} from 'prosemirror-view';
 
-import {getReactRendererFromState} from 'src/extensions/behavior/ReactRenderer';
-import {generateEntityId, isInvalidEntityId} from 'src/utils/entity-id';
+import type {MermaidOptions} from '../Mermaid';
+import {MermaidConsts, defaultMermaidEntityId} from '../MermaidSpecs';
 
-import type {MermaidOptions} from '..';
-import {MermaidConsts, defaultMermaidEntityId} from '../MermaidSpecs/const';
-
-import {MermaidView, STOP_EVENT_CLASSNAME} from './MermaidView';
+import {MermaidView, STOP_EVENT_CLASSNAME} from './components/MermaidView';
 
 let mermaidInstance: Mermaid;
 

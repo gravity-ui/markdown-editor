@@ -263,16 +263,6 @@ export const wYfmHtmlBlockItemData: WToolbarSingleItemData = {
     isEnable: (e) => e.actions.createYfmHtmlBlock.isEnable(),
 };
 
-export const wMermaidItemData: WToolbarSingleItemData = {
-    id: ActionName.mermaid,
-    type: ToolbarDataType.SingleButton,
-    title: i18n.bind(null, 'mermaid'),
-    icon: icons.mermaid,
-    exec: (e) => e.actions.createMermaid.run(),
-    isActive: (e) => e.actions.createMermaid.isActive(),
-    isEnable: (e) => e.actions.createMermaid.isEnable(),
-};
-
 export const wCodeBlockItemData: WToolbarItemData = {
     id: ActionName.code_block,
     title: i18n.bind(null, 'codeblock'),

@@ -82,6 +82,18 @@ export function discoverExtensions(root = REPO_ROOT) {
         }
     }
 
+    const packagesDir = join(root, 'packages');
+    for (const pkg of readdirSync(packagesDir).sort()) {
+        if (!/^editor-.+-extension$/.test(pkg)) continue;
+        const extensionsDir = join(packagesDir, pkg, 'src/wysiwyg/extensions');
+        if (!existsSync(extensionsDir)) continue;
+        for (const entry of readdirSync(extensionsDir, {withFileTypes: true})) {
+            if (!entry.isDirectory()) continue;
+            const extension = readExtension(join(extensionsDir, entry.name), root);
+            if (extension) extensions.push(extension);
+        }
+    }
+
     const pageConstructorDir = join(root, 'packages/page-constructor-extension/src/extension');
     extensions.push(readExtension(pageConstructorDir, root, 'YfmPageConstructorExtension'));
     extensions.push(

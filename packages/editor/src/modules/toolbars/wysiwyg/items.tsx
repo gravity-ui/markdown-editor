@@ -145,12 +145,6 @@ export const yfmHtmlBlockItemWysiwyg: ToolbarItemWysiwyg = {
     isEnable: (e) => e.actions.createYfmHtmlBlock.isEnable(),
 };
 
-export const mermaidItemWysiwyg: ToolbarItemWysiwyg = {
-    exec: (e) => e.actions.createMermaid.run(),
-    isActive: (e) => e.actions.createMermaid.isActive(),
-    isEnable: (e) => e.actions.createMermaid.isEnable(),
-};
-
 export const codeBlockItemWysiwyg: ToolbarItemWysiwyg = {
     exec: (e) => e.actions.toCodeBlock.run(),
     isActive: (e) => e.actions.toCodeBlock.isActive(),
