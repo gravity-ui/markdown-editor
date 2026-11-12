@@ -15,7 +15,7 @@ Test names (`it`, `test`, and parameterized cases) must start with `should `, fo
 Type contract tests follow the same rules in every package:
 
 - Store them in the package's `tests/types/` directory as `*.types.ts`.
-- Include them in the package's TypeScript configuration and check them with its `typecheck` command. Vitest does not run these files.
+- Check source API contracts with the package's `typecheck` command. Contracts that import the built package may use a separate TypeScript configuration and command, run after a fresh build as part of package tests and CI. This does not require a build in `typecheck`.
 - Use explicit type assignments to check result types, methods, and overloads.
 - Use `@ts-expect-error` for inputs or assignments that must be rejected. The check must fail if the expected error disappears.
 - Keep each contract check in a small function or type alias. These files are checked without execution; runtime behavior belongs in Vitest tests.
