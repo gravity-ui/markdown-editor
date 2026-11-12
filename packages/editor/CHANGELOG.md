@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.50.1](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.50.0...markdown-editor-v15.50.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* **YfmTable:** keep pasted YFM header and body rows in one table ([#1428](https://github.com/gravity-ui/markdown-editor/issues/1428)) ([d6965bf](https://github.com/gravity-ui/markdown-editor/commit/d6965bf0ea1e1db30a23ee079f9a5a9f449d931c))
+
 ## [15.50.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.49.0...markdown-editor-v15.50.0) (2026-11-10)
 
 
