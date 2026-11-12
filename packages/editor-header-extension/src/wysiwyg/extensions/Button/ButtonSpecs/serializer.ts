@@ -1,4 +1,3 @@
-import {getPlaceholderContent} from '@gravity-ui/markdown-editor';
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {buttonDefaultColor, buttonDefaults} from '@gravity-ui/markdown-plugin-header';
 
@@ -14,7 +13,10 @@ export const ButtonSerializerSpecs: ExtensionAuto = (builder) => {
                 return `${name}="${value}"`;
             })
             .join(' ');
-        const content: string = node.attrs.content || getPlaceholderContent(node) || '';
+        const placeholder = node.type.spec.placeholder?.content;
+        const content: string = node.attrs.content.trim()
+            ? node.attrs.content
+            : ((typeof placeholder === 'function' ? placeholder(node) : placeholder) ?? '');
         state.write(`:::button${attrs ? `{${attrs}}` : ''}\n`);
         state.text(content.replace(/\n$/, ''), false);
         state.ensureNewLine();

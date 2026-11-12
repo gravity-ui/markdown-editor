@@ -11,12 +11,12 @@ const editor = useMarkdownEditor({
 });
 ```
 
-| Entry point                                                  | Exports                                                                                                  |
-| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| `@gravity-ui/markdown-editor-header-extension`               | `Header`, the Markdown command `insertHeader`, and the toolbar button `toolbarHeaderItem` for both modes |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header` and `toolbarHeaderItem` for the visual editor                                                   |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs` and `headerNodeName`                                                                       |
-| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader` and `toolbarHeaderItem` for the Markdown editor                                           |
+| Entry point                                                  | Exports                                                                                                            |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `@gravity-ui/markdown-editor-header-extension`               | `Header`, `Button`, the Markdown command `insertHeader`, and the toolbar button `toolbarHeaderItem` for both modes |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header`, `Button`, and `toolbarHeaderItem` for the visual editor                                                  |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName`, `ButtonSpecs`, and `buttonNodeName`                                               |
+| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader` and `toolbarHeaderItem` for the Markdown editor                                                     |
 
 `toolbarHeaderItem` inserts the block.
 In the visual editor, the button is disabled inside another header.
@@ -47,7 +47,6 @@ const editor = useMarkdownEditor({
 });
 ```
 
-`Button` is also exported from `/wysiwyg`; `ButtonSpecs` and `buttonNodeName` are exported from `/wysiwyg/specs`.
 Register `buttonPlugin` from `@gravity-ui/markdown-plugin-header` in the Markdown preview.
 
 Enter `:::button{href="/page" view="action" color="brand"}` with a plain-text body and a closing `:::` in Markdown mode.
