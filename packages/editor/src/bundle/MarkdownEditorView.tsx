@@ -371,8 +371,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         },
                         [className],
                     )}
-                    role="button"
-                    tabIndex={0}
+                    tabIndex={-1}
                 >
                     <EditorWrapper
                         autofocus={autofocus}
