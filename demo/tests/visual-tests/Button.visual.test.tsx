@@ -12,7 +12,7 @@ test.describe('Button', () => {
         button,
     }) => {
         const md = new MarkdownIt().use(buttonPlugin);
-        await button.setHostContent(md.render(':::button{color="blue"}\nAction\n:::'));
+        await button.setHostContent(md.render(':::button{color="brand"}\nAction\n:::'));
         const before = await button.getHostStyle();
 
         await page.addStyleTag({

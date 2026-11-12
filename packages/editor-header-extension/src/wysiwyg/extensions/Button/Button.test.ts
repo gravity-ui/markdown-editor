@@ -29,7 +29,7 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
             .use(ButtonSpecs),
 }).buildDeps();
 const button =
-    ':::button{href="/page?a=1&b=2" view="outline" color="blue" target="_blank"}\nRead more\n:::';
+    ':::button{href="/page?a=1&b=2" view="outline" color="brand" target="_blank"}\nRead more\n:::';
 describe('Button extension', () => {
     it('should preserve buttons when resizing, undoing, and copying a header', () => {
         const original = markupParser.parse(`:::header\n${button}\n:::`);
@@ -61,8 +61,8 @@ describe('Button extension', () => {
             ':::button{view="normal"}\nLabel\n:::',
         ],
         [
-            ':::button{view="outline" color="blue" target="_blank" href="/page"}\nLabel\n:::',
-            ':::button{href="/page" view="outline" color="blue" target="_blank"}\nLabel\n:::',
+            ':::button{view="outline" color="brand" target="_blank" href="/page"}\nLabel\n:::',
+            ':::button{href="/page" view="outline" color="brand" target="_blank"}\nLabel\n:::',
         ],
     ])('should omit defaults when saving %j', (source, expected) => {
         expect(serializer.serialize(markupParser.parse(source))).toBe(expected);
