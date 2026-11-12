@@ -1,30 +1,58 @@
-import {YfmStaticView} from '@gravity-ui/markdown-editor/view';
-import {buttonPlugin} from '@gravity-ui/markdown-plugin-header';
-import {useThemeType} from '@gravity-ui/uikit';
-import MarkdownIt from 'markdown-it';
+import {useCallback} from 'react';
 
+import {
+    type MarkdownEditorMode,
+    MarkdownEditorView,
+    type RenderPreview,
+    useMarkdownEditor,
+} from '@gravity-ui/markdown-editor';
+import {Button} from '@gravity-ui/markdown-editor-header-extension';
+import {useThemeType} from '@gravity-ui/uikit';
+
+import {PlaygroundLayout} from '../../components/PlaygroundLayout';
+import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
 import {block} from '../../utils/cn';
 
 import './Button.scss';
-import '@gravity-ui/markdown-plugin-header/styles.css';
 
 const b = block('button-example');
-const md = new MarkdownIt().use(buttonPlugin);
 
 export function ButtonExample({
     initial = ':::button{href="https://example.com"}\nКнопка\n:::',
     palette = false,
+    mode = 'wysiwyg',
+    width = 660,
 }: {
     initial?: string;
     palette?: boolean;
+    mode?: MarkdownEditorMode;
+    width?: number;
 }) {
     const theme = useThemeType();
+    const renderPreview = useCallback<RenderPreview>(
+        ({getValue}) => <SplitModePreviewLazy getValue={getValue} needToSanitizeHtml />,
+        [],
+    );
+    const editor = useMarkdownEditor({
+        initial: {markup: initial, mode, toolbarVisible: true},
+        wysiwygConfig: {extensions: (builder) => builder.use(Button)},
+        markupConfig: {renderPreview},
+    });
 
     return (
-        <YfmStaticView
-            qa="button-example"
-            className={b({theme, palette})}
-            html={md.render(initial)}
-        />
+        <div className={b({theme, palette})}>
+            <PlaygroundLayout
+                editor={editor}
+                viewWidth={width}
+                view={({className}) => (
+                    <MarkdownEditorView
+                        qa="demo-md-editor"
+                        className={className}
+                        editor={editor}
+                        stickyToolbar={false}
+                    />
+                )}
+            />
+        </div>
     );
 }
