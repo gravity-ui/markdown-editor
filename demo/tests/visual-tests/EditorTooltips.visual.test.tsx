@@ -2,6 +2,88 @@ import {expect, test} from 'playwright/core';
 
 import {EditorTooltips} from './EditorTooltips.helpers';
 
+for (const selectText of [false, true]) {
+    test(`should keep the GPT popup anchored inside a note (${selectText ? 'selection' : 'caret'}) @wysiwyg`, async ({
+        mount,
+        page,
+    }) => {
+        await mount(
+            <EditorTooltips
+                gpt
+                markup={'Before\n\n{% note info "Note" %}\n\nSelect this text\n\n{% endnote %}'}
+            />,
+        );
+        const editor = page.locator('.ProseMirror');
+        const paragraph = editor.getByText('Select this text', {exact: true});
+        await paragraph.click();
+        await page.keyboard.press('End');
+        if (selectText) {
+            await page.keyboard.press('Shift+Home');
+            await expect(page.getByTestId('g-md-toolbar-selection')).toBeVisible();
+            expect(await page.evaluate(() => document.getSelection()?.toString())).toBe(
+                'Select this text',
+            );
+        }
+
+        const capture = await editor.evaluateHandle((root) => {
+            const originalParagraph = root.querySelector('.yfm-note-content p');
+            const fallbacks: string[] = [];
+            const observer = new MutationObserver((records) => {
+                for (const record of records) {
+                    for (const node of Array.from(record.addedNodes)) {
+                        if (
+                            node instanceof HTMLElement &&
+                            node.matches('span[tabindex="-1"][aria-hidden="true"]')
+                        ) {
+                            fallbacks.push(node.outerHTML);
+                        }
+                    }
+                }
+            });
+            observer.observe(root, {childList: true, subtree: true});
+            return {
+                stop: () => {
+                    observer.disconnect();
+                    return {fallbacks, connected: originalParagraph?.isConnected};
+                },
+            };
+        });
+
+        await page.keyboard.press('Control+Shift+y');
+        const prompt = page.locator('.g-md-gpt-popup').getByRole('textbox');
+        await prompt.fill('Rewrite');
+        await expect(prompt).toBeFocused();
+        await expect(prompt).toHaveAttribute(
+            'placeholder',
+            selectText ? 'Edit selected text' : 'Generate text',
+        );
+        await page.evaluate(() => new Promise(requestAnimationFrame));
+        const result = await capture.evaluate(({stop}) => stop());
+        await capture.dispose();
+        expect(result.fallbacks).toEqual([]);
+        expect(result.connected).toBe(true);
+        await expect
+            .poll(async () => {
+                const anchor = await editor.locator('.g-md-gpt-widget-deco').boundingBox();
+                const floating = page.locator('.g-md-gpt-popup').locator('..');
+                const popup = await floating.boundingBox();
+                if (!anchor || !popup) return Infinity;
+                const top = (await floating.getAttribute('data-floating-ui-placement'))?.startsWith(
+                    'top',
+                );
+                const gap = top
+                    ? anchor.y - popup.y - popup.height
+                    : popup.y - anchor.y - anchor.height;
+                return Math.max(Math.abs(popup.x - anchor.x), Math.abs(gap - 4));
+            })
+            .toBeLessThan(2);
+        await page.keyboard.press('Escape');
+        await expect(prompt).toBeHidden();
+        await expect(editor).toBeFocused();
+        await expect(paragraph).toHaveText('Select this text');
+    });
+}
+
 test.describe('Editor tooltips', () => {
     test.beforeEach(async ({mount, page}) => {
         await mount(<EditorTooltips />);
