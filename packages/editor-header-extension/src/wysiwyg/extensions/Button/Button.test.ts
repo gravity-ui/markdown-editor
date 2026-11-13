@@ -79,6 +79,14 @@ describe('Button extension', () => {
         ],
         [':button[\\[x\\] a\\\\b]', ':button[\\[x\\] a\\\\b]{view="action" color="standard"}'],
         [':button[**Bold**]', ':button[**Bold**]{view="action" color="standard"}'],
+        [
+            ':button[Label]{href="/image&copy;.png?a=1&amp;b=2&#10;"}',
+            ':button[Label]{href="/image&copy;.png?a=1&amp;b=2&#10;" view="action" color="standard"}',
+        ],
+        [
+            ':button[Label]{href="/a?x=\\"1\\""}',
+            ':button[Label]{href="/a?x=%221%22" view="action" color="standard"}',
+        ],
     ])('should save %j as %j', (source, expected) => {
         expect(serializer.serialize(markupParser.parse(source))).toBe(expected);
     });
