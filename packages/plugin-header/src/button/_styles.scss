@@ -69,12 +69,12 @@
         --_--flat-color: var(--g-color-text-secondary);
     }
 
-    &_color_brand {
-        --_--action-background: var(--g-color-base-brand);
+    &_color_info {
+        --_--action-background: var(--g-color-base-info-heavy);
         --_--normal-background: var(--g-color-base-info-light);
-        --_--normal-color: var(--g-color-text-brand-heavy);
-        --_--line-color: var(--g-color-line-brand);
-        --_--text-color: var(--g-color-text-brand);
+        --_--normal-color: var(--g-color-text-info-heavy);
+        --_--line-color: var(--g-color-line-info);
+        --_--text-color: var(--g-color-text-info);
     }
 
     &_color_green {

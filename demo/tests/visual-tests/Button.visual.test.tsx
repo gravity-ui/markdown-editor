@@ -5,9 +5,9 @@ import {ButtonStories} from './Button.helpers';
 
 test.describe('Button', () => {
     test('should take the colors from the theme @wysiwyg', async ({mount, button}) => {
-        await mount(<ButtonStories.Button initial={':::button{color="brand"}\nКнопка\n:::'} />);
+        await mount(<ButtonStories.Button initial={':::button{color="info"}\nКнопка\n:::'} />);
         await expect(button.blocks).toHaveCount(1);
-        await button.setThemeVariable('--g-color-base-brand', 'rgb(100, 110, 120)');
+        await button.setThemeVariable('--g-color-base-info-heavy', 'rgb(100, 110, 120)');
         await expect(button.blocks).toHaveCSS('background-color', 'rgb(100, 110, 120)');
     });
 
