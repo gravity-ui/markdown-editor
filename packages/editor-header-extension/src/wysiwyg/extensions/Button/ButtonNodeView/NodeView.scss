@@ -1,6 +1,11 @@
 .g-md-button-nodeview {
     cursor: pointer;
 
+    &.ProseMirror-selectednode {
+        outline: 2px solid var(--g-color-line-info);
+        outline-offset: 2px;
+    }
+
     &__placeholder {
         opacity: 0.6;
     }

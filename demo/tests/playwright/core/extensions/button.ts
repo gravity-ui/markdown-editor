@@ -27,6 +27,36 @@ export class ButtonBlock {
         this.preview = page.getByTestId('button-style-preview');
     }
 
+    async getSettingsGeometry() {
+        return this.settings.evaluate((element) => {
+            const find = (selector: string) => {
+                const found = element.querySelector(selector);
+                if (!found) throw new Error(`Missing settings element: ${selector}`);
+                return found;
+            };
+            const rect = (selector: string) => find(selector).getBoundingClientRect();
+            const icon = rect('.g-md-button-settings__icon');
+            const link = rect('.g-text-input_has-start-content');
+            const input = rect('.g-text-input_has-start-content input');
+            const style = rect('.g-md-button-style__control');
+            const swatch = rect('.g-md-button-style__swatch');
+            return {
+                width: element.getBoundingClientRect().width,
+                iconSize: [icon.width, icon.height],
+                iconLeft: icon.left - link.left,
+                iconCenter: icon.top + icon.height / 2 - (link.top + link.height / 2),
+                textLeft:
+                    input.left +
+                    parseFloat(
+                        getComputedStyle(find('.g-text-input_has-start-content input')).paddingLeft,
+                    ) -
+                    link.left,
+                swatchLeft: swatch.left - style.left,
+                fieldGap: link.top - style.bottom,
+            };
+        });
+    }
+
     /** A color of the style list; each view group has its own option of this name. */
     option(name: string) {
         return this.page.getByRole('option', {name, exact: true});

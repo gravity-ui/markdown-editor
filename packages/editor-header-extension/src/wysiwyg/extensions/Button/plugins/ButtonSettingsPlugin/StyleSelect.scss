@@ -31,10 +31,10 @@
         box-sizing: border-box;
         width: 100%;
         height: $control-height;
-        padding: 0 var(--g-spacing-3);
+        padding: 0 9px 0 7px;
 
         font: inherit;
-        font-size: var(--g-text-body-short-font-size);
+        font-size: 14px;
         cursor: pointer;
         pointer-events: auto;
 
@@ -86,7 +86,7 @@
     &__group {
         padding-inline: var(--g-spacing-3);
 
-        font-size: var(--g-text-caption-2-font-size);
+        font-size: 12px;
         font-weight: var(--g-text-body-font-weight);
         line-height: 28px;
 
@@ -98,7 +98,7 @@
         align-items: center;
         gap: var(--g-spacing-3);
 
-        font-size: var(--g-text-body-1-font-size);
+        font-size: 14px;
         line-height: 28px;
     }
 
