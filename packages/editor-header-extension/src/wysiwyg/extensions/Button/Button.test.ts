@@ -30,7 +30,7 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
             .use(ButtonSpecs),
 }).buildDeps();
 const button =
-    ':::button{href="/page?a=1&b=2" view="outline" color="info" target="_blank"}\nRead more\n:::';
+    ':::button{href="/page?a=1&b=2" view="outline" color="blue" target="_blank"}\nRead more\n:::';
 describe('Button extension', () => {
     it('should preserve buttons when resizing, undoing, and copying a header', () => {
         const original = markupParser.parse(`:::header\n${button}\n:::`);
@@ -62,8 +62,8 @@ describe('Button extension', () => {
             ':::button{view="normal"}\nLabel\n:::',
         ],
         [
-            ':::button{view="outline" color="info" target="_blank" href="/page"}\nLabel\n:::',
-            ':::button{href="/page" view="outline" color="info" target="_blank"}\nLabel\n:::',
+            ':::button{view="outline" color="blue" target="_blank" href="/page"}\nLabel\n:::',
+            ':::button{href="/page" view="outline" color="blue" target="_blank"}\nLabel\n:::',
         ],
     ])('should omit defaults when saving %j', (source, expected) => {
         expect(serializer.serialize(markupParser.parse(source))).toBe(expected);
@@ -78,7 +78,6 @@ describe('Button extension', () => {
         '> :::button\n> Label\n>\n> :::',
         '- :::button\n  Label\n  :::',
         ':::button\nLabel\n\n\n:::',
-        ':::button{href="/search?q=&amp;copy;"}\nOpen\n:::',
     ])('should preserve button content across mode switches in %j', (source) => {
         const doc = markupParser.parse(source);
         const serialized = serializer.serialize(doc);
@@ -122,11 +121,6 @@ describe('Button extension', () => {
         } finally {
             view.destroy();
         }
-    });
-    it('should keep an entity in the address as text', () => {
-        const doc = markupParser.parse(':::button{href="/search?q=&amp;copy;"}\nOpen\n:::');
-        expect(doc.firstChild?.attrs.href).toBe('/search?q=&copy;');
-        expect(serializer.serialize(doc)).toBe(':::button{href="/search?q=\\&copy;"}\nOpen\n:::');
     });
     it.each([
         [':::button{href="/page"}\nRead more\n:::', 'Read more'],

@@ -12,7 +12,7 @@ describe('Button Markdown', () => {
             ...buttonDefaults,
             href: '/help',
             view: 'outline',
-            color: 'info',
+            color: 'blue',
             target: '_blank',
         } as const;
         const attrs = buttonAttrs(model);
