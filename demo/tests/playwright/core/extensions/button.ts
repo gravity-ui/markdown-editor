@@ -68,6 +68,22 @@ export class ButtonBlock {
         await this.label.waitFor({state: 'visible'});
     }
 
+    /** A button of the preview by its view and color. */
+    variant(view: string, color: string) {
+        return this.variants.and(this.page.locator(`[data-view="${view}"][data-color="${color}"]`));
+    }
+
+    /** `:focus-visible` follows the Tab key; a scripted focus alone may not match it. */
+    async focusWithKeyboard(block: Locator) {
+        await block.focus();
+        await this.page.keyboard.press('Shift+Tab');
+        await this.page.keyboard.press('Tab');
+    }
+
+    getBackground(block: Locator) {
+        return block.evaluate((element) => getComputedStyle(element).backgroundColor);
+    }
+
     /** The theme root defines the variables, so a value set above it has no effect. */
     async setThemeVariable(name: string, value: string) {
         await this.content.evaluate(

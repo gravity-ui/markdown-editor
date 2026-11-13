@@ -1,4 +1,4 @@
-import {useCallback} from 'react';
+import {useCallback, useEffect} from 'react';
 
 import {
     type FileUploadHandler,
@@ -57,11 +57,14 @@ export function HeaderExample({
     initial = ':::header{height="s" width="m"}\n\n:::\n\nAfter',
     mode = 'wysiwyg',
     width = 1000,
+    preview = false,
     uploadFile = fileUploadHandler,
 }: {
     initial?: string;
     mode?: MarkdownEditorMode;
     width?: number;
+    /** Opens the preview of the markup mode in place of the source. */
+    preview?: boolean;
     uploadFile?: FileUploadHandler;
 }) {
     const renderPreview = useCallback<RenderPreview>(
@@ -77,6 +80,9 @@ export function HeaderExample({
         },
         markupConfig: {renderPreview},
     });
+    useEffect(() => {
+        if (preview) editor.changePreviewVisible(true);
+    }, [editor, preview]);
     return (
         <PlaygroundLayout
             editor={editor}
