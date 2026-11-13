@@ -11,12 +11,12 @@ const editor = useMarkdownEditor({
 });
 ```
 
-| Entry point                                                  | Exports                                                                                                  |
-| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| `@gravity-ui/markdown-editor-header-extension`               | `Header`, the Markdown command `insertHeader`, and the toolbar button `toolbarHeaderItem` for both modes |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header` and `toolbarHeaderItem` for the visual editor                                                   |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs` and `headerNodeName`                                                                       |
-| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader` and `toolbarHeaderItem` for the Markdown editor                                           |
+| Entry point                                                  | Exports                                                                                                            |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `@gravity-ui/markdown-editor-header-extension`               | `Header`, `Button`, the Markdown commands `insertHeader` and `insertButton`, and the toolbar buttons `toolbarHeaderItem` and `toolbarButtonItem` for both modes |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header`, `Button`, `toolbarHeaderItem`, and `toolbarButtonItem` for the visual editor |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName`, `ButtonSpecs`, and `buttonNodeName`                                               |
+| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader`, `insertButton`, `toolbarHeaderItem`, and `toolbarButtonItem` for the Markdown editor |
 
 `toolbarHeaderItem` inserts the block.
 In the visual editor, the button is disabled inside another header.
@@ -34,3 +34,30 @@ A new or empty block holds an empty paragraph, and insertion puts the cursor int
 
 `HeaderSpecs` adds only the schema, Markdown parsing, and serialization, and runs in Node.js.
 `Header` also needs the editor's React renderer, which the standard presets include.
+
+## Button
+
+`Button` is a separate extension from the same package:
+
+```ts
+import {Button, Header} from '@gravity-ui/markdown-editor-header-extension';
+
+const editor = useMarkdownEditor({
+  wysiwygConfig: {extensions: (builder) => builder.use(Header).use(Button)},
+});
+```
+
+Register `buttonPlugin` from `@gravity-ui/markdown-plugin-header` in the Markdown preview.
+
+A button is an inline node: `:button[Read more]{href="/page" view="action" color="blue"}`.
+The button is an atom: a click on it, or Enter while it is selected, opens the settings window under it.
+The window holds the label field, the style list with a preview of the style under the pointer, the link field, and the "Open in a new tab" switch.
+The label is plain text without formatting. Each change is a separate undo step.
+Escape closes the window and returns focus to the editor. Clicking the button does not follow the link.
+
+`toolbarButtonItem` inserts `:button[Button]{view="action" color="standard"}` at the cursor in both modes.
+In the visual editor, the cursor moves after the new button.
+
+The editor always writes `view` and `color`; `href` is written when set, and `target` when it differs from `_self`.
+
+An empty button shows the text "Button" in the visual editor and saves it as the label. Change the text with the editor `placeholder` option: `{placeholder: {button: 'Open'}}`.
