@@ -20,7 +20,7 @@ const buttonRows = [
         ['outline', 'gray'],
         ['flat', 'gray'],
     ],
-    ...['brand', 'green', 'yellow', 'red', 'violet'].map((color) =>
+    ...['info', 'green', 'yellow', 'red', 'violet'].map((color) =>
         ['action', 'normal', 'outline', 'flat'].map((view) => [view, color]),
     ),
 ];
