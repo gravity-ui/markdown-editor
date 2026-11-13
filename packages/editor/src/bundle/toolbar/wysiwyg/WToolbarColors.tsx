@@ -41,7 +41,7 @@ export const WToolbarColors: React.FC<WToolbarColorsProps> = ({
 type ColorsState = {
     active: boolean;
     enabled: boolean;
-    currentColor: string;
+    currentColor: string | null | undefined;
 };
 
 function useColorsState(editor: ActionStorage): ColorsState {

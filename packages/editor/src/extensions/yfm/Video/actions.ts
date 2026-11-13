@@ -15,6 +15,8 @@ export const addVideo: ActionSpec = {
         return state.selection.empty;
     },
     run(state, dispatch, _view, attrs: VideoActionAttrs) {
+        if (!state.selection.empty) return;
+
         if (!attrs || !attrs.service || !attrs.url) {
             return;
         }

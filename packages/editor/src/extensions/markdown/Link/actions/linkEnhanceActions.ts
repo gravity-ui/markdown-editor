@@ -15,6 +15,7 @@ export const addEmptyLink: Command = (state, dispatch) => {
     const {selection} = state;
     const {nodeAfter} = selection.$from;
     if (
+        !(selection instanceof TextSelection || selection instanceof NodeSelection) ||
         selection.empty ||
         (isNodeSelection(selection) && selection.node.type !== imageType(state.schema)) ||
         (!(nodeAfter?.isInline && nodeAfter?.isAtom) && !nodeAfter?.isText)

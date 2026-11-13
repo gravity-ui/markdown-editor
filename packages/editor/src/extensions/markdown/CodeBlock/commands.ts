@@ -1,7 +1,9 @@
 import {newlineInCode, setBlockType} from 'prosemirror-commands';
 import type {Command} from 'prosemirror-state';
 
-import type {ExtensionDeps} from '../../../core';
+import type {ExtensionDeps} from 'src/core';
+import {isDefaultOrEmptySelection} from 'src/utils/selection';
+
 import {toParagraph} from '../../base/BaseSchema';
 
 import {codeBlockType} from './const';
@@ -23,6 +25,8 @@ export const resetCodeblock: Command = (state, dispatch, view) => {
 export const setCodeBlockType =
     ({serializer}: ExtensionDeps): Command =>
     (state, dispatch) => {
+        if (!isDefaultOrEmptySelection(state.selection)) return false;
+
         const nodeType = codeBlockType(state.schema);
 
         if (!setBlockType(nodeType)(state)) return false;

@@ -2,8 +2,10 @@ import {toggleMark} from 'prosemirror-commands';
 import type {MarkType} from 'prosemirror-model';
 import {TextSelection} from 'prosemirror-state';
 
-import type {ActionSpec, ExtensionDeps} from '../../../../core';
-import {isMarkActive} from '../../../../utils/marks';
+import type {ActionSpec, ExtensionDeps} from 'src/core';
+import {isMarkActive} from 'src/utils/marks';
+import {isDefaultOrEmptySelection} from 'src/utils/selection';
+
 import {LinkAttr} from '../LinkSpecs';
 import {removeLink} from '../commands';
 import {normalizeUrlFactory} from '../utils';
@@ -26,9 +28,13 @@ export function linkCommand(markType: MarkType, deps: ExtensionDeps): ActionSpec
             return Boolean(isMarkActive(state, markType));
         },
         isEnable(state) {
+            if (!isDefaultOrEmptySelection(state.selection)) return false;
+
             return toggleMark(markType)(state);
         },
         run(state, dispatch, view, attrs?: LinkActionParams) {
+            if (!isDefaultOrEmptySelection(state.selection)) return;
+
             if (removeLink(state, dispatch, view)) return;
             if (!attrs) return;
 

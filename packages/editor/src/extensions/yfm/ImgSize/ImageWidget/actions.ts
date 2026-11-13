@@ -8,6 +8,8 @@ export const addImageWidget: (
 ) => ActionSpec = (deps, opts) => ({
     isEnable: (state) => state.selection.empty,
     run(state, dispatch) {
+        if (!state.selection.empty) return;
+
         dispatch(addWidget(state.tr, deps, opts));
     },
 });

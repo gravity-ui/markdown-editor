@@ -28,6 +28,7 @@ export default mergeConfig(
             },
         },
         test: {
+            include: ['src/**/*.test.{ts,tsx}', 'tests/integration/**/*.test.{ts,tsx}'],
             environment: 'jsdom',
             setupFiles: ['./tests/setup.ts'],
         },

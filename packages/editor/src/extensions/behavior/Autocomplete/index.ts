@@ -1,15 +1,27 @@
-import {autocomplete} from 'prosemirror-autocomplete';
+import {
+    autocomplete,
+    openAutocomplete as openSuggestion,
+    pluginKey,
+} from 'prosemirror-autocomplete';
 import {Plugin} from 'prosemirror-state';
+import type {EditorView} from 'prosemirror-view';
 
 import type {ExtensionAuto, ExtensionDeps} from '../../../core';
 import {isFunction} from '../../../lodash';
+import {TableCellSelection} from '../TableCellSelection';
 
 import {MainHandler} from './handler';
 import type {AutocompleteItem, AutocompleteTrigger} from './types';
+import {getAutocompleteState} from './utils';
 
-export {openAutocomplete, closeAutocomplete} from 'prosemirror-autocomplete';
+export {closeAutocomplete} from 'prosemirror-autocomplete';
 export {getAutocompleteState} from './utils';
 export const AutocompleteDecoClassName = 'autocomplete';
+
+export function openAutocomplete(view: EditorView, trigger: string, filter?: string): void {
+    if (view.state.selection instanceof TableCellSelection) return;
+    openSuggestion(view, trigger, filter);
+}
 
 export type AutocompleteItemFn = (deps: ExtensionDeps) => AutocompleteItem;
 export * from './types';
@@ -54,6 +66,15 @@ export const Autocomplete: ExtensionAuto = (builder) => {
          */
         return plugins.concat(
             new Plugin({
+                appendTransaction(_transactions, _oldState, state) {
+                    if (
+                        state.selection instanceof TableCellSelection &&
+                        getAutocompleteState(state)?.active
+                    ) {
+                        return state.tr.setMeta(pluginKey, {action: 'remove'});
+                    }
+                    return null;
+                },
                 view: () => ({
                     destroy: () => handler.onDestroy(),
                 }),

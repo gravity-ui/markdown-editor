@@ -38,6 +38,12 @@ class Colorify {
         this.mainToolbar = locators.toolbars.main;
         this.selectionToolbar = locators.toolbars.selection;
     }
+    getMarks(container?: Locator, color?: string) {
+        return (container ?? this.page.locator('.ProseMirror')).locator(
+            color ? `[data-color="${color}"]` : '.yfm-colorify',
+        );
+    }
+
     /**
      * Asserts that the main toolbar color button has the "default" qa attribute.
      */
@@ -75,11 +81,36 @@ class Image {
     protected readonly imageSettingsButton: Locator;
     protected readonly imageSettingsMenu: Locator;
     protected readonly image: Locator;
+    private readonly page: Page;
 
     constructor(page: Page) {
+        this.page = page;
         this.imageSettingsButton = page.getByTestId('g-md-image-settings-button');
         this.imageSettingsMenu = page.getByTestId('g-md-image-settings-menu');
         this.image = page.getByTestId('g-md-image');
+    }
+
+    getElement(container?: Locator) {
+        return (container ?? this.image).locator('img');
+    }
+
+    async startDrag() {
+        const image = this.getElement();
+        await image.scrollIntoViewIfNeeded();
+        const box = await image.boundingBox();
+        if (!box) throw new Error('Image must be visible');
+        const x = box.x + box.width / 2;
+        const y = box.y + box.height / 2;
+        await this.page.mouse.move(x, y);
+        await this.page.mouse.down();
+        await this.page.mouse.move(x + 30, y + 10, {steps: 6});
+    }
+
+    async dropInto(target: Locator) {
+        const box = await target.boundingBox();
+        if (!box) throw new Error('Drop target must be visible');
+        await this.page.mouse.move(box.x + 5, box.y + box.height / 2, {steps: 6});
+        await this.page.mouse.up();
     }
 
     async clickImageSettingsButton() {
@@ -198,6 +229,10 @@ class YfmTable {
         return (table || (await this.getTable()))
             .first()
             .locator('> tbody > tr > th, > tbody > tr > td');
+    }
+
+    getSelectedCells(table: Locator) {
+        return table.locator('.g-md-yfm-table-selected-cell');
     }
 
     async getRowButtons(_table?: Locator) {
@@ -380,6 +415,7 @@ const DEFAULT_DELAY = 100;
 export class MarkdownEditorPage {
     readonly locators;
     readonly yfmTable;
+    readonly tableCellSelection;
     readonly colorify;
     readonly yfmNote;
     readonly image;
@@ -395,6 +431,7 @@ export class MarkdownEditorPage {
 
         this.locators = new MarkdownEditorLocators(page);
         this.yfmTable = new YfmTable(page);
+        this.tableCellSelection = new TableCellSelection(page, expect);
         this.colorify = new Colorify(page, expect, this.locators);
         this.yfmNote = new YfmNote(page);
         this.image = new Image(page);
@@ -532,12 +569,28 @@ export class MarkdownEditorPage {
         throw new Error(`MarkdownEditorPage.getMode(): unknown editor mode "${mode}"`);
     }
 
+    getWysiwygState() {
+        return this.page.evaluate(() => {
+            // @ts-expect-error Internal view is available in the demo.
+            const state = window.mdEditor._wysiwygView.state;
+            return {
+                doc: state.doc.toJSON(),
+                selection: state.selection.toJSON(),
+                selectedNode: state.doc.nodeAt(state.selection.from)?.toJSON(),
+            };
+        });
+    }
+
     /**
      * Opens the command menu toolbar and optionally searches for a command.
      */
     async openCommandMenuToolbar(search = '') {
         await this.pressSequentially('/' + search);
         await this.locators.toolbars.commandMenu.waitFor({state: 'visible'});
+    }
+
+    getCommandMenu(): Locator {
+        return this.locators.toolbars.commandMenu;
     }
 
     /**
@@ -756,6 +809,20 @@ export class MarkdownEditorPage {
         await this.locators.contenteditable.focus();
     }
 
+    async waitForTextCursorAtEnd() {
+        await this.expect
+            .poll(() =>
+                this.page.evaluate(() => {
+                    // @ts-expect-error Internal view is available in the demo.
+                    const state = window.mdEditor?._wysiwygView?.state;
+                    return (
+                        state?.selection.empty && state.selection.to === state.doc.content.size - 1
+                    );
+                }),
+            )
+            .toBe(true);
+    }
+
     /**
      * Presses a key within the contenteditable area
      */
@@ -860,5 +927,153 @@ export class MarkdownEditorPage {
         await this.focus();
         await this.locators.contenteditable.press('Meta+F');
         await this.searchPanel.waitForVisible();
+    }
+}
+
+class TableCellSelection {
+    readonly editor: Locator;
+    readonly tableWithoutControls: Locator;
+    readonly selectionButton: Locator;
+    readonly markdownCellButton: Locator;
+    private readonly page: Page;
+    private readonly expect: Expect;
+
+    constructor(page: Page, expect: Expect) {
+        this.page = page;
+        this.expect = expect;
+        this.editor = page.getByTestId('demo-md-editor');
+        this.tableWithoutControls = page.locator('.ProseMirror table:not(:has(> thead))').first();
+        this.selectionButton = page.getByTestId('g-md-yfm-table-selection-btn');
+        this.markdownCellButton = page.locator('.table-cell-floating-button');
+    }
+
+    getTable(kind: 'markdown' | 'yfm', index = 0) {
+        return this.page
+            .locator(
+                kind === 'markdown'
+                    ? '.ProseMirror table:has(> thead)'
+                    : '.ProseMirror .g-md-yfm-table-view',
+            )
+            .nth(index);
+    }
+
+    getCells(table: Locator) {
+        return table.locator(':scope > thead > tr > th, :scope > tbody > tr > td');
+    }
+
+    getNestedTable(table: Locator) {
+        return table.locator('table');
+    }
+
+    getInlineCode(cell: Locator) {
+        return cell.locator('code');
+    }
+
+    getSelectedCells(table: Locator) {
+        return table.locator('.g-md-table-selected-cell');
+    }
+
+    getBodyCells(table: Locator) {
+        return table.locator(':scope > tbody > tr > td');
+    }
+
+    async clickCell(cell: Locator) {
+        await cell.click();
+        await this.expect
+            .poll(() =>
+                cell.evaluate((element) => {
+                    // @ts-expect-error Internal view is available in the demo.
+                    const view = window.mdEditor?._wysiwygView;
+                    if (!view) return false;
+                    const selection = view.state.selection;
+                    return (
+                        selection.toJSON().type === 'text' &&
+                        selection.from >= view.posAtDOM(element, 0) &&
+                        selection.to <= view.posAtDOM(element, element.childNodes.length)
+                    );
+                }),
+            )
+            .toBe(true);
+    }
+
+    async composeText(text: string) {
+        const client = await this.page.context().newCDPSession(this.page);
+        await client.send('Input.imeSetComposition', {
+            text,
+            selectionStart: text.length,
+            selectionEnd: text.length,
+        });
+        await client.send('Input.insertText', {text});
+        await client.detach();
+    }
+
+    async waitForSelectedText(text: string) {
+        await this.expect
+            .poll(() =>
+                this.page.evaluate(() => {
+                    // @ts-expect-error Internal view is available in the demo.
+                    const state = window.mdEditor?._wysiwygView?.state;
+                    return state?.doc.textBetween(state.selection.from, state.selection.to);
+                }),
+            )
+            .toBe(text);
+    }
+
+    async drag(from: Locator, to: Locator) {
+        await from.scrollIntoViewIfNeeded();
+        const first = await from.boundingBox();
+        const last = await to.boundingBox();
+        if (!first || !last) throw new Error('Table cells must be visible');
+        await this.page.mouse.move(first.x + first.width / 2, first.y + first.height / 2);
+        await this.page.mouse.down();
+        await this.page.mouse.move(last.x + last.width / 2, last.y + last.height / 2, {steps: 6});
+        await this.page.mouse.up();
+    }
+
+    getSelectedStyles(cell: Locator) {
+        return cell.evaluate((element) => {
+            const normal = getComputedStyle(element);
+            const after = getComputedStyle(element, '::after');
+            return {
+                position: normal.position,
+                overflow: normal.overflow,
+                borderColor: normal.borderColor,
+                top: after.top,
+                bottom: after.bottom,
+                left: after.left,
+                right: after.right,
+                border: after.border,
+                borderRadius: after.borderRadius,
+                zIndex: after.zIndex,
+                pointerEvents: after.pointerEvents,
+            };
+        });
+    }
+
+    getCellText(cell: Locator) {
+        return cell.evaluate((element) => {
+            const content = element.cloneNode(true) as Element;
+            content
+                .querySelectorAll('.g-md-placeholder')
+                .forEach((placeholder) => placeholder.remove());
+            return content.textContent;
+        });
+    }
+
+    async getTextRect(cell: Locator) {
+        await cell.scrollIntoViewIfNeeded();
+        return cell.evaluate((element) => {
+            const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+            const text = walker.nextNode();
+            if (!text) throw new Error('Cell text is missing');
+            const range = document.createRange();
+            range.selectNodeContents(text);
+            return range.getBoundingClientRect().toJSON() as {
+                left: number;
+                right: number;
+                top: number;
+                bottom: number;
+            };
+        });
     }
 }
