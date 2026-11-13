@@ -1,9 +1,11 @@
 import type {FileUploadHandler} from '@gravity-ui/markdown-editor';
-import {Plugin, PluginKey} from '@gravity-ui/markdown-editor/pm/state';
+import {Plugin} from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {safeImageUrl} from '@gravity-ui/markdown-plugin-header';
 
 import {setHeaderBackground} from '../../commands';
+
+import {type UploadMeta, type Uploads, uploadsKey} from './const';
 
 export type HeaderImageLimits = {
     /** MIME types of background images; any `image/*` without it. */
@@ -11,12 +13,6 @@ export type HeaderImageLimits = {
     /** Maximum background image size in bytes; the size is not checked without it. */
     maxImageSize?: number;
 };
-
-type Uploads = ReadonlyMap<symbol, number>;
-/** Starts an upload with `pos` or finishes it without. */
-type UploadMeta = {id: symbol; pos?: number};
-
-const uploadsKey = new PluginKey<Uploads>('header-upload');
 
 /** Tracks the banner position of each upload; a new upload into the same banner replaces the old one. */
 export const headerUploadPlugin = () =>
@@ -34,7 +30,7 @@ export const headerUploadPlugin = () =>
                         next.set(id, mapped.pos);
                     }
                 }
-                if (meta?.pos !== undefined) next.set(meta.id, meta.pos);
+                if (meta?.id !== undefined && meta.pos !== undefined) next.set(meta.id, meta.pos);
                 return next;
             },
         },
@@ -53,7 +49,7 @@ export function imageFileError(
 
 /**
  * Writes the uploaded address into `bg-image` of the banner at `pos`.
- * Resolves to `false` if the banner is removed or a newer upload into it starts.
+ * Resolves to `false` if the banner is removed or its background source is changed or reset.
  */
 export async function uploadHeaderImage(
     view: EditorView,

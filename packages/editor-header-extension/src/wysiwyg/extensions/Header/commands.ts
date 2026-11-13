@@ -7,6 +7,7 @@ import {
 } from '@gravity-ui/markdown-plugin-header';
 
 import {headerNodeType} from './HeaderSpecs';
+import {type UploadMeta, uploadsKey} from './plugins/HeaderUploadPlugin/const';
 
 function headerAt(state: EditorState, pos: number) {
     const node = state.doc.nodeAt(pos);
@@ -55,7 +56,10 @@ export const setHeaderBackground =
             for (const [name, value] of Object.entries(next)) {
                 if (node.attrs[name] !== value) tr.setNodeAttribute(pos, name, value);
             }
-            if (tr.docChanged) dispatch(tr);
+            // A source choice supersedes uploads even when it leaves the attributes unchanged.
+            const changesSource = 'bg-image' in background || 'bg-color' in background;
+            if (changesSource) tr.setMeta(uploadsKey, {pos} satisfies UploadMeta);
+            if (tr.docChanged || changesSource) dispatch(tr);
         }
         return true;
     };

@@ -21,7 +21,7 @@ const md = new MarkdownIt().use(headerPlugin);
 | `height`         | `s` 236 px, `m` 300 px, `l` 360 px (minimum height)                                                        | `s`      |
 | `width`          | `s` 600 px, `m` 900 px, `l` 1200 px, `full` (container width)                                              | `m`      |
 | `bg-color`       | `<family>-<saturation>`: `gray`, `green`, `yellow`, `blue`, `red`, `violet` and `light`, `medium`, `heavy` | none     |
-| `bg-image`       | an `http:`, `https:` or relative address                                                                   | none     |
+| `bg-image`       | an `http:`, `https:`, `blob:` or relative address                                                                   | none     |
 | `bg-image-theme` | the theme of the content over the image: `system` as the page, `dark` light text, `light` dark text        | `system` |
 | `bg-image-blur`  | `true`                                                                                                     | none     |
 

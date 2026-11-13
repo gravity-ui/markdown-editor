@@ -32,7 +32,7 @@ import {imageFileError} from '../../HeaderUploadPlugin';
 import type {BackgroundControls} from './BackgroundField';
 import {DimensionSelect} from './DimensionSelect';
 import {cnHeaderSettings} from './HeaderSettings.classname';
-import {bgColorLabel, bgColorStyle, imageName, toMegabytes, uploadHint} from './utils';
+import {bgColorLabel, bgColorStyle, formatImageSize, imageName, uploadHint} from './utils';
 
 const textColors: readonly HeaderBgImageTheme[] = ['system', 'dark', 'light'];
 // Light text is the content in the dark theme.
@@ -185,7 +185,7 @@ function ImageTab({background, onClose}: {background: BackgroundControls; onClos
             setError(
                 fileError === 'type'
                     ? i18n('upload-error-type')
-                    : i18n('upload-error-size', {size: maxImageSize && toMegabytes(maxImageSize)}),
+                    : i18n('upload-error-size', {size: formatImageSize(maxImageSize ?? 0)}),
             );
             return;
         }

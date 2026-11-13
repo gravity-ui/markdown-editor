@@ -22,8 +22,9 @@ export class WHeaderNodeView implements NodeView {
 
     update(node: Node) {
         if (node.type !== this.node.type) return false;
+        const attrsChanged = node.attrs !== this.node.attrs;
         this.node = node;
-        this.renderAttrs();
+        if (attrsChanged) this.renderAttrs();
         return true;
     }
 

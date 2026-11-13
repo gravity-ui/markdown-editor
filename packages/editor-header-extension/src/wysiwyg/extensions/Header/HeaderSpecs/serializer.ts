@@ -7,7 +7,7 @@ import {
 
 import {headerNodeName} from './const';
 
-const escape = (value: string) => value.replace(/[\\"]/g, '\\$&');
+const escape = (value: string) => value.replace(/&/g, '&amp;').replace(/[\\"]/g, '\\$&');
 
 export const HeaderSerializerSpecs: ExtensionAuto = (builder) => {
     builder.addNodeSerializerSpec(headerNodeName, () => (state, node) => {
