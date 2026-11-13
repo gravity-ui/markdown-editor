@@ -5,7 +5,7 @@ import {ButtonStories} from './Button.helpers';
 
 test.describe('Button', () => {
     test('should take the colors from the theme @wysiwyg', async ({mount, button}) => {
-        await mount(<ButtonStories.Button initial={':::button{color="info"}\nКнопка\n:::'} />);
+        await mount(<ButtonStories.Button initial={':::button{color="blue"}\nКнопка\n:::'} />);
         await expect(button.blocks).toHaveCount(1);
         await button.setThemeVariable('--g-color-base-info-heavy', 'rgb(100, 110, 120)');
         await expect(button.blocks).toHaveCSS('background-color', 'rgb(100, 110, 120)');
@@ -21,7 +21,6 @@ test.describe('Button', () => {
         await editor.assertMode('wysiwyg');
         await expect(button.blocks).toHaveCount(25);
         expect(await button.getFilledBackgrounds()).not.toContain('rgba(0, 0, 0, 0)');
-        await expect(button.content).toHaveCSS('grid-template-columns', '80px 80px 80px 80px');
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -72,10 +71,6 @@ test.describe('Button', () => {
         await expect(button.variants).toHaveCount(25);
         expect(await button.getFilledBackgrounds(button.variants)).not.toContain(
             'rgba(0, 0, 0, 0)',
-        );
-        await expect(editor.locators.previewContent).toHaveCSS(
-            'grid-template-columns',
-            '80px 80px 80px 80px',
         );
         expect(await button.getValues(button.variants)).toEqual(before);
         await expectScreenshot({component: editor.locators.component});

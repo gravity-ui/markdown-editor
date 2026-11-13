@@ -45,7 +45,7 @@ md.use(buttonPlugin);
 ```
 
 ```markdown
-:::button{href="https://example.com" view="action" color="info" target="_blank"}
+:::button{href="https://example.com" view="action" color="blue" target="_blank"}
 Read more
 :::
 ```
@@ -56,7 +56,7 @@ The body is plain text. Buttons work independently and inside Header.
 | --- | --- | --- |
 | `href` | Link address | Empty |
 | `view` | `action`, `normal`, `outline`, `flat` | `action` |
-| `color` | `standard`, `gray`, `info`, `green`, `yellow`, `red`, `violet` | `standard` for action/flat, `gray` for normal/outline |
+| `color` | `standard`, `gray`, `blue`, `green`, `yellow`, `red`, `violet` | `standard` for action/flat, `gray` for normal/outline |
 | `target` | `_self`, `_blank`, `_parent`, `_top` | `_self` |
 
 `action` does not support gray; `normal` and `outline` do not support standard.
