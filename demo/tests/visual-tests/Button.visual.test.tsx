@@ -179,7 +179,9 @@ test.describe('Button', () => {
         await mount(<ButtonStories.Button initial={withSpace} />);
         await button.openSettings();
         await expect(button.blocks).toHaveClass(/ProseMirror-selectednode/);
-        await expect(button.blocks).toHaveCSS('outline-width', '2px');
+        await expect(button.blocks).toHaveClass(/pm-node-selected/);
+        await expect(button.blocks).toHaveCSS('outline-style', 'none');
+        await expect(button.blocks).toHaveCSS('box-shadow', 'none');
         await expect(button.label).toBeFocused();
         expect(await button.getSettingsGeometry()).toEqual({
             width: 257,
@@ -195,6 +197,10 @@ test.describe('Button', () => {
         await expect(button.settings).toBeVisible();
         await button.label.press('Escape');
         await expect(button.settings).toBeHidden();
+        await expect(editor.locators.contenteditable).toBeFocused();
+        await expect(button.blocks).toHaveCSS('outline-width', '2px');
+        await expect(button.blocks).toHaveCSS('outline-offset', '0px');
+        await expect(button.blocks).toHaveCSS('box-shadow', /0px 0px 0px 1px/);
         await button.blocks.click();
         await expect(button.label).toBeFocused();
         await expect(button.blocks).toHaveClass(/ProseMirror-selectednode/);
