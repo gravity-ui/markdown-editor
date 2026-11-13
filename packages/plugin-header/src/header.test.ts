@@ -1,7 +1,14 @@
 import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
-import {headerHeights, headerPlugin, headerWidths} from './index';
+import {
+    headerBgColors,
+    headerHeights,
+    headerPlugin,
+    headerWidths,
+    safeImageUrl,
+    toCssUrl,
+} from './index';
 
 const md = new MarkdownIt().use(headerPlugin);
 
@@ -114,5 +121,104 @@ describe('Header Markdown', () => {
         const [token] = md.parse(':::header{height="s"}\n:::', {});
         expect(token.attrGet('data-height')).toBe('s');
         expect(token.attrGet('data-width')).toBe('m');
+    });
+});
+
+describe('Header background', () => {
+    const block = (modifiers: string, attrs: string) =>
+        `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m${modifiers}" data-height="s" data-width="m"${attrs}></div>\n`;
+    // Built at runtime for the `no-script-url` lint rule.
+    const scriptUrl = ['javascript', 'alert(1)'].join(':');
+
+    it.each(headerBgColors)('should render the %s color', (color) => {
+        expect(md.render(`:::header{bg-color="${color}"}\n:::`)).toBe(
+            block(` g-md-header-plugin_bg-color_${color}`, ` data-bg-color="${color}"`),
+        );
+    });
+
+    it('should render an image in the style attribute', () => {
+        expect(md.render(':::header{bg-image="./.files/a (1).jpg"}\n:::')).toBe(
+            block(
+                ' g-md-header-plugin_bg-image',
+                ' data-bg-image="./.files/a (1).jpg" style="background-image:url(&quot;./.files/a%20%281%29.jpg&quot;)"',
+            ),
+        );
+    });
+
+    it('should apply the theme and blur with an image', () => {
+        const markup =
+            ':::header{bg-color="gray-light" bg-image="https://example.com/a.png" bg-image-theme="dark" bg-image-blur="true"}\n:::';
+        expect(md.render(markup)).toBe(
+            block(
+                ' g-md-header-plugin_bg-color_gray-light g-md-header-plugin_bg-image g-md-header-plugin_bg-image-blur g-root g-root_theme_dark',
+                ' data-bg-color="gray-light" data-bg-image="https://example.com/a.png" data-bg-image-theme="dark" data-bg-image-blur="true" style="background-image:url(&quot;https://example.com/a.png&quot;)"',
+            ),
+        );
+    });
+
+    it('should drop the theme and blur without an image', () => {
+        expect(md.render(':::header{bg-image-theme="light" bg-image-blur="true"}\n:::')).toBe(
+            html('s', 'm'),
+        );
+    });
+
+    it.each([
+        ':::header{bg-color="pink"}\n:::',
+        ':::header{bg-color="blue"}\n:::',
+        ':::header{bg-color="blue-light" bg-color="red-light"}\n:::',
+        ':::header{bg-image=""}\n:::',
+        ':::header{bg-image-theme="system"}\n:::',
+        ':::header{bg-image-theme="sepia"}\n:::',
+        ':::header{bg-image-blur="false"}\n:::',
+        ':::header{bg-image-blur="yes"}\n:::',
+    ])('should use the default for an unsupported or default value in %j', (markup) => {
+        expect(md.render(markup)).toBe(html('s', 'm'));
+    });
+
+    it.each([
+        scriptUrl,
+        scriptUrl.toUpperCase(),
+        ` ${scriptUrl}`,
+        'vbscript:msgbox(1)',
+        'data:text/html,<script>alert(1)</script>',
+        'data:image/svg+xml,<svg/>',
+        'file:///etc/passwd',
+    ])('should reject the image address %j', (url) => {
+        expect(safeImageUrl(url)).toBeNull();
+        expect(toCssUrl(url)).toBeNull();
+        expect(md.render(`:::header{bg-image="${url}" bg-image-theme="dark"}\n:::`)).toBe(
+            html('s', 'm'),
+        );
+    });
+
+    it.each(['java\tscript:alert(1)', 'https://example.com/\u0000.png', 'a\u007f.png'])(
+        'should reject control characters in %j',
+        (url) => {
+            expect(safeImageUrl(url)).toBeNull();
+        },
+    );
+
+    it.each([
+        ['https://example.com/a.png', 'https://example.com/a.png'],
+        ['HTTP://example.com/a.png', 'HTTP://example.com/a.png'],
+        ['//example.com/a.png', '//example.com/a.png'],
+        ['blob:https://example.com/0f8c', 'blob:https://example.com/0f8c'],
+        ['  ./.files/a.png  ', './.files/a.png'],
+        ['a.png?size=1:2', 'a.png?size=1:2'],
+    ])('should accept the image address %j', (url, expected) => {
+        expect(safeImageUrl(url)).toBe(expected);
+    });
+
+    it('should encode quotes, brackets, and comments in the CSS address', () => {
+        const url = `a.png") ;background:url(${scriptUrl}) /*'\\`;
+        expect(toCssUrl(url)).toBe(
+            'url("a.png%22%29%20;background:url%28javascript:alert%281%29%29%20/%2A%27%5C")',
+        );
+    });
+
+    it('should escape quotes of the image address in HTML', () => {
+        const output = md.render(':::header{bg-image="a\\".png"}\n:::');
+        expect(output).toContain('data-bg-image="a&quot;.png"');
+        expect(output).toContain('style="background-image:url(&quot;a%22.png&quot;)"');
     });
 });

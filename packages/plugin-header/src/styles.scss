@@ -1,10 +1,47 @@
+$bg-colors: (
+    'gray-light': var(--g-color-base-neutral-light),
+    'gray-medium': var(--g-color-base-neutral-medium),
+    'gray-heavy': var(--g-color-base-neutral-heavy-hover),
+    'green-light': var(--g-color-base-positive-light),
+    'green-medium': var(--g-color-base-positive-medium),
+    'green-heavy': var(--g-color-base-positive-heavy),
+    'yellow-light': var(--g-color-base-warning-light),
+    'yellow-medium': var(--g-color-base-warning-medium),
+    'yellow-heavy': var(--g-color-base-warning-heavy),
+    'blue-light': var(--g-color-base-info-light),
+    'blue-medium': var(--g-color-base-info-medium),
+    'blue-heavy': var(--g-color-base-info-heavy),
+    'red-light': var(--g-color-base-danger-light),
+    'red-medium': var(--g-color-base-danger-medium),
+    'red-heavy': var(--g-color-base-danger-heavy),
+    'violet-light': var(--g-color-base-utility-light),
+    'violet-medium': var(--g-color-base-utility-medium),
+    'violet-heavy': var(--g-color-base-utility-heavy),
+);
+
+.g-root {
+    // Declared on every theme root, so a fixed theme resolves its own colors.
+    @each $name, $color in $bg-colors {
+        --g-md-header-plugin-bg-color-#{$name}: #{$color};
+    }
+}
+
 .g-md-header-plugin {
+    // `initial` stops inheritance and selects the fallback of `var()`.
+    --_--bg-color: initial;
     max-width: var(--_--width);
     min-height: var(--_--height);
     margin-block: var(--g-md-header-plugin-margin-block, 0 var(--g-spacing-5, 20px));
     margin-inline: var(--g-md-header-plugin-margin-inline, 0);
 
     border-radius: var(--g-border-radius-2xl, 16px);
+    background-color: var(--_--bg-color, transparent);
+
+    @each $name, $_ in $bg-colors {
+        &_bg-color_#{$name} {
+            --_--bg-color: var(--g-md-header-plugin-bg-color-#{$name});
+        }
+    }
 
     &_height_s {
         --_--height: var(--g-md-header-plugin-height-s, 236px);
@@ -32,5 +69,44 @@
 
     &_width_full {
         --_--width: none;
+    }
+
+    // Doubled class: the `background` shorthand of `.g-root` resets these in a fixed theme.
+    &#{&}_bg-image {
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+    }
+
+    // The sanitizer removes `filter` from the `style` attribute, so blur stays here.
+    // The blurred copy of the background extends past the clipped edges to avoid a transparent border.
+    &_bg-image-blur {
+        position: relative;
+
+        isolation: isolate;
+        // `overflow` clips at the padding edge and leaves the sharp background under a border.
+        clip-path: inset(0 round var(--g-border-radius-2xl, 16px));
+
+        &::before {
+            position: absolute;
+            z-index: -1;
+            inset: -24px;
+
+            content: '';
+            pointer-events: none;
+
+            background: inherit;
+            filter: blur(12px);
+        }
+    }
+
+    // A fixed theme: `.g-root` sets the text color, and the page background of the theme
+    // lies under the image. `.yfm` resolves its text and link colors in the page theme.
+    &.g-root {
+        --yfm-color-text: var(--g-color-text-primary);
+        --yfm-color-link: var(--g-color-text-link);
+        --yfm-color-link-hover: var(--g-color-text-link-hover);
+
+        background-color: var(--_--bg-color, var(--g-color-base-background));
     }
 }

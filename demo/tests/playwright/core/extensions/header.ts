@@ -1,4 +1,4 @@
-import type {Expect, Locator, Page} from '@playwright/test';
+import type {Expect, FileChooser, Locator, Page} from '@playwright/test';
 
 import {test as base, expect} from '../index';
 
@@ -12,6 +12,16 @@ export class HeaderBlock {
     readonly width: Locator;
     readonly closeButton: Locator;
     readonly options: Locator;
+    readonly backgroundPopup: Locator;
+    readonly clearBackgroundButton: Locator;
+    readonly blur: Locator;
+    readonly resetBackgroundButton: Locator;
+    readonly uploadButton: Locator;
+    readonly linkInput: Locator;
+    readonly submitLinkButton: Locator;
+    readonly replaceFileButton: Locator;
+    readonly bannerPreview: Locator;
+    readonly textColor: Locator;
     protected readonly page: Page;
     protected readonly expect: Expect;
 
@@ -27,6 +37,34 @@ export class HeaderBlock {
         this.width = this.settings.getByRole('combobox', {name: 'Width', exact: true});
         this.closeButton = this.settings.getByRole('button', {name: 'Close', exact: true});
         this.options = page.getByRole('option');
+        this.backgroundPopup = page.getByRole('dialog', {name: 'Background', exact: true});
+        this.clearBackgroundButton = this.settings.getByRole('button', {
+            name: 'Remove background',
+            exact: true,
+        });
+        this.blur = this.settings.getByRole('checkbox', {name: 'Blur background', exact: true});
+        this.resetBackgroundButton = this.backgroundPopup.getByRole('button', {
+            name: 'Reset',
+            exact: true,
+        });
+        this.uploadButton = this.backgroundPopup.getByRole('button', {
+            name: 'Upload',
+            exact: true,
+        });
+        this.linkInput = this.backgroundPopup.getByPlaceholder('https://');
+        this.submitLinkButton = this.backgroundPopup.getByRole('button', {
+            name: 'Submit',
+            exact: true,
+        });
+        this.replaceFileButton = this.backgroundPopup.getByRole('button', {
+            name: 'Replace file',
+            exact: true,
+        });
+        this.bannerPreview = this.backgroundPopup.locator('.g-md-header-settings__thumbnail');
+        this.textColor = this.backgroundPopup.getByRole('combobox', {
+            name: 'Text color',
+            exact: true,
+        });
     }
 
     option(name: string) {
@@ -51,8 +89,42 @@ export class HeaderBlock {
             .getByRole('radio', {name: value, exact: true});
     }
 
+    /** The background field, named by its value. */
     get background() {
-        return this.settings.getByRole('button', {name: 'Background No background', exact: true});
+        return this.settings.getByRole('button', {name: /^Background /});
+    }
+
+    backgroundTab(name: string) {
+        return this.backgroundPopup.getByRole('tab', {name, exact: true});
+    }
+
+    previewTheme(name: 'Light theme' | 'Dark theme') {
+        return this.backgroundPopup.getByRole('radio', {name, exact: true});
+    }
+
+    swatch(name: string) {
+        return this.backgroundPopup.getByRole('button', {name, exact: true});
+    }
+
+    async openBackground() {
+        await this.setExpandedSections('Image and background');
+        await this.background.click();
+        await this.expect(this.backgroundPopup).toBeVisible();
+    }
+
+    async chooseFile(trigger: Locator, files: Parameters<FileChooser['setFiles']>[0]) {
+        const fileChooser = this.page.waitForEvent('filechooser');
+        await trigger.click();
+        await (await fileChooser).setFiles(files);
+    }
+
+    /** `expectScreenshot` waits for `img[src]` only, not for CSS backgrounds. */
+    async waitForImage(src: string) {
+        await this.page.evaluate(async (url) => {
+            const image = new Image();
+            image.src = url;
+            await image.decode();
+        }, src);
     }
 
     /** Collapses every section except the given ones. */

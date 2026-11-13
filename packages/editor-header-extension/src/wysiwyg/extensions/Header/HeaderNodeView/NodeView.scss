@@ -2,4 +2,10 @@
     box-sizing: border-box;
 
     border: 2px dashed var(--g-color-line-generic);
+
+    // The dashed frame marks a block without a background; a background covers the frame area.
+    &:is([data-bg-color], [data-bg-image]) {
+        border-color: transparent;
+        background-origin: border-box;
+    }
 }
