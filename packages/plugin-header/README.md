@@ -45,18 +45,18 @@ md.use(buttonPlugin);
 ```
 
 ```markdown
-:::button{href="https://example.com" view="action" color="blue" target="_blank"}
-Read more
-:::
+Read the guide :button[Read more]{href="https://example.com" view="action" color="info" target="_blank"} or ask a question.
 ```
 
-The body is plain text. Buttons work independently and inside Header.
+The button is an inline directive: it stays in the line of text, and buttons in one paragraph form a row.
+The label in square brackets is plain text; Markdown inside it is shown as written, and `\]` writes a closing bracket.
+A button with an empty label renders nothing. Buttons work independently and inside Header.
 
 | Attribute | Values | Default |
 | --- | --- | --- |
 | `href` | Link address | Empty |
 | `view` | `action`, `normal`, `outline`, `flat` | `action` |
-| `color` | `standard`, `gray`, `blue`, `green`, `yellow`, `red`, `violet` | `standard` for action/flat, `gray` for normal/outline |
+| `color` | `standard`, `gray`, `info`, `green`, `yellow`, `red`, `violet` | `standard` for action/flat, `gray` for normal/outline |
 | `target` | `_self`, `_blank`, `_parent`, `_top` | `_self` |
 
 `action` does not support gray; `normal` and `outline` do not support standard.

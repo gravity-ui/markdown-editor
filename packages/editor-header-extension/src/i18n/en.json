@@ -27,5 +27,21 @@
   "settings": "Settings",
   "copy": "Copy",
   "remove": "Delete",
-  "button-placeholder": "Button"
+  "button-placeholder": "Button",
+  "button-insert": "Button",
+  "button-link": "Link",
+  "button-open-link": "Open link",
+  "button-style": "Style",
+  "button-new-tab": "Open in a new tab",
+  "button-view-action": "Accent",
+  "button-view-normal": "Secondary",
+  "button-view-outline": "Outline",
+  "button-view-flat": "Text only",
+  "button-color-standard": "Standard",
+  "button-color-gray": "Gray",
+  "button-color-info": "Info",
+  "button-color-green": "Green",
+  "button-color-yellow": "Yellow",
+  "button-color-red": "Red",
+  "button-color-violet": "Violet"
 }

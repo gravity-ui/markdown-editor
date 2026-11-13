@@ -7,10 +7,7 @@ export const ButtonParserSpecs: ExtensionAuto = (builder) => {
         .configureMd((md) => md.use(buttonPlugin))
         .addMarkdownTokenParserSpec(buttonTokenName, () => ({
             name: buttonNodeName,
-            type: 'node',
-            getAttrs: (token) => ({
-                ...buttonFromAttrs((name) => token.attrGet(name)),
-                content: token.content,
-            }),
+            type: 'block',
+            getAttrs: (token) => buttonFromAttrs((name) => token.attrGet(name)),
         }));
 };

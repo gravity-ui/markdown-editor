@@ -9,34 +9,31 @@ import {
 import {i18n} from '../../../../i18n';
 
 import {buttonNodeName} from './const';
-import {buttonLabel} from './utils';
 
 export const ButtonSchemaSpecs: ExtensionAuto = (builder) => {
     const placeholder = builder.context.get('placeholder')?.[buttonNodeName];
     builder.addNodeSpec(buttonNodeName, () => ({
-        group: 'block',
-        atom: true,
-        draggable: true,
-        selectable: true,
+        group: 'inline',
+        inline: true,
+        content: 'text*',
+        marks: '',
         attrs: {
             href: {default: buttonDefaults.href},
             view: {default: buttonDefaults.view},
             color: {default: buttonDefaults.color},
             target: {default: buttonDefaults.target},
-            content: {default: ''},
         },
-        placeholder: {content: placeholder ?? (() => i18n('button-placeholder'))},
+        placeholder: {
+            content: placeholder ?? (() => i18n('button-placeholder')),
+            alwaysVisible: true,
+        },
         parseDOM: [
             {
                 tag: `a.${buttonClassName}`,
                 priority: 60,
-                getAttrs: (dom) => ({
-                    ...buttonFromAttrs((name) => dom.getAttribute(name)),
-                    content: dom.textContent ?? '',
-                }),
+                getAttrs: (dom) => buttonFromAttrs((name) => dom.getAttribute(name)),
             },
         ],
-        leafText: (node) => buttonLabel(node).trim(),
-        toDOM: (node) => ['a', buttonAttrs(node.attrs), node.attrs.content],
+        toDOM: (node) => ['a', buttonAttrs(node.attrs), 0],
     }));
 };

@@ -12,7 +12,7 @@ describe('Button preview', () => {
         document.body.append(container);
         const root = createRoot(container);
         const source =
-            ':::button{href="/standalone" view="outline" color="green" target="_blank"}\nStandalone\n:::\n\n:::header\n:::button{href="/nested" color="blue"}\nNested\n:::\n:::';
+            ':button[Standalone]{href="/standalone" view="outline" color="green" target="_blank"}\n\n:::header\n:button[Nested]{href="/nested" color="info"}\n:::';
         try {
             await act(async () => {
                 root.render(

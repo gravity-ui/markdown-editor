@@ -1,0 +1,1 @@
+export const insertButtonAction = 'insertButton';

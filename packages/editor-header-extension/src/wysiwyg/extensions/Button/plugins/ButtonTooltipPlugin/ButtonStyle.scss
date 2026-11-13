@@ -1,0 +1,37 @@
+.g-md-button-style {
+    display: flex;
+    flex-direction: column;
+    gap: var(--g-spacing-3);
+
+    box-sizing: border-box;
+    width: 280px;
+    padding: var(--g-spacing-4);
+
+    &__row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--g-spacing-2);
+    }
+
+    &__option {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--g-spacing-2);
+    }
+
+    &__swatch.g-md-button-plugin {
+        flex-shrink: 0;
+
+        width: 16px;
+        height: 16px;
+        min-height: 0;
+        padding: 0;
+
+        border-radius: var(--g-border-radius-xs);
+    }
+
+    &__swatch.g-md-button-plugin_view_flat {
+        background-color: currentColor;
+    }
+}
