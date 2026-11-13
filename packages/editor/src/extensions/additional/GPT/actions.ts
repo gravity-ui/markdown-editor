@@ -6,8 +6,6 @@ export const showGptWidget: (deps: ExtensionDeps) => ActionSpec = (_deps) => ({
     isActive() {
         return false;
     },
-    isEnable() {
-        return true;
-    },
+    isEnable: runGpt,
     run: runGpt,
 });

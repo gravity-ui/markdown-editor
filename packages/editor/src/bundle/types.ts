@@ -169,11 +169,16 @@ export type MarkdownEditorMarkupConfig = {
 // do not export this type
 type ExtensionsOptions<T extends object = {}> = Omit<
     WysiwygPresetExtensionsOptions,
-    'reactRenderer'
+    'reactRenderer' | 'tableCellSelection'
 > &
     T;
 
 export type MarkdownEditorWysiwygConfig = {
+    /**
+     * Enable cell selection in Markdown and YFM tables.
+     * @default false
+     */
+    tableCellSelection?: boolean;
     /** Additional extensions */
     extensions?: Extension;
     extensionOptions?: ExtensionsOptions;

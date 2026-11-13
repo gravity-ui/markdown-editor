@@ -2,7 +2,9 @@ import type {Command} from 'prosemirror-state';
 // @ts-ignore // TODO: fix cjs build
 import {removeParentNodeOfType} from 'prosemirror-utils';
 
-import type {ActionSpec, ExtensionDeps, Parser} from '../../../../core';
+import type {ActionSpec, ExtensionDeps, Parser} from 'src/core';
+import {isDefaultOrEmptySelection} from 'src/utils/selection';
+
 import {TableNode} from '../const';
 import {isIntoTable} from '../helpers';
 
@@ -18,6 +20,8 @@ const mdTamplate = `
 const createTableFactory =
     (parser: Parser): Command =>
     (state, dispatch) => {
+        if (!isDefaultOrEmptySelection(state.selection)) return false;
+
         if (isIntoTable(state)) {
             return false;
         }

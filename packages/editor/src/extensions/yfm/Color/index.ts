@@ -46,8 +46,25 @@ export const Color: ExtensionAuto = (builder) => {
                 // add mark
                 return toggleMark(type, params)(state, dispatch);
             },
-            meta(state): Colors {
-                return type.isInSet(state.selection.$to.marks())?.attrs[colorMarkName];
+            meta(state): Colors | null | undefined {
+                const {selection, storedMarks} = state;
+                if (selection.empty) {
+                    return type.isInSet(storedMarks ?? selection.$from.marks())?.attrs[
+                        colorMarkName
+                    ];
+                }
+
+                const colors = new Set<Colors | undefined>();
+                for (const {$from, $to} of selection.ranges) {
+                    state.doc.nodesBetween($from.pos, $to.pos, (node) => {
+                        if (colors.size > 1) return false;
+                        if (node.isInline)
+                            colors.add(type.isInSet(node.marks)?.attrs[colorMarkName]);
+                        return true;
+                    });
+                    if (colors.size > 1) return null;
+                }
+                return colors.values().next().value;
             },
         };
     });
@@ -56,7 +73,15 @@ export const Color: ExtensionAuto = (builder) => {
 declare global {
     namespace WysiwygEditor {
         interface Actions {
-            [colorAction]: Action<ColorActionParams, Colors>;
+            /**
+             * Sets the text color. An empty color clears it.
+             * `meta()` returns:
+             * - `Colors`: one color for all selected inline content.
+             * - `null`: mixed colors, including colored and plain content.
+             * - `undefined`: no text color is set.
+             * At a cursor, `meta()` reads stored marks, or cursor marks if none are stored.
+             */
+            [colorAction]: Action<ColorActionParams, Colors | null | undefined>;
         }
     }
 }

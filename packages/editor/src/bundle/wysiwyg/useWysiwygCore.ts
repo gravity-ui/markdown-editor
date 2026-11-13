@@ -55,6 +55,7 @@ export function useWysiwygCore(
                 enableNewImageSizeCalculation: experimental.enableNewImageSizeCalculation,
                 mobile,
                 searchPanel: wysiwygConfig.searchPanel ?? true,
+                tableCellSelection: wysiwygConfig.tableCellSelection,
             });
 
             if (wysiwygConfig.extensions) {

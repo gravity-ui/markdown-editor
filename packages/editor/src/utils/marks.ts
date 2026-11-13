@@ -8,13 +8,13 @@ export const findMark = (node: Node, markType: MarkType): Mark | undefined => {
 };
 
 export function isMarkActive(state: EditorState, type: MarkType) {
-    const {from, $from, to, empty} = state.selection;
+    const {$from, ranges, empty} = state.selection;
 
     if (empty) {
         return type.isInSet(state.storedMarks || $from.marks());
     }
 
-    return state.doc.rangeHasMark(from, to, type);
+    return ranges.some((range) => state.doc.rangeHasMark(range.$from.pos, range.$to.pos, type));
 }
 
 /**
@@ -23,13 +23,8 @@ export function isMarkActive(state: EditorState, type: MarkType) {
  * https://spec.commonmark.org/0.31.2/#left-flanking-delimiter-run
  */
 export function canApplyInlineMarkInMarkdown(state: EditorState): boolean {
-    const {from, to, empty} = state.selection;
+    const {ranges, empty} = state.selection;
     if (empty) {
-        return true;
-    }
-
-    const text = state.doc.textBetween(from, to);
-    if (!text) {
         return true;
     }
 
@@ -37,18 +32,25 @@ export function canApplyInlineMarkInMarkdown(state: EditorState): boolean {
     const isPunct = (ch: string) => parser.isPunctChar(ch);
     const isWordChar = (ch: string) => !/\s/.test(ch) && !isPunct(ch);
 
-    const chars = [...text];
-    const firstChar = chars[0];
-    const lastChar = chars.at(-1);
+    return ranges.every(({$from, $to}) => {
+        const from = $from.pos;
+        const to = $to.pos;
+        const text = state.doc.textBetween(from, to);
+        if (!text) return true;
 
-    const charBefore = from > 0 ? state.doc.textBetween(from - 1, from) : '';
-    const charAfter = to < state.doc.content.size ? state.doc.textBetween(to, to + 1) : '';
+        const chars = [...text];
+        const firstChar = chars[0];
+        const lastChar = chars.at(-1);
 
-    // opening delimiter would not be left-flanking
-    if (isPunct(firstChar) && charBefore && isWordChar(charBefore)) {
-        return false;
-    }
+        const charBefore = from > 0 ? state.doc.textBetween(from - 1, from) : '';
+        const charAfter = to < state.doc.content.size ? state.doc.textBetween(to, to + 1) : '';
 
-    // closing delimiter would not be right-flanking
-    return !(lastChar && isPunct(lastChar) && charAfter && isWordChar(charAfter));
+        // opening delimiter would not be left-flanking
+        if (isPunct(firstChar) && charBefore && isWordChar(charBefore)) {
+            return false;
+        }
+
+        // closing delimiter would not be right-flanking
+        return !(lastChar && isPunct(lastChar) && charAfter && isWordChar(charAfter));
+    });
 }
