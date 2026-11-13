@@ -99,6 +99,7 @@ test.describe('Button', () => {
 
     test('should show the placeholder in an empty button @wysiwyg', async ({
         mount,
+        page,
         editor,
         button,
         expectScreenshot,
@@ -109,6 +110,8 @@ test.describe('Button', () => {
         await button.label.press('Enter');
         await expect(button.settings).toBeHidden();
         await expect(button.blocks).toHaveText('Button');
+        // The pointer leaves the button, so the screenshot shows no hover state.
+        await page.mouse.move(0, 0);
         await expectScreenshot({component: editor.locators.component});
         await editor.switchMode('markup');
         await expect(editor.locators.contenteditable).toContainText(':button[Button]');
