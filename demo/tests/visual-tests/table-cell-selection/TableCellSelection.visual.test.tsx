@@ -6,6 +6,48 @@ const mixedColorsMarkup = '#|\n|| A | B ||\n|| {red}(First) | {blue}(Second) ||\
 
 test.describe('Table cell selection @wysiwyg', () => {
     for (const kind of ['markdown', 'yfm'] as const) {
+        test(`should drag an outside image after selecting ${kind} cells without changing the table`, async ({
+            mount,
+            page,
+            editor,
+        }) => {
+            await page.route('**/table-drag-image.svg', (route) =>
+                route.fulfill({
+                    contentType: 'image/svg+xml',
+                    body: '<svg xmlns="http://www.w3.org/2000/svg" width="180" height="90"><rect width="180" height="90" fill="blue"/></svg>',
+                }),
+            );
+            await mount(
+                <TableCellSelectionStories.BothTables
+                    initialMarkup={`${tableMarkup(kind)}\n\n![Image](/table-drag-image.svg)\n\nDrop here`}
+                />,
+            );
+            const table = editor.tableCellSelection.getTable(kind);
+            const cells = editor.tableCellSelection.getCells(table);
+            const dropTarget = editor.getByTextInContenteditable('Drop here');
+            await expect(editor.image.getElement()).toBeVisible();
+            await expect(editor.image.getElement()).toHaveJSProperty('naturalWidth', 180);
+            await cells.first().click();
+            await cells.nth(5).click({modifiers: ['Shift']});
+            await expect(editor.tableCellSelection.getSelectedCells(table)).toHaveCount(4);
+            const before = await editor.getWysiwygState();
+
+            await editor.image.startDrag();
+            await expect
+                .poll(() => editor.getWysiwygState())
+                .toMatchObject({
+                    selection: {type: 'node'},
+                    selectedNode: {type: 'image'},
+                });
+            await expect(editor.tableCellSelection.getSelectedCells(table)).toHaveCount(0);
+            await editor.image.dropInto(dropTarget);
+            await expect(editor.image.getElement(dropTarget)).toHaveCount(1);
+            await expect(editor.image.getElement()).toHaveCount(1);
+            expect((await editor.getWysiwygState()).doc.content[0]).toEqual(before.doc.content[0]);
+            await page.keyboard.press('ControlOrMeta+z');
+            await expect.poll(async () => (await editor.getWysiwygState()).doc).toEqual(before.doc);
+        });
+
         test(`should select across rows, clear cells and undo in a ${kind} table`, async ({
             mount,
             page,

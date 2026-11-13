@@ -2,10 +2,11 @@ import {history, redo, undo, undoDepth} from 'prosemirror-history';
 import type {Node} from 'prosemirror-model';
 import {AllSelection, EditorState, NodeSelection, TextSelection} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
-import {afterEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, assert, describe, expect, it, vi} from 'vitest';
 
 import {ExtensionsManager} from '#core';
 import {BaseSchemaSpecs} from 'src/extensions/base/specs';
+import {ImageSpecs, imageType} from 'src/extensions/markdown/Image/ImageSpecs';
 import {Table} from 'src/extensions/markdown/Table';
 import {YfmTable} from 'src/extensions/yfm/YfmTable';
 import {getTableGeometry} from 'src/table-utils/cell-selection/geometry';
@@ -487,13 +488,94 @@ describe.each(['markdown', 'yfm'] as const)('%s cell selection input', (kind) =>
         expect(view.state.doc.textContent).toBe('outside新');
     });
 
-    it('should retain cell selection when clearing after canceled composition', () => {
+    it('should clear cells and accept text after a key cancels pending composition', () => {
         const {view, positions} = setup(kind);
         select(view, positions[0], positions[3]);
         startComposition(view);
         expect(pressKey(view, 'Delete')).toBe(true);
         expect(view.state.selection).toBeInstanceOf(TableCellSelection);
         expect(view.state.doc.textContent).toBe('');
+
+        const handled = view.someProp('handleTextInput', (handler) =>
+            handler(view, view.state.selection.from, view.state.selection.to, 'new'),
+        );
+
+        expect(handled).toBe(true);
+        expect(view.state.doc.textContent).toBe('new');
+        expect(view.state.selection).toBeInstanceOf(TextSelection);
+    });
+
+    it('should accept text after a mouse action cancels pending composition', () => {
+        const {view, positions} = setup(kind);
+        select(view, positions[0], positions[3]);
+        startComposition(view);
+        vi.spyOn(view, 'posAtCoords').mockReturnValue({
+            pos: textPosition(view.state.doc, positions[0]),
+            inside: -1,
+        });
+        view.dom
+            .querySelector('td, th')!
+            .dispatchEvent(new MouseEvent('mousedown', {bubbles: true, button: 0}));
+        document.dispatchEvent(new MouseEvent('mouseup'));
+        select(view, positions[0], positions[3]);
+
+        const handled = view.someProp('handleTextInput', (handler) =>
+            handler(view, view.state.selection.from, view.state.selection.to, 'new'),
+        );
+
+        expect(handled).toBe(true);
+        expect(view.state.doc.textContent).toBe('new');
+        expect(view.state.selection).toBeInstanceOf(TextSelection);
+    });
+
+    it('should ignore composition start in a read-only view', () => {
+        const {view, positions} = setup(kind);
+        select(view, positions[0], positions[3]);
+        view.setProps({editable: () => false});
+        const before = view.state;
+
+        view.dom.dispatchEvent(new CompositionEvent('compositionstart', {bubbles: true}));
+
+        expect(view.state).toBe(before);
+    });
+
+    it.each([
+        {name: 'middle button', button: 1},
+        {name: 'right button', button: 2},
+        {name: 'Ctrl modifier', ctrlKey: true},
+        {name: 'Meta modifier', metaKey: true},
+    ])('should leave mouse selection unchanged with $name', ({name: _name, ...options}) => {
+        const {view, positions} = setup(kind);
+        select(view, positions[0], positions[3]);
+        vi.spyOn(view, 'posAtCoords').mockReturnValue({
+            pos: textPosition(view.state.doc, positions[0]),
+            inside: -1,
+        });
+        const before = view.state;
+
+        view.dom
+            .querySelector('td, th')!
+            .dispatchEvent(new MouseEvent('mousedown', {bubbles: true, ...options}));
+
+        expect(view.state).toBe(before);
+        document.dispatchEvent(new MouseEvent('mouseup'));
+    });
+
+    it('should leave cell selection unchanged when pressing a button inside a cell', () => {
+        const {view, positions} = setup(kind);
+        select(view, positions[0], positions[3]);
+        const button = document.createElement('button');
+        view.dom.querySelector('td, th')!.append(button);
+        vi.spyOn(view, 'posAtCoords').mockReturnValue({
+            pos: textPosition(view.state.doc, positions[0]),
+            inside: -1,
+        });
+        const before = view.state;
+
+        button.dispatchEvent(new MouseEvent('mousedown', {bubbles: true, button: 0}));
+
+        expect(view.state).toBe(before);
+        document.dispatchEvent(new MouseEvent('mouseup'));
     });
 
     it('should not handle keys in a read-only view', () => {
@@ -505,14 +587,25 @@ describe.each(['markdown', 'yfm'] as const)('%s cell selection input', (kind) =>
         expect(view.state.doc).toBe(before);
     });
 
-    it('should prevent native dragging of selected cell content', () => {
+    it('should prevent native dragging of an image inside selected cells', () => {
         const {view, positions} = setup(kind);
+        view.dispatch(
+            view.state.tr.insert(
+                textPosition(view.state.doc, positions[3]),
+                imageType(view.state.schema).create({src: 'image.png'}),
+            ),
+        );
         select(view, positions[0], positions[3]);
+        const before = view.state;
+        const image = view.dom.querySelector('img');
+        assert(image);
         const event = new Event('dragstart', {bubbles: true, cancelable: true});
-        view.dom.querySelector('td, th')!.dispatchEvent(event);
+
+        image.dispatchEvent(event);
+
         expect(event.defaultPrevented).toBe(true);
+        expect(view.state).toBe(before);
         expect(view.dragging).toBeNull();
-        expect(view.state.doc.textContent).toBe('ABCD');
     });
 
     it('should leave native dragging of text to the existing handlers', () => {
@@ -663,6 +756,47 @@ describe('cell selection with merged cells', () => {
     });
 });
 
+describe('cell selection with image NodeViews', () => {
+    it('should select the dragged image when it is the last child of its NodeView', () => {
+        const {view, positions} = setup('markdown');
+        view.setProps({
+            nodeViews: {
+                image(node) {
+                    const dom = document.createElement('span');
+                    const control = document.createElement('span');
+                    control.textContent = 'control';
+                    const image = document.createElement('img');
+                    image.src = node.attrs.src;
+                    dom.append(control, image);
+                    return {dom};
+                },
+            },
+        });
+        const {schema} = view.state;
+        const imagePos = view.state.doc.content.size + 1;
+        view.dispatch(
+            view.state.tr.insert(
+                view.state.doc.content.size,
+                schema.node('paragraph', null, [
+                    imageType(schema).create({src: 'first.png'}),
+                    imageType(schema).create({src: 'second.png'}),
+                ]),
+            ),
+        );
+        select(view, positions[0], positions[3]);
+        const before = view.state.doc;
+        const image = view.dom.querySelector('img');
+        assert(image);
+        const event = new Event('dragstart', {bubbles: true, cancelable: true});
+
+        image.dispatchEvent(event);
+
+        expect(event.defaultPrevented).toBe(false);
+        expect(view.state.selection.toJSON()).toEqual({type: 'node', anchor: imagePos});
+        expect(view.state.doc.eq(before)).toBe(true);
+    });
+});
+
 describe('cell selection drag scope', () => {
     it('should keep an outer drag in the outer table when it reaches an inner table', () => {
         const {view, positions} = setup('yfm');
@@ -784,7 +918,11 @@ describe('cell selection drag scope', () => {
 function setup(kind: 'markdown' | 'yfm', emptyHead = false) {
     const {schema} = new ExtensionsManager({
         extensions: (builder) =>
-            builder.use(BaseSchemaSpecs, {}).use(Table).use(YfmTable, {controls: false}),
+            builder
+                .use(BaseSchemaSpecs, {})
+                .use(ImageSpecs)
+                .use(Table)
+                .use(YfmTable, {controls: false}),
     }).buildDeps();
     const cell = (text: string, header = false) =>
         kind === 'markdown'

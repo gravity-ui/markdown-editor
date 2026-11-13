@@ -211,7 +211,33 @@ export function tableCellSelectionPlugin(): Plugin<InputState> {
                     return true;
                 },
                 dragstart(view, event) {
-                    if (!(view.state.selection instanceof TableCellSelection)) return false;
+                    const selection = view.state.selection;
+                    if (!(selection instanceof TableCellSelection)) return false;
+                    const target = event.target;
+                    if (target instanceof Element && view.dom.contains(target)) {
+                        let $pos = view.state.doc.resolve(view.posAtDOM(target, 0));
+                        const before = $pos.nodeBefore;
+                        if (before && view.nodeDOM($pos.pos - before.nodeSize)?.contains(target)) {
+                            $pos = view.state.doc.resolve($pos.pos - before.nodeSize);
+                        }
+                        if (!findTableCell($pos, selection.tablePos)) {
+                            while (true) {
+                                const node = $pos.nodeAfter;
+                                if (
+                                    node?.type.spec.draggable &&
+                                    NodeSelection.isSelectable(node) &&
+                                    view.nodeDOM($pos.pos)?.contains(target)
+                                ) {
+                                    view.dispatch(
+                                        view.state.tr.setSelection(new NodeSelection($pos)),
+                                    );
+                                    return false;
+                                }
+                                if (!$pos.depth) break;
+                                $pos = view.state.doc.resolve($pos.before());
+                            }
+                        }
+                    }
                     event.preventDefault();
                     return true;
                 },

@@ -81,11 +81,36 @@ class Image {
     protected readonly imageSettingsButton: Locator;
     protected readonly imageSettingsMenu: Locator;
     protected readonly image: Locator;
+    private readonly page: Page;
 
     constructor(page: Page) {
+        this.page = page;
         this.imageSettingsButton = page.getByTestId('g-md-image-settings-button');
         this.imageSettingsMenu = page.getByTestId('g-md-image-settings-menu');
         this.image = page.getByTestId('g-md-image');
+    }
+
+    getElement(container?: Locator) {
+        return (container ?? this.image).locator('img');
+    }
+
+    async startDrag() {
+        const image = this.getElement();
+        await image.scrollIntoViewIfNeeded();
+        const box = await image.boundingBox();
+        if (!box) throw new Error('Image must be visible');
+        const x = box.x + box.width / 2;
+        const y = box.y + box.height / 2;
+        await this.page.mouse.move(x, y);
+        await this.page.mouse.down();
+        await this.page.mouse.move(x + 30, y + 10, {steps: 6});
+    }
+
+    async dropInto(target: Locator) {
+        const box = await target.boundingBox();
+        if (!box) throw new Error('Drop target must be visible');
+        await this.page.mouse.move(box.x + 5, box.y + box.height / 2, {steps: 6});
+        await this.page.mouse.up();
     }
 
     async clickImageSettingsButton() {
@@ -542,6 +567,18 @@ export class MarkdownEditorPage {
         const mode = value as MarkdownEditorMode | null;
         if (mode === 'wysiwyg' || mode === 'markup') return mode;
         throw new Error(`MarkdownEditorPage.getMode(): unknown editor mode "${mode}"`);
+    }
+
+    getWysiwygState() {
+        return this.page.evaluate(() => {
+            // @ts-expect-error Internal view is available in the demo.
+            const state = window.mdEditor._wysiwygView.state;
+            return {
+                doc: state.doc.toJSON(),
+                selection: state.selection.toJSON(),
+                selectedNode: state.doc.nodeAt(state.selection.from)?.toJSON(),
+            };
+        });
     }
 
     /**

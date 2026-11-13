@@ -18,12 +18,53 @@ import {
     findTableCell,
 } from 'src/table-utils/cell-selection/selection';
 
-const {schema} = new ExtensionsManager({
+const {schema, markupParser} = new ExtensionsManager({
     extensions: (builder) =>
         builder.use(BaseSchemaSpecs, {}).use(Table).use(YfmTable, {controls: false}),
 }).buildDeps();
 
 describe('TableCellSelection with table extensions', () => {
+    it('should preserve a merged head and its attributes when replacing selected cells', () => {
+        const attrs = {rowspan: '2', colspan: '2', 'data-bg': 'red', 'data-cell-align': 'center'};
+        const table = yfmTable(
+            yfmRow(yfmCell('head', attrs), yfmCell('other')),
+            yfmRow(yfmCell('last')),
+        );
+        const doc = schema.node(BaseNode.Doc, null, table);
+        const geometry = getTableGeometry(table)!;
+        const selection = TableCellSelection.create(
+            doc,
+            geometry.cellAt(1, 2)!.offset,
+            geometry.cellAt(0, 0)!.offset,
+        );
+        const state = EditorState.create({doc, selection});
+
+        const tr = state.tr.insertText('new');
+
+        const expected = schema.node(
+            BaseNode.Doc,
+            null,
+            yfmTable(yfmRow(yfmCell('new', attrs), yfmCell('')), yfmRow(yfmCell(''))),
+        );
+        expect(tr.doc.toJSON()).toEqual(expected.toJSON());
+    });
+
+    it('should preserve Markdown head alignment when replacing selected cells', () => {
+        const doc = markupParser.parse('| H1 | H2 |\n| --- | ---: |\n| first | head |');
+        const geometry = getTableGeometry(doc.firstChild!)!;
+        const selection = TableCellSelection.create(
+            doc,
+            geometry.cellAt(1, 0)!.offset,
+            geometry.cellAt(1, 1)!.offset,
+        );
+        const state = EditorState.create({doc, selection});
+
+        const tr = state.tr.insertText('new');
+
+        const expected = markupParser.parse('| H1 | H2 |\n| --- | ---: |\n| | new |');
+        expect(tr.doc.toJSON()).toEqual(expected.toJSON());
+    });
+
     it('should keep the exact anchor and head in bookmarks when a span makes the rectangle cover all rows', () => {
         const table = yfmTable(
             yfmRow(yfmCell('a', {rowspan: 2, colspan: 2}), yfmCell('b')),
