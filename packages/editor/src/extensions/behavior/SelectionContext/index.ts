@@ -15,8 +15,7 @@ import {hasParentNode} from 'prosemirror-utils';
 import type {EditorProps, EditorView} from 'prosemirror-view';
 
 import type {ActionStorage, ExtensionAuto} from '../../../core';
-import {type Logger2, globalLogger} from '../../../logger';
-import type {ToolbarData} from '../../../toolbar';
+import type {Logger2} from '../../../logger';
 import {isCodeBlock} from '../../../utils/nodes';
 import {contextualToolbarsKey} from '../ContextualToolbars';
 
@@ -201,14 +200,7 @@ class SelectionTooltip implements PluginSpec<PluginState> {
             return;
         }
 
-        let toolbarData: ToolbarData<ActionStorage>;
-        try {
-            toolbarData = this.getToolbarData(config, this.actions, state);
-        } catch (error) {
-            this.tooltip.hide(view);
-            globalLogger.error(error);
-            return;
-        }
+        const toolbarData = this.getToolbarData(config, this.actions, state);
         if (!toolbarData.length) {
             this.tooltip.hide(view);
             return;
