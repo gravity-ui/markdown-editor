@@ -171,6 +171,36 @@ test.describe('Button', () => {
         await expect(editor.locators.contenteditable).toBeFocused();
     });
 
+    test('should open settings on repeated clicks and preserve selection @wysiwyg', async ({
+        mount,
+        button,
+        editor,
+    }) => {
+        await mount(<ButtonStories.Button initial={withSpace} />);
+        await button.openSettings();
+        await expect(button.blocks).toHaveClass(/ProseMirror-selectednode/);
+        await expect(button.blocks).toHaveCSS('outline-width', '2px');
+        await expect(button.label).toBeFocused();
+        expect(await button.getSettingsGeometry()).toEqual({
+            width: 257,
+            iconSize: [16, 16],
+            iconLeft: 12,
+            iconCenter: 0,
+            textLeft: 36,
+            swatchLeft: 8,
+            fieldGap: 12,
+        });
+        await button.blocks.dblclick();
+        await expect(button.label).toBeFocused();
+        await expect(button.settings).toBeVisible();
+        await button.label.press('Escape');
+        await expect(button.settings).toBeHidden();
+        await button.blocks.click();
+        await expect(button.label).toBeFocused();
+        await expect(button.blocks).toHaveClass(/ProseMirror-selectednode/);
+        await editor.press('Escape');
+    });
+
     test('should change the style of a button in its window @wysiwyg', async ({
         mount,
         editor,

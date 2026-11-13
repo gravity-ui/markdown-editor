@@ -7,6 +7,7 @@ import {
     type PluginView,
 } from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
+import {buttonClassName} from '@gravity-ui/markdown-plugin-header';
 
 import {buttonNodeType} from '../../ButtonSpecs';
 
@@ -77,14 +78,23 @@ export const buttonSettingsPlugin = () =>
                 (tr.getMeta(key) ?? open) && selectedButton(state) !== null,
         },
         props: {
-            handleClickOn(view, _pos, node, nodePos, _event, direct) {
-                if (!direct || node.type !== buttonNodeType(view.state.schema)) return false;
-                view.dispatch(
-                    view.state.tr
-                        .setSelection(NodeSelection.create(view.state.doc, nodePos))
-                        .setMeta(key, true),
-                );
-                return true;
+            handleDOMEvents: {
+                mousedown(view, event) {
+                    if (event.button !== 0 || !(event.target instanceof Element)) return false;
+                    const anchor = event.target.closest(`a.${buttonClassName}`);
+                    if (!anchor || !view.dom.contains(anchor)) return false;
+                    const pos = view.posAtDOM(anchor, 0);
+                    if (view.state.doc.nodeAt(pos)?.type !== buttonNodeType(view.state.schema)) {
+                        return false;
+                    }
+                    event.preventDefault();
+                    view.dispatch(
+                        view.state.tr
+                            .setSelection(NodeSelection.create(view.state.doc, pos))
+                            .setMeta(key, true),
+                    );
+                    return true;
+                },
             },
             handleKeyDown(view, event) {
                 const open = key.getState(view.state);
