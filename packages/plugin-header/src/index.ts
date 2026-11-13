@@ -13,9 +13,12 @@ export {headerPlugin} from './header/plugin';
 export {buttonPlugin} from './button/plugin';
 export {buttonAttrs, buttonFromAttrs} from './button/attrs';
 export {
+    type ButtonColor,
     type ButtonModel,
+    type ButtonView,
     buttonClassName,
     buttonDefaultColor,
     buttonDefaults,
     buttonTokenName,
+    buttonViewColors,
 } from './button/model';

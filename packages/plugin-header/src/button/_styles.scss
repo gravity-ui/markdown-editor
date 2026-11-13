@@ -1,7 +1,5 @@
 .g-md-button-plugin {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
+    display: inline-block;
 
     box-sizing: border-box;
     max-width: 100%;
@@ -11,16 +9,12 @@
     font-size: var(--g-text-body-1-font-size, 14px);
     line-height: var(--g-text-body-1-line-height, 18px);
     text-align: center;
-    vertical-align: top;
+    vertical-align: middle;
     white-space: normal;
     text-decoration: none;
 
     border-radius: var(--g-border-radius-l, 12px);
     overflow-wrap: anywhere;
-
-    & + & {
-        margin-inline-start: 16px;
-    }
 
     // Keep the label color when rendered as a Markdown link.
     &,
@@ -69,7 +63,7 @@
         --_--flat-color: var(--g-color-text-secondary);
     }
 
-    &_color_blue {
+    &_color_info {
         --_--action-background: var(--g-color-base-info-heavy);
         --_--normal-background: var(--g-color-base-info-light);
         --_--normal-color: var(--g-color-text-info-heavy);

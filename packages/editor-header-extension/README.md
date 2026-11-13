@@ -13,10 +13,10 @@ const editor = useMarkdownEditor({
 
 | Entry point                                                  | Exports                                                                                                            |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `@gravity-ui/markdown-editor-header-extension`               | `Header`, `Button`, the Markdown command `insertHeader`, and the toolbar button `toolbarHeaderItem` for both modes |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header`, `Button`, and `toolbarHeaderItem` for the visual editor                                                  |
+| `@gravity-ui/markdown-editor-header-extension`               | `Header`, `Button`, the Markdown commands `insertHeader` and `insertButton`, and the toolbar buttons `toolbarHeaderItem` and `toolbarButtonItem` for both modes |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header`, `Button`, `toolbarHeaderItem`, and `toolbarButtonItem` for the visual editor |
 | `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName`, `ButtonSpecs`, and `buttonNodeName`                                               |
-| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader` and `toolbarHeaderItem` for the Markdown editor                                                     |
+| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader`, `insertButton`, `toolbarHeaderItem`, and `toolbarButtonItem` for the Markdown editor |
 
 `toolbarHeaderItem` inserts the block.
 In the visual editor, the button is disabled inside another header.
@@ -49,11 +49,15 @@ const editor = useMarkdownEditor({
 
 Register `buttonPlugin` from `@gravity-ui/markdown-plugin-header` in the Markdown preview.
 
-Enter `:::button{href="/page" view="action" color="blue"}` with a plain-text body and a closing `:::` in Markdown mode.
-The visual editor displays a selectable, draggable block without settings or editable content.
-Clicking it does not follow the link. Edit its text and attributes in Markdown mode.
-The complete body, including unsupported formatting and additional paragraphs, survives mode switches and copying.
+A button is an inline node: `:button[Read more]{href="/page" view="action" color="info"}`.
+The label is edited directly in the button and holds plain text without formatting.
+With the cursor in the label, a panel under the button edits the link like the core link extension.
+Its "Style" button opens a window with the view and color list and the "Open in a new tab" switch.
+Each link, style, and switch change is a separate undo step. Clicking the button does not follow the link.
 
-Button serialization omits default attributes; the default opening is `:::button`.
+`toolbarButtonItem` inserts `:button[Button]{view="action" color="standard"}` at the cursor in both modes.
+In the visual editor, the cursor moves after the new button.
 
-An empty button shows the text "Button" in the visual editor and saves it as the body. Change the text with the editor `placeholder` option: `{placeholder: {button: 'Open'}}`.
+The editor always writes `view` and `color`; `href` is written when set, and `target` when it differs from `_self`.
+
+An empty button shows the text "Button" in the visual editor and saves it as the label. Change the text with the editor `placeholder` option: `{placeholder: {button: 'Open'}}`.
