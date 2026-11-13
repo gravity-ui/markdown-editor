@@ -1,4 +1,20 @@
-export {headerAttrs, headerClassNames, headerDimensionsFromAttrs} from './header/attrs';
+export {
+    type HeaderBackground,
+    type HeaderBgColor,
+    type HeaderBgColorFamily,
+    type HeaderBgColorSaturation,
+    type HeaderBgImageTheme,
+    headerBackground,
+    headerBackgroundDefaults,
+    headerBackgroundValues,
+    headerBgColorFamilies,
+    headerBgColorSaturations,
+    headerBgColors,
+    headerBgImageThemes,
+    safeImageUrl,
+    toCssUrl,
+} from './background';
+export {headerAttrs, headerBackgroundFromAttrs, headerDimensionsFromAttrs} from './header/attrs';
 export {headerClassName, headerTokenName} from './header/model';
 export {
     type HeaderDimensions,

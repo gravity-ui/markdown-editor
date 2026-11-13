@@ -2,11 +2,14 @@ import {Copy, Gear, TrashBin} from '@gravity-ui/icons';
 import {Toolbar, type ToolbarData, ToolbarDataType, cn} from '@gravity-ui/markdown-editor';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {headerDimensions} from '@gravity-ui/markdown-plugin-header';
+import {headerBackground, headerDimensions} from '@gravity-ui/markdown-plugin-header';
 
+import type {HeaderOptions} from '../..';
 import {i18n} from '../../../../../i18n';
-import {copyHeader, removeHeader, setHeaderDimension} from '../../commands';
+import {copyHeader, removeHeader, setHeaderBackground, setHeaderDimension} from '../../commands';
+import {uploadHeaderImage} from '../HeaderUploadPlugin';
 
+import type {BackgroundControls} from './Settings/BackgroundField';
 import {HeaderSettings} from './Settings/HeaderSettings';
 
 import './HeaderToolbar.scss';
@@ -19,14 +22,30 @@ export const headerToolbars = new WeakMap<EditorView, HTMLElement>();
 const isActive = () => false;
 const isEnable = () => true;
 
-type HeaderToolbarProps = {
+type HeaderToolbarProps = HeaderOptions & {
     view: EditorView;
     node: Node;
     pos: number;
     block: HTMLElement | null;
 };
 
-export function HeaderToolbar({view, node, pos, block}: HeaderToolbarProps) {
+export function HeaderToolbar({
+    view,
+    node,
+    pos,
+    block,
+    fileUploadHandler,
+    imageTypes,
+    maxImageSize,
+}: HeaderToolbarProps) {
+    const background: BackgroundControls = {
+        value: headerBackground(node.attrs),
+        imageTypes,
+        maxImageSize,
+        onChange: (value) => setHeaderBackground(pos, value)(view.state, view.dispatch),
+        upload:
+            fileUploadHandler && ((file) => uploadHeaderImage(view, pos, file, fileUploadHandler)),
+    };
     const data: ToolbarData<EditorView> = [
         [
             {
@@ -45,6 +64,7 @@ export function HeaderToolbar({view, node, pos, block}: HeaderToolbarProps) {
                         onChange={(name, value) =>
                             setHeaderDimension(pos, name, value)(view.state, view.dispatch)
                         }
+                        background={background}
                         onClose={hide}
                     />
                 ),
