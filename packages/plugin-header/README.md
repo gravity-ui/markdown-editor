@@ -1,14 +1,23 @@
 # Header Markdown plugin
 
-markdown-it plugin for a Header container.
+markdown-it plugins for the Header markup. Each block has its own plugin, and `headerPreset` enables all of them:
+
+| Block             | Plugin         | Markup              |
+| ----------------- | -------------- | ------------------- |
+| [Header](#header) | `headerPlugin` | `:::header{…}`      |
+| [Button](#button) | `buttonPlugin` | `:button[label]{…}` |
 
 ```ts
 import MarkdownIt from 'markdown-it';
-import {headerPlugin} from '@gravity-ui/markdown-plugin-header';
+import {headerPreset} from '@gravity-ui/markdown-plugin-header';
 import '@gravity-ui/markdown-plugin-header/styles.css';
 
-const md = new MarkdownIt().use(headerPlugin);
+const md = new MarkdownIt().use(headerPreset);
 ```
+
+A single block is enabled with its own plugin, for example `md.use(buttonPlugin)`.
+
+## Header
 
 ```markdown
 :::header{height="s" width="m" bg-color="blue-light" bg-image="./.files/photo.jpg" bg-image-theme="dark" bg-image-blur="true"}
@@ -56,29 +65,83 @@ Inline titles and destinations in the opening directive are not supported and re
 
 ## Button
 
-Register `buttonPlugin` independently or together with `headerPlugin`:
+`buttonPlugin` works on its own and inside Header:
 
 ```ts
 import {buttonPlugin} from '@gravity-ui/markdown-plugin-header';
+
 md.use(buttonPlugin);
 ```
 
 ```markdown
-Read the guide :button[Read more]{href="https://example.com" view="action" color="blue" target="_blank"} or ask a question.
+:button[Read more]{href="https://example.com" view="action" color="blue" target="\_blank"}
+
+:button[Open]{href="/page" view="action" color="blue"} :button[Docs]{href="/docs" view="normal" color="gray"} :button[Skip]{view="flat" color="standard"}
 ```
 
-The button is an inline directive: it stays in the line of text, and buttons in one paragraph form a row.
-The label in square brackets is plain text; Markdown inside it is shown as written, and `\]` writes a closing bracket.
-A button with an empty label renders nothing. Buttons work independently and inside Header.
+The button is an inline directive: it stays in the line of text, and buttons written one after another in a paragraph, separated by spaces, form a row.
+The label in square brackets is plain text: Markdown and HTML entities inside it are shown as written, and `\]` writes a closing bracket.
+A button with an empty label renders nothing.
 
-| Attribute | Values | Default |
-| --- | --- | --- |
-| `href` | Link address | Empty |
-| `view` | `action`, `normal`, `outline`, `flat` | `action` |
-| `color` | `standard`, `gray`, `blue`, `green`, `yellow`, `red`, `violet` | `standard` for action/flat, `gray` for normal/outline |
-| `target` | `_self`, `_blank`, `_parent`, `_top` | `_self` |
+| Attribute | Values                                                         | Default                                                               |
+| --------- | -------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `href`    | a link address                                                 | none                                                                  |
+| `view`    | `action`, `normal`, `outline`, `flat`                          | `action`                                                              |
+| `color`   | `standard`, `gray`, `blue`, `green`, `yellow`, `red`, `violet` | `standard` for `action` and `flat`, `gray` for `normal` and `outline` |
+| `target`  | `_self`, `_blank`, `_parent`, `_top`                           | `_self`                                                               |
 
-`action` does not support gray; `normal` and `outline` do not support standard.
-Unsupported values use the defaults. Unknown attributes are ignored.
-Unsafe link addresses are omitted. New-tab links include `rel="noopener noreferrer"`.
-Colors use Gravity theme variables; the host application supplies their values.
+Each view has its own colors:
+
+| View      | Look            | Colors                                                         |
+| --------- | --------------- | -------------------------------------------------------------- |
+| `action`  | solid fill      | `standard`, `blue`, `green`, `yellow`, `red`, `violet`         |
+| `normal`  | light fill      | `gray`, `blue`, `green`, `yellow`, `red`, `violet`             |
+| `outline` | border, no fill | `gray`, `blue`, `green`, `yellow`, `red`, `violet`             |
+| `flat`    | label only      | `standard`, `gray`, `blue`, `green`, `yellow`, `red`, `violet` |
+
+An unsupported value is replaced with the default, and a color the view lacks with the first color of the view. Unknown attributes are skipped.
+
+The button is rendered as a link:
+
+```html
+<a
+  class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_blue"
+  href="https://example.com"
+  target="_blank"
+  rel="noopener noreferrer"
+  data-view="action"
+  data-color="blue"
+  >Read more</a
+>
+```
+
+- Without `href`, or with an unsafe one (`javascript:`, `data:`, `vbscript:`, `file:`), the `<a>` has no `href` and is not interactive.
+- `target="_blank"` adds `rel="noopener noreferrer"`; `_self` is not rendered.
+- The address is taken as written: HTML entities in it are not decoded, so `/page?a=1&copy=2` and `/image&copy;.png` keep their `&copy`. `\"` writes a quote.
+- `data-view` and `data-color` of the element and of the token hold the resolved view and color.
+
+### Button styles
+
+Colors are Gravity UI theme tokens; the host application supplies their values. `blue` uses the `info` family, `green` `positive`, `yellow` `warning`, `red` `danger`, `violet` `utility`:
+
+| View      | Fill                            | Label                                           | Border                    |
+| --------- | ------------------------------- | ----------------------------------------------- | ------------------------- |
+| `action`  | `--g-color-base-<family>-heavy` | `--g-color-text-light-primary` (dark on yellow) | none                      |
+| `normal`  | `--g-color-base-<family>-light` | `--g-color-text-<family>-heavy`                 | none                      |
+| `outline` | none                            | `--g-color-text-<family>`                       | `--g-color-line-<family>` |
+| `flat`    | none                            | `--g-color-text-<family>`                       | none                      |
+
+`standard` is the contrast fill with inverted text for `action` and the primary text color for `flat`; `gray` uses the generic fill and line with the primary text, and the secondary text for `flat`.
+
+A button with an address shows the hover fill of its family (`…-hover` tokens, `--g-color-base-simple-hover` for `outline` and `flat`), shrinks while pressed and gets a `--g-color-line-focus` outline on keyboard focus.
+
+The typography is `body-1`, the corner radius is `--g-border-radius-l`, the horizontal padding is `--g-spacing-4`. Block-specific numbers are custom properties:
+
+| Property                                   | Default |
+| ------------------------------------------ | ------- |
+| `--g-md-button-plugin-height`              | `36px`  |
+| `--g-md-button-plugin-border-width`        | `1px`   |
+| `--g-md-button-plugin-focus-outline-width` | `2px`   |
+| `--g-md-button-plugin-pressed-scale`       | `0.96`  |
+
+The height is a minimum: a label that does not fit the line wraps, and the button grows.
