@@ -1,120 +1,58 @@
-import {existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync} from 'node:fs';
-import {basename, dirname, join, relative, resolve} from 'node:path';
+import {mkdirSync, rmSync, writeFileSync} from 'node:fs';
+import {join, resolve} from 'node:path';
 import process from 'node:process';
 import {fileURLToPath} from 'node:url';
 
-import ts from 'typescript';
+import {discoverExtensions} from './extension-pages/discover-extensions.mjs';
+import {buildSourceIndex} from './extension-pages/indexes/source-index.mjs';
+import {REPO_PACKAGES} from './extension-pages/packages.mjs';
+import {createExtensionProgram, projectSourceFiles} from './extension-pages/program.mjs';
+import {renderExtensionPage} from './extension-pages/render-page.mjs';
+import {REPO_ROOT} from './repo-root.mjs';
 
-import {extractExtensionNamesFromSource} from './extension-ast.mjs';
+export const EXTENSION_PAGES_DIR = join(REPO_ROOT, 'tmp/docs-gen/stubs');
 
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
-const CATEGORIES = ['additional', 'base', 'behavior', 'markdown', 'yfm'];
-const EXTENSION_BLACKLIST = new Set([
-    'BaseInputRules',
-    'BaseKeymap',
-    'BaseStyles',
-    'BehaviorPreset',
-    'ReactRendererExtension',
-    'SharedState',
-]);
+/** Builds the program, the indexes and the extension list once for all pages. */
+export function createGenerator(packages = REPO_PACKAGES) {
+    const program = createExtensionProgram(packages);
+    const index = buildSourceIndex(program, projectSourceFiles(program, packages), packages);
 
-function sourceFiles(dir) {
-    return readdirSync(dir)
-        .filter((file) => /\.(ts|tsx)$/.test(file) && !file.endsWith('.test.ts'))
-        .sort();
+    return {index, packages, extensions: discoverExtensions(index, packages)};
 }
 
-function readExtension(dir, root, expectedName = basename(dir)) {
-    const candidates = sourceFiles(dir).flatMap((file) => {
-        const path = join(dir, file);
-        const names = extractExtensionNamesFromSource(readFileSync(path, 'utf8'), path);
-        return names.map((name) => ({name, source: relative(root, path)}));
-    });
-    const extension = candidates.find(
-        ({name}) => name === expectedName || name === `${expectedName}Extension`,
-    );
-
-    if (extension) return extension;
-
-    const indexPath = ['index.ts', 'index.tsx']
-        .map((file) => join(dir, file))
-        .find((path) => existsSync(path));
-    if (indexPath) {
-        const source = ts.createSourceFile(
-            indexPath,
-            readFileSync(indexPath, 'utf8'),
-            ts.ScriptTarget.Latest,
-            true,
-        );
-        if (source.statements.some(ts.isExportDeclaration)) {
-            return {name: expectedName, source: relative(root, indexPath)};
-        }
-    }
-
-    return null;
-}
-
-/**
- * Finds one public extension for each extension directory.
- * @param {string} root
- * @returns {{name: string, source: string}[]}
- */
-export function discoverExtensions(root = REPO_ROOT) {
-    const extensions = [];
-    const editorDir = join(root, 'packages/editor/src/extensions');
-
-    for (const category of CATEGORIES) {
-        const categoryDir = join(editorDir, category);
-        const categoryIndex = join(categoryDir, 'index.ts');
-        if (existsSync(categoryIndex)) {
-            const names = extractExtensionNamesFromSource(
-                readFileSync(categoryIndex, 'utf8'),
-                categoryIndex,
-            );
-            extensions.push(
-                ...names.map((name) => ({name, source: relative(root, categoryIndex)})),
+/** Renders pages of all discovered extensions by name. */
+export function renderExtensionPages(generator) {
+    const extensions = new Map();
+    for (const extension of generator.extensions) {
+        const previous = extensions.get(extension.name);
+        if (previous) {
+            throw new Error(
+                `Duplicate extension page "${extension.name}": ${previous.package.name} and ${extension.package.name}`,
             );
         }
-        for (const entry of readdirSync(categoryDir, {withFileTypes: true})) {
-            if (!entry.isDirectory()) continue;
-            const extension = readExtension(join(categoryDir, entry.name), root);
-            if (extension) extensions.push(extension);
-        }
+        extensions.set(extension.name, extension);
     }
 
-    const pageConstructorDir = join(root, 'packages/page-constructor-extension/src/extension');
-    extensions.push(readExtension(pageConstructorDir, root, 'YfmPageConstructorExtension'));
-    extensions.push(
-        readExtension(
-            join(pageConstructorDir, 'YfmPageConstructorSpecs'),
-            root,
-            'YfmPageConstructorSpecsExtension',
-        ),
+    return new Map(
+        [...extensions].map(([name, extension]) => [
+            name,
+            renderExtensionPage(generator, extension),
+        ]),
     );
-    return extensions
-        .filter(({name}) => !EXTENSION_BLACKLIST.has(name))
-        .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/**
- * Generates temporary pages for every discovered extension.
- * @param {string} root
- * @returns {{name: string, source: string}[]}
- */
-export function generateExtensionPages(root = REPO_ROOT) {
-    const outDir = join(root, 'tmp/docs-gen/stubs');
+/** Replaces the contents of the output directory with a page for every discovered extension. */
+export function generateExtensionPages({packages = REPO_PACKAGES, outDir}) {
+    const pages = renderExtensionPages(createGenerator(packages));
+
     rmSync(outDir, {recursive: true, force: true});
     mkdirSync(outDir, {recursive: true});
-    const extensions = discoverExtensions(root);
+    for (const [name, page] of pages) writeFileSync(join(outDir, `${name}.md`), page);
 
-    for (const {name} of extensions) {
-        writeFileSync(join(outDir, `${name}.md`), `##### Extensions / ${name}\n\n# ${name}\n`);
-    }
-
-    return extensions;
+    return [...pages.keys()];
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-    const extensions = generateExtensionPages();
-    process.stdout.write(`Found ${extensions.length} extensions.\n`);
+    const names = generateExtensionPages({outDir: EXTENSION_PAGES_DIR});
+    process.stdout.write(`Generated ${names.length} extension pages.\n`);
 }

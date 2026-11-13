@@ -1,6 +1,7 @@
 #npm
 npm-debug.log*
 node_modules
+!/infra/docs-gen/tests/fixtures/editor/node_modules/
 
 #pnpm
 .pnpm-store
