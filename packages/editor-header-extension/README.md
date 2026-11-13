@@ -7,13 +7,14 @@ import {useMarkdownEditor} from '@gravity-ui/markdown-editor';
 import {Header} from '@gravity-ui/markdown-editor-header-extension';
 
 const editor = useMarkdownEditor({
-  wysiwygConfig: {extensions: (builder) => builder.use(Header, {fileUploadHandler})},
+  handlers: {uploadFile},
+  wysiwygConfig: {extensions: (builder) => builder.use(Header, {fileUploadHandler: uploadFile})},
 });
 ```
 
 | Option              | Description                                                                                      |
 | ------------------- | ------------------------------------------------------------------------------------------------ |
-| `fileUploadHandler` | Uploads a background image and returns its `url`; without it, the Image tab is hidden            |
+| `fileUploadHandler` | Uploads a background image and returns its `url`; without it, the image is set by a link only    |
 | `maxImageSize`      | Maximum background image size in bytes; without it, the size is not checked                      |
 | `imageTypes`        | MIME types of background images, such as `['image/jpeg', 'image/png']`; any `image/*` without it |
 

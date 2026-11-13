@@ -50,6 +50,6 @@ Background attributes with default values are not rendered; the others are copie
 
 The block is a container directive of [`@diplodoc/directive`](https://github.com/diplodoc-platform/directive).
 An unknown attribute is skipped, and an unsupported value is replaced with the default: `:::header{height="xl" color="red"}` is an `s` × `m` block.
-An image address with another scheme, such as `javascript:`, `data:` or `blob:`, or with control characters, is skipped.
+An image address with another scheme, such as `javascript:` or `data:`, or with control characters, is skipped.
 The container parses its child blocks in the same Markdown token stream.
 Inline titles and destinations in the opening directive are not supported and remain ordinary Markdown.

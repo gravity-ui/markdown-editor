@@ -488,7 +488,7 @@ describe('Header extension', () => {
             const editor = createNodeView(':::header\n:::');
             const {handler, resolve} = deferred();
             const upload = uploadHeaderImage(editor, 0, file, handler);
-            resolve({url: 'blob:https://example.com/0f8c'});
+            resolve({url: 'data:image/svg+xml,<svg/>'});
             await expect(upload).rejects.toThrow();
             expect(editor.state.doc.child(0).attrs['bg-image']).toBeNull();
         });

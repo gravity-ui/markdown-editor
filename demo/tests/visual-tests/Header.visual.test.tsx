@@ -537,20 +537,6 @@ test.describe('Header', () => {
         await expect(header.clearBackgroundButton).toBeHidden();
     });
 
-    test('should skip a blob: image address @wysiwyg', async ({mount, page, header}) => {
-        await mount(
-            <HeaderStories.Header
-                width={660}
-                initial={':::header{width="s" bg-image="blob:https://example.com/0f8c"}\n:::'}
-            />,
-        );
-        await expect(header.blocks).not.toHaveClass(/g-md-header-plugin_bg-image/);
-        await expect(header.blocks).not.toHaveAttribute('style');
-        expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(
-            ':::header{height="s" width="s"}\n\n:::',
-        );
-    });
-
     test('should reject a file of another type or a larger size @wysiwyg', async ({
         mount,
         page,

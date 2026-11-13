@@ -180,7 +180,6 @@ describe('Header background', () => {
         scriptUrl.toUpperCase(),
         ` ${scriptUrl}`,
         'vbscript:msgbox(1)',
-        'blob:https://example.com/0f8c',
         'data:text/html,<script>alert(1)</script>',
         'data:image/svg+xml,<svg/>',
         'file:///etc/passwd',
@@ -203,6 +202,7 @@ describe('Header background', () => {
         ['https://example.com/a.png', 'https://example.com/a.png'],
         ['HTTP://example.com/a.png', 'HTTP://example.com/a.png'],
         ['//example.com/a.png', '//example.com/a.png'],
+        ['blob:https://example.com/0f8c', 'blob:https://example.com/0f8c'],
         ['  ./.files/a.png  ', './.files/a.png'],
         ['a.png?size=1:2', 'a.png?size=1:2'],
     ])('should accept the image address %j', (url, expected) => {

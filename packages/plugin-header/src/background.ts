@@ -36,12 +36,12 @@ export const headerBackgroundDefaults: Readonly<HeaderBackground> = {
 const includes = <T>(values: readonly T[], value: unknown): value is T =>
     (values as readonly unknown[]).includes(value);
 
-/** Accepts `http:`, `https:` and relative addresses. */
+/** Accepts `http:`, `https:`, `blob:` and relative addresses. */
 export function safeImageUrl(raw: string): string | null {
     const value = raw.trim();
     if (!value || [...value].some((char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127))
         return null;
-    if (/^[a-z][a-z\d+.-]*:/i.test(value) && !/^https?:/i.test(value)) return null;
+    if (/^[a-z][a-z\d+.-]*:/i.test(value) && !/^(https?|blob):/i.test(value)) return null;
     return value;
 }
 

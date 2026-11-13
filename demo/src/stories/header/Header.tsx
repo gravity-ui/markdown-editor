@@ -1,6 +1,7 @@
 import {useCallback} from 'react';
 
 import {
+    type FileUploadHandler,
     type MarkdownEditorMode,
     MarkdownEditorView,
     type RenderPreview,
@@ -15,6 +16,7 @@ import {
 
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
+import {randomDelay} from '../../utils/delay';
 
 const mainToolbar = [
     [Action.undo, Action.redo],
@@ -23,8 +25,13 @@ const mainToolbar = [
     ['header'],
 ];
 
-const headerOptions = {
-    fileUploadHandler: async () => ({url: '/assets/test-image.jpg'}),
+const fileUploadHandler: FileUploadHandler = async (file) => {
+    console.info('[Header] Uploading file: ' + file.name);
+    await randomDelay(1000, 3000);
+    return {url: URL.createObjectURL(file)};
+};
+
+const imageLimits = {
     imageTypes: ['image/jpeg', 'image/gif', 'image/png'],
     maxImageSize: 2 * 1024 * 1024,
 } satisfies HeaderOptions;
@@ -47,10 +54,12 @@ export function HeaderExample({
     initial = ':::header{height="s" width="m"}\n\n:::\n\nAfter',
     mode = 'wysiwyg',
     width = 1000,
+    uploadFile = fileUploadHandler,
 }: {
     initial?: string;
     mode?: MarkdownEditorMode;
     width?: number;
+    uploadFile?: FileUploadHandler;
 }) {
     const renderPreview = useCallback<RenderPreview>(
         ({getValue}) => <SplitModePreviewLazy getValue={getValue} needToSanitizeHtml />,
@@ -58,7 +67,11 @@ export function HeaderExample({
     );
     const editor = useMarkdownEditor({
         initial: {markup: initial, mode, toolbarVisible: true},
-        wysiwygConfig: {extensions: (builder) => builder.use(Header, headerOptions)},
+        handlers: {uploadFile},
+        wysiwygConfig: {
+            extensions: (builder) =>
+                builder.use(Header, {...imageLimits, fileUploadHandler: uploadFile}),
+        },
         markupConfig: {renderPreview},
     });
     return (
