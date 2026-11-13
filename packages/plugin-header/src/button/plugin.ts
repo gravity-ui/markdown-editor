@@ -12,13 +12,16 @@ export const buttonPlugin: PluginSimple = (md) => {
         // A button without a label consumes its markup and renders nothing.
         if (!label) return true;
         const attrs = params.attrs ?? {};
-        const open = state.push(`${buttonTokenName}_open`, 'a', 1);
-        open.attrs = Object.entries(
+        const token = state.push(buttonTokenName, 'a', 0);
+        token.content = label;
+        token.attrs = Object.entries(
             buttonAttrs({...attrs, href: normalizeButtonHref(md, attrs.href)}),
         );
-        const text = state.push('text', '', 0);
-        text.content = label;
-        state.push(`${buttonTokenName}_close`, 'a', -1);
         return true;
     });
+    const {rules} = md.renderer;
+    rules[buttonTokenName] = (tokens, idx, _options, _env, self) => {
+        const token = tokens[idx];
+        return `<a${self.renderAttrs(token)}>${md.utils.escapeHtml(token.content)}</a>`;
+    };
 };

@@ -45,7 +45,7 @@ md.use(buttonPlugin);
 ```
 
 ```markdown
-Read the guide :button[Read more]{href="https://example.com" view="action" color="info" target="_blank"} or ask a question.
+Read the guide :button[Read more]{href="https://example.com" view="action" color="blue" target="_blank"} or ask a question.
 ```
 
 The button is an inline directive: it stays in the line of text, and buttons in one paragraph form a row.
@@ -56,7 +56,7 @@ A button with an empty label renders nothing. Buttons work independently and ins
 | --- | --- | --- |
 | `href` | Link address | Empty |
 | `view` | `action`, `normal`, `outline`, `flat` | `action` |
-| `color` | `standard`, `gray`, `info`, `green`, `yellow`, `red`, `violet` | `standard` for action/flat, `gray` for normal/outline |
+| `color` | `standard`, `gray`, `blue`, `green`, `yellow`, `red`, `violet` | `standard` for action/flat, `gray` for normal/outline |
 | `target` | `_self`, `_blank`, `_parent`, `_top` | `_self` |
 
 `action` does not support gray; `normal` and `outline` do not support standard.

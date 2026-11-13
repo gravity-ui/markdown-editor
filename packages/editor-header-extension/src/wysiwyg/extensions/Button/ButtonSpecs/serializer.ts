@@ -4,7 +4,7 @@ import {buttonDefaults} from '@gravity-ui/markdown-plugin-header';
 import {buttonNodeName} from './const';
 import {buttonLabel} from './utils';
 
-const escapeLabel = (label: string) => label.trim().replace(/[\\[\]]/g, '\\$&');
+const escapeLabel = (label: string) => label.replace(/[\\[\]]/g, '\\$&');
 const escapeAttr = (value: string) => value.replace(/[\\"]/g, '\\$&');
 
 export const ButtonSerializerSpecs: ExtensionAuto = (builder) => {

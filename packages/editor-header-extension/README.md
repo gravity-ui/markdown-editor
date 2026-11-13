@@ -49,11 +49,11 @@ const editor = useMarkdownEditor({
 
 Register `buttonPlugin` from `@gravity-ui/markdown-plugin-header` in the Markdown preview.
 
-A button is an inline node: `:button[Read more]{href="/page" view="action" color="info"}`.
-The label is edited directly in the button and holds plain text without formatting.
-With the cursor in the label, a panel under the button edits the link like the core link extension.
-Its "Style" button opens a window with the view and color list and the "Open in a new tab" switch.
-Each link, style, and switch change is a separate undo step. Clicking the button does not follow the link.
+A button is an inline node: `:button[Read more]{href="/page" view="action" color="blue"}`.
+The button is an atom: a click on it, or Enter while it is selected, opens the settings window under it.
+The window holds the label field, the style list with a preview of the style under the pointer, the link field, and the "Open in a new tab" switch.
+The label is plain text without formatting. Each change is a separate undo step.
+Escape closes the window and returns focus to the editor. Clicking the button does not follow the link.
 
 `toolbarButtonItem` inserts `:button[Button]{view="action" color="standard"}` at the cursor in both modes.
 In the visual editor, the cursor moves after the new button.

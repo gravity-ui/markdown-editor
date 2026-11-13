@@ -19,7 +19,7 @@ const rows = [
         ['outline', 'gray'],
         ['flat', 'gray'],
     ],
-    ...['info', 'green', 'yellow', 'red', 'violet'].map((color) =>
+    ...['blue', 'green', 'yellow', 'red', 'violet'].map((color) =>
         ['action', 'normal', 'outline', 'flat'].map((view) => [view, color]),
     ),
 ];

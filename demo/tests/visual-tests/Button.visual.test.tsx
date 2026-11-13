@@ -3,13 +3,13 @@ import {test} from 'playwright/core/extensions/button';
 
 import {ButtonStories} from './Button.helpers';
 
-// Lines under the button leave room for its panel and style window in the screenshot.
-const withSpace = `:button[Кнопка]{href="https://example.com" view="action" color="standard"}${'\n\nТекст'.repeat(8)}`;
+// Lines under the button leave room for its settings window and style list in the screenshot.
+const withSpace = `:button[Кнопка]{href="https://example.com" view="action" color="standard"}${'\n\nТекст'.repeat(12)}`;
 
 test.describe('Button', () => {
     test('should take the colors from the theme @wysiwyg', async ({mount, button}) => {
         await mount(
-            <ButtonStories.Button initial={':button[Кнопка]{view="action" color="info"}'} />,
+            <ButtonStories.Button initial={':button[Кнопка]{view="action" color="blue"}'} />,
         );
         await expect(button.blocks).toHaveCount(1);
         await button.setThemeVariable('--g-color-base-info-heavy', 'rgb(100, 110, 120)');
@@ -46,7 +46,7 @@ test.describe('Button', () => {
         await mount(
             <ButtonStories.Button
                 initial={
-                    'Нажмите :button[Кнопка]{view="action" color="info"} или :button[Кнопка]{view="outline" color="gray"} и читайте дальше'
+                    'Нажмите :button[Кнопка]{view="action" color="blue"} или :button[Кнопка]{view="outline" color="gray"} и читайте дальше'
                 }
             />,
         );
@@ -104,18 +104,14 @@ test.describe('Button', () => {
         expectScreenshot,
     }) => {
         await mount(<ButtonStories.Button width={400} />);
-        await editor.selectTextIn('.g-md-button-plugin');
-        await editor.press('Backspace');
+        await button.openSettings();
+        await button.label.fill('');
+        await button.label.press('Enter');
+        await expect(button.settings).toBeHidden();
         await expect(button.blocks).toHaveText('Button');
+        await expectScreenshot({component: editor.locators.component});
         await editor.switchMode('markup');
         await expect(editor.locators.contenteditable).toContainText(':button[Button]');
-        await editor.switchMode('wysiwyg');
-        await button.blocks.first().waitFor();
-        await editor.selectTextIn('.g-md-button-plugin');
-        await editor.press('Backspace');
-        await editor.press('Escape');
-        await expect(button.toolbar).toBeHidden();
-        await expectScreenshot({component: editor.locators.component});
     });
 
     test('should insert a button from the toolbar @wysiwyg', async ({
@@ -147,7 +143,7 @@ test.describe('Button', () => {
         );
     });
 
-    test('should edit the link of a button in its panel @wysiwyg', async ({
+    test('should edit the label and the link of a button in its window @wysiwyg', async ({
         mount,
         page,
         editor,
@@ -155,33 +151,44 @@ test.describe('Button', () => {
         expectScreenshot,
     }) => {
         await mount(<ButtonStories.Button initial={withSpace} />);
-        await button.focus();
+        await button.openSettings();
+        await expect(button.label).toBeFocused();
+        await expect(button.label).toHaveValue('Кнопка');
         await expect(button.link).toHaveValue('https://example.com');
         await page.mouse.move(0, 0);
         await expectScreenshot({component: editor.locators.component});
+        await button.label.fill('Открыть');
         await button.link.fill('/page');
         await button.link.press('Enter');
+        await expect(button.settings).toBeHidden();
+        await expect(editor.locators.contenteditable).toBeFocused();
+        await expect(button.blocks).toHaveText('Открыть');
         await expect(button.blocks).toHaveAttribute('href', '/page');
+        await editor.press('Enter');
+        await expect(button.label).toBeFocused();
+        await editor.press('Escape');
+        await expect(button.settings).toBeHidden();
         await expect(editor.locators.contenteditable).toBeFocused();
     });
 
     test('should change the style of a button in its window @wysiwyg', async ({
         mount,
-        page,
         editor,
         button,
         expectScreenshot,
     }) => {
         await mount(<ButtonStories.Button initial={withSpace} />);
-        await button.focus();
-        await button.styleButton.click();
-        await expect(button.style).toBeVisible();
+        await button.openSettings();
         await button.styleSelect.click();
-        await page.mouse.move(0, 0);
+        await expect(button.option('Green')).toHaveCount(4);
+        await button.option('Green').first().hover();
+        await expect(button.preview).toBeVisible();
         await expectScreenshot({component: editor.locators.component});
-        await page.getByRole('option', {name: 'Green'}).first().click();
+        await button.option('Green').first().click();
+        await expect(button.blocks).toHaveAttribute('data-view', 'action');
         await expect(button.blocks).toHaveAttribute('data-color', 'green');
-        await button.style.getByText('Open in a new tab', {exact: true}).click();
+        await button.newTab.click();
         await expect(button.blocks).toHaveAttribute('target', '_blank');
+        await expect(button.settings).toBeVisible();
     });
 });
