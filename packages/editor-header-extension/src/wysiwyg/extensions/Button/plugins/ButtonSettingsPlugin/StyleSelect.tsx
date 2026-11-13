@@ -43,6 +43,7 @@ type StyleSelectProps = {
 };
 
 export function StyleSelect({style, onUpdate}: StyleSelectProps) {
+    const [open, setOpen] = useState(false);
     // The preview stands next to the row under the pointer.
     const [preview, setPreview] = useState<{style: Style; row: Element} | null>(null);
     const options = views.map((view) => ({
@@ -61,6 +62,7 @@ export function StyleSelect({style, onUpdate}: StyleSelectProps) {
             // Mouse events of the list reach this element through the React tree.
             // eslint-disable-next-line jsx-a11y/mouse-events-have-key-events -- The preview repeats the swatch of the row.
             onMouseOver={({target}) => {
+                if (!open) return;
                 const row = target instanceof Element ? target.closest('[role="option"]') : null;
                 const value = row?.querySelector('[data-style]')?.getAttribute('data-style');
                 const hovered = styles.find((item) => styleValue(item) === value);
@@ -69,6 +71,7 @@ export function StyleSelect({style, onUpdate}: StyleSelectProps) {
         >
             <Select<Style>
                 className={b('select')}
+                open={open}
                 size="l"
                 aria-label={i18n('button-style')}
                 value={[styleValue(style)]}
@@ -97,29 +100,31 @@ export function StyleSelect({style, onUpdate}: StyleSelectProps) {
                         {i18n(`button-color-${data.color}`)}
                     </div>
                 )}
-                onOpenChange={(open) => {
-                    if (!open) setPreview(null);
+                onOpenChange={(nextOpen) => {
+                    setOpen(nextOpen);
+                    if (!nextOpen) setPreview(null);
                 }}
                 onUpdate={([value]) => {
+                    setPreview(null);
                     const next = styles.find((item) => styleValue(item) === value);
                     if (next) onUpdate(next);
                 }}
             />
-            <Popup
-                open={Boolean(preview)}
-                className={b('preview-popup')}
-                anchorElement={preview?.row}
-                placement="right"
-                offset={PREVIEW_OFFSET}
-            >
-                {preview && (
+            {open && preview && (
+                <Popup
+                    open
+                    className={b('preview-popup')}
+                    anchorElement={preview.row}
+                    placement="right"
+                    offset={PREVIEW_OFFSET}
+                >
                     <div className={b('preview')} data-qa="button-style-preview">
                         <span className={buttonClass(preview.style)}>
                             {i18n('button-placeholder')}
                         </span>
                     </div>
-                )}
-            </Popup>
+                </Popup>
+            )}
         </div>
     );
 }

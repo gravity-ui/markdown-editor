@@ -207,6 +207,32 @@ test.describe('Button', () => {
         await editor.press('Escape');
     });
 
+    test('should remove the style preview after closing its list @wysiwyg', async ({
+        mount,
+        button,
+    }) => {
+        await mount(<ButtonStories.Button initial={withSpace} />);
+        await button.openSettings();
+        await button.styleSelect.click();
+        await button.option('Green').first().hover();
+        await expect(button.preview).toBeVisible();
+        await button.option('Green').first().click();
+        await expect(button.option('Green')).toHaveCount(0);
+        await expect(button.preview).toHaveCount(0);
+        await button.styleSelect.click();
+        await button.option('Violet').first().hover();
+        await expect(button.preview).toBeVisible();
+        await button.newTab.click();
+        await expect(button.option('Violet')).toHaveCount(0);
+        await expect(button.preview).toHaveCount(0);
+        await button.styleSelect.click();
+        await button.option('Red').first().hover();
+        await expect(button.preview).toBeVisible();
+        await button.styleSelect.press('Escape');
+        await expect(button.option('Red')).toHaveCount(0);
+        await expect(button.preview).toHaveCount(0);
+    });
+
     test('should change the style of a button in its window @wysiwyg', async ({
         mount,
         editor,
