@@ -96,7 +96,7 @@
     &__option {
         display: flex;
         align-items: center;
-        gap: var(--g-spacing-2);
+        gap: var(--g-spacing-3);
 
         font-size: var(--g-text-body-1-font-size);
         line-height: 28px;
@@ -117,6 +117,7 @@
     &__swatch_size_m {
         width: 16px;
         height: 16px;
+        margin-inline: 2px;
     }
 
     &__swatch_size_l {
@@ -142,7 +143,7 @@
         width: 140px;
         height: 100px;
 
-        border-radius: var(--g-border-radius-s);
+        border-radius: 4px;
         background-color: var(--g-color-base-background);
     }
 }
