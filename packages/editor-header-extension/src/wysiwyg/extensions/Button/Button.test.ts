@@ -2,7 +2,7 @@
 import {ExtensionsManager} from '@gravity-ui/markdown-editor/core';
 import {history, undo} from '@gravity-ui/markdown-editor/pm/history';
 import {DOMParser, DOMSerializer, type Node} from '@gravity-ui/markdown-editor/pm/model';
-import {EditorState, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
+import {EditorState, NodeSelection, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
 import {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {
     BaseSchemaSpecs,
@@ -30,7 +30,7 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
             .use(ButtonSpecs),
 }).buildDeps();
 const button =
-    ':button[Read more]{href="/page?a=1&b=2" view="outline" color="info" target="_blank"}';
+    ':button[Read more]{href="/page?a=1&b=2" view="outline" color="blue" target="_blank"}';
 
 const buttons = (root: Node) => {
     const result: unknown[] = [];
@@ -49,16 +49,17 @@ function createState(markup: string) {
 }
 
 describe('Button extension', () => {
-    it('should parse a button as an inline node with its label as text', () => {
+    it('should parse a button as an inline atom between the texts around it', () => {
         const paragraph = markupParser.parse(`Press ${button} now`).child(0);
         expect(paragraph.childCount).toBe(3);
         expect(paragraph.child(1).type.name).toBe('button');
-        expect(paragraph.child(1).textContent).toBe('Read more');
+        expect(paragraph.child(1).isAtom).toBe(true);
         expect(paragraph.child(1).attrs).toEqual({
             href: '/page?a=1&b=2',
             view: 'outline',
-            color: 'info',
+            color: 'blue',
             target: '_blank',
+            label: 'Read more',
         });
     });
     it.each([
@@ -69,8 +70,8 @@ describe('Button extension', () => {
         ],
         [':button[Label]{view="normal"}', ':button[Label]{view="normal" color="gray"}'],
         [
-            ':button[Label]{target="_blank" color="info" view="outline" href="/page"}',
-            ':button[Label]{href="/page" view="outline" color="info" target="_blank"}',
+            ':button[Label]{target="_blank" color="blue" view="outline" href="/page"}',
+            ':button[Label]{href="/page" view="outline" color="blue" target="_blank"}',
         ],
         [
             ':button[Label]{target="_top"}',
@@ -102,6 +103,7 @@ describe('Button extension', () => {
             schema.node('paragraph', null, [buttonNodeType(schema).create({view: 'flat'})]),
         ]);
         expect(serializer.serialize(doc)).toBe(':button[Button]{view="flat" color="standard"}');
+        expect(doc.child(0).child(0).attrs.label).toBe('');
     });
     it('should preserve buttons when resizing, undoing, and copying a header', () => {
         const {state, dispatch} = createState(`:::header\n${button}\n:::`);
@@ -122,26 +124,42 @@ describe('Button extension', () => {
         );
         expect(state().selection.$from.nodeBefore?.type.name).toBe('button');
     });
-    it('should not insert a button into a button', () => {
-        const {state, dispatch} = createState(button);
-        dispatch(state().tr.setSelection(TextSelection.create(state().doc, 3)));
-        expect(insertButton(state(), dispatch)).toBe(false);
-    });
     it('should change attributes in separate undo steps and keep the label', () => {
         const {state, dispatch} = createState(button);
         const original = state().doc;
+        dispatch(state().tr.setSelection(NodeSelection.create(state().doc, 1)));
         expect(setButtonAttrs(1, {view: 'normal', color: 'green'})(state(), dispatch)).toBe(true);
         expect(setButtonAttrs(1, {target: '_self', href: ''})(state(), dispatch)).toBe(true);
+        expect(setButtonAttrs(1, {label: 'Open'})(state(), dispatch)).toBe(true);
         expect(serializer.serialize(state().doc)).toBe(
-            ':button[Read more]{view="normal" color="green"}',
+            ':button[Open]{view="normal" color="green"}',
         );
+        expect(state().selection).toBeInstanceOf(NodeSelection);
+        const changed = state();
+        expect(setButtonAttrs(1, {label: 'Open'})(state(), dispatch)).toBe(true);
+        expect(state()).toBe(changed);
+        expect(undo(state(), dispatch)).toBe(true);
+        expect(state().doc.child(0).child(0).attrs.label).toBe('Read more');
         expect(undo(state(), dispatch)).toBe(true);
         expect(state().doc.child(0).child(0).attrs.view).toBe('normal');
         expect(undo(state(), dispatch)).toBe(true);
         expect(state().doc.eq(original)).toBe(true);
         expect(setButtonAttrs(0, {view: 'flat'})(state(), dispatch)).toBe(false);
     });
-    it('should render an editable label without navigation', () => {
+    it.each([
+        [button, 'Read more'],
+        ['', 'Button'],
+    ])('should copy the label of %j as plain text', (source, text) => {
+        const node = source
+            ? markupParser.parse(source).child(0).child(0)
+            : buttonNodeType(schema).create();
+        expect(
+            schema
+                .node('paragraph', null, [node])
+                .textBetween(0, 1, '', (leaf) => String(leaf.type.spec.leafText?.(leaf))),
+        ).toBe(text);
+    });
+    it('should render a selectable atom without navigation and open its settings', () => {
         const deps = new ExtensionsManager({
             extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(Button),
         }).build();
@@ -154,9 +172,26 @@ describe('Button extension', () => {
             const dom = view.nodeDOM(1) as HTMLElement;
             expect(dom.tagName).toBe('A');
             expect(dom.getAttribute('href')).toBe('/page?a=1&b=2');
-            expect(dom.contentEditable).not.toBe('false');
+            expect(dom.contentEditable).toBe('false');
             expect(dom.textContent).toBe('Read more');
             expect(dom.dispatchEvent(new MouseEvent('click', {cancelable: true}))).toBe(false);
+        } finally {
+            view.destroy();
+        }
+    });
+    it('should show the placeholder in an empty button', () => {
+        const deps = new ExtensionsManager({
+            extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(Button),
+        }).build();
+        const doc = deps.schema.node('doc', null, [
+            deps.schema.node('paragraph', null, [buttonNodeType(deps.schema).create()]),
+        ]);
+        const view = new EditorView(document.createElement('div'), {
+            state: EditorState.create({doc, schema: deps.schema}),
+            nodeViews: deps.nodeViews,
+        });
+        try {
+            expect((view.nodeDOM(1) as HTMLElement).textContent).toBe('Button');
         } finally {
             view.destroy();
         }

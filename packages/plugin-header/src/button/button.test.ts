@@ -7,8 +7,7 @@ import {buttonClassName, buttonDefaults, buttonViewColors} from './model';
 
 const md = new MarkdownIt({html: true}).use(buttonPlugin);
 const inlineTokens = (markup: string) => md.parseInline(markup, {})[0].children ?? [];
-const openToken = (markup: string) =>
-    inlineTokens(markup).find((token) => token.type === 'button_open');
+const openToken = (markup: string) => inlineTokens(markup).find((token) => token.type === 'button');
 
 describe('Button Markdown', () => {
     it('should preserve the model through HTML attributes', () => {
@@ -16,7 +15,7 @@ describe('Button Markdown', () => {
             ...buttonDefaults,
             href: '/help',
             view: 'outline',
-            color: 'info',
+            color: 'blue',
             target: '_blank',
         } as const;
         const attrs = buttonAttrs(model);
@@ -85,7 +84,7 @@ describe('Button Markdown', () => {
             const tokens = parser
                 .parse(':::header\n:button[One] :button[Two]\n:::', {})
                 .flatMap((token) => token.children ?? []);
-            expect(tokens.filter((token) => token.type === 'button_open')).toHaveLength(2);
+            expect(tokens.filter((token) => token.type === 'button')).toHaveLength(2);
         },
     );
     it.each([':button', ':button{href="/page"}', ':button[Label](url)'])(

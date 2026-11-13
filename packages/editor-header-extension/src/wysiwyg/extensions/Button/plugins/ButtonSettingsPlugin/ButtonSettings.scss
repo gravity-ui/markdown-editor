@@ -1,0 +1,32 @@
+.g-md-button-settings {
+    $padding: var(--g-spacing-4);
+
+    position: relative;
+
+    box-sizing: border-box;
+    width: 256px;
+    padding: $padding;
+
+    &__popup {
+        border-radius: var(--g-border-radius-xl);
+    }
+
+    &__divider {
+        height: 1px;
+        margin: $padding calc(-1 * #{$padding});
+
+        background-color: var(--g-color-line-generic);
+    }
+
+    &__fields {
+        display: flex;
+        flex-direction: column;
+        gap: var(--g-spacing-3);
+    }
+
+    &__icon {
+        margin-inline-start: var(--g-spacing-3);
+
+        color: var(--g-color-text-hint);
+    }
+}

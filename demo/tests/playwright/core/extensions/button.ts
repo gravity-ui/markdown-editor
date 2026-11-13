@@ -6,27 +6,36 @@ export class ButtonBlock {
     readonly content: Locator;
     readonly blocks: Locator;
     readonly variants: Locator;
-    readonly toolbar: Locator;
+    readonly settings: Locator;
+    readonly label: Locator;
     readonly link: Locator;
-    readonly styleButton: Locator;
-    readonly style: Locator;
     readonly styleSelect: Locator;
+    readonly newTab: Locator;
+    readonly preview: Locator;
+    protected readonly page: Page;
 
     constructor(page: Page, preview: Locator) {
+        this.page = page;
         this.content = page.locator('.ProseMirror');
         this.blocks = this.content.locator('.g-md-button-plugin');
         this.variants = preview.locator('.g-md-button-plugin');
-        this.toolbar = page.getByTestId('button-toolbar');
-        this.link = this.toolbar.getByRole('textbox');
-        this.styleButton = this.toolbar.getByRole('button', {name: 'Style', exact: true});
-        this.style = page.getByTestId('button-style');
-        this.styleSelect = this.style.getByRole('combobox');
+        this.settings = page.getByRole('dialog', {name: 'Button settings'});
+        this.label = this.settings.getByRole('textbox', {name: 'Label', exact: true});
+        this.link = this.settings.getByRole('textbox', {name: 'Link', exact: true});
+        this.styleSelect = this.settings.getByRole('combobox', {name: 'Style', exact: true});
+        this.newTab = this.settings.getByText('Open in a new tab', {exact: true});
+        this.preview = page.getByTestId('button-style-preview');
     }
 
-    /** Puts the cursor into the label, which opens the button panel. */
-    async focus(block = this.blocks.first()) {
+    /** A color of the style list; each view group has its own option of this name. */
+    option(name: string) {
+        return this.page.getByRole('option', {name, exact: true});
+    }
+
+    /** A click on the button opens its settings window with the label field focused. */
+    async openSettings(block = this.blocks.first()) {
         await block.click();
-        await this.toolbar.waitFor({state: 'visible'});
+        await this.label.waitFor({state: 'visible'});
     }
 
     /** The theme root defines the variables, so a value set above it has no effect. */
