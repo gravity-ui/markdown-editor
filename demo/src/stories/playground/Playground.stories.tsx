@@ -15,7 +15,16 @@ Story.storyName = 'Playground';
 const meta: Meta<PlaygroundProps> = {
     title: 'Playground',
     component,
-    args,
+    args: {
+        ...args,
+        enableTabExitOnEscape: false,
+    },
+    argTypes: {
+        enableTabExitOnEscape: {
+            name: 'Tab navigation after Escape',
+            control: 'boolean',
+        },
+    },
     beforeEach: (context) => {
         /* eslint-disable no-param-reassign */
         context.args.initial = getInitialMd();

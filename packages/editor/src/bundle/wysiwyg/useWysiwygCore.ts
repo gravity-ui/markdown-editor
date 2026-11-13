@@ -26,6 +26,7 @@ export function useWysiwygCore(
             config = {},
             wysiwygConfig = {},
             mobile,
+            enableTabExitOnEscape = false,
         } = options;
 
         const extensions: Extension = (builder) => {
@@ -36,6 +37,7 @@ export function useWysiwygCore(
                 emoji: {...config.emoji, ...extensionOptions?.emoji},
                 directiveSyntax,
                 preset,
+                enableTabExitOnEscape,
                 reactRenderer: renderStorage,
                 onCancel: () => {
                     events.emit('cancel', null);

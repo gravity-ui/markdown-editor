@@ -6,6 +6,7 @@ import {
     EditorModeKeymap,
     type EditorModeKeymapOptions,
 } from '../extensions/behavior/EditorModeKeymap';
+import {createTabExitOnEscapePlugin} from '../extensions/behavior/TabExitOnEscape';
 import {BaseNode, YfmHeadingAttr, YfmNoteNode} from '../extensions/specs';
 import {i18n as i18nPlaceholder} from '../i18n/placeholder';
 import {CommonMarkPreset, type CommonMarkPresetOptions} from '../presets/commonmark';
@@ -29,7 +30,7 @@ const DEFAULT_IGNORED_KEYS = ['Tab', 'Shift-Tab'] as const;
 export type ExtensionsOptions = BehaviorPresetOptions & FullPresetOptions;
 
 export type BundlePresetOptions = ExtensionsOptions &
-    EditorModeKeymapOptions & {
+    Omit<EditorModeKeymapOptions, 'tabExitOnEscape'> & {
         preset: MarkdownEditorPreset;
         mdBreaks?: boolean;
         preserveEmptyRows?: boolean;
@@ -46,6 +47,8 @@ export type BundlePresetOptions = ExtensionsOptions &
         disableMdAttrs?: boolean;
         mobile?: boolean;
         searchPanel: boolean;
+        /** @default false */
+        enableTabExitOnEscape?: boolean;
     };
 
 declare global {
@@ -58,6 +61,11 @@ declare global {
 
 export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) => {
     builder.context.set('directiveSyntax', opts.directiveSyntax);
+
+    const tabExitOnEscape = opts.enableTabExitOnEscape ? createTabExitOnEscapePlugin() : undefined;
+    if (tabExitOnEscape) {
+        builder.addPlugin(() => tabExitOnEscape.plugin, builder.Priority.Highest);
+    }
 
     const dropCursor: NonNullable<BundlePresetOptions['cursor']>['dropOptions'] = {
         color: 'var(--g-color-line-brand)',
@@ -279,6 +287,7 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
     builder.use(EditorModeKeymap, {
         onSubmit: opts.onSubmit,
         onCancel: opts.onCancel,
+        tabExitOnEscape,
         ignoreKeysList,
     });
 };

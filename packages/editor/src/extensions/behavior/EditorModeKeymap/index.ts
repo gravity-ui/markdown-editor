@@ -1,12 +1,14 @@
 import type {ExtensionAuto, Keymap} from '../../../core';
 import {Action as A, formatter as f} from '../../../shortcuts';
 import {VERSION} from '../../../version';
+import type {TabExitOnEscapeController} from '../TabExitOnEscape';
 
 export type EditorModeKeymapOptions = {
     /** Submit handler. Return true to stop propagation. */
     onSubmit?(): boolean;
     /** Cancel handler. Return true to stop propagation. */
     onCancel?(): boolean;
+    tabExitOnEscape?: TabExitOnEscapeController;
     ignoreKeysList?: string[];
 };
 
@@ -22,8 +24,9 @@ export const EditorModeKeymap: ExtensionAuto<EditorModeKeymapOptions> = (builder
         });
 
         if (onCancel)
-            bindings[f.toPM(A.Cancel)!] = () => {
+            bindings[f.toPM(A.Cancel)!] = (_state, _dispatch, view) => {
                 const result = onCancel();
+                opts.tabExitOnEscape?.setAllowed(result && Boolean(view?.hasFocus()));
                 logger.event({event: 'cancel', result});
                 return result;
             };

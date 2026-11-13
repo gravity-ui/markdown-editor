@@ -16,7 +16,7 @@ export interface ModeCore<TEditor extends CommonEditor> {
 /** @internal */
 export type ModeCoreOptions = Pick<
     MarkdownEditorOptions,
-    'config' | 'experimental' | 'handlers'
+    'config' | 'enableTabExitOnEscape' | 'experimental' | 'handlers'
 > & {
     preset: MarkdownEditorPreset;
     logger: Logger2.ILogger;

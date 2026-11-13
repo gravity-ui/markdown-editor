@@ -210,6 +210,12 @@ export type MarkdownEditorOptions = {
      * @default 'full'
      */
     preset?: MarkdownEditorPreset;
+    /**
+     * Allow Tab and Shift+Tab to move focus out of either editor mode after Escape triggers cancel.
+     * Disables CodeMirror's default persistent Tab focus shortcut when enabled.
+     * @default false
+     */
+    enableTabExitOnEscape?: boolean;
     /** Markdown parser options */
     md?: MarkdownEditorMdOptions;
     /** Initial values */

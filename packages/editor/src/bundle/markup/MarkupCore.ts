@@ -66,6 +66,7 @@ export class MarkupCore implements ModeCore<Editor> {
                     logger: logger.nested({mode: 'markup'}),
                     placeholder: markupConfig.placeholder ?? i18n('markup_placeholder'),
                     onCancel: () => events.emit('cancel', null),
+                    enableTabExitOnEscape: this.#options.enableTabExitOnEscape,
                     onSubmit: () => events.emit('submit', null),
                     onChange: () => events.emit('rerender-toolbar', null),
                     onDocChange: () => events.emit('change', null),
