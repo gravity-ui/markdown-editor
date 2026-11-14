@@ -113,6 +113,58 @@ describe('HeaderSyntax', () => {
         ).toHaveLength(152);
     });
 
+    it('should render the title examples with the preview of the editor', async () => {
+        const source = markupExamplesDocument([
+            ...markupExamplesOf('title'),
+            ...markupExamplesOf('structure'),
+            ...markupExamplesOf('mixed'),
+        ]);
+        await act(async () => {
+            root.render(
+                <ThemeProvider theme="light">
+                    <SplitModePreview getValue={() => source} needToSanitizeHtml />
+                </ThemeProvider>,
+            );
+        });
+        await act(async () => {
+            await vi.advanceTimersByTimeAsync(250);
+        });
+        const count = (selector: string) =>
+            container.querySelectorAll(`.g-md-header-plugin > .g-md-header-title-plugin${selector}`)
+                .length;
+        // 63 titles of the sizes and colors, and a title in a half of the 32 + 16 compositions.
+        expect(count('')).toBe(87);
+        expect(container.querySelectorAll('.g-md-header-title-plugin')).toHaveLength(87);
+        // The sanitizer of the preview keeps the heading role and its level.
+        expect(count('[role="heading"]')).toBe(87);
+        expect(count('[aria-level]')).toBe(87);
+        // No size is the size 2; the combined examples have the size 1.
+        expect([1, 2, 3, 4, 5, 6].map((size) => count(`[aria-level="${size}"]`))).toEqual([
+            17, 34, 9, 9, 9, 9,
+        ]);
+        expect(
+            [1, 2, 3, 4, 5, 6].map((size) => count(`.g-md-header-title-plugin_size_${size}`)),
+        ).toEqual([17, 34, 9, 9, 9, 9]);
+        // No color and `auto` add no modifier and no attribute.
+        expect(
+            ['auto', 'gray', 'yellow', 'orange', 'red', 'green', 'blue', 'violet'].map((color) =>
+                count(`.g-md-header-title-plugin_color_${color}`),
+            ),
+        ).toEqual([0, 7, 15, 7, 7, 7, 7, 7]);
+        expect(count('[data-color]')).toBe(57);
+        // The default size adds no attribute.
+        expect(count('[data-size]')).toBe(53);
+        expect(count('[data-color="yellow"]')).toBe(15);
+        expect(
+            new Set(
+                Array.from(
+                    container.querySelectorAll('.g-md-header-title-plugin'),
+                    (element) => element.textContent,
+                ),
+            ),
+        ).toEqual(new Set(['Team portal']));
+    });
+
     it('should show the source and the preview of every example of a section', async () => {
         const sections = markupSections.filter(({title}) => title === 'Button URLs');
         await act(async () => {

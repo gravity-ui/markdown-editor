@@ -1,6 +1,8 @@
 import {
     type ButtonColor,
     type ButtonView,
+    type HeaderTitleColor,
+    type HeaderTitleSize,
     buttonColors,
     buttonViewColors,
     buttonViews,
@@ -8,6 +10,8 @@ import {
     headerBgColors,
     headerBgImageThemes,
     headerHeights,
+    headerTitleColors,
+    headerTitleSizes,
     headerVerticals,
     headerWidths,
 } from '@gravity-ui/markdown-plugin-header';
@@ -69,10 +73,22 @@ const headerButtonStyles: readonly ButtonStyle[] = [
     ['flat', 'standard'],
 ];
 
-/** The content of the mock: a title, a description and buttons, each in its own block. */
+/** The title with the attributes that are given: the defaults are not written. */
+export const headerTitleMarkup = (
+    text = 'Team portal',
+    {size, color}: {size?: HeaderTitleSize; color?: HeaderTitleColor} = {},
+) => {
+    const attrs = [size && `size="${size}"`, color && `color="${color}"`].filter(Boolean);
+    return `::header-title[${text}]${attrs.length ? `{${attrs.join(' ')}}` : ''}`;
+};
+
+/**
+ * The content of the mock: a title, a description and buttons, each in its own block.
+ * The title is its text or its markup.
+ */
 export const headerContent = (buttons = 1, title = 'Team portal', text = 'Portal description.') =>
     [
-        `::header-title[${title}]`,
+        title.startsWith('::') ? title : headerTitleMarkup(title),
         `:::header-content\n${text}\n:::`,
         ...headerButtonStyles
             .slice(0, buttons)
@@ -105,5 +121,43 @@ export const headerPreviewMarkup = [
     headerExample(
         `height="l" width="full" align="center" vertical="bottom" bg-color="violet-light" bg-image="${headerImages.dark}" bg-image-theme="dark" bg-image-blur="true"`,
         headerContent(3),
+    ),
+].join('\n\n');
+
+/** Every size, then every color, one title after another. */
+export const headerTitlesMarkup = [
+    ...headerTitleSizes.map((size) => headerTitleMarkup(`Title of size ${size}`, {size})),
+    ...headerTitleColors.map((color) => headerTitleMarkup(`Title of the ${color} color`, {color})),
+].join('\n\n');
+
+/**
+ * Every color of the title, each in a header with the given attributes.
+ * The text of a title names its color and the background of its header.
+ */
+export const headerTitleColorsMarkup = (attrs: string, background: string) =>
+    headerTitleColors
+        .map((color) =>
+            inHeader(
+                headerTitleMarkup(`Title of the ${color} color on ${background}`, {color}),
+                attrs && `{${attrs}}`,
+            ),
+        )
+        .join('\n\n');
+
+/** The titles in the text, then inside headers: every size with the content of the mock, every color. */
+export const headerTitlePreviewMarkup = [
+    headerTitlesMarkup,
+    ...headerTitleSizes.map((size) =>
+        headerExample(
+            'bg-color="gray-light"',
+            headerContent(1, headerTitleMarkup(`Title of size ${size}`, {size})),
+        ),
+    ),
+    headerTitleColorsMarkup('', 'no fill'),
+    headerTitleColorsMarkup('bg-color="gray-light"', 'gray-light'),
+    headerTitleColorsMarkup('bg-color="blue-heavy"', 'blue-heavy'),
+    headerTitleColorsMarkup(
+        `bg-image="${headerImages.dark}" bg-image-theme="dark"`,
+        'a dark image',
     ),
 ].join('\n\n');

@@ -42,8 +42,11 @@ import '@diplodoc/transform/dist/css/yfm.css';
 import '@gravity-ui/markdown-plugin-header/styles.css';
 
 const ML_ATTR = 'data-ml';
-// Keep the iframe content created by HTML blocks after the outer sanitizer runs.
-const sanitizeOptions = buildYfmHtmlBlockOptions({allowedAttributes: {iframe: ['srcdoc']}});
+// Keep the iframe content created by HTML blocks after the outer sanitizer runs,
+// and the level of a header title: the default list has `role` without `aria-level`.
+const sanitizeOptions = buildYfmHtmlBlockOptions({
+    allowedAttributes: {iframe: ['srcdoc'], div: ['aria-level']},
+});
 
 export type SplitModePreviewProps = {
     pluginsOptions?: GetPluginsOptions;
