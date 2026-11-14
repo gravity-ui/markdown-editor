@@ -3,21 +3,15 @@ import ins from 'markdown-it-ins';
 import {describe, expect, it} from 'vitest';
 
 import {
-    type NestedMark,
-    contentMarkup,
-    descriptionExamples,
-    descriptionMarkup,
     example,
     exampleButtons,
     exampleContent,
+    exampleId,
     exampleImage,
     exampleTitle,
     header,
     mixedExamples,
     mixedMarkup,
-    nestedExamples,
-    nestedMarkup,
-    nestedParagraphsMarkup,
     structureExamples,
     structureMarkup,
 } from '../../tests/examples';
@@ -50,6 +44,67 @@ const secondParagraph =
     'Second paragraph with a <a href="/page">link</a>, <strong>bold</strong>, <em>italic</em>, <s>strikethrough</s> and <code>monospace</code> text.';
 const title =
     '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2" role="heading" aria-level="2">Team portal</div>\n';
+
+const exampleContentText = 'Portal description.';
+const exampleContentSecondParagraph =
+    'Second paragraph with a [link](/page), **bold**, *italic*, ~~strikethrough~~ and `monospace` text.';
+
+/** The description of the given paragraphs, with the size that is given. */
+const contentMarkup = (texts: readonly string[], size?: number | string) =>
+    `:::header-content${size === undefined ? '' : `{size="${size}"}`}\n${texts.join('\n\n')}\n:::`;
+
+// description-001 … description-014: no size and every size, with one and with two paragraphs.
+const descriptionExamples = (['omitted', ...headerContentSizes] as const)
+    .flatMap((size) => [1, 2].map((count) => ({size, paragraphs: count})))
+    .map((item, index) => ({id: exampleId('description', index), ...item}));
+
+/** The markup of a description example in the default header. */
+const descriptionMarkup = ({
+    size,
+    paragraphs: count,
+}: {
+    size: number | string;
+    paragraphs: number;
+}) =>
+    example(
+        '',
+        contentMarkup(
+            [exampleContentText, exampleContentSecondParagraph].slice(0, count),
+            size === 'omitted' ? undefined : size,
+        ),
+    );
+
+/** The text marks and the link of the nested examples, in the order of their text. */
+const nestedMarks = {
+    bold: '**Bold text.**',
+    italic: '*Italic text.*',
+    underline: '++Underlined text.++',
+    strike: '~~Strikethrough text.~~',
+    code: '`inline code`',
+    link: '[Team page](/page)',
+} as const;
+type NestedMark = keyof typeof nestedMarks;
+const nestedMarkNames = Object.keys(nestedMarks) as NestedMark[];
+
+// nested-001 … nested-064: every combination of the five marks and the link;
+// the last one changes first.
+const nestedExamples = nestedMarkNames
+    .reduce<
+        NestedMark[][]
+    >((combinations, mark) => combinations.flatMap((marks) => [marks, [...marks, mark]]), [[]])
+    .map((marks, index) => ({id: exampleId('nested', index), marks}));
+
+/** The markup of a nested example: the title, then plain text followed by the marked texts. */
+const nestedMarkup = ({marks}: {marks: readonly NestedMark[]}) =>
+    example(
+        '',
+        exampleTitle,
+        contentMarkup([['Plain text.', ...marks.map((mark) => nestedMarks[mark])].join(' ')]),
+    );
+
+/** The markup of a nested example with its own paragraphs: nested-065 … nested-077. */
+const nestedParagraphsMarkup = (texts: readonly string[]) =>
+    example('', exampleTitle, contentMarkup(texts));
 
 // The rendered texts of the nested examples.
 const nestedMarksHtml: Record<NestedMark, string> = {
@@ -336,7 +391,7 @@ describe('Header content options', () => {
 });
 
 describe('Header content syntax examples', () => {
-    it.each(descriptionExamples(headerContentSizes))(
+    it.each(descriptionExamples)(
         'should render $id with size $size and $paragraphs paragraphs',
         (item) => {
             expect(preset.render(descriptionMarkup(item))).toBe(
@@ -549,6 +604,24 @@ describe('Header content syntax examples', () => {
         ],
     ])('should render %s, %s, as written', (_id, _name, markup, html) => {
         expect(preset.render(markup)).toBe(html);
+    });
+
+    it('should render a button and a fenced code block in a description on a fill as written', () => {
+        const output = preset.render(
+            example(
+                'bg-color="blue-heavy"',
+                contentMarkup([
+                    'Text',
+                    ':button[Go]{href="https://example.com" view="action" color="blue"}',
+                    '```\ncode\n```',
+                ]),
+            ),
+        );
+        expect(contents(output)).toEqual([
+            content(
+                '<p>Text</p>\n<p class="g-md-button-plugin-row"><a class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_blue" href="https://example.com" data-view="action" data-color="blue">Go</a></p>\n<pre><code>code\n</code></pre>\n',
+            ),
+        ]);
     });
 
     it('should render the description between the other blocks of a header in the source order', () => {

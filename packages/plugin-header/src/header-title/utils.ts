@@ -1,12 +1,10 @@
-import {includes, nonDefaultValues} from '../utils';
+import {includes, nonDefaultValues, numberValue} from '../utils';
 
 import {type HeaderTitle, headerTitleColors, headerTitleDefaults, headerTitleSizes} from './const';
 
-/** The size is a number in the model and a string in the markup and in the HTML. */
 export function headerTitle(attrs: {size?: unknown; color?: unknown}): HeaderTitle {
-    const size = typeof attrs.size === 'number' ? String(attrs.size) : attrs.size;
     return {
-        size: headerTitleSizes.find((value) => String(value) === size) ?? headerTitleDefaults.size,
+        size: numberValue(headerTitleSizes, attrs.size) ?? headerTitleDefaults.size,
         color: includes(headerTitleColors, attrs.color) ? attrs.color : headerTitleDefaults.color,
     };
 }

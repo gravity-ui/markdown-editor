@@ -10,9 +10,9 @@ import {test} from 'playwright/core/extensions/header-title';
 import {markupExamplesDocument} from '../../src/stories/header/examples';
 import {
     buttonMarkup,
-    headerContent,
     headerImageBackgrounds,
     headerImages,
+    headerMockMarkup,
     headerTitleColorsMarkup,
     headerTitleMarkup,
     headerTitlesMarkup,
@@ -61,13 +61,13 @@ const longTitle =
     'A long title that does not fit into one line of the header and wraps onto the next lines of the block, and the header grows with it';
 const unbreakable = 'Unbreakable'.repeat(14);
 const stressMarkup = [
-    inHeader(headerContent(2, headerTitleMarkup(longTitle, {size: 1}))),
+    inHeader(headerMockMarkup(2, headerTitleMarkup(longTitle, {size: 1}))),
     inHeader(
-        headerContent(1, headerTitleMarkup(longTitle, {size: 6, color: 'blue'})),
+        headerMockMarkup(1, headerTitleMarkup(longTitle, {size: 6, color: 'blue'})),
         '{width="s" align="center" bg-color="blue-light"}',
     ),
     inHeader(
-        headerContent(1, headerTitleMarkup(unbreakable, {size: 1, color: 'red'})),
+        headerMockMarkup(1, headerTitleMarkup(unbreakable, {size: 1, color: 'red'})),
         '{width="s" align="right" vertical="bottom" bg-color="red-light"}',
     ),
     inHeader(
@@ -117,7 +117,7 @@ test.describe('Header title preview', () => {
         const markup = [
             ...headerTitleSizes.map(
                 (size) =>
-                    `size="${size}"\n\n${inHeader(headerContent(1, headerTitleMarkup('Team portal', {size})))}`,
+                    `size="${size}"\n\n${inHeader(headerMockMarkup(1, headerTitleMarkup('Team portal', {size})))}`,
             ),
             `no size, no description\n\n${inHeader(
                 [
@@ -131,7 +131,10 @@ test.describe('Header title preview', () => {
         await expect(header.previews).toHaveCount(SIZE_COUNT + 1);
         await expect(headerTitle.previews).toHaveCount(SIZE_COUNT + 1);
         expect(await headerTitle.getTypography()).toEqual([...TYPOGRAPHY, DEFAULT_TYPOGRAPHY]);
-        expect(await headerTitle.getGaps()).toEqual([TEXT_GAP, BUTTONS_GAP]);
+        expect(await header.getPreviewGapsAfter(headerTitle.previews)).toEqual([
+            TEXT_GAP,
+            BUTTONS_GAP,
+        ]);
         // The title is the first block of the content: it stands at the padding of the header.
         const insets = await header.getPreviewContentInsets();
         expect(insets.map((inset) => inset?.slice(0, 2))).toEqual(
@@ -348,7 +351,7 @@ test.describe('Header title preview', () => {
             {size: '2', color: 'auto', text: 'First'},
             {size: '2', color: 'auto', text: 'Second'},
         ]);
-        expect(await headerTitle.getGaps(headerTitle.inHeaders(header.previews))).toEqual([
+        expect(await header.getPreviewGapsAfter(headerTitle.inHeaders(header.previews))).toEqual([
             TEXT_GAP,
         ]);
         await expectScreenshot({component: editor.locators.component});
@@ -402,15 +405,15 @@ const MOBILE_PADDING = 16;
 
 const mobileMarkup = [
     ...headerTitleSizes.map((size) =>
-        inHeader(headerContent(1, headerTitleMarkup(`Title of size ${size}`, {size}))),
+        inHeader(headerMockMarkup(1, headerTitleMarkup(`Title of size ${size}`, {size}))),
     ),
-    inHeader(headerContent(2, headerTitleMarkup(longTitle, {size: 1}))),
+    inHeader(headerMockMarkup(2, headerTitleMarkup(longTitle, {size: 1}))),
     inHeader(
-        headerContent(1, headerTitleMarkup(unbreakable, {color: 'violet'})),
+        headerMockMarkup(1, headerTitleMarkup(unbreakable, {color: 'violet'})),
         '{align="center" bg-color="violet-light"}',
     ),
     inHeader(
-        headerContent(1, headerTitleMarkup('Title on a dark image', {color: 'yellow'})),
+        headerMockMarkup(1, headerTitleMarkup('Title on a dark image', {color: 'yellow'})),
         `{align="right" bg-image="${headerImages.dark}" bg-image-theme="dark"}`,
     ),
 ].join('\n\n');
@@ -442,7 +445,7 @@ test.describe('Header title on mobile', () => {
         expect(insets.map((inset) => inset?.slice(0, 2))).toEqual(
             Array(count).fill([MOBILE_PADDING, MOBILE_PADDING]),
         );
-        expect(await headerTitle.getGaps()).toEqual([TEXT_GAP]);
+        expect(await header.getPreviewGapsAfter(headerTitle.previews)).toEqual([TEXT_GAP]);
         const lines = await headerTitle.getLineCounts();
         expect(lines[SIZE_COUNT]).toBeGreaterThan(1);
         expect(lines[SIZE_COUNT + 1]).toBeGreaterThan(1);

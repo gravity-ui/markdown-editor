@@ -65,22 +65,6 @@ export class HeaderTitleBlock {
         );
     }
 
-    /** The different distances from the titles to the blocks after them. */
-    getGaps(blocks = this.previews) {
-        return blocks.evaluateAll((elements) =>
-            Array.from(
-                new Set(
-                    elements.flatMap((element) => {
-                        const next = element.nextElementSibling;
-                        if (!next) return [];
-                        const {bottom} = element.getBoundingClientRect();
-                        return [Math.round(next.getBoundingClientRect().top - bottom)];
-                    }),
-                ),
-            ),
-        );
-    }
-
     /** The number of text lines of every title. */
     getLineCounts(blocks = this.previews) {
         return blocks.evaluateAll((elements) =>

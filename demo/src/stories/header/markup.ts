@@ -91,7 +91,7 @@ export const headerContentMarkup = (
 ) => `:::header-content${size ? `{size="${size}"}` : ''}\n${[paragraphs].flat().join('\n\n')}\n:::`;
 
 /** The content of the mock: the markup of a title, a description and buttons, each in its own block. */
-export const headerContent = (
+export const headerMockMarkup = (
     buttons = 1,
     title = headerTitleMarkup(),
     description = headerContentMarkup(),
@@ -105,7 +105,7 @@ export const headerContent = (
     ].join('\n\n');
 
 /** A header with the attributes and the content of the mock, under a line that names it. */
-export const headerExample = (attrs: string, content = headerContent()) =>
+export const headerExample = (attrs: string, content = headerMockMarkup()) =>
     `${attrs || 'no attributes'}\n\n${inHeader(content, attrs && `{${attrs}}`)}`;
 
 /** Every value of every attribute of the header, then the attributes together. */
@@ -116,7 +116,7 @@ export const headerPreviewMarkup = [
         headerAligns.map((align) =>
             headerExample(
                 `width="s" align="${align}" vertical="${vertical}" bg-color="gray-light"`,
-                headerContent(3),
+                headerMockMarkup(3),
             ),
         ),
     ),
@@ -129,7 +129,7 @@ export const headerPreviewMarkup = [
     headerExample(`bg-image="${headerImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`),
     headerExample(
         `height="l" width="full" align="center" vertical="bottom" bg-color="violet-light" bg-image="${headerImages.dark}" bg-image-theme="dark" bg-image-blur="true"`,
-        headerContent(3),
+        headerMockMarkup(3),
     ),
 ].join('\n\n');
 
@@ -159,7 +159,7 @@ export const headerTitlePreviewMarkup = [
     ...headerTitleSizes.map((size) =>
         headerExample(
             'bg-color="gray-light"',
-            headerContent(1, headerTitleMarkup(`Title of size ${size}`, {size})),
+            headerMockMarkup(1, headerTitleMarkup(`Title of size ${size}`, {size})),
         ),
     ),
     headerTitleColorsMarkup('', 'no fill'),
@@ -220,7 +220,7 @@ export const headerContentPreviewMarkup = [
     ...[undefined, ...headerContentSizes].map((size) =>
         headerExample(
             'bg-color="gray-light"',
-            headerContent(
+            headerMockMarkup(
                 1,
                 headerTitleMarkup(),
                 headerContentMarkup(

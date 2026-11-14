@@ -124,6 +124,25 @@ export class HeaderBlock {
         );
     }
 
+    /**
+     * The different distances from the blocks to the blocks after them:
+     * `getPreviewGapsAfter(headerTitle.previews)`.
+     */
+    getPreviewGapsAfter(blocks: Locator) {
+        return blocks.evaluateAll((elements) =>
+            Array.from(
+                new Set(
+                    elements.flatMap((element) => {
+                        const next = element.nextElementSibling;
+                        if (!next) return [];
+                        const {bottom} = element.getBoundingClientRect();
+                        return [Math.round(next.getBoundingClientRect().top - bottom)];
+                    }),
+                ),
+            ),
+        );
+    }
+
     /** The different widths the headers of the preview leave unused in their column. */
     getPreviewWidthGaps() {
         return this.previews.evaluateAll((elements) =>

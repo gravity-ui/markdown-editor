@@ -268,21 +268,21 @@ The paragraphs stand 8 px (`--g-spacing-2`) apart. Inline code has the YFM color
 The links have the YFM link colors, `--yfm-color-link` and `--yfm-color-link-hover`, then `--g-color-text-link` and `--g-color-text-link-hover`, and on keyboard focus the 2 px `--g-color-line-focus` ring of the UIKit link. On a fill or an image a header gives the links the text color and an underline, and on an image and the `medium` and `heavy` fills the inline code the text color and the links the focus ring of the buttons, see [Background](#background).
 A link underline is 2 px thick and 0.2 em below the text and thickens to 3 px on hover, so a link differs from `++underlined++` text, which keeps the thin underline of the browser. Buttons and fenced code blocks inside a description keep their own styles.
 
-| Property                                        | Default                                                              |
-| ----------------------------------------------- | -------------------------------------------------------------------- |
-| `--g-md-header-content-plugin-font-weight`      | `var(--g-text-body-font-weight)`                                     |
-| `--g-md-header-content-plugin-paragraph-gap`    | `var(--g-spacing-2)`                                                 |
-| `--g-md-header-content-plugin-margin-block`     | `0 var(--g-spacing-4)`                                               |
-| `--g-md-header-content-plugin-link-color`       | `var(--yfm-color-link)`; the text color on a fill or an image        |
-| `--g-md-header-content-plugin-link-hover-color` | `var(--yfm-color-link-hover)`; the text color on a fill or an image  |
-| `--g-md-header-content-plugin-link-decoration`  | `none`; `underline` on a fill or an image (`text-decoration-line`)   |
-| `--g-md-header-content-plugin-link-decoration-thickness` | `2px`                                                       |
-| `--g-md-header-content-plugin-link-hover-decoration-thickness` | `3px`                                                 |
-| `--g-md-header-content-plugin-link-underline-offset` | `0.2em`                                                         |
-| `--g-md-header-content-plugin-link-focus-outline-width` | `2px`                                                        |
-| `--g-md-header-content-plugin-link-focus-outline-color` | `var(--g-color-line-focus)`; the button ring on a header background |
-| `--g-md-header-content-plugin-code-color`       | `var(--yfm-color-inline-code)`; the text color on a header background |
-| `--g-md-header-content-plugin-code-background`  | `var(--yfm-color-inline-code-background)`; `var(--g-color-base-generic)` on a header background |
+| Property                                                       | Default                                                                                         |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `--g-md-header-content-plugin-font-weight`                     | `var(--g-text-body-font-weight)`                                                                |
+| `--g-md-header-content-plugin-paragraph-gap`                   | `var(--g-spacing-2)`                                                                            |
+| `--g-md-header-content-plugin-margin-block`                    | `0 var(--g-spacing-4)`                                                                          |
+| `--g-md-header-content-plugin-link-color`                      | `var(--yfm-color-link)`; the text color on a fill or an image                                   |
+| `--g-md-header-content-plugin-link-hover-color`                | `var(--yfm-color-link-hover)`; the text color on a fill or an image                             |
+| `--g-md-header-content-plugin-link-decoration`                 | `none`; `underline` on a fill or an image (`text-decoration-line`)                              |
+| `--g-md-header-content-plugin-link-decoration-thickness`       | `2px`                                                                                           |
+| `--g-md-header-content-plugin-link-hover-decoration-thickness` | `3px`                                                                                           |
+| `--g-md-header-content-plugin-link-underline-offset`           | `0.2em`                                                                                         |
+| `--g-md-header-content-plugin-link-focus-outline-width`        | `2px`                                                                                           |
+| `--g-md-header-content-plugin-link-focus-outline-color`        | `var(--g-color-line-focus)`; the button ring on a header background                             |
+| `--g-md-header-content-plugin-code-color`                      | `var(--yfm-color-inline-code)`; the text color on a header background                           |
+| `--g-md-header-content-plugin-code-background`                 | `var(--yfm-color-inline-code-background)`; `var(--g-color-base-generic)` on a header background |
 
 Inside Header the description is a row of the header layout: the header sets the space around it, 16 px below the title and 32 px to the buttons. The margin applies to a description outside Header.
 

@@ -5,13 +5,13 @@ import {test} from 'playwright/core/extensions/header-content';
 
 import {markupExamplesDocument} from '../../src/stories/header/examples';
 import {
-    headerContent,
     headerContentMarks,
     headerContentMarksMarkup,
     headerContentMarkup,
     headerContentsMarkup,
     headerImageBackgrounds,
     headerImages,
+    headerMockMarkup,
     headerTitleMarkup,
     inHeader,
 } from '../../src/stories/header/markup';
@@ -39,11 +39,15 @@ const PADDING = 32;
 const TEXT_GAP = 16;
 const BUTTONS_GAP = 32;
 const PARAGRAPH_GAP = 8;
+// The underline of a link, thicker under the pointer, and the width of its focus ring.
+const LINK_THICKNESS = '2px';
+const LINK_HOVER_THICKNESS = '3px';
+const LINK_FOCUS_WIDTH = '2px';
 
 /** No size, then every size, each with the content of the mock in a header. */
 const sizesMarkup = [undefined, ...headerContentSizes].map((size) =>
     inHeader(
-        headerContent(
+        headerMockMarkup(
             1,
             headerTitleMarkup(),
             headerContentMarkup(
@@ -79,13 +83,13 @@ const manyParagraphs = Array.from(
     (_, index) => `Paragraph ${index + 1} of a description taller than the header.`,
 );
 const stressMarkup = [
-    inHeader(headerContent(2, headerTitleMarkup(), headerContentMarkup(longText))),
+    inHeader(headerMockMarkup(2, headerTitleMarkup(), headerContentMarkup(longText))),
     inHeader(
-        headerContent(1, headerTitleMarkup(), headerContentMarkup(longText, {size: 1})),
+        headerMockMarkup(1, headerTitleMarkup(), headerContentMarkup(longText, {size: 1})),
         '{width="s" align="center" bg-color="blue-light"}',
     ),
     inHeader(
-        headerContent(
+        headerMockMarkup(
             1,
             headerTitleMarkup(),
             headerContentMarkup([`An address: [${longAddress}](${longAddress}).`, unbreakable], {
@@ -95,7 +99,7 @@ const stressMarkup = [
         '{width="s" align="right" vertical="bottom" bg-color="red-medium"}',
     ),
     inHeader(
-        headerContent(3, headerTitleMarkup(), headerContentMarkup(manyParagraphs)),
+        headerMockMarkup(3, headerTitleMarkup(), headerContentMarkup(manyParagraphs)),
         `{width="s" bg-image="${headerImages.dark}" bg-image-theme="dark"}`,
     ),
     inHeader(
@@ -106,21 +110,23 @@ const stressMarkup = [
     headerContentMarkup(`[${longAddress}](${longAddress})`, {size: 6}),
 ].join('\n\n');
 
+const descriptionButton = ':button[Go]{href="https://example.com" view="action" color="blue"}';
+
 test.describe('Header content preview', () => {
     test.use({viewport: {width: 1440, height: 900}});
 
     test('should render regular text and every size in the text @markup', async ({
         mount,
         editor,
-        headerContent: content,
+        headerContent,
         expectScreenshot,
     }) => {
         await mount(<HeaderContentStories.Preview width={720} initial={headerContentsMarkup} />);
-        await expect(content.previews).toHaveCount(EXAMPLE_SIZE_COUNT);
-        expect(await content.getTypography()).toEqual([REGULAR_TYPOGRAPHY, ...TYPOGRAPHY]);
-        expect(await content.getParagraphGaps()).toEqual([PARAGRAPH_GAP]);
+        await expect(headerContent.previews).toHaveCount(EXAMPLE_SIZE_COUNT);
+        expect(await headerContent.getTypography()).toEqual([REGULAR_TYPOGRAPHY, ...TYPOGRAPHY]);
+        expect(await headerContent.getParagraphGaps()).toEqual([PARAGRAPH_GAP]);
         // Outside a header the links are the links of the page.
-        const links = await content.getLinkStyles();
+        const links = await headerContent.getLinkStyles();
         expect(links).toHaveLength(EXAMPLE_SIZE_COUNT);
         expect(
             links.every(({color, underline, textColor}) => color !== textColor && !underline),
@@ -133,18 +139,18 @@ test.describe('Header content preview', () => {
         editor,
         header,
         headerTitle,
-        headerContent: content,
+        headerContent,
         expectScreenshot,
     }) => {
         await mount(
             <HeaderContentStories.Preview width={1060} initial={sizesMarkup.join('\n\n')} />,
         );
         await expect(header.previews).toHaveCount(EXAMPLE_SIZE_COUNT);
-        await expect(content.inHeaders(header.previews)).toHaveCount(EXAMPLE_SIZE_COUNT);
-        expect(await content.getTypography()).toEqual([REGULAR_TYPOGRAPHY, ...TYPOGRAPHY]);
+        await expect(headerContent.inHeaders(header.previews)).toHaveCount(EXAMPLE_SIZE_COUNT);
+        expect(await headerContent.getTypography()).toEqual([REGULAR_TYPOGRAPHY, ...TYPOGRAPHY]);
         // The description stands under the title and above the buttons.
-        expect(await headerTitle.getGaps()).toEqual([TEXT_GAP]);
-        expect(await content.getGaps()).toEqual([BUTTONS_GAP]);
+        expect(await header.getPreviewGapsAfter(headerTitle.previews)).toEqual([TEXT_GAP]);
+        expect(await header.getPreviewGapsAfter(headerContent.previews)).toEqual([BUTTONS_GAP]);
         expect(await header.getPreviewButtonGaps()).toEqual([BUTTONS_GAP]);
         const insets = await header.getPreviewContentInsets();
         expect(insets.map((inset) => inset?.slice(0, 2))).toEqual(
@@ -157,7 +163,7 @@ test.describe('Header content preview', () => {
         mount,
         editor,
         header,
-        headerContent: content,
+        headerContent,
         expectScreenshot,
     }) => {
         // description-001 … description-014.
@@ -169,21 +175,21 @@ test.describe('Header content preview', () => {
             {styles: denseHeaderStyles},
         );
         await expect(header.previews).toHaveCount(2 * EXAMPLE_SIZE_COUNT);
-        await expect(content.previews).toHaveCount(2 * EXAMPLE_SIZE_COUNT);
+        await expect(headerContent.previews).toHaveCount(2 * EXAMPLE_SIZE_COUNT);
         // No size renders no attribute.
-        await expect(content.previewsWith('data-size')).toHaveCount(2 * SIZE_COUNT);
-        const values = await content.getValues();
+        await expect(headerContent.previewsWith('data-size')).toHaveCount(2 * SIZE_COUNT);
+        const values = await headerContent.getValues();
         expect(values.map(({size}) => size)).toEqual(
             [null, ...headerContentSizes.map(String)].flatMap((size) => [size, size]),
         );
         expect(values.map(({paragraphs}) => paragraphs.length)).toEqual(
             Array(EXAMPLE_SIZE_COUNT).fill([1, 2]).flat(),
         );
-        expect(await content.getTypography()).toEqual(
+        expect(await headerContent.getTypography()).toEqual(
             [REGULAR_TYPOGRAPHY, ...TYPOGRAPHY].flatMap((typography) => [typography, typography]),
         );
-        expect(await content.getParagraphGaps()).toEqual([PARAGRAPH_GAP]);
-        await expect(content.links).toHaveCount(EXAMPLE_SIZE_COUNT);
+        expect(await headerContent.getParagraphGaps()).toEqual([PARAGRAPH_GAP]);
+        await expect(headerContent.links).toHaveCount(EXAMPLE_SIZE_COUNT);
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -191,7 +197,7 @@ test.describe('Header content preview', () => {
         mount,
         editor,
         header,
-        headerContent: content,
+        headerContent,
         expectScreenshot,
     }) => {
         // nested-001 … nested-032: every combination of italic, underlined, strikethrough
@@ -200,10 +206,10 @@ test.describe('Header content preview', () => {
             styles: denseHeaderStyles,
         });
         await expect(header.previews).toHaveCount(32);
-        await expect(content.previews).toHaveCount(32);
-        await expect(content.previews.locator('strong')).toHaveCount(0);
+        await expect(headerContent.previews).toHaveCount(32);
+        await expect(headerContent.previews.locator('strong')).toHaveCount(0);
         for (const tag of ['em', 'ins', 's', 'code', 'a']) {
-            await expect(content.previews.locator(tag)).toHaveCount(16);
+            await expect(headerContent.previews.locator(tag)).toHaveCount(16);
         }
         await expectScreenshot({component: editor.locators.component});
     });
@@ -212,7 +218,7 @@ test.describe('Header content preview', () => {
         mount,
         editor,
         header,
-        headerContent: content,
+        headerContent,
         expectScreenshot,
     }) => {
         // nested-033 … nested-064: the same combinations with bold text.
@@ -221,10 +227,10 @@ test.describe('Header content preview', () => {
             {styles: denseHeaderStyles},
         );
         await expect(header.previews).toHaveCount(32);
-        await expect(content.previews).toHaveCount(32);
-        await expect(content.previews.locator('strong')).toHaveCount(32);
+        await expect(headerContent.previews).toHaveCount(32);
+        await expect(headerContent.previews.locator('strong')).toHaveCount(32);
         for (const tag of ['em', 'ins', 's', 'code', 'a']) {
-            await expect(content.previews.locator(tag)).toHaveCount(16);
+            await expect(headerContent.previews.locator(tag)).toHaveCount(16);
         }
         await expectScreenshot({component: editor.locators.component});
     });
@@ -233,7 +239,7 @@ test.describe('Header content preview', () => {
         mount,
         editor,
         header,
-        headerContent: content,
+        headerContent,
         expectScreenshot,
     }) => {
         // nested-065 … nested-078: the kinds of links, marks inside one another, two and three
@@ -243,18 +249,18 @@ test.describe('Header content preview', () => {
             {styles: denseHeaderStyles},
         );
         await expect(header.previews).toHaveCount(14);
-        await expect(content.previews).toHaveCount(14);
-        const values = await content.getValues();
+        await expect(headerContent.previews).toHaveCount(14);
+        const values = await headerContent.getValues();
         expect(values.map(({paragraphs}) => paragraphs.length)).toEqual([
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 2,
         ]);
         expect(values[10].paragraphs).toEqual([
             'Important: read this first and visit the team page.',
         ]);
-        await expect(content.links).toHaveCount(18);
-        await expect(content.previews.locator('a strong, a em')).toHaveCount(2);
-        await expect(content.previews.locator('strong a, em a, ins a, s a')).toHaveCount(5);
-        expect(await content.getParagraphGaps()).toEqual([PARAGRAPH_GAP]);
+        await expect(headerContent.links).toHaveCount(18);
+        await expect(headerContent.previews.locator('a strong, a em')).toHaveCount(2);
+        await expect(headerContent.previews.locator('strong a, em a, ins a, s a')).toHaveCount(5);
+        expect(await headerContent.getParagraphGaps()).toEqual([PARAGRAPH_GAP]);
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -262,7 +268,7 @@ test.describe('Header content preview', () => {
         mount,
         editor,
         header,
-        headerContent: content,
+        headerContent,
         expectScreenshot,
     }) => {
         await mount(<HeaderContentStories.Preview width={1060} initial={fillsMarkup} />, {
@@ -270,8 +276,8 @@ test.describe('Header content preview', () => {
         });
         const count = 1 + headerBgColors.length;
         await expect(header.previews).toHaveCount(count);
-        await expect(content.previews).toHaveCount(count);
-        const links = await content.getLinkStyles();
+        await expect(headerContent.previews).toHaveCount(count);
+        const links = await headerContent.getLinkStyles();
         expect(links).toHaveLength(count);
         // Without a fill: the link color of the page, no underline.
         const [pageLink, ...fillLinks] = links;
@@ -282,6 +288,17 @@ test.describe('Header content preview', () => {
         expect(
             fillLinks.every(({color, underline, textColor}) => underline && color === textColor),
         ).toBe(true);
+        // A link differs from the `++underlined++` text of its paragraph: its underline is
+        // thicker and lower.
+        const [, ...fillUnderlines] = await headerContent.getUnderlinedTextStyles();
+        expect(fillUnderlines).toHaveLength(fillLinks.length);
+        for (const [index, link] of fillLinks.entries()) {
+            expect(link.textDecorationThickness).toBe(LINK_THICKNESS);
+            expect(link.textDecorationThickness).not.toBe(
+                fillUnderlines[index].textDecorationThickness,
+            );
+            expect(link.textUnderlineOffset).not.toBe(fillUnderlines[index].textUnderlineOffset);
+        }
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -289,7 +306,7 @@ test.describe('Header content preview', () => {
         mount,
         editor,
         header,
-        headerContent: content,
+        headerContent,
         expectScreenshot,
     }) => {
         await mount(
@@ -303,9 +320,9 @@ test.describe('Header content preview', () => {
         );
         const count = headerImageBackgrounds.length;
         await expect(header.previews).toHaveCount(count);
-        await expect(content.previews).toHaveCount(count);
+        await expect(headerContent.previews).toHaveCount(count);
         // The links follow the theme of the image: they take the text color of their header.
-        const links = await content.getLinkStyles();
+        const links = await headerContent.getLinkStyles();
         expect(links).toHaveLength(count);
         expect(
             links.every(({color, underline, textColor}) => underline && color === textColor),
@@ -313,7 +330,7 @@ test.describe('Header content preview', () => {
         expect(links.map(({textColor}) => textColor)).toEqual(await header.getPreviewColors());
         // The light and the dark theme have their own text and inline code colors.
         expect(new Set(links.map(({color}) => color)).size).toBe(2);
-        const codeColors = await content.getCodeColors();
+        const codeColors = await headerContent.getCodeColors();
         expect(codeColors).toHaveLength(count);
         expect(codeColors[1]).not.toBe(codeColors[3]);
         for (const image of Object.values(headerImages)) await header.waitForImage(image);
@@ -324,23 +341,23 @@ test.describe('Header content preview', () => {
         mount,
         editor,
         header,
-        headerContent: content,
+        headerContent,
         expectScreenshot,
     }) => {
         await mount(<HeaderContentStories.Preview width={1060} initial={stressMarkup} />);
         await expect(header.previews).toHaveCount(5);
-        await expect(content.previews).toHaveCount(7);
+        await expect(headerContent.previews).toHaveCount(7);
         // The width is kept: long words and addresses wrap, and the header grows with its text.
         const sizes = await header.getPreviewSizes();
         expect(sizes.map(([width]) => width)).toEqual([900, 600, 600, 600, 900]);
         expect(sizes[3][1]).toBeGreaterThan(360);
-        const lines = await content.getLineCounts();
+        const lines = await headerContent.getLineCounts();
         expect(lines.slice(0, 3).every((count) => count > 1)).toBe(true);
         expect(lines[4]).toBe(1);
         expect(lines[5]).toBeGreaterThan(1);
         expect(lines[6]).toBeGreaterThan(1);
-        expect((await content.getValues())[3].paragraphs).toHaveLength(manyParagraphs.length);
-        expect(await content.getParagraphGaps()).toEqual([PARAGRAPH_GAP]);
+        expect((await headerContent.getValues())[3].paragraphs).toHaveLength(manyParagraphs.length);
+        expect(await headerContent.getParagraphGaps()).toEqual([PARAGRAPH_GAP]);
         expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
         await header.waitForImage(headerImages.dark);
         await expectScreenshot({component: editor.locators.component});
@@ -350,7 +367,7 @@ test.describe('Header content preview', () => {
         mount,
         editor,
         header,
-        headerContent: content,
+        headerContent,
         expectScreenshot,
     }) => {
         // The minimal description, the empty title and description; a description outside
@@ -377,7 +394,7 @@ test.describe('Header content preview', () => {
             />,
         );
         await expect(header.previews).toHaveCount(3);
-        expect(await content.getValues()).toEqual([
+        expect(await headerContent.getValues()).toEqual([
             {size: null, paragraphs: ['Portal description.']},
             {size: null, paragraphs: ['Description.']},
             {size: null, paragraphs: ['First description.']},
@@ -385,14 +402,16 @@ test.describe('Header content preview', () => {
         ]);
         // An empty description renders no element: its header is empty.
         await expect(header.previews.nth(1).locator('*')).toHaveCount(0);
-        expect(await content.getGaps(content.inHeaders(header.previews))).toEqual([TEXT_GAP]);
+        expect(await header.getPreviewGapsAfter(headerContent.inHeaders(header.previews))).toEqual([
+            TEXT_GAP,
+        ]);
         await expectScreenshot({component: editor.locators.component});
     });
 
-    test('should keep the color of a link under the pointer on a fill @markup', async ({
+    test('should keep the color of a link on a fill and thicken its underline under the pointer @markup', async ({
         mount,
         page,
-        headerContent: content,
+        headerContent,
     }) => {
         await mount(
             <HeaderContentStories.Preview
@@ -404,20 +423,126 @@ test.describe('Header content preview', () => {
             />,
             {styles: denseHeaderStyles},
         );
-        await expect(content.links).toHaveCount(2);
-        const [pageLink, fillLink] = await content.getLinkStyles();
+        await expect(headerContent.links).toHaveCount(2);
+        const [pageLink, fillLink] = await headerContent.getLinkStyles();
+        expect(fillLink.textDecorationThickness).toBe(LINK_THICKNESS);
         // A link of the page takes its hover color.
-        await content.links.first().hover();
+        await headerContent.links.first().hover();
         await expect
-            .poll(async () => (await content.getLinkStyles())[0].color)
+            .poll(async () => (await headerContent.getLinkStyles())[0].color)
             .not.toBe(pageLink.color);
-        // A link on a fill stays in the text color with its underline.
-        await content.links.last().hover();
+        // A link on a fill stays in the text color, and its underline thickens.
+        await headerContent.links.last().hover();
         await expect
-            .poll(async () => (await content.getLinkStyles())[0].color)
+            .poll(async () => (await headerContent.getLinkStyles())[0].color)
             .toBe(pageLink.color);
-        expect((await content.getLinkStyles())[1]).toEqual(fillLink);
+        await expect
+            .poll(async () => (await headerContent.getLinkStyles())[1])
+            .toEqual({...fillLink, textDecorationThickness: LINK_HOVER_THICKNESS});
         await page.mouse.move(0, 0);
+    });
+
+    test('should show the keyboard focus ring of a link on the page, on fills and on an image @markup', async ({
+        mount,
+        page,
+        editor,
+        header,
+        button,
+        headerContent,
+        expectScreenshot,
+    }) => {
+        // The page and the light fills keep the focus ring of the page; the heavy fills and
+        // the images give the ring the text color, as to the buttons.
+        await mount(
+            <HeaderContentStories.Preview
+                width={1060}
+                initial={[
+                    headerContentMarksMarkup('', 'no fill'),
+                    headerContentMarksMarkup('bg-color="blue-light"', 'blue-light'),
+                    headerContentMarksMarkup('bg-color="blue-heavy"', 'blue-heavy'),
+                    headerContentMarksMarkup(
+                        `bg-image="${headerImages.dark}" bg-image-theme="dark"`,
+                        'a dark image',
+                    ),
+                ].join('\n\n')}
+            />,
+            {styles: denseHeaderStyles},
+        );
+        await expect(headerContent.links).toHaveCount(4);
+        await header.waitForImage(headerImages.dark);
+
+        const expectFocusRings = async (theme: 'light' | 'dark') => {
+            await page.emulateMedia({colorScheme: theme});
+            await expect(page.locator('body')).toHaveClass(new RegExp(`g-root_theme_${theme}`));
+            const lineFocus = await headerContent.getColorVariable('--g-color-line-focus');
+            const [, , onFill, onImage] = await header.getPreviewColors();
+            const colors = [lineFocus, lineFocus, onFill, onImage];
+            const links = await headerContent.links.all();
+            for (const [index, link] of links.entries()) {
+                await button.focusWithKeyboard(link);
+                await expect(link).toBeFocused();
+                await expect
+                    .poll(async () => (await headerContent.getFocusOutlines())[index])
+                    .toEqual({
+                        outlineStyle: 'solid',
+                        outlineWidth: LINK_FOCUS_WIDTH,
+                        outlineColor: colors[index],
+                    });
+            }
+        };
+        await expectFocusRings('dark');
+        await expectFocusRings('light');
+
+        await button.focusWithKeyboard(headerContent.links.nth(2));
+        await expect(headerContent.links.nth(2)).toBeFocused();
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should keep the styles of a button and a fenced code block inside a description on a fill @markup', async ({
+        mount,
+        header,
+        button,
+        headerContent,
+    }) => {
+        await mount(
+            <HeaderContentStories.Preview
+                width={1060}
+                initial={[
+                    inHeader(
+                        [
+                            headerContentMarkup([
+                                'Text with `inline code`.',
+                                descriptionButton,
+                                '```\nconst code = true;\n```',
+                            ]),
+                            descriptionButton,
+                        ].join('\n\n'),
+                        '{bg-color="blue-heavy"}',
+                    ),
+                    '```\nconst code = true;\n```',
+                ].join('\n\n')}
+            />,
+        );
+        await expect(header.previews).toHaveCount(1);
+        await expect(headerContent.previews).toHaveCount(1);
+        // The button in the description and the same button in the header.
+        await expect(button.variants).toHaveCount(2);
+        const [inDescription, inHeaderRow] = await headerContent.getTextStyles(button.variants);
+        expect(inDescription.inDescription).toBe(true);
+        expect(inHeaderRow.inDescription).toBe(false);
+        expect({...inDescription, inDescription: false}).toEqual(inHeaderRow);
+        expect(inDescription.textDecorationLine).toBe('none');
+        // The fenced code keeps the background of the code blocks of the page
+        // (`--yfm-color-code-background`), not the inline code chip of the fill.
+        await expect(headerContent.codeBlocks).toHaveCount(2);
+        const [codeBlock, pageCodeBlock] = await headerContent.getTextStyles(
+            headerContent.codeBlocks,
+        );
+        expect(codeBlock.inDescription).toBe(true);
+        expect(pageCodeBlock.inDescription).toBe(false);
+        expect(codeBlock.backgroundColor).toBe(pageCodeBlock.backgroundColor);
+        const [inlineCode] = await headerContent.getCodeColors();
+        expect(inlineCode.split(' on ')[1]).not.toBe(codeBlock.backgroundColor);
     });
 });
 
@@ -426,7 +551,7 @@ test.describe('Header content', () => {
         mount,
         page,
         editor,
-        headerContent: content,
+        headerContent,
     }) => {
         const paragraphs = ['Portal **description** with a [link](/page).', 'Second paragraph.'];
         const values = [
@@ -443,19 +568,19 @@ test.describe('Header content', () => {
             />,
         );
         await editor.switchMode('wysiwyg');
-        await expect(content.blocks).toHaveCount(2);
-        expect(await content.getValues(content.blocks)).toEqual(values);
+        await expect(headerContent.blocks).toHaveCount(2);
+        expect(await headerContent.getValues(headerContent.blocks)).toEqual(values);
         await editor.switchMode('markup');
         // A document that was not edited keeps its markup as written.
         const markup = await page.evaluate(() => window.mdEditor?.getValue());
         expect(markup).toContain(headerContentMarkup(paragraphs, {size: 1}));
         expect(markup).toContain(headerContentMarkup('Description outside a header.'));
         await editor.switchPreview('visible');
-        await expect(content.previews).toHaveCount(2);
-        expect(await content.getValues()).toEqual(values);
+        await expect(headerContent.previews).toHaveCount(2);
+        expect(await headerContent.getValues()).toEqual(values);
         await editor.switchMode('wysiwyg');
-        await expect(content.blocks).toHaveCount(2);
-        expect(await content.getValues(content.blocks)).toEqual(values);
+        await expect(headerContent.blocks).toHaveCount(2);
+        expect(await headerContent.getValues(headerContent.blocks)).toEqual(values);
     });
 });
 
@@ -465,9 +590,9 @@ const MOBILE_PADDING = 16;
 
 const mobileMarkup = [
     ...sizesMarkup,
-    inHeader(headerContent(2, headerTitleMarkup(), headerContentMarkup(longText))),
+    inHeader(headerMockMarkup(2, headerTitleMarkup(), headerContentMarkup(longText))),
     inHeader(
-        headerContent(
+        headerMockMarkup(
             1,
             headerTitleMarkup(),
             headerContentMarkup([`[${longAddress}](${longAddress})`, unbreakable]),
@@ -475,7 +600,7 @@ const mobileMarkup = [
         '{align="center" bg-color="violet-light"}',
     ),
     inHeader(
-        headerContent(
+        headerMockMarkup(
             1,
             headerTitleMarkup(),
             headerContentMarkup([headerContentMarks, ...manyParagraphs.slice(0, 4)]),
@@ -492,7 +617,7 @@ test.describe('Header content on mobile', () => {
         editor,
         header,
         headerTitle,
-        headerContent: content,
+        headerContent,
         expectScreenshot,
     }) => {
         await mount(<HeaderContentStories.Preview width="100%" initial={mobileMarkup} />, {
@@ -500,14 +625,14 @@ test.describe('Header content on mobile', () => {
         });
         const count = EXAMPLE_SIZE_COUNT + 3;
         await expect(header.previews).toHaveCount(count);
-        await expect(content.previews).toHaveCount(count);
+        await expect(headerContent.previews).toHaveCount(count);
         // The headers are as wide as the mobile covers of the mock.
         await editor.setPreviewContentWidth(MOBILE_WIDTH);
         expect((await header.getPreviewSizes()).map(([width]) => width)).toEqual(
             Array(count).fill(MOBILE_WIDTH),
         );
         // The typography of a size is the same as in a wide header.
-        expect((await content.getTypography()).slice(0, EXAMPLE_SIZE_COUNT)).toEqual([
+        expect((await headerContent.getTypography()).slice(0, EXAMPLE_SIZE_COUNT)).toEqual([
             REGULAR_TYPOGRAPHY,
             ...TYPOGRAPHY,
         ]);
@@ -515,10 +640,10 @@ test.describe('Header content on mobile', () => {
         expect(insets.map((inset) => inset?.slice(0, 2))).toEqual(
             Array(count).fill([MOBILE_PADDING, MOBILE_PADDING]),
         );
-        expect(await headerTitle.getGaps()).toEqual([TEXT_GAP]);
-        expect(await content.getGaps()).toEqual([BUTTONS_GAP]);
-        expect(await content.getParagraphGaps()).toEqual([PARAGRAPH_GAP]);
-        const lines = await content.getLineCounts();
+        expect(await header.getPreviewGapsAfter(headerTitle.previews)).toEqual([TEXT_GAP]);
+        expect(await header.getPreviewGapsAfter(headerContent.previews)).toEqual([BUTTONS_GAP]);
+        expect(await headerContent.getParagraphGaps()).toEqual([PARAGRAPH_GAP]);
+        const lines = await headerContent.getLineCounts();
         expect(lines[EXAMPLE_SIZE_COUNT]).toBeGreaterThan(1);
         expect(lines[EXAMPLE_SIZE_COUNT + 1]).toBeGreaterThan(1);
         expect(await editor.previewHasNoHorizontalScroll()).toBe(true);

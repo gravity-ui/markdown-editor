@@ -8,10 +8,10 @@ import type {Fixtures} from 'playwright/core/types';
 
 import {markupExamplesDocument} from '../../src/stories/header/examples';
 import {
-    headerContent,
     headerContentMarkup,
     headerExample,
     headerImages,
+    headerMockMarkup,
     headerTitleMarkup,
 } from '../../src/stories/header/markup';
 
@@ -1058,7 +1058,9 @@ test.describe('Header backgrounds', () => {
             <HeaderStories.Preview
                 width={760}
                 initial={headerBgColors
-                    .map((fill) => headerExample(`width="s" bg-color="${fill}"`, headerContent(3)))
+                    .map((fill) =>
+                        headerExample(`width="s" bg-color="${fill}"`, headerMockMarkup(3)),
+                    )
                     .join('\n\n')}
             />,
         );
@@ -1081,11 +1083,11 @@ test.describe('Header backgrounds', () => {
                 headerBgImageThemes.flatMap((theme) => [
                     headerExample(
                         `bg-image="${image}" bg-image-theme="${theme}"`,
-                        headerContent(3),
+                        headerMockMarkup(3),
                     ),
                     headerExample(
                         `bg-image="${image}" bg-image-theme="${theme}" bg-image-blur="true"`,
-                        headerContent(3),
+                        headerMockMarkup(3),
                     ),
                 ]),
             )
@@ -1237,32 +1239,32 @@ const tallText = Array.from(
 const stressMarkup = [
     headerExample(
         'bg-color="gray-light"',
-        headerContent(3, headerTitleMarkup(longTitle), headerContentMarkup(longText)),
+        headerMockMarkup(3, headerTitleMarkup(longTitle), headerContentMarkup(longText)),
     ),
     headerExample(
         'width="s" align="center" bg-color="blue-light"',
-        headerContent(3, headerTitleMarkup(longTitle), headerContentMarkup(longText)),
+        headerMockMarkup(3, headerTitleMarkup(longTitle), headerContentMarkup(longText)),
     ),
     headerExample(
         'width="s" align="right" vertical="bottom" bg-color="green-light"',
-        headerContent(3, headerTitleMarkup(unbreakable), headerContentMarkup(unbreakable)),
+        headerMockMarkup(3, headerTitleMarkup(unbreakable), headerContentMarkup(unbreakable)),
     ),
     headerExample(
         'height="l" vertical="top" bg-color="yellow-light"',
-        headerContent(1, headerTitleMarkup('A'), headerContentMarkup('B')),
+        headerMockMarkup(1, headerTitleMarkup('A'), headerContentMarkup('B')),
     ),
     headerExample(
         'height="l" vertical="bottom" bg-color="red-light"',
-        headerContent(0, headerTitleMarkup('A'), headerContentMarkup('B')),
+        headerMockMarkup(0, headerTitleMarkup('A'), headerContentMarkup('B')),
     ),
     headerExample(
         `width="s" bg-image="${headerImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`,
-        headerContent(3, headerTitleMarkup(longTitle), headerContentMarkup(tallText)),
+        headerMockMarkup(3, headerTitleMarkup(longTitle), headerContentMarkup(tallText)),
     ),
     headerExample(
         'align="center" vertical="top" bg-color="violet-light"',
         [
-            headerContent(0, headerTitleMarkup('Many buttons')),
+            headerMockMarkup(0, headerTitleMarkup('Many buttons')),
             ...Array.from(
                 {length: 9},
                 (_, index) =>
@@ -1304,8 +1306,8 @@ test.describe('Header stress', () => {
             <HeaderStories.Preview
                 width={760}
                 initial={[
-                    headerExample('width="s" bg-color="gray-light"', headerContent(3)),
-                    headerExample('width="m" bg-color="gray-light"', headerContent(3)),
+                    headerExample('width="s" bg-color="gray-light"', headerMockMarkup(3)),
+                    headerExample('width="m" bg-color="gray-light"', headerMockMarkup(3)),
                 ].join('\n\n')}
             />,
             {
@@ -1325,24 +1327,24 @@ test.describe('Header stress', () => {
 const MOBILE_WIDTH = 343;
 
 const mobileMarkup = [
-    headerExample('', headerContent(1)),
-    headerExample('bg-color="gray-light"', headerContent(3)),
-    headerExample('align="center" vertical="top" bg-color="blue-medium"', headerContent(2)),
+    headerExample('', headerMockMarkup(1)),
+    headerExample('bg-color="gray-light"', headerMockMarkup(3)),
+    headerExample('align="center" vertical="top" bg-color="blue-medium"', headerMockMarkup(2)),
     headerExample(
         'height="m" align="right" vertical="bottom" bg-color="green-heavy"',
-        headerContent(1),
+        headerMockMarkup(1),
     ),
     headerExample(
         `height="l" width="full" bg-image="${headerImages.dark}" bg-image-theme="dark"`,
-        headerContent(3, headerTitleMarkup(longTitle), headerContentMarkup(longText)),
+        headerMockMarkup(3, headerTitleMarkup(longTitle), headerContentMarkup(longText)),
     ),
     headerExample(
         `width="s" bg-color="violet-light" bg-image="${headerImages.contrast}" bg-image-theme="light" bg-image-blur="true"`,
-        headerContent(1),
+        headerMockMarkup(1),
     ),
     headerExample(
         'bg-color="red-light"',
-        headerContent(2, headerTitleMarkup(unbreakable), headerContentMarkup(unbreakable)),
+        headerMockMarkup(2, headerTitleMarkup(unbreakable), headerContentMarkup(unbreakable)),
     ),
 ].join('\n\n');
 

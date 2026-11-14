@@ -7,6 +7,8 @@ export class HeaderContentBlock {
     readonly previews: Locator;
     /** The links of the descriptions of the preview. */
     readonly links: Locator;
+    /** The fenced code blocks of the preview, in the descriptions and outside them. */
+    readonly codeBlocks: Locator;
     protected readonly page: Page;
 
     constructor(page: Page, preview: Locator) {
@@ -14,6 +16,7 @@ export class HeaderContentBlock {
         this.blocks = page.locator('.ProseMirror .g-md-header-content-plugin');
         this.previews = preview.locator('.g-md-header-content-plugin');
         this.links = this.previews.locator('a');
+        this.codeBlocks = preview.locator('pre > code');
     }
 
     /** The descriptions that stand right in the given blocks: `inHeaders(header.previews)`. */
@@ -53,22 +56,6 @@ export class HeaderContentBlock {
                 );
                 return [fontSize, lineHeight, fontWeight];
             }),
-        );
-    }
-
-    /** The different distances from the descriptions to the blocks after them. */
-    getGaps(blocks = this.previews) {
-        return blocks.evaluateAll((elements) =>
-            Array.from(
-                new Set(
-                    elements.flatMap((element) => {
-                        const next = element.nextElementSibling;
-                        if (!next) return [];
-                        const {bottom} = element.getBoundingClientRect();
-                        return [Math.round(next.getBoundingClientRect().top - bottom)];
-                    }),
-                ),
-            ),
         );
     }
 
@@ -113,12 +100,66 @@ export class HeaderContentBlock {
     getLinkStyles(links = this.links) {
         return links.evaluateAll((elements) =>
             elements.map((element) => {
-                const {color, textDecorationLine} = getComputedStyle(element);
+                const {color, textDecorationLine, textDecorationThickness, textUnderlineOffset} =
+                    getComputedStyle(element);
                 const content = element.closest('.g-md-header-content-plugin');
                 return {
                     color,
                     underline: textDecorationLine.includes('underline'),
+                    textDecorationThickness,
+                    textUnderlineOffset,
                     textColor: content ? getComputedStyle(content).color : '',
+                };
+            }),
+        );
+    }
+
+    /** The underline thickness and offset of the `++underlined++` text of every description. */
+    getUnderlinedTextStyles(blocks = this.previews) {
+        return blocks.evaluateAll((elements) =>
+            elements.flatMap((element) =>
+                Array.from(element.querySelectorAll('ins'), (ins) => {
+                    const {textDecorationThickness, textUnderlineOffset} = getComputedStyle(ins);
+                    return {textDecorationThickness, textUnderlineOffset};
+                }),
+            ),
+        );
+    }
+
+    /** The style, the width and the color of the focus ring of every link. */
+    getFocusOutlines(links = this.links) {
+        return links.evaluateAll((elements) =>
+            elements.map((element) => {
+                const {outlineStyle, outlineWidth, outlineColor} = getComputedStyle(element);
+                return {outlineStyle, outlineWidth, outlineColor};
+            }),
+        );
+    }
+
+    /** The computed value of a color variable, as a description reads it: `--g-color-line-focus`. */
+    getColorVariable(name: string) {
+        return this.previews.first().evaluate((element, variable) => {
+            const probe = element.appendChild(document.createElement('span'));
+            probe.style.color = `var(${variable})`;
+            const {color} = getComputedStyle(probe);
+            probe.remove();
+            return color;
+        }, name);
+    }
+
+    /**
+     * The text color, the text decoration and the background color of the elements,
+     * and whether they stand in a description: `getTextStyles(headerContent.codeBlocks)`.
+     */
+    getTextStyles(elements: Locator) {
+        return elements.evaluateAll((items) =>
+            items.map((item) => {
+                const {color, textDecorationLine, backgroundColor} = getComputedStyle(item);
+                return {
+                    color,
+                    textDecorationLine,
+                    backgroundColor,
+                    inDescription: Boolean(item.closest('.g-md-header-content-plugin')),
                 };
             }),
         );
