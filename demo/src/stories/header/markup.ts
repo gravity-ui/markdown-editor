@@ -82,13 +82,14 @@ export const headerTitleMarkup = (
     return `::header-title[${text}]${attrs.length ? `{${attrs.join(' ')}}` : ''}`;
 };
 
-/**
- * The content of the mock: a title, a description and buttons, each in its own block.
- * The title is its text or its markup.
- */
-export const headerContent = (buttons = 1, title = 'Team portal', text = 'Portal description.') =>
+/** The content of the mock: the markup of a title, a description and buttons, each in its own block. */
+export const headerContent = (
+    buttons = 1,
+    title = headerTitleMarkup(),
+    text = 'Portal description.',
+) =>
     [
-        title.startsWith('::') ? title : headerTitleMarkup(title),
+        title,
         `:::header-content\n${text}\n:::`,
         ...headerButtonStyles
             .slice(0, buttons)

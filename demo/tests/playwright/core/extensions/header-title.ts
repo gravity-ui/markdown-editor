@@ -5,15 +5,17 @@ import {test as base} from './button';
 export class HeaderTitleBlock {
     readonly blocks: Locator;
     readonly previews: Locator;
-    /** The titles of the preview that stand right in a header. */
-    readonly headerPreviews: Locator;
     protected readonly page: Page;
 
     constructor(page: Page, preview: Locator) {
         this.page = page;
         this.blocks = page.locator('.ProseMirror .g-md-header-title-plugin');
         this.previews = preview.locator('.g-md-header-title-plugin');
-        this.headerPreviews = preview.locator('.g-md-header-plugin > .g-md-header-title-plugin');
+    }
+
+    /** The titles that stand right in the given blocks: `inHeaders(header.previews)`. */
+    inHeaders(headers: Locator) {
+        return headers.locator(':scope > .g-md-header-title-plugin');
     }
 
     /**

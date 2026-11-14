@@ -208,7 +208,7 @@ test.describe('Header title preview', () => {
         });
         await expect(header.previews).toHaveCount(36);
         await expect(headerTitle.previews).toHaveCount(36);
-        for (const size of [3, 4, 5, 6]) {
+        for (const size of headerTitleSizes.slice(2)) {
             await expect(headerTitle.previewsWith('aria-level', String(size))).toHaveCount(
                 EXAMPLE_COLOR_COUNT,
             );
@@ -370,7 +370,9 @@ test.describe('Header title preview', () => {
             {size: '2', color: 'auto', text: 'First'},
             {size: '2', color: 'auto', text: 'Second'},
         ]);
-        expect(await headerTitle.getGaps(headerTitle.headerPreviews)).toEqual([TEXT_GAP]);
+        expect(await headerTitle.getGaps(headerTitle.inHeaders(header.previews))).toEqual([
+            TEXT_GAP,
+        ]);
         await expectScreenshot({component: editor.locators.component});
     });
 });

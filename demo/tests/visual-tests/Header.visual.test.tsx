@@ -7,7 +7,12 @@ import {type HeaderBlock, test} from 'playwright/core/extensions/header';
 import type {Fixtures} from 'playwright/core/types';
 
 import {markupExamplesDocument} from '../../src/stories/header/examples';
-import {headerContent, headerExample, headerImages} from '../../src/stories/header/markup';
+import {
+    headerContent,
+    headerExample,
+    headerImages,
+    headerTitleMarkup,
+} from '../../src/stories/header/markup';
 
 import {HeaderStories} from './Header.helpers';
 import {markupExamples} from './utils/markup-examples';
@@ -1229,25 +1234,34 @@ const tallText = Array.from(
     (_, index) => `Paragraph ${index + 1} of a description taller than the header.`,
 ).join('\n\n');
 const stressMarkup = [
-    headerExample('bg-color="gray-light"', headerContent(3, longTitle, longText)),
+    headerExample(
+        'bg-color="gray-light"',
+        headerContent(3, headerTitleMarkup(longTitle), longText),
+    ),
     headerExample(
         'width="s" align="center" bg-color="blue-light"',
-        headerContent(3, longTitle, longText),
+        headerContent(3, headerTitleMarkup(longTitle), longText),
     ),
     headerExample(
         'width="s" align="right" vertical="bottom" bg-color="green-light"',
-        headerContent(3, unbreakable, unbreakable),
+        headerContent(3, headerTitleMarkup(unbreakable), unbreakable),
     ),
-    headerExample('height="l" vertical="top" bg-color="yellow-light"', headerContent(1, 'A', 'B')),
-    headerExample('height="l" vertical="bottom" bg-color="red-light"', headerContent(0, 'A', 'B')),
+    headerExample(
+        'height="l" vertical="top" bg-color="yellow-light"',
+        headerContent(1, headerTitleMarkup('A'), 'B'),
+    ),
+    headerExample(
+        'height="l" vertical="bottom" bg-color="red-light"',
+        headerContent(0, headerTitleMarkup('A'), 'B'),
+    ),
     headerExample(
         `width="s" bg-image="${headerImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`,
-        headerContent(3, longTitle, tallText),
+        headerContent(3, headerTitleMarkup(longTitle), tallText),
     ),
     headerExample(
         'align="center" vertical="top" bg-color="violet-light"',
         [
-            headerContent(0, 'Many buttons'),
+            headerContent(0, headerTitleMarkup('Many buttons')),
             ...Array.from(
                 {length: 9},
                 (_, index) =>
@@ -1319,13 +1333,16 @@ const mobileMarkup = [
     ),
     headerExample(
         `height="l" width="full" bg-image="${headerImages.dark}" bg-image-theme="dark"`,
-        headerContent(3, longTitle, longText),
+        headerContent(3, headerTitleMarkup(longTitle), longText),
     ),
     headerExample(
         `width="s" bg-color="violet-light" bg-image="${headerImages.contrast}" bg-image-theme="light" bg-image-blur="true"`,
         headerContent(1),
     ),
-    headerExample('bg-color="red-light"', headerContent(2, unbreakable, unbreakable)),
+    headerExample(
+        'bg-color="red-light"',
+        headerContent(2, headerTitleMarkup(unbreakable), unbreakable),
+    ),
 ].join('\n\n');
 
 test.describe('Header preview on mobile', () => {
