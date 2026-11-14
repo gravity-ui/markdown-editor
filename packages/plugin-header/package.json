@@ -37,7 +37,12 @@
         "default": "./build/cjs/index.js"
       }
     },
-    "./styles.css": "./build/styles.css"
+    "./styles.css": "./build/styles.css",
+    "./header/styles.css": "./build/esm/header/index.css",
+    "./header-title/styles.css": "./build/esm/header-title/index.css",
+    "./header-content/styles.css": "./build/esm/header-content/index.css",
+    "./header-image/styles.css": "./build/esm/header-image/index.css",
+    "./button/styles.css": "./build/esm/button/index.css"
   },
   "main": "build/cjs/index.js",
   "module": "build/esm/index.js",

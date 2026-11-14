@@ -199,6 +199,14 @@
         --_--line-color: var(--g-color-line-utility);
         --_--text-color: var(--g-color-text-utility);
     }
+
+    // Printing drops backgrounds by default: the fill keeps the light label of `action` readable.
+    @media print {
+        &.g-md-button-plugin_view_action,
+        &.g-md-button-plugin_view_normal {
+            print-color-adjust: exact;
+        }
+    }
 }
 
 .g-md-button-plugin-row {

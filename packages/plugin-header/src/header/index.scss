@@ -39,7 +39,7 @@ $button: '.g-md-button-plugin';
     // of the page is not readable on a fill (2:1 on the light fills of the default theme).
     --g-md-header-content-plugin-link-color: var(--_--link-color);
     --g-md-header-content-plugin-link-hover-color: var(--_--link-hover-color);
-    --g-md-header-content-plugin-link-decoration: var(--_--link-decoration);
+    --g-md-header-content-plugin-link-decoration-line: var(--_--link-decoration-line);
 }
 
 @mixin on-background {
@@ -67,7 +67,7 @@ $button: '.g-md-button-plugin';
     // The properties read on the child blocks have names that those blocks do not declare:
     // the button row declares its own `--_--gap`.
     --_--text-gap: var(--g-md-header-plugin-text-gap, var(--g-spacing-4));
-    --_--buttons-gap: var(--g-md-header-plugin-gap, var(--g-spacing-8));
+    --_--buttons-gap: var(--g-md-header-plugin-buttons-gap, var(--g-spacing-8));
     // The image column beside the text and the space around the image.
     --_--image-width: var(--g-md-header-plugin-image-width, 50%);
     --_--image-padding: var(--g-md-header-plugin-image-padding, var(--g-spacing-2));
@@ -97,7 +97,7 @@ $button: '.g-md-button-plugin';
     );
     --_--link-color: var(--g-md-header-plugin-link-color, currentColor);
     --_--link-hover-color: var(--g-md-header-plugin-link-hover-color, currentColor);
-    --_--link-decoration: var(--g-md-header-plugin-link-decoration, underline);
+    --_--link-decoration-line: var(--g-md-header-plugin-link-decoration-line, underline);
     --_--code-color: var(--g-md-header-plugin-code-color, currentColor);
     --_--code-background: var(--g-md-header-plugin-code-background, var(--g-color-base-generic));
     --_--blur: var(--g-md-header-plugin-blur, 12px);
@@ -320,6 +320,16 @@ $button: '.g-md-button-plugin';
         font: inherit;
 
         background-color: var(--_--bg-color, var(--g-color-base-background));
+    }
+}
+
+// Printing drops backgrounds by default: the fill and the image keep the light text of a dark
+// theme or of a heavy fill readable, and the block stays on one page.
+
+@media print {
+    .g-md-header-plugin {
+        break-inside: avoid;
+        print-color-adjust: exact;
     }
 }
 

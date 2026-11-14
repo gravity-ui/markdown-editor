@@ -55,7 +55,7 @@ $button: '.g-md-button-plugin';
     // A header sets the colors of the links and of the inline code on its fills and images.
     // A button and a fenced code block keep their own styles.
     &#{&} a[href]:not(#{$button}) {
-        text-decoration-line: var(--g-md-header-content-plugin-link-decoration, none);
+        text-decoration-line: var(--g-md-header-content-plugin-link-decoration-line, none);
         text-decoration-thickness: var(--_--link-decoration-thickness);
         text-underline-offset: var(--_--link-underline-offset);
 

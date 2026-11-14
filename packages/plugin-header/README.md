@@ -18,7 +18,7 @@ import '@gravity-ui/markdown-plugin-header/styles.css';
 const md = new MarkdownIt().use(headerPreset);
 ```
 
-A single block is enabled with its own plugin, for example `md.use(buttonPlugin)`.
+A single block is enabled with its own plugin, for example `md.use(buttonPlugin)`, and has its own stylesheet, for example `import '@gravity-ui/markdown-plugin-header/button/styles.css'`: `header`, `header-title`, `header-content`, `header-image` and `button`. `styles.css` holds all five. The order of the stylesheets does not matter; a header with buttons needs the button stylesheet too.
 
 ## Header
 
@@ -98,7 +98,7 @@ The numbers are custom properties; a host overrides them:
 | `--g-md-header-plugin-border-radius`               | `var(--g-border-radius-2xl)`, 16 px        |
 | `--g-md-header-plugin-padding`                     | `var(--g-spacing-8)`                       |
 | `--g-md-header-plugin-text-gap`                    | `var(--g-spacing-4)`                       |
-| `--g-md-header-plugin-gap`                         | `var(--g-spacing-8)`, the text and buttons |
+| `--g-md-header-plugin-buttons-gap`                 | `var(--g-spacing-8)`, the text and buttons |
 | `--g-md-header-plugin-image-width`                 | `50%`                                      |
 | `--g-md-header-plugin-image-padding`               | `var(--g-spacing-2)`                       |
 | `--g-md-header-plugin-blur`                        | `12px`                                     |
@@ -114,11 +114,13 @@ The numbers are custom properties; a host overrides them:
 | `--g-md-header-plugin-link-focus-outline-color`    | the focus ring color of the buttons        |
 | `--g-md-header-plugin-link-color`                  | `currentColor`                             |
 | `--g-md-header-plugin-link-hover-color`            | `currentColor`                             |
-| `--g-md-header-plugin-link-decoration`             | `underline`                                |
+| `--g-md-header-plugin-link-decoration-line`        | `underline` (`text-decoration-line`)       |
 | `--g-md-header-plugin-code-color`                  | `currentColor`                             |
 | `--g-md-header-plugin-code-background`             | `var(--g-color-base-generic)`              |
 
 The width at which the narrow layout starts is fixed: a container query takes no custom property.
+
+In print the block keeps its fill and image (`print-color-adjust: exact`), so light text stays readable, and is not split across pages (`break-inside: avoid`). An `action` or `normal` button keeps its fill in print as well.
 
 ### Background
 
@@ -141,7 +143,7 @@ The theme and blur belong to the image: without `bg-image` they are parsed as th
 
 On an image and on the `medium` and `heavy` fills every button shows its keyboard focus with a ring of the text color (`--g-color-text-primary`): neither `--g-color-line-focus` nor the fill color of `action` would be seen there. The block sets `--g-md-button-plugin-focus-outline-color` for that; a host changes the ring there with `--g-md-header-plugin-button-focus-outline-color`. The light fills keep the rings of the page.
 
-On every fill and on an image the links of the [description](#header-content) take the color of the text around them with an underline: the link color of the page is not readable on a fill (about 2:1 on the light fills of the default theme) or on an image. On an image and on the `medium` and `heavy` fills the links also show keyboard focus with the ring of the buttons, and the inline code takes the text color on a translucent fill (`--g-color-base-generic`). The block sets `--g-md-header-content-plugin-link-color`, `-link-hover-color`, `-link-decoration`, `-link-focus-outline-color`, `-code-color` and `-code-background` for that; a host changes them there with `--g-md-header-plugin-link-color`, `-link-hover-color`, `-link-decoration`, `-link-focus-outline-color`, `-code-color` and `-code-background`. Without a fill the links and the code are the ones of the page; on the light fills the code and the focus rings are.
+On every fill and on an image the links of the [description](#header-content) take the color of the text around them with an underline: the link color of the page is not readable on a fill (about 2:1 on the light fills of the default theme) or on an image. On an image and on the `medium` and `heavy` fills the links also show keyboard focus with the ring of the buttons, and the inline code takes the text color on a translucent fill (`--g-color-base-generic`). The block sets `--g-md-header-content-plugin-link-color`, `-link-hover-color`, `-link-decoration-line`, `-link-focus-outline-color`, `-code-color` and `-code-background` for that; a host changes them there with `--g-md-header-plugin-link-color`, `-link-hover-color`, `-link-decoration-line`, `-link-focus-outline-color`, `-code-color` and `-code-background`. Without a fill the links and the code are the ones of the page; on the light fills the code and the focus rings are.
 
 ### Parsing
 
@@ -295,7 +297,7 @@ A link underline is 2 px thick and 0.2 em below the text and thickens to 3 px on
 | `--g-md-header-content-plugin-margin-block`                    | `0 var(--g-spacing-4)`                                                                          |
 | `--g-md-header-content-plugin-link-color`                      | `var(--yfm-color-link)`; the text color on a fill or an image                                   |
 | `--g-md-header-content-plugin-link-hover-color`                | `var(--yfm-color-link-hover)`; the text color on a fill or an image                             |
-| `--g-md-header-content-plugin-link-decoration`                 | `none`; `underline` on a fill or an image (`text-decoration-line`)                              |
+| `--g-md-header-content-plugin-link-decoration-line`            | `none`; `underline` on a fill or an image (`text-decoration-line`)                              |
 | `--g-md-header-content-plugin-link-decoration-thickness`       | `2px`                                                                                           |
 | `--g-md-header-content-plugin-link-hover-decoration-thickness` | `3px`                                                                                           |
 | `--g-md-header-content-plugin-link-underline-offset`           | `0.2em`                                                                                         |
