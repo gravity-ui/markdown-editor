@@ -370,9 +370,7 @@ test.describe('Header title preview', () => {
             {size: '2', color: 'auto', text: 'First'},
             {size: '2', color: 'auto', text: 'Second'},
         ]);
-        expect(await headerTitle.getGaps(header.previews.locator(headerTitle.previews))).toEqual([
-            TEXT_GAP,
-        ]);
+        expect(await headerTitle.getGaps(headerTitle.headerPreviews)).toEqual([TEXT_GAP]);
         await expectScreenshot({component: editor.locators.component});
     });
 });
