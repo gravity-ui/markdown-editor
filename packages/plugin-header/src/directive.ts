@@ -1,4 +1,5 @@
 import type MarkdownIt from 'markdown-it';
+import type StateBlock from 'markdown-it/lib/rules_block/state_block';
 
 // `name="value"`, `name='value'`, `name=value`, `.class` or `#id`, as the directive parser reads them.
 const ATTR_RE =
@@ -24,4 +25,28 @@ export function directiveRawAttr(
         }
     }
     return undefined;
+}
+
+/**
+ * The values of directive attributes as written (see `directiveRawAttr`), by name. A value is
+ * read only when the directive parser found a single one: a repeated attribute is a list of
+ * values and counts as unsupported.
+ */
+export function directiveRawAttrs<Name extends string>(
+    md: MarkdownIt,
+    attrsMarkup: string,
+    attrs: Readonly<Record<string, unknown>>,
+    names: readonly Name[],
+): Record<Name, string | undefined> {
+    return Object.fromEntries(
+        names.map((name) => [
+            name,
+            typeof attrs[name] === 'string' ? directiveRawAttr(md, attrsMarkup, name) : undefined,
+        ]),
+    ) as Record<Name, string | undefined>;
+}
+
+/** The line of a block directive that holds its attributes: `:::header{…}`. */
+export function blockDirectiveLine(state: StateBlock, line: number): string {
+    return state.src.slice(state.bMarks[line] + state.tShift[line], state.eMarks[line]);
 }

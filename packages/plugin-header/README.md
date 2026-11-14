@@ -44,7 +44,7 @@ Portal description.
 | `align`          | `left`, `center`, `right`: the text and the buttons along the line                                         | `left`   |
 | `vertical`       | `top`, `center`, `bottom`: the content in the height of the block                                          | `center` |
 | `bg-color`       | `<family>-<saturation>`: `gray`, `green`, `yellow`, `blue`, `red`, `violet` and `light`, `medium`, `heavy` | none     |
-| `bg-image`       | an `http:`, `https:` or relative address                                                                   | none     |
+| `bg-image`       | an `http:`, `https:`, `blob:` or relative address                                                          | none     |
 | `bg-image-theme` | the theme of the content over the image: `system` as the page, `dark` light text, `light` dark text        | `system` |
 | `bg-image-blur`  | `true`                                                                                                     | none     |
 

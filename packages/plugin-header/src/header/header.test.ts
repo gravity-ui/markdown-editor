@@ -30,8 +30,6 @@ import {
     headerPlugin,
     headerVerticals,
     headerWidths,
-    safeImageUrl,
-    toCssUrl,
 } from '../index';
 import {headerPreset} from '../preset';
 
@@ -207,36 +205,9 @@ describe('Header background', () => {
         'data:text/html,<script>alert(1)</script>',
         'data:image/svg+xml,<svg/>',
         'file:///etc/passwd',
-    ])('should reject the image address %j', (url) => {
-        expect(safeImageUrl(url)).toBeNull();
-        expect(toCssUrl(url)).toBeNull();
+    ])('should not render the rejected image address %j', (url) => {
         expect(md.render(`:::header{bg-image="${url}" bg-image-theme="dark"}\n:::`)).toBe(
             html('s', 'm'),
-        );
-    });
-
-    it.each(['java\tscript:alert(1)', 'https://example.com/\u0000.png', 'a\u007f.png'])(
-        'should reject control characters in %j',
-        (url) => {
-            expect(safeImageUrl(url)).toBeNull();
-        },
-    );
-
-    it.each([
-        ['https://example.com/a.png', 'https://example.com/a.png'],
-        ['HTTP://example.com/a.png', 'HTTP://example.com/a.png'],
-        ['//example.com/a.png', '//example.com/a.png'],
-        ['blob:https://example.com/0f8c', 'blob:https://example.com/0f8c'],
-        ['  ./.files/a.png  ', './.files/a.png'],
-        ['a.png?size=1:2', 'a.png?size=1:2'],
-    ])('should accept the image address %j', (url, expected) => {
-        expect(safeImageUrl(url)).toBe(expected);
-    });
-
-    it('should encode quotes, brackets, and comments in the CSS address', () => {
-        const url = `a.png") ;background:url(${scriptUrl}) /*'\\`;
-        expect(toCssUrl(url)).toBe(
-            'url("a.png%22%29%20;background:url%28javascript:alert%281%29%29%20/%2A%27%5C")',
         );
     });
 

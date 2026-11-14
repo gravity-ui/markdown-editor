@@ -35,24 +35,6 @@ export {
     headerWidths,
 } from './header';
 export {
-    type ButtonColor,
-    type ButtonModel,
-    type ButtonTarget,
-    type ButtonView,
-    buttonAttrs,
-    buttonClassName,
-    buttonColors,
-    buttonDefaultColor,
-    buttonDefaults,
-    buttonFromAttrs,
-    buttonPlugin,
-    buttonRowClassName,
-    buttonTargets,
-    buttonTokenName,
-    buttonViewColors,
-    buttonViews,
-} from './button';
-export {
     type HeaderTitle,
     type HeaderTitleColor,
     type HeaderTitleSize,
@@ -92,5 +74,23 @@ export {
     headerImageTokenName,
     headerImageValues,
 } from './header-image';
+export {
+    type ButtonColor,
+    type ButtonModel,
+    type ButtonTarget,
+    type ButtonView,
+    buttonAttrs,
+    buttonClassName,
+    buttonColors,
+    buttonDefaultColor,
+    buttonDefaults,
+    buttonFromAttrs,
+    buttonPlugin,
+    buttonRowClassName,
+    buttonTargets,
+    buttonTokenName,
+    buttonViewColors,
+    buttonViews,
+} from './button';
 export {headerPreset} from './preset';
 export {safeImageUrl, toCssUrl} from './url';

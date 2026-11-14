@@ -5,7 +5,7 @@ import {
 } from '@diplodoc/directive';
 import type {PluginSimple} from 'markdown-it';
 
-import {directiveRawAttr} from '../directive';
+import {blockDirectiveLine, directiveRawAttrs} from '../directive';
 
 import {headerAttrs} from './attrs';
 import {headerTokenName} from './const';
@@ -16,18 +16,12 @@ export const headerPlugin: PluginSimple = (md) => {
         if (params.inlineContent || params.dests || params.contentTitle) return false;
         const attrs = params.attrs ?? {};
         // The address is taken as written: the directive parser decodes HTML entities.
-        // A repeated attribute is a list of values and counts as unsupported.
-        const image =
-            typeof attrs['bg-image'] === 'string'
-                ? directiveRawAttr(
-                      md,
-                      state.src.slice(
-                          state.bMarks[params.startLine] + state.tShift[params.startLine],
-                          state.eMarks[params.startLine],
-                      ),
-                      'bg-image',
-                  )
-                : undefined;
+        const {'bg-image': image} = directiveRawAttrs(
+            md,
+            blockDirectiveLine(state, params.startLine),
+            attrs,
+            ['bg-image'],
+        );
         const token = state.push(`${headerTokenName}_open`, 'div', 1);
         token.map = [params.startLine, params.endLine];
         token.markup = `:::${headerTokenName}`;

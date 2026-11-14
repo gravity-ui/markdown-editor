@@ -9,9 +9,9 @@ import {headerTitlePlugin} from './header-title';
 /** One plugin per block; each one also works on its own. */
 const plugins: readonly PluginSimple[] = [
     headerPlugin,
-    headerImagePlugin,
     headerTitlePlugin,
     headerContentPlugin,
+    headerImagePlugin,
     buttonPlugin,
 ];
 

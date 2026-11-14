@@ -19,9 +19,9 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
             .use(BaseSchemaSpecs, {})
             .use(ListsSpecs)
             .use(HeaderSpecs)
-            .use(HeaderImageSpecs)
             .use(HeaderTitleSpecs)
             .use(HeaderContentSpecs)
+            .use(HeaderImageSpecs)
             .use(ButtonSpecs),
 }).buildDeps();
 
