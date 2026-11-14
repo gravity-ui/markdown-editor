@@ -4,6 +4,7 @@ import {test as base, expect} from '../index';
 
 export class HeaderBlock {
     readonly blocks: Locator;
+    readonly previews: Locator;
     readonly toolbar: Locator;
     readonly settingsButton: Locator;
     readonly removeButton: Locator;
@@ -29,6 +30,7 @@ export class HeaderBlock {
         this.page = page;
         this.expect = expect;
         this.blocks = page.locator('.ProseMirror .g-md-header-plugin');
+        this.previews = page.getByTestId('demo-md-preview').locator('.g-md-header-plugin');
         this.toolbar = page.getByTestId('g-md-toolbar-header');
         this.settingsButton = this.toolbar.getByRole('button', {name: 'Settings', exact: true});
         this.removeButton = this.toolbar.getByRole('button', {name: 'Delete', exact: true});

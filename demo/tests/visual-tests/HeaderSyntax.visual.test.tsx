@@ -1,4 +1,5 @@
-import {expect, test} from 'playwright/core';
+import {expect} from 'playwright/core';
+import {test} from 'playwright/core/extensions/button';
 
 import {HeaderSyntaxStories} from './HeaderSyntax.helpers';
 import {compactHeaderStyles, markupSection} from './utils/markup-examples';
@@ -7,6 +8,8 @@ test.describe('Header syntax', () => {
     test('should show the source and the preview of every example of a section', async ({
         mount,
         page,
+        button,
+        header,
         expectScreenshot,
     }) => {
         await mount(<HeaderSyntaxStories.AllCases sections={markupSection('Button URLs')} />, {
@@ -21,7 +24,8 @@ test.describe('Header syntax', () => {
         await expect(examples.first().locator('pre')).toHaveText(
             ':::header\n\n:button[Learn more]{view="action" color="blue"}\n:::',
         );
-        await expect(story.locator('.g-md-header-plugin .g-md-button-plugin')).toHaveCount(25);
+        await expect(header.previews).toHaveCount(25);
+        await expect(button.variants).toHaveCount(25);
         await expectScreenshot({component: story});
     });
 });

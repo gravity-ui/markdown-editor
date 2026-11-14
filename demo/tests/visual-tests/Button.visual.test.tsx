@@ -1,6 +1,7 @@
 import {expect} from 'playwright/core';
 import {test} from 'playwright/core/extensions/button';
 
+import {markupExamplesDocument} from '../../src/stories/header/examples';
 import {
     buttonMarkup,
     buttonRowsMarkup,
@@ -9,7 +10,7 @@ import {
 } from '../../src/stories/header/markup';
 
 import {ButtonStories} from './Button.helpers';
-import {compactHeaderStyles, markupExamples, markupExamplesDocument} from './utils/markup-examples';
+import {compactHeaderStyles, markupExamples} from './utils/markup-examples';
 
 // Lines under the button leave room for its settings window and style list in the screenshot.
 const withSpace = `:button[Кнопка]{href="https://example.com" view="action" color="standard"}${'\n\nТекст'.repeat(12)}`;
@@ -267,13 +268,14 @@ test.describe('Button preview', () => {
         mount,
         editor,
         button,
+        header,
         expectScreenshot,
     }) => {
         await mount(<ButtonStories.Preview />);
         await expect(button.variants).toHaveCount(50);
         // A paragraph of buttons in the text is a row, and so are the paragraphs of a header.
         await expect(button.rows).toHaveCount(14);
-        await expect(button.headers).toHaveCount(7);
+        await expect(header.previews).toHaveCount(7);
         expect(await button.getFilledBackgrounds(button.variants)).not.toContain(
             'rgba(0, 0, 0, 0)',
         );
@@ -366,6 +368,7 @@ test.describe('Button syntax examples', () => {
         mount,
         editor,
         button,
+        header,
         expectScreenshot,
     }) => {
         // button-001 … button-030: 6 colors with 5 targets each.
@@ -376,19 +379,15 @@ test.describe('Button syntax examples', () => {
             />,
             {styles: compactHeaderStyles},
         );
-        await expect(button.headers).toHaveCount(30);
-        await expect(button.variants.and(button.withAttribute('data-view', 'action'))).toHaveCount(
-            30,
-        );
-        await expect(button.variants.and(button.withAttribute('href', '/page'))).toHaveCount(30);
+        await expect(header.previews).toHaveCount(30);
+        await expect(button.variantsWith('data-view', 'action')).toHaveCount(30);
+        await expect(button.variantsWith('href', '/page')).toHaveCount(30);
         // `_self` is the default and is not rendered.
-        await expect(button.variants.and(button.withAttribute('target'))).toHaveCount(18);
-        await expect(button.variants.and(button.withAttribute('target', '_blank'))).toHaveCount(6);
-        await expect(
-            button.variants.and(button.withAttribute('rel', 'noopener noreferrer')),
-        ).toHaveCount(6);
-        await expect(button.variants.and(button.withAttribute('target', '_parent'))).toHaveCount(6);
-        await expect(button.variants.and(button.withAttribute('target', '_top'))).toHaveCount(6);
+        await expect(button.variantsWith('target')).toHaveCount(18);
+        await expect(button.variantsWith('target', '_blank')).toHaveCount(6);
+        await expect(button.variantsWith('rel', 'noopener noreferrer')).toHaveCount(6);
+        await expect(button.variantsWith('target', '_parent')).toHaveCount(6);
+        await expect(button.variantsWith('target', '_top')).toHaveCount(6);
         expect(await button.getFilledBackgrounds(button.variants)).not.toContain(
             'rgba(0, 0, 0, 0)',
         );
@@ -399,6 +398,7 @@ test.describe('Button syntax examples', () => {
         mount,
         editor,
         button,
+        header,
         expectScreenshot,
     }) => {
         // button-031 … button-060: 6 colors with 5 targets each.
@@ -409,14 +409,10 @@ test.describe('Button syntax examples', () => {
             />,
             {styles: compactHeaderStyles},
         );
-        await expect(button.headers).toHaveCount(30);
-        await expect(button.variants.and(button.withAttribute('data-view', 'normal'))).toHaveCount(
-            30,
-        );
-        await expect(button.variants.and(button.withAttribute('target'))).toHaveCount(18);
-        await expect(
-            button.variants.and(button.withAttribute('rel', 'noopener noreferrer')),
-        ).toHaveCount(6);
+        await expect(header.previews).toHaveCount(30);
+        await expect(button.variantsWith('data-view', 'normal')).toHaveCount(30);
+        await expect(button.variantsWith('target')).toHaveCount(18);
+        await expect(button.variantsWith('rel', 'noopener noreferrer')).toHaveCount(6);
         expect(await button.getFilledBackgrounds(button.variants)).not.toContain(
             'rgba(0, 0, 0, 0)',
         );
@@ -427,6 +423,7 @@ test.describe('Button syntax examples', () => {
         mount,
         editor,
         button,
+        header,
         expectScreenshot,
     }) => {
         // button-061 … button-090: 6 colors with 5 targets each.
@@ -437,14 +434,10 @@ test.describe('Button syntax examples', () => {
             />,
             {styles: compactHeaderStyles},
         );
-        await expect(button.headers).toHaveCount(30);
-        await expect(button.variants.and(button.withAttribute('data-view', 'outline'))).toHaveCount(
-            30,
-        );
-        await expect(button.variants.and(button.withAttribute('target'))).toHaveCount(18);
-        await expect(
-            button.variants.and(button.withAttribute('rel', 'noopener noreferrer')),
-        ).toHaveCount(6);
+        await expect(header.previews).toHaveCount(30);
+        await expect(button.variantsWith('data-view', 'outline')).toHaveCount(30);
+        await expect(button.variantsWith('target')).toHaveCount(18);
+        await expect(button.variantsWith('rel', 'noopener noreferrer')).toHaveCount(6);
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -452,6 +445,7 @@ test.describe('Button syntax examples', () => {
         mount,
         editor,
         button,
+        header,
         expectScreenshot,
     }) => {
         // button-091 … button-125: 7 colors with 5 targets each.
@@ -462,14 +456,10 @@ test.describe('Button syntax examples', () => {
             />,
             {styles: compactHeaderStyles},
         );
-        await expect(button.headers).toHaveCount(35);
-        await expect(button.variants.and(button.withAttribute('data-view', 'flat'))).toHaveCount(
-            35,
-        );
-        await expect(button.variants.and(button.withAttribute('target'))).toHaveCount(21);
-        await expect(
-            button.variants.and(button.withAttribute('rel', 'noopener noreferrer')),
-        ).toHaveCount(7);
+        await expect(header.previews).toHaveCount(35);
+        await expect(button.variantsWith('data-view', 'flat')).toHaveCount(35);
+        await expect(button.variantsWith('target')).toHaveCount(21);
+        await expect(button.variantsWith('rel', 'noopener noreferrer')).toHaveCount(7);
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -488,15 +478,11 @@ test.describe('Button syntax examples', () => {
         );
         await expect(button.variants).toHaveCount(25);
         // A missing and an empty address render a button without `href`.
-        await expect(button.variants.and(button.withAttribute('href'))).toHaveCount(15);
-        await expect(button.variants.and(button.withAttribute('href', '/page'))).toHaveCount(5);
-        await expect(
-            button.variants.and(button.withAttribute('href', 'https://example.org/page')),
-        ).toHaveCount(5);
-        await expect(
-            button.variants.and(button.withAttribute('href', 'http://example.org/page')),
-        ).toHaveCount(5);
-        await expect(button.variants.and(button.withAttribute('target', '_blank'))).toHaveCount(5);
+        await expect(button.variantsWith('href')).toHaveCount(15);
+        await expect(button.variantsWith('href', '/page')).toHaveCount(5);
+        await expect(button.variantsWith('href', 'https://example.org/page')).toHaveCount(5);
+        await expect(button.variantsWith('href', 'http://example.org/page')).toHaveCount(5);
+        await expect(button.variantsWith('target', '_blank')).toHaveCount(5);
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -504,6 +490,7 @@ test.describe('Button syntax examples', () => {
         mount,
         editor,
         button,
+        header,
         expectScreenshot,
     }) => {
         const examples = [
@@ -515,7 +502,7 @@ test.describe('Button syntax examples', () => {
             <ButtonStories.Preview width={720} initial={markupExamplesDocument(examples)} />,
             {styles: compactHeaderStyles},
         );
-        await expect(button.headers).toHaveCount(12);
+        await expect(header.previews).toHaveCount(12);
         // The button with an empty label is not rendered, and its header stays empty.
         await expect(button.variants).toHaveCount(11);
         await expect(button.rows).toHaveCount(11);
@@ -534,8 +521,8 @@ test.describe('Button syntax examples', () => {
             {view: 'action', color: 'blue', text: 'Learn more'},
             {view: 'action', color: 'blue', text: 'Learn more'},
         ]);
-        await expect(button.variants.and(button.withAttribute('href'))).toHaveCount(5);
-        await expect(button.variants.and(button.withAttribute('href', '/page'))).toHaveCount(5);
+        await expect(button.variantsWith('href')).toHaveCount(5);
+        await expect(button.variantsWith('href', '/page')).toHaveCount(5);
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -543,6 +530,7 @@ test.describe('Button syntax examples', () => {
         mount,
         editor,
         button,
+        header,
         expectScreenshot,
     }) => {
         await mount(
@@ -551,7 +539,7 @@ test.describe('Button syntax examples', () => {
                 initial={markupExamplesDocument(markupExamples('structure', 2, 4))}
             />,
         );
-        await expect(button.headers).toHaveCount(3);
+        await expect(header.previews).toHaveCount(3);
         await expect(button.variants).toHaveCount(6);
         // One, two and three paragraphs of a button each: a row per header.
         await expect(button.rows).toHaveCount(3);

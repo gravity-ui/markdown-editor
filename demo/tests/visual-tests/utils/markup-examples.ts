@@ -1,11 +1,7 @@
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 
-import {
-    markupExamplesDocument,
-    readMarkupSections,
-    selectMarkupExamples,
-} from '../../../src/stories/header/examples';
+import {readMarkupSections, selectMarkupExamples} from '../../../src/stories/header/examples';
 
 // A test file runs in Node, where the `?raw` import of the stories is not available.
 const sections = readMarkupSections(
@@ -19,8 +15,6 @@ export const markupExamples = (prefix: string, first?: number, last?: number) =>
 /** A section of the examples by its title. */
 export const markupSection = (title: string) =>
     sections.filter((section) => section.title === title);
-
-export {markupExamplesDocument};
 
 /**
  * The height of a header belongs to the header tests; here it is lowered through its public
