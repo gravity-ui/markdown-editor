@@ -71,6 +71,11 @@ $button: '.g-md-button-plugin';
     // The image column beside the text and the space around the image.
     --_--image-width: var(--g-md-header-plugin-image-width, 50%);
     --_--image-padding: var(--g-md-header-plugin-image-padding, var(--g-spacing-2));
+    // The corners of the image are concentric with the corners of the block: the radius of the
+    // block less the space around the image (a negative result is clamped to 0). Resolved here:
+    // the image declares its own `--_--border-radius`.
+    // FIXME: not in Gravity UI (mock: 16px = 24px of the block - 8px around the image)
+    --_--image-border-radius: calc(var(--_--border-radius) - var(--_--image-padding));
     // The focus ring of the buttons on a fill of medium or heavy saturation and on an image
     // takes the text color: neither `--g-color-line-focus` nor the fill color of `action`
     // would be seen there. The light fills keep the rings of the page.
@@ -269,6 +274,8 @@ $button: '.g-md-button-plugin';
         height: calc(100% - 2 * var(--_--image-padding));
         max-height: none;
         margin: 0;
+
+        border-radius: var(--g-md-header-image-plugin-border-radius, var(--_--image-border-radius));
     }
 
     // Doubled class: the `background` shorthand of `.g-root` resets these in a fixed theme.

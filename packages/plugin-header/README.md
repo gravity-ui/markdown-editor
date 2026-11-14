@@ -74,6 +74,7 @@ The padding around the content is 32 px (`--g-spacing-8`), the gap between the b
 Long words wrap, so the content never widens the block.
 
 An image beside the text, the [Header image](#header-image) block, takes half of the block and fills its height with 8 px (`--g-spacing-2`) around it: on the right of the text, and on the left of a right-aligned text. The image is cropped to its box (`object-fit: cover`), so its proportions never change the size of the header.
+The corners of the image are concentric with the corners of the block: the radius of the block less the space around the image, 16 − 8 = 8 px by default. A host that changes `--g-md-header-plugin-border-radius` or `--g-md-header-plugin-image-padding` changes the corners of the image with them; `--g-md-header-image-plugin-border-radius` sets them directly.
 A centered header has no place for an image: write an image with `align="left"` or `align="right"`.
 
 `left` and `right` of `align` are the start and the end of the line (`text-align: start` and `end`, logical insets of the image), as the row of buttons: in a right-to-left page the sides swap, and `align="right"` puts the text and the buttons on the left and the image on the right.
@@ -335,7 +336,7 @@ The image is a leaf block directive: one line with the attributes, no text in sq
 | --------- | ----------------------------------------------------------- | ------- |
 | `src`     | an `http:`, `https:`, `blob:` or relative address           | none    |
 | `alt`     | the alternative text; an empty one marks a decorative image | empty   |
-| `title`   | the tooltip of the image                                    | none    |
+| `title`   | the native browser tooltip of the image                     | none    |
 
 The address passes the same check as the background image of a header, `safeImageUrl`: an address with another scheme, such as `javascript:` or `data:`, or with control characters, is skipped.
 An image without an address, or with a skipped one, keeps its token and renders nothing.
@@ -344,19 +345,21 @@ An unknown attribute is skipped; a repeated attribute counts as not set.
 
 The block is an `img.g-md-header-image-plugin` with the `src`, `alt` and `title` attributes; `headerImageFromAttrs` reads them back.
 The `alt` attribute is always rendered: without it a screen reader announces the address of the image, and with an empty one it skips the image as decorative. An empty `title` is not rendered.
+`title` is the native tooltip of the browser for pointer users: it is not shown on touch or keyboard focus, and it does not describe the image to screen readers. An image with `title` and without `alt` is still decorative (`alt="" title="…"`); an image that matters needs `alt`.
 
 ### Image styles
 
 Inside Header the image has a box of its own, see [Layout](#layout): half of the block beside the text, or the full width above the text in the narrow layout. The image fills the box and is cropped to it (`object-fit: cover`), whatever its proportions are; an image that fails to load leaves the box with its fill and its alternative text, and the layout of the header stays the same.
-The corners of the image are `--g-border-radius-xl`.
+Inside Header the corners of the image follow the corners of the header, see [Layout](#layout); outside Header they are `--g-border-radius-xl`.
+The fill is the image placeholder of the mock, `--g-color-base-float-hover`: it is solid, so it also lies under the transparent parts of an image and hides the header there. A host that uses transparent images sets `--g-md-header-image-plugin-background` to `transparent` or to the translucent `--g-color-base-generic`.
 
 Outside Header the image is a block of its own size, not wider than its container.
 
-| Property                                   | Default                           |
-| ------------------------------------------ | --------------------------------- |
-| `--g-md-header-image-plugin-border-radius` | `var(--g-border-radius-xl)`       |
-| `--g-md-header-image-plugin-background`    | `var(--g-color-base-float-hover)` |
-| `--g-md-header-image-plugin-margin-block`  | `0 var(--g-spacing-4)`            |
+| Property                                   | Default                                                                                                   |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `--g-md-header-image-plugin-border-radius` | `var(--g-border-radius-xl)`, in Header the radius of the header less `--g-md-header-plugin-image-padding` |
+| `--g-md-header-image-plugin-background`    | `var(--g-color-base-float-hover)`                                                                         |
+| `--g-md-header-image-plugin-margin-block`  | `0 var(--g-spacing-4)`                                                                                    |
 
 The margin applies to an image outside Header.
 

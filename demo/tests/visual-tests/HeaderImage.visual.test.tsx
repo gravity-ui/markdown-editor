@@ -30,13 +30,16 @@ const PADDING = 32;
 const IMAGE_PADDING = 8;
 const NARROW_PADDING = 16;
 const NARROW_IMAGE_GAP = 24;
-// The corners of the image: `--g-border-radius-xl`.
-const IMAGE_RADIUS = '10px';
-const IMAGE_STYLES = {
+/** How an image fills its box, and its corners. */
+const imageStyles = (radius: string) => ({
     objectFit: 'cover',
-    borderTopLeftRadius: IMAGE_RADIUS,
-    borderBottomRightRadius: IMAGE_RADIUS,
-};
+    borderTopLeftRadius: radius,
+    borderBottomRightRadius: radius,
+});
+// The corners of an image in a header: the radius of the header (16px) less the space around it.
+const IMAGE_STYLES = imageStyles('8px');
+// The corners of an image outside a header: `--g-border-radius-xl`.
+const TEXT_IMAGE_STYLES = imageStyles('10px');
 
 /** The box of an image beside the text: a half of the header without the space around it. */
 const imageSize = (width: number, height: number) => [
@@ -207,7 +210,7 @@ test.describe('Header image preview', () => {
             items.map(([width, height]) => Math.round((10 * width) / height));
         expect(proportions(sizes)).toEqual(proportions(natural));
         expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
-        expect(await headerImage.getStyles()).toEqual(Array(3).fill(IMAGE_STYLES));
+        expect(await headerImage.getStyles()).toEqual(Array(3).fill(TEXT_IMAGE_STYLES));
         await expectScreenshot({component: editor.locators.component});
     });
 

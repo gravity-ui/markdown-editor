@@ -1,9 +1,10 @@
 .g-md-header-image-plugin {
-    // The corners of the image in the mock.
+    // The corners of the image outside a header; a header derives them from its own corners.
     // FIXME: not in Gravity UI (mock: 16px)
     --_--border-radius: var(--g-md-header-image-plugin-border-radius, var(--g-border-radius-xl));
-    // Seen while the image loads, behind a transparent image and when the address is broken:
-    // the fill of the empty image of the mock.
+    // The fill of the image placeholder of the mock: seen while the image loads and when the
+    // address is broken. The token is solid, so it also covers the header under the transparent
+    // parts of an image (the translucent loading surface of Gravity UI is `--g-color-base-generic`).
     --_--background: var(--g-md-header-image-plugin-background, var(--g-color-base-float-hover));
 
     display: block;

@@ -203,6 +203,11 @@ describe('Header image Markdown', () => {
     it.each([
         ['::header-image{src="/image.jpg"}', image()],
         ['::header-image{src="/image.jpg" alt="" title=""}', image()],
+        // A title without the alternative text is a tooltip of a decorative image.
+        [
+            '::header-image{src="/image.jpg" title="Project team"}',
+            image('/image.jpg', '', 'Project team'),
+        ],
         [
             '::header-image{title="Project team" alt="Team" src="/image.jpg"}',
             image('/image.jpg', 'Team', 'Project team'),
