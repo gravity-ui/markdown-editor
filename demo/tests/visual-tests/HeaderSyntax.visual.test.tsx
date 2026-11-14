@@ -1,7 +1,7 @@
 import {headerTitleSizes} from '@gravity-ui/markdown-plugin-header';
 
 import {expect} from 'playwright/core';
-import {test} from 'playwright/core/extensions/header-content';
+import {test} from 'playwright/core/extensions/header-image';
 
 import {HeaderSyntaxStories} from './HeaderSyntax.helpers';
 import {compactHeaderStyles, markupSection} from './utils/markup-examples';
@@ -129,6 +129,37 @@ test.describe('Header syntax', () => {
         await expect(headerContent.previewsWith('data-size')).toHaveCount(12);
         await expect(headerContent.previews.last()).toHaveAttribute('data-size', '6');
         await expect(headerContent.previews.last().locator('p')).toHaveCount(2);
+        await expectScreenshot({component: story});
+    });
+
+    test('should show the images of a section with every attribute', async ({
+        mount,
+        page,
+        header,
+        headerImage,
+        expectScreenshot,
+    }) => {
+        await mount(<HeaderSyntaxStories.AllCases sections={markupSection('Image attributes')} />, {
+            width: 1100,
+        });
+        const story = page.getByTestId('header-syntax');
+        const examples = story.getByTestId('header-syntax-example');
+        await expect(examples).toHaveCount(15);
+        await expect(examples.nth(3)).toContainText(
+            'image-004 — URL type: HTTPS · Alt: on · Title: on',
+        );
+        // The source keeps the address of the example; the preview loads a local image.
+        await expect(examples.nth(3).locator('pre')).toHaveText(
+            ':::header\n\n::header-image{src="https://example.org/image.jpg" alt="Team" title="Project team"}\n\n::header-title[Team portal]\n:::',
+        );
+        await expect(header.previews).toHaveCount(15);
+        await expect(headerImage.inHeaders(header.previews)).toHaveCount(15);
+        await expect(headerImage.previewsWith('src', '/assets/test-image.jpg')).toHaveCount(15);
+        await expect(headerImage.previewsWith('alt', 'Team')).toHaveCount(6);
+        await expect(headerImage.previewsWith('alt', '')).toHaveCount(9);
+        await expect(headerImage.previewsWith('title', 'Project team')).toHaveCount(6);
+        await headerImage.waitForImages();
+        expect(await headerImage.getLoaded()).toEqual(Array(15).fill(true));
         await expectScreenshot({component: story});
     });
 

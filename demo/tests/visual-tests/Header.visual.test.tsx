@@ -12,6 +12,7 @@ import {
     headerExample,
     headerImages,
     headerMockMarkup,
+    headerSideImages,
     headerTitleMarkup,
 } from '../../src/stories/header/markup';
 
@@ -1135,7 +1136,11 @@ test.describe('Header syntax examples', () => {
         await mount(
             <HeaderStories.Preview
                 width={1060}
-                initial={markupExamplesDocument(markupExamples('structure', 17, 32))}
+                initial={markupExamplesDocument(
+                    markupExamples('structure', 17, 32),
+                    undefined,
+                    headerSideImages.landscape,
+                )}
             />,
         );
         await expect(header.previews).toHaveCount(16);
@@ -1214,7 +1219,11 @@ test.describe('Header syntax examples', () => {
         await mount(
             <HeaderStories.Preview
                 width={1000}
-                initial={markupExamplesDocument(markupExamples('mixed', 9, 16), headerImages.dark)}
+                initial={markupExamplesDocument(
+                    markupExamples('mixed', 9, 16),
+                    headerImages.dark,
+                    headerSideImages.landscape,
+                )}
             />,
         );
         await expect(header.previews).toHaveCount(8);
