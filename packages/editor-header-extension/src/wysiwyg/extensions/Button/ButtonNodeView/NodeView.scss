@@ -1,6 +1,11 @@
 .g-md-button-nodeview {
     cursor: pointer;
 
+    // A click selects the button in the editor; only the link of the rendered page is pressed.
+    &.g-md-button-plugin[href]:active {
+        transform: none;
+    }
+
     &__placeholder {
         opacity: 0.6;
     }

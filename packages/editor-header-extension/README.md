@@ -54,6 +54,7 @@ The button is an atom: a click on it, or Enter while it is selected, opens the s
 The window holds the label field, the style list with a preview of the style under the pointer, the link field, and the "Open in a new tab" switch.
 The label is plain text without formatting. Each change is a separate undo step.
 Escape closes the window and returns focus to the editor. Clicking the button does not follow the link.
+A paragraph that holds only buttons and spaces is a row: the editor shows the same gaps between the buttons and between the lines as the rendered page.
 
 `toolbarButtonItem` inserts `:button[Button]{view="action" color="standard"}` at the cursor in both modes.
 In the visual editor, the cursor moves after the new button.

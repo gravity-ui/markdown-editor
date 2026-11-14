@@ -4,6 +4,7 @@ import {WButtonNodeView} from './ButtonNodeView';
 import {ButtonSpecs, buttonNodeName} from './ButtonSpecs';
 import {insertButton} from './commands';
 import {insertButtonAction} from './const';
+import {buttonRowPlugin} from './plugins/ButtonRowPlugin';
 import {buttonSettingsPlugin} from './plugins/ButtonSettingsPlugin';
 
 import '@gravity-ui/markdown-plugin-header/styles.css';
@@ -13,6 +14,7 @@ export const Button: ExtensionAuto = (builder) => {
         .use(ButtonSpecs)
         .addNodeView(buttonNodeName, () => (node) => new WButtonNodeView(node))
         .addPlugin(buttonSettingsPlugin)
+        .addPlugin(buttonRowPlugin)
         .addAction(insertButtonAction, () => ({isEnable: insertButton, run: insertButton}));
 };
 

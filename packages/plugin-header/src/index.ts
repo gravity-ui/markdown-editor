@@ -19,6 +19,7 @@ export {
     buttonClassName,
     buttonDefaultColor,
     buttonDefaults,
+    buttonRowClassName,
     buttonTokenName,
     buttonViewColors,
 } from './button/model';

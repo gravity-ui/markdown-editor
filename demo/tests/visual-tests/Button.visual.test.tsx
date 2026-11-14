@@ -6,6 +6,24 @@ import {ButtonStories} from './Button.helpers';
 // Lines under the button leave room for its settings window and style list in the screenshot.
 const withSpace = `:button[Кнопка]{href="https://example.com" view="action" color="standard"}${'\n\nТекст'.repeat(12)}`;
 
+const stateStyles = [
+    ['action', 'standard'],
+    ['action', 'blue'],
+    ['normal', 'gray'],
+    ['normal', 'blue'],
+    ['outline', 'gray'],
+    ['outline', 'blue'],
+    ['flat', 'standard'],
+    ['flat', 'gray'],
+    ['flat', 'blue'],
+] as const;
+const statesMarkup = stateStyles
+    .map(
+        ([view, color]) =>
+            `:button[Button]{href="https://example.com" view="${view}" color="${color}"}`,
+    )
+    .join(' ');
+
 test.describe('Button', () => {
     test('should take the colors from the theme @wysiwyg', async ({mount, button}) => {
         await mount(
@@ -252,5 +270,92 @@ test.describe('Button', () => {
         await button.newTab.click();
         await expect(button.blocks).toHaveAttribute('target', '_blank');
         await expect(button.settings).toBeVisible();
+    });
+
+    test('should lay out a paragraph of buttons as a row with the same gaps in both modes @wysiwyg @markup', async ({
+        mount,
+        page,
+        editor,
+        button,
+        wait,
+        expectScreenshot,
+    }) => {
+        await mount(<ButtonStories.Button initial={statesMarkup} width={400} />);
+        await expect(button.blocks).toHaveCount(stateStyles.length);
+        const gaps = await button.getGaps();
+        expect(gaps.block.length).toBeGreaterThan(0);
+        expect([...new Set([...gaps.inline, ...gaps.block])]).toEqual([16]);
+        const height = await button.getHeight(button.rows);
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'editor'});
+        await editor.switchMode('markup');
+        await editor.switchPreview('visible');
+        await page.mouse.move(0, 0);
+        await wait.tooltipsHidden();
+        await expect(button.variants).toHaveCount(stateStyles.length);
+        const previewGaps = await button.getGaps(button.variants);
+        expect(previewGaps.block.length).toBeGreaterThan(0);
+        expect([...new Set([...previewGaps.inline, ...previewGaps.block])]).toEqual([16]);
+        expect(await button.getHeight(button.previewRows)).toBe(height);
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'preview'});
+    });
+
+    test('should show the hover state of every view @markup', async ({
+        mount,
+        editor,
+        button,
+        expectScreenshot,
+    }) => {
+        await mount(<ButtonStories.Button mode="markup" initial={statesMarkup} />);
+        await editor.switchPreview('visible');
+        await expect(button.variants).toHaveCount(stateStyles.length);
+
+        const action = button.variant('action', 'blue');
+        const idle = await button.getBackground(action);
+        await action.hover();
+        await expect(action).not.toHaveCSS('background-color', idle);
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'action'});
+
+        const normal = button.variant('normal', 'gray');
+        const normalIdle = await button.getBackground(normal);
+        await normal.hover();
+        await expect(normal).not.toHaveCSS('background-color', normalIdle);
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'normal'});
+
+        const outline = button.variant('outline', 'blue');
+        await outline.hover();
+        await expect(outline).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'outline'});
+
+        const flat = button.variant('flat', 'gray');
+        await flat.hover();
+        await expect(flat).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'flat'});
+    });
+
+    test('should show the keyboard focus @markup', async ({
+        mount,
+        page,
+        editor,
+        button,
+        wait,
+        expectScreenshot,
+    }) => {
+        await mount(<ButtonStories.Button mode="markup" initial={statesMarkup} />);
+        await editor.switchPreview('visible');
+        await page.mouse.move(0, 0);
+        await expect(button.variants).toHaveCount(stateStyles.length);
+
+        const action = button.variant('action', 'blue');
+        await button.focusWithKeyboard(action);
+        await expect(action).toBeFocused();
+        await expect(action).toHaveCSS('outline-style', 'solid');
+        await wait.tooltipsHidden();
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'action'});
+
+        const outline = button.variant('outline', 'blue');
+        await button.focusWithKeyboard(outline);
+        await expect(outline).toBeFocused();
+        await expect(outline).toHaveCSS('outline-style', 'solid');
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'outline'});
     });
 });

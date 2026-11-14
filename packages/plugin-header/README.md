@@ -54,9 +54,11 @@ const md = new MarkdownIt().use(buttonPlugin);
 Read the guide :button[Read more]{href="https://example.com" view="action" color="blue" target="_blank"} or ask a question.
 ```
 
-The button is an inline directive: it stays in the line of text, and buttons in one paragraph form a row.
+The button is an inline directive: it stays in the line of text.
+A paragraph that holds only buttons, spaces and line breaks gets the class `g-md-button-plugin-row` (`buttonRowClassName`): a wrapping flex row with a gap between the buttons and between the lines.
+Buttons inside running text keep the spaces of the text.
 The label in square brackets is plain text; Markdown inside it is shown as written, and `\]` writes a closing bracket.
-A button with an empty label renders nothing. Buttons work independently and inside Header.
+A button with an empty label renders nothing, and a paragraph of such buttons renders no `<p>`. Buttons work independently and inside Header.
 
 | Attribute | Values                                                         | Default                                               |
 | --------- | -------------------------------------------------------------- | ----------------------------------------------------- |
@@ -68,4 +70,29 @@ A button with an empty label renders nothing. Buttons work independently and ins
 `action` does not support gray; `normal` and `outline` do not support standard.
 Unsupported values use the defaults. Unknown attributes are ignored.
 Unsafe link addresses are omitted. New-tab links include `rel="noopener noreferrer"`.
+The address is taken as written: HTML entities in it are not decoded, so `/page?a=1&copy=2` and `/image&copy;.png` keep their `&copy`. `\"` writes a quote.
 Colors use Gravity theme variables; the host application supplies their values.
+
+A button with an address shows the hover fill of its color (`…-hover` variables, `--g-color-base-simple-hover` for `outline` and `flat`), shrinks while pressed and gets an outline on keyboard focus.
+The fill and the label color change with a transition; `prefers-reduced-motion: reduce` turns it off.
+Every view has a border, transparent except `outline`, so forced-colors mode keeps the boundary.
+
+The size and typography are custom properties; a host overrides them:
+
+| Property                                             | Default                                                  |
+| ---------------------------------------------------- | -------------------------------------------------------- |
+| `--g-md-button-plugin-height`                        | `36px`                                                   |
+| `--g-md-button-plugin-padding`                       | `var(--g-spacing-4)`                                     |
+| `--g-md-button-plugin-border-radius`                 | `var(--g-border-radius-l)`                               |
+| `--g-md-button-plugin-font-size`                     | `var(--g-text-body-1-font-size)`                         |
+| `--g-md-button-plugin-line-height`                   | `var(--g-text-body-1-line-height)`                       |
+| `--g-md-button-plugin-border-width`                  | `1px`                                                    |
+| `--g-md-button-plugin-focus-outline-width`           | `2px`                                                    |
+| `--g-md-button-plugin-pressed-scale`                 | `0.96`                                                   |
+| `--g-md-button-plugin-focus-outline-color`           | `var(--g-color-line-focus)`; the fill color for `action` |
+| `--g-md-button-plugin-focus-outline-offset`          | `0`; `1px` for `action`                                  |
+| `--g-md-button-plugin-transition-duration-transform` | `0.1s`                                                   |
+| `--g-md-button-plugin-transition-duration-color`     | `0.15s`                                                  |
+| `--g-md-button-plugin-gap`                           | `var(--g-spacing-4)`, between the buttons of a row       |
+
+The height is a minimum: a label that does not fit the line wraps, and the button grows.

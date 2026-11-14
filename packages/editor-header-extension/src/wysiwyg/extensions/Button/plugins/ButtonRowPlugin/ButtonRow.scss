@@ -1,0 +1,36 @@
+// The rendered page lays a row out with flex and does not render the spaces between the buttons.
+// The editor keeps the inline flow for the caret and repeats the gaps of that layout.
+
+.g-md-button-row {
+    $gap: var(--g-md-button-plugin-gap, var(--g-spacing-4, 16px));
+
+    // The margins of the pseudo-elements stay inside the row and do not collapse with its own margins.
+    display: flow-root;
+
+    // The lines are a gap apart; the pseudo-elements take half of it back above and below.
+    &::before,
+    &::after {
+        display: block;
+
+        content: '';
+    }
+
+    &::before {
+        margin-block-start: calc(#{$gap} / -2);
+    }
+
+    &::after {
+        margin-block-end: calc(#{$gap} / -2);
+    }
+
+    & > .g-md-button-plugin {
+        margin-block: calc(#{$gap} / 2);
+        margin-inline-end: $gap;
+    }
+
+    &__space {
+        display: inline-block;
+
+        width: 0;
+    }
+}

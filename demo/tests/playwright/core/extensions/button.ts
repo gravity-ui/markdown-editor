@@ -6,6 +6,8 @@ export class ButtonBlock {
     readonly content: Locator;
     readonly blocks: Locator;
     readonly variants: Locator;
+    readonly rows: Locator;
+    readonly previewRows: Locator;
     readonly settings: Locator;
     readonly label: Locator;
     readonly link: Locator;
@@ -19,6 +21,8 @@ export class ButtonBlock {
         this.content = page.locator('.ProseMirror');
         this.blocks = this.content.locator('.g-md-button-plugin');
         this.variants = preview.locator('.g-md-button-plugin');
+        this.rows = this.content.locator('.g-md-button-row');
+        this.previewRows = preview.locator('.g-md-button-plugin-row');
         this.settings = page.getByRole('dialog', {name: 'Button settings'});
         this.label = this.settings.getByRole('textbox', {name: 'Label', exact: true});
         this.link = this.settings.getByRole('textbox', {name: 'Link', exact: true});
@@ -54,6 +58,44 @@ export class ButtonBlock {
                 swatchLeft: swatch.left - style.left,
                 fieldGap: link.top - style.bottom,
             };
+        });
+    }
+
+    /** A button of the preview by its view and color. */
+    variant(view: string, color: string) {
+        return this.variants.and(this.page.locator(`[data-view="${view}"][data-color="${color}"]`));
+    }
+
+    /** Focus set from the keyboard shows the focus outline; `focus()` alone does not. */
+    async focusWithKeyboard(block: Locator) {
+        await block.focus();
+        await this.page.keyboard.press('Shift+Tab');
+        await this.page.keyboard.press('Tab');
+    }
+
+    getBackground(block: Locator) {
+        return block.evaluate((element) => getComputedStyle(element).backgroundColor);
+    }
+
+    getHeight(block: Locator) {
+        return block.evaluate((element) => element.getBoundingClientRect().height);
+    }
+
+    /** Distances between neighboring buttons: within a line and between lines. */
+    getGaps(blocks = this.blocks) {
+        return blocks.evaluateAll((elements) => {
+            const rects = elements.map((element) => element.getBoundingClientRect());
+            const inline: number[] = [];
+            const block: number[] = [];
+            rects.slice(1).forEach((rect, index) => {
+                const previous = rects[index];
+                if (Math.abs(rect.top - previous.top) < 1) {
+                    inline.push(Math.round(rect.left - previous.right));
+                } else {
+                    block.push(Math.round(rect.top - previous.bottom));
+                }
+            });
+            return {inline, block};
         });
     }
 

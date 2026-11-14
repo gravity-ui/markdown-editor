@@ -8,6 +8,7 @@ import {buttonClassName, buttonDefaults, buttonViewColors} from './model';
 const md = new MarkdownIt({html: true}).use(buttonPlugin);
 const inlineTokens = (markup: string) => md.parseInline(markup, {})[0].children ?? [];
 const openToken = (markup: string) => inlineTokens(markup).find((token) => token.type === 'button');
+const row = '<p class="g-md-button-plugin-row">';
 
 describe('Button Markdown', () => {
     it('should preserve the model through HTML attributes', () => {
@@ -85,6 +86,56 @@ describe('Button Markdown', () => {
                 .parse(':::header\n:button[One] :button[Two]\n:::', {})
                 .flatMap((token) => token.children ?? []);
             expect(tokens.filter((token) => token.type === 'button')).toHaveLength(2);
+        },
+    );
+    it.each([
+        '/page?a=1&b=2',
+        '/image&copy;.png',
+        '/page?a=1&copy=2&reg;=3',
+        '/page?a=1&amp;b=2',
+        '/image&#10;.png',
+        '/a&lt;b&gt;c&quot;d',
+    ])('should keep the href %s as written', (href) => {
+        expect(openToken(`:button[Open]{href="${href}"}`)?.attrGet('href')).toBe(href);
+        const html = md.renderInline(`:button[Open]{href="${href}"}`);
+        expect(md.utils.unescapeAll(/href="([^"]*)"/.exec(html)?.[1] ?? '')).toBe(href);
+    });
+    it('should omit a repeated href', () => {
+        expect(openToken(':button[Open]{href="/one" href="/two"}')?.attrGet('href')).toBeNull();
+    });
+    it.each([
+        ['only buttons', ':button[One] :button[Two]', row],
+        ['a single button', ':button[One]', row],
+        ['buttons without a separator', ':button[One]:button[Two]', row],
+        ['buttons with spaces around', '  :button[One]   :button[Two]  ', row],
+        ['buttons on adjacent lines', ':button[One]\n:button[Two]', row],
+        ['a button and an empty button', ':button[One] :button[]', row],
+        ['a button and text', ':button[One] text', '<p>'],
+        ['text and a button', 'text :button[One]', '<p>'],
+        ['a button and a link', ':button[One] [link](/page)', '<p>'],
+        ['a button and an escaped space', ':button[One]&nbsp;:button[Two]', '<p>'],
+        ['a button in emphasis', '**:button[One]**', '<p>'],
+        ['a button in a tight list item', '- :button[One]', '<ul>\n<li><a '],
+        ['a button in a loose list item', '- :button[One]\n\n- :button[Two]', `<ul>\n<li>\n${row}`],
+        ['a button in a quote', '> :button[One]', `<blockquote>\n${row}`],
+    ])('should start a paragraph of %s with %j', (_name, markup, start) => {
+        expect(md.render(markup).startsWith(start)).toBe(true);
+    });
+    it('should render each paragraph of buttons as a row', () => {
+        expect(md.render(':button[One]\n\n:button[Two]').split(row)).toHaveLength(3);
+    });
+    it('should mark a paragraph of buttons inside a header', () => {
+        const parser = new MarkdownIt().use(headerPlugin).use(buttonPlugin);
+        expect(parser.render(':::header\n:button[One] :button[Two]\n:::')).toContain(`\n${row}<a `);
+    });
+    it('should add the row class once when the plugin is used twice', () => {
+        const parser = new MarkdownIt().use(buttonPlugin).use(buttonPlugin);
+        expect(parser.render(':button[One]').startsWith(`${row}<a `)).toBe(true);
+    });
+    it.each([':button[]', ':button[] :button[  ]{href="/page"}'])(
+        'should render no paragraph for the empty buttons %j',
+        (markup) => {
+            expect(md.render(markup).trim()).toBe('');
         },
     );
     it.each([':button', ':button{href="/page"}', ':button[Label](url)'])(
