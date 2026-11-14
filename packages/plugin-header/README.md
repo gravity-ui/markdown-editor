@@ -64,11 +64,13 @@ Long words wrap, so the content never widens the block.
 
 An image beside the text, an element with the class `g-md-header-image-plugin`, takes half of the block and fills its height with 8 px (`--g-spacing-2`) around it: on the right of the text, and on the left of a right-aligned text.
 
+`left` and `right` of `align` are the start and the end of the line (`text-align: start` and `end`, logical insets of the image), as the row of buttons: in a right-to-left page the sides swap, and `align="right"` puts the text and the buttons on the left and the image on the right.
+
 A header narrower than 600 px has the narrow layout; it follows the width of the block itself (a container query), not of the window:
 
 - the padding around the content is 16 px (`--g-spacing-4`);
 - the image stands above the text;
-- the buttons stand in a column of the full width, 44 px high, with the `--g-border-radius-xl` corners.
+- the buttons stand in a column of the full width and have the size `xl` of the UIKit button: 44 px high, the `--g-border-radius-xl` corners, 24 px (`--g-spacing-6`) padding and the `body-2` text.
 
 The alignment stays as set. The block is a query container named `g-md-header-plugin`.
 
@@ -91,6 +93,10 @@ The numbers are custom properties; a host overrides them:
 | `--g-md-header-plugin-narrow-padding`              | `var(--g-spacing-4)`                       |
 | `--g-md-header-plugin-narrow-button-height`        | `44px`                                     |
 | `--g-md-header-plugin-narrow-button-border-radius` | `var(--g-border-radius-xl)`                |
+| `--g-md-header-plugin-narrow-button-padding`       | `var(--g-spacing-6)`                       |
+| `--g-md-header-plugin-narrow-button-font-size`     | `var(--g-text-body-2-font-size)`           |
+| `--g-md-header-plugin-narrow-button-line-height`   | `var(--g-text-body-2-line-height)`         |
+| `--g-md-header-plugin-button-focus-outline-color`  | `var(--g-color-text-primary)`              |
 
 The width at which the narrow layout starts is fixed: a container query takes no custom property.
 
@@ -107,12 +113,13 @@ The address is taken as written: HTML entities in it are not decoded, so `/image
 `bg-image-blur` adds the `_bg-image-blur` modifier: a `::before` layer under the content repeats the background blurred by 12 px and extends 24 px past the edges, so the blur has no transparent border.
 The block clips the layer (`overflow: clip`), and the allowance adds nothing to the scroll area of the page.
 
-`bg-image-theme` other than `system` adds `g-root g-root_theme_<theme>` to the block and sets the YFM text and link colors with Gravity UI tokens: text, links, and buttons use the fixed theme, and the image stays the same.
+`bg-image-theme` other than `system` adds `g-root g-root_theme_<theme>` to the block and sets the YFM text, link and inline code colors with Gravity UI tokens: text, links, inline code and buttons use the fixed theme, and the image stays the same.
+The block is then a nested Gravity UI theme root, as a nested `ThemeProvider`: `.g-root` also declares the spacing, radius and typography tokens with the UIKit defaults. A host that changes these tokens declares them on `.g-root`, as the UIKit theming guide says, so they reach the nested root too.
 The typography stays as in the place of the block: the font of `.g-root` is not applied.
 Without a fill, the page background of the fixed theme lies under the image.
 The theme and blur belong to the image: without `bg-image` they are parsed as the defaults.
 
-On an image and on the `heavy` fills an `action` button shows its keyboard focus with a ring of the text color (`--g-color-text-primary`): the ring of its own fill color would not be seen there. `--g-md-button-plugin-focus-outline-color` still overrides it.
+On an image and on the `medium` and `heavy` fills every button shows its keyboard focus with a ring of the text color (`--g-color-text-primary`): neither `--g-color-line-focus` nor the fill color of `action` would be seen there. The block sets `--g-md-button-plugin-focus-outline-color` for that; a host changes the ring there with `--g-md-header-plugin-button-focus-outline-color`. The light fills keep the rings of the page.
 
 ### Parsing
 

@@ -46,16 +46,36 @@ $button: '.g-md-button-plugin';
     --_--border-radius: var(--g-md-header-plugin-border-radius, var(--g-border-radius-2xl, 16px));
     --_--padding: var(--g-md-header-plugin-padding, var(--g-spacing-8));
     // Between the blocks of text, and between the text and the buttons.
+    // The properties read on the child blocks have names that those blocks do not declare:
+    // the button row declares its own `--_--gap`.
     --_--text-gap: var(--g-md-header-plugin-text-gap, var(--g-spacing-4));
-    --_--gap: var(--g-md-header-plugin-gap, var(--g-spacing-8));
+    --_--buttons-gap: var(--g-md-header-plugin-gap, var(--g-spacing-8));
     // The image column beside the text and the space around the image.
     --_--image-width: var(--g-md-header-plugin-image-width, 50%);
     --_--image-padding: var(--g-md-header-plugin-image-padding, var(--g-spacing-2));
+    // The focus ring of the buttons on a fill of medium or heavy saturation and on an image
+    // takes the text color: neither `--g-color-line-focus` nor the fill color of `action`
+    // would be seen there. The light fills keep the rings of the page.
+    // FIXME: not in Gravity UI (no line token for a fill)
+    --_--button-focus-outline-color: var(
+        --g-md-header-plugin-button-focus-outline-color,
+        var(--g-color-text-primary)
+    );
     --_--blur: var(--g-md-header-plugin-blur, 12px);
     // The blurred copy of the background extends past the clipped edges by this allowance.
     --_--blur-inset: var(--g-md-header-plugin-blur-inset, 24px);
     --_--narrow-padding: var(--g-md-header-plugin-narrow-padding, var(--g-spacing-4));
+    // The narrow buttons are the `xl` buttons of UIKit.
     --_--narrow-button-height: var(--g-md-header-plugin-narrow-button-height, 44px);
+    --_--narrow-button-padding: var(--g-md-header-plugin-narrow-button-padding, var(--g-spacing-6));
+    --_--narrow-button-font-size: var(
+        --g-md-header-plugin-narrow-button-font-size,
+        var(--g-text-body-2-font-size)
+    );
+    --_--narrow-button-line-height: var(
+        --g-md-header-plugin-narrow-button-line-height,
+        var(--g-text-body-2-line-height)
+    );
     // FIXME: not in Gravity UI (mock: 16px)
     --_--narrow-button-border-radius: var(
         --g-md-header-plugin-narrow-button-border-radius,
@@ -65,8 +85,8 @@ $button: '.g-md-button-plugin';
     // The place of the content; the narrow layout sets them on the content itself.
     --_--content-padding: var(--_--padding);
     --_--content-column: 1 / -1;
-    --_--image-left: auto;
-    --_--image-right: var(--_--image-padding);
+    --_--image-inset-start: auto;
+    --_--image-inset-end: var(--_--image-padding);
 
     // `initial` stops inheritance and selects the fallback of `var()`.
     --_--bg-color: initial;
@@ -80,10 +100,11 @@ $button: '.g-md-button-plugin';
 
     max-width: var(--_--width);
     min-height: var(--_--height);
-    margin-block: var(--g-md-header-plugin-margin-block, 0 var(--g-spacing-5, 20px));
+    margin-block: var(--g-md-header-plugin-margin-block, 0 var(--g-spacing-5));
     margin-inline: var(--g-md-header-plugin-margin-inline, 0);
 
-    text-align: left;
+    // `left` and `right` of `align` are the start and the end of the line, as the button row.
+    text-align: start;
 
     border-radius: var(--_--border-radius);
     background-color: var(--_--bg-color, transparent);
@@ -94,15 +115,15 @@ $button: '.g-md-button-plugin';
     @each $name, $_ in $bg-colors {
         &_bg-color_#{$name} {
             --_--bg-color: var(--g-md-header-plugin-bg-color-#{$name});
+
+            @if string.index($name, '-medium') or string.index($name, '-heavy') {
+                --g-md-button-plugin-focus-outline-color: var(--_--button-focus-outline-color);
+            }
         }
     }
 
-    @each $name, $_ in $bg-colors {
-        @if string.index($name, '-heavy') {
-            &_bg-color_#{$name} #{$button}#{$button}_view_action {
-                --_--focus-outline-color: var(--g-color-text-primary);
-            }
-        }
+    &_bg-image {
+        --g-md-button-plugin-focus-outline-color: var(--_--button-focus-outline-color);
     }
 
     &_height_s {
@@ -138,7 +159,7 @@ $button: '.g-md-button-plugin';
     }
 
     &_align_right {
-        text-align: right;
+        text-align: end;
     }
 
     &_vertical_top {
@@ -162,7 +183,7 @@ $button: '.g-md-button-plugin';
 
     // The buttons stand apart from the text above them.
     &#{&} > * + #{$button}-row {
-        margin-block-start: calc(var(--_--gap) - var(--_--text-gap));
+        margin-block-start: calc(var(--_--buttons-gap) - var(--_--text-gap));
     }
 
     &#{&} > :nth-child(1 of :not(#{$image})) {
@@ -191,15 +212,14 @@ $button: '.g-md-button-plugin';
 
     &_align_right:has(> #{$image}) {
         --_--content-column: 2;
-        --_--image-left: var(--_--image-padding);
-        --_--image-right: auto;
+        --_--image-inset-start: var(--_--image-padding);
+        --_--image-inset-end: auto;
     }
 
     &#{&} > #{$image} {
         position: absolute;
-        top: var(--_--image-padding);
-        right: var(--_--image-right);
-        left: var(--_--image-left);
+        inset-block-start: var(--_--image-padding);
+        inset-inline: var(--_--image-inset-start) var(--_--image-inset-end);
         // Placed against the whole block, not against a column of the grid.
         grid-column: auto;
 
@@ -213,12 +233,6 @@ $button: '.g-md-button-plugin';
         background-repeat: no-repeat;
         background-position: center;
         background-size: cover;
-    }
-
-    // An action button has a focus ring of its fill color: on a fill as saturated as its own
-    // and on an image the ring takes the text color. The public property of the button still wins.
-    &_bg-image #{$button}#{$button}_view_action {
-        --_--focus-outline-color: var(--g-color-text-primary);
     }
 
     // The sanitizer removes `filter` from the `style` attribute, so blur stays here.
@@ -243,11 +257,14 @@ $button: '.g-md-button-plugin';
     }
 
     // A fixed theme: `.g-root` sets the text color, and the page background of the theme
-    // lies under the image. `.yfm` resolves its text and link colors in the page theme.
+    // lies under the image. `.yfm` resolves its colors in the page theme: the block maps
+    // the ones its content uses as the Gravity UI themes of YFM do.
     &.g-root {
         --yfm-color-text: var(--g-color-text-primary);
         --yfm-color-link: var(--g-color-text-link);
         --yfm-color-link-hover: var(--g-color-text-link-hover);
+        --yfm-color-inline-code: var(--g-color-text-misc);
+        --yfm-color-inline-code-background: var(--g-color-base-misc-light);
 
         // `.g-root` also sets the body typography of the theme; the block keeps its own.
         font: inherit;
@@ -286,6 +303,9 @@ $button: '.g-md-button-plugin';
         #{$button} {
             --g-md-button-plugin-height: var(--_--narrow-button-height);
             --g-md-button-plugin-border-radius: var(--_--narrow-button-border-radius);
+            --g-md-button-plugin-padding: var(--_--narrow-button-padding);
+            --g-md-button-plugin-font-size: var(--_--narrow-button-font-size);
+            --g-md-button-plugin-line-height: var(--_--narrow-button-line-height);
         }
     }
 }
