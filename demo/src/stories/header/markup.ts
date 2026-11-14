@@ -62,21 +62,26 @@ export const headerImages = {
     contrast: '/assets/header-bg-contrast.svg',
 } as const;
 
+/** The buttons of the mock in the order a header adds them. */
+const headerButtonStyles: readonly ButtonStyle[] = [
+    ['action', 'blue'],
+    ['normal', 'gray'],
+    ['flat', 'standard'],
+];
+
 /** The content of the mock: a title, a description and buttons, each in its own block. */
 export const headerContent = (buttons = 1, title = 'Team portal', text = 'Portal description.') =>
     [
         `::header-title[${title}]`,
         `:::header-content\n${text}\n:::`,
-        ...[
-            ':button[Button 1]{href="/page" view="action" color="blue"}',
-            ':button[Button 2]{href="/page" view="normal" color="gray"}',
-            ':button[Button 3]{href="/page" view="flat" color="standard"}',
-        ].slice(0, buttons),
+        ...headerButtonStyles
+            .slice(0, buttons)
+            .map((style, index) => buttonMarkup(style, `Button ${index + 1}`)),
     ].join('\n\n');
 
 /** A header with the attributes and the content of the mock, under a line that names it. */
 export const headerExample = (attrs: string, content = headerContent()) =>
-    `${attrs || 'no attributes'}\n\n:::header${attrs && `{${attrs}}`}\n\n${content}\n:::`;
+    `${attrs || 'no attributes'}\n\n${inHeader(content, attrs && `{${attrs}}`)}`;
 
 /** Every value of every attribute of the header, then the attributes together. */
 export const headerPreviewMarkup = [

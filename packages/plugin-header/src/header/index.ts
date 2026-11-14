@@ -5,29 +5,23 @@ export {
     headerLayoutFromAttrs,
 } from './attrs';
 export {
+    type HeaderAlign,
     type HeaderBackground,
     type HeaderBgColor,
     type HeaderBgColorFamily,
     type HeaderBgColorSaturation,
     type HeaderBgImageTheme,
-    headerBackground,
-    headerBackgroundDefaults,
-    headerBackgroundValues,
-    headerBgColorFamilies,
-    headerBgColorSaturations,
-    headerBgColors,
-    headerBgImageThemes,
-    safeImageUrl,
-    toCssUrl,
-} from './background';
-export {
-    type HeaderAlign,
     type HeaderDimensions,
     type HeaderHeight,
     type HeaderLayout,
     type HeaderVertical,
     type HeaderWidth,
     headerAligns,
+    headerBackgroundDefaults,
+    headerBgColorFamilies,
+    headerBgColorSaturations,
+    headerBgColors,
+    headerBgImageThemes,
     headerClassName,
     headerDefaults,
     headerHeights,
@@ -37,4 +31,10 @@ export {
     headerWidths,
 } from './const';
 export {headerPlugin} from './plugin';
-export {headerDimensions, headerLayout, headerLayoutValues} from './utils';
+export {
+    headerBackground,
+    headerBackgroundValues,
+    headerDimensions,
+    headerLayout,
+    headerLayoutValues,
+} from './utils';

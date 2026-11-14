@@ -386,6 +386,62 @@ test.describe('Button preview', () => {
         expect(await button.getOutlineColor(onLight)).toBe(await button.getBackground(onLight));
     });
 
+    test('should show the keyboard focus of every view in the text color on medium and heavy fills and on an image @markup', async ({
+        mount,
+        page,
+        editor,
+        button,
+        header,
+        expectScreenshot,
+    }) => {
+        // Neither the focus line nor the fill color of a button is seen there.
+        const views = ['normal', 'outline', 'flat'] as const;
+        const headers = [
+            '{bg-color="blue-heavy"}',
+            '{bg-color="blue-medium"}',
+            `{bg-image="${headerImages.dark}" bg-image-theme="dark"}`,
+            `{bg-image="${headerImages.light}" bg-image-theme="light"}`,
+        ];
+        const markup = headers
+            .map((attrs) =>
+                inHeader(views.map((view) => buttonMarkup([view, 'blue'])).join('\n\n'), attrs),
+            )
+            .join('\n\n');
+        await mount(<ButtonStories.Preview width={720} initial={markup} />, {
+            styles: compactHeaderStyles,
+        });
+        await expect(button.variants).toHaveCount(headers.length * views.length);
+        await header.waitForImage(headerImages.dark);
+        await header.waitForImage(headerImages.light);
+
+        // The ring of every button has the text color of its header, which follows the page theme.
+        const expectTextColorRings = async (theme: 'light' | 'dark') => {
+            await page.emulateMedia({colorScheme: theme});
+            await expect(page.locator('body')).toHaveClass(new RegExp(`g-root_theme_${theme}`));
+            const colors = await header.getPreviewColors();
+            const blocks = await button.variants.all();
+            for (const [index, block] of blocks.entries()) {
+                await button.focusWithKeyboard(block);
+                await expect(block).toBeFocused();
+                await expect
+                    .poll(() => button.getOutlineColor(block))
+                    .toBe(colors[Math.floor(index / views.length)]);
+            }
+        };
+        await expectTextColorRings('dark');
+        await expectTextColorRings('light');
+
+        const onFill = button.variants.nth(1);
+        await button.focusWithKeyboard(onFill);
+        await expect(onFill).toHaveCSS('outline-style', 'solid');
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'fill'});
+
+        const onImage = button.variants.nth(2 * views.length);
+        await button.focusWithKeyboard(onImage);
+        await expect(onImage).toHaveCSS('outline-style', 'solid');
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'image'});
+    });
+
     test('should wrap long labels and show labels as written @markup', async ({
         mount,
         editor,
@@ -597,11 +653,14 @@ test.describe('Button syntax examples', () => {
 });
 
 test.describe('Button on mobile', () => {
-    test.use({viewport: {width: 343, height: 812}});
+    // The width of the mobile covers of the mock.
+    const mobileWidth = 343;
+    test.use({viewport: {width: mobileWidth, height: 812}});
 
     test('should fit a narrow viewport @markup', async ({
         mount,
         editor,
+        header,
         button,
         expectScreenshot,
     }) => {
@@ -614,19 +673,17 @@ test.describe('Button on mobile', () => {
                 ['flat', 'standard'],
             ]),
         ].join('\n\n');
-        await mount(<ButtonStories.Preview width={343} initial={markup} />, {
-            rootStyle: {padding: 0},
+        await mount(<ButtonStories.Preview width="100%" initial={markup} />, {
+            rootStyle: {padding: 0, width: '100%'},
         });
         await expect(button.variants).toHaveCount(29);
+        await editor.setPreviewContentWidth(mobileWidth);
+        expect(await header.getPreviewSizes()).toEqual([[mobileWidth, expect.any(Number)]]);
         // In a narrow header the buttons are taller and stand in a column of the full width.
         await expect(button.rows.last()).toHaveCSS('flex-direction', 'column');
         expect(await button.getHeights(button.rows.last())).toEqual([44, 44, 44]);
         expect(await button.getRowTops()).toContain(3);
-        expect(
-            await editor.locators.previewContent.evaluate(
-                (element) => element.scrollWidth <= element.clientWidth,
-            ),
-        ).toBe(true);
+        expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
         await expectScreenshot({component: editor.locators.component});
     });
 });

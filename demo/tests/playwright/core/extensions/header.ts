@@ -73,14 +73,14 @@ export class HeaderBlock {
         return this.page.getByRole('option', {name, exact: true});
     }
 
-    /** Headers of the preview with the modifier, such as `align_center`. */
-    previewsWith(modifier: string) {
-        return this.previews.and(this.page.locator(`.g-md-header-plugin_${modifier}`));
-    }
-
-    /** Headers of the preview with the fixed theme of the content. */
-    previewsWithTheme(theme: 'light' | 'dark') {
-        return this.previews.and(this.page.locator(`.g-root.g-root_theme_${theme}`));
+    /**
+     * Headers of the preview with the data attribute, or with its value:
+     * `previewsWith('data-align', 'center')`. Default values render no attribute.
+     */
+    previewsWith(name: string, value?: string) {
+        return this.previews.and(
+            this.page.locator(value === undefined ? `[${name}]` : `[${name}="${value}"]`),
+        );
     }
 
     /** The width and the height of every header of the preview. */
@@ -93,9 +93,35 @@ export class HeaderBlock {
         );
     }
 
-    /** Headers of the preview with the attribute. */
-    previewsWithAttribute(name: string) {
-        return this.previews.and(this.page.locator(`[${name}]`));
+    /** The computed background color of every header of the preview. */
+    getPreviewBackgrounds() {
+        return this.previews.evaluateAll((elements) =>
+            elements.map((element) => getComputedStyle(element).backgroundColor),
+        );
+    }
+
+    /** The computed text color of every header of the preview. */
+    getPreviewColors() {
+        return this.previews.evaluateAll((elements) =>
+            elements.map((element) => getComputedStyle(element).color),
+        );
+    }
+
+    /** The different distances from the text above the button row to the row in the headers. */
+    getPreviewButtonGaps() {
+        return this.previews.evaluateAll((elements) =>
+            Array.from(
+                new Set(
+                    elements.flatMap((element) => {
+                        const row = element.querySelector(':scope > .g-md-button-plugin-row');
+                        const text = row?.previousElementSibling;
+                        if (!row || !text) return [];
+                        const {top} = row.getBoundingClientRect();
+                        return [Math.round(top - text.getBoundingClientRect().bottom)];
+                    }),
+                ),
+            ),
+        );
     }
 
     /** The different widths the headers of the preview leave unused in their column. */
@@ -152,18 +178,6 @@ export class HeaderBlock {
                     }),
                 ),
             ),
-        );
-    }
-
-    /** Nothing in the preview is wider than its column. */
-    hasNoHorizontalScroll(preview: Locator) {
-        return preview.evaluate((element) => element.scrollWidth <= element.clientWidth);
-    }
-
-    /** The page itself has no horizontal scroll. */
-    pageHasNoHorizontalScroll() {
-        return this.page.evaluate(
-            () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
         );
     }
 

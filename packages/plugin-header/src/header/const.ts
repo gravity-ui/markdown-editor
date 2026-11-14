@@ -17,3 +17,31 @@ export type HeaderVertical = (typeof headerVerticals)[number];
 export type HeaderLayout = {align: HeaderAlign; vertical: HeaderVertical};
 
 export const headerLayoutDefaults: Readonly<HeaderLayout> = {align: 'left', vertical: 'center'};
+
+export const headerBgColorFamilies = ['gray', 'green', 'yellow', 'blue', 'red', 'violet'] as const;
+export const headerBgColorSaturations = ['light', 'medium', 'heavy'] as const;
+export type HeaderBgColorFamily = (typeof headerBgColorFamilies)[number];
+export type HeaderBgColorSaturation = (typeof headerBgColorSaturations)[number];
+export type HeaderBgColor = `${HeaderBgColorFamily}-${HeaderBgColorSaturation}`;
+
+/** Palette order: a row of families for each saturation. */
+export const headerBgColors: readonly HeaderBgColor[] = headerBgColorSaturations.flatMap(
+    (saturation) => headerBgColorFamilies.map((family) => `${family}-${saturation}` as const),
+);
+
+export const headerBgImageThemes = ['system', 'light', 'dark'] as const;
+export type HeaderBgImageTheme = (typeof headerBgImageThemes)[number];
+
+export type HeaderBackground = {
+    'bg-color': HeaderBgColor | null;
+    'bg-image': string | null;
+    'bg-image-theme': HeaderBgImageTheme;
+    'bg-image-blur': boolean;
+};
+
+export const headerBackgroundDefaults: Readonly<HeaderBackground> = {
+    'bg-color': null,
+    'bg-image': null,
+    'bg-image-theme': 'system',
+    'bg-image-blur': false,
+};

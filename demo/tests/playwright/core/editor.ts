@@ -594,6 +594,41 @@ export class MarkdownEditorPage {
     }
 
     /**
+     * Checks that nothing in the preview is wider than its column
+     */
+    previewHasNoHorizontalScroll() {
+        return this.locators.previewContent.evaluate(
+            (element) => element.scrollWidth <= element.clientWidth,
+        );
+    }
+
+    /**
+     * Checks that the page itself has no horizontal scroll
+     */
+    pageHasNoHorizontalScroll() {
+        return this.page.evaluate(
+            () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        );
+    }
+
+    /**
+     * Resizes the viewport so that the content of the preview is the given number of pixels wide.
+     * The editor has to be as wide as the page: it keeps its padding and the settings column.
+     */
+    async setPreviewContentWidth(width: number) {
+        const getContentWidth = () =>
+            this.locators.previewContent.evaluate((element) => {
+                const {paddingLeft, paddingRight} = getComputedStyle(element);
+                return element.clientWidth - parseFloat(paddingLeft) - parseFloat(paddingRight);
+            });
+        const viewport = this.page.viewportSize();
+        if (!viewport) throw new Error('The viewport has no fixed size');
+        const chrome = viewport.width - (await getContentWidth());
+        await this.page.setViewportSize({width: width + chrome, height: viewport.height});
+        await this.expect.poll(getContentWidth).toBe(width);
+    }
+
+    /**
      * Switches the editor to the specified mode
      */
     async switchMode(mode: MarkdownEditorMode) {

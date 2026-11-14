@@ -1,13 +1,20 @@
 import {cn} from '@bem-react/classname';
 
+import {toCssUrl} from '../url';
+
 import {
     type HeaderBackground,
+    type HeaderDimensions,
+    type HeaderLayout,
+    headerClassName,
+} from './const';
+import {
     headerBackground,
     headerBackgroundValues,
-    toCssUrl,
-} from './background';
-import {type HeaderDimensions, type HeaderLayout, headerClassName} from './const';
-import {headerDimensions, headerLayout, headerLayoutValues} from './utils';
+    headerDimensions,
+    headerLayout,
+    headerLayoutValues,
+} from './utils';
 
 const b = cn(headerClassName);
 

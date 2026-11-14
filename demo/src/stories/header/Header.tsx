@@ -1,4 +1,4 @@
-import {useCallback, useEffect} from 'react';
+import {type CSSProperties, useCallback, useEffect} from 'react';
 
 import {
     type FileUploadHandler,
@@ -62,7 +62,8 @@ export function HeaderExample({
 }: {
     initial?: string;
     mode?: MarkdownEditorMode;
-    width?: number;
+    /** `100%` makes the editor as wide as the page. */
+    width?: CSSProperties['width'];
     /** Opens the preview of the markup mode in place of the source. */
     preview?: boolean;
     uploadFile?: FileUploadHandler;

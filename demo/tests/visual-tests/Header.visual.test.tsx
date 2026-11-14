@@ -1,5 +1,7 @@
 import type {CSSProperties} from 'react';
 
+import {headerBgColors, headerBgImageThemes} from '@gravity-ui/markdown-plugin-header';
+
 import {expect} from 'playwright/core';
 import {type HeaderBlock, test} from 'playwright/core/extensions/header';
 import type {Fixtures} from 'playwright/core/types';
@@ -729,6 +731,8 @@ test.describe('Header on mobile', () => {
 const HEIGHTS = {s: 236, m: 300, l: 360};
 const WIDTHS = {s: 600, m: 900, l: 1200};
 const PADDING = 32;
+// From the text to the buttons, in the wide and in the narrow layout.
+const BUTTONS_GAP = 32;
 // The examples of a height and a width go by the alignment: left, center and right,
 // each with the top, center and bottom vertical alignment.
 const LAYOUT_COUNT = 9;
@@ -753,12 +757,12 @@ async function expectLayout(
         />,
     );
     await expect(header.previews).toHaveCount(LAYOUT_COUNT);
-    await expect(header.previewsWith(`height_${height}`)).toHaveCount(LAYOUT_COUNT);
-    await expect(header.previewsWith(`width_${width}`)).toHaveCount(LAYOUT_COUNT);
-    await expect(header.previewsWith('align_center')).toHaveCount(3);
-    await expect(header.previewsWith('align_right')).toHaveCount(3);
-    await expect(header.previewsWith('vertical_top')).toHaveCount(3);
-    await expect(header.previewsWith('vertical_bottom')).toHaveCount(3);
+    await expect(header.previewsWith('data-height', height)).toHaveCount(LAYOUT_COUNT);
+    await expect(header.previewsWith('data-width', width)).toHaveCount(LAYOUT_COUNT);
+    await expect(header.previewsWith('data-align', 'center')).toHaveCount(3);
+    await expect(header.previewsWith('data-align', 'right')).toHaveCount(3);
+    await expect(header.previewsWith('data-vertical', 'top')).toHaveCount(3);
+    await expect(header.previewsWith('data-vertical', 'bottom')).toHaveCount(3);
     const sizes = await header.getPreviewSizes();
     expect(sizes.map(([, size]) => size)).toEqual(Array(LAYOUT_COUNT).fill(HEIGHTS[height]));
     if (width === 'full') {
@@ -776,6 +780,7 @@ async function expectLayout(
         if (vertical === 1) expect(Math.abs(top - bottom)).toBeLessThanOrEqual(1);
         if (vertical === 2) expect(bottom).toBe(PADDING);
     });
+    expect(await header.getPreviewButtonGaps()).toEqual([BUTTONS_GAP]);
     await expectScreenshot({component: editor.locators.component});
 }
 
@@ -912,17 +917,17 @@ async function expectBackgrounds(
     );
     await expect(header.previews).toHaveCount(count);
     for (const fill of fills) {
-        await expect(header.previewsWith(`bg-color_${fill}`)).toHaveCount(FILL_COUNT);
+        await expect(header.previewsWith('data-bg-color', fill)).toHaveCount(FILL_COUNT);
     }
-    await expect(header.previewsWith('bg-image')).toHaveCount(fills.length * 8);
-    await expect(header.previewsWith('bg-image-blur')).toHaveCount(fills.length * 4);
-    // The `system` theme is the default and adds no class.
-    await expect(header.previewsWithTheme('light')).toHaveCount(fills.length * 2);
-    await expect(header.previewsWithTheme('dark')).toHaveCount(fills.length * 2);
+    await expect(header.previewsWith('data-bg-image')).toHaveCount(fills.length * 8);
+    await expect(header.previewsWith('data-bg-image-blur')).toHaveCount(fills.length * 4);
+    // The `system` theme is the default and adds no attribute.
+    await expect(header.previewsWith('data-bg-image-theme', 'light')).toHaveCount(fills.length * 2);
+    await expect(header.previewsWith('data-bg-image-theme', 'dark')).toHaveCount(fills.length * 2);
     // A fixed theme keeps the typography of the page, and the blur adds no scroll area.
     expect(await header.getPreviewTypography()).toHaveLength(1);
-    expect(await header.hasNoHorizontalScroll(editor.locators.previewContent)).toBe(true);
-    expect(await header.pageHasNoHorizontalScroll()).toBe(true);
+    expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
+    expect(await editor.pageHasNoHorizontalScroll()).toBe(true);
     expect(new Set((await header.getPreviewSizes()).map(([, height]) => height))).toEqual(
         new Set([HEIGHTS.s]),
     );
@@ -948,12 +953,12 @@ test.describe('Header backgrounds', () => {
             />,
         );
         await expect(header.previews).toHaveCount(FILL_COUNT);
-        await expect(header.previewsWith('bg-image')).toHaveCount(8);
-        await expect(header.previewsWith('bg-image-blur')).toHaveCount(4);
-        await expect(header.previewsWithTheme('light')).toHaveCount(2);
-        await expect(header.previewsWithTheme('dark')).toHaveCount(2);
+        await expect(header.previewsWith('data-bg-image')).toHaveCount(8);
+        await expect(header.previewsWith('data-bg-image-blur')).toHaveCount(4);
+        await expect(header.previewsWith('data-bg-image-theme', 'light')).toHaveCount(2);
+        await expect(header.previewsWith('data-bg-image-theme', 'dark')).toHaveCount(2);
         expect(await header.getPreviewTypography()).toHaveLength(1);
-        expect(await header.hasNoHorizontalScroll(editor.locators.previewContent)).toBe(true);
+        expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
         await header.waitForImage(headerImages.light);
         await expectScreenshot({component: editor.locators.component});
     });
@@ -1042,22 +1047,17 @@ test.describe('Header backgrounds', () => {
         header,
         expectScreenshot,
     }) => {
-        // The fills side by side in the sizes of a palette: three saturations of six families.
-        const fills = ['gray', 'green', 'yellow', 'blue', 'red', 'violet'].flatMap((family) =>
-            ['light', 'medium', 'heavy'].map((saturation) => `${family}-${saturation}`),
-        );
+        // The fills side by side in the order of the palette: six families of each saturation.
         await mount(
             <HeaderStories.Preview
                 width={760}
-                initial={fills
+                initial={headerBgColors
                     .map((fill) => headerExample(`width="s" bg-color="${fill}"`, headerContent(3)))
                     .join('\n\n')}
             />,
         );
         await expect(header.previews).toHaveCount(18);
-        const colors = await header.previews.evaluateAll((elements) =>
-            elements.map((element) => getComputedStyle(element).backgroundColor),
-        );
+        const colors = await header.getPreviewBackgrounds();
         expect(new Set(colors).size).toBe(18);
         expect(colors).not.toContain('rgba(0, 0, 0, 0)');
         await expectScreenshot({component: editor.locators.component});
@@ -1072,7 +1072,7 @@ test.describe('Header backgrounds', () => {
         const images = [headerImages.light, headerImages.dark, headerImages.contrast];
         const markup = images
             .flatMap((image) =>
-                ['system', 'light', 'dark'].flatMap((theme) => [
+                headerBgImageThemes.flatMap((theme) => [
                     headerExample(
                         `bg-image="${image}" bg-image-theme="${theme}"`,
                         headerContent(3),
@@ -1086,11 +1086,11 @@ test.describe('Header backgrounds', () => {
             .join('\n\n');
         await mount(<HeaderStories.Preview width={760} initial={markup} />);
         await expect(header.previews).toHaveCount(18);
-        await expect(header.previewsWith('bg-image-blur')).toHaveCount(9);
-        await expect(header.previewsWithTheme('light')).toHaveCount(6);
-        await expect(header.previewsWithTheme('dark')).toHaveCount(6);
+        await expect(header.previewsWith('data-bg-image-blur')).toHaveCount(9);
+        await expect(header.previewsWith('data-bg-image-theme', 'light')).toHaveCount(6);
+        await expect(header.previewsWith('data-bg-image-theme', 'dark')).toHaveCount(6);
         expect(await header.getPreviewTypography()).toHaveLength(1);
-        expect(await header.hasNoHorizontalScroll(editor.locators.previewContent)).toBe(true);
+        expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
         for (const image of images) await header.waitForImage(image);
         await expectScreenshot({component: editor.locators.component});
     });
@@ -1157,12 +1157,12 @@ test.describe('Header syntax examples', () => {
             <HeaderStories.Preview width={1060} initial={markupExamplesDocument(examples)} />,
         );
         await expect(header.previews).toHaveCount(8);
-        await expect(header.previewsWith('height_s')).toHaveCount(8);
-        await expect(header.previewsWith('width_m')).toHaveCount(8);
-        await expect(header.previewsWith('bg-image-blur')).toHaveCount(0);
-        await expect(header.previewsWithTheme('dark')).toHaveCount(0);
+        await expect(header.previewsWith('data-height', 's')).toHaveCount(8);
+        await expect(header.previewsWith('data-width', 'm')).toHaveCount(8);
+        await expect(header.previewsWith('data-bg-image-blur')).toHaveCount(0);
+        await expect(header.previewsWith('data-bg-image-theme', 'dark')).toHaveCount(0);
         for (const name of ['data-align', 'data-vertical', 'data-bg-image-theme', 'unknown']) {
-            await expect(header.previewsWithAttribute(name)).toHaveCount(0);
+            await expect(header.previewsWith(name)).toHaveCount(0);
         }
         expect(await header.getPreviewSizes()).toEqual(Array(8).fill([WIDTHS.m, HEIGHTS.s]));
         await expectScreenshot({component: editor.locators.component});
@@ -1183,11 +1183,11 @@ test.describe('Header syntax examples', () => {
             />,
         );
         await expect(header.previews).toHaveCount(8);
-        await expect(header.previewsWith('align_center')).toHaveCount(8);
-        await expect(header.previewsWith('vertical_bottom')).toHaveCount(8);
-        await expect(header.previewsWith('bg-color_violet-light')).toHaveCount(8);
-        await expect(header.previewsWith('bg-image-blur')).toHaveCount(8);
-        await expect(header.previewsWithTheme('dark')).toHaveCount(8);
+        await expect(header.previewsWith('data-align', 'center')).toHaveCount(8);
+        await expect(header.previewsWith('data-vertical', 'bottom')).toHaveCount(8);
+        await expect(header.previewsWith('data-bg-color', 'violet-light')).toHaveCount(8);
+        await expect(header.previewsWith('data-bg-image-blur')).toHaveCount(8);
+        await expect(header.previewsWith('data-bg-image-theme', 'dark')).toHaveCount(8);
         expect(await header.getPreviewWidthGaps()).toEqual([0]);
         expect((await header.getPreviewSizes()).map(([, height]) => height)).toEqual(
             Array(8).fill(HEIGHTS.l),
@@ -1210,10 +1210,10 @@ test.describe('Header syntax examples', () => {
             />,
         );
         await expect(header.previews).toHaveCount(8);
-        await expect(header.previewsWith('align_right')).toHaveCount(8);
-        await expect(header.previewsWith('vertical_bottom')).toHaveCount(8);
-        await expect(header.previewsWith('bg-image-blur')).toHaveCount(8);
-        await expect(header.previewsWithTheme('dark')).toHaveCount(8);
+        await expect(header.previewsWith('data-align', 'right')).toHaveCount(8);
+        await expect(header.previewsWith('data-vertical', 'bottom')).toHaveCount(8);
+        await expect(header.previewsWith('data-bg-image-blur')).toHaveCount(8);
+        await expect(header.previewsWith('data-bg-image-theme', 'dark')).toHaveCount(8);
         await header.waitForImage(headerImages.dark);
         await expectScreenshot({component: editor.locators.component});
     });
@@ -1273,7 +1273,7 @@ test.describe('Header stress', () => {
         expect(sizes[3][1]).toBe(HEIGHTS.l);
         expect(sizes[4][1]).toBe(HEIGHTS.l);
         expect(sizes[5][1]).toBeGreaterThan(HEIGHTS.s);
-        expect(await header.hasNoHorizontalScroll(editor.locators.previewContent)).toBe(true);
+        expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
         await header.waitForImage(headerImages.contrast);
         await expectScreenshot({component: editor.locators.component});
     });
@@ -1301,9 +1301,13 @@ test.describe('Header stress', () => {
         expect((await header.getPreviewSizes()).map(([width]) => width)).toEqual([599, 600]);
         const insets = await header.getPreviewContentInsets();
         expect(insets.map((inset) => inset?.[0])).toEqual([16, PADDING]);
+        expect(await header.getPreviewButtonGaps()).toEqual([BUTTONS_GAP]);
         await expectScreenshot({component: editor.locators.component});
     });
 });
+
+// The width of the mobile covers of the mock.
+const MOBILE_WIDTH = 343;
 
 const mobileMarkup = [
     headerExample('', headerContent(1)),
@@ -1325,7 +1329,7 @@ const mobileMarkup = [
 ].join('\n\n');
 
 test.describe('Header preview on mobile', () => {
-    test.use({viewport: {width: 343, height: 812}});
+    test.use({viewport: {width: MOBILE_WIDTH, height: 812}});
 
     test('should lay out the content in a narrow column @markup', async ({
         mount,
@@ -1333,16 +1337,22 @@ test.describe('Header preview on mobile', () => {
         header,
         expectScreenshot,
     }) => {
-        await mount(<HeaderStories.Preview width={343} initial={mobileMarkup} />, {
-            rootStyle: {padding: 0},
+        await mount(<HeaderStories.Preview width="100%" initial={mobileMarkup} />, {
+            rootStyle: {padding: 0, width: '100%'},
         });
         await expect(header.previews).toHaveCount(7);
+        // The headers are as wide as the mobile covers of the mock.
+        await editor.setPreviewContentWidth(MOBILE_WIDTH);
+        expect((await header.getPreviewSizes()).map(([width]) => width)).toEqual(
+            Array(7).fill(MOBILE_WIDTH),
+        );
         // Every width fills the column, and the text keeps the narrow padding.
         expect(await header.getPreviewWidthGaps()).toEqual([0]);
         const insets = await header.getPreviewContentInsets();
         expect(insets.map((inset) => inset?.slice(0, 2))).toEqual(Array(7).fill([16, 16]));
+        expect(await header.getPreviewButtonGaps()).toEqual([BUTTONS_GAP]);
         expect(await header.getPreviewTypography()).toHaveLength(1);
-        expect(await header.hasNoHorizontalScroll(editor.locators.previewContent)).toBe(true);
+        expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
         await header.waitForImage(headerImages.dark);
         await header.waitForImage(headerImages.contrast);
         await expectScreenshot({component: editor.locators.component});

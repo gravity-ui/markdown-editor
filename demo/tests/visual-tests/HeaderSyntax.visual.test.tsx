@@ -42,11 +42,11 @@ test.describe('Header syntax', () => {
         const story = page.getByTestId('header-syntax');
         await expect(story.getByTestId('header-syntax-example')).toHaveCount(16);
         await expect(header.previews).toHaveCount(16);
-        await expect(header.previewsWith('height_l')).toHaveCount(16);
-        await expect(header.previewsWith('width_full')).toHaveCount(16);
-        await expect(header.previewsWith('align_center')).toHaveCount(8);
-        await expect(header.previewsWith('align_right')).toHaveCount(8);
-        await expect(header.previewsWith('bg-image-blur')).toHaveCount(16);
+        await expect(header.previewsWith('data-height', 'l')).toHaveCount(16);
+        await expect(header.previewsWith('data-width', 'full')).toHaveCount(16);
+        await expect(header.previewsWith('data-align', 'center')).toHaveCount(8);
+        await expect(header.previewsWith('data-align', 'right')).toHaveCount(8);
+        await expect(header.previewsWith('data-bg-image-blur')).toHaveCount(16);
         expect((await header.getPreviewSizes()).map(([, height]) => height)).toEqual(
             Array(16).fill(360),
         );
