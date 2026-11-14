@@ -1,16 +1,10 @@
 @use 'sass:string';
+@use '../typography';
 
 // The typography of the YFM headings `h1`–`h6`: their variables, then the same sizes
 // of the Gravity UI typography for a page without the YFM styles.
 // The weight is the one of the Gravity UI group (`display`, `header`, `subheader`).
-$sizes: (
-    1: 'display-2',
-    2: 'header-2',
-    3: 'header-1',
-    4: 'subheader-3',
-    5: 'subheader-2',
-    6: 'subheader-1',
-);
+$sizes: typography.$heading-sizes;
 
 // The colors of colored text in YFM: their variables, then the tokens they take in Gravity UI.
 // FIXME: contrast below WCAG AA: yellow and orange on the page, green and blue at sizes 4–6,

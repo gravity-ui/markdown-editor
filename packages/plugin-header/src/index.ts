@@ -68,5 +68,18 @@ export {
     headerTitleTokenName,
     headerTitleValues,
 } from './header-title';
+export {
+    type HeaderContent,
+    type HeaderContentSize,
+    headerContent,
+    headerContentAttrs,
+    headerContentClassName,
+    headerContentDefaults,
+    headerContentFromAttrs,
+    headerContentPlugin,
+    headerContentSizes,
+    headerContentTokenName,
+    headerContentValues,
+} from './header-content';
 export {headerPreset} from './preset';
 export {safeImageUrl, toCssUrl} from './url';

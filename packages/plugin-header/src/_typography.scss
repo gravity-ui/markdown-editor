@@ -1,0 +1,10 @@
+// The typography of the YFM headings `h1`–`h6` by their level: the Gravity UI typography
+// of the same font size and line height, for a page without the YFM variables.
+$heading-sizes: (
+    1: 'display-2',
+    2: 'header-2',
+    3: 'header-1',
+    4: 'subheader-3',
+    5: 'subheader-2',
+    6: 'subheader-1',
+);

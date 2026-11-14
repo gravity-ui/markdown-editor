@@ -2,11 +2,12 @@
 
 markdown-it plugins for the Header markup. Each block has its own plugin, and `headerPreset` enables all of them:
 
-| Block                         | Plugin              | Markup                    |
-| ----------------------------- | ------------------- | ------------------------- |
-| [Header](#header)             | `headerPlugin`      | `:::header{…}`            |
-| [Header title](#header-title) | `headerTitlePlugin` | `::header-title[text]{…}` |
-| [Button](#button)             | `buttonPlugin`      | `:button[label]{…}`       |
+| Block                             | Plugin                | Markup                    |
+| --------------------------------- | --------------------- | ------------------------- |
+| [Header](#header)                 | `headerPlugin`        | `:::header{…}`            |
+| [Header title](#header-title)     | `headerTitlePlugin`   | `::header-title[text]{…}` |
+| [Header content](#header-content) | `headerContentPlugin` | `:::header-content{…}`    |
+| [Button](#button)                 | `buttonPlugin`        | `:button[label]{…}`       |
 
 ```ts
 import MarkdownIt from 'markdown-it';
@@ -60,7 +61,7 @@ The block is left-aligned in its container; the width is a `max-width`, so the b
 
 The block is a grid of one column, and its child blocks are the rows: the content keeps the order of the markup.
 `vertical` places the rows in the height of the block, `align` aligns the text and the row of buttons.
-The padding around the content is 32 px (`--g-spacing-8`), the gap between the blocks of text is 16 px (`--g-spacing-4`), and a row of buttons stands 32 px (`--g-spacing-8`) below the text.
+The padding around the content is 32 px (`--g-spacing-8`), the gap between the blocks of text, such as the title and the description, is 16 px (`--g-spacing-4`), and a row of buttons stands 32 px (`--g-spacing-8`) below the text.
 Long words wrap, so the content never widens the block.
 
 An image beside the text, an element with the class `g-md-header-image-plugin`, takes half of the block and fills its height with 8 px (`--g-spacing-2`) around it: on the right of the text, and on the left of a right-aligned text.
@@ -98,6 +99,11 @@ The numbers are custom properties; a host overrides them:
 | `--g-md-header-plugin-narrow-button-font-size`     | `var(--g-text-body-2-font-size)`           |
 | `--g-md-header-plugin-narrow-button-line-height`   | `var(--g-text-body-2-line-height)`         |
 | `--g-md-header-plugin-button-focus-outline-color`  | `var(--g-color-text-primary)`              |
+| `--g-md-header-plugin-link-color`                  | `currentColor`                             |
+| `--g-md-header-plugin-link-hover-color`            | `currentColor`                             |
+| `--g-md-header-plugin-link-decoration`             | `underline`                                |
+| `--g-md-header-plugin-code-color`                  | `currentColor`                             |
+| `--g-md-header-plugin-code-background`             | `var(--g-color-base-generic)`              |
 
 The width at which the narrow layout starts is fixed: a container query takes no custom property.
 
@@ -121,6 +127,8 @@ Without a fill, the page background of the fixed theme lies under the image.
 The theme and blur belong to the image: without `bg-image` they are parsed as the defaults.
 
 On an image and on the `medium` and `heavy` fills every button shows its keyboard focus with a ring of the text color (`--g-color-text-primary`): neither `--g-color-line-focus` nor the fill color of `action` would be seen there. The block sets `--g-md-button-plugin-focus-outline-color` for that; a host changes the ring there with `--g-md-header-plugin-button-focus-outline-color`. The light fills keep the rings of the page.
+
+On the same backgrounds the links and the inline code of the [description](#header-content) take the color of the text around them, the links with an underline and the code on a translucent fill (`--g-color-base-generic`): the link and code colors of the page are not readable on a fill of their own family or on an image. The block sets `--g-md-header-content-plugin-link-color`, `-link-hover-color`, `-link-decoration`, `-code-color` and `-code-background` for that; a host changes them there with `--g-md-header-plugin-link-color`, `-link-hover-color`, `-link-decoration`, `-code-color` and `-code-background`. Without a fill and on the light fills the links and the code are the ones of the page.
 
 ### Parsing
 
@@ -202,6 +210,74 @@ Use colored titles at sizes `1`–`3` on the page or on light fills, avoid the c
 | `--g-md-header-title-plugin-margin-block` | `0 var(--g-spacing-4)`                |
 
 Inside Header the title is a row of the header layout: the header sets the space around it, 16 px to the description and 32 px to the buttons. The margin applies to a title outside Header.
+
+## Header content
+
+```markdown
+:::header
+
+:::header-content{size="3"}
+Portal description with **bold**, _italic_, ++underlined++, ~~strikethrough~~ and `monospace` text and a [link](/page).
+
+Second paragraph.
+:::
+:::
+```
+
+```html
+<div class="g-md-header-plugin …">
+  <div class="g-md-header-content-plugin g-md-header-content-plugin_size_3" data-size="3">
+    <p>
+      Portal description with <strong>bold</strong>, <em>italic</em>, <ins>underlined</ins>,
+      <s>strikethrough</s> and <code>monospace</code> text and a <a href="/page">link</a>.
+    </p>
+    <p>Second paragraph.</p>
+  </div>
+</div>
+```
+
+The description is a container directive: the opening line, the paragraphs and the closing line `:::`.
+Its content is ordinary Markdown of the same parser, so the marks and the links are the ones the parser has: `++underlined++` needs a plugin for it, such as `markdown-it-ins`, which YFM and the editor include.
+A description without a text, `:::header-content` right before `:::`, keeps its tokens and renders nothing.
+
+| Attribute | Values                                                               | Default      |
+| --------- | -------------------------------------------------------------------- | ------------ |
+| `size`    | `1`–`6`: the font size and the line height of the headings `h1`–`h6` | regular text |
+
+An unknown attribute is skipped, and an unsupported value is replaced with the default: `:::header-content{size="7" color="red"}` is regular text.
+
+The block is a `div.g-md-header-content-plugin`; a size adds the `_size_<size>` modifier and the `data-size` attribute, and `headerContentFromAttrs` reads the size back. Regular text has neither.
+
+### Content styles
+
+| Size | Font size and line height                                        | Gravity UI typography |
+| ---- | ---------------------------------------------------------------- | --------------------- |
+| none | `--yfm-font-size`, `--yfm-font-line-height`: 15 px / 20 px       | `body-2`              |
+| `1`  | `--yfm-font-size-h1`, `--yfm-font-line-height-h1`: 32 px / 40 px | `display-2`           |
+| `2`  | `--yfm-font-size-h2`, `--yfm-font-line-height-h2`: 24 px / 28 px | `header-2`            |
+| `3`  | `--yfm-font-size-h3`, `--yfm-font-line-height-h3`: 20 px / 24 px | `header-1`            |
+| `4`  | `--yfm-font-size-h4`, `--yfm-font-line-height-h4`: 17 px / 24 px | `subheader-3`         |
+| `5`  | `--yfm-font-size-h5`, `--yfm-font-line-height-h5`: 15 px / 20 px | `subheader-2`         |
+| `6`  | `--yfm-font-size-h6`, `--yfm-font-line-height-h6`: 13 px / 18 px | `subheader-1`         |
+
+Without a size the description is the regular text of the page. A size takes the font size and the line height of the YFM heading of that level, as the [title](#title-styles) does; where the variables are not set, it takes the Gravity UI typography of the same size.
+The weight is the weight of regular text in every size, `--g-text-body-font-weight`: a description of size `2` is as large as the default title and is not bold. The color is the color of the text around the block.
+
+The paragraphs stand 8 px (`--g-spacing-2`) apart. Inline code has the YFM colors, `--yfm-color-inline-code` and `--yfm-color-inline-code-background`, and scales with the size.
+The links have the YFM link colors, `--yfm-color-link` and `--yfm-color-link-hover`, then `--g-color-text-link` and `--g-color-text-link-hover`. On an image and on the `medium` and `heavy` fills a header gives the links the text color and an underline and the inline code the text color, see [Background](#background).
+
+| Property                                        | Default                                                              |
+| ----------------------------------------------- | -------------------------------------------------------------------- |
+| `--g-md-header-content-plugin-font-weight`      | `var(--g-text-body-font-weight)`                                     |
+| `--g-md-header-content-plugin-paragraph-gap`    | `var(--g-spacing-2)`                                                 |
+| `--g-md-header-content-plugin-margin-block`     | `0 var(--g-spacing-4)`                                               |
+| `--g-md-header-content-plugin-link-color`       | `var(--yfm-color-link)`; the text color on a header background       |
+| `--g-md-header-content-plugin-link-hover-color` | `var(--yfm-color-link-hover)`; the text color on a header background |
+| `--g-md-header-content-plugin-link-decoration`  | `none`; `underline` on a header background                           |
+| `--g-md-header-content-plugin-code-color`       | `var(--yfm-color-inline-code)`; the text color on a header background |
+| `--g-md-header-content-plugin-code-background`  | `var(--yfm-color-inline-code-background)`; `var(--g-color-base-generic)` on a header background |
+
+Inside Header the description is a row of the header layout: the header sets the space around it, 16 px below the title and 32 px to the buttons. The margin applies to a description outside Header.
 
 ## Button
 
