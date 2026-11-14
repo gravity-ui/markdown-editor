@@ -73,6 +73,100 @@ export class HeaderBlock {
         return this.page.getByRole('option', {name, exact: true});
     }
 
+    /** Headers of the preview with the modifier, such as `align_center`. */
+    previewsWith(modifier: string) {
+        return this.previews.and(this.page.locator(`.g-md-header-plugin_${modifier}`));
+    }
+
+    /** Headers of the preview with the fixed theme of the content. */
+    previewsWithTheme(theme: 'light' | 'dark') {
+        return this.previews.and(this.page.locator(`.g-root.g-root_theme_${theme}`));
+    }
+
+    /** The width and the height of every header of the preview. */
+    getPreviewSizes() {
+        return this.previews.evaluateAll((elements) =>
+            elements.map((element) => {
+                const {width, height} = element.getBoundingClientRect();
+                return [Math.round(width), Math.round(height)];
+            }),
+        );
+    }
+
+    /** Headers of the preview with the attribute. */
+    previewsWithAttribute(name: string) {
+        return this.previews.and(this.page.locator(`[${name}]`));
+    }
+
+    /** The different widths the headers of the preview leave unused in their column. */
+    getPreviewWidthGaps() {
+        return this.previews.evaluateAll((elements) =>
+            Array.from(
+                new Set(
+                    elements.map((element) => {
+                        const column = element.parentElement;
+                        if (!column) return NaN;
+                        const {paddingLeft, paddingRight} = getComputedStyle(column);
+                        return Math.round(
+                            column.clientWidth -
+                                parseFloat(paddingLeft) -
+                                parseFloat(paddingRight) -
+                                element.getBoundingClientRect().width,
+                        );
+                    }),
+                ),
+            ),
+        );
+    }
+
+    /**
+     * Where the first block of the content stands in every header of the preview:
+     * the distances from the left, right, top and bottom edges of the header to the content.
+     */
+    getPreviewContentInsets() {
+        return this.previews.evaluateAll((elements) =>
+            elements.map((element) => {
+                const box = element.getBoundingClientRect();
+                const first = element.firstElementChild?.getBoundingClientRect();
+                const last = element.lastElementChild?.getBoundingClientRect();
+                if (!first || !last) return null;
+                return [
+                    Math.round(first.left - box.left),
+                    Math.round(box.right - first.right),
+                    Math.round(first.top - box.top),
+                    Math.round(box.bottom - last.bottom),
+                ];
+            }),
+        );
+    }
+
+    /** The different text styles of the headers of the preview. */
+    getPreviewTypography() {
+        return this.previews.evaluateAll((elements) =>
+            Array.from(
+                new Set(
+                    elements.map((element) => {
+                        const {fontFamily, fontSize, fontWeight, lineHeight} =
+                            getComputedStyle(element);
+                        return [fontFamily, fontSize, fontWeight, lineHeight].join(' / ');
+                    }),
+                ),
+            ),
+        );
+    }
+
+    /** Nothing in the preview is wider than its column. */
+    hasNoHorizontalScroll(preview: Locator) {
+        return preview.evaluate((element) => element.scrollWidth <= element.clientWidth);
+    }
+
+    /** The page itself has no horizontal scroll. */
+    pageHasNoHorizontalScroll() {
+        return this.page.evaluate(
+            () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        );
+    }
+
     toggle(name: string) {
         return this.settings.getByRole('switch', {name, exact: true});
     }

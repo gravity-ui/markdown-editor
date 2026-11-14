@@ -107,6 +107,19 @@ export class ButtonBlock {
         return block.evaluate((element) => getComputedStyle(element).backgroundColor);
     }
 
+    getOutlineColor(block: Locator) {
+        return block.evaluate((element) => getComputedStyle(element).outlineColor);
+    }
+
+    /** The heights of the buttons of a row. */
+    getHeights(row: Locator) {
+        return row.evaluate((element) =>
+            Array.from(element.children, (child) =>
+                Math.round(child.getBoundingClientRect().height),
+            ),
+        );
+    }
+
     /** The theme root defines the variables, so a value set above it has no effect. */
     async setThemeVariable(name: string, value: string) {
         await this.content.evaluate(

@@ -6,6 +6,7 @@ import {
     buttonMarkup,
     buttonRowsMarkup,
     buttonsInHeader,
+    headerImages,
     inHeader,
 } from '../../src/stories/header/markup';
 
@@ -338,6 +339,53 @@ test.describe('Button preview', () => {
         await expectScreenshot({component: editor.locators.component, nameSuffix: 'outline'});
     });
 
+    test('should show the keyboard focus of an action button on a fill of its color and on an image @markup', async ({
+        mount,
+        editor,
+        button,
+        header,
+        expectScreenshot,
+    }) => {
+        // The ring of an action button has the color of its fill; on the same fill
+        // and on an image it takes the text color.
+        const families = ['blue', 'green', 'yellow', 'red', 'violet'] as const;
+        const markup = [
+            ...families.map((color) =>
+                inHeader(buttonMarkup(['action', color]), `{bg-color="${color}-heavy"}`),
+            ),
+            inHeader(buttonMarkup(['action', 'standard']), '{bg-color="gray-heavy"}'),
+            inHeader(
+                buttonMarkup(['action', 'blue']),
+                `{bg-image="${headerImages.dark}" bg-image-theme="dark"}`,
+            ),
+            inHeader(buttonMarkup(['action', 'blue']), '{bg-color="blue-light"}'),
+        ].join('\n\n');
+        await mount(<ButtonStories.Preview width={720} initial={markup} />, {
+            styles: compactHeaderStyles,
+        });
+        await expect(button.variants).toHaveCount(8);
+        await header.waitForImage(headerImages.dark);
+
+        const onFill = button.variants.nth(0);
+        await button.focusWithKeyboard(onFill);
+        await expect(onFill).toBeFocused();
+        // The ring differs from the fill of the button and of the header.
+        expect(await button.getOutlineColor(onFill)).not.toBe(await button.getBackground(onFill));
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'fill'});
+
+        const onImage = button.variants.nth(6);
+        await button.focusWithKeyboard(onImage);
+        await expect(onImage).toBeFocused();
+        expect(await button.getOutlineColor(onImage)).not.toBe(await button.getBackground(onImage));
+        await expectScreenshot({component: editor.locators.component, nameSuffix: 'image'});
+
+        // A lighter fill keeps the ring of the fill color of the button.
+        const onLight = button.variants.nth(7);
+        await button.focusWithKeyboard(onLight);
+        await expect(onLight).toBeFocused();
+        expect(await button.getOutlineColor(onLight)).toBe(await button.getBackground(onLight));
+    });
+
     test('should wrap long labels and show labels as written @markup', async ({
         mount,
         editor,
@@ -570,6 +618,10 @@ test.describe('Button on mobile', () => {
             rootStyle: {padding: 0},
         });
         await expect(button.variants).toHaveCount(29);
+        // In a narrow header the buttons are taller and stand in a column of the full width.
+        await expect(button.rows.last()).toHaveCSS('flex-direction', 'column');
+        expect(await button.getHeights(button.rows.last())).toEqual([44, 44, 44]);
+        expect(await button.getRowTops()).toContain(3);
         expect(
             await editor.locators.previewContent.evaluate(
                 (element) => element.scrollWidth <= element.clientWidth,

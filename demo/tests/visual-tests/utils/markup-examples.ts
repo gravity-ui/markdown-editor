@@ -17,7 +17,8 @@ export const markupSection = (title: string) =>
     sections.filter((section) => section.title === title);
 
 /**
- * The height of a header belongs to the header tests; here it is lowered through its public
- * property, so that a screenshot holds many examples.
+ * The size of a header belongs to the header tests; here the height and the padding are lowered
+ * through the public properties, so that a screenshot holds many examples.
  */
-export const compactHeaderStyles = ':root {--g-md-header-plugin-height-s: 72px;}';
+export const compactHeaderStyles =
+    ':root {--g-md-header-plugin-height-s: 72px; --g-md-header-plugin-padding: var(--g-spacing-4);}';
