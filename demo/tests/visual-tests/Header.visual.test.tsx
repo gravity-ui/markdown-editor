@@ -397,7 +397,9 @@ test.describe('Header', () => {
         header,
         expectScreenshot,
     }) => {
-        await page.setViewportSize({width: 740, height: 600});
+        // The settings window and the page fit the viewport: in a lower one the focus scrolls
+        // either the page or the window, and the screenshot differs between runs.
+        await page.setViewportSize({width: 740, height: 640});
         await mount(
             <HeaderStories.Header width={660} initial={`${headerMarkup('s', 's')}\n\nAfter`} />,
         );
