@@ -5,18 +5,16 @@ import {
     headerTitleValues,
 } from '@gravity-ui/markdown-plugin-header';
 
-import {headerTitleNodeName} from './const';
+import {directiveAttrs, escapeDirectiveLabel} from '../../directive';
 
-const escapeText = (text: string) => text.replace(/[\\[\]]/g, '\\$&');
+import {headerTitleNodeName} from './const';
 
 export const HeaderTitleSerializerSpecs: ExtensionAuto = (builder) => {
     builder.addNodeSerializerSpec(headerTitleNodeName, () => (state, node) => {
         // Default values are not written.
-        const attrs = Object.entries(headerTitleValues(headerTitle(node.attrs)))
-            .map(([name, value]) => `${name}="${value}"`)
-            .join(' ');
+        const attrs = directiveAttrs(headerTitleValues(headerTitle(node.attrs)));
         state.write(
-            `::${headerTitleTokenName}[${escapeText(node.textContent.trim())}]${attrs && `{${attrs}}`}`,
+            `::${headerTitleTokenName}[${escapeDirectiveLabel(node.textContent.trim())}]${attrs}`,
         );
         state.closeBlock(node);
     });

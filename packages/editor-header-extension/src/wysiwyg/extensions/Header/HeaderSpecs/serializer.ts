@@ -7,19 +7,18 @@ import {
     headerLayoutValues,
 } from '@gravity-ui/markdown-plugin-header';
 
-import {headerNodeName} from './const';
+import {directiveAttrs} from '../../directive';
 
-const escape = (value: string) => value.replace(/[\\"]/g, '\\$&');
+import {headerNodeName} from './const';
 
 export const HeaderSerializerSpecs: ExtensionAuto = (builder) => {
     builder.addNodeSerializerSpec(headerNodeName, () => (state, node) => {
-        const attrs = {
+        const attrs = directiveAttrs({
             ...headerDimensions(node.attrs),
             ...headerLayoutValues(headerLayout(node.attrs)),
             ...headerBackgroundValues(headerBackground(node.attrs)),
-        };
-        const markup = Object.entries(attrs).map(([name, value]) => `${name}="${escape(value)}"`);
-        state.write(`:::header{${markup.join(' ')}}`);
+        });
+        state.write(`:::header${attrs}`);
         state.ensureNewLine();
         state.closeBlock(node);
         state.renderContent(node);
