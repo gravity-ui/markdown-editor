@@ -82,7 +82,7 @@ A centered header has no place for an image: write an image with `align="left"` 
 A header narrower than 600 px has the narrow layout; it follows the width of the block itself (a container query), not of the window:
 
 - the padding around the content is 16 px (`--g-spacing-4`);
-- the image stands above the text with 8 px (`--g-spacing-2`) around it, as wide as the block and 16:10 in proportions;
+- the image stands at the top, above the text, with 8 px (`--g-spacing-2`) around it, as wide as the block and 16:10 in proportions; `vertical` places only the text under it, and an image without text fills the height of the block;
 - the buttons stand in a column of the full width and have the size `xl` of the UIKit button: 44 px high, the `--g-border-radius-xl` corners, 24 px (`--g-spacing-6`) padding and the `body-2` text.
 
 The alignment stays as set. The block is a query container named `g-md-header-plugin`.

@@ -1,4 +1,9 @@
-import {headerBgColors, headerHeights, headerWidths} from '@gravity-ui/markdown-plugin-header';
+import {
+    headerBgColors,
+    headerHeights,
+    headerVerticals,
+    headerWidths,
+} from '@gravity-ui/markdown-plugin-header';
 
 import {expect} from 'playwright/core';
 import {test} from 'playwright/core/extensions/header-image';
@@ -653,6 +658,19 @@ const mobileMarkup = [
     headerWithImageMarkup('bg-color="violet-light"', `${headerMockMarkup(1)}\n\n${image}`, ''),
 ];
 
+// A header higher than its content: the image stays at the top, `vertical` places the text.
+const mobileVerticalMarkup = [
+    ...headerVerticals.map((vertical) =>
+        headerWithImageMarkup(
+            `height="l" vertical="${vertical}" bg-color="gray-light"`,
+            headerTitleMarkup(),
+        ),
+    ),
+    ...headerVerticals.map((vertical) =>
+        headerWithImageMarkup(`height="l" vertical="${vertical}" bg-color="gray-light"`, ''),
+    ),
+];
+
 test.describe('Header image on mobile', () => {
     test.use({viewport: {width: MOBILE_WIDTH, height: 812}});
 
@@ -690,6 +708,53 @@ test.describe('Header image on mobile', () => {
         );
         expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
         await header.waitForImage(headerBgImages.dark);
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should keep the image at the top of a narrow header with every vertical alignment @markup', async ({
+        mount,
+        editor,
+        header,
+        headerImage,
+        wait,
+        expectScreenshot,
+    }) => {
+        await mount(
+            <HeaderImageStories.Preview width="100%" initial={mobileVerticalMarkup.join('\n\n')} />,
+            {
+                rootStyle: {padding: 0, width: '100%'},
+            },
+        );
+        const count = mobileVerticalMarkup.length;
+        await expect(header.previews).toHaveCount(count);
+        await expect(headerImage.inHeaders(header.previews)).toHaveCount(count);
+        await editor.setPreviewContentWidth(MOBILE_WIDTH);
+        // The content is lower than the header: the header keeps its minimum height.
+        expect(await header.getPreviewSizes()).toEqual(
+            Array(count).fill([MOBILE_WIDTH, HEIGHTS.l]),
+        );
+        await wait.images(headerImage.previews);
+        const insets = await headerImage.getInsets();
+        // Every image stands 8 px from the top, whatever `vertical` is.
+        expect(insets.map((inset) => inset?.slice(0, 3))).toEqual(
+            Array(count).fill(Array(3).fill(IMAGE_PADDING)),
+        );
+        const withTitle = headerVerticals.length;
+        // Beside a title the image keeps its box; an image alone fills the height of the header.
+        expect(await headerImage.getSizes()).toEqual([
+            ...Array(withTitle).fill(MOBILE_IMAGE_SIZE),
+            ...Array(count - withTitle).fill([MOBILE_IMAGE_SIZE[0], HEIGHTS.l - 2 * IMAGE_PADDING]),
+        ]);
+        expect(insets.slice(withTitle).map((inset) => inset?.[3])).toEqual(
+            Array(count - withTitle).fill(IMAGE_PADDING),
+        );
+        // `vertical` moves only the text: right under the image at the top, lower otherwise.
+        const [top, center, bottom] = (await headerImage.getTextInsets()).map(
+            (inset) => inset?.[2] ?? 0,
+        );
+        expect(top).toBe(NARROW_IMAGE_GAP);
+        expect(center).toBeGreaterThan(NARROW_IMAGE_GAP);
+        expect(bottom).toBeGreaterThan(center);
         await expectScreenshot({component: editor.locators.component});
     });
 });

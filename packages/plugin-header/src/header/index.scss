@@ -333,33 +333,49 @@ $button: '.g-md-button-plugin';
     }
 }
 
-// The narrow layout: one column, the image above the text, the buttons in a column.
+// The narrow layout: one column, the image at the top above the text, the buttons in a column.
 
 @container g-md-header-plugin (width < #{$narrow-width}) {
     .g-md-header-plugin {
         &#{&} > * {
             --_--content-padding: var(--_--narrow-padding);
             --_--content-column: 1 / -1;
+            // The height of the image above the text: as wide as the block (`100cqi`) without
+            // the space around it, in the narrow proportions.
+            --_--narrow-image-height: calc(
+                (100cqi - 2 * var(--_--image-padding)) / (var(--_--narrow-image-aspect-ratio))
+            );
         }
 
+        // The image stands at the top whatever `vertical` is: the text takes the place under it,
+        // and `vertical` places only the text.
         &#{&} > #{$image} {
+            inset-inline: var(--_--image-padding);
+
+            // An image does not stretch between its insets as a box does: the width is set.
+            width: calc(100% - 2 * var(--_--image-padding));
+            height: var(--_--narrow-image-height);
+        }
+
+        &#{&}:has(> #{$image}) > :nth-child(1 of :not(#{$image})) {
+            margin-block-start: calc(
+                2 * var(--_--image-padding) + var(--_--narrow-image-height) +
+                    var(--_--content-padding)
+            );
+        }
+
+        // An image without a text fills the height of the block, as beside the text,
+        // so `vertical` leaves no space above it.
+        &#{&} > #{$image}:only-child {
             position: static;
 
-            order: -1;
             grid-column: 1 / -1;
 
-            // An image does not stretch to its row as the text does.
             width: calc(100% - 2 * var(--_--image-padding));
             height: auto;
+            min-height: calc(var(--_--height) - 2 * var(--_--image-padding));
             margin: var(--_--image-padding);
             aspect-ratio: var(--_--narrow-image-aspect-ratio);
-            // The space under the image and the padding of the text, without the gap of the rows.
-            margin-block-end: calc(var(--_--image-padding) - var(--_--text-gap));
-        }
-
-        // Without a text under the image the space around it is the same on every side.
-        &#{&} > #{$image}:only-child {
-            margin-block-end: var(--_--image-padding);
         }
 
         & > #{$button}-row {
