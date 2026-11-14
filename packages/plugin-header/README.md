@@ -100,7 +100,9 @@ Inside Header every button may stand in its own paragraph; paragraphs of buttons
 
 ```html
 <div class="g-md-header-plugin …">
-<p class="g-md-button-plugin-row"><a …>Open</a><a …>Docs</a><a …>Skip</a></p>
+<p class="g-md-button-plugin-row"><a …>Open</a>
+<a …>Docs</a>
+<a …>Skip</a></p>
 </div>
 ```
 
@@ -169,8 +171,7 @@ The size and typography are custom properties; a host overrides them:
 | `--g-md-button-plugin-focus-outline-width`           | `2px`                                                    |
 | `--g-md-button-plugin-pressed-scale`                 | `0.96`                                                   |
 | `--g-md-button-plugin-focus-outline-color`           | `var(--g-color-line-focus)`; the fill color for `action` |
-| `--g-md-button-plugin-focus-outline-offset`          | `0`                                                      |
-| `--g-md-button-plugin-action-focus-outline-offset`   | `1px`                                                    |
+| `--g-md-button-plugin-focus-outline-offset`          | `0`; `1px` for `action`                                  |
 | `--g-md-button-plugin-transition-duration-transform` | `0.1s`                                                   |
 | `--g-md-button-plugin-transition-duration-color`     | `0.15s`                                                  |
 | `--g-md-button-plugin-gap`                           | `var(--g-spacing-4)`, between the buttons of a row       |

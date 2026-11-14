@@ -10,11 +10,10 @@
     // FIXME: not in Gravity UI (mock: 14px)
     --_--font-size: var(--g-md-button-plugin-font-size, var(--g-text-body-1-font-size));
     --_--line-height: var(--g-md-button-plugin-line-height, var(--g-text-body-1-line-height));
-    --_--focus-outline-color: var(
-        --g-md-button-plugin-focus-outline-color,
-        var(--g-color-line-focus)
-    );
-    --_--focus-outline-offset: var(--g-md-button-plugin-focus-outline-offset, 0);
+    // Private defaults per view; the public overrides win on every view, as in UIKit.
+    --_--focus-outline-color: var(--g-color-line-focus);
+    --_--focus-outline-offset: 0;
+    --_--action-focus-outline-offset: 1px;
     // Gravity UI has no motion tokens; the durations of the UIKit button.
     --_--transition-duration-transform: var(
         --g-md-button-plugin-transition-duration-transform,
@@ -86,8 +85,12 @@
         }
 
         &:focus-visible {
-            outline: var(--_--focus-outline-width) solid var(--_--focus-outline-color);
-            outline-offset: var(--_--focus-outline-offset);
+            outline: var(--_--focus-outline-width) solid
+                var(--g-md-button-plugin-focus-outline-color, var(--_--focus-outline-color));
+            outline-offset: var(
+                --g-md-button-plugin-focus-outline-offset,
+                var(--_--focus-outline-offset)
+            );
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -102,7 +105,7 @@
         --_--background-hover: var(--_--action-background-hover);
         // A ring of the fill color behind a gap, as the action view of UIKit.
         --_--focus-outline-color: var(--_--action-background);
-        --_--focus-outline-offset: var(--g-md-button-plugin-action-focus-outline-offset, 1px);
+        --_--focus-outline-offset: var(--_--action-focus-outline-offset);
 
         // Two classes outweigh the transparent background of a Markdown link.
         background-color: var(--_--action-background);

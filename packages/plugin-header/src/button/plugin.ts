@@ -22,6 +22,9 @@ const isButtonRow = (children: Token[]) =>
 const isEmptyButtons = ({content, children}: Token) =>
     content.includes(`:${buttonTokenName}[`) && Boolean(children?.every(isSpace));
 
+/** Marks the hidden paragraph that continues a row: it renders as the line break between buttons. */
+const rowJoinMeta = 'buttonRowJoin';
+
 /**
  * A paragraph of buttons only is laid out as a row; buttons in running text keep the spaces.
  * Inside a header, rows that follow one another render as one row: the paragraph tags
@@ -53,6 +56,7 @@ const buttonRows: RuleCore = ({tokens}) => {
             if (headerDepth > 0 && rowClose) {
                 rowClose.hidden = true;
                 open.hidden = true;
+                open.meta = {...open.meta, [rowJoinMeta]: true};
             } else {
                 open.attrJoin('class', buttonRowClassName);
             }
@@ -90,6 +94,15 @@ export const buttonPlugin: PluginSimple = (md) => {
         md.core.ruler.after('inline', 'button_row', buttonRows);
     }
     const {rules} = md.renderer;
+    // Whitespace between the buttons of joined paragraphs, as between the buttons of one
+    // paragraph: without styles they do not run together.
+    const renderParagraphOpen = rules.paragraph_open;
+    rules.paragraph_open = (tokens, idx, options, env, self) => {
+        if (tokens[idx].meta?.[rowJoinMeta]) return '\n';
+        return renderParagraphOpen
+            ? renderParagraphOpen(tokens, idx, options, env, self)
+            : self.renderToken(tokens, idx, options);
+    };
     rules[buttonTokenName] = (tokens, idx, _options, _env, self) => {
         const token = tokens[idx];
         return `<a${self.renderAttrs(token)}>${md.utils.escapeHtml(token.content)}</a>`;
