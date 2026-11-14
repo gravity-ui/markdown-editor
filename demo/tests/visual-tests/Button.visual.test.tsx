@@ -9,7 +9,7 @@ import {
 } from '../../src/stories/header/markup';
 
 import {ButtonStories} from './Button.helpers';
-import {markupExamples, markupExamplesDocument} from './utils/markup-examples';
+import {compactHeaderStyles, markupExamples, markupExamplesDocument} from './utils/markup-examples';
 
 // Lines under the button leave room for its settings window and style list in the screenshot.
 const withSpace = `:button[Кнопка]{href="https://example.com" view="action" color="standard"}${'\n\nТекст'.repeat(12)}`;
@@ -360,9 +360,6 @@ test.describe('Button preview', () => {
 });
 
 // The examples of the syntax: every button in its own paragraph of a header.
-// The height of a header belongs to the header tests; here it is lowered through its public
-// property, so that a screenshot holds the buttons of many examples.
-const compactHeaders = ':root {--g-md-header-plugin-height-s: 72px;}';
 
 test.describe('Button syntax examples', () => {
     test('should render every color and target of the action view @markup', async ({
@@ -377,7 +374,7 @@ test.describe('Button syntax examples', () => {
                 width={720}
                 initial={markupExamplesDocument(markupExamples('button', 1, 30))}
             />,
-            {styles: compactHeaders},
+            {styles: compactHeaderStyles},
         );
         await expect(button.headers).toHaveCount(30);
         await expect(button.variants.and(button.withAttribute('data-view', 'action'))).toHaveCount(
@@ -410,7 +407,7 @@ test.describe('Button syntax examples', () => {
                 width={720}
                 initial={markupExamplesDocument(markupExamples('button', 31, 60))}
             />,
-            {styles: compactHeaders},
+            {styles: compactHeaderStyles},
         );
         await expect(button.headers).toHaveCount(30);
         await expect(button.variants.and(button.withAttribute('data-view', 'normal'))).toHaveCount(
@@ -438,7 +435,7 @@ test.describe('Button syntax examples', () => {
                 width={720}
                 initial={markupExamplesDocument(markupExamples('button', 61, 90))}
             />,
-            {styles: compactHeaders},
+            {styles: compactHeaderStyles},
         );
         await expect(button.headers).toHaveCount(30);
         await expect(button.variants.and(button.withAttribute('data-view', 'outline'))).toHaveCount(
@@ -463,7 +460,7 @@ test.describe('Button syntax examples', () => {
                 width={720}
                 initial={markupExamplesDocument(markupExamples('button', 91, 125))}
             />,
-            {styles: compactHeaders},
+            {styles: compactHeaderStyles},
         );
         await expect(button.headers).toHaveCount(35);
         await expect(button.variants.and(button.withAttribute('data-view', 'flat'))).toHaveCount(
@@ -487,7 +484,7 @@ test.describe('Button syntax examples', () => {
                 width={720}
                 initial={markupExamplesDocument(markupExamples('link'))}
             />,
-            {styles: compactHeaders},
+            {styles: compactHeaderStyles},
         );
         await expect(button.variants).toHaveCount(25);
         // A missing and an empty address render a button without `href`.
@@ -516,7 +513,7 @@ test.describe('Button syntax examples', () => {
         ];
         await mount(
             <ButtonStories.Preview width={720} initial={markupExamplesDocument(examples)} />,
-            {styles: compactHeaders},
+            {styles: compactHeaderStyles},
         );
         await expect(button.headers).toHaveCount(12);
         // The button with an empty label is not rendered, and its header stays empty.

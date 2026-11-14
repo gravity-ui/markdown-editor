@@ -1,10 +1,7 @@
 import {expect, test} from 'playwright/core';
 
 import {HeaderSyntaxStories} from './HeaderSyntax.helpers';
-import {markupSection} from './utils/markup-examples';
-
-// The height of a header belongs to the header tests; a lower one keeps the screenshot short.
-const compactHeaders = ':root {--g-md-header-plugin-height-s: 72px;}';
+import {compactHeaderStyles, markupSection} from './utils/markup-examples';
 
 test.describe('Header syntax', () => {
     test('should show the source and the preview of every example of a section', async ({
@@ -14,7 +11,7 @@ test.describe('Header syntax', () => {
     }) => {
         await mount(<HeaderSyntaxStories.AllCases sections={markupSection('Button URLs')} />, {
             width: 1100,
-            styles: compactHeaders,
+            styles: compactHeaderStyles,
         });
         const story = page.getByTestId('header-syntax');
         const examples = story.getByTestId('header-syntax-example');

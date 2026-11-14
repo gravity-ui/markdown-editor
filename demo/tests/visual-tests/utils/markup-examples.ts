@@ -21,3 +21,9 @@ export const markupSection = (title: string) =>
     sections.filter((section) => section.title === title);
 
 export {markupExamplesDocument};
+
+/**
+ * The height of a header belongs to the header tests; here it is lowered through its public
+ * property, so that a screenshot holds many examples.
+ */
+export const compactHeaderStyles = ':root {--g-md-header-plugin-height-s: 72px;}';

@@ -1,4 +1,9 @@
+// Two columns, the source and its preview, from this story width on.
+$wide-min-width: 960px;
+
 .header-syntax {
+    --header-syntax-markup-width: 360px;
+
     display: flex;
     flex-direction: column;
     gap: var(--g-spacing-8);
@@ -18,10 +23,6 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: var(--g-spacing-2) var(--g-spacing-4);
-
-    padding-block-start: var(--g-spacing-4);
-
-    border-block-start: 1px solid var(--g-color-line-generic);
 }
 
 .header-syntax__markup {
@@ -44,9 +45,9 @@
     min-width: 0;
 }
 
-@media (width >= 960px) {
+@media (width >= $wide-min-width) {
     .header-syntax__example {
-        grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+        grid-template-columns: minmax(0, var(--header-syntax-markup-width)) minmax(0, 1fr);
     }
 
     .header-syntax__name {

@@ -1,6 +1,6 @@
-import {memo, useCallback} from 'react';
+import {Fragment, memo, useCallback} from 'react';
 
-import {Text} from '@gravity-ui/uikit';
+import {Divider, Text} from '@gravity-ui/uikit';
 
 import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
 import {block} from '../../utils/cn';
@@ -45,7 +45,10 @@ export function HeaderSyntax({
                         {description} {examples.length} examples.
                     </Text>
                     {examples.map((example) => (
-                        <Example key={example.id} {...example} />
+                        <Fragment key={example.id}>
+                            <Divider />
+                            <Example {...example} />
+                        </Fragment>
                     ))}
                 </section>
             ))}
