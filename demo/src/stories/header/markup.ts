@@ -61,8 +61,8 @@ export const buttonStylesMarkup = [
     ...buttonStyleRows.map((row) => buttonsInHeader(row)),
 ].join('\n\n');
 
-/** Neutral generated images of the demo assets: a light, a dark and a high-contrast one. */
-export const headerImages = {
+/** Neutral generated images of the demo assets for `bg-image`: a light, a dark and a high-contrast one. */
+export const headerBgImages = {
     light: '/assets/header-bg-light.svg',
     dark: '/assets/header-bg-dark.svg',
     contrast: '/assets/header-bg-contrast.svg',
@@ -72,7 +72,7 @@ export const headerImages = {
  * Neutral generated images of the demo assets for the image beside the text: their proportions
  * differ, and each one marks its center and its corners, so its crop is seen.
  */
-export const headerSideImages = {
+export const headerImageSources = {
     landscape: '/assets/header-image-landscape.svg',
     wide: '/assets/header-image-wide.svg',
     tall: '/assets/header-image-tall.svg',
@@ -81,7 +81,7 @@ export const headerSideImages = {
 
 /** The image with the attributes that are given: an empty text and no title are not written. */
 export const headerImageMarkup = (
-    src: string = headerSideImages.landscape,
+    src: string = headerImageSources.landscape,
     {alt, title}: {alt?: string; title?: string} = {},
 ) =>
     `::header-image{${[
@@ -146,13 +146,15 @@ export const headerPreviewMarkup = [
     ),
     ...headerBgColors.map((color) => headerExample(`bg-color="${color}"`)),
     ...headerBgImageThemes.flatMap((theme) => [
-        headerExample(`bg-image="${headerImages.light}" bg-image-theme="${theme}"`),
-        headerExample(`bg-image="${headerImages.dark}" bg-image-theme="${theme}"`),
+        headerExample(`bg-image="${headerBgImages.light}" bg-image-theme="${theme}"`),
+        headerExample(`bg-image="${headerBgImages.dark}" bg-image-theme="${theme}"`),
     ]),
-    headerExample(`bg-image="${headerImages.contrast}" bg-image-theme="dark"`),
-    headerExample(`bg-image="${headerImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`),
+    headerExample(`bg-image="${headerBgImages.contrast}" bg-image-theme="dark"`),
     headerExample(
-        `height="l" width="full" align="center" vertical="bottom" bg-color="violet-light" bg-image="${headerImages.dark}" bg-image-theme="dark" bg-image-blur="true"`,
+        `bg-image="${headerBgImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`,
+    ),
+    headerExample(
+        `height="l" width="full" align="center" vertical="bottom" bg-color="violet-light" bg-image="${headerBgImages.dark}" bg-image-theme="dark" bg-image-blur="true"`,
         headerMockMarkup(3),
     ),
 ].join('\n\n');
@@ -190,7 +192,7 @@ export const headerTitlePreviewMarkup = [
     headerTitleColorsMarkup('bg-color="gray-light"', 'gray-light'),
     headerTitleColorsMarkup('bg-color="blue-heavy"', 'blue-heavy'),
     headerTitleColorsMarkup(
-        `bg-image="${headerImages.dark}" bg-image-theme="dark"`,
+        `bg-image="${headerBgImages.dark}" bg-image-theme="dark"`,
         'a dark image',
     ),
 ].join('\n\n');
@@ -200,17 +202,17 @@ export const headerContentMarks =
     'Text with **bold**, *italic*, ++underlined++, ~~strikethrough~~ and `monospace` text and a [link](/page).';
 
 /** The image, its theme and its blur, with the name of the background. */
-export const headerImageBackgrounds = [
-    [`bg-image="${headerImages.light}"`, 'a light image'],
-    [`bg-image="${headerImages.light}" bg-image-theme="light"`, 'a light image, light theme'],
-    [`bg-image="${headerImages.dark}"`, 'a dark image'],
-    [`bg-image="${headerImages.dark}" bg-image-theme="dark"`, 'a dark image, dark theme'],
+export const headerBgImageBackgrounds = [
+    [`bg-image="${headerBgImages.light}"`, 'a light image'],
+    [`bg-image="${headerBgImages.light}" bg-image-theme="light"`, 'a light image, light theme'],
+    [`bg-image="${headerBgImages.dark}"`, 'a dark image'],
+    [`bg-image="${headerBgImages.dark}" bg-image-theme="dark"`, 'a dark image, dark theme'],
     [
-        `bg-image="${headerImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`,
+        `bg-image="${headerBgImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`,
         'a blurred image, dark theme',
     ],
     [
-        `bg-color="yellow-light" bg-image="${headerImages.contrast}" bg-image-theme="light" bg-image-blur="true"`,
+        `bg-color="yellow-light" bg-image="${headerBgImages.contrast}" bg-image-theme="light" bg-image-blur="true"`,
         'a blurred image, light theme',
     ],
 ] as const;
@@ -259,7 +261,7 @@ export const headerContentPreviewMarkup = [
     headerContentMarksMarkup('bg-color="blue-medium"', 'blue-medium'),
     headerContentMarksMarkup('bg-color="blue-heavy"', 'blue-heavy'),
     headerContentMarksMarkup(
-        `bg-image="${headerImages.dark}" bg-image-theme="dark"`,
+        `bg-image="${headerBgImages.dark}" bg-image-theme="dark"`,
         'a dark image',
     ),
 ].join('\n\n');
@@ -268,7 +270,7 @@ export const headerContentPreviewMarkup = [
 export const headerWithImageMarkup = (
     attrs: string,
     content = headerMockMarkup(),
-    image = headerImageMarkup(headerSideImages.landscape, {alt: 'Team'}),
+    image = headerImageMarkup(headerImageSources.landscape, {alt: 'Team'}),
 ) => headerExample(attrs, `${image}\n\n${content}`);
 
 /** The left and the right alignment: an image stands on the other side of the text. */
@@ -279,13 +281,13 @@ export const headerImageAligns = headerAligns.filter((align) => align !== 'cente
  * the right alignment, the proportions of the image, the fills and the background images.
  */
 export const headerImagePreviewMarkup = [
-    headerImageMarkup(headerSideImages.landscape, {alt: 'Team', title: 'Project team'}),
+    headerImageMarkup(headerImageSources.landscape, {alt: 'Team', title: 'Project team'}),
     ...headerHeights.flatMap((height) =>
         headerImageAligns.map((align) =>
             headerWithImageMarkup(`height="${height}" align="${align}" bg-color="gray-light"`),
         ),
     ),
-    ...Object.values(headerSideImages).map((src) =>
+    ...Object.values(headerImageSources).map((src) =>
         headerWithImageMarkup(
             'bg-color="gray-light"',
             headerMockMarkup(2),
@@ -295,8 +297,8 @@ export const headerImagePreviewMarkup = [
     headerWithImageMarkup('', headerMockMarkup(3)),
     headerWithImageMarkup('width="s" bg-color="blue-medium"'),
     headerWithImageMarkup('width="full" align="right" bg-color="violet-heavy"'),
-    headerWithImageMarkup(`bg-image="${headerImages.dark}" bg-image-theme="dark"`),
+    headerWithImageMarkup(`bg-image="${headerBgImages.dark}" bg-image-theme="dark"`),
     headerWithImageMarkup(
-        `align="right" bg-image="${headerImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`,
+        `align="right" bg-image="${headerBgImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`,
     ),
 ].join('\n\n');

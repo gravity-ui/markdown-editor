@@ -5,13 +5,13 @@ import {test} from 'playwright/core/extensions/header-image';
 
 import {markupExamplesDocument} from '../../src/stories/header/examples';
 import {
+    headerBgImageBackgrounds,
+    headerBgImages,
     headerContentMarkup,
     headerImageAligns,
-    headerImageBackgrounds,
     headerImageMarkup,
-    headerImages,
+    headerImageSources,
     headerMockMarkup,
-    headerSideImages,
     headerTitleMarkup,
     headerWithImageMarkup,
     inHeader,
@@ -19,16 +19,13 @@ import {
 
 import {HeaderStories} from './Header.helpers';
 import {HeaderImageStories} from './HeaderImage.helpers';
+import {HEIGHTS, MOBILE_WIDTH, NARROW_PADDING, PADDING, WIDTHS} from './utils/header-geometry';
 import {markupExamples} from './utils/markup-examples';
 
-const HEIGHTS = {s: 236, m: 300, l: 360};
-const WIDTHS = {s: 600, m: 900, l: 1200};
 // The space of the preview around its column.
 const PREVIEW_CHROME = 160;
-// Around the text, around the image, and from the image above the text to the text.
-const PADDING = 32;
+// Around the image, and from the image above the text to the text.
 const IMAGE_PADDING = 8;
-const NARROW_PADDING = 16;
 const NARROW_IMAGE_GAP = 24;
 /** How an image fills its box, and its corners. */
 const imageStyles = (radius: string) => ({
@@ -57,7 +54,7 @@ const imageInsets = (width: number, align: string) => {
 const textInsets = (width: number, align: string) =>
     align === 'right' ? [width / 2 + PADDING, PADDING] : [PADDING, width / 2 + PADDING];
 
-const image = headerImageMarkup(headerSideImages.landscape, {alt: 'Team'});
+const image = headerImageMarkup(headerImageSources.landscape, {alt: 'Team'});
 const brokenImage = '/assets/missing-image.jpg';
 // Built at runtime for the `no-script-url` lint rule.
 const scriptUrl = ['javascript', 'alert(1)'].join(':');
@@ -115,23 +112,23 @@ const fillsMarkup = [
 ];
 
 const backgroundsMarkup = [
-    ...headerImageBackgrounds.map(([attrs]) => headerWithImageMarkup(attrs)),
+    ...headerBgImageBackgrounds.map(([attrs]) => headerWithImageMarkup(attrs)),
     headerWithImageMarkup(
-        `align="right" bg-image="${headerImages.dark}" bg-image-theme="dark"`,
+        `align="right" bg-image="${headerBgImages.dark}" bg-image-theme="dark"`,
         headerMockMarkup(3),
     ),
     headerWithImageMarkup(
-        `height="l" align="right" bg-image="${headerImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`,
+        `height="l" align="right" bg-image="${headerBgImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`,
         headerMockMarkup(3),
     ),
 ];
 
 // Images of any proportions fill the same box; a broken address leaves the box in place.
 const stressImages = [
-    headerSideImages.landscape,
-    headerSideImages.wide,
-    headerSideImages.tall,
-    headerSideImages.square,
+    headerImageSources.landscape,
+    headerImageSources.wide,
+    headerImageSources.tall,
+    headerImageSources.square,
 ];
 const stressMarkup = [
     ...stressImages.map((src) =>
@@ -144,17 +141,17 @@ const stressMarkup = [
     headerWithImageMarkup(
         'height="l" align="right" bg-color="gray-light"',
         headerMockMarkup(1),
-        headerImageMarkup(headerSideImages.wide),
+        headerImageMarkup(headerImageSources.wide),
     ),
     headerWithImageMarkup(
         'height="l" width="s" bg-color="gray-light"',
         headerMockMarkup(3, headerTitleMarkup(longTitle)),
-        headerImageMarkup(headerSideImages.tall),
+        headerImageMarkup(headerImageSources.tall),
     ),
     headerWithImageMarkup(
         'bg-color="gray-light"',
         headerMockMarkup(2, headerTitleMarkup(longTitle), headerContentMarkup(longText)),
-        headerImageMarkup(headerSideImages.wide),
+        headerImageMarkup(headerImageSources.wide),
     ),
     headerWithImageMarkup(
         'bg-color="gray-light"',
@@ -178,29 +175,30 @@ test.describe('Header image preview', () => {
         mount,
         editor,
         headerImage,
+        wait,
         expectScreenshot,
     }) => {
         await mount(
             <HeaderImageStories.Preview
                 width={720}
                 initial={[
-                    headerImageMarkup(headerSideImages.landscape, {
+                    headerImageMarkup(headerImageSources.landscape, {
                         alt: 'Team',
                         title: 'Project team',
                     }),
                     'Text between the images.',
-                    headerImageMarkup(headerSideImages.wide, {alt: ''}),
-                    headerImageMarkup(headerSideImages.square, {title: 'Project team'}),
+                    headerImageMarkup(headerImageSources.wide, {alt: ''}),
+                    headerImageMarkup(headerImageSources.square, {title: 'Project team'}),
                 ].join('\n\n')}
             />,
         );
         await expect(headerImage.previews).toHaveCount(3);
         expect(await headerImage.getValues()).toEqual([
-            {src: headerSideImages.landscape, alt: 'Team', title: 'Project team'},
-            {src: headerSideImages.wide, alt: '', title: null},
-            {src: headerSideImages.square, alt: '', title: 'Project team'},
+            {src: headerImageSources.landscape, alt: 'Team', title: 'Project team'},
+            {src: headerImageSources.wide, alt: '', title: null},
+            {src: headerImageSources.square, alt: '', title: 'Project team'},
         ]);
-        await headerImage.waitForImages();
+        await wait.images(headerImage.previews);
         expect(await headerImage.getLoaded()).toEqual([true, true, true]);
         // An image outside a header is not wider than the text and keeps its proportions.
         const sizes = await headerImage.getSizes();
@@ -219,6 +217,7 @@ test.describe('Header image preview', () => {
         editor,
         header,
         headerImage,
+        wait,
         expectScreenshot,
     }) => {
         // image-001 … image-012: the kinds of the address, each without and with the alternative
@@ -226,16 +225,14 @@ test.describe('Header image preview', () => {
         await mount(
             <HeaderImageStories.Preview
                 width={WIDTHS.m + PREVIEW_CHROME}
-                initial={markupExamplesDocument(
-                    markupExamples('image'),
-                    undefined,
-                    headerSideImages.landscape,
-                )}
+                initial={markupExamplesDocument(markupExamples('image'), {
+                    image: headerImageSources.landscape,
+                })}
             />,
         );
         await expect(header.previews).toHaveCount(15);
         await expect(headerImage.inHeaders(header.previews)).toHaveCount(15);
-        const src = headerSideImages.landscape;
+        const src = headerImageSources.landscape;
         expect(await headerImage.getValues()).toEqual([
             ...Array(3)
                 .fill([
@@ -249,7 +246,7 @@ test.describe('Header image preview', () => {
             ...Array(3).fill({src, alt: '', title: null}),
         ]);
         await expect(headerImage.previewsWith('title')).toHaveCount(6);
-        await headerImage.waitForImages();
+        await wait.images(headerImage.previews);
         expect(await headerImage.getLoaded()).toEqual(Array(15).fill(true));
         expect(await header.getPreviewSizes()).toEqual(Array(15).fill([WIDTHS.m, HEIGHTS.s]));
         expect(await headerImage.getSizes()).toEqual(
@@ -266,6 +263,7 @@ test.describe('Header image preview', () => {
         editor,
         header,
         headerImage,
+        wait,
         expectScreenshot,
     }) => {
         await mount(
@@ -279,7 +277,7 @@ test.describe('Header image preview', () => {
         );
         await expect(header.previews).toHaveCount(cases.length);
         await expect(headerImage.inHeaders(header.previews)).toHaveCount(cases.length);
-        await headerImage.waitForImages();
+        await wait.images(headerImage.previews);
         expect(await header.getPreviewSizes()).toEqual(cases.map(({height}) => [WIDTHS.m, height]));
         // The image fills the height of the block: on the right of the text, and on the left
         // of a right-aligned text.
@@ -301,6 +299,7 @@ test.describe('Header image preview', () => {
         editor,
         header,
         headerImage,
+        wait,
         expectScreenshot,
     }) => {
         await mount(
@@ -312,7 +311,7 @@ test.describe('Header image preview', () => {
         const count = widthsMarkup.length;
         await expect(header.previews).toHaveCount(count);
         await expect(headerImage.inHeaders(header.previews)).toHaveCount(count);
-        await headerImage.waitForImages();
+        await wait.images(headerImage.previews);
         const sizes = await header.getPreviewSizes();
         // The widths `s`, `m` and `l`, then the width of the column.
         expect(sizes.slice(0, 6).map(([width]) => width)).toEqual(
@@ -337,6 +336,7 @@ test.describe('Header image preview', () => {
         editor,
         header,
         headerImage,
+        wait,
         expectScreenshot,
     }) => {
         await mount(
@@ -348,7 +348,7 @@ test.describe('Header image preview', () => {
         const count = contentMarkup.length;
         await expect(header.previews).toHaveCount(count);
         await expect(headerImage.inHeaders(header.previews)).toHaveCount(count);
-        await headerImage.waitForImages();
+        await wait.images(headerImage.previews);
         // The content never changes the box of the image: it follows the size of the header.
         const sizes = await header.getPreviewSizes();
         expect(sizes.map(([width]) => width)).toEqual(Array(count).fill(WIDTHS.m));
@@ -375,6 +375,7 @@ test.describe('Header image preview', () => {
         editor,
         header,
         headerImage,
+        wait,
         expectScreenshot,
     }) => {
         await mount(
@@ -387,7 +388,7 @@ test.describe('Header image preview', () => {
         await expect(header.previews).toHaveCount(count);
         await expect(header.previewsWith('data-bg-color')).toHaveCount(headerBgColors.length);
         await expect(headerImage.inHeaders(header.previews)).toHaveCount(count);
-        await headerImage.waitForImages();
+        await wait.images(headerImage.previews);
         expect(await headerImage.getLoaded()).toEqual(Array(count).fill(true));
         expect(await headerImage.getSizes()).toEqual(
             Array(count).fill(imageSize(WIDTHS.m, HEIGHTS.s)),
@@ -403,6 +404,7 @@ test.describe('Header image preview', () => {
         editor,
         header,
         headerImage,
+        wait,
         expectScreenshot,
     }) => {
         await mount(
@@ -416,7 +418,7 @@ test.describe('Header image preview', () => {
         await expect(header.previewsWith('data-bg-image')).toHaveCount(count);
         await expect(header.previewsWith('data-bg-image-blur')).toHaveCount(3);
         await expect(headerImage.inHeaders(header.previews)).toHaveCount(count);
-        await headerImage.waitForImages();
+        await wait.images(headerImage.previews);
         const sizes = await header.getPreviewSizes();
         // The blurred background is clipped at the edges of the header, the image is not.
         expect(await headerImage.getSizes()).toEqual(
@@ -424,11 +426,11 @@ test.describe('Header image preview', () => {
         );
         expect(await headerImage.getInsets()).toEqual(
             sizes.map(([width], index) =>
-                imageInsets(width, index >= headerImageBackgrounds.length ? 'right' : 'left'),
+                imageInsets(width, index >= headerBgImageBackgrounds.length ? 'right' : 'left'),
             ),
         );
         expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
-        for (const src of Object.values(headerImages)) await header.waitForImage(src);
+        for (const src of Object.values(headerBgImages)) await header.waitForImage(src);
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -437,6 +439,7 @@ test.describe('Header image preview', () => {
         editor,
         header,
         headerImage,
+        wait,
         expectScreenshot,
     }) => {
         await mount(
@@ -448,8 +451,8 @@ test.describe('Header image preview', () => {
         const count = stressMarkup.length;
         await expect(header.previews).toHaveCount(count);
         await expect(headerImage.inHeaders(header.previews)).toHaveCount(count);
-        // A broken address never fires `load`: the screenshot waits for the failure here.
-        await headerImage.waitForImages();
+        // A broken address fires `error`, not `load`: wait for the failure before the check.
+        await wait.images(headerImage.previews);
         expect(await headerImage.getLoaded()).toEqual([
             ...Array(count - STRESS_BROKEN_COUNT).fill(true),
             ...Array(STRESS_BROKEN_COUNT).fill(false),
@@ -482,6 +485,7 @@ test.describe('Header image preview', () => {
         editor,
         header,
         headerImage,
+        wait,
         expectScreenshot,
     }) => {
         // An image outside a header, a second image and an image in a centered header are
@@ -490,16 +494,14 @@ test.describe('Header image preview', () => {
             <HeaderImageStories.Preview
                 width={WIDTHS.m + PREVIEW_CHROME}
                 initial={[
-                    markupExamplesDocument(
-                        markupExamples('boundaries', 4, 4),
-                        undefined,
-                        headerSideImages.wide,
-                    ),
+                    markupExamplesDocument(markupExamples('boundaries', 4, 4), {
+                        image: headerImageSources.wide,
+                    }),
                     'a second image',
                     inHeader(
                         [
-                            headerImageMarkup(headerSideImages.landscape),
-                            headerImageMarkup(headerSideImages.square),
+                            headerImageMarkup(headerImageSources.landscape),
+                            headerImageMarkup(headerImageSources.square),
                             headerMockMarkup(1),
                         ].join('\n\n'),
                     ),
@@ -519,10 +521,10 @@ test.describe('Header image preview', () => {
         await expect(headerImage.previews).toHaveCount(4);
         await expect(headerImage.inHeaders(header.previews)).toHaveCount(3);
         expect((await headerImage.getValues()).map(({src}) => src)).toEqual([
-            headerSideImages.wide,
-            headerSideImages.landscape,
-            headerSideImages.square,
-            headerSideImages.landscape,
+            headerImageSources.wide,
+            headerImageSources.landscape,
+            headerImageSources.square,
+            headerImageSources.landscape,
         ]);
         // Without an image the text takes the whole width of its header.
         await expect(headerImage.inHeaders(header.previews.nth(2))).toHaveCount(0);
@@ -531,7 +533,7 @@ test.describe('Header image preview', () => {
         expect(insets.slice(2).map((inset) => inset?.slice(0, 2))).toEqual(
             Array(2).fill([PADDING, PADDING]),
         );
-        await headerImage.waitForImages();
+        await wait.images(headerImage.previews);
         expect(await headerImage.getLoaded()).toEqual(Array(4).fill(true));
         expect(await header.getPreviewSizes()).toEqual(Array(4).fill([WIDTHS.m, HEIGHTS.s]));
         await expectScreenshot({component: editor.locators.component});
@@ -542,6 +544,7 @@ test.describe('Header image preview', () => {
         editor,
         header,
         headerImage,
+        wait,
         expectScreenshot,
     }) => {
         // A header of 599 px is narrow; a header of 600 px keeps the image beside the text.
@@ -559,7 +562,7 @@ test.describe('Header image preview', () => {
         );
         await expect(header.previews).toHaveCount(2);
         await expect(headerImage.inHeaders(header.previews)).toHaveCount(2);
-        await headerImage.waitForImages();
+        await wait.images(headerImage.previews);
         const sizes = await header.getPreviewSizes();
         expect(sizes.map(([width]) => width)).toEqual([599, 600]);
         const [narrow, wide] = await headerImage.getInsets();
@@ -580,14 +583,15 @@ test.describe('Header image', () => {
         editor,
         header,
         headerImage,
+        wait,
     }) => {
         const images = [
-            headerImageMarkup(headerSideImages.landscape, {alt: 'Team', title: 'Project team'}),
-            headerImageMarkup(headerSideImages.square),
+            headerImageMarkup(headerImageSources.landscape, {alt: 'Team', title: 'Project team'}),
+            headerImageMarkup(headerImageSources.square),
         ];
         const values = [
-            {src: headerSideImages.landscape, alt: 'Team', title: 'Project team'},
-            {src: headerSideImages.square, alt: '', title: null},
+            {src: headerImageSources.landscape, alt: 'Team', title: 'Project team'},
+            {src: headerImageSources.square, alt: '', title: null},
         ];
         await mount(
             <HeaderStories.Header
@@ -601,7 +605,7 @@ test.describe('Header image', () => {
         expect(await headerImage.getValues(headerImage.blocks)).toEqual(values);
         // The editor shows the image beside the text, as the preview does.
         await expect(headerImage.inHeaders(header.blocks)).toHaveCount(1);
-        await headerImage.waitForImages(headerImage.blocks);
+        await wait.images(headerImage.blocks);
         const [inset] = await headerImage.getInsets(headerImage.blocks);
         expect(inset?.[0]).toBeGreaterThan(inset?.[1] ?? Infinity);
         await editor.switchMode('markup');
@@ -617,8 +621,6 @@ test.describe('Header image', () => {
     });
 });
 
-// The width of the mobile covers of the mock.
-const MOBILE_WIDTH = 343;
 // The image above the text: as wide as the header without the space around it, 16:10.
 const MOBILE_IMAGE_SIZE = [327, 204];
 
@@ -628,17 +630,17 @@ const mobileMarkup = [
     headerWithImageMarkup(
         'height="l" bg-color="blue-medium"',
         headerMockMarkup(1),
-        headerImageMarkup(headerSideImages.wide),
+        headerImageMarkup(headerImageSources.wide),
     ),
     headerWithImageMarkup(
         'bg-color="green-light"',
         headerMockMarkup(1),
-        headerImageMarkup(headerSideImages.tall),
+        headerImageMarkup(headerImageSources.tall),
     ),
     headerWithImageMarkup(
-        `bg-image="${headerImages.dark}" bg-image-theme="dark"`,
+        `bg-image="${headerBgImages.dark}" bg-image-theme="dark"`,
         headerMockMarkup(2),
-        headerImageMarkup(headerSideImages.square),
+        headerImageMarkup(headerImageSources.square),
     ),
     headerWithImageMarkup(
         'bg-color="gray-light"',
@@ -659,6 +661,7 @@ test.describe('Header image on mobile', () => {
         editor,
         header,
         headerImage,
+        wait,
         expectScreenshot,
     }) => {
         await mount(
@@ -675,7 +678,7 @@ test.describe('Header image on mobile', () => {
         expect((await header.getPreviewSizes()).map(([width]) => width)).toEqual(
             Array(count).fill(MOBILE_WIDTH),
         );
-        await headerImage.waitForImages();
+        await wait.images(headerImage.previews);
         expect(await headerImage.getLoaded()).toEqual([true, true, true, true, true, false, true]);
         // Every image has the same box above the text, whatever its file and the alignment are.
         expect(await headerImage.getSizes()).toEqual(Array(count).fill(MOBILE_IMAGE_SIZE));
@@ -686,7 +689,7 @@ test.describe('Header image on mobile', () => {
             Array(count).fill([NARROW_PADDING, NARROW_PADDING, NARROW_IMAGE_GAP]),
         );
         expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
-        await header.waitForImage(headerImages.dark);
+        await header.waitForImage(headerBgImages.dark);
         await expectScreenshot({component: editor.locators.component});
     });
 });

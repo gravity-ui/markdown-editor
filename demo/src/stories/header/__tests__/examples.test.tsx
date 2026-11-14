@@ -108,11 +108,10 @@ describe('Header syntax examples', () => {
         ],
     ])('should give the image beside the text of %j its own local image', (markup, result) => {
         expect(
-            withLocalImages(
-                markup,
-                '/assets/header-bg-dark.svg',
-                '/assets/header-image-landscape.svg',
-            ),
+            withLocalImages(markup, {
+                bgImage: '/assets/header-bg-dark.svg',
+                image: '/assets/header-image-landscape.svg',
+            }),
         ).toBe(result);
     });
 
@@ -141,7 +140,7 @@ describe('Header syntax examples', () => {
                         markup: ':::header{bg-image="https://example.org/banner.jpg"}\n:::',
                     },
                 ],
-                '/assets/header-bg-light.svg',
+                {bgImage: '/assets/header-bg-light.svg'},
             ),
         ).toBe('case-001 — First\n\n:::header{bg-image="/assets/header-bg-light.svg"}\n:::');
     });

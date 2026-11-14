@@ -10,8 +10,8 @@ import {test} from 'playwright/core/extensions/header-title';
 import {markupExamplesDocument} from '../../src/stories/header/examples';
 import {
     buttonMarkup,
-    headerImageBackgrounds,
-    headerImages,
+    headerBgImageBackgrounds,
+    headerBgImages,
     headerMockMarkup,
     headerTitleColorsMarkup,
     headerTitleMarkup,
@@ -21,6 +21,13 @@ import {
 
 import {HeaderStories} from './Header.helpers';
 import {HeaderTitleStories} from './HeaderTitle.helpers';
+import {
+    BUTTONS_GAP,
+    MOBILE_WIDTH,
+    NARROW_PADDING,
+    PADDING,
+    TEXT_GAP,
+} from './utils/header-geometry';
 import {denseHeaderStyles, markupExamples} from './utils/markup-examples';
 
 // The font size, the line height and the font weight of the sizes 1–6.
@@ -37,10 +44,6 @@ const SIZE_COUNT = headerTitleSizes.length;
 const COLOR_COUNT = headerTitleColors.length;
 // The colors of the syntax examples: no color, then every color.
 const EXAMPLE_COLOR_COUNT = COLOR_COUNT + 1;
-const PADDING = 32;
-// From the title to the description, and from the title to the buttons.
-const TEXT_GAP = 16;
-const BUTTONS_GAP = 32;
 
 /** The titles of the syntax examples `first` … `last`: nine examples of every size. */
 const titleExamples = (first: number, last: number) =>
@@ -266,13 +269,13 @@ test.describe('Header title preview', () => {
         await mount(
             <HeaderTitleStories.Preview
                 width={1060}
-                initial={headerImageBackgrounds
+                initial={headerBgImageBackgrounds
                     .map(([attrs, name]) => headerTitleColorsMarkup(attrs, name))
                     .join('\n\n')}
             />,
             {styles: denseHeaderStyles},
         );
-        const count = headerImageBackgrounds.length * COLOR_COUNT;
+        const count = headerBgImageBackgrounds.length * COLOR_COUNT;
         await expect(header.previews).toHaveCount(count);
         await expect(headerTitle.previews).toHaveCount(count);
         await expect(header.previewsWith('data-bg-image-theme', 'dark')).toHaveCount(
@@ -284,7 +287,7 @@ test.describe('Header title preview', () => {
         // `auto` follows the theme of the image: it is the text color of its header.
         const colors = await headerTitle.getColors();
         const headerColors = await headerTitle.getParentColors();
-        const autoIndexes = headerImageBackgrounds.map((_, index) => index * COLOR_COUNT);
+        const autoIndexes = headerBgImageBackgrounds.map((_, index) => index * COLOR_COUNT);
         expect(autoIndexes.map((index) => colors[index])).toEqual(
             autoIndexes.map((index) => headerColors[index]),
         );
@@ -292,7 +295,7 @@ test.describe('Header title preview', () => {
         expect(new Set(autoIndexes.map((index) => colors[index])).size).toBe(2);
         // So do the other colors: each one is a color of the theme of its header.
         expect(new Set(colors).size).toBe(2 * COLOR_COUNT);
-        for (const image of Object.values(headerImages)) await header.waitForImage(image);
+        for (const image of Object.values(headerBgImages)) await header.waitForImage(image);
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -399,10 +402,6 @@ test.describe('Header title', () => {
     });
 });
 
-// The width of the mobile covers of the mock.
-const MOBILE_WIDTH = 343;
-const MOBILE_PADDING = 16;
-
 const mobileMarkup = [
     ...headerTitleSizes.map((size) =>
         inHeader(headerMockMarkup(1, headerTitleMarkup(`Title of size ${size}`, {size}))),
@@ -414,7 +413,7 @@ const mobileMarkup = [
     ),
     inHeader(
         headerMockMarkup(1, headerTitleMarkup('Title on a dark image', {color: 'yellow'})),
-        `{align="right" bg-image="${headerImages.dark}" bg-image-theme="dark"}`,
+        `{align="right" bg-image="${headerBgImages.dark}" bg-image-theme="dark"}`,
     ),
 ].join('\n\n');
 
@@ -443,14 +442,14 @@ test.describe('Header title on mobile', () => {
         expect((await headerTitle.getTypography()).slice(0, SIZE_COUNT)).toEqual(TYPOGRAPHY);
         const insets = await header.getPreviewContentInsets();
         expect(insets.map((inset) => inset?.slice(0, 2))).toEqual(
-            Array(count).fill([MOBILE_PADDING, MOBILE_PADDING]),
+            Array(count).fill([NARROW_PADDING, NARROW_PADDING]),
         );
         expect(await header.getPreviewGapsAfter(headerTitle.previews)).toEqual([TEXT_GAP]);
         const lines = await headerTitle.getLineCounts();
         expect(lines[SIZE_COUNT]).toBeGreaterThan(1);
         expect(lines[SIZE_COUNT + 1]).toBeGreaterThan(1);
         expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
-        await header.waitForImage(headerImages.dark);
+        await header.waitForImage(headerBgImages.dark);
         await expectScreenshot({component: editor.locators.component});
     });
 });

@@ -39,25 +39,6 @@ export class HeaderImageBlock {
         );
     }
 
-    /**
-     * Waits until every image is loaded or has failed to load. `expectScreenshot` waits
-     * for the `load` event only, which an image with a broken address never fires.
-     */
-    async waitForImages(blocks = this.previews) {
-        await blocks.evaluateAll((elements) =>
-            Promise.all(
-                (elements as HTMLImageElement[]).map(
-                    (image) =>
-                        image.complete ||
-                        new Promise<unknown>((resolve) => {
-                            image.addEventListener('load', resolve);
-                            image.addEventListener('error', resolve);
-                        }),
-                ),
-            ),
-        );
-    }
-
     /** Whether every image is loaded: an image with a broken address is not. */
     getLoaded(blocks = this.previews) {
         return blocks.evaluateAll((elements) =>

@@ -5,12 +5,12 @@ import {test} from 'playwright/core/extensions/header-content';
 
 import {markupExamplesDocument} from '../../src/stories/header/examples';
 import {
+    headerBgImageBackgrounds,
+    headerBgImages,
     headerContentMarks,
     headerContentMarksMarkup,
     headerContentMarkup,
     headerContentsMarkup,
-    headerImageBackgrounds,
-    headerImages,
     headerMockMarkup,
     headerTitleMarkup,
     inHeader,
@@ -18,6 +18,13 @@ import {
 
 import {HeaderStories} from './Header.helpers';
 import {HeaderContentStories} from './HeaderContent.helpers';
+import {
+    BUTTONS_GAP,
+    MOBILE_WIDTH,
+    NARROW_PADDING,
+    PADDING,
+    TEXT_GAP,
+} from './utils/header-geometry';
 import {denseHeaderStyles, markupExamples} from './utils/markup-examples';
 
 // The font size, the line height and the font weight of regular text and of the sizes 1–6.
@@ -33,11 +40,7 @@ const TYPOGRAPHY = [
 const SIZE_COUNT = headerContentSizes.length;
 // No size, then every size.
 const EXAMPLE_SIZE_COUNT = SIZE_COUNT + 1;
-const PADDING = 32;
-// From the title to the description, from the description to the buttons,
-// and between the paragraphs of a description.
-const TEXT_GAP = 16;
-const BUTTONS_GAP = 32;
+// Between the paragraphs of a description.
 const PARAGRAPH_GAP = 8;
 // The underline of a link, thicker under the pointer, and the width of its focus ring.
 const LINK_THICKNESS = '2px';
@@ -100,7 +103,7 @@ const stressMarkup = [
     ),
     inHeader(
         headerMockMarkup(3, headerTitleMarkup(), headerContentMarkup(manyParagraphs)),
-        `{width="s" bg-image="${headerImages.dark}" bg-image-theme="dark"}`,
+        `{width="s" bg-image="${headerBgImages.dark}" bg-image-theme="dark"}`,
     ),
     inHeader(
         headerContentMarkup('A', {size: 6}),
@@ -312,13 +315,13 @@ test.describe('Header content preview', () => {
         await mount(
             <HeaderContentStories.Preview
                 width={1060}
-                initial={headerImageBackgrounds
+                initial={headerBgImageBackgrounds
                     .map(([attrs, name]) => headerContentMarksMarkup(attrs, name))
                     .join('\n\n')}
             />,
             {styles: denseHeaderStyles},
         );
-        const count = headerImageBackgrounds.length;
+        const count = headerBgImageBackgrounds.length;
         await expect(header.previews).toHaveCount(count);
         await expect(headerContent.previews).toHaveCount(count);
         // The links follow the theme of the image: they take the text color of their header.
@@ -333,7 +336,7 @@ test.describe('Header content preview', () => {
         const codeColors = await headerContent.getCodeColors();
         expect(codeColors).toHaveLength(count);
         expect(codeColors[1]).not.toBe(codeColors[3]);
-        for (const image of Object.values(headerImages)) await header.waitForImage(image);
+        for (const image of Object.values(headerBgImages)) await header.waitForImage(image);
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -359,7 +362,7 @@ test.describe('Header content preview', () => {
         expect((await headerContent.getValues())[3].paragraphs).toHaveLength(manyParagraphs.length);
         expect(await headerContent.getParagraphGaps()).toEqual([PARAGRAPH_GAP]);
         expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
-        await header.waitForImage(headerImages.dark);
+        await header.waitForImage(headerBgImages.dark);
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -461,7 +464,7 @@ test.describe('Header content preview', () => {
                     headerContentMarksMarkup('bg-color="blue-light"', 'blue-light'),
                     headerContentMarksMarkup('bg-color="blue-heavy"', 'blue-heavy'),
                     headerContentMarksMarkup(
-                        `bg-image="${headerImages.dark}" bg-image-theme="dark"`,
+                        `bg-image="${headerBgImages.dark}" bg-image-theme="dark"`,
                         'a dark image',
                     ),
                 ].join('\n\n')}
@@ -469,7 +472,7 @@ test.describe('Header content preview', () => {
             {styles: denseHeaderStyles},
         );
         await expect(headerContent.links).toHaveCount(4);
-        await header.waitForImage(headerImages.dark);
+        await header.waitForImage(headerBgImages.dark);
 
         const expectFocusRings = async (theme: 'light' | 'dark') => {
             await page.emulateMedia({colorScheme: theme});
@@ -584,10 +587,6 @@ test.describe('Header content', () => {
     });
 });
 
-// The width of the mobile covers of the mock.
-const MOBILE_WIDTH = 343;
-const MOBILE_PADDING = 16;
-
 const mobileMarkup = [
     ...sizesMarkup,
     inHeader(headerMockMarkup(2, headerTitleMarkup(), headerContentMarkup(longText))),
@@ -605,7 +604,7 @@ const mobileMarkup = [
             headerTitleMarkup(),
             headerContentMarkup([headerContentMarks, ...manyParagraphs.slice(0, 4)]),
         ),
-        `{align="right" bg-image="${headerImages.dark}" bg-image-theme="dark"}`,
+        `{align="right" bg-image="${headerBgImages.dark}" bg-image-theme="dark"}`,
     ),
 ].join('\n\n');
 
@@ -638,7 +637,7 @@ test.describe('Header content on mobile', () => {
         ]);
         const insets = await header.getPreviewContentInsets();
         expect(insets.map((inset) => inset?.slice(0, 2))).toEqual(
-            Array(count).fill([MOBILE_PADDING, MOBILE_PADDING]),
+            Array(count).fill([NARROW_PADDING, NARROW_PADDING]),
         );
         expect(await header.getPreviewGapsAfter(headerTitle.previews)).toEqual([TEXT_GAP]);
         expect(await header.getPreviewGapsAfter(headerContent.previews)).toEqual([BUTTONS_GAP]);
@@ -647,7 +646,7 @@ test.describe('Header content on mobile', () => {
         expect(lines[EXAMPLE_SIZE_COUNT]).toBeGreaterThan(1);
         expect(lines[EXAMPLE_SIZE_COUNT + 1]).toBeGreaterThan(1);
         expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
-        await header.waitForImage(headerImages.dark);
+        await header.waitForImage(headerBgImages.dark);
         await expectScreenshot({component: editor.locators.component});
     });
 });

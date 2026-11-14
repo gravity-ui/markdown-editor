@@ -30,8 +30,23 @@ export const wait: PlaywrightFixture<WaitFixture> = async ({page}, use) => {
         markupPreview: async (text: string | RegExp) => {
             await expect(page.locator('.playground__markup')).toContainText(text);
         },
+        images: waitForImages,
     });
 };
+
+/** Waits until every image of the locator is loaded or has failed to load. */
+export async function waitForImages(images: Locator) {
+    await allMap(images, async (image) => {
+        await image.evaluate(
+            (element: HTMLImageElement) =>
+                element.complete ||
+                new Promise<unknown>((resolve) => {
+                    element.addEventListener('load', resolve);
+                    element.addEventListener('error', resolve);
+                }),
+        );
+    });
+}
 
 async function allMap(locator: Locator, callback: (locator: Locator) => Promise<void>) {
     return Promise.all((await locator.all()).map(callback));

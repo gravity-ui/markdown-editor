@@ -6,7 +6,7 @@ import {
     buttonMarkup,
     buttonRowsMarkup,
     buttonsInHeader,
-    headerImages,
+    headerBgImages,
     inHeader,
 } from '../../src/stories/header/markup';
 
@@ -356,7 +356,7 @@ test.describe('Button preview', () => {
             inHeader(buttonMarkup(['action', 'standard']), '{bg-color="gray-heavy"}'),
             inHeader(
                 buttonMarkup(['action', 'blue']),
-                `{bg-image="${headerImages.dark}" bg-image-theme="dark"}`,
+                `{bg-image="${headerBgImages.dark}" bg-image-theme="dark"}`,
             ),
             inHeader(buttonMarkup(['action', 'blue']), '{bg-color="blue-light"}'),
         ].join('\n\n');
@@ -364,7 +364,7 @@ test.describe('Button preview', () => {
             styles: compactHeaderStyles,
         });
         await expect(button.variants).toHaveCount(8);
-        await header.waitForImage(headerImages.dark);
+        await header.waitForImage(headerBgImages.dark);
 
         const onFill = button.variants.nth(0);
         await button.focusWithKeyboard(onFill);
@@ -399,8 +399,8 @@ test.describe('Button preview', () => {
         const headers = [
             '{bg-color="blue-heavy"}',
             '{bg-color="blue-medium"}',
-            `{bg-image="${headerImages.dark}" bg-image-theme="dark"}`,
-            `{bg-image="${headerImages.light}" bg-image-theme="light"}`,
+            `{bg-image="${headerBgImages.dark}" bg-image-theme="dark"}`,
+            `{bg-image="${headerBgImages.light}" bg-image-theme="light"}`,
         ];
         const markup = headers
             .map((attrs) =>
@@ -411,8 +411,8 @@ test.describe('Button preview', () => {
             styles: compactHeaderStyles,
         });
         await expect(button.variants).toHaveCount(headers.length * views.length);
-        await header.waitForImage(headerImages.dark);
-        await header.waitForImage(headerImages.light);
+        await header.waitForImage(headerBgImages.dark);
+        await header.waitForImage(headerBgImages.light);
 
         // The ring of every button has the text color of its header, which follows the page theme.
         const expectTextColorRings = async (theme: 'light' | 'dark') => {

@@ -85,28 +85,28 @@ const EXAMPLE_IMAGE_RE = /https?:\/\/example\.org\/[\w./-]+\.(?:jpe?g|png|gif|we
 
 const HEADER_IMAGE_RE = /^::header-image\{.*$/gm;
 
+/** The local images of the examples: `bgImage` for the backgrounds, `image` for the images beside the text. */
+export type LocalImages = {
+    bgImage?: string;
+    image?: string;
+};
+
+const DEFAULT_LOCAL_IMAGE = '/assets/test-image.jpg';
+
 /**
  * The addresses of the examples do not exist; a local image of the demo assets loads without
- * a network. The images beside the text take `sideImage`, the backgrounds take `image`.
+ * a network. The images beside the text take `image`, the backgrounds take `bgImage`.
  */
 export const withLocalImages = (
     markup: string,
-    image = '/assets/test-image.jpg',
-    sideImage = image,
+    {bgImage = DEFAULT_LOCAL_IMAGE, image = bgImage}: LocalImages = {},
 ) =>
     markup
-        .replace(HEADER_IMAGE_RE, (line) => line.replace(EXAMPLE_IMAGE_RE, sideImage))
-        .replace(EXAMPLE_IMAGE_RE, image);
+        .replace(HEADER_IMAGE_RE, (line) => line.replace(EXAMPLE_IMAGE_RE, image))
+        .replace(EXAMPLE_IMAGE_RE, bgImage);
 
 /** One document of several examples: the name of each example, then its markup. */
-export const markupExamplesDocument = (
-    examples: readonly MarkupExample[],
-    image?: string,
-    sideImage?: string,
-) =>
+export const markupExamplesDocument = (examples: readonly MarkupExample[], images?: LocalImages) =>
     examples
-        .map(
-            ({id, title, markup}) =>
-                `${id} — ${title}\n\n${withLocalImages(markup, image, sideImage)}`,
-        )
+        .map(({id, title, markup}) => `${id} — ${title}\n\n${withLocalImages(markup, images)}`)
         .join('\n\n');

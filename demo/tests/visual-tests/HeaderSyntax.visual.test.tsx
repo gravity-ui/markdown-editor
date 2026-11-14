@@ -137,6 +137,7 @@ test.describe('Header syntax', () => {
         page,
         header,
         headerImage,
+        wait,
         expectScreenshot,
     }) => {
         await mount(<HeaderSyntaxStories.AllCases sections={markupSection('Image attributes')} />, {
@@ -158,7 +159,7 @@ test.describe('Header syntax', () => {
         await expect(headerImage.previewsWith('alt', 'Team')).toHaveCount(6);
         await expect(headerImage.previewsWith('alt', '')).toHaveCount(9);
         await expect(headerImage.previewsWith('title', 'Project team')).toHaveCount(6);
-        await headerImage.waitForImages();
+        await wait.images(headerImage.previews);
         expect(await headerImage.getLoaded()).toEqual(Array(15).fill(true));
         await expectScreenshot({component: story});
     });

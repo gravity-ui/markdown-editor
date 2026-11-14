@@ -8,15 +8,16 @@ import type {Fixtures} from 'playwright/core/types';
 
 import {markupExamplesDocument} from '../../src/stories/header/examples';
 import {
+    headerBgImages,
     headerContentMarkup,
     headerExample,
-    headerImages,
+    headerImageSources,
     headerMockMarkup,
-    headerSideImages,
     headerTitleMarkup,
 } from '../../src/stories/header/markup';
 
 import {HeaderStories} from './Header.helpers';
+import {BUTTONS_GAP, HEIGHTS, MOBILE_WIDTH, PADDING, WIDTHS} from './utils/header-geometry';
 import {markupExamples} from './utils/markup-examples';
 
 const headerMarkup = (height: string, width: string) =>
@@ -734,12 +735,6 @@ test.describe('Header on mobile', () => {
 });
 
 // The examples of the syntax in the preview of the markup mode, in the sizes of the mock.
-
-const HEIGHTS = {s: 236, m: 300, l: 360};
-const WIDTHS = {s: 600, m: 900, l: 1200};
-const PADDING = 32;
-// From the text to the buttons, in the wide and in the narrow layout.
-const BUTTONS_GAP = 32;
 // The examples of a height and a width go by the alignment: left, center and right,
 // each with the top, center and bottom vertical alignment.
 const LAYOUT_COUNT = 9;
@@ -918,7 +913,7 @@ async function expectBackgrounds(
             width={760}
             initial={markupExamplesDocument(
                 markupExamples('background', first, first + count - 1),
-                headerImages.light,
+                {bgImage: headerBgImages.light},
             )}
         />,
     );
@@ -938,7 +933,7 @@ async function expectBackgrounds(
     expect(new Set((await header.getPreviewSizes()).map(([, height]) => height))).toEqual(
         new Set([HEIGHTS.s]),
     );
-    await header.waitForImage(headerImages.light);
+    await header.waitForImage(headerBgImages.light);
     await expectScreenshot({component: editor.locators.component});
 }
 
@@ -953,10 +948,9 @@ test.describe('Header backgrounds', () => {
         await mount(
             <HeaderStories.Preview
                 width={760}
-                initial={markupExamplesDocument(
-                    markupExamples('background', 1, FILL_COUNT),
-                    headerImages.light,
-                )}
+                initial={markupExamplesDocument(markupExamples('background', 1, FILL_COUNT), {
+                    bgImage: headerBgImages.light,
+                })}
             />,
         );
         await expect(header.previews).toHaveCount(FILL_COUNT);
@@ -966,7 +960,7 @@ test.describe('Header backgrounds', () => {
         await expect(header.previewsWith('data-bg-image-theme', 'dark')).toHaveCount(2);
         expect(await header.getPreviewTypography()).toHaveLength(1);
         expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
-        await header.waitForImage(headerImages.light);
+        await header.waitForImage(headerBgImages.light);
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -1078,7 +1072,7 @@ test.describe('Header backgrounds', () => {
         header,
         expectScreenshot,
     }) => {
-        const images = [headerImages.light, headerImages.dark, headerImages.contrast];
+        const images = [headerBgImages.light, headerBgImages.dark, headerBgImages.contrast];
         const markup = images
             .flatMap((image) =>
                 headerBgImageThemes.flatMap((theme) => [
@@ -1136,11 +1130,9 @@ test.describe('Header syntax examples', () => {
         await mount(
             <HeaderStories.Preview
                 width={1060}
-                initial={markupExamplesDocument(
-                    markupExamples('structure', 17, 32),
-                    undefined,
-                    headerSideImages.landscape,
-                )}
+                initial={markupExamplesDocument(markupExamples('structure', 17, 32), {
+                    image: headerImageSources.landscape,
+                })}
             />,
         );
         await expect(header.previews).toHaveCount(16);
@@ -1192,7 +1184,9 @@ test.describe('Header syntax examples', () => {
         await mount(
             <HeaderStories.Preview
                 width={1000}
-                initial={markupExamplesDocument(markupExamples('mixed', 1, 8), headerImages.dark)}
+                initial={markupExamplesDocument(markupExamples('mixed', 1, 8), {
+                    bgImage: headerBgImages.dark,
+                })}
             />,
         );
         await expect(header.previews).toHaveCount(8);
@@ -1205,7 +1199,7 @@ test.describe('Header syntax examples', () => {
         expect((await header.getPreviewSizes()).map(([, height]) => height)).toEqual(
             Array(8).fill(HEIGHTS.l),
         );
-        await header.waitForImage(headerImages.dark);
+        await header.waitForImage(headerBgImages.dark);
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -1219,11 +1213,10 @@ test.describe('Header syntax examples', () => {
         await mount(
             <HeaderStories.Preview
                 width={1000}
-                initial={markupExamplesDocument(
-                    markupExamples('mixed', 9, 16),
-                    headerImages.dark,
-                    headerSideImages.landscape,
-                )}
+                initial={markupExamplesDocument(markupExamples('mixed', 9, 16), {
+                    bgImage: headerBgImages.dark,
+                    image: headerImageSources.landscape,
+                })}
             />,
         );
         await expect(header.previews).toHaveCount(8);
@@ -1231,7 +1224,7 @@ test.describe('Header syntax examples', () => {
         await expect(header.previewsWith('data-vertical', 'bottom')).toHaveCount(8);
         await expect(header.previewsWith('data-bg-image-blur')).toHaveCount(8);
         await expect(header.previewsWith('data-bg-image-theme', 'dark')).toHaveCount(8);
-        await header.waitForImage(headerImages.dark);
+        await header.waitForImage(headerBgImages.dark);
         await expectScreenshot({component: editor.locators.component});
     });
 });
@@ -1267,7 +1260,7 @@ const stressMarkup = [
         headerMockMarkup(0, headerTitleMarkup('A'), headerContentMarkup('B')),
     ),
     headerExample(
-        `width="s" bg-image="${headerImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`,
+        `width="s" bg-image="${headerBgImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`,
         headerMockMarkup(3, headerTitleMarkup(longTitle), headerContentMarkup(tallText)),
     ),
     headerExample(
@@ -1300,7 +1293,7 @@ test.describe('Header stress', () => {
         expect(sizes[4][1]).toBe(HEIGHTS.l);
         expect(sizes[5][1]).toBeGreaterThan(HEIGHTS.s);
         expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
-        await header.waitForImage(headerImages.contrast);
+        await header.waitForImage(headerBgImages.contrast);
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -1332,9 +1325,6 @@ test.describe('Header stress', () => {
     });
 });
 
-// The width of the mobile covers of the mock.
-const MOBILE_WIDTH = 343;
-
 const mobileMarkup = [
     headerExample('', headerMockMarkup(1)),
     headerExample('bg-color="gray-light"', headerMockMarkup(3)),
@@ -1344,11 +1334,11 @@ const mobileMarkup = [
         headerMockMarkup(1),
     ),
     headerExample(
-        `height="l" width="full" bg-image="${headerImages.dark}" bg-image-theme="dark"`,
+        `height="l" width="full" bg-image="${headerBgImages.dark}" bg-image-theme="dark"`,
         headerMockMarkup(3, headerTitleMarkup(longTitle), headerContentMarkup(longText)),
     ),
     headerExample(
-        `width="s" bg-color="violet-light" bg-image="${headerImages.contrast}" bg-image-theme="light" bg-image-blur="true"`,
+        `width="s" bg-color="violet-light" bg-image="${headerBgImages.contrast}" bg-image-theme="light" bg-image-blur="true"`,
         headerMockMarkup(1),
     ),
     headerExample(
@@ -1382,8 +1372,8 @@ test.describe('Header preview on mobile', () => {
         expect(await header.getPreviewButtonGaps()).toEqual([BUTTONS_GAP]);
         expect(await header.getPreviewTypography()).toHaveLength(1);
         expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
-        await header.waitForImage(headerImages.dark);
-        await header.waitForImage(headerImages.contrast);
+        await header.waitForImage(headerBgImages.dark);
+        await header.waitForImage(headerBgImages.contrast);
         await expectScreenshot({component: editor.locators.component});
     });
 });
