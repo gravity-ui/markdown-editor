@@ -7,6 +7,7 @@ export class ButtonBlock {
     readonly blocks: Locator;
     readonly variants: Locator;
     readonly rows: Locator;
+    readonly headers: Locator;
     readonly settings: Locator;
     readonly label: Locator;
     readonly link: Locator;
@@ -21,6 +22,7 @@ export class ButtonBlock {
         this.blocks = this.content.locator('.g-md-button-plugin');
         this.variants = preview.locator('.g-md-button-plugin');
         this.rows = preview.locator('.g-md-button-plugin-row');
+        this.headers = preview.locator('.g-md-header-plugin');
         this.settings = page.getByRole('dialog', {name: 'Button settings'});
         this.label = this.settings.getByRole('textbox', {name: 'Label', exact: true});
         this.link = this.settings.getByRole('textbox', {name: 'Link', exact: true});
@@ -73,6 +75,25 @@ export class ButtonBlock {
     /** A button of the preview by its view and color. */
     variant(view: string, color: string) {
         return this.variants.and(this.page.locator(`[data-view="${view}"][data-color="${color}"]`));
+    }
+
+    /** Elements with the attribute, or with this exact value of it. */
+    withAttribute(name: string, value?: string) {
+        return this.page.locator(value === undefined ? `[${name}]` : `[${name}="${value}"]`);
+    }
+
+    /** The number of different top edges of the buttons in every row: 1 is a single line. */
+    getRowTops() {
+        return this.rows.evaluateAll((rows) =>
+            rows.map(
+                (row) =>
+                    new Set(
+                        Array.from(row.children, (child) =>
+                            Math.round(child.getBoundingClientRect().top),
+                        ),
+                    ).size,
+            ),
+        );
     }
 
     /** `:focus-visible` follows the Tab key; a scripted focus alone may not match it. */

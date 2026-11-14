@@ -24,7 +24,7 @@ export const Colors: StoryObj<typeof ButtonExample> = {
     },
 };
 
-/** Every view and color in the text, then the same buttons inside a header. */
+/** Every view and color in the text, then the same buttons inside headers. */
 export const Preview: StoryObj<typeof ButtonExample> = {
     args: {mode: 'markup', preview: true, width: 720, initial: buttonStylesMarkup},
 };

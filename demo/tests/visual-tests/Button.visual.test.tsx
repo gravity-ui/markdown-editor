@@ -1,9 +1,15 @@
 import {expect} from 'playwright/core';
 import {test} from 'playwright/core/extensions/button';
 
-import {buttonMarkup, buttonRowsMarkup, inHeader} from '../../src/stories/header/markup';
+import {
+    buttonMarkup,
+    buttonRowsMarkup,
+    buttonsInHeader,
+    inHeader,
+} from '../../src/stories/header/markup';
 
 import {ButtonStories} from './Button.helpers';
+import {markupExamples, markupExamplesDocument} from './utils/markup-examples';
 
 // Lines under the button leave room for its settings window and style list in the screenshot.
 const withSpace = `:button[Кнопка]{href="https://example.com" view="action" color="standard"}${'\n\nТекст'.repeat(12)}`;
@@ -257,7 +263,7 @@ test.describe('Button', () => {
 });
 
 test.describe('Button preview', () => {
-    test('should render every view and color in the text and in a header @markup', async ({
+    test('should render every view and color in the text and in headers @markup', async ({
         mount,
         editor,
         button,
@@ -265,8 +271,9 @@ test.describe('Button preview', () => {
     }) => {
         await mount(<ButtonStories.Preview />);
         await expect(button.variants).toHaveCount(50);
-        // Each paragraph of buttons is a row, in the text and in the header.
+        // A paragraph of buttons in the text is a row, and so are the paragraphs of a header.
         await expect(button.rows).toHaveCount(14);
+        await expect(button.headers).toHaveCount(7);
         expect(await button.getFilledBackgrounds(button.variants)).not.toContain(
             'rgba(0, 0, 0, 0)',
         );
@@ -352,6 +359,210 @@ test.describe('Button preview', () => {
     });
 });
 
+// The examples of the syntax: every button in its own paragraph of a header.
+// The height of a header belongs to the header tests; here it is lowered through its public
+// property, so that a screenshot holds the buttons of many examples.
+const compactHeaders = ':root {--g-md-header-plugin-height-s: 72px;}';
+
+test.describe('Button syntax examples', () => {
+    test('should render every color and target of the action view @markup', async ({
+        mount,
+        editor,
+        button,
+        expectScreenshot,
+    }) => {
+        // button-001 … button-030: 6 colors with 5 targets each.
+        await mount(
+            <ButtonStories.Preview
+                width={720}
+                initial={markupExamplesDocument(markupExamples('button', 1, 30))}
+            />,
+            {styles: compactHeaders},
+        );
+        await expect(button.headers).toHaveCount(30);
+        await expect(button.variants.and(button.withAttribute('data-view', 'action'))).toHaveCount(
+            30,
+        );
+        await expect(button.variants.and(button.withAttribute('href', '/page'))).toHaveCount(30);
+        // `_self` is the default and is not rendered.
+        await expect(button.variants.and(button.withAttribute('target'))).toHaveCount(18);
+        await expect(button.variants.and(button.withAttribute('target', '_blank'))).toHaveCount(6);
+        await expect(
+            button.variants.and(button.withAttribute('rel', 'noopener noreferrer')),
+        ).toHaveCount(6);
+        await expect(button.variants.and(button.withAttribute('target', '_parent'))).toHaveCount(6);
+        await expect(button.variants.and(button.withAttribute('target', '_top'))).toHaveCount(6);
+        expect(await button.getFilledBackgrounds(button.variants)).not.toContain(
+            'rgba(0, 0, 0, 0)',
+        );
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should render every color and target of the normal view @markup', async ({
+        mount,
+        editor,
+        button,
+        expectScreenshot,
+    }) => {
+        // button-031 … button-060: 6 colors with 5 targets each.
+        await mount(
+            <ButtonStories.Preview
+                width={720}
+                initial={markupExamplesDocument(markupExamples('button', 31, 60))}
+            />,
+            {styles: compactHeaders},
+        );
+        await expect(button.headers).toHaveCount(30);
+        await expect(button.variants.and(button.withAttribute('data-view', 'normal'))).toHaveCount(
+            30,
+        );
+        await expect(button.variants.and(button.withAttribute('target'))).toHaveCount(18);
+        await expect(
+            button.variants.and(button.withAttribute('rel', 'noopener noreferrer')),
+        ).toHaveCount(6);
+        expect(await button.getFilledBackgrounds(button.variants)).not.toContain(
+            'rgba(0, 0, 0, 0)',
+        );
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should render every color and target of the outline view @markup', async ({
+        mount,
+        editor,
+        button,
+        expectScreenshot,
+    }) => {
+        // button-061 … button-090: 6 colors with 5 targets each.
+        await mount(
+            <ButtonStories.Preview
+                width={720}
+                initial={markupExamplesDocument(markupExamples('button', 61, 90))}
+            />,
+            {styles: compactHeaders},
+        );
+        await expect(button.headers).toHaveCount(30);
+        await expect(button.variants.and(button.withAttribute('data-view', 'outline'))).toHaveCount(
+            30,
+        );
+        await expect(button.variants.and(button.withAttribute('target'))).toHaveCount(18);
+        await expect(
+            button.variants.and(button.withAttribute('rel', 'noopener noreferrer')),
+        ).toHaveCount(6);
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should render every color and target of the flat view @markup', async ({
+        mount,
+        editor,
+        button,
+        expectScreenshot,
+    }) => {
+        // button-091 … button-125: 7 colors with 5 targets each.
+        await mount(
+            <ButtonStories.Preview
+                width={720}
+                initial={markupExamplesDocument(markupExamples('button', 91, 125))}
+            />,
+            {styles: compactHeaders},
+        );
+        await expect(button.headers).toHaveCount(35);
+        await expect(button.variants.and(button.withAttribute('data-view', 'flat'))).toHaveCount(
+            35,
+        );
+        await expect(button.variants.and(button.withAttribute('target'))).toHaveCount(21);
+        await expect(
+            button.variants.and(button.withAttribute('rel', 'noopener noreferrer')),
+        ).toHaveCount(7);
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should render every kind of address with every target @markup', async ({
+        mount,
+        editor,
+        button,
+        expectScreenshot,
+    }) => {
+        await mount(
+            <ButtonStories.Preview
+                width={720}
+                initial={markupExamplesDocument(markupExamples('link'))}
+            />,
+            {styles: compactHeaders},
+        );
+        await expect(button.variants).toHaveCount(25);
+        // A missing and an empty address render a button without `href`.
+        await expect(button.variants.and(button.withAttribute('href'))).toHaveCount(15);
+        await expect(button.variants.and(button.withAttribute('href', '/page'))).toHaveCount(5);
+        await expect(
+            button.variants.and(button.withAttribute('href', 'https://example.org/page')),
+        ).toHaveCount(5);
+        await expect(
+            button.variants.and(button.withAttribute('href', 'http://example.org/page')),
+        ).toHaveCount(5);
+        await expect(button.variants.and(button.withAttribute('target', '_blank'))).toHaveCount(5);
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should render the defaults and normalize unsupported values @markup', async ({
+        mount,
+        editor,
+        button,
+        expectScreenshot,
+    }) => {
+        const examples = [
+            ...markupExamples('defaults', 4, 6),
+            ...markupExamples('defaults', 9, 12),
+            ...markupExamples('boundaries', 9, 13),
+        ];
+        await mount(
+            <ButtonStories.Preview width={720} initial={markupExamplesDocument(examples)} />,
+            {styles: compactHeaders},
+        );
+        await expect(button.headers).toHaveCount(12);
+        // The button with an empty label is not rendered, and its header stays empty.
+        await expect(button.variants).toHaveCount(11);
+        await expect(button.rows).toHaveCount(11);
+        expect(await button.getValues(button.variants)).toEqual([
+            {view: 'action', color: 'standard', text: 'Learn more'},
+            {view: 'action', color: 'standard', text: 'Learn more'},
+            {view: 'action', color: 'blue', text: 'Learn more'},
+            {view: 'action', color: 'standard', text: 'Learn more'},
+            {view: 'normal', color: 'gray', text: 'Learn more'},
+            {view: 'outline', color: 'gray', text: 'Learn more'},
+            {view: 'flat', color: 'standard', text: 'Learn more'},
+            // An invalid pair takes the default color of the view.
+            {view: 'action', color: 'standard', text: 'Learn more'},
+            {view: 'normal', color: 'gray', text: 'Learn more'},
+            // `javascript:` and `data:` addresses are rejected.
+            {view: 'action', color: 'blue', text: 'Learn more'},
+            {view: 'action', color: 'blue', text: 'Learn more'},
+        ]);
+        await expect(button.variants.and(button.withAttribute('href'))).toHaveCount(5);
+        await expect(button.variants.and(button.withAttribute('href', '/page'))).toHaveCount(5);
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should lay out the buttons of a header in one row @markup', async ({
+        mount,
+        editor,
+        button,
+        expectScreenshot,
+    }) => {
+        await mount(
+            <ButtonStories.Preview
+                width={720}
+                initial={markupExamplesDocument(markupExamples('structure', 2, 4))}
+            />,
+        );
+        await expect(button.headers).toHaveCount(3);
+        await expect(button.variants).toHaveCount(6);
+        // One, two and three paragraphs of a button each: a row per header.
+        await expect(button.rows).toHaveCount(3);
+        expect(await button.getRowTops()).toEqual([1, 1, 1]);
+        await expectScreenshot({component: editor.locators.component});
+    });
+});
+
 test.describe('Button on mobile', () => {
     test.use({viewport: {width: 343, height: 812}});
 
@@ -364,13 +575,11 @@ test.describe('Button on mobile', () => {
         const markup = [
             buttonRowsMarkup(),
             `:button[${longLabel}]{href="https://example.com" view="action" color="blue"}`,
-            inHeader(
-                [
-                    buttonMarkup(['action', 'blue']),
-                    buttonMarkup(['normal', 'gray']),
-                    buttonMarkup(['flat', 'standard']),
-                ].join(' '),
-            ),
+            buttonsInHeader([
+                ['action', 'blue'],
+                ['normal', 'gray'],
+                ['flat', 'standard'],
+            ]),
         ].join('\n\n');
         await mount(<ButtonStories.Preview width={343} initial={markup} />, {
             rootStyle: {padding: 0},

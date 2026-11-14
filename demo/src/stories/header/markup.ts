@@ -39,4 +39,12 @@ export const buttonRowsMarkup = (rows = buttonStyleRows) =>
 export const inHeader = (content: string, attrs = '{bg-color="gray-light"}') =>
     `:::header${attrs}\n\n${content}\n\n:::`;
 
-export const buttonStylesMarkup = `${buttonRowsMarkup()}\n\n${inHeader(buttonRowsMarkup())}`;
+/** Inside a header every button stands in its own paragraph; the paragraphs form one row. */
+export const buttonsInHeader = (styles: readonly ButtonStyle[]) =>
+    inHeader(styles.map((style) => buttonMarkup(style)).join('\n\n'));
+
+/** Every view and color in the text, then a header for each row of them. */
+export const buttonStylesMarkup = [
+    buttonRowsMarkup(),
+    ...buttonStyleRows.map((row) => buttonsInHeader(row)),
+].join('\n\n');
