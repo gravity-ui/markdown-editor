@@ -4,6 +4,7 @@ import {
     headerBackgroundDefaults,
     headerClassName,
     headerDefaults,
+    headerLayoutDefaults,
 } from '@gravity-ui/markdown-plugin-header';
 
 import {headerNodeAttrs} from './attrs';
@@ -19,6 +20,8 @@ export const HeaderSchemaSpecs: ExtensionAuto = (builder) => {
         attrs: {
             height: {default: headerDefaults.height},
             width: {default: headerDefaults.width},
+            align: {default: headerLayoutDefaults.align},
+            vertical: {default: headerLayoutDefaults.vertical},
             'bg-color': {default: headerBackgroundDefaults['bg-color']},
             'bg-image': {default: headerBackgroundDefaults['bg-image']},
             'bg-image-theme': {default: headerBackgroundDefaults['bg-image-theme']},

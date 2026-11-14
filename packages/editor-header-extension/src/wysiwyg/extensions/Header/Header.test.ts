@@ -31,6 +31,7 @@ import {
     type HeaderDimensions,
     headerBackgroundDefaults,
     headerDefaults,
+    headerLayoutDefaults,
 } from '@gravity-ui/markdown-plugin-header';
 import {afterEach, describe, expect, it} from 'vitest';
 
@@ -111,7 +112,12 @@ describe('Header extension', () => {
     ])('should round trip %j', ({height, width}) => {
         const source = `:::header{height="${height}" width="${width}"}\n\n:::`;
         const doc = markupParser.parse(source);
-        expect(doc.firstChild?.attrs).toEqual({height, width, ...headerBackgroundDefaults});
+        expect(doc.firstChild?.attrs).toEqual({
+            height,
+            width,
+            ...headerLayoutDefaults,
+            ...headerBackgroundDefaults,
+        });
         expect(serializer.serialize(doc)).toBe(source);
         const container = document.createElement('div');
         container.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
@@ -132,7 +138,7 @@ describe('Header extension', () => {
     });
 
     it('should use the same defaults in the schema and parser', () => {
-        const defaults = {...headerDefaults, ...headerBackgroundDefaults};
+        const defaults = {...headerDefaults, ...headerLayoutDefaults, ...headerBackgroundDefaults};
         expect(schema.nodes.header.create().attrs).toEqual(defaults);
         expect(markupParser.parse(':::header\n:::').firstChild?.attrs).toEqual(defaults);
     });
@@ -202,6 +208,7 @@ describe('Header extension', () => {
         expect(doc.firstChild?.attrs).toEqual({
             height: 'l',
             width: 'full',
+            ...headerLayoutDefaults,
             ...headerBackgroundDefaults,
         });
     });
@@ -341,11 +348,54 @@ describe('Header extension', () => {
         expect(doc.firstChild?.attrs).toEqual({
             height: 's',
             width: 'm',
+            ...headerLayoutDefaults,
             'bg-color': 'blue-light',
             'bg-image': './.files/a "b" \\.jpg',
             'bg-image-theme': 'dark',
             'bg-image-blur': true,
         });
+        expect(serializer.serialize(doc)).toBe(source);
+        const container = document.createElement('div');
+        container.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
+        expect(DOMParser.fromSchema(schema).parse(container).toJSON()).toEqual(doc.toJSON());
+    });
+
+    it.each([
+        '/image&copy;.png',
+        '/image&#10;.png',
+        '/a.png?x=1&amp;y=2',
+        '/a.png?x=1&y=2&copy=3',
+        '/a&lt;b&gt;.png',
+    ])('should round trip the background address %j with its entities as written', (address) => {
+        const source = `:::header{height="s" width="m" bg-image="${address}"}\n\n:::`;
+        const doc = markupParser.parse(source);
+        expect(doc.firstChild?.attrs['bg-image']).toBe(address);
+        expect(serializer.serialize(doc)).toBe(source);
+        expect(serializer.serialize(markupParser.parse(serializer.serialize(doc)))).toBe(source);
+        const container = document.createElement('div');
+        container.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
+        expect(container.firstElementChild?.getAttribute('style')).toBe(
+            `background-image:url("${address}")`,
+        );
+        expect(DOMParser.fromSchema(schema).parse(container).toJSON()).toEqual(doc.toJSON());
+    });
+
+    it.each([
+        [':::header{align="center"}\n:::', 'center', 'center', ' align="center"'],
+        [':::header{align="right"}\n:::', 'right', 'center', ' align="right"'],
+        [':::header{vertical="top"}\n:::', 'left', 'top', ' vertical="top"'],
+        [
+            ':::header{vertical="bottom" align="right"}\n:::',
+            'right',
+            'bottom',
+            ' align="right" vertical="bottom"',
+        ],
+        [':::header{align="left" vertical="center"}\n:::', 'left', 'center', ''],
+        [':::header{align="justify" vertical="middle"}\n:::', 'left', 'center', ''],
+    ])('should keep the alignment of %j', (markup, align, vertical, written) => {
+        const doc = markupParser.parse(markup);
+        expect(doc.firstChild?.attrs).toMatchObject({align, vertical});
+        const source = `:::header{height="s" width="m"${written}}\n\n:::`;
         expect(serializer.serialize(doc)).toBe(source);
         const container = document.createElement('div');
         container.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
@@ -360,7 +410,11 @@ describe('Header extension', () => {
         ':::header{bg-image="data:text/html,<b>"}\n:::',
     ])('should not write default or unsupported background values from %j', (markup) => {
         const doc = markupParser.parse(markup);
-        expect(doc.firstChild?.attrs).toEqual({...headerDefaults, ...headerBackgroundDefaults});
+        expect(doc.firstChild?.attrs).toEqual({
+            ...headerDefaults,
+            ...headerLayoutDefaults,
+            ...headerBackgroundDefaults,
+        });
         expect(serializer.serialize(doc)).toBe(':::header{height="s" width="m"}\n\n:::');
     });
 
@@ -384,6 +438,7 @@ describe('Header extension', () => {
         expect(undo(editor.state, editor.dispatch)).toBe(true);
         expect(editor.state.doc.firstChild?.attrs).toEqual({
             ...headerDefaults,
+            ...headerLayoutDefaults,
             ...headerBackgroundDefaults,
         });
         expect(run(editor, setHeaderBackground(2, {'bg-color': 'red-heavy'}))).toBe(false);

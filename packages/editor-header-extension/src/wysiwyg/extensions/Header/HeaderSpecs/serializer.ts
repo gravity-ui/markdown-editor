@@ -3,6 +3,8 @@ import {
     headerBackground,
     headerBackgroundValues,
     headerDimensions,
+    headerLayout,
+    headerLayoutValues,
 } from '@gravity-ui/markdown-plugin-header';
 
 import {headerNodeName} from './const';
@@ -13,6 +15,7 @@ export const HeaderSerializerSpecs: ExtensionAuto = (builder) => {
     builder.addNodeSerializerSpec(headerNodeName, () => (state, node) => {
         const attrs = {
             ...headerDimensions(node.attrs),
+            ...headerLayoutValues(headerLayout(node.attrs)),
             ...headerBackgroundValues(headerBackground(node.attrs)),
         };
         const markup = Object.entries(attrs).map(([name, value]) => `${name}="${escape(value)}"`);
