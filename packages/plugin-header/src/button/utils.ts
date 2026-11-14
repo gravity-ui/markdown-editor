@@ -12,7 +12,7 @@ import {
     buttonViews,
 } from './const';
 
-export const buttonDefaultColor = (view: ButtonView): ButtonColor => buttonViewColors[view][0];
+const buttonDefaultColor = (view: ButtonView): ButtonColor => buttonViewColors[view][0];
 
 export function normalizeButtonStyle(attrs: {
     view?: unknown;

@@ -14,4 +14,3 @@ export {
     buttonViews,
 } from './const';
 export {buttonPlugin} from './plugin';
-export {buttonDefaultColor} from './utils';

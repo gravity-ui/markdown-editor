@@ -11,6 +11,7 @@ import {
 } from '../../src/stories/header/markup';
 
 import {ButtonStories} from './Button.helpers';
+import {MOBILE_WIDTH} from './utils/header-geometry';
 import {compactHeaderStyles, markupExamples} from './utils/markup-examples';
 
 // Lines under the button leave room for its settings window and style list in the screenshot.
@@ -653,9 +654,7 @@ test.describe('Button syntax examples', () => {
 });
 
 test.describe('Button on mobile', () => {
-    // The width of the mobile covers of the mock.
-    const mobileWidth = 343;
-    test.use({viewport: {width: mobileWidth, height: 812}});
+    test.use({viewport: {width: MOBILE_WIDTH, height: 812}});
 
     test('should fit a narrow viewport @markup', async ({
         mount,
@@ -677,8 +676,8 @@ test.describe('Button on mobile', () => {
             rootStyle: {padding: 0, width: '100%'},
         });
         await expect(button.variants).toHaveCount(29);
-        await editor.setPreviewContentWidth(mobileWidth);
-        expect(await header.getPreviewSizes()).toEqual([[mobileWidth, expect.any(Number)]]);
+        await editor.setPreviewContentWidth(MOBILE_WIDTH);
+        expect(await header.getPreviewSizes()).toEqual([[MOBILE_WIDTH, expect.any(Number)]]);
         // In a narrow header the buttons are taller and stand in a column of the full width.
         await expect(button.rows.last()).toHaveCSS('flex-direction', 'column');
         expect(await button.getHeights(button.rows.last())).toEqual([44, 44, 44]);

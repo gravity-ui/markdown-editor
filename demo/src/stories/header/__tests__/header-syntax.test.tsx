@@ -66,6 +66,27 @@ describe('HeaderSyntax', () => {
         expect(container.querySelectorAll('.g-md-button-plugin[target="_self"]')).toHaveLength(0);
     });
 
+    it('should render a button outside a header with the preview of the editor', async () => {
+        const source =
+            ':button[Standalone]{href="/standalone" view="outline" color="green" target="_blank"}';
+        await act(async () => {
+            root.render(
+                <ThemeProvider theme="light">
+                    <SplitModePreview getValue={() => source} needToSanitizeHtml />
+                </ThemeProvider>,
+            );
+        });
+        await act(async () => {
+            await vi.advanceTimersByTimeAsync(250);
+        });
+        expect(container.querySelectorAll('.g-md-header-plugin')).toHaveLength(0);
+        const button = container.querySelector('a.g-md-button-plugin[href="/standalone"]');
+        expect(button?.classList.contains('g-md-button-plugin_view_outline')).toBe(true);
+        expect(button?.classList.contains('g-md-button-plugin_color_green')).toBe(true);
+        expect(button?.getAttribute('target')).toBe('_blank');
+        expect(button?.getAttribute('rel')).toBe('noopener noreferrer');
+    });
+
     it('should render the header examples with the preview of the editor', async () => {
         const source = markupExamplesDocument([
             ...markupExamplesOf('layout'),

@@ -20,6 +20,18 @@ const md = new MarkdownIt().use(headerPreset);
 
 A single block is enabled with its own plugin, for example `md.use(buttonPlugin)`, and has its own stylesheet, for example `import '@gravity-ui/markdown-plugin-header/button/styles.css'`: `header`, `header-title`, `header-content`, `header-image` and `button`. `styles.css` holds all five. The order of the stylesheets does not matter; a header with buttons needs the button stylesheet too.
 
+## Exports
+
+| Block          | Plugin                                                                     | Attributes ↔ model                                                                                                                                                                                       | Values                                                                                                                                                                                                                                 | Types                                                                                                                                                                                                           |
+| -------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Header         | `headerPlugin`, `headerTokenName`, `headerClassName`                       | `headerAttrs`, `headerDimensions`, `headerDimensionsFromAttrs`, `headerLayout`, `headerLayoutValues`, `headerLayoutFromAttrs`, `headerBackground`, `headerBackgroundValues`, `headerBackgroundFromAttrs` | `headerDefaults`, `headerLayoutDefaults`, `headerBackgroundDefaults`, `headerHeights`, `headerWidths`, `headerAligns`, `headerVerticals`, `headerBgColors`, `headerBgColorFamilies`, `headerBgColorSaturations`, `headerBgImageThemes` | `HeaderDimensions`, `HeaderHeight`, `HeaderWidth`, `HeaderLayout`, `HeaderAlign`, `HeaderVertical`, `HeaderBackground`, `HeaderBgColor`, `HeaderBgColorFamily`, `HeaderBgColorSaturation`, `HeaderBgImageTheme` |
+| Header title   | `headerTitlePlugin`, `headerTitleTokenName`, `headerTitleClassName`        | `headerTitleAttrs`, `headerTitle`, `headerTitleValues`, `headerTitleFromAttrs`                                                                                                                           | `headerTitleDefaults`, `headerTitleSizes`, `headerTitleColors`                                                                                                                                                                         | `HeaderTitle`, `HeaderTitleSize`, `HeaderTitleColor`                                                                                                                                                            |
+| Header content | `headerContentPlugin`, `headerContentTokenName`, `headerContentClassName`  | `headerContentAttrs`, `headerContent`, `headerContentValues`, `headerContentFromAttrs`                                                                                                                   | `headerContentDefaults`, `headerContentSizes`                                                                                                                                                                                          | `HeaderContent`, `HeaderContentSize`                                                                                                                                                                            |
+| Header image   | `headerImagePlugin`, `headerImageTokenName`, `headerImageClassName`        | `headerImageAttrs`, `headerImage`, `headerImageValues`, `headerImageFromAttrs`                                                                                                                           | `headerImageDefaults`                                                                                                                                                                                                                  | `HeaderImage`                                                                                                                                                                                                   |
+| Button         | `buttonPlugin`, `buttonTokenName`, `buttonClassName`, `buttonRowClassName` | `buttonAttrs`, `buttonFromAttrs`                                                                                                                                                                         | `buttonDefaults`, `buttonViews`, `buttonColors`, `buttonViewColors`, `buttonTargets`                                                                                                                                                   | `ButtonModel`, `ButtonView`, `ButtonColor`, `ButtonTarget`                                                                                                                                                      |
+| All blocks     | `headerPreset`                                                             | —                                                                                                                                                                                                        | —                                                                                                                                                                                                                                      | —                                                                                                                                                                                                               |
+| Shared         | —                                                                          | `safeImageUrl`, `toCssUrl`                                                                                                                                                                               | `headerSanitizeAllowedAttributes`                                                                                                                                                                                                      | —                                                                                                                                                                                                               |
+
 ## Header
 
 ```markdown
@@ -63,6 +75,12 @@ The alignment and the background are rendered when they differ from the defaults
   …
 </div>
 ```
+
+The block is a container directive of [`@diplodoc/directive`](https://github.com/diplodoc-platform/directive).
+An unknown attribute is skipped, and an unsupported value is replaced with the default: `:::header{height="xl" color="red"}` is an `s` × `m` block.
+An image address with another scheme, such as `javascript:` or `data:`, or with control characters, is skipped.
+The container parses its child blocks in the same Markdown token stream.
+Inline titles and destinations in the opening directive are not supported and remain ordinary Markdown.
 
 ### Layout
 
@@ -145,14 +163,6 @@ On an image and on the `medium` and `heavy` fills every button shows its keyboar
 
 On every fill and on an image the links of the [description](#header-content) take the color of the text around them with an underline: the link color of the page is not readable on a fill (about 2:1 on the light fills of the default theme) or on an image. On an image and on the `medium` and `heavy` fills the links also show keyboard focus with the ring of the buttons, and the inline code takes the text color on a translucent fill (`--g-color-base-generic`). The block sets `--g-md-header-content-plugin-link-color`, `-link-hover-color`, `-link-decoration-line`, `-link-focus-outline-color`, `-code-color` and `-code-background` for that; a host changes them there with `--g-md-header-plugin-link-color`, `-link-hover-color`, `-link-decoration-line`, `-link-focus-outline-color`, `-code-color` and `-code-background`. Without a fill the links and the code are the ones of the page; on the light fills the code and the focus rings are.
 
-### Parsing
-
-The block is a container directive of [`@diplodoc/directive`](https://github.com/diplodoc-platform/directive).
-An unknown attribute is skipped, and an unsupported value is replaced with the default: `:::header{height="xl" color="red"}` is an `s` × `m` block.
-An image address with another scheme, such as `javascript:` or `data:`, or with control characters, is skipped.
-The container parses its child blocks in the same Markdown token stream.
-Inline titles and destinations in the opening directive are not supported and remain ordinary Markdown.
-
 ## Header title
 
 ```markdown
@@ -161,6 +171,11 @@ Inline titles and destinations in the opening directive are not supported and re
 ::header-title[Team portal]{size="1" color="blue"}
 :::
 ```
+
+| Attribute | Values                                                               | Default |
+| --------- | -------------------------------------------------------------------- | ------- |
+| `size`    | `1`–`6`: the typography of the headings `h1`–`h6`                    | `2`     |
+| `color`   | `auto`, `gray`, `yellow`, `orange`, `red`, `green`, `blue`, `violet` | `auto`  |
 
 ```html
 <div class="g-md-header-plugin …">
@@ -176,17 +191,6 @@ Inline titles and destinations in the opening directive are not supported and re
 </div>
 ```
 
-The title is a leaf block directive: one line with the text in square brackets and no closing line. It stands after an empty line, as a paragraph does.
-The text is plain: Markdown and HTML entities inside it are shown as written, and `\]` writes a closing bracket.
-A title without a text, `::header-title[]`, keeps its token and renders nothing.
-
-| Attribute | Values                                                               | Default |
-| --------- | -------------------------------------------------------------------- | ------- |
-| `size`    | `1`–`6`: the typography of the headings `h1`–`h6`                    | `2`     |
-| `color`   | `auto`, `gray`, `yellow`, `orange`, `red`, `green`, `blue`, `violet` | `auto`  |
-
-An unknown attribute is skipped, and an unsupported value is replaced with the default: `::header-title[Team portal]{size="7" color="pink"}` is a title of size `2` in the `auto` color.
-
 The title is a `div` with `role="heading"` and `aria-level` of its size, so it is a heading for assistive technology and stays out of the heading tags of the page. The size and the color other than the defaults are also written to `data-size` and `data-color`; `headerTitleFromAttrs` reads them back.
 A sanitizer has to allow `aria-level`: the default list of `@diplodoc/transform` keeps `role` and drops the level, and a heading without a level is read as a heading of level 2.
 `headerSanitizeAllowedAttributes` lists the attributes of the header blocks to add to the allowed attributes of the sanitizer:
@@ -196,6 +200,12 @@ import {headerSanitizeAllowedAttributes} from '@gravity-ui/markdown-plugin-heade
 
 const allowedAttributes = {iframe: ['srcdoc'], ...headerSanitizeAllowedAttributes};
 ```
+
+The title is a leaf block directive: one line with the text in square brackets and no closing line. It stands after an empty line, as a paragraph does.
+The text is plain: Markdown and HTML entities inside it are shown as written, and `\]` writes a closing bracket.
+A title without a text, `::header-title[]`, keeps its token and renders nothing.
+
+An unknown attribute is skipped, and an unsupported value is replaced with the default: `::header-title[Team portal]{size="7" color="pink"}` is a title of size `2` in the `auto` color.
 
 ### Title styles
 
@@ -247,6 +257,10 @@ Second paragraph.
 :::
 ```
 
+| Attribute | Values                                                               | Default      |
+| --------- | -------------------------------------------------------------------- | ------------ |
+| `size`    | `1`–`6`: the font size and the line height of the headings `h1`–`h6` | regular text |
+
 ```html
 <div class="g-md-header-plugin …">
   <div class="g-md-header-content-plugin g-md-header-content-plugin_size_3" data-size="3">
@@ -259,17 +273,13 @@ Second paragraph.
 </div>
 ```
 
+The block is a `div.g-md-header-content-plugin`; a size adds the `_size_<size>` modifier and the `data-size` attribute, and `headerContentFromAttrs` reads the size back. Regular text has neither.
+
 The description is a container directive: the opening line, the paragraphs and the closing line `:::`.
 Its content is ordinary Markdown of the same parser, so the marks and the links are the ones the parser has: `++underlined++` needs a plugin for it, such as `markdown-it-ins`, which YFM and the editor include.
 A description without a text, `:::header-content` right before `:::`, keeps its tokens and renders nothing.
 
-| Attribute | Values                                                               | Default      |
-| --------- | -------------------------------------------------------------------- | ------------ |
-| `size`    | `1`–`6`: the font size and the line height of the headings `h1`–`h6` | regular text |
-
 An unknown attribute is skipped, and an unsupported value is replaced with the default: `:::header-content{size="7" color="red"}` is regular text.
-
-The block is a `div.g-md-header-content-plugin`; a size adds the `_size_<size>` modifier and the `data-size` attribute, and `headerContentFromAttrs` reads the size back. Regular text has neither.
 
 ### Content styles
 
@@ -319,6 +329,12 @@ Inside Header the description is a row of the header layout: the header sets the
 :::
 ```
 
+| Attribute | Values                                                      | Default |
+| --------- | ----------------------------------------------------------- | ------- |
+| `src`     | an `http:`, `https:`, `blob:` or relative address           | none    |
+| `alt`     | the alternative text; an empty one marks a decorative image | empty   |
+| `title`   | the native browser tooltip of the image                     | none    |
+
 ```html
 <div class="g-md-header-plugin …">
   <img class="g-md-header-image-plugin" src="./.files/team.jpg" alt="Team" title="Project team" />
@@ -332,22 +348,16 @@ Inside Header the description is a row of the header layout: the header sets the
 </div>
 ```
 
-The image is a leaf block directive: one line with the attributes, no text in square brackets and no closing line. It stands after an empty line, as a paragraph does.
+The block is an `img.g-md-header-image-plugin` with the `src`, `alt` and `title` attributes; `headerImageFromAttrs` reads them back.
+The `alt` attribute is always rendered: without it a screen reader announces the address of the image, and with an empty one it skips the image as decorative. An empty `title` is not rendered.
+`title` is the native tooltip of the browser for pointer users: it is not shown on touch or keyboard focus, and it does not describe the image to screen readers. An image with `title` and without `alt` is still decorative (`alt="" title="…"`); an image that matters needs `alt`.
 
-| Attribute | Values                                                      | Default |
-| --------- | ----------------------------------------------------------- | ------- |
-| `src`     | an `http:`, `https:`, `blob:` or relative address           | none    |
-| `alt`     | the alternative text; an empty one marks a decorative image | empty   |
-| `title`   | the native browser tooltip of the image                     | none    |
+The image is a leaf block directive: one line with the attributes, no text in square brackets and no closing line. It stands after an empty line, as a paragraph does.
 
 The address passes the same check as the background image of a header, `safeImageUrl`: an address with another scheme, such as `javascript:` or `data:`, or with control characters, is skipped.
 An image without an address, or with a skipped one, keeps its token and renders nothing.
 The values are taken as written: HTML entities in them are not decoded, so `/image?a=1&copy=2` stays this address, and `\"` writes a quote.
 An unknown attribute is skipped; a repeated attribute counts as not set.
-
-The block is an `img.g-md-header-image-plugin` with the `src`, `alt` and `title` attributes; `headerImageFromAttrs` reads them back.
-The `alt` attribute is always rendered: without it a screen reader announces the address of the image, and with an empty one it skips the image as decorative. An empty `title` is not rendered.
-`title` is the native tooltip of the browser for pointer users: it is not shown on touch or keyboard focus, and it does not describe the image to screen readers. An image with `title` and without `alt` is still decorative (`alt="" title="…"`); an image that matters needs `alt`.
 
 ### Image styles
 
@@ -367,19 +377,46 @@ The margin applies to an image outside Header.
 
 ## Button
 
-`buttonPlugin` works on its own and inside Header:
-
-```ts
-import {buttonPlugin} from '@gravity-ui/markdown-plugin-header';
-
-md.use(buttonPlugin);
-```
-
 ```markdown
 :button[Read more]{href="https://example.com" view="action" color="blue" target="\_blank"}
 
 :button[Open]{href="/page" view="action" color="blue"} :button[Docs]{href="/docs" view="normal" color="gray"} :button[Skip]{view="flat" color="standard"}
 ```
+
+| Attribute | Values                                                         | Default                                                               |
+| --------- | -------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `href`    | a link address                                                 | none                                                                  |
+| `view`    | `action`, `normal`, `outline`, `flat`                          | `action`                                                              |
+| `color`   | `standard`, `gray`, `blue`, `green`, `yellow`, `red`, `violet` | `standard` for `action` and `flat`, `gray` for `normal` and `outline` |
+| `target`  | `_self`, `_blank`, `_parent`, `_top`                           | `_self`                                                               |
+
+Each view has its own colors:
+
+| View      | Look            | Colors                                                         |
+| --------- | --------------- | -------------------------------------------------------------- |
+| `action`  | solid fill      | `standard`, `blue`, `green`, `yellow`, `red`, `violet`         |
+| `normal`  | light fill      | `gray`, `blue`, `green`, `yellow`, `red`, `violet`             |
+| `outline` | border, no fill | `gray`, `blue`, `green`, `yellow`, `red`, `violet`             |
+| `flat`    | label only      | `standard`, `gray`, `blue`, `green`, `yellow`, `red`, `violet` |
+
+The button is rendered as a link:
+
+```html
+<a
+  class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_blue"
+  href="https://example.com"
+  target="_blank"
+  rel="noopener noreferrer"
+  data-view="action"
+  data-color="blue"
+  >Read more</a
+>
+```
+
+- Without `href`, or with an unsafe one (`javascript:`, `data:`, `vbscript:`, `file:`), the `<a>` has no `href` and is not interactive.
+- `target="_blank"` adds `rel="noopener noreferrer"`; `_self` is not rendered.
+- The address is taken as written: HTML entities in it are not decoded, so `/page?a=1&copy=2` and `/image&copy;.png` keep their `&copy`. `\"` writes a quote.
+- `data-view` and `data-color` of the element and of the token hold the resolved view and color.
 
 The button is an inline directive: it stays in the line of text, and buttons written one after another in a paragraph, separated by spaces, form a row.
 A paragraph that holds only buttons, spaces and line breaks gets the class `g-md-button-plugin-row` (`buttonRowClassName`): a wrapping flex row with a gap between the buttons and between the lines.
@@ -413,42 +450,7 @@ Inside Header every button may stand in its own paragraph; paragraphs of buttons
 The tokens stay as parsed: the paragraph tokens between the buttons are marked `hidden`, as in a tight list.
 Outside Header each paragraph of buttons is a row of its own.
 
-| Attribute | Values                                                         | Default                                                               |
-| --------- | -------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `href`    | a link address                                                 | none                                                                  |
-| `view`    | `action`, `normal`, `outline`, `flat`                          | `action`                                                              |
-| `color`   | `standard`, `gray`, `blue`, `green`, `yellow`, `red`, `violet` | `standard` for `action` and `flat`, `gray` for `normal` and `outline` |
-| `target`  | `_self`, `_blank`, `_parent`, `_top`                           | `_self`                                                               |
-
-Each view has its own colors:
-
-| View      | Look            | Colors                                                         |
-| --------- | --------------- | -------------------------------------------------------------- |
-| `action`  | solid fill      | `standard`, `blue`, `green`, `yellow`, `red`, `violet`         |
-| `normal`  | light fill      | `gray`, `blue`, `green`, `yellow`, `red`, `violet`             |
-| `outline` | border, no fill | `gray`, `blue`, `green`, `yellow`, `red`, `violet`             |
-| `flat`    | label only      | `standard`, `gray`, `blue`, `green`, `yellow`, `red`, `violet` |
-
 An unsupported value is replaced with the default, and a color the view lacks with the first color of the view. Unknown attributes are skipped.
-
-The button is rendered as a link:
-
-```html
-<a
-  class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_blue"
-  href="https://example.com"
-  target="_blank"
-  rel="noopener noreferrer"
-  data-view="action"
-  data-color="blue"
-  >Read more</a
->
-```
-
-- Without `href`, or with an unsafe one (`javascript:`, `data:`, `vbscript:`, `file:`), the `<a>` has no `href` and is not interactive.
-- `target="_blank"` adds `rel="noopener noreferrer"`; `_self` is not rendered.
-- The address is taken as written: HTML entities in it are not decoded, so `/page?a=1&copy=2` and `/image&copy;.png` keep their `&copy`. `\"` writes a quote.
-- `data-view` and `data-color` of the element and of the token hold the resolved view and color.
 
 ### Button styles
 

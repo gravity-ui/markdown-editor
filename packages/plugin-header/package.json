@@ -2,7 +2,7 @@
   "name": "@gravity-ui/markdown-plugin-header",
   "version": "0.0.0",
   "private": true,
-  "description": "markdown-it plugin for the header block markup",
+  "description": "markdown-it plugins for the Header markup: header, title, content, image and button",
   "license": "MIT",
   "repository": {
     "type": "git",

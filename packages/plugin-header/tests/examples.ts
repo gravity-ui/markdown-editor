@@ -64,10 +64,10 @@ export const mixedExamples = compositions('mixed', [0, 3]);
 
 /** The alignment of a mixed example: right beside an image, centered without one. */
 export const mixedAlign = ({image}: CompositionExample) => (image ? 'right' : 'center');
-export const mixedAttrs = (align: string) =>
+const mixedAttrs = (align: string) =>
     `height="l" width="full" align="${align}" vertical="bottom" bg-color="violet-light" bg-image="${exampleImageUrl}" bg-image-theme="dark" bg-image-blur="true"`;
-export const mixedTitle = '::header-title[Team portal]{size="1" color="yellow"}';
-export const mixedContent = ':::header-content{size="3"}\nPortal description.\n:::';
+const mixedTitle = '::header-title[Team portal]{size="1" color="yellow"}';
+const mixedContent = ':::header-content{size="3"}\nPortal description.\n:::';
 
 /** The markup of a mixed example in the header with every attribute. */
 export const mixedMarkup = (item: CompositionExample) =>

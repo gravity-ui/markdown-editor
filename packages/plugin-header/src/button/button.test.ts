@@ -330,6 +330,138 @@ describe('Button Markdown', () => {
         );
     });
 
+    it.each([
+        [
+            'an empty label (boundaries-011)',
+            [':button[]{href="/page" view="action" color="blue"}'],
+            '',
+        ],
+        ['empty labels', [':button[]', ':button[  ]{href="/page"}'], ''],
+        [
+            'an empty label between buttons',
+            [':button[One]', ':button[]', ':button[Two]'],
+            `${row}${button('action', 'standard', '', 'One')}\n${button('action', 'standard', '', 'Two')}</p>\n`,
+        ],
+    ])('should render nothing for %s in a header', (_name, buttons, html) => {
+        expect(preset.render(buttonsExample(...buttons))).toBe(header(html));
+    });
+
+    const blue = (label: string) => button('action', 'blue', 'href="/page"', label);
+    const blueMarkup = (label: string) =>
+        `:button[${label}]{href="/page" view="action" color="blue"}`;
+
+    it.each([
+        [
+            'one button in its paragraph',
+            buttonsExample(blueMarkup('Button 1')),
+            header(`${row}${blue('Button 1')}</p>\n`),
+        ],
+        [
+            'two buttons in their paragraphs',
+            buttonsExample(blueMarkup('Button 1'), blueMarkup('Button 2')),
+            header(`${row}${blue('Button 1')}\n${blue('Button 2')}</p>\n`),
+        ],
+        [
+            'three buttons in their paragraphs',
+            buttonsExample(blueMarkup('Button 1'), blueMarkup('Button 2'), blueMarkup('Button 3')),
+            header(`${row}${blue('Button 1')}\n${blue('Button 2')}\n${blue('Button 3')}</p>\n`),
+        ],
+        [
+            'three buttons in one paragraph',
+            buttonsExample(
+                [blueMarkup('Button 1'), blueMarkup('Button 2'), blueMarkup('Button 3')].join(' '),
+            ),
+            header(`${row}${blue('Button 1')} ${blue('Button 2')} ${blue('Button 3')}</p>\n`),
+        ],
+        [
+            'a paragraph of two buttons and a paragraph of one',
+            buttonsExample(
+                `${blueMarkup('Button 1')} ${blueMarkup('Button 2')}`,
+                blueMarkup('Button 3'),
+            ),
+            header(`${row}${blue('Button 1')} ${blue('Button 2')}\n${blue('Button 3')}</p>\n`),
+        ],
+        [
+            'buttons separated by a paragraph of text',
+            buttonsExample(blueMarkup('Button 1'), 'Text', blueMarkup('Button 2')),
+            header(`${row}${blue('Button 1')}</p>\n<p>Text</p>\n${row}${blue('Button 2')}</p>\n`),
+        ],
+        [
+            'buttons separated by a heading',
+            buttonsExample(blueMarkup('Button 1'), '## Title', blueMarkup('Button 2')),
+            header(
+                `${row}${blue('Button 1')}</p>\n<h2>Title</h2>\n${row}${blue('Button 2')}</p>\n`,
+            ),
+        ],
+        [
+            'buttons after the header',
+            `${buttonsExample(blueMarkup('Button 1'))}\n\n${blueMarkup('Button 2')}\n\n${blueMarkup('Button 3')}`,
+            `${header(`${row}${blue('Button 1')}</p>\n`)}${row}${blue('Button 2')}</p>\n${row}${blue('Button 3')}</p>\n`,
+        ],
+        [
+            'buttons of two headers',
+            `${buttonsExample(blueMarkup('Button 1'), blueMarkup('Button 2'))}\n\n${buttonsExample(blueMarkup('Button 3'))}`,
+            `${header(`${row}${blue('Button 1')}\n${blue('Button 2')}</p>\n`)}${header(`${row}${blue('Button 3')}</p>\n`)}`,
+        ],
+    ])('should lay out %s of a header as rows', (_name, markup, html) => {
+        expect(preset.render(markup)).toBe(html);
+    });
+
+    it('should keep the paragraphs of a row in the tokens', () => {
+        const types = preset
+            .parse(buttonsExample(blueMarkup('Button 1'), blueMarkup('Button 2')), {})
+            .map(({type, hidden}) => [type, hidden]);
+        expect(types).toEqual([
+            ['header_open', false],
+            ['paragraph_open', false],
+            ['inline', false],
+            ['paragraph_close', true],
+            ['paragraph_open', true],
+            ['inline', false],
+            ['paragraph_close', false],
+            ['header_close', false],
+        ]);
+    });
+
+    it('should keep the label and the attributes in the token', () => {
+        const [token] = md.parseInline(':button[Read more]{href="/a&copy;b" view="flat"}', {})[0]
+            .children ?? [undefined];
+        expect(token).toMatchObject({
+            type: 'button',
+            tag: 'a',
+            content: 'Read more',
+            attrs: [
+                ['class', cls('flat', 'standard')],
+                ['href', '/a&copy;b'],
+                ['data-view', 'flat'],
+                ['data-color', 'standard'],
+            ],
+        });
+    });
+});
+
+describe('Button options', () => {
+    it.each([
+        [
+            {href: '/help', view: 'outline', color: 'blue', target: '_blank'},
+            {href: '/help', view: 'outline', color: 'blue', target: '_blank'},
+        ],
+        [
+            {href: '', view: 'flat', color: 'gray', target: '_self'},
+            {href: '', view: 'flat', color: 'gray', target: '_self'},
+        ],
+        [{}, {href: '', view: 'action', color: 'standard', target: '_self'}],
+        [
+            {view: 'normal', color: 'standard', target: 'popup'},
+            {href: '', view: 'normal', color: 'gray', target: '_self'},
+        ],
+    ])('should restore the model of %j from HTML attributes', (input, model) => {
+        const attrs: Record<string, string> = buttonAttrs(input);
+        expect(buttonFromAttrs((name) => attrs[name])).toEqual(model);
+    });
+});
+
+describe('Button syntax examples', () => {
     it.each(styleExamples)(
         'should render $id: the $view view, the $color color and the target $target',
         ({view, color, markup, html}) => {
@@ -445,133 +577,5 @@ describe('Button Markdown', () => {
         expect(preset.render(buttonsExample(markup))).toBe(
             header(`${row}${button(view, color, attrs)}</p>\n`),
         );
-    });
-
-    it.each([
-        [
-            'an empty label (boundaries-011)',
-            [':button[]{href="/page" view="action" color="blue"}'],
-            '',
-        ],
-        ['empty labels', [':button[]', ':button[  ]{href="/page"}'], ''],
-        [
-            'an empty label between buttons',
-            [':button[One]', ':button[]', ':button[Two]'],
-            `${row}${button('action', 'standard', '', 'One')}\n${button('action', 'standard', '', 'Two')}</p>\n`,
-        ],
-    ])('should render nothing for %s in a header', (_name, buttons, html) => {
-        expect(preset.render(buttonsExample(...buttons))).toBe(header(html));
-    });
-
-    const blue = (label: string) => button('action', 'blue', 'href="/page"', label);
-    const blueMarkup = (label: string) =>
-        `:button[${label}]{href="/page" view="action" color="blue"}`;
-
-    it.each([
-        [
-            'one button in its paragraph',
-            buttonsExample(blueMarkup('Button 1')),
-            header(`${row}${blue('Button 1')}</p>\n`),
-        ],
-        [
-            'two buttons in their paragraphs',
-            buttonsExample(blueMarkup('Button 1'), blueMarkup('Button 2')),
-            header(`${row}${blue('Button 1')}\n${blue('Button 2')}</p>\n`),
-        ],
-        [
-            'three buttons in their paragraphs',
-            buttonsExample(blueMarkup('Button 1'), blueMarkup('Button 2'), blueMarkup('Button 3')),
-            header(`${row}${blue('Button 1')}\n${blue('Button 2')}\n${blue('Button 3')}</p>\n`),
-        ],
-        [
-            'three buttons in one paragraph',
-            buttonsExample(
-                [blueMarkup('Button 1'), blueMarkup('Button 2'), blueMarkup('Button 3')].join(' '),
-            ),
-            header(`${row}${blue('Button 1')} ${blue('Button 2')} ${blue('Button 3')}</p>\n`),
-        ],
-        [
-            'a paragraph of two buttons and a paragraph of one',
-            buttonsExample(
-                `${blueMarkup('Button 1')} ${blueMarkup('Button 2')}`,
-                blueMarkup('Button 3'),
-            ),
-            header(`${row}${blue('Button 1')} ${blue('Button 2')}\n${blue('Button 3')}</p>\n`),
-        ],
-        [
-            'buttons separated by a paragraph of text',
-            buttonsExample(blueMarkup('Button 1'), 'Text', blueMarkup('Button 2')),
-            header(`${row}${blue('Button 1')}</p>\n<p>Text</p>\n${row}${blue('Button 2')}</p>\n`),
-        ],
-        [
-            'buttons separated by a heading',
-            buttonsExample(blueMarkup('Button 1'), '## Title', blueMarkup('Button 2')),
-            header(
-                `${row}${blue('Button 1')}</p>\n<h2>Title</h2>\n${row}${blue('Button 2')}</p>\n`,
-            ),
-        ],
-        [
-            'buttons after the header',
-            `${buttonsExample(blueMarkup('Button 1'))}\n\n${blueMarkup('Button 2')}\n\n${blueMarkup('Button 3')}`,
-            `${header(`${row}${blue('Button 1')}</p>\n`)}${row}${blue('Button 2')}</p>\n${row}${blue('Button 3')}</p>\n`,
-        ],
-        [
-            'buttons of two headers',
-            `${buttonsExample(blueMarkup('Button 1'), blueMarkup('Button 2'))}\n\n${buttonsExample(blueMarkup('Button 3'))}`,
-            `${header(`${row}${blue('Button 1')}\n${blue('Button 2')}</p>\n`)}${header(`${row}${blue('Button 3')}</p>\n`)}`,
-        ],
-    ])('should lay out %s of a header as rows', (_name, markup, html) => {
-        expect(preset.render(markup)).toBe(html);
-    });
-
-    it('should keep the paragraphs of a row in the tokens', () => {
-        const types = preset
-            .parse(buttonsExample(blueMarkup('Button 1'), blueMarkup('Button 2')), {})
-            .map(({type, hidden}) => [type, hidden]);
-        expect(types).toEqual([
-            ['header_open', false],
-            ['paragraph_open', false],
-            ['inline', false],
-            ['paragraph_close', true],
-            ['paragraph_open', true],
-            ['inline', false],
-            ['paragraph_close', false],
-            ['header_close', false],
-        ]);
-    });
-
-    it.each([
-        [
-            {href: '/help', view: 'outline', color: 'blue', target: '_blank'},
-            {href: '/help', view: 'outline', color: 'blue', target: '_blank'},
-        ],
-        [
-            {href: '', view: 'flat', color: 'gray', target: '_self'},
-            {href: '', view: 'flat', color: 'gray', target: '_self'},
-        ],
-        [{}, {href: '', view: 'action', color: 'standard', target: '_self'}],
-        [
-            {view: 'normal', color: 'standard', target: 'popup'},
-            {href: '', view: 'normal', color: 'gray', target: '_self'},
-        ],
-    ])('should restore the model of %j from HTML attributes', (input, model) => {
-        const attrs: Record<string, string> = buttonAttrs(input);
-        expect(buttonFromAttrs((name) => attrs[name])).toEqual(model);
-    });
-
-    it('should keep the label and the attributes in the token', () => {
-        const [token] = md.parseInline(':button[Read more]{href="/a&copy;b" view="flat"}', {})[0]
-            .children ?? [undefined];
-        expect(token).toMatchObject({
-            type: 'button',
-            tag: 'a',
-            content: 'Read more',
-            attrs: [
-                ['class', cls('flat', 'standard')],
-                ['href', '/a&copy;b'],
-                ['data-view', 'flat'],
-                ['data-color', 'standard'],
-            ],
-        });
     });
 });

@@ -38,7 +38,7 @@ const imageLimits = {
     maxImageSize: 2 * 1024 * 1024,
 } satisfies HeaderOptions;
 
-export const toolbars = {
+const toolbars = {
     items: {
         ...full.items,
         header: toolbarHeaderItem,

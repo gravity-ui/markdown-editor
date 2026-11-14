@@ -82,7 +82,6 @@ export {
     buttonAttrs,
     buttonClassName,
     buttonColors,
-    buttonDefaultColor,
     buttonDefaults,
     buttonFromAttrs,
     buttonPlugin,
