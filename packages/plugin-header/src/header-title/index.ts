@@ -3,6 +3,7 @@ export {
     type HeaderTitle,
     type HeaderTitleColor,
     type HeaderTitleSize,
+    headerSanitizeAllowedAttributes,
     headerTitleClassName,
     headerTitleColors,
     headerTitleDefaults,

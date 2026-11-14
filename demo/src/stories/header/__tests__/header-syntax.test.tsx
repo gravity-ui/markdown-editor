@@ -1,3 +1,4 @@
+import {headerTitleColors, headerTitleSizes} from '@gravity-ui/markdown-plugin-header';
 import {ThemeProvider} from '@gravity-ui/uikit';
 import {type Root, createRoot} from 'react-dom/client';
 import {act} from 'react-dom/test-utils';
@@ -139,17 +140,15 @@ describe('HeaderSyntax', () => {
         expect(count('[role="heading"]')).toBe(87);
         expect(count('[aria-level]')).toBe(87);
         // No size is the size 2; the combined examples have the size 1.
-        expect([1, 2, 3, 4, 5, 6].map((size) => count(`[aria-level="${size}"]`))).toEqual([
+        expect(headerTitleSizes.map((size) => count(`[aria-level="${size}"]`))).toEqual([
             17, 34, 9, 9, 9, 9,
         ]);
         expect(
-            [1, 2, 3, 4, 5, 6].map((size) => count(`.g-md-header-title-plugin_size_${size}`)),
+            headerTitleSizes.map((size) => count(`.g-md-header-title-plugin_size_${size}`)),
         ).toEqual([17, 34, 9, 9, 9, 9]);
         // No color and `auto` add no modifier and no attribute.
         expect(
-            ['auto', 'gray', 'yellow', 'orange', 'red', 'green', 'blue', 'violet'].map((color) =>
-                count(`.g-md-header-title-plugin_color_${color}`),
-            ),
+            headerTitleColors.map((color) => count(`.g-md-header-title-plugin_color_${color}`)),
         ).toEqual([0, 7, 15, 7, 7, 7, 7, 7]);
         expect(count('[data-color]')).toBe(57);
         // The default size adds no attribute.
@@ -164,6 +163,27 @@ describe('HeaderSyntax', () => {
             ),
         ).toEqual(new Set(['Team portal']));
     });
+
+    it.each(headerTitleSizes)(
+        'should keep the level %s of a title through the sanitizer of the preview',
+        async (size) => {
+            const source = `:::header\n\n::header-title[Team portal]{size="${size}"}\n\n:::`;
+            await act(async () => {
+                root.render(
+                    <ThemeProvider theme="light">
+                        <SplitModePreview getValue={() => source} needToSanitizeHtml />
+                    </ThemeProvider>,
+                );
+            });
+            await act(async () => {
+                await vi.advanceTimersByTimeAsync(250);
+            });
+            const titles = container.querySelectorAll('.g-md-header-title-plugin');
+            expect(titles).toHaveLength(1);
+            expect(titles[0].getAttribute('role')).toBe('heading');
+            expect(titles[0].getAttribute('aria-level')).toBe(String(size));
+        },
+    );
 
     it('should show the source and the preview of every example of a section', async () => {
         const sections = markupSections.filter(({title}) => title === 'Button URLs');

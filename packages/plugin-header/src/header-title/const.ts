@@ -19,3 +19,12 @@ export type HeaderTitleColor = (typeof headerTitleColors)[number];
 export type HeaderTitle = {size: HeaderTitleSize; color: HeaderTitleColor};
 
 export const headerTitleDefaults: Readonly<HeaderTitle> = {size: 2, color: 'auto'};
+
+/**
+ * The attributes of the header blocks that a sanitizer drops by default:
+ * the level of a title (`role` is allowed, `aria-level` is not).
+ * Merge it into the `allowedAttributes` of the sanitizer.
+ */
+export const headerSanitizeAllowedAttributes: Readonly<Record<string, readonly string[]>> = {
+    div: ['aria-level'],
+};

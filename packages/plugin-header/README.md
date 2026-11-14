@@ -158,6 +158,13 @@ An unknown attribute is skipped, and an unsupported value is replaced with the d
 
 The title is a `div` with `role="heading"` and `aria-level` of its size, so it is a heading for assistive technology and stays out of the heading tags of the page. The size and the color other than the defaults are also written to `data-size` and `data-color`; `headerTitleFromAttrs` reads them back.
 A sanitizer has to allow `aria-level`: the default list of `@diplodoc/transform` keeps `role` and drops the level, and a heading without a level is read as a heading of level 2.
+`headerSanitizeAllowedAttributes` lists the attributes of the header blocks to add to the allowed attributes of the sanitizer:
+
+```ts
+import {headerSanitizeAllowedAttributes} from '@gravity-ui/markdown-plugin-header';
+
+const allowedAttributes = {iframe: ['srcdoc'], ...headerSanitizeAllowedAttributes};
+```
 
 ### Title styles
 
