@@ -135,13 +135,19 @@ Colors are Gravity UI theme tokens; the host application supplies their values. 
 
 A button with an address shows the hover fill of its family (`…-hover` tokens, `--g-color-base-simple-hover` for `outline` and `flat`), shrinks while pressed and gets a `--g-color-line-focus` outline on keyboard focus.
 
-The typography is `body-1`, the corner radius is `--g-border-radius-l`, the horizontal padding is `--g-spacing-4`. Block-specific numbers are custom properties:
+The light `action` labels on the `blue`, `green`, `red` and `violet` fills follow the mock; with the default Gravity UI themes their contrast is below WCAG AA, and a host theme can raise it through the fill tokens.
 
-| Property                                   | Default |
-| ------------------------------------------ | ------- |
-| `--g-md-button-plugin-height`              | `36px`  |
-| `--g-md-button-plugin-border-width`        | `1px`   |
-| `--g-md-button-plugin-focus-outline-width` | `2px`   |
-| `--g-md-button-plugin-pressed-scale`       | `0.96`  |
+The size and typography are custom properties; a host overrides them:
+
+| Property                                   | Default                            |
+| ------------------------------------------ | ---------------------------------- |
+| `--g-md-button-plugin-height`              | `36px`                             |
+| `--g-md-button-plugin-padding`             | `var(--g-spacing-4)`               |
+| `--g-md-button-plugin-border-radius`       | `var(--g-border-radius-l)`         |
+| `--g-md-button-plugin-font-size`           | `var(--g-text-body-1-font-size)`   |
+| `--g-md-button-plugin-line-height`         | `var(--g-text-body-1-line-height)` |
+| `--g-md-button-plugin-border-width`        | `1px`                              |
+| `--g-md-button-plugin-focus-outline-width` | `2px`                              |
+| `--g-md-button-plugin-pressed-scale`       | `0.96`                             |
 
 The height is a minimum: a label that does not fit the line wraps, and the button grows.

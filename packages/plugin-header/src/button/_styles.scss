@@ -4,9 +4,12 @@
     --_--border-width: var(--g-md-button-plugin-border-width, 1px);
     --_--focus-outline-width: var(--g-md-button-plugin-focus-outline-width, 2px);
     --_--pressed-scale: var(--g-md-button-plugin-pressed-scale, 0.96);
+    --_--padding: var(--g-md-button-plugin-padding, var(--g-spacing-4));
+    // FIXME: not in Gravity UI (mock: 12px)
+    --_--border-radius: var(--g-md-button-plugin-border-radius, var(--g-border-radius-l));
     // FIXME: not in Gravity UI (mock: 14px)
-    --_--font-size: var(--g-text-body-1-font-size);
-    --_--line-height: var(--g-text-body-1-line-height);
+    --_--font-size: var(--g-md-button-plugin-font-size, var(--g-text-body-1-font-size));
+    --_--line-height: var(--g-md-button-plugin-line-height, var(--g-text-body-1-line-height));
 
     // `initial` stops inheritance and selects the fallback of `var()`.
     --_--background-hover: initial;
@@ -18,7 +21,7 @@
     max-width: 100%;
     min-height: var(--_--height);
     // The label is centered in the height; more lines grow the button.
-    padding: calc((var(--_--height) - var(--_--line-height)) / 2) var(--g-spacing-4);
+    padding: calc((var(--_--height) - var(--_--line-height)) / 2) var(--_--padding);
 
     font-size: var(--_--font-size);
     font-weight: var(--g-text-body-font-weight);
@@ -28,8 +31,7 @@
     white-space: normal;
     text-decoration: none;
 
-    // FIXME: not in Gravity UI (mock: 12px)
-    border-radius: var(--g-border-radius-l);
+    border-radius: var(--_--border-radius);
     overflow-wrap: anywhere;
 
     // Keep the label color when rendered as a Markdown link.
@@ -66,6 +68,8 @@
     }
 
     &.g-md-button-plugin_view_action {
+        // FIXME: not in Gravity UI (mock: light label on blue, green, red and violet fills;
+        // the contrast is below WCAG AA in the default themes)
         --_--color: var(--_--action-color, var(--g-color-text-light-primary));
         --_--background-hover: var(--_--action-background-hover);
 
