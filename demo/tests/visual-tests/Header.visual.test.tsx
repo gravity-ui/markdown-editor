@@ -1131,7 +1131,10 @@ test.describe('Header syntax examples', () => {
             />,
         );
         await expect(header.previews).toHaveCount(16);
-        expect(await header.getPreviewSizes()).toEqual(Array(16).fill([WIDTHS.m, HEIGHTS.s]));
+        // The height is a minimum: the tallest content grows the block.
+        const sizes = await header.getPreviewSizes();
+        expect(sizes.map(([width]) => width)).toEqual(Array(16).fill(WIDTHS.m));
+        expect(Math.min(...sizes.map(([, height]) => height))).toBe(HEIGHTS.s);
         await expectScreenshot({component: editor.locators.component});
     });
 
