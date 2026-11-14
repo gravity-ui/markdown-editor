@@ -202,9 +202,10 @@ test.describe('Header image preview', () => {
         // An image outside a header is not wider than the text and keeps its proportions.
         const sizes = await headerImage.getSizes();
         const natural = await headerImage.getNaturalSizes();
-        expect(sizes.map(([width, height]) => Math.round(width / height))).toEqual(
-            natural.map(([width, height]) => Math.round(width / height)),
-        );
+        // To a tenth: the box of an image is measured in whole pixels.
+        const proportions = (items: number[][]) =>
+            items.map(([width, height]) => Math.round((10 * width) / height));
+        expect(proportions(sizes)).toEqual(proportions(natural));
         expect(await editor.previewHasNoHorizontalScroll()).toBe(true);
         expect(await headerImage.getStyles()).toEqual(Array(3).fill(IMAGE_STYLES));
         await expectScreenshot({component: editor.locators.component});
