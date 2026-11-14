@@ -956,6 +956,9 @@ importers:
       markdown-it:
         specifier: catalog:peers
         version: 13.0.2
+      markdown-it-ins:
+        specifier: ^4.0.0
+        version: 4.0.0
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5

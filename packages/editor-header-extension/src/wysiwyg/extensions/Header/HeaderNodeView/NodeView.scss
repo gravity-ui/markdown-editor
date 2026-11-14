@@ -1,5 +1,20 @@
 .g-md-header-nodeview {
+    --_--frame-width: 2px;
+
     box-sizing: border-box;
 
-    border: 2px dashed var(--g-color-line-generic);
+    border: var(--_--frame-width) dashed var(--g-color-line-generic);
+
+    // The dashed frame marks a block without a background; a background covers the frame area.
+    &:is([data-bg-color], [data-bg-image]) {
+        border-color: transparent;
+        background-origin: border-box;
+    }
+
+    // The block clips its blurred background at the padding edge, so the frame area is padding.
+    &[data-bg-image-blur] {
+        padding: var(--_--frame-width);
+
+        border-width: 0;
+    }
 }

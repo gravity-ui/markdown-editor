@@ -1,6 +1,7 @@
 import {expect} from '@playwright/experimental-ct-react';
 
 import type {CaptureScreenshotParams, ExpectScreenshotFixture, PlaywrightFixture} from './types';
+import {waitForImages} from './wait';
 
 const defaultParams: CaptureScreenshotParams = {
     themes: ['light', 'dark'],
@@ -44,17 +45,8 @@ export const expectScreenshot: PlaywrightFixture<ExpectScreenshotFixture> = asyn
 
         const themes = paramsThemes || defaultParams.themes;
 
-        // img[src] skips hidden CodeMirror widget buffers
-        const locators = await page.locator('img[src]').all();
-        await Promise.all(
-            locators.map((locator) =>
-                locator.evaluate(
-                    (image: HTMLImageElement) =>
-                        image.complete ||
-                        new Promise<unknown>((resolve) => image.addEventListener('load', resolve)),
-                ),
-            ),
-        );
+        // img[src] skips hidden CodeMirror widget buffers; a broken address fires `error`, not `load`
+        await waitForImages(page.locator('img[src]'));
 
         // Lazy CSS chunks inject @font-face later, so fonts.ready alone resolves on the wrong set
         await page.waitForLoadState('networkidle');

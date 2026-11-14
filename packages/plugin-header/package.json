@@ -2,7 +2,7 @@
   "name": "@gravity-ui/markdown-plugin-header",
   "version": "0.0.0",
   "private": true,
-  "description": "markdown-it plugin for the header block markup",
+  "description": "markdown-it plugins for the Header markup: header, title, content, image and button",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -37,7 +37,12 @@
         "default": "./build/cjs/index.js"
       }
     },
-    "./styles.css": "./build/styles.css"
+    "./styles.css": "./build/styles.css",
+    "./header/styles.css": "./build/esm/header/index.css",
+    "./header-title/styles.css": "./build/esm/header-title/index.css",
+    "./header-content/styles.css": "./build/esm/header-content/index.css",
+    "./header-image/styles.css": "./build/esm/header-image/index.css",
+    "./button/styles.css": "./build/esm/button/index.css"
   },
   "main": "build/cjs/index.js",
   "module": "build/esm/index.js",
@@ -59,6 +64,7 @@
     "@markdown-editor/vitest-config": "workspace:*",
     "gulp-cli": "catalog:",
     "markdown-it": "catalog:peers",
+    "markdown-it-ins": "^4.0.0",
     "npm-run-all": "^4.1.5",
     "typescript": "catalog:ts",
     "vitest": "catalog:testing"

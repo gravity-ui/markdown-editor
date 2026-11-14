@@ -1,0 +1,39 @@
+.g-md-button-settings {
+    $padding: var(--g-spacing-4);
+
+    position: relative;
+
+    box-sizing: border-box;
+    width: 257px;
+    padding: $padding;
+
+    .g-text-input__control,
+    .g-switch__content {
+        font-size: 14px;
+    }
+
+    &__popup {
+        border-radius: var(--g-border-radius-xl);
+    }
+
+    &__divider {
+        height: 1px;
+        margin: $padding calc(-1 * #{$padding});
+
+        background-color: var(--g-color-line-generic);
+    }
+
+    &__fields {
+        display: flex;
+        flex-direction: column;
+        gap: var(--g-spacing-3);
+    }
+
+    &__icon {
+        display: flex;
+
+        margin-inline: var(--g-spacing-2) 6px;
+
+        color: var(--g-color-text-hint);
+    }
+}

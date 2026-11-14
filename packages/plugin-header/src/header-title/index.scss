@@ -1,0 +1,54 @@
+@use 'sass:string';
+@use '../typography';
+
+// The typography of the YFM headings `h1`–`h6`: their variables, then the same sizes
+// of the Gravity UI typography for a page without the YFM styles.
+// The weight is the one of the Gravity UI group (`display`, `header`, `subheader`).
+$sizes: typography.$heading-sizes;
+
+// The colors of colored text in YFM: their variables, then the tokens they take in Gravity UI.
+// FIXME: contrast below WCAG AA: yellow and orange on the page, green and blue at sizes 4–6,
+// and a color on a fill of its own family; kept as the editor's colored text by the brief.
+$colors: (
+    'gray': var(--g-color-text-secondary),
+    'yellow': var(--g-color-private-yellow-600-solid),
+    'orange': var(--g-color-private-orange-500-solid),
+    'red': var(--g-color-text-danger),
+    'green': var(--g-color-text-positive),
+    'blue': var(--g-color-text-info),
+    'violet': var(--g-color-text-utility),
+);
+
+.g-md-header-title-plugin {
+    // `initial` stops inheritance and selects the fallback of `var()`.
+    --_--color: initial;
+
+    margin-block: var(--g-md-header-title-plugin-margin-block, 0 var(--g-spacing-4));
+
+    font-size: var(--_--font-size);
+    // The weight of Gravity UI, as in the mock; YFM headings have no variable for theirs.
+    font-weight: var(--g-md-header-title-plugin-font-weight, var(--_--font-weight));
+    line-height: var(--_--line-height);
+    // `auto` is the color of the text around the title.
+    color: var(--_--color, inherit);
+    overflow-wrap: anywhere;
+
+    @each $size, $text in $sizes {
+        &_size_#{$size} {
+            --_--font-size: var(--yfm-font-size-h#{$size}, var(--g-text-#{$text}-font-size));
+            --_--line-height: var(
+                --yfm-font-line-height-h#{$size},
+                var(--g-text-#{$text}-line-height)
+            );
+            --_--font-weight: var(
+                --g-text-#{string.slice($text, 1, string.index($text, '-') - 1)}-font-weight
+            );
+        }
+    }
+
+    @each $name, $color in $colors {
+        &_color_#{$name} {
+            --_--color: var(--yfm-colorify-#{$name}, #{$color});
+        }
+    }
+}

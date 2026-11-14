@@ -1,0 +1,149 @@
+.g-md-button-style {
+    $window-padding: var(--g-spacing-4);
+    $control-height: 36px;
+    // The Select puts its list 1px away from the anchor on both axes.
+    $list-offset: 1px;
+    $list-gap: 4px;
+    // The label field, both margins of the divider and the divider above the select.
+    $control-top: calc(#{$window-padding} + #{$control-height} + 2 * #{$window-padding} + 1px);
+
+    height: $control-height;
+
+    // The list opens at the right edge of the select anchor, so the anchor covers the window
+    // from its top edge and ends where the list starts.
+    & &__select {
+        position: absolute;
+        inset: calc(-1 * #{$list-offset}) calc(#{$list-offset} - #{$list-gap}) auto 0;
+
+        box-sizing: border-box;
+        max-width: none;
+        padding: calc(#{$control-top} + #{$list-offset})
+            calc(#{$window-padding} + #{$list-gap} - #{$list-offset}) 0 $window-padding;
+
+        pointer-events: none;
+    }
+
+    &__control {
+        display: flex;
+        align-items: center;
+        gap: var(--g-spacing-2);
+
+        box-sizing: border-box;
+        width: 100%;
+        height: $control-height;
+        padding: 0 9px 0 7px;
+
+        font: inherit;
+        font-size: 14px;
+        cursor: pointer;
+        pointer-events: auto;
+
+        color: var(--g-color-text-primary);
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-l);
+        background: none;
+
+        &:hover {
+            border-color: var(--g-color-line-generic-hover);
+        }
+
+        &:focus-visible,
+        &[aria-expanded='true'] {
+            border-color: var(--g-color-line-generic-active);
+            outline: none;
+        }
+    }
+
+    &__value {
+        overflow: hidden;
+        flex-grow: 1;
+
+        text-align: start;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    &__chevron {
+        flex-shrink: 0;
+
+        color: var(--g-color-text-secondary);
+    }
+
+    // The list shows 14 rows between its 4px margins and scrolls the rest.
+    // The doubled class outweighs the height limit of the Select.
+    &__list#{&}__list {
+        box-sizing: border-box;
+        max-height: 14 * 28px + 8px;
+        padding-inline: var(--g-spacing-1);
+
+        border-radius: var(--g-border-radius-l);
+
+        [role='option'] {
+            border-radius: var(--g-border-radius-s);
+        }
+    }
+
+    &__group {
+        padding-inline: var(--g-spacing-3);
+
+        font-size: 12px;
+        font-weight: var(--g-text-body-font-weight);
+        line-height: 28px;
+
+        color: var(--g-color-text-secondary);
+    }
+
+    &__option {
+        display: flex;
+        align-items: center;
+        gap: var(--g-spacing-3);
+
+        font-size: 14px;
+        line-height: 28px;
+    }
+
+    &__swatch.g-md-button-plugin {
+        display: inline-flex;
+        flex-shrink: 0;
+        justify-content: center;
+        align-items: center;
+
+        min-height: 0;
+        padding: 0;
+
+        border-radius: 4px;
+    }
+
+    &__swatch_size_m {
+        width: 16px;
+        height: 16px;
+        margin-inline: 2px;
+    }
+
+    &__swatch_size_l {
+        width: 20px;
+        height: 20px;
+    }
+
+    &__swatch_view_outline.g-md-button-plugin {
+        box-shadow: inset 0 0 0 1.5px var(--_--line-color);
+    }
+
+    &__preview-popup {
+        padding: var(--g-spacing-3);
+
+        border-radius: var(--g-border-radius-l);
+    }
+
+    &__preview {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        width: 140px;
+        height: 100px;
+
+        border-radius: 4px;
+        background-color: var(--g-color-base-generic);
+    }
+}

@@ -1,0 +1,56 @@
+// Two columns, the source and its preview, from this story width on.
+$wide-min-width: 960px;
+
+.header-syntax {
+    --header-syntax-markup-width: 360px;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--g-spacing-8);
+
+    padding: var(--g-spacing-5);
+
+    color: var(--g-color-text-primary);
+}
+
+.header-syntax__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--g-spacing-4);
+}
+
+.header-syntax__example {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--g-spacing-2) var(--g-spacing-4);
+}
+
+.header-syntax__markup {
+    align-self: start;
+
+    margin: 0;
+    padding: var(--g-spacing-3);
+
+    font-family: var(--g-font-family-monospace);
+    font-size: var(--g-text-code-1-font-size);
+    line-height: var(--g-text-code-1-line-height);
+    white-space: pre-wrap;
+
+    border-radius: var(--g-border-radius-m);
+    background: var(--g-color-base-generic);
+    overflow-wrap: anywhere;
+}
+
+.header-syntax__preview {
+    min-width: 0;
+}
+
+@media (width >= $wide-min-width) {
+    .header-syntax__example {
+        grid-template-columns: minmax(0, var(--header-syntax-markup-width)) minmax(0, 1fr);
+    }
+
+    .header-syntax__name {
+        grid-column: 1 / -1;
+    }
+}

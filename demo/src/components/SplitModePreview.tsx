@@ -8,6 +8,7 @@ import '@diplodoc/tabs-extension/runtime';
 import transform from '@diplodoc/transform';
 import {GalleryProvider} from '@gravity-ui/components';
 import {type MarkupString, colorClassName} from '@gravity-ui/markdown-editor';
+import {headerSanitizeAllowedAttributes} from '@gravity-ui/markdown-plugin-header';
 import {MarkdownViewer, cnYFM} from '@gravity-ui/markdown-viewer';
 import {
     FilesGallery,
@@ -42,8 +43,11 @@ import '@diplodoc/transform/dist/css/yfm.css';
 import '@gravity-ui/markdown-plugin-header/styles.css';
 
 const ML_ATTR = 'data-ml';
-// Keep the iframe content created by HTML blocks after the outer sanitizer runs.
-const sanitizeOptions = buildYfmHtmlBlockOptions({allowedAttributes: {iframe: ['srcdoc']}});
+// Keep the iframe content created by HTML blocks after the outer sanitizer runs,
+// and the attributes of the header blocks that the default list drops.
+const sanitizeOptions = buildYfmHtmlBlockOptions({
+    allowedAttributes: {iframe: ['srcdoc'], ...headerSanitizeAllowedAttributes},
+});
 
 export type SplitModePreviewProps = {
     pluginsOptions?: GetPluginsOptions;

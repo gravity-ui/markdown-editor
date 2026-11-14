@@ -11,6 +11,7 @@ import {Button, Icon, Popup, type PopupAnchorElement, Text, useUniqId} from '@gr
 
 import {i18n} from '../../../../../../i18n';
 
+import type {BackgroundControls} from './BackgroundField';
 import {DimensionSelect} from './DimensionSelect';
 import {cnHeaderSettings} from './HeaderSettings.classname';
 import {SettingsFields} from './SettingsFields';
@@ -52,6 +53,7 @@ type HeaderSettingsProps = {
     button: HTMLElement | null;
     dimensions: HeaderDimensions;
     onChange: <K extends keyof HeaderDimensions>(name: K, value: HeaderDimensions[K]) => void;
+    background: BackgroundControls;
     onClose: () => void;
 };
 
@@ -60,6 +62,7 @@ export function HeaderSettings({
     button,
     dimensions,
     onChange,
+    background,
     onClose,
 }: HeaderSettingsProps) {
     const titleId = useUniqId();
@@ -120,7 +123,7 @@ export function HeaderSettings({
                     }
                     onUpdate={(value) => onChange('width', value)}
                 />
-                <SettingsFields />
+                <SettingsFields background={background} />
             </section>
         </Popup>
     );

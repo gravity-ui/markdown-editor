@@ -63,6 +63,8 @@ export interface WaitFixture {
     timeout(delay?: number): Promise<void>;
     tooltipsHidden(): Promise<void>;
     markupPreview(text: string | RegExp): Promise<void>;
+    /** Every image of the locator is loaded or has failed to load. */
+    images(images: Locator): Promise<void>;
 }
 
 export interface CaptureScreenshotParams extends PageScreenshotOptions {

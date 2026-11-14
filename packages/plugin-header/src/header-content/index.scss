@@ -1,0 +1,102 @@
+@use '../typography';
+
+$button: '.g-md-button-plugin';
+
+.g-md-header-content-plugin {
+    // Regular text: the variables of the YFM text, then the Gravity UI typography of the mock.
+    // FIXME: not in Gravity UI (mock: 14px, the `body-2` text of its theme)
+    --_--font-size: var(--yfm-font-size, var(--g-text-body-2-font-size));
+    --_--line-height: var(--yfm-font-line-height, var(--g-text-body-2-line-height));
+    // Between the paragraphs: less than between the blocks of a header.
+    // FIXME: not in the mock (its description is one paragraph)
+    --_--paragraph-gap: var(--g-md-header-content-plugin-paragraph-gap, var(--g-spacing-2));
+    // The underline of a link is thicker and lower than the one of `++underline++` text,
+    // and thickens on hover: on a header background the link has the color of the text.
+    --_--link-decoration-thickness: var(
+        --g-md-header-content-plugin-link-decoration-thickness,
+        2px
+    );
+    --_--link-hover-decoration-thickness: var(
+        --g-md-header-content-plugin-link-hover-decoration-thickness,
+        3px
+    );
+    --_--link-underline-offset: var(--g-md-header-content-plugin-link-underline-offset, 0.2em);
+    // The focus ring of the UIKit link.
+    --_--link-focus-outline-width: var(--g-md-header-content-plugin-link-focus-outline-width, 2px);
+
+    margin-block: var(--g-md-header-content-plugin-margin-block, 0 var(--g-spacing-4));
+
+    font-size: var(--_--font-size);
+    // The description stays regular text in every size.
+    font-weight: var(--g-md-header-content-plugin-font-weight, var(--g-text-body-font-weight));
+    line-height: var(--_--line-height);
+    overflow-wrap: anywhere;
+
+    // A size is the font size and the line height of the YFM heading of that level.
+    @each $size, $text in typography.$heading-sizes {
+        &_size_#{$size} {
+            --_--font-size: var(--yfm-font-size-h#{$size}, var(--g-text-#{$text}-font-size));
+            --_--line-height: var(
+                --yfm-font-line-height-h#{$size},
+                var(--g-text-#{$text}-line-height)
+            );
+        }
+    }
+
+    // Doubled class: outweighs the margins of Markdown paragraphs and the colors of YFM links.
+    &#{&} > * {
+        margin-block: 0;
+    }
+
+    &#{&} > * + * {
+        margin-block-start: var(--_--paragraph-gap);
+    }
+
+    // A header sets the colors of the links and of the inline code on its fills and images.
+    // A button and a fenced code block keep their own styles.
+    &#{&} a[href]:not(#{$button}) {
+        text-decoration-line: var(--g-md-header-content-plugin-link-decoration-line, none);
+        text-decoration-thickness: var(--_--link-decoration-thickness);
+        text-underline-offset: var(--_--link-underline-offset);
+
+        color: var(
+            --g-md-header-content-plugin-link-color,
+            var(--yfm-color-link, var(--g-color-text-link))
+        );
+        border-radius: var(--g-focus-border-radius);
+
+        &:hover,
+        &:active {
+            text-decoration-thickness: var(--_--link-hover-decoration-thickness);
+
+            color: var(
+                --g-md-header-content-plugin-link-hover-color,
+                var(--yfm-color-link-hover, var(--g-color-text-link-hover))
+            );
+        }
+
+        &:focus-visible {
+            outline: var(--_--link-focus-outline-width) solid
+                var(
+                    --g-md-header-content-plugin-link-focus-outline-color,
+                    var(--g-color-line-focus)
+                );
+        }
+    }
+
+    &#{&} :not(pre) > code {
+        color: var(
+            --g-md-header-content-plugin-code-color,
+            var(--yfm-color-inline-code, var(--g-color-text-misc))
+        );
+        background-color: var(
+            --g-md-header-content-plugin-code-background,
+            var(--yfm-color-inline-code-background, var(--g-color-base-misc-light))
+        );
+    }
+
+    // Inline code in a link has the color of the link, as in YFM.
+    &#{&} a code {
+        color: inherit;
+    }
+}

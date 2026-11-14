@@ -1,10 +1,7 @@
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
-import {
-    headerDimensionsFromAttrs,
-    headerPlugin,
-    headerTokenName,
-} from '@gravity-ui/markdown-plugin-header';
+import {headerPlugin, headerTokenName} from '@gravity-ui/markdown-plugin-header';
 
+import {headerNodeAttrs} from './attrs';
 import {headerNodeName} from './const';
 
 export const HeaderParserSpecs: ExtensionAuto = (builder) => {
@@ -13,6 +10,6 @@ export const HeaderParserSpecs: ExtensionAuto = (builder) => {
         .addMarkdownTokenParserSpec(headerTokenName, () => ({
             name: headerNodeName,
             type: 'block',
-            getAttrs: (token) => headerDimensionsFromAttrs((name) => token.attrGet(name)),
+            getAttrs: (token) => headerNodeAttrs((name) => token.attrGet(name)),
         }));
 };

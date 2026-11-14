@@ -141,3 +141,17 @@ const {openFilesGallery} = useFilesGallery(undefined, {resolveCustomItem});
   <YfmStaticView {...props} />
 </div>;
 ```
+
+If you want to keep a part of the content out of the gallery, render the `data-files-gallery-exclude` attribute on it (the `FilesGalleryAttrs.Exclude` constant). Images and links inside an element with this attribute are not collected, and a click on them does not open the gallery and is not prevented, so a link navigates as usual. The value of the attribute does not matter
+
+```tsx
+import {FilesGalleryAttrs, YfmStaticView, useFilesGallery} from '@gravity-ui/markdown-editor/view';
+
+const html = `<div ${FilesGalleryAttrs.Exclude}="true"><img src="/banner.png" alt="" /></div>`;
+
+const {openFilesGallery} = useFilesGallery();
+
+<div onClick={openFilesGallery}>
+  <YfmStaticView html={html} />
+</div>;
+```

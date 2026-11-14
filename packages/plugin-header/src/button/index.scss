@@ -1,0 +1,220 @@
+.g-md-button-plugin {
+    // Block-specific numbers; a host overrides the public properties.
+    --_--height: var(--g-md-button-plugin-height, 36px);
+    --_--border-width: var(--g-md-button-plugin-border-width, 1px);
+    --_--focus-outline-width: var(--g-md-button-plugin-focus-outline-width, 2px);
+    --_--pressed-scale: var(--g-md-button-plugin-pressed-scale, 0.96);
+    --_--padding: var(--g-md-button-plugin-padding, var(--g-spacing-4));
+    // FIXME: not in Gravity UI (mock: 12px)
+    --_--border-radius: var(--g-md-button-plugin-border-radius, var(--g-border-radius-l));
+    // FIXME: not in Gravity UI (mock: 14px)
+    --_--font-size: var(--g-md-button-plugin-font-size, var(--g-text-body-1-font-size));
+    --_--line-height: var(--g-md-button-plugin-line-height, var(--g-text-body-1-line-height));
+    // Private defaults per view; the public overrides win on every view, as in UIKit.
+    --_--focus-outline-color: var(--g-color-line-focus);
+    --_--focus-outline-offset: 0;
+    --_--action-focus-outline-offset: 1px;
+    // Gravity UI has no motion tokens; the durations of the UIKit button.
+    --_--transition-duration-transform: var(
+        --g-md-button-plugin-transition-duration-transform,
+        0.1s
+    );
+    --_--transition-duration-color: var(--g-md-button-plugin-transition-duration-color, 0.15s);
+    // A real border, so forced-colors mode keeps the boundary; transparent except `outline`.
+    --_--border-color: transparent;
+
+    // `initial` stops inheritance and selects the fallback of `var()`.
+    --_--background-hover: initial;
+    --_--color-hover: initial;
+
+    display: inline-block;
+
+    box-sizing: border-box;
+    max-width: 100%;
+    min-height: var(--_--height);
+    // The label is centered in the height; more lines grow the button.
+    padding: calc((var(--_--height) - var(--_--line-height)) / 2 - var(--_--border-width))
+        calc(var(--_--padding) - var(--_--border-width));
+
+    font-size: var(--_--font-size);
+    font-weight: var(--g-text-body-font-weight);
+    line-height: var(--_--line-height);
+    text-align: center;
+    vertical-align: middle;
+    white-space: normal;
+    text-decoration: none;
+
+    border: var(--_--border-width) solid var(--_--border-color);
+    border-radius: var(--_--border-radius);
+    overflow-wrap: anywhere;
+
+    // Keep the label color when rendered as a Markdown link.
+    &,
+    .yfm & {
+        &,
+        &:hover,
+        &:active,
+        &:not([href]) {
+            color: var(--_--color);
+        }
+
+        &[href]:hover {
+            color: var(--_--color-hover, var(--_--color));
+        }
+    }
+
+    // A button without an address is not interactive.
+    &[href] {
+        cursor: pointer;
+
+        transition:
+            transform var(--_--transition-duration-transform) ease-out,
+            color var(--_--transition-duration-color) linear,
+            background-color var(--_--transition-duration-color) linear;
+
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+
+        &:hover {
+            background-color: var(--_--background-hover, var(--g-color-base-simple-hover));
+        }
+
+        &:active {
+            transition: none;
+            transform: scale(var(--_--pressed-scale));
+        }
+
+        &:focus-visible {
+            outline: var(--_--focus-outline-width) solid
+                var(--g-md-button-plugin-focus-outline-color, var(--_--focus-outline-color));
+            outline-offset: var(
+                --g-md-button-plugin-focus-outline-offset,
+                var(--_--focus-outline-offset)
+            );
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    &.g-md-button-plugin_view_action {
+        // FIXME: not in Gravity UI (mock: light label on blue, green, red and violet fills;
+        // the contrast is below WCAG AA in the default themes)
+        --_--color: var(--_--action-color, var(--g-color-text-light-primary));
+        --_--background-hover: var(--_--action-background-hover);
+        // A ring of the fill color behind a gap, as the action view of UIKit.
+        --_--focus-outline-color: var(--_--action-background);
+        --_--focus-outline-offset: var(--_--action-focus-outline-offset);
+
+        // Two classes outweigh the transparent background of a Markdown link.
+        background-color: var(--_--action-background);
+    }
+
+    &.g-md-button-plugin_view_normal {
+        --_--color: var(--_--normal-color);
+        --_--background-hover: var(--_--normal-background-hover);
+
+        background-color: var(--_--normal-background);
+    }
+
+    &.g-md-button-plugin_view_outline {
+        --_--color: var(--_--text-color);
+        --_--border-color: var(--_--line-color);
+    }
+
+    &.g-md-button-plugin_view_flat {
+        --_--color: var(--_--flat-color, var(--_--text-color));
+        --_--color-hover: var(--_--flat-color-hover);
+    }
+
+    &_color_standard {
+        --_--action-background: var(--g-color-base-contrast, var(--g-color-text-primary));
+        // FIXME: not in Gravity UI (no hover token of the contrast fill)
+        --_--action-background-hover: var(
+            --g-color-base-contrast-hover,
+            var(--g-color-text-complementary)
+        );
+        --_--action-color: var(--g-color-text-inverted-primary);
+        --_--text-color: var(--g-color-text-primary);
+    }
+
+    &_color_gray {
+        --_--normal-background: var(--g-color-base-generic);
+        --_--normal-background-hover: var(--g-color-base-generic-hover);
+        --_--normal-color: var(--g-color-text-primary);
+        --_--line-color: var(--g-color-line-generic);
+        --_--text-color: var(--g-color-text-primary);
+        --_--flat-color: var(--g-color-text-secondary);
+        --_--flat-color-hover: var(--g-color-text-primary);
+    }
+
+    &_color_blue {
+        --_--action-background: var(--g-color-base-info-heavy);
+        --_--action-background-hover: var(--g-color-base-info-heavy-hover);
+        --_--normal-background: var(--g-color-base-info-light);
+        --_--normal-background-hover: var(--g-color-base-info-light-hover);
+        --_--normal-color: var(--g-color-text-info-heavy);
+        --_--line-color: var(--g-color-line-info);
+        --_--text-color: var(--g-color-text-info);
+    }
+
+    &_color_green {
+        --_--action-background: var(--g-color-base-positive-heavy);
+        --_--action-background-hover: var(--g-color-base-positive-heavy-hover);
+        --_--normal-background: var(--g-color-base-positive-light);
+        --_--normal-background-hover: var(--g-color-base-positive-light-hover);
+        --_--normal-color: var(--g-color-text-positive-heavy);
+        --_--line-color: var(--g-color-line-positive);
+        --_--text-color: var(--g-color-text-positive);
+    }
+
+    &_color_yellow {
+        --_--action-background: var(--g-color-base-warning-heavy);
+        --_--action-background-hover: var(--g-color-base-warning-heavy-hover);
+        --_--action-color: var(--g-color-text-dark-primary);
+        --_--normal-background: var(--g-color-base-warning-light);
+        --_--normal-background-hover: var(--g-color-base-warning-light-hover);
+        --_--normal-color: var(--g-color-text-warning-heavy);
+        --_--line-color: var(--g-color-line-warning);
+        --_--text-color: var(--g-color-text-warning);
+    }
+
+    &_color_red {
+        --_--action-background: var(--g-color-base-danger-heavy);
+        --_--action-background-hover: var(--g-color-base-danger-heavy-hover);
+        --_--normal-background: var(--g-color-base-danger-light);
+        --_--normal-background-hover: var(--g-color-base-danger-light-hover);
+        --_--normal-color: var(--g-color-text-danger-heavy);
+        --_--line-color: var(--g-color-line-danger);
+        --_--text-color: var(--g-color-text-danger);
+    }
+
+    &_color_violet {
+        --_--action-background: var(--g-color-base-utility-heavy);
+        --_--action-background-hover: var(--g-color-base-utility-heavy-hover);
+        --_--normal-background: var(--g-color-base-utility-light);
+        --_--normal-background-hover: var(--g-color-base-utility-light-hover);
+        --_--normal-color: var(--g-color-text-utility-heavy);
+        --_--line-color: var(--g-color-line-utility);
+        --_--text-color: var(--g-color-text-utility);
+    }
+
+    // Printing drops backgrounds by default: the fill keeps the light label of `action` readable.
+    @media print {
+        &.g-md-button-plugin_view_action,
+        &.g-md-button-plugin_view_normal {
+            print-color-adjust: exact;
+        }
+    }
+}
+
+.g-md-button-plugin-row {
+    --_--gap: var(--g-md-button-plugin-gap, var(--g-spacing-4));
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    // Both between the buttons and between wrapped lines; the spaces between flex items are dropped.
+    gap: var(--_--gap);
+}
