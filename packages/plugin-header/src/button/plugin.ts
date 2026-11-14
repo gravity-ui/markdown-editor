@@ -1,24 +1,67 @@
 import {directiveParser, registerInlineDirective} from '@diplodoc/directive';
 import type {PluginSimple} from 'markdown-it';
+import type {RuleCore} from 'markdown-it/lib/parser_core';
 import type Token from 'markdown-it/lib/token';
 
 import {directiveRawAttr} from '../directive';
+import {headerTokenName} from '../header/const';
 
 import {buttonAttrs} from './attrs';
 import {buttonRowClassName, buttonTokenName} from './const';
 import {normalizeButtonHref} from './utils';
 
+const isSpace = (token: Token) =>
+    token.type === 'softbreak' || (token.type === 'text' && !token.content.trim());
+
 /** Buttons and the spaces or line breaks between them, nothing else. */
-const isButtonRow = (children: Token[] | null) =>
-    Boolean(children?.some((token) => token.type === buttonTokenName)) &&
-    Boolean(
-        children?.every(
-            (token) =>
-                token.type === buttonTokenName ||
-                token.type === 'softbreak' ||
-                (token.type === 'text' && !token.content.trim()),
-        ),
-    );
+const isButtonRow = (children: Token[]) =>
+    children.some((token) => token.type === buttonTokenName) &&
+    children.every((token) => token.type === buttonTokenName || isSpace(token));
+
+/** Buttons without a label render nothing, so their paragraph has no content. */
+const isEmptyButtons = ({content, children}: Token) =>
+    content.includes(`:${buttonTokenName}[`) && Boolean(children?.every(isSpace));
+
+/**
+ * A paragraph of buttons only is laid out as a row; buttons in running text keep the spaces.
+ * Inside a header, rows that follow one another render as one row: the paragraph tags
+ * between them are hidden, the tokens stay as parsed. A paragraph of empty buttons is hidden.
+ */
+const buttonRows: RuleCore = ({tokens}) => {
+    let headerDepth = 0;
+    let rowClose: Token | undefined;
+    for (let index = 0; index < tokens.length; index++) {
+        const open = tokens[index];
+        const inline = tokens[index + 1];
+        const close = tokens[index + 2];
+        if (
+            open.type !== 'paragraph_open' ||
+            open.hidden ||
+            inline?.type !== 'inline' ||
+            close?.type !== 'paragraph_close'
+        ) {
+            if (open.type === `${headerTokenName}_open`) headerDepth++;
+            if (open.type === `${headerTokenName}_close`) headerDepth--;
+            rowClose = undefined;
+            continue;
+        }
+        index += 2;
+        if (isEmptyButtons(inline)) {
+            open.hidden = true;
+            close.hidden = true;
+        } else if (isButtonRow(inline.children ?? [])) {
+            if (headerDepth > 0 && rowClose) {
+                rowClose.hidden = true;
+                open.hidden = true;
+            } else {
+                open.attrJoin('class', buttonRowClassName);
+            }
+            rowClose = close;
+        } else {
+            rowClose = undefined;
+        }
+    }
+};
 
 export const buttonPlugin: PluginSimple = (md) => {
     md.use(directiveParser());
@@ -42,22 +85,10 @@ export const buttonPlugin: PluginSimple = (md) => {
         token.attrs = Object.entries(buttonAttrs({...attrs, href: normalizeButtonHref(md, href)}));
         return true;
     });
-    // A paragraph of buttons only is laid out as a row; buttons in running text keep the spaces.
-    md.core.ruler.after('inline', 'button_row', ({tokens}) => {
-        tokens.forEach((token, index) => {
-            const open = tokens[index - 1];
-            if (
-                token.type !== 'inline' ||
-                open?.type !== 'paragraph_open' ||
-                open.hidden ||
-                !isButtonRow(token.children) ||
-                open.attrGet('class')?.split(' ').includes(buttonRowClassName)
-            ) {
-                return;
-            }
-            open.attrJoin('class', buttonRowClassName);
-        });
-    });
+    // The rule runs once, also when the plugin is used several times.
+    if (!md.core.ruler.getRules('').includes(buttonRows)) {
+        md.core.ruler.after('inline', 'button_row', buttonRows);
+    }
     const {rules} = md.renderer;
     rules[buttonTokenName] = (tokens, idx, _options, _env, self) => {
         const token = tokens[idx];

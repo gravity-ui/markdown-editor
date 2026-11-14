@@ -83,7 +83,29 @@ The button is an inline directive: it stays in the line of text, and buttons wri
 A paragraph that holds only buttons, spaces and line breaks gets the class `g-md-button-plugin-row` (`buttonRowClassName`): a wrapping flex row with a gap between the buttons and between the lines.
 Buttons inside running text keep the spaces of the text.
 The label in square brackets is plain text: Markdown and HTML entities inside it are shown as written, and `\]` writes a closing bracket.
-A button with an empty label renders nothing.
+A button with an empty label renders nothing, and a paragraph of such buttons renders no `<p>`.
+
+Inside Header every button may stand in its own paragraph; paragraphs of buttons that follow one another render as one row:
+
+```markdown
+:::header
+
+:button[Open]{href="/page" view="action" color="blue"}
+
+:button[Docs]{href="/docs" view="normal" color="gray"}
+
+:button[Skip]{view="flat" color="standard"}
+:::
+```
+
+```html
+<div class="g-md-header-plugin …">
+<p class="g-md-button-plugin-row"><a …>Open</a><a …>Docs</a><a …>Skip</a></p>
+</div>
+```
+
+The tokens stay as parsed: the paragraph tokens between the buttons are marked `hidden`, as in a tight list.
+Outside Header each paragraph of buttons is a row of its own.
 
 | Attribute | Values                                                         | Default                                                               |
 | --------- | -------------------------------------------------------------- | --------------------------------------------------------------------- |

@@ -4,7 +4,7 @@ import {describe, expect, it} from 'vitest';
 import {headerPlugin} from '../header';
 import {headerPreset} from '../preset';
 
-import {buttonAttrs, buttonFromAttrs, buttonPlugin} from './index';
+import {buttonAttrs, buttonFromAttrs, buttonPlugin, buttonViewColors} from './index';
 
 const md = new MarkdownIt({html: true}).use(buttonPlugin);
 
@@ -15,6 +15,56 @@ const data = (view: string, color: string) => `data-view="${view}" data-color="$
 const defaultButton = (attrs: string, label = 'Label') =>
     `<a class="${cls('action', 'standard')}"${attrs && ` ${attrs}`} ${data('action', 'standard')}>${label}</a>`;
 const row = '<p class="g-md-button-plugin-row">';
+
+const preset = new MarkdownIt().use(headerPreset);
+/** A header with default attributes around the rendered content. */
+const header = (content: string) =>
+    `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m" data-height="s" data-width="m">${content && `\n${content}`}</div>\n`;
+/** The shape of the syntax examples: every button stands in its own paragraph of a header. */
+const example = (...buttons: string[]) => `:::header\n\n${buttons.join('\n\n')}\n:::`;
+const button = (view: string, color: string, attrs = '', label = 'Learn more') =>
+    `<a class="${cls(view, color)}"${attrs && ` ${attrs}`} ${data(view, color)}>${label}</a>`;
+const exampleId = (prefix: string, index: number) =>
+    `${prefix}-${String(index + 1).padStart(3, '0')}`;
+
+// The target as written in the markup and as rendered.
+const exampleTargets = [
+    ['omitted', '', ''],
+    ['_self', ' target="_self"', ''],
+    ['_blank', ' target="_blank"', ' target="_blank" rel="noopener noreferrer"'],
+    ['_parent', ' target="_parent"', ' target="_parent"'],
+    ['_top', ' target="_top"', ' target="_top"'],
+] as const;
+
+// button-001 … button-125: every allowed pair of a view and a color with every target.
+const styleExamples = Object.entries(buttonViewColors)
+    .flatMap(([view, colors]) =>
+        colors.flatMap((color) =>
+            exampleTargets.map(([target, markup, html]) => ({view, color, target, markup, html})),
+        ),
+    )
+    .map((item, index) => ({id: exampleId('button', index), ...item}));
+
+// The address as written in the markup and as rendered.
+const exampleUrls = [
+    ['omitted', '', ''],
+    ['empty string', 'href="" ', ''],
+    ['relative', 'href="/page" ', 'href="/page"'],
+    ['HTTPS', 'href="https://example.org/page" ', 'href="https://example.org/page"'],
+    ['HTTP', 'href="http://example.org/page" ', 'href="http://example.org/page"'],
+] as const;
+
+// link-001 … link-025: every kind of address with every target.
+const urlExamples = exampleUrls
+    .flatMap(([url, markup, html]) =>
+        exampleTargets.map(([target, targetMarkup, targetHtml]) => ({
+            url,
+            target,
+            markup: `${markup}view="action" color="blue"${targetMarkup}`,
+            html: `${html}${targetHtml}`.trim(),
+        })),
+    )
+    .map((item, index) => ({id: exampleId('link', index), ...item}));
 
 describe('Button Markdown', () => {
     it.each([
@@ -189,7 +239,8 @@ describe('Button Markdown', () => {
         ['a button and a link', ':button[One] [link](/page)', '<p>'],
         ['a button and an escaped space', ':button[One]&nbsp;:button[Two]', '<p>'],
         ['a button in emphasis', '**:button[One]**', '<p>'],
-        ['only an empty button', ':button[]', '<p>'],
+        ['only an empty button', ':button[]', ''],
+        ['only empty buttons', ':button[] :button[  ]{href="/page"}', ' '],
         ['a button in a tight list item', '- :button[One]', '<ul>\n<li>'],
         ['a button in a loose list item', '- :button[One]\n\n- :button[Two]', `<ul>\n<li>\n${row}`],
         ['a button in a quote', '> :button[One]', `<blockquote>\n${row}`],
@@ -204,6 +255,9 @@ describe('Button Markdown', () => {
         const parser = new MarkdownIt();
         for (const plugin of plugins) parser.use(plugin);
         expect(parser.render(':button[One]')).toBe(`${row}${defaultButton('', 'One')}</p>\n`);
+        expect(
+            parser.core.ruler.getRules('').filter((rule) => rule.name === 'buttonRows'),
+        ).toHaveLength(1);
     });
 
     it.each([
@@ -271,6 +325,213 @@ describe('Button Markdown', () => {
                 `${row}${defaultButton('href="/one"', 'One')} <a class="${cls('flat', 'gray')}" ${data('flat', 'gray')}>Two</a></p>\n` +
                 '</div>\n',
         );
+    });
+
+    it.each(styleExamples)(
+        'should render $id: the $view view, the $color color and the target $target',
+        ({view, color, markup, html}) => {
+            expect(
+                preset.render(
+                    example(
+                        `:button[Learn more]{href="/page" view="${view}" color="${color}"${markup}}`,
+                    ),
+                ),
+            ).toBe(header(`${row}${button(view, color, `href="/page"${html}`)}</p>\n`));
+        },
+    );
+
+    it.each(urlExamples)(
+        'should render $id: the address $url and the target $target',
+        ({markup, html}) => {
+            expect(preset.render(example(`:button[Learn more]{${markup}}`))).toBe(
+                header(`${row}${button('action', 'blue', html)}</p>\n`),
+            );
+        },
+    );
+
+    it.each([
+        [
+            'defaults-004',
+            'a button without attributes',
+            ':button[Learn more]',
+            'action',
+            'standard',
+            '',
+        ],
+        [
+            'defaults-005',
+            'a button with an address only',
+            ':button[Learn more]{href="/page"}',
+            'action',
+            'standard',
+            'href="/page"',
+        ],
+        [
+            'defaults-006',
+            'a button with a color only',
+            ':button[Learn more]{color="blue"}',
+            'action',
+            'blue',
+            '',
+        ],
+        [
+            'defaults-009',
+            'the action view without a color',
+            ':button[Learn more]{href="/page" view="action"}',
+            'action',
+            'standard',
+            'href="/page"',
+        ],
+        [
+            'defaults-010',
+            'the normal view without a color',
+            ':button[Learn more]{href="/page" view="normal"}',
+            'normal',
+            'gray',
+            'href="/page"',
+        ],
+        [
+            'defaults-011',
+            'the outline view without a color',
+            ':button[Learn more]{href="/page" view="outline"}',
+            'outline',
+            'gray',
+            'href="/page"',
+        ],
+        [
+            'defaults-012',
+            'the flat view without a color',
+            ':button[Learn more]{href="/page" view="flat"}',
+            'flat',
+            'standard',
+            'href="/page"',
+        ],
+        [
+            'boundaries-009',
+            'the action view with the gray color',
+            ':button[Learn more]{view="action" color="gray"}',
+            'action',
+            'standard',
+            '',
+        ],
+        [
+            'boundaries-010',
+            'the normal view with the standard color',
+            ':button[Learn more]{view="normal" color="standard"}',
+            'normal',
+            'gray',
+            '',
+        ],
+        [
+            'boundaries-012',
+            'a javascript address',
+            ':button[Learn more]{href="javascript:alert(1)" view="action" color="blue"}',
+            'action',
+            'blue',
+            '',
+        ],
+        [
+            'boundaries-013',
+            'a data address',
+            ':button[Learn more]{href="data:text/plain,test" view="action" color="blue"}',
+            'action',
+            'blue',
+            '',
+        ],
+    ])('should render %s: %s', (_id, _name, markup, view, color, attrs) => {
+        expect(preset.render(example(markup))).toBe(
+            header(`${row}${button(view, color, attrs)}</p>\n`),
+        );
+    });
+
+    it.each([
+        [
+            'an empty label (boundaries-011)',
+            [':button[]{href="/page" view="action" color="blue"}'],
+            '',
+        ],
+        ['empty labels', [':button[]', ':button[  ]{href="/page"}'], ''],
+        [
+            'an empty label between buttons',
+            [':button[One]', ':button[]', ':button[Two]'],
+            `${row}${button('action', 'standard', '', 'One')}${button('action', 'standard', '', 'Two')}</p>\n`,
+        ],
+    ])('should render nothing for %s in a header', (_name, buttons, html) => {
+        expect(preset.render(example(...buttons))).toBe(header(html));
+    });
+
+    const blue = (label: string) => button('action', 'blue', 'href="/page"', label);
+    const blueMarkup = (label: string) =>
+        `:button[${label}]{href="/page" view="action" color="blue"}`;
+
+    it.each([
+        [
+            'one button in its paragraph',
+            example(blueMarkup('Button 1')),
+            header(`${row}${blue('Button 1')}</p>\n`),
+        ],
+        [
+            'two buttons in their paragraphs',
+            example(blueMarkup('Button 1'), blueMarkup('Button 2')),
+            header(`${row}${blue('Button 1')}${blue('Button 2')}</p>\n`),
+        ],
+        [
+            'three buttons in their paragraphs',
+            example(blueMarkup('Button 1'), blueMarkup('Button 2'), blueMarkup('Button 3')),
+            header(`${row}${blue('Button 1')}${blue('Button 2')}${blue('Button 3')}</p>\n`),
+        ],
+        [
+            'three buttons in one paragraph',
+            example(
+                [blueMarkup('Button 1'), blueMarkup('Button 2'), blueMarkup('Button 3')].join(' '),
+            ),
+            header(`${row}${blue('Button 1')} ${blue('Button 2')} ${blue('Button 3')}</p>\n`),
+        ],
+        [
+            'a paragraph of two buttons and a paragraph of one',
+            example(`${blueMarkup('Button 1')} ${blueMarkup('Button 2')}`, blueMarkup('Button 3')),
+            header(`${row}${blue('Button 1')} ${blue('Button 2')}${blue('Button 3')}</p>\n`),
+        ],
+        [
+            'buttons separated by a paragraph of text',
+            example(blueMarkup('Button 1'), 'Text', blueMarkup('Button 2')),
+            header(`${row}${blue('Button 1')}</p>\n<p>Text</p>\n${row}${blue('Button 2')}</p>\n`),
+        ],
+        [
+            'buttons separated by a heading',
+            example(blueMarkup('Button 1'), '## Title', blueMarkup('Button 2')),
+            header(
+                `${row}${blue('Button 1')}</p>\n<h2>Title</h2>\n${row}${blue('Button 2')}</p>\n`,
+            ),
+        ],
+        [
+            'buttons after the header',
+            `${example(blueMarkup('Button 1'))}\n\n${blueMarkup('Button 2')}\n\n${blueMarkup('Button 3')}`,
+            `${header(`${row}${blue('Button 1')}</p>\n`)}${row}${blue('Button 2')}</p>\n${row}${blue('Button 3')}</p>\n`,
+        ],
+        [
+            'buttons of two headers',
+            `${example(blueMarkup('Button 1'), blueMarkup('Button 2'))}\n\n${example(blueMarkup('Button 3'))}`,
+            `${header(`${row}${blue('Button 1')}${blue('Button 2')}</p>\n`)}${header(`${row}${blue('Button 3')}</p>\n`)}`,
+        ],
+    ])('should lay out %s of a header as rows', (_name, markup, html) => {
+        expect(preset.render(markup)).toBe(html);
+    });
+
+    it('should keep the paragraphs of a row in the tokens', () => {
+        const types = preset
+            .parse(example(blueMarkup('Button 1'), blueMarkup('Button 2')), {})
+            .map(({type, hidden}) => [type, hidden]);
+        expect(types).toEqual([
+            ['header_open', false],
+            ['paragraph_open', false],
+            ['inline', false],
+            ['paragraph_close', true],
+            ['paragraph_open', true],
+            ['inline', false],
+            ['paragraph_close', false],
+            ['header_close', false],
+        ]);
     });
 
     it.each([
