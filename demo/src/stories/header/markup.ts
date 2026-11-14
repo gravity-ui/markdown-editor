@@ -68,6 +68,30 @@ export const headerImages = {
     contrast: '/assets/header-bg-contrast.svg',
 } as const;
 
+/**
+ * Neutral generated images of the demo assets for the image beside the text: their proportions
+ * differ, and each one marks its center and its corners, so its crop is seen.
+ */
+export const headerSideImages = {
+    landscape: '/assets/header-image-landscape.svg',
+    wide: '/assets/header-image-wide.svg',
+    tall: '/assets/header-image-tall.svg',
+    square: '/assets/header-image-square.svg',
+} as const;
+
+/** The image with the attributes that are given: an empty text and no title are not written. */
+export const headerImageMarkup = (
+    src: string = headerSideImages.landscape,
+    {alt, title}: {alt?: string; title?: string} = {},
+) =>
+    `::header-image{${[
+        `src="${src}"`,
+        alt === undefined ? '' : `alt="${alt}"`,
+        title === undefined ? '' : `title="${title}"`,
+    ]
+        .filter(Boolean)
+        .join(' ')}}`;
+
 /** The buttons of the mock in the order a header adds them. */
 const headerButtonStyles: readonly ButtonStyle[] = [
     ['action', 'blue'],
@@ -237,5 +261,42 @@ export const headerContentPreviewMarkup = [
     headerContentMarksMarkup(
         `bg-image="${headerImages.dark}" bg-image-theme="dark"`,
         'a dark image',
+    ),
+].join('\n\n');
+
+/** The image, then the content of the mock: a header shows the image beside its text. */
+export const headerWithImageMarkup = (
+    attrs: string,
+    content = headerMockMarkup(),
+    image = headerImageMarkup(headerSideImages.landscape, {alt: 'Team'}),
+) => headerExample(attrs, `${image}\n\n${content}`);
+
+/** The left and the right alignment: an image stands on the other side of the text. */
+export const headerImageAligns = headerAligns.filter((align) => align !== 'center');
+
+/**
+ * The image in the text, then beside the text of a header: every height with the left and
+ * the right alignment, the proportions of the image, the fills and the background images.
+ */
+export const headerImagePreviewMarkup = [
+    headerImageMarkup(headerSideImages.landscape, {alt: 'Team', title: 'Project team'}),
+    ...headerHeights.flatMap((height) =>
+        headerImageAligns.map((align) =>
+            headerWithImageMarkup(`height="${height}" align="${align}" bg-color="gray-light"`),
+        ),
+    ),
+    ...Object.values(headerSideImages).map((src) =>
+        headerWithImageMarkup(
+            'bg-color="gray-light"',
+            headerMockMarkup(2),
+            headerImageMarkup(src, {alt: 'Team'}),
+        ),
+    ),
+    headerWithImageMarkup('', headerMockMarkup(3)),
+    headerWithImageMarkup('width="s" bg-color="blue-medium"'),
+    headerWithImageMarkup('width="full" align="right" bg-color="violet-heavy"'),
+    headerWithImageMarkup(`bg-image="${headerImages.dark}" bg-image-theme="dark"`),
+    headerWithImageMarkup(
+        `align="right" bg-image="${headerImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`,
     ),
 ].join('\n\n');

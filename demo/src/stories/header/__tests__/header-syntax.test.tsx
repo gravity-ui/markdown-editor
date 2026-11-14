@@ -239,6 +239,65 @@ describe('HeaderSyntax', () => {
         ).toEqual([2, 1, 1, 1, 1, 1, 1]);
     });
 
+    it('should render the image examples with the preview of the editor', async () => {
+        const source = markupExamplesDocument([
+            ...markupExamplesOf('image'),
+            ...markupExamplesOf('structure'),
+            ...markupExamplesOf('mixed'),
+            ...selectMarkupExamples(markupSections, 'nested', 78, 78),
+            ...selectMarkupExamples(markupSections, 'boundaries', 4, 4),
+        ]);
+        await act(async () => {
+            root.render(
+                <ThemeProvider theme="light">
+                    <SplitModePreview getValue={() => source} needToSanitizeHtml />
+                </ThemeProvider>,
+            );
+        });
+        await act(async () => {
+            await vi.advanceTimersByTimeAsync(250);
+        });
+        const count = (selector: string) =>
+            container.querySelectorAll(`img.g-md-header-image-plugin${selector}`).length;
+        // 15 images of the attributes, an image in a half of the 32 + 16 compositions,
+        // the image of the full banner and the image outside a header.
+        expect(count('')).toBe(41);
+        expect(container.querySelectorAll('.g-md-header-plugin > img')).toHaveLength(40);
+        // The sanitizer keeps the address, the alternative text and the title of an image.
+        expect(count('[src="/assets/test-image.jpg"]')).toBe(41);
+        expect(count('[alt]')).toBe(41);
+        expect(count('[alt="Team"]')).toBe(31);
+        expect(count('[alt=""]')).toBe(10);
+        expect(count('[title="Project team"]')).toBe(6);
+        expect(count('[title]')).toBe(6);
+        // An image is the first block of its header, as written.
+        expect(container.querySelectorAll('.g-md-header-plugin > img:first-child')).toHaveLength(
+            40,
+        );
+    });
+
+    it.each([
+        ['an unsafe address', `::header-image{src="${['javascript', 'alert(1)'].join(':')}"}`],
+        ['a data address', '::header-image{src="data:image/png;base64,AAAA"}'],
+        ['no address', '::header-image{alt="Team"}'],
+    ])('should render no element for an image with %s', async (_name, markup) => {
+        await act(async () => {
+            root.render(
+                <ThemeProvider theme="light">
+                    <SplitModePreview
+                        getValue={() => `:::header\n\n${markup}\n\n:::`}
+                        needToSanitizeHtml
+                    />
+                </ThemeProvider>,
+            );
+        });
+        await act(async () => {
+            await vi.advanceTimersByTimeAsync(250);
+        });
+        expect(container.querySelectorAll('.g-md-header-plugin')).toHaveLength(1);
+        expect(container.querySelectorAll('img')).toHaveLength(0);
+    });
+
     it('should render no element for an empty description', async () => {
         const source = markupExamplesDocument(
             selectMarkupExamples(markupSections, 'defaults', 8, 8),

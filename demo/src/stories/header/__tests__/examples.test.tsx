@@ -72,6 +72,7 @@ describe('Header syntax examples', () => {
         ['layout', 28, 36, 9, 'layout-028', 'layout-036'],
         ['background', 10, 36, 27, 'background-010', 'background-036'],
         ['mixed', 9, 16, 8, 'mixed-009', 'mixed-016'],
+        ['image', 1, Infinity, 15, 'image-001', 'image-015'],
     ])('should select the examples %s %i–%d', (prefix, first, last, count, firstId, lastId) => {
         const examples = markupExamplesOf(prefix, first, last);
         expect(examples).toHaveLength(count);
@@ -94,6 +95,25 @@ describe('Header syntax examples', () => {
         ],
     ])('should replace the image address of %j', (markup, result) => {
         expect(withLocalImages(markup)).toBe(result);
+    });
+
+    it.each([
+        [
+            ':::header{bg-image="https://example.org/banner.jpg"}\n\n::header-image{src="https://example.org/image.jpg" alt="A"}\n:::',
+            ':::header{bg-image="/assets/header-bg-dark.svg"}\n\n::header-image{src="/assets/header-image-landscape.svg" alt="A"}\n:::',
+        ],
+        [
+            '::header-image{src="http://example.org/image.jpg"}\n\n::header-image{src="https://example.org/banner.jpg" title="B"}',
+            '::header-image{src="/assets/header-image-landscape.svg"}\n\n::header-image{src="/assets/header-image-landscape.svg" title="B"}',
+        ],
+    ])('should give the image beside the text of %j its own local image', (markup, result) => {
+        expect(
+            withLocalImages(
+                markup,
+                '/assets/header-bg-dark.svg',
+                '/assets/header-image-landscape.svg',
+            ),
+        ).toBe(result);
     });
 
     it('should join the examples into a document with their names and local images', () => {
