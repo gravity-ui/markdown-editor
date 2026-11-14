@@ -1,4 +1,12 @@
-type ButtonStyle = readonly [view: string, color: string];
+import {
+    type ButtonColor,
+    type ButtonView,
+    buttonColors,
+    buttonViewColors,
+    buttonViews,
+} from '@gravity-ui/markdown-plugin-header';
+
+type ButtonStyle = readonly [view: ButtonView, color: ButtonColor];
 
 /** Rows of the mock: a color in every view that has it. */
 export const buttonStyleRows: readonly (readonly ButtonStyle[])[] = [
@@ -11,9 +19,13 @@ export const buttonStyleRows: readonly (readonly ButtonStyle[])[] = [
         ['outline', 'gray'],
         ['flat', 'gray'],
     ],
-    ...['blue', 'green', 'yellow', 'red', 'violet'].map((color) =>
-        ['action', 'normal', 'outline', 'flat'].map((view) => [view, color] as const),
-    ),
+    ...buttonColors
+        .filter((color) => color !== 'standard' && color !== 'gray')
+        .map((color) =>
+            buttonViews
+                .filter((view) => buttonViewColors[view].includes(color))
+                .map((view) => [view, color] as const),
+        ),
 ];
 
 export const buttonMarkup = ([view, color]: ButtonStyle, label = 'Button') =>

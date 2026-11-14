@@ -6,6 +6,7 @@ export class ButtonBlock {
     readonly content: Locator;
     readonly blocks: Locator;
     readonly variants: Locator;
+    readonly rows: Locator;
     readonly settings: Locator;
     readonly label: Locator;
     readonly link: Locator;
@@ -19,6 +20,7 @@ export class ButtonBlock {
         this.content = page.locator('.ProseMirror');
         this.blocks = this.content.locator('.g-md-button-plugin');
         this.variants = preview.locator('.g-md-button-plugin');
+        this.rows = preview.locator('.g-md-button-plugin-row');
         this.settings = page.getByRole('dialog', {name: 'Button settings'});
         this.label = this.settings.getByRole('textbox', {name: 'Label', exact: true});
         this.link = this.settings.getByRole('textbox', {name: 'Link', exact: true});

@@ -1,5 +1,7 @@
 import type {Meta, StoryObj} from '@storybook/react';
 
+import {buttonStyleRows, buttonStylesMarkup} from '../header/markup';
+
 import {ButtonExample} from './Button';
 
 export default {
@@ -9,25 +11,10 @@ export default {
 
 export const Button: StoryObj<typeof ButtonExample> = {};
 
-const rows = [
-    [
-        ['action', 'standard'],
-        ['flat', 'standard'],
-    ],
-    [
-        ['normal', 'gray'],
-        ['outline', 'gray'],
-        ['flat', 'gray'],
-    ],
-    ...['blue', 'green', 'yellow', 'red', 'violet'].map((color) =>
-        ['action', 'normal', 'outline', 'flat'].map((view) => [view, color]),
-    ),
-];
-
 export const Colors: StoryObj<typeof ButtonExample> = {
     name: 'States',
     args: {
-        initial: rows
+        initial: buttonStyleRows
             .map((row) =>
                 row
                     .map(([view, color]) => `:button[Кнопка]{view="${view}" color="${color}"}`)
@@ -35,4 +22,9 @@ export const Colors: StoryObj<typeof ButtonExample> = {
             )
             .join('\n\n'),
     },
+};
+
+/** Every view and color in the text, then the same buttons inside a header. */
+export const Preview: StoryObj<typeof ButtonExample> = {
+    args: {mode: 'markup', preview: true, width: 720, initial: buttonStylesMarkup},
 };
