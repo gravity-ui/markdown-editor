@@ -1,4 +1,8 @@
-import {headerTitleColors, headerTitleSizes} from '@gravity-ui/markdown-plugin-header';
+import {
+    headerContentSizes,
+    headerTitleColors,
+    headerTitleSizes,
+} from '@gravity-ui/markdown-plugin-header';
 import {ThemeProvider} from '@gravity-ui/uikit';
 import {type Root, createRoot} from 'react-dom/client';
 import {act} from 'react-dom/test-utils';
@@ -184,6 +188,74 @@ describe('HeaderSyntax', () => {
             expect(titles[0].getAttribute('aria-level')).toBe(String(size));
         },
     );
+
+    it('should render the description examples with the preview of the editor', async () => {
+        const source = markupExamplesDocument([
+            ...markupExamplesOf('description'),
+            ...markupExamplesOf('nested'),
+            ...markupExamplesOf('structure'),
+            ...markupExamplesOf('mixed'),
+        ]);
+        await act(async () => {
+            root.render(
+                <ThemeProvider theme="light">
+                    <SplitModePreview getValue={() => source} needToSanitizeHtml />
+                </ThemeProvider>,
+            );
+        });
+        await act(async () => {
+            await vi.advanceTimersByTimeAsync(250);
+        });
+        const count = (selector: string) =>
+            container.querySelectorAll(
+                `.g-md-header-plugin > .g-md-header-content-plugin${selector}`,
+            ).length;
+        // 14 descriptions of the sizes, 78 of the marks and links, and a description
+        // in a half of the 32 + 16 compositions.
+        expect(count('')).toBe(116);
+        expect(container.querySelectorAll('.g-md-header-content-plugin')).toHaveLength(116);
+        // No size adds no modifier and no attribute; the combined examples have the size 3.
+        expect(headerContentSizes.map((size) => count(`[data-size="${size}"]`))).toEqual([
+            2, 2, 10, 2, 2, 2,
+        ]);
+        expect(
+            headerContentSizes.map((size) => count(`.g-md-header-content-plugin_size_${size}`)),
+        ).toEqual([2, 2, 10, 2, 2, 2]);
+        expect(count('[data-size]')).toBe(20);
+        // The paragraphs, the marks and the links of the descriptions.
+        expect(
+            ['> p', ' a[href]', ' strong', ' em', ' ins', ' s', ' code'].map((selector) =>
+                count(selector),
+            ),
+        ).toEqual([127, 57, 45, 44, 35, 40, 41]);
+        expect(count(' a[href="/page"]')).toBe(46);
+        expect(count(' a[href="https://example.org/docs"]')).toBe(3);
+        expect(count(' a[href="#contacts"]')).toBe(1);
+        // The marks nest: a link in a mark and a mark in a link.
+        expect(
+            [' strong a', ' em a', ' ins a', ' s a', ' a strong', ' a em', ' strong em'].map(
+                (selector) => count(selector),
+            ),
+        ).toEqual([2, 1, 1, 1, 1, 1, 1]);
+    });
+
+    it('should render no element for an empty description', async () => {
+        const source = markupExamplesDocument(
+            selectMarkupExamples(markupSections, 'defaults', 8, 8),
+        );
+        await act(async () => {
+            root.render(
+                <ThemeProvider theme="light">
+                    <SplitModePreview getValue={() => source} needToSanitizeHtml />
+                </ThemeProvider>,
+            );
+        });
+        await act(async () => {
+            await vi.advanceTimersByTimeAsync(250);
+        });
+        expect(container.querySelectorAll('.g-md-header-plugin')).toHaveLength(1);
+        expect(container.querySelector('.g-md-header-plugin')?.childElementCount).toBe(0);
+    });
 
     it('should show the source and the preview of every example of a section', async () => {
         const sections = markupSections.filter(({title}) => title === 'Button URLs');

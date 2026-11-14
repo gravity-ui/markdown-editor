@@ -1,6 +1,7 @@
 import {
     type ButtonColor,
     type ButtonView,
+    type HeaderContentSize,
     type HeaderTitleColor,
     type HeaderTitleSize,
     buttonColors,
@@ -9,6 +10,7 @@ import {
     headerAligns,
     headerBgColors,
     headerBgImageThemes,
+    headerContentSizes,
     headerHeights,
     headerTitleColors,
     headerTitleSizes,
@@ -82,15 +84,21 @@ export const headerTitleMarkup = (
     return `::header-title[${text}]${attrs.length ? `{${attrs.join(' ')}}` : ''}`;
 };
 
+/** The description of the given paragraphs with the size that is given: no size is regular text. */
+export const headerContentMarkup = (
+    paragraphs: string | readonly string[] = 'Portal description.',
+    {size}: {size?: HeaderContentSize} = {},
+) => `:::header-content${size ? `{size="${size}"}` : ''}\n${[paragraphs].flat().join('\n\n')}\n:::`;
+
 /** The content of the mock: the markup of a title, a description and buttons, each in its own block. */
 export const headerContent = (
     buttons = 1,
     title = headerTitleMarkup(),
-    text = 'Portal description.',
+    description = headerContentMarkup(),
 ) =>
     [
         title,
-        `:::header-content\n${text}\n:::`,
+        description,
         ...headerButtonStyles
             .slice(0, buttons)
             .map((style, index) => buttonMarkup(style, `Button ${index + 1}`)),
@@ -158,6 +166,75 @@ export const headerTitlePreviewMarkup = [
     headerTitleColorsMarkup('bg-color="gray-light"', 'gray-light'),
     headerTitleColorsMarkup('bg-color="blue-heavy"', 'blue-heavy'),
     headerTitleColorsMarkup(
+        `bg-image="${headerImages.dark}" bg-image-theme="dark"`,
+        'a dark image',
+    ),
+].join('\n\n');
+
+/** A paragraph with every mark of the description and a link. */
+export const headerContentMarks =
+    'Text with **bold**, *italic*, ++underlined++, ~~strikethrough~~ and `monospace` text and a [link](/page).';
+
+/** The image, its theme and its blur, with the name of the background. */
+export const headerImageBackgrounds = [
+    [`bg-image="${headerImages.light}"`, 'a light image'],
+    [`bg-image="${headerImages.light}" bg-image-theme="light"`, 'a light image, light theme'],
+    [`bg-image="${headerImages.dark}"`, 'a dark image'],
+    [`bg-image="${headerImages.dark}" bg-image-theme="dark"`, 'a dark image, dark theme'],
+    [
+        `bg-image="${headerImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`,
+        'a blurred image, dark theme',
+    ],
+    [
+        `bg-color="yellow-light" bg-image="${headerImages.contrast}" bg-image-theme="light" bg-image-blur="true"`,
+        'a blurred image, light theme',
+    ],
+] as const;
+
+/** No size, then every size, one description after another: a paragraph that names the size and a paragraph of marks. */
+export const headerContentsMarkup = [undefined, ...headerContentSizes]
+    .map((size) =>
+        headerContentMarkup(
+            [
+                size ? `Description of size ${size}.` : 'Description without a size.',
+                headerContentMarks,
+            ],
+            {size},
+        ),
+    )
+    .join('\n\n');
+
+/**
+ * A description of marks and links in a header with the given attributes.
+ * Its first paragraph names the background of the header.
+ */
+export const headerContentMarksMarkup = (attrs: string, background: string) =>
+    inHeader(
+        headerContentMarkup([`Description on ${background}.`, headerContentMarks]),
+        attrs && `{${attrs}}`,
+    );
+
+/** The descriptions in the text, then inside headers: every size with the content of the mock, the marks on backgrounds. */
+export const headerContentPreviewMarkup = [
+    headerContentsMarkup,
+    ...[undefined, ...headerContentSizes].map((size) =>
+        headerExample(
+            'bg-color="gray-light"',
+            headerContent(
+                1,
+                headerTitleMarkup(),
+                headerContentMarkup(
+                    size ? `Description of size ${size}.` : 'Description without a size.',
+                    {size},
+                ),
+            ),
+        ),
+    ),
+    headerContentMarksMarkup('', 'no fill'),
+    headerContentMarksMarkup('bg-color="blue-light"', 'blue-light'),
+    headerContentMarksMarkup('bg-color="blue-medium"', 'blue-medium'),
+    headerContentMarksMarkup('bg-color="blue-heavy"', 'blue-heavy'),
+    headerContentMarksMarkup(
         `bg-image="${headerImages.dark}" bg-image-theme="dark"`,
         'a dark image',
     ),
