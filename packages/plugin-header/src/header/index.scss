@@ -34,15 +34,22 @@ $narrow-width: 600px;
 $image: '.g-md-header-image-plugin';
 $button: '.g-md-button-plugin';
 
-@mixin on-background {
-    // What the child blocks take from a header whose background hides the colors of the page:
-    // a fill of medium or heavy saturation, or an image.
-    --g-md-button-plugin-focus-outline-color: var(--_--button-focus-outline-color);
+@mixin on-fill {
+    // What the description takes from a header with any fill or an image: the link color
+    // of the page is not readable on a fill (2:1 on the light fills of the default theme).
     --g-md-header-content-plugin-link-color: var(--_--link-color);
     --g-md-header-content-plugin-link-hover-color: var(--_--link-hover-color);
     --g-md-header-content-plugin-link-decoration: var(--_--link-decoration);
+}
+
+@mixin on-background {
+    --g-md-button-plugin-focus-outline-color: var(--_--button-focus-outline-color);
+    --g-md-header-content-plugin-link-focus-outline-color: var(--_--link-focus-outline-color);
     --g-md-header-content-plugin-code-color: var(--_--code-color);
     --g-md-header-content-plugin-code-background: var(--_--code-background);
+    // What the child blocks take from a header whose background hides the colors of the page:
+    // a fill of medium or heavy saturation, or an image.
+    @include on-fill;
 }
 
 .g-md-header-plugin {
@@ -72,12 +79,17 @@ $button: '.g-md-button-plugin';
         --g-md-header-plugin-button-focus-outline-color,
         var(--g-color-text-primary)
     );
-    // The links and the inline code of the description on a fill of medium or heavy saturation
-    // and on an image take the text color, the links with an underline and the code on
-    // a translucent fill: the link and code colors of the page would not be read there.
-    // The light fills keep the links and the code of the page.
+    // The links of the description on every fill and on an image take the text color with
+    // an underline; their focus ring is the one of the buttons. The inline code on a fill of
+    // medium or heavy saturation and on an image takes the text color on a translucent fill:
+    // the link and code colors of the page would not be read there. The light fills keep
+    // the code and the focus rings of the page.
     // FIXME: not in Gravity UI (no link or code token for a fill) and not in the mock
     // (its description is plain text)
+    --_--link-focus-outline-color: var(
+        --g-md-header-plugin-link-focus-outline-color,
+        var(--_--button-focus-outline-color)
+    );
     --_--link-color: var(--g-md-header-plugin-link-color, currentColor);
     --_--link-hover-color: var(--g-md-header-plugin-link-hover-color, currentColor);
     --_--link-decoration: var(--g-md-header-plugin-link-decoration, underline);
@@ -140,6 +152,8 @@ $button: '.g-md-button-plugin';
 
             @if string.index($name, '-medium') or string.index($name, '-heavy') {
                 @include on-background;
+            } @else {
+                @include on-fill;
             }
         }
     }

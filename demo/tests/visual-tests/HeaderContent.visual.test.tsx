@@ -58,7 +58,7 @@ const sizesMarkup = [undefined, ...headerContentSizes].map((size) =>
 const nestedExamples = (first: number, last: number) =>
     markupExamplesDocument(markupExamples('nested', first, last));
 
-// A fill takes the links of the page when it is light, and the text color when it is not.
+// Every fill gives the links the text color; the light fills keep the inline code of the page.
 const lightFills = headerBgColors.filter((color) => color.endsWith('-light'));
 const otherFills = headerBgColors.filter((color) => !color.endsWith('-light'));
 const fillsMarkup = [
@@ -273,14 +273,12 @@ test.describe('Header content preview', () => {
         await expect(content.previews).toHaveCount(count);
         const links = await content.getLinkStyles();
         expect(links).toHaveLength(count);
-        // Without a fill and on the light fills: the link color of the page, no underline.
-        const pageLinks = links.slice(0, 1 + lightFills.length);
-        expect(pageLinks.every(({underline}) => !underline)).toBe(true);
-        expect(new Set(pageLinks.map(({color}) => color)).size).toBe(1);
-        expect(pageLinks[0].color).not.toBe(pageLinks[0].textColor);
-        // On the medium and heavy fills: the color of the text and an underline.
-        const fillLinks = links.slice(1 + lightFills.length);
-        expect(fillLinks).toHaveLength(otherFills.length);
+        // Without a fill: the link color of the page, no underline.
+        const [pageLink, ...fillLinks] = links;
+        expect(pageLink.underline).toBe(false);
+        expect(pageLink.color).not.toBe(pageLink.textColor);
+        // On every fill: the color of the text and an underline.
+        expect(fillLinks).toHaveLength(lightFills.length + otherFills.length);
         expect(
             fillLinks.every(({color, underline, textColor}) => underline && color === textColor),
         ).toBe(true);
