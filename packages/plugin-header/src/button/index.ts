@@ -6,11 +6,12 @@ export {
     type ButtonView,
     buttonClassName,
     buttonColors,
-    buttonDefaultColor,
     buttonDefaults,
+    buttonRowClassName,
     buttonTargets,
     buttonTokenName,
     buttonViewColors,
     buttonViews,
-} from './model';
+} from './const';
 export {buttonPlugin} from './plugin';
+export {buttonDefaultColor} from './utils';

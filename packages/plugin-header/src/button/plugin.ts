@@ -1,10 +1,24 @@
 import {directiveParser, registerInlineDirective} from '@diplodoc/directive';
 import type {PluginSimple} from 'markdown-it';
+import type Token from 'markdown-it/lib/token';
 
 import {directiveRawAttr} from '../directive';
 
 import {buttonAttrs} from './attrs';
-import {buttonTokenName, normalizeButtonHref} from './model';
+import {buttonRowClassName, buttonTokenName} from './const';
+import {normalizeButtonHref} from './utils';
+
+/** Buttons and the spaces or line breaks between them, nothing else. */
+const isButtonRow = (children: Token[] | null) =>
+    Boolean(children?.some((token) => token.type === buttonTokenName)) &&
+    Boolean(
+        children?.every(
+            (token) =>
+                token.type === buttonTokenName ||
+                token.type === 'softbreak' ||
+                (token.type === 'text' && !token.content.trim()),
+        ),
+    );
 
 export const buttonPlugin: PluginSimple = (md) => {
     md.use(directiveParser());
@@ -27,6 +41,22 @@ export const buttonPlugin: PluginSimple = (md) => {
         token.content = label;
         token.attrs = Object.entries(buttonAttrs({...attrs, href: normalizeButtonHref(md, href)}));
         return true;
+    });
+    // A paragraph of buttons only is laid out as a row; buttons in running text keep the spaces.
+    md.core.ruler.after('inline', 'button_row', ({tokens}) => {
+        tokens.forEach((token, index) => {
+            const open = tokens[index - 1];
+            if (
+                token.type !== 'inline' ||
+                open?.type !== 'paragraph_open' ||
+                open.hidden ||
+                !isButtonRow(token.children) ||
+                open.attrGet('class')?.split(' ').includes(buttonRowClassName)
+            ) {
+                return;
+            }
+            open.attrJoin('class', buttonRowClassName);
+        });
     });
     const {rules} = md.renderer;
     rules[buttonTokenName] = (tokens, idx, _options, _env, self) => {

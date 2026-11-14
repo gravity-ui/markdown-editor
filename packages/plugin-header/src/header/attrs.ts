@@ -7,7 +7,8 @@ import {
     toCssUrl,
 } from '../background';
 
-import {type HeaderDimensions, headerClassName, headerDimensions} from './model';
+import {type HeaderDimensions, headerClassName} from './const';
+import {headerDimensions} from './utils';
 
 const b = cn(headerClassName);
 

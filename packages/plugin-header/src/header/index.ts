@@ -5,9 +5,9 @@ export {
     type HeaderWidth,
     headerClassName,
     headerDefaults,
-    headerDimensions,
     headerHeights,
     headerTokenName,
     headerWidths,
-} from './model';
+} from './const';
 export {headerPlugin} from './plugin';
+export {headerDimensions} from './utils';

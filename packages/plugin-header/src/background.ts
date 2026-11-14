@@ -1,3 +1,5 @@
+import {includes} from './utils';
+
 export const headerBgColorFamilies = ['gray', 'green', 'yellow', 'blue', 'red', 'violet'] as const;
 export const headerBgColorSaturations = ['light', 'medium', 'heavy'] as const;
 export type HeaderBgColorFamily = (typeof headerBgColorFamilies)[number];
@@ -32,9 +34,6 @@ export const headerBackgroundDefaults: Readonly<HeaderBackground> = {
     'bg-image-theme': 'system',
     'bg-image-blur': false,
 };
-
-const includes = <T>(values: readonly T[], value: unknown): value is T =>
-    (values as readonly unknown[]).includes(value);
 
 /** Accepts `http:`, `https:`, `blob:` and relative addresses. */
 export function safeImageUrl(raw: string): string | null {

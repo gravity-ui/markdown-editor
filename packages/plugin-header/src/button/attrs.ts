@@ -1,6 +1,7 @@
 import {cn} from '@bem-react/classname';
 
-import {type ButtonModel, buttonClassName, normalizeButtonStyle} from './model';
+import {type ButtonModel, buttonClassName} from './const';
+import {normalizeButtonStyle} from './utils';
 
 const b = cn(buttonClassName);
 

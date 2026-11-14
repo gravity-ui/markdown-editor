@@ -1,7 +1,7 @@
-import type MarkdownIt from 'markdown-it';
-
 export const buttonTokenName = 'button';
 export const buttonClassName = 'g-md-button-plugin';
+/** A paragraph that holds only buttons. */
+export const buttonRowClassName = 'g-md-button-plugin-row';
 
 export const buttonViews = ['action', 'normal', 'outline', 'flat'] as const;
 export const buttonColors = [
@@ -35,34 +35,3 @@ export const buttonDefaults: Readonly<ButtonModel> = {
     color: 'standard',
     target: '_self',
 };
-
-export const buttonDefaultColor = (view: ButtonView): ButtonColor => buttonViewColors[view][0];
-
-export function isButtonView(value: unknown): value is ButtonView {
-    return (buttonViews as readonly unknown[]).includes(value);
-}
-
-export function isButtonTarget(value: unknown): value is ButtonTarget {
-    return (buttonTargets as readonly unknown[]).includes(value);
-}
-
-export function normalizeButtonStyle(attrs: {
-    view?: unknown;
-    color?: unknown;
-    target?: unknown;
-}): ButtonStyle {
-    const view = isButtonView(attrs.view) ? attrs.view : buttonDefaults.view;
-    const colors = buttonViewColors[view];
-    return {
-        view,
-        color: colors.find((color) => color === attrs.color) ?? buttonDefaultColor(view),
-        target: isButtonTarget(attrs.target) ? attrs.target : buttonDefaults.target,
-    };
-}
-
-/** `md.validateLink` accepts `data:image/…`; a button rejects every `data:` address. */
-export function normalizeButtonHref(md: MarkdownIt, value: unknown): string {
-    if (typeof value !== 'string' || !value.trim()) return '';
-    const href = md.normalizeLink(value.trim());
-    return md.validateLink(href) && !/^data:/i.test(href) ? href : '';
-}

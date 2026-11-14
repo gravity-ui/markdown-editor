@@ -14,6 +14,7 @@ const data = (view: string, color: string) => `data-view="${view}" data-color="$
 /** The default button with the given attributes between its class and data attributes. */
 const defaultButton = (attrs: string, label = 'Label') =>
     `<a class="${cls('action', 'standard')}"${attrs && ` ${attrs}`} ${data('action', 'standard')}>${label}</a>`;
+const row = '<p class="g-md-button-plugin-row">';
 
 describe('Button Markdown', () => {
     it.each([
@@ -141,22 +142,22 @@ describe('Button Markdown', () => {
         [
             'buttons separated by spaces',
             ':button[One]{view="action" color="blue"} :button[Two]{view="normal" color="gray"} :button[Three]{view="flat" color="standard"}',
-            `<p><a class="${cls('action', 'blue')}" ${data('action', 'blue')}>One</a> <a class="${cls('normal', 'gray')}" ${data('normal', 'gray')}>Two</a> <a class="${cls('flat', 'standard')}" ${data('flat', 'standard')}>Three</a></p>\n`,
+            `${row}<a class="${cls('action', 'blue')}" ${data('action', 'blue')}>One</a> <a class="${cls('normal', 'gray')}" ${data('normal', 'gray')}>Two</a> <a class="${cls('flat', 'standard')}" ${data('flat', 'standard')}>Three</a></p>\n`,
         ],
         [
             'buttons without a separator',
             ':button[One]:button[Two]',
-            `<p>${defaultButton('', 'One')}${defaultButton('', 'Two')}</p>\n`,
+            `${row}${defaultButton('', 'One')}${defaultButton('', 'Two')}</p>\n`,
         ],
         [
             'buttons on adjacent lines',
             ':button[One]\n:button[Two]',
-            `<p>${defaultButton('', 'One')}\n${defaultButton('', 'Two')}</p>\n`,
+            `${row}${defaultButton('', 'One')}\n${defaultButton('', 'Two')}</p>\n`,
         ],
         [
             'buttons in separate paragraphs',
             ':button[One]\n\n:button[Two]',
-            `<p>${defaultButton('', 'One')}</p>\n<p>${defaultButton('', 'Two')}</p>\n`,
+            `${row}${defaultButton('', 'One')}</p>\n${row}${defaultButton('', 'Two')}</p>\n`,
         ],
         [
             'buttons in a line of text',
@@ -175,6 +176,34 @@ describe('Button Markdown', () => {
         ],
     ])('should render %s', (_name, markup, html) => {
         expect(md.render(markup)).toBe(html);
+    });
+
+    it.each([
+        ['only buttons', ':button[One] :button[Two]', row],
+        ['a single button', ':button[One]', row],
+        ['buttons with spaces around', '  :button[One]   :button[Two]  ', row],
+        ['buttons on adjacent lines', ':button[One]\n:button[Two]', row],
+        ['a button and an empty button', ':button[One] :button[]', row],
+        ['a button and text', ':button[One] text', '<p>'],
+        ['text and a button', 'text :button[One]', '<p>'],
+        ['a button and a link', ':button[One] [link](/page)', '<p>'],
+        ['a button and an escaped space', ':button[One]&nbsp;:button[Two]', '<p>'],
+        ['a button in emphasis', '**:button[One]**', '<p>'],
+        ['only an empty button', ':button[]', '<p>'],
+        ['a button in a tight list item', '- :button[One]', '<ul>\n<li>'],
+        ['a button in a loose list item', '- :button[One]\n\n- :button[Two]', `<ul>\n<li>\n${row}`],
+        ['a button in a quote', '> :button[One]', `<blockquote>\n${row}`],
+    ])('should mark a paragraph of %s with the row class as %j', (_name, markup, start) => {
+        expect(md.render(markup).startsWith(start)).toBe(true);
+    });
+
+    it.each([
+        ['buttonPlugin twice', [buttonPlugin, buttonPlugin]],
+        ['headerPreset, buttonPlugin', [headerPreset, buttonPlugin]],
+    ])('should add the row class once with %s', (_name, plugins) => {
+        const parser = new MarkdownIt();
+        for (const plugin of plugins) parser.use(plugin);
+        expect(parser.render(':button[One]')).toBe(`${row}${defaultButton('', 'One')}</p>\n`);
     });
 
     it.each([
@@ -239,7 +268,7 @@ describe('Button Markdown', () => {
             ),
         ).toBe(
             '<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m" data-height="s" data-width="m">\n' +
-                `<p>${defaultButton('href="/one"', 'One')} <a class="${cls('flat', 'gray')}" ${data('flat', 'gray')}>Two</a></p>\n` +
+                `${row}${defaultButton('href="/one"', 'One')} <a class="${cls('flat', 'gray')}" ${data('flat', 'gray')}>Two</a></p>\n` +
                 '</div>\n',
         );
     });

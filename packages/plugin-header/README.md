@@ -74,12 +74,14 @@ md.use(buttonPlugin);
 ```
 
 ```markdown
-:button[Read more]{href="https://example.com" view="action" color="blue" target="\_blank"}
+:button[Read more]{href="https://example.com" view="action" color="blue" target="_blank"}
 
 :button[Open]{href="/page" view="action" color="blue"} :button[Docs]{href="/docs" view="normal" color="gray"} :button[Skip]{view="flat" color="standard"}
 ```
 
 The button is an inline directive: it stays in the line of text, and buttons written one after another in a paragraph, separated by spaces, form a row.
+A paragraph that holds only buttons, spaces and line breaks gets the class `g-md-button-plugin-row` (`buttonRowClassName`): a wrapping flex row with a gap between the buttons and between the lines.
+Buttons inside running text keep the spaces of the text.
 The label in square brackets is plain text: Markdown and HTML entities inside it are shown as written, and `\]` writes a closing bracket.
 A button with an empty label renders nothing.
 
@@ -104,15 +106,9 @@ An unsupported value is replaced with the default, and a color the view lacks wi
 The button is rendered as a link:
 
 ```html
-<a
-  class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_blue"
-  href="https://example.com"
-  target="_blank"
-  rel="noopener noreferrer"
-  data-view="action"
-  data-color="blue"
-  >Read more</a
->
+<a class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_blue"
+   href="https://example.com" target="_blank" rel="noopener noreferrer"
+   data-view="action" data-color="blue">Read more</a>
 ```
 
 - Without `href`, or with an unsafe one (`javascript:`, `data:`, `vbscript:`, `file:`), the `<a>` has no `href` and is not interactive.
@@ -134,20 +130,27 @@ Colors are Gravity UI theme tokens; the host application supplies their values. 
 `standard` is the contrast fill with inverted text for `action` and the primary text color for `flat`; `gray` uses the generic fill and line with the primary text, and the secondary text for `flat`.
 
 A button with an address shows the hover fill of its family (`…-hover` tokens, `--g-color-base-simple-hover` for `outline` and `flat`), shrinks while pressed and gets a `--g-color-line-focus` outline on keyboard focus.
+As in the UIKit button, the outline of `action` has the fill color and a 1 px gap, the fill and the label color change with a transition (none with `prefers-reduced-motion: reduce`), and every view has a real border, transparent except `outline`, so forced-colors mode keeps the boundary.
 
 The light `action` labels on the `blue`, `green`, `red` and `violet` fills follow the mock; with the default Gravity UI themes their contrast is below WCAG AA, and a host theme can raise it through the fill tokens.
 
 The size and typography are custom properties; a host overrides them:
 
-| Property                                   | Default                            |
-| ------------------------------------------ | ---------------------------------- |
-| `--g-md-button-plugin-height`              | `36px`                             |
-| `--g-md-button-plugin-padding`             | `var(--g-spacing-4)`               |
-| `--g-md-button-plugin-border-radius`       | `var(--g-border-radius-l)`         |
-| `--g-md-button-plugin-font-size`           | `var(--g-text-body-1-font-size)`   |
-| `--g-md-button-plugin-line-height`         | `var(--g-text-body-1-line-height)` |
-| `--g-md-button-plugin-border-width`        | `1px`                              |
-| `--g-md-button-plugin-focus-outline-width` | `2px`                              |
-| `--g-md-button-plugin-pressed-scale`       | `0.96`                             |
+| Property                                             | Default                                                  |
+| ---------------------------------------------------- | -------------------------------------------------------- |
+| `--g-md-button-plugin-height`                        | `36px`                                                   |
+| `--g-md-button-plugin-padding`                       | `var(--g-spacing-4)`                                     |
+| `--g-md-button-plugin-border-radius`                 | `var(--g-border-radius-l)`                               |
+| `--g-md-button-plugin-font-size`                     | `var(--g-text-body-1-font-size)`                         |
+| `--g-md-button-plugin-line-height`                   | `var(--g-text-body-1-line-height)`                       |
+| `--g-md-button-plugin-border-width`                  | `1px`                                                    |
+| `--g-md-button-plugin-focus-outline-width`           | `2px`                                                    |
+| `--g-md-button-plugin-pressed-scale`                 | `0.96`                                                   |
+| `--g-md-button-plugin-focus-outline-color`           | `var(--g-color-line-focus)`; the fill color for `action` |
+| `--g-md-button-plugin-focus-outline-offset`          | `0`                                                      |
+| `--g-md-button-plugin-action-focus-outline-offset`   | `1px`                                                    |
+| `--g-md-button-plugin-transition-duration-transform` | `0.1s`                                                   |
+| `--g-md-button-plugin-transition-duration-color`     | `0.15s`                                                  |
+| `--g-md-button-plugin-gap`                           | `var(--g-spacing-4)`, between the buttons of a row       |
 
 The height is a minimum: a label that does not fit the line wraps, and the button grows.
