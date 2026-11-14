@@ -448,12 +448,10 @@ test.describe('Header content', () => {
         await expect(content.blocks).toHaveCount(2);
         expect(await content.getValues(content.blocks)).toEqual(values);
         await editor.switchMode('markup');
-        // The editor writes the blocks of a description between empty lines.
+        // A document that was not edited keeps its markup as written.
         const markup = await page.evaluate(() => window.mdEditor?.getValue());
-        expect(markup).toContain(
-            `:::header-content{size="1"}\n\n${paragraphs.join('\n\n')}\n\n:::`,
-        );
-        expect(markup).toContain(':::header-content\n\nDescription outside a header.\n\n:::');
+        expect(markup).toContain(headerContentMarkup(paragraphs, {size: 1}));
+        expect(markup).toContain(headerContentMarkup('Description outside a header.'));
         await editor.switchPreview('visible');
         await expect(content.previews).toHaveCount(2);
         expect(await content.getValues()).toEqual(values);

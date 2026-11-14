@@ -73,6 +73,8 @@ test.describe('Header syntax', () => {
         headerTitle,
         expectScreenshot,
     }) => {
+        // Seven screenshots in both themes take longer than the default timeout.
+        test.slow();
         await mount(<HeaderSyntaxStories.AllCases sections={titleSections} />, {
             width: 1100,
             styles: compactHeaderStyles,
@@ -137,6 +139,8 @@ test.describe('Header syntax', () => {
         headerContent,
         expectScreenshot,
     }) => {
+        // Five screenshots of 78 examples in both themes take longer than the default timeout.
+        test.slow();
         await mount(<HeaderSyntaxStories.AllCases sections={nestedSections} />, {
             width: 1100,
             styles: compactHeaderStyles,
