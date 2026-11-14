@@ -161,17 +161,17 @@ A sanitizer has to allow `aria-level`: the default list of `@diplodoc/transform`
 
 ### Title styles
 
-| Size | Font size and line height                                        | Gravity UI typography |
-| ---- | ---------------------------------------------------------------- | --------------------- |
-| `1`  | `--yfm-font-size-h1`, `--yfm-font-line-height-h1`: 32 px / 40 px | `display-2`           |
-| `2`  | `--yfm-font-size-h2`, `--yfm-font-line-height-h2`: 24 px / 28 px | `header-2`            |
-| `3`  | `--yfm-font-size-h3`, `--yfm-font-line-height-h3`: 20 px / 24 px | `header-1`            |
-| `4`  | `--yfm-font-size-h4`, `--yfm-font-line-height-h4`: 17 px / 24 px | `subheader-3`         |
-| `5`  | `--yfm-font-size-h5`, `--yfm-font-line-height-h5`: 15 px / 20 px | `subheader-2`         |
-| `6`  | `--yfm-font-size-h6`, `--yfm-font-line-height-h6`: 13 px / 18 px | `subheader-1`         |
+| Size | Font size and line height                                        | Gravity UI typography | Weight                           |
+| ---- | ---------------------------------------------------------------- | --------------------- | -------------------------------- |
+| `1`  | `--yfm-font-size-h1`, `--yfm-font-line-height-h1`: 32 px / 40 px | `display-2`           | `--g-text-display-font-weight`   |
+| `2`  | `--yfm-font-size-h2`, `--yfm-font-line-height-h2`: 24 px / 28 px | `header-2`            | `--g-text-header-font-weight`    |
+| `3`  | `--yfm-font-size-h3`, `--yfm-font-line-height-h3`: 20 px / 24 px | `header-1`            | `--g-text-header-font-weight`    |
+| `4`  | `--yfm-font-size-h4`, `--yfm-font-line-height-h4`: 17 px / 24 px | `subheader-3`         | `--g-text-subheader-font-weight` |
+| `5`  | `--yfm-font-size-h5`, `--yfm-font-line-height-h5`: 15 px / 20 px | `subheader-2`         | `--g-text-subheader-font-weight` |
+| `6`  | `--yfm-font-size-h6`, `--yfm-font-line-height-h6`: 13 px / 18 px | `subheader-1`         | `--g-text-subheader-font-weight` |
 
 A size takes the variables of the YFM heading of that level; where they are not set, it takes the Gravity UI typography of the same size.
-The weight is `--g-text-header-font-weight`.
+The weight is the one of the Gravity UI typography group of the size; it follows Gravity UI, not the YFM headings, which have no variable for their weight.
 
 The `auto` color is the color of the text around the title: in a header it follows the page theme, and over a background image the theme of the image.
 The other colors are the colors of colored text in YFM, `--yfm-colorify-<color>`; where they are not set, the title takes the Gravity UI tokens those colors use in the editor:
@@ -186,10 +186,13 @@ The other colors are the colors of colored text in YFM, `--yfm-colorify-<color>`
 | `blue`   | `--yfm-colorify-blue`   | `--g-color-text-info`                |
 | `violet` | `--yfm-colorify-violet` | `--g-color-text-utility`             |
 
-| Property                                  | Default                            |
-| ----------------------------------------- | ---------------------------------- |
-| `--g-md-header-title-plugin-font-weight`  | `var(--g-text-header-font-weight)` |
-| `--g-md-header-title-plugin-margin-block` | `0 var(--g-spacing-4)`             |
+These colors are the colored text of the editor and are not all readable as a title: on the page `yellow` and `orange` are below the WCAG AA contrast, `green` and `blue` too at sizes `4`–`6`, and a color is barely visible on a fill of its own family.
+Use colored titles at sizes `1`–`3` on the page or on light fills, avoid the color of the fill's family, or set `--yfm-colorify-<color>` to the colors your theme needs.
+
+| Property                                  | Default                               |
+| ----------------------------------------- | ------------------------------------- |
+| `--g-md-header-title-plugin-font-weight`  | the weight of the size, see the table |
+| `--g-md-header-title-plugin-margin-block` | `0 var(--g-spacing-4)`                |
 
 Inside Header the title is a row of the header layout: the header sets the space around it, 16 px to the description and 32 px to the buttons. The margin applies to a title outside Header.
 
