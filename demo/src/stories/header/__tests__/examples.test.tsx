@@ -68,6 +68,10 @@ describe('Header syntax examples', () => {
         ['button', 26, 50, 25, 'button-026', 'button-050'],
         ['link', 1, Infinity, 25, 'link-001', 'link-025'],
         ['boundaries', 9, 13, 5, 'boundaries-009', 'boundaries-013'],
+        ['layout', 1, Infinity, 108, 'layout-001', 'layout-108'],
+        ['layout', 28, 36, 9, 'layout-028', 'layout-036'],
+        ['background', 10, 36, 27, 'background-010', 'background-036'],
+        ['mixed', 9, 16, 8, 'mixed-009', 'mixed-016'],
     ])('should select the examples %s %i–%d', (prefix, first, last, count, firstId, lastId) => {
         const examples = markupExamplesOf(prefix, first, last);
         expect(examples).toHaveLength(count);
@@ -105,6 +109,21 @@ describe('Header syntax examples', () => {
         ).toBe(
             'case-001 — First\n\n:::header\n:::\n\ncase-002 — Second\n\n:::header{bg-image="/assets/test-image.jpg"}\n:::',
         );
+    });
+
+    it('should join the examples with the given local image', () => {
+        expect(
+            markupExamplesDocument(
+                [
+                    {
+                        id: 'case-001',
+                        title: 'First',
+                        markup: ':::header{bg-image="https://example.org/banner.jpg"}\n:::',
+                    },
+                ],
+                '/assets/header-bg-light.svg',
+            ),
+        ).toBe('case-001 — First\n\n:::header{bg-image="/assets/header-bg-light.svg"}\n:::');
     });
 
     it('should keep no image of the examples on the network', () => {

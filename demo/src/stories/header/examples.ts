@@ -88,7 +88,7 @@ export const withLocalImages = (markup: string, image = '/assets/test-image.jpg'
     markup.replace(EXAMPLE_IMAGE_RE, image);
 
 /** One document of several examples: the name of each example, then its markup. */
-export const markupExamplesDocument = (examples: readonly MarkupExample[]) =>
+export const markupExamplesDocument = (examples: readonly MarkupExample[], image?: string) =>
     examples
-        .map(({id, title, markup}) => `${id} — ${title}\n\n${withLocalImages(markup)}`)
+        .map(({id, title, markup}) => `${id} — ${title}\n\n${withLocalImages(markup, image)}`)
         .join('\n\n');
