@@ -1,22 +1,44 @@
 import {headerTitleSizes} from '@gravity-ui/markdown-plugin-header';
 
 import {expect} from 'playwright/core';
-import {test} from 'playwright/core/extensions/header-title';
+import {test} from 'playwright/core/extensions/header-content';
 
 import {HeaderSyntaxStories} from './HeaderSyntax.helpers';
 import {compactHeaderStyles, markupSection} from './utils/markup-examples';
 
+/**
+ * A section split into a section per group of its examples, in their order:
+ * a screenshot of a whole section may be too tall for an image.
+ */
+const sectionGroups = (sectionTitle: string, groups: readonly string[], size: number) =>
+    markupSection(sectionTitle).flatMap(({title, description, examples}) =>
+        groups.map((group, index) => ({
+            title: `${title}: ${group}`,
+            description,
+            examples: examples.slice(index * size, (index + 1) * size),
+        })),
+    );
+
 // title-001 … title-063: no size, then every size, each without a color and with every color.
 const TITLE_GROUPS = ['no size', ...headerTitleSizes.map((size) => `size ${size}`)];
 const TITLE_GROUP_SIZE = 9;
-/** The section of the titles split into a section per group, in the order of the examples. */
-const titleSections = markupSection('Title size and color').flatMap(
-    ({title, description, examples}) =>
-        TITLE_GROUPS.map((group, index) => ({
-            title: `${title}: ${group}`,
-            description,
-            examples: examples.slice(index * TITLE_GROUP_SIZE, (index + 1) * TITLE_GROUP_SIZE),
-        })),
+const titleSections = sectionGroups('Title size and color', TITLE_GROUPS, TITLE_GROUP_SIZE);
+
+// nested-001 … nested-064: the combinations of the marks and a link, 16 for each pair
+// of bold and italic text; nested-065 … nested-078: the links and the nested marks.
+const NESTED_GROUPS = [
+    'no bold, no italic',
+    'italic',
+    'bold',
+    'bold and italic',
+    'links and nesting',
+];
+const NESTED_GROUP_SIZE = 16;
+const NESTED_COUNT = 78;
+const nestedSections = sectionGroups(
+    'Links and nested formatting in the description',
+    NESTED_GROUPS,
+    NESTED_GROUP_SIZE,
 );
 
 test.describe('Header syntax', () => {
@@ -74,6 +96,74 @@ test.describe('Header syntax', () => {
             const id = `title-${String(index * TITLE_GROUP_SIZE + 1).padStart(3, '0')}`;
             await expect(section.getByTestId('header-syntax-example')).toHaveCount(
                 TITLE_GROUP_SIZE,
+            );
+            await expect(section.getByTestId('header-syntax-example').first()).toContainText(id);
+            await expectScreenshot({component: section, nameSuffix: group});
+        }
+    });
+
+    test('should show the descriptions of a section in every size', async ({
+        mount,
+        page,
+        header,
+        headerContent,
+        expectScreenshot,
+    }) => {
+        await mount(
+            <HeaderSyntaxStories.AllCases
+                sections={markupSection('Description size and paragraphs')}
+            />,
+            {width: 1100, styles: compactHeaderStyles},
+        );
+        const story = page.getByTestId('header-syntax');
+        const examples = story.getByTestId('header-syntax-example');
+        await expect(examples).toHaveCount(14);
+        await expect(examples.last()).toContainText('description-014 — Size: 6 · Paragraphs: 2');
+        await expect(examples.first().locator('pre')).toHaveText(
+            ':::header\n\n:::header-content\nPortal description.\n:::\n:::',
+        );
+        await expect(header.previews).toHaveCount(14);
+        await expect(headerContent.previews).toHaveCount(14);
+        await expect(headerContent.previewsWith('data-size')).toHaveCount(12);
+        await expect(headerContent.previews.last()).toHaveAttribute('data-size', '6');
+        await expect(headerContent.previews.last().locator('p')).toHaveCount(2);
+        await expectScreenshot({component: story});
+    });
+
+    test('should show the marks and the links of the descriptions of a section', async ({
+        mount,
+        page,
+        header,
+        headerContent,
+        expectScreenshot,
+    }) => {
+        await mount(<HeaderSyntaxStories.AllCases sections={nestedSections} />, {
+            width: 1100,
+            styles: compactHeaderStyles,
+        });
+        const story = page.getByTestId('header-syntax');
+        const sections = story.getByTestId('header-syntax-section');
+        const examples = story.getByTestId('header-syntax-example');
+        await expect(sections).toHaveCount(NESTED_GROUPS.length);
+        await expect(examples).toHaveCount(NESTED_COUNT);
+        await expect(examples.nth(63)).toContainText(
+            'nested-064 — Bold: on · Italic: on · Underline: on · Strikethrough: on · Inline code: on · Link: on',
+        );
+        await expect(examples.nth(63).locator('pre')).toHaveText(
+            ':::header\n\n::header-title[Team portal]\n\n:::header-content\nPlain text. **Bold text.** *Italic text.* ++Underlined text.++ ~~Strikethrough text.~~ `inline code` [Team page](/page)\n:::\n:::',
+        );
+        await expect(header.previews).toHaveCount(NESTED_COUNT);
+        await expect(headerContent.previews).toHaveCount(NESTED_COUNT);
+        await expect(headerContent.previews.nth(63)).toHaveText(
+            'Plain text. Bold text. Italic text. Underlined text. Strikethrough text. inline code Team page',
+        );
+        // A screenshot of all 78 examples is too tall for an image: one per group.
+        for (const [index, group] of NESTED_GROUPS.entries()) {
+            const section = sections.nth(index);
+            const first = index * NESTED_GROUP_SIZE;
+            const id = `nested-${String(first + 1).padStart(3, '0')}`;
+            await expect(section.getByTestId('header-syntax-example')).toHaveCount(
+                Math.min(NESTED_GROUP_SIZE, NESTED_COUNT - first),
             );
             await expect(section.getByTestId('header-syntax-example').first()).toContainText(id);
             await expectScreenshot({component: section, nameSuffix: group});

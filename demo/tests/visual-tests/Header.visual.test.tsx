@@ -9,6 +9,7 @@ import type {Fixtures} from 'playwright/core/types';
 import {markupExamplesDocument} from '../../src/stories/header/examples';
 import {
     headerContent,
+    headerContentMarkup,
     headerExample,
     headerImages,
     headerTitleMarkup,
@@ -1236,27 +1237,27 @@ const tallText = Array.from(
 const stressMarkup = [
     headerExample(
         'bg-color="gray-light"',
-        headerContent(3, headerTitleMarkup(longTitle), longText),
+        headerContent(3, headerTitleMarkup(longTitle), headerContentMarkup(longText)),
     ),
     headerExample(
         'width="s" align="center" bg-color="blue-light"',
-        headerContent(3, headerTitleMarkup(longTitle), longText),
+        headerContent(3, headerTitleMarkup(longTitle), headerContentMarkup(longText)),
     ),
     headerExample(
         'width="s" align="right" vertical="bottom" bg-color="green-light"',
-        headerContent(3, headerTitleMarkup(unbreakable), unbreakable),
+        headerContent(3, headerTitleMarkup(unbreakable), headerContentMarkup(unbreakable)),
     ),
     headerExample(
         'height="l" vertical="top" bg-color="yellow-light"',
-        headerContent(1, headerTitleMarkup('A'), 'B'),
+        headerContent(1, headerTitleMarkup('A'), headerContentMarkup('B')),
     ),
     headerExample(
         'height="l" vertical="bottom" bg-color="red-light"',
-        headerContent(0, headerTitleMarkup('A'), 'B'),
+        headerContent(0, headerTitleMarkup('A'), headerContentMarkup('B')),
     ),
     headerExample(
         `width="s" bg-image="${headerImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`,
-        headerContent(3, headerTitleMarkup(longTitle), tallText),
+        headerContent(3, headerTitleMarkup(longTitle), headerContentMarkup(tallText)),
     ),
     headerExample(
         'align="center" vertical="top" bg-color="violet-light"',
@@ -1333,7 +1334,7 @@ const mobileMarkup = [
     ),
     headerExample(
         `height="l" width="full" bg-image="${headerImages.dark}" bg-image-theme="dark"`,
-        headerContent(3, headerTitleMarkup(longTitle), longText),
+        headerContent(3, headerTitleMarkup(longTitle), headerContentMarkup(longText)),
     ),
     headerExample(
         `width="s" bg-color="violet-light" bg-image="${headerImages.contrast}" bg-image-theme="light" bg-image-blur="true"`,
@@ -1341,7 +1342,7 @@ const mobileMarkup = [
     ),
     headerExample(
         'bg-color="red-light"',
-        headerContent(2, headerTitleMarkup(unbreakable), unbreakable),
+        headerContent(2, headerTitleMarkup(unbreakable), headerContentMarkup(unbreakable)),
     ),
 ].join('\n\n');
 

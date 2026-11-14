@@ -22,3 +22,10 @@ export const markupSection = (title: string) =>
  */
 export const compactHeaderStyles =
     ':root {--g-md-header-plugin-height-s: 72px; --g-md-header-plugin-padding: var(--g-spacing-4);}';
+
+/**
+ * A header as tall as its content with a small padding, so that a screenshot holds many
+ * titles or descriptions.
+ */
+export const denseHeaderStyles =
+    ':root {--g-md-header-plugin-height-s: 0px; --g-md-header-plugin-padding: var(--g-spacing-3); --g-md-header-plugin-margin-block: 0 var(--g-spacing-2);}';

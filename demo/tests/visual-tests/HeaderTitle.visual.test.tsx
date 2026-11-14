@@ -11,6 +11,7 @@ import {markupExamplesDocument} from '../../src/stories/header/examples';
 import {
     buttonMarkup,
     headerContent,
+    headerImageBackgrounds,
     headerImages,
     headerTitleColorsMarkup,
     headerTitleMarkup,
@@ -20,7 +21,7 @@ import {
 
 import {HeaderStories} from './Header.helpers';
 import {HeaderTitleStories} from './HeaderTitle.helpers';
-import {markupExamples} from './utils/markup-examples';
+import {denseHeaderStyles, markupExamples} from './utils/markup-examples';
 
 // The font size, the line height and the font weight of the sizes 1–6.
 const TYPOGRAPHY = [
@@ -41,13 +42,6 @@ const PADDING = 32;
 const TEXT_GAP = 16;
 const BUTTONS_GAP = 32;
 
-/**
- * The size of a header belongs to the header tests; here a header is as tall as its title,
- * so that a screenshot holds many titles.
- */
-const titleHeaderStyles =
-    ':root {--g-md-header-plugin-height-s: 0px; --g-md-header-plugin-padding: var(--g-spacing-3); --g-md-header-plugin-margin-block: 0 var(--g-spacing-2);}';
-
 /** The titles of the syntax examples `first` … `last`: nine examples of every size. */
 const titleExamples = (first: number, last: number) =>
     markupExamplesDocument(markupExamples('title', first, last));
@@ -62,22 +56,6 @@ const fillsMarkup = (saturation: string) =>
             ),
         )
         .join('\n\n');
-
-// The image, its theme and its blur, with the name of the background in the titles.
-const imageBackgrounds = [
-    [`bg-image="${headerImages.light}"`, 'a light image'],
-    [`bg-image="${headerImages.light}" bg-image-theme="light"`, 'a light image, light theme'],
-    [`bg-image="${headerImages.dark}"`, 'a dark image'],
-    [`bg-image="${headerImages.dark}" bg-image-theme="dark"`, 'a dark image, dark theme'],
-    [
-        `bg-image="${headerImages.contrast}" bg-image-theme="dark" bg-image-blur="true"`,
-        'a blurred image, dark theme',
-    ],
-    [
-        `bg-color="yellow-light" bg-image="${headerImages.contrast}" bg-image-theme="light" bg-image-blur="true"`,
-        'a blurred image, light theme',
-    ],
-] as const;
 
 const longTitle =
     'A long title that does not fit into one line of the header and wraps onto the next lines of the block, and the header grows with it';
@@ -171,7 +149,7 @@ test.describe('Header title preview', () => {
     }) => {
         // title-001 … title-027: no size is the size 2.
         await mount(<HeaderTitleStories.Preview width={1060} initial={titleExamples(1, 27)} />, {
-            styles: titleHeaderStyles,
+            styles: denseHeaderStyles,
         });
         await expect(header.previews).toHaveCount(27);
         await expect(headerTitle.previews).toHaveCount(27);
@@ -204,7 +182,7 @@ test.describe('Header title preview', () => {
     }) => {
         // title-028 … title-063.
         await mount(<HeaderTitleStories.Preview width={1060} initial={titleExamples(28, 63)} />, {
-            styles: titleHeaderStyles,
+            styles: denseHeaderStyles,
         });
         await expect(header.previews).toHaveCount(36);
         await expect(headerTitle.previews).toHaveCount(36);
@@ -231,7 +209,7 @@ test.describe('Header title preview', () => {
         expectScreenshot,
     }) => {
         await mount(<HeaderTitleStories.Preview width={1060} initial={fillsMarkup('light')} />, {
-            styles: titleHeaderStyles,
+            styles: denseHeaderStyles,
         });
         await expect(header.previews).toHaveCount(6 * COLOR_COUNT);
         await expect(headerTitle.previews).toHaveCount(6 * COLOR_COUNT);
@@ -251,7 +229,7 @@ test.describe('Header title preview', () => {
         expectScreenshot,
     }) => {
         await mount(<HeaderTitleStories.Preview width={1060} initial={fillsMarkup('medium')} />, {
-            styles: titleHeaderStyles,
+            styles: denseHeaderStyles,
         });
         await expect(header.previews).toHaveCount(6 * COLOR_COUNT);
         await expect(headerTitle.previews).toHaveCount(6 * COLOR_COUNT);
@@ -267,7 +245,7 @@ test.describe('Header title preview', () => {
         expectScreenshot,
     }) => {
         await mount(<HeaderTitleStories.Preview width={1060} initial={fillsMarkup('heavy')} />, {
-            styles: titleHeaderStyles,
+            styles: denseHeaderStyles,
         });
         await expect(header.previews).toHaveCount(6 * COLOR_COUNT);
         await expect(headerTitle.previews).toHaveCount(6 * COLOR_COUNT);
@@ -285,13 +263,13 @@ test.describe('Header title preview', () => {
         await mount(
             <HeaderTitleStories.Preview
                 width={1060}
-                initial={imageBackgrounds
+                initial={headerImageBackgrounds
                     .map(([attrs, name]) => headerTitleColorsMarkup(attrs, name))
                     .join('\n\n')}
             />,
-            {styles: titleHeaderStyles},
+            {styles: denseHeaderStyles},
         );
-        const count = imageBackgrounds.length * COLOR_COUNT;
+        const count = headerImageBackgrounds.length * COLOR_COUNT;
         await expect(header.previews).toHaveCount(count);
         await expect(headerTitle.previews).toHaveCount(count);
         await expect(header.previewsWith('data-bg-image-theme', 'dark')).toHaveCount(
@@ -303,7 +281,7 @@ test.describe('Header title preview', () => {
         // `auto` follows the theme of the image: it is the text color of its header.
         const colors = await headerTitle.getColors();
         const headerColors = await headerTitle.getParentColors();
-        const autoIndexes = imageBackgrounds.map((_, index) => index * COLOR_COUNT);
+        const autoIndexes = headerImageBackgrounds.map((_, index) => index * COLOR_COUNT);
         expect(autoIndexes.map((index) => colors[index])).toEqual(
             autoIndexes.map((index) => headerColors[index]),
         );
