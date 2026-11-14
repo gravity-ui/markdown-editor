@@ -91,7 +91,7 @@ export type LocalImages = {
     image?: string;
 };
 
-const DEFAULT_LOCAL_IMAGE = '/assets/test-image.jpg';
+const DEFAULT_LOCAL_IMAGE = 'assets/test-image.jpg';
 
 /**
  * The addresses of the examples do not exist; a local image of the demo assets loads without

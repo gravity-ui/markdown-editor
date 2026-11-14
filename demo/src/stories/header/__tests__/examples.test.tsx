@@ -83,11 +83,11 @@ describe('Header syntax examples', () => {
     it.each([
         [
             ':::header{bg-image="https://example.org/banner.jpg"}',
-            ':::header{bg-image="/assets/test-image.jpg"}',
+            ':::header{bg-image="assets/test-image.jpg"}',
         ],
         [
             '::header-image{src="http://example.org/image.jpg" alt="A"}',
-            '::header-image{src="/assets/test-image.jpg" alt="A"}',
+            '::header-image{src="assets/test-image.jpg" alt="A"}',
         ],
         [
             ':button[Docs]{href="https://example.org/docs"}',
@@ -100,17 +100,17 @@ describe('Header syntax examples', () => {
     it.each([
         [
             ':::header{bg-image="https://example.org/banner.jpg"}\n\n::header-image{src="https://example.org/image.jpg" alt="A"}\n:::',
-            ':::header{bg-image="/assets/header-bg-dark.svg"}\n\n::header-image{src="/assets/header-image-landscape.svg" alt="A"}\n:::',
+            ':::header{bg-image="assets/header-bg-dark.svg"}\n\n::header-image{src="assets/header-image-landscape.svg" alt="A"}\n:::',
         ],
         [
             '::header-image{src="http://example.org/image.jpg"}\n\n::header-image{src="https://example.org/banner.jpg" title="B"}',
-            '::header-image{src="/assets/header-image-landscape.svg"}\n\n::header-image{src="/assets/header-image-landscape.svg" title="B"}',
+            '::header-image{src="assets/header-image-landscape.svg"}\n\n::header-image{src="assets/header-image-landscape.svg" title="B"}',
         ],
     ])('should give the image beside the text of %j its own local image', (markup, result) => {
         expect(
             withLocalImages(markup, {
-                bgImage: '/assets/header-bg-dark.svg',
-                image: '/assets/header-image-landscape.svg',
+                bgImage: 'assets/header-bg-dark.svg',
+                image: 'assets/header-image-landscape.svg',
             }),
         ).toBe(result);
     });
@@ -126,7 +126,7 @@ describe('Header syntax examples', () => {
                 },
             ]),
         ).toBe(
-            'case-001 — First\n\n:::header\n:::\n\ncase-002 — Second\n\n:::header{bg-image="/assets/test-image.jpg"}\n:::',
+            'case-001 — First\n\n:::header\n:::\n\ncase-002 — Second\n\n:::header{bg-image="assets/test-image.jpg"}\n:::',
         );
     });
 
@@ -140,9 +140,9 @@ describe('Header syntax examples', () => {
                         markup: ':::header{bg-image="https://example.org/banner.jpg"}\n:::',
                     },
                 ],
-                {bgImage: '/assets/header-bg-light.svg'},
+                {bgImage: 'assets/header-bg-light.svg'},
             ),
-        ).toBe('case-001 — First\n\n:::header{bg-image="/assets/header-bg-light.svg"}\n:::');
+        ).toBe('case-001 — First\n\n:::header{bg-image="assets/header-bg-light.svg"}\n:::');
     });
 
     it('should keep no image of the examples on the network', () => {
@@ -151,7 +151,7 @@ describe('Header syntax examples', () => {
         );
         expect(images.length).toBeGreaterThan(200);
         expect(new Set(images)).toEqual(
-            new Set(['bg-image="/assets/test-image.jpg"', 'src="/assets/test-image.jpg"']),
+            new Set(['bg-image="assets/test-image.jpg"', 'src="assets/test-image.jpg"']),
         );
     });
 });

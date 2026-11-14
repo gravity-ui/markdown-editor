@@ -135,7 +135,7 @@ describe('HeaderSyntax', () => {
             Array.from(
                 container.querySelectorAll<HTMLElement>('.g-md-header-plugin_bg-image'),
                 (element) => element.getAttribute('style'),
-            ).filter((style) => style?.includes('/assets/test-image.jpg')),
+            ).filter((style) => style?.includes('assets/test-image.jpg')),
         ).toHaveLength(152);
     });
 
@@ -285,7 +285,7 @@ describe('HeaderSyntax', () => {
         expect(count('')).toBe(41);
         expect(container.querySelectorAll('.g-md-header-plugin > img')).toHaveLength(40);
         // The sanitizer keeps the address, the alternative text and the title of an image.
-        expect(count('[src="/assets/test-image.jpg"]')).toBe(41);
+        expect(count('[src="assets/test-image.jpg"]')).toBe(41);
         expect(count('[alt]')).toBe(41);
         expect(count('[alt="Team"]')).toBe(31);
         expect(count('[alt=""]')).toBe(10);

@@ -155,7 +155,7 @@ test.describe('Header syntax', () => {
         );
         await expect(header.previews).toHaveCount(15);
         await expect(headerImage.inHeaders(header.previews)).toHaveCount(15);
-        await expect(headerImage.previewsWith('src', '/assets/test-image.jpg')).toHaveCount(15);
+        await expect(headerImage.previewsWith('src', 'assets/test-image.jpg')).toHaveCount(15);
         await expect(headerImage.previewsWith('alt', 'Team')).toHaveCount(6);
         await expect(headerImage.previewsWith('alt', '')).toHaveCount(9);
         await expect(headerImage.previewsWith('title', 'Project team')).toHaveCount(6);
@@ -227,7 +227,7 @@ test.describe('Header syntax', () => {
         expect((await header.getPreviewSizes()).map(([, height]) => height)).toEqual(
             Array(16).fill(360),
         );
-        await header.waitForImage('/assets/test-image.jpg');
+        await header.waitForImage('assets/test-image.jpg');
         await expectScreenshot({component: story});
     });
 });

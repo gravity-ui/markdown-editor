@@ -63,9 +63,9 @@ export const buttonStylesMarkup = [
 
 /** Neutral generated images of the demo assets for `bg-image`: a light, a dark and a high-contrast one. */
 export const headerBgImages = {
-    light: '/assets/header-bg-light.svg',
-    dark: '/assets/header-bg-dark.svg',
-    contrast: '/assets/header-bg-contrast.svg',
+    light: 'assets/header-bg-light.svg',
+    dark: 'assets/header-bg-dark.svg',
+    contrast: 'assets/header-bg-contrast.svg',
 } as const;
 
 /**
@@ -73,10 +73,10 @@ export const headerBgImages = {
  * differ, and each one marks its center and its corners, so its crop is seen.
  */
 export const headerImageSources = {
-    landscape: '/assets/header-image-landscape.svg',
-    wide: '/assets/header-image-wide.svg',
-    tall: '/assets/header-image-tall.svg',
-    square: '/assets/header-image-square.svg',
+    landscape: 'assets/header-image-landscape.svg',
+    wide: 'assets/header-image-wide.svg',
+    tall: 'assets/header-image-tall.svg',
+    square: 'assets/header-image-square.svg',
 } as const;
 
 /** The image with the attributes that are given: an empty text and no title are not written. */
