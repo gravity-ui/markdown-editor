@@ -1,6 +1,7 @@
 import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
+import {example, exampleId, header} from '../../tests/examples';
 import {headerPlugin} from '../header';
 import {headerPreset} from '../preset';
 
@@ -17,15 +18,10 @@ const defaultButton = (attrs: string, label = 'Label') =>
 const row = '<p class="g-md-button-plugin-row">';
 
 const preset = new MarkdownIt().use(headerPreset);
-/** A header with default attributes around the rendered content. */
-const header = (content: string) =>
-    `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m" data-height="s" data-width="m">${content && `\n${content}`}</div>\n`;
-/** The shape of the syntax examples: every button stands in its own paragraph of a header. */
-const example = (...buttons: string[]) => `:::header\n\n${buttons.join('\n\n')}\n:::`;
+/** The syntax examples: every button stands in its own paragraph of a default header. */
+const buttonsExample = (...buttons: string[]) => example('', ...buttons);
 const button = (view: string, color: string, attrs = '', label = 'Learn more') =>
     `<a class="${cls(view, color)}"${attrs && ` ${attrs}`} ${data(view, color)}>${label}</a>`;
-const exampleId = (prefix: string, index: number) =>
-    `${prefix}-${String(index + 1).padStart(3, '0')}`;
 
 // The target as written in the markup and as rendered.
 const exampleTargets = [
@@ -262,7 +258,7 @@ describe('Button Markdown', () => {
 
     it('should separate the buttons of a joined row once when the plugin is used again', () => {
         const parser = new MarkdownIt().use(headerPreset).use(buttonPlugin);
-        expect(parser.render(example(':button[One]', ':button[Two]'))).toBe(
+        expect(parser.render(buttonsExample(':button[One]', ':button[Two]'))).toBe(
             header(`${row}${defaultButton('', 'One')}\n${defaultButton('', 'Two')}</p>\n`),
         );
     });
@@ -339,7 +335,7 @@ describe('Button Markdown', () => {
         ({view, color, markup, html}) => {
             expect(
                 preset.render(
-                    example(
+                    buttonsExample(
                         `:button[Learn more]{href="/page" view="${view}" color="${color}"${markup}}`,
                     ),
                 ),
@@ -350,7 +346,7 @@ describe('Button Markdown', () => {
     it.each(urlExamples)(
         'should render $id: the address $url and the target $target',
         ({markup, html}) => {
-            expect(preset.render(example(`:button[Learn more]{${markup}}`))).toBe(
+            expect(preset.render(buttonsExample(`:button[Learn more]{${markup}}`))).toBe(
                 header(`${row}${button('action', 'blue', html)}</p>\n`),
             );
         },
@@ -446,7 +442,7 @@ describe('Button Markdown', () => {
             '',
         ],
     ])('should render %s: %s', (_id, _name, markup, view, color, attrs) => {
-        expect(preset.render(example(markup))).toBe(
+        expect(preset.render(buttonsExample(markup))).toBe(
             header(`${row}${button(view, color, attrs)}</p>\n`),
         );
     });
@@ -464,7 +460,7 @@ describe('Button Markdown', () => {
             `${row}${button('action', 'standard', '', 'One')}\n${button('action', 'standard', '', 'Two')}</p>\n`,
         ],
     ])('should render nothing for %s in a header', (_name, buttons, html) => {
-        expect(preset.render(example(...buttons))).toBe(header(html));
+        expect(preset.render(buttonsExample(...buttons))).toBe(header(html));
     });
 
     const blue = (label: string) => button('action', 'blue', 'href="/page"', label);
@@ -474,51 +470,54 @@ describe('Button Markdown', () => {
     it.each([
         [
             'one button in its paragraph',
-            example(blueMarkup('Button 1')),
+            buttonsExample(blueMarkup('Button 1')),
             header(`${row}${blue('Button 1')}</p>\n`),
         ],
         [
             'two buttons in their paragraphs',
-            example(blueMarkup('Button 1'), blueMarkup('Button 2')),
+            buttonsExample(blueMarkup('Button 1'), blueMarkup('Button 2')),
             header(`${row}${blue('Button 1')}\n${blue('Button 2')}</p>\n`),
         ],
         [
             'three buttons in their paragraphs',
-            example(blueMarkup('Button 1'), blueMarkup('Button 2'), blueMarkup('Button 3')),
+            buttonsExample(blueMarkup('Button 1'), blueMarkup('Button 2'), blueMarkup('Button 3')),
             header(`${row}${blue('Button 1')}\n${blue('Button 2')}\n${blue('Button 3')}</p>\n`),
         ],
         [
             'three buttons in one paragraph',
-            example(
+            buttonsExample(
                 [blueMarkup('Button 1'), blueMarkup('Button 2'), blueMarkup('Button 3')].join(' '),
             ),
             header(`${row}${blue('Button 1')} ${blue('Button 2')} ${blue('Button 3')}</p>\n`),
         ],
         [
             'a paragraph of two buttons and a paragraph of one',
-            example(`${blueMarkup('Button 1')} ${blueMarkup('Button 2')}`, blueMarkup('Button 3')),
+            buttonsExample(
+                `${blueMarkup('Button 1')} ${blueMarkup('Button 2')}`,
+                blueMarkup('Button 3'),
+            ),
             header(`${row}${blue('Button 1')} ${blue('Button 2')}\n${blue('Button 3')}</p>\n`),
         ],
         [
             'buttons separated by a paragraph of text',
-            example(blueMarkup('Button 1'), 'Text', blueMarkup('Button 2')),
+            buttonsExample(blueMarkup('Button 1'), 'Text', blueMarkup('Button 2')),
             header(`${row}${blue('Button 1')}</p>\n<p>Text</p>\n${row}${blue('Button 2')}</p>\n`),
         ],
         [
             'buttons separated by a heading',
-            example(blueMarkup('Button 1'), '## Title', blueMarkup('Button 2')),
+            buttonsExample(blueMarkup('Button 1'), '## Title', blueMarkup('Button 2')),
             header(
                 `${row}${blue('Button 1')}</p>\n<h2>Title</h2>\n${row}${blue('Button 2')}</p>\n`,
             ),
         ],
         [
             'buttons after the header',
-            `${example(blueMarkup('Button 1'))}\n\n${blueMarkup('Button 2')}\n\n${blueMarkup('Button 3')}`,
+            `${buttonsExample(blueMarkup('Button 1'))}\n\n${blueMarkup('Button 2')}\n\n${blueMarkup('Button 3')}`,
             `${header(`${row}${blue('Button 1')}</p>\n`)}${row}${blue('Button 2')}</p>\n${row}${blue('Button 3')}</p>\n`,
         ],
         [
             'buttons of two headers',
-            `${example(blueMarkup('Button 1'), blueMarkup('Button 2'))}\n\n${example(blueMarkup('Button 3'))}`,
+            `${buttonsExample(blueMarkup('Button 1'), blueMarkup('Button 2'))}\n\n${buttonsExample(blueMarkup('Button 3'))}`,
             `${header(`${row}${blue('Button 1')}\n${blue('Button 2')}</p>\n`)}${header(`${row}${blue('Button 3')}</p>\n`)}`,
         ],
     ])('should lay out %s of a header as rows', (_name, markup, html) => {
@@ -527,7 +526,7 @@ describe('Button Markdown', () => {
 
     it('should keep the paragraphs of a row in the tokens', () => {
         const types = preset
-            .parse(example(blueMarkup('Button 1'), blueMarkup('Button 2')), {})
+            .parse(buttonsExample(blueMarkup('Button 1'), blueMarkup('Button 2')), {})
             .map(({type, hidden}) => [type, hidden]);
         expect(types).toEqual([
             ['header_open', false],

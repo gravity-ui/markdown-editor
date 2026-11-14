@@ -2,6 +2,20 @@ import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
 import {
+    defaultHeaderTag,
+    example,
+    exampleButtons,
+    exampleContent,
+    exampleId,
+    exampleImageUrl,
+    exampleTitle,
+    mixedAlign,
+    mixedExamples,
+    mixedMarkup,
+    structureExamples,
+    structureMarkup,
+} from '../../tests/examples';
+import {
     headerAligns,
     headerAttrs,
     headerBackgroundFromAttrs,
@@ -372,20 +386,6 @@ describe('Header image address', () => {
 
 const preset = new MarkdownIt().use(headerPreset);
 const headerTag = (markup: string) => preset.render(markup).match(/^<div[^>]*>/)?.[0];
-const exampleId = (prefix: string, index: number) =>
-    `${prefix}-${String(index + 1).padStart(3, '0')}`;
-const exampleImage = 'https://example.org/banner.jpg';
-const exampleTitle = '::header-title[Team portal]';
-const exampleContent = ':::header-content\nPortal description.\n:::';
-const exampleButtons = [
-    ':button[Button 1]{href="/page" view="action" color="blue"}',
-    ':button[Button 2]{href="/page" view="normal" color="gray"}',
-    ':button[Button 3]{href="/page" view="flat" color="standard"}',
-];
-const example = (attrs: string, ...blocks: string[]) =>
-    `:::header${attrs && `{${attrs}}`}\n${blocks.map((block) => `\n${block}\n`).join('')}:::`;
-const defaultTag =
-    '<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m" data-height="s" data-width="m">';
 
 // layout-001 … layout-108: every height and width with both alignments.
 const layoutExamples = headerHeights
@@ -402,14 +402,22 @@ const layoutExamples = headerHeights
 // the modifiers, the theme classes and the data attributes after the fill.
 const exampleImages = [
     ['off', 'omitted', 'omitted', '', '', '', ''],
-    ['on', 'omitted', 'omitted', `bg-image="${exampleImage}"`, '', '', ''],
-    ['on', 'omitted', 'true', `bg-image="${exampleImage}" bg-image-blur="true"`, 'blur', '', ''],
-    ['on', 'system', 'omitted', `bg-image="${exampleImage}" bg-image-theme="system"`, '', '', ''],
+    ['on', 'omitted', 'omitted', `bg-image="${exampleImageUrl}"`, '', '', ''],
+    ['on', 'omitted', 'true', `bg-image="${exampleImageUrl}" bg-image-blur="true"`, 'blur', '', ''],
+    [
+        'on',
+        'system',
+        'omitted',
+        `bg-image="${exampleImageUrl}" bg-image-theme="system"`,
+        '',
+        '',
+        '',
+    ],
     [
         'on',
         'system',
         'true',
-        `bg-image="${exampleImage}" bg-image-theme="system" bg-image-blur="true"`,
+        `bg-image="${exampleImageUrl}" bg-image-theme="system" bg-image-blur="true"`,
         'blur',
         '',
         '',
@@ -418,7 +426,7 @@ const exampleImages = [
         'on',
         'light',
         'omitted',
-        `bg-image="${exampleImage}" bg-image-theme="light"`,
+        `bg-image="${exampleImageUrl}" bg-image-theme="light"`,
         '',
         ' g-root g-root_theme_light',
         ' data-bg-image-theme="light"',
@@ -427,7 +435,7 @@ const exampleImages = [
         'on',
         'light',
         'true',
-        `bg-image="${exampleImage}" bg-image-theme="light" bg-image-blur="true"`,
+        `bg-image="${exampleImageUrl}" bg-image-theme="light" bg-image-blur="true"`,
         'blur',
         ' g-root g-root_theme_light',
         ' data-bg-image-theme="light"',
@@ -436,7 +444,7 @@ const exampleImages = [
         'on',
         'dark',
         'omitted',
-        `bg-image="${exampleImage}" bg-image-theme="dark"`,
+        `bg-image="${exampleImageUrl}" bg-image-theme="dark"`,
         '',
         ' g-root g-root_theme_dark',
         ' data-bg-image-theme="dark"',
@@ -445,7 +453,7 @@ const exampleImages = [
         'on',
         'dark',
         'true',
-        `bg-image="${exampleImage}" bg-image-theme="dark" bg-image-blur="true"`,
+        `bg-image="${exampleImageUrl}" bg-image-theme="dark" bg-image-blur="true"`,
         'blur',
         ' g-root g-root_theme_dark',
         ' data-bg-image-theme="dark"',
@@ -477,11 +485,11 @@ const backgroundExamples = [
                 ].join(''),
                 data: [
                     filled ? ` data-bg-color="${fill}"` : '',
-                    image === 'on' ? ` data-bg-image="${exampleImage}"` : '',
+                    image === 'on' ? ` data-bg-image="${exampleImageUrl}"` : '',
                     themeData,
                     blurred ? ' data-bg-image-blur="true"' : '',
                     image === 'on'
-                        ? ` style="background-image:url(&quot;${exampleImage}&quot;)"`
+                        ? ` style="background-image:url(&quot;${exampleImageUrl}&quot;)"`
                         : '',
                 ].join(''),
             };
@@ -489,33 +497,8 @@ const backgroundExamples = [
     )
     .map((item, index) => ({id: exampleId('background', index), ...item}));
 
-// structure-001 … structure-032: the image, the title, the description and 0–3 buttons.
-const structureExamples = [false, true]
-    .flatMap((image) =>
-        [false, true].flatMap((title) =>
-            [false, true].flatMap((content) =>
-                [0, 1, 2, 3].map((buttons) => ({image, title, content, buttons})),
-            ),
-        ),
-    )
-    .map((item, index) => ({id: exampleId('structure', index), ...item}));
-
-const mixedAttrs = (align: string) =>
-    `height="l" width="full" align="${align}" vertical="bottom" bg-color="violet-light" bg-image="${exampleImage}" bg-image-theme="dark" bg-image-blur="true"`;
 const mixedTag = (align: string) =>
-    `<div class="g-md-header-plugin g-md-header-plugin_height_l g-md-header-plugin_width_full g-md-header-plugin_align_${align} g-md-header-plugin_vertical_bottom g-md-header-plugin_bg-color_violet-light g-md-header-plugin_bg-image g-md-header-plugin_bg-image-blur g-root g-root_theme_dark" data-height="l" data-width="full" data-align="${align}" data-vertical="bottom" data-bg-color="violet-light" data-bg-image="${exampleImage}" data-bg-image-theme="dark" data-bg-image-blur="true" style="background-image:url(&quot;${exampleImage}&quot;)">`;
-
-// mixed-001 … mixed-016: the centered header, then the same with an image beside the text
-// and the right alignment; the title, the description and 0 or 3 buttons.
-const mixedExamples = [false, true]
-    .flatMap((image) =>
-        [false, true].flatMap((title) =>
-            [false, true].flatMap((content) =>
-                [0, 3].map((buttons) => ({image, title, content, buttons})),
-            ),
-        ),
-    )
-    .map((item, index) => ({id: exampleId('mixed', index), ...item}));
+    `<div class="g-md-header-plugin g-md-header-plugin_height_l g-md-header-plugin_width_full g-md-header-plugin_align_${align} g-md-header-plugin_vertical_bottom g-md-header-plugin_bg-color_violet-light g-md-header-plugin_bg-image g-md-header-plugin_bg-image-blur g-root g-root_theme_dark" data-height="l" data-width="full" data-align="${align}" data-vertical="bottom" data-bg-color="violet-light" data-bg-image="${exampleImageUrl}" data-bg-image-theme="dark" data-bg-image-blur="true" style="background-image:url(&quot;${exampleImageUrl}&quot;)">`;
 
 describe('Header syntax examples', () => {
     it.each(layoutExamples)(
@@ -553,34 +536,19 @@ describe('Header syntax examples', () => {
 
     it.each(structureExamples)(
         'should render $id with image $image, title $title, description $content and $buttons buttons in the default header',
-        ({image, title, content, buttons}) => {
-            const markup = example(
-                '',
-                ...(image ? [`::header-image{src="${exampleImage}" alt="Team"}`] : []),
-                ...(title ? [exampleTitle] : []),
-                ...(content ? [exampleContent] : []),
-                ...exampleButtons.slice(0, buttons),
-            );
-            const output = preset.render(markup);
-            expect(output.startsWith(defaultTag)).toBe(true);
+        (item) => {
+            const output = preset.render(structureMarkup(item));
+            expect(output.startsWith(defaultHeaderTag)).toBe(true);
             expect(output.endsWith('</div>\n')).toBe(true);
             expect(output.match(/g-md-header-plugin /g)).toHaveLength(1);
-            expect(output.match(/<a /g) ?? []).toHaveLength(buttons);
+            expect(output.match(/<a /g) ?? []).toHaveLength(item.buttons);
         },
     );
 
     it.each(mixedExamples)(
         'should render $id with image $image, title $title, description $content and $buttons buttons in the header with every attribute',
-        ({image, title, content, buttons}) => {
-            const align = image ? 'right' : 'center';
-            const markup = example(
-                mixedAttrs(align),
-                ...(image ? [`::header-image{src="${exampleImage}" alt="Team"}`] : []),
-                ...(title ? ['::header-title[Team portal]{size="1" color="yellow"}'] : []),
-                ...(content ? [':::header-content{size="3"}\nPortal description.\n:::'] : []),
-                ...exampleButtons.slice(0, buttons),
-            );
-            expect(headerTag(markup)).toBe(mixedTag(align));
+        (item) => {
+            expect(headerTag(mixedMarkup(item))).toBe(mixedTag(mixedAlign(item)));
         },
     );
 
@@ -606,10 +574,10 @@ describe('Header syntax examples', () => {
             example('bg-image-theme="dark" bg-image-blur="true"', exampleTitle),
         ],
     ])('should render %s, %s, as the default header', (_id, _name, markup) => {
-        expect(headerTag(markup)).toBe(defaultTag);
+        expect(headerTag(markup)).toBe(defaultHeaderTag);
     });
 
     it('should render the empty header without content', () => {
-        expect(preset.render(':::header\n:::')).toBe(`${defaultTag}</div>\n`);
+        expect(preset.render(':::header\n:::')).toBe(`${defaultHeaderTag}</div>\n`);
     });
 });

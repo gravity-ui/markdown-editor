@@ -1,9 +1,21 @@
 import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
+import {
+    example,
+    exampleButtons,
+    exampleId,
+    exampleTitle,
+    header,
+    mixedExamples,
+    mixedMarkup,
+    structureExamples,
+    structureMarkup,
+} from '../../tests/examples';
 import {headerPreset} from '../preset';
 
 import {
+    headerSanitizeAllowedAttributes,
     headerTitle,
     headerTitleAttrs,
     headerTitleColors,
@@ -19,26 +31,9 @@ const preset = new MarkdownIt().use(headerPreset);
 /** The title with the given size and color; the defaults render no data attribute. */
 const title = (size: number | string = 2, color = 'auto', text = 'Team portal') =>
     `<div class="g-md-header-title-plugin g-md-header-title-plugin_size_${size}${color === 'auto' ? '' : ` g-md-header-title-plugin_color_${color}`}" role="heading" aria-level="${size}"${String(size) === '2' ? '' : ` data-size="${size}"`}${color === 'auto' ? '' : ` data-color="${color}"`}>${text}</div>\n`;
-/** A header with default attributes around the rendered content. */
-const header = (content: string) =>
-    `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m" data-height="s" data-width="m">\n${content}</div>\n`;
-/** The shape of the syntax examples: every block stands after an empty line of a header. */
-const example = (attrs: string, ...blocks: string[]) =>
-    `:::header${attrs && `{${attrs}}`}\n${blocks.map((block) => `\n${block}\n`).join('')}:::`;
-const exampleId = (prefix: string, index: number) =>
-    `${prefix}-${String(index + 1).padStart(3, '0')}`;
 /** The titles of a rendered document. */
 const titles = (output: string) =>
     output.match(/<div class="g-md-header-title-plugin[^>]*>[^<]*<\/div>\n/g) ?? [];
-
-const exampleTitle = '::header-title[Team portal]';
-const exampleContent = ':::header-content\nPortal description.\n:::';
-const exampleImage = '::header-image{src="https://example.org/banner.jpg" alt="Team"}';
-const exampleButtons = [
-    ':button[Button 1]{href="/page" view="action" color="blue"}',
-    ':button[Button 2]{href="/page" view="normal" color="gray"}',
-    ':button[Button 3]{href="/page" view="flat" color="standard"}',
-];
 
 // title-001 … title-063: no size and every size, each without a color and with every color.
 const titleExamples = (['omitted', ...headerTitleSizes] as const)
@@ -56,31 +51,6 @@ const titleExamples = (['omitted', ...headerTitleSizes] as const)
         })),
     )
     .map((item, index) => ({id: exampleId('title', index), ...item}));
-
-// structure-001 … structure-032: the image, the title, the description and 0–3 buttons.
-const structureExamples = [false, true]
-    .flatMap((image) =>
-        [false, true].flatMap((withTitle) =>
-            [false, true].flatMap((content) =>
-                [0, 1, 2, 3].map((buttons) => ({image, title: withTitle, content, buttons})),
-            ),
-        ),
-    )
-    .map((item, index) => ({id: exampleId('structure', index), ...item}));
-
-// mixed-001 … mixed-016: a header with every attribute; the title, the description
-// and 0 or 3 buttons, then the same with an image beside the text.
-const mixedExamples = [false, true]
-    .flatMap((image) =>
-        [false, true].flatMap((withTitle) =>
-            [false, true].flatMap((content) =>
-                [0, 3].map((buttons) => ({image, title: withTitle, content, buttons})),
-            ),
-        ),
-    )
-    .map((item, index) => ({id: exampleId('mixed', index), ...item}));
-const mixedAttrs = (align: string) =>
-    `height="l" width="full" align="${align}" vertical="bottom" bg-color="violet-light" bg-image="https://example.org/banner.jpg" bg-image-theme="dark" bg-image-blur="true"`;
 
 describe('Header title Markdown', () => {
     it.each([
@@ -328,6 +298,10 @@ describe('Header title options', () => {
         },
     );
 
+    it('should list the level of the title for the sanitizer', () => {
+        expect(headerSanitizeAllowedAttributes).toEqual({div: ['aria-level']});
+    });
+
     it('should read the defaults from an element without the attributes', () => {
         expect(headerTitleFromAttrs(() => null)).toEqual({size: 2, color: 'auto'});
     });
@@ -384,29 +358,19 @@ describe('Header title syntax examples', () => {
 
     it.each(structureExamples)(
         'should render $id with image $image, title $title, description $content and $buttons buttons',
-        ({image, title: withTitle, content, buttons}) => {
-            const markup = example(
-                '',
-                ...(image ? [exampleImage] : []),
-                ...(withTitle ? [exampleTitle] : []),
-                ...(content ? [exampleContent] : []),
-                ...exampleButtons.slice(0, buttons),
+        (item) => {
+            expect(titles(preset.render(structureMarkup(item)))).toEqual(
+                item.title ? [title()] : [],
             );
-            expect(titles(preset.render(markup))).toEqual(withTitle ? [title()] : []);
         },
     );
 
     it.each(mixedExamples)(
         'should render $id with image $image, title $title, description $content and $buttons buttons in the header with every attribute',
-        ({image, title: withTitle, content, buttons}) => {
-            const markup = example(
-                mixedAttrs(image ? 'right' : 'center'),
-                ...(image ? [exampleImage] : []),
-                ...(withTitle ? ['::header-title[Team portal]{size="1" color="yellow"}'] : []),
-                ...(content ? [':::header-content{size="3"}\nPortal description.\n:::'] : []),
-                ...exampleButtons.slice(0, buttons),
+        (item) => {
+            expect(titles(preset.render(mixedMarkup(item)))).toEqual(
+                item.title ? [title(1, 'yellow')] : [],
             );
-            expect(titles(preset.render(markup))).toEqual(withTitle ? [title(1, 'yellow')] : []);
         },
     );
 
