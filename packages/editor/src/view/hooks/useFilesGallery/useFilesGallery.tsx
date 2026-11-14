@@ -12,9 +12,16 @@ import {useToaster} from '@gravity-ui/uikit';
 
 import {i18n} from 'src/i18n/gallery';
 
-import {extensionRegex, supportedExtensions, supportedVideoExtensions} from './constants';
+import {
+    FilesGalleryAttrs,
+    extensionRegex,
+    supportedExtensions,
+    supportedVideoExtensions,
+} from './constants';
 import {buildLinkObject} from './helpers';
 import type {FilesGalleryItemType, GalleryItemPropsWithUrl, UseFilesGalleryOptions} from './types';
+
+const excludeSelector = `[${FilesGalleryAttrs.Exclude}]`;
 
 export function useFilesGallery(
     customFiles?: GalleryItemPropsWithUrl[],
@@ -37,6 +44,8 @@ export function useFilesGallery(
                 }
 
                 if (event.target.tagName === 'IMG' && event.target.closest('a')) return false;
+
+                if (event.target.closest(excludeSelector)) return false;
 
                 // Opening the context menu or opening the link in the new tab
                 if (event.ctrlKey || event.metaKey) {
@@ -92,6 +101,8 @@ export function useFilesGallery(
                 const filesFromContent = [
                     ...(event.currentTarget?.querySelectorAll('img,a') ?? []),
                 ].reduce<GalleryItemPropsWithUrl[]>((result, element) => {
+                    if (element.closest(excludeSelector)) return result;
+
                     const linkObj = buildLinkObject(element);
 
                     if (linkObj?.link && !customFiles?.some((item) => item.url === linkObj.link)) {

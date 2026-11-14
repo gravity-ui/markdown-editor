@@ -324,7 +324,7 @@ describe('Button Markdown', () => {
                 ':::header\n\n:button[One]{href="/one"} :button[Two]{view="flat" color="gray"}\n\n:::',
             ),
         ).toBe(
-            '<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m" data-height="s" data-width="m">\n' +
+            '<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m" data-files-gallery-exclude="true" data-height="s" data-width="m">\n' +
                 `${row}${defaultButton('href="/one"', 'One')} <a class="${cls('flat', 'gray')}" ${data('flat', 'gray')}>Two</a></p>\n` +
                 '</div>\n',
         );

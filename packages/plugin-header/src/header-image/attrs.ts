@@ -1,10 +1,13 @@
+import {filesGalleryExcludeAttrs} from '../const';
+
 import {type HeaderImage, headerImageClassName} from './const';
 import {headerImage} from './utils';
 
 /**
  * The attributes of the `img` element. The alternative text is always rendered: an image
  * without the `alt` attribute is announced by its address, and an empty one is skipped
- * as decorative. An image without a safe address has no `src`.
+ * as decorative. An image without a safe address has no `src`. The image opts out of the
+ * files galleries by itself: it may stand outside a header.
  */
 export function headerImageAttrs(attrs: {
     src?: unknown;
@@ -14,6 +17,7 @@ export function headerImageAttrs(attrs: {
     const {src, alt, title} = headerImage(attrs);
     return {
         class: headerImageClassName,
+        ...filesGalleryExcludeAttrs,
         ...(src === null ? undefined : {src}),
         alt,
         ...(title === null ? undefined : {title}),

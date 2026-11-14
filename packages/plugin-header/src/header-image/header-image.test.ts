@@ -31,10 +31,12 @@ const preset = new MarkdownIt().use(headerPreset);
 
 /** The image with the given address, alternative text and title; without a title there is no attribute. */
 const image = (src = '/image.jpg', alt = '', title?: string) =>
-    `<img class="g-md-header-image-plugin" src="${src}" alt="${alt}"${title === undefined ? '' : ` title="${title}"`}>\n`;
+    `<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="${src}" alt="${alt}"${title === undefined ? '' : ` title="${title}"`}>\n`;
 /** The images of a rendered document. */
 const images = (output: string) =>
-    output.match(/<img class="g-md-header-image-plugin"[^>]*>\n/g) ?? [];
+    output.match(
+        /<img class="g-md-header-image-plugin" data-files-gallery-exclude="true"[^>]*>\n/g,
+    ) ?? [];
 // Built at runtime for the `no-script-url` lint rule.
 const scriptUrl = ['javascript', 'alert(1)'].join(':');
 const titleHtml =
@@ -70,44 +72,56 @@ describe('Header image Markdown', () => {
     it.each([
         [
             'https://example.org/image.jpg',
-            '<img class="g-md-header-image-plugin" src="https://example.org/image.jpg" alt="">\n',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="https://example.org/image.jpg" alt="">\n',
         ],
         [
             'http://example.org/image.jpg',
-            '<img class="g-md-header-image-plugin" src="http://example.org/image.jpg" alt="">\n',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="http://example.org/image.jpg" alt="">\n',
         ],
         [
             'HTTPS://EXAMPLE.ORG/IMAGE.JPG',
-            '<img class="g-md-header-image-plugin" src="HTTPS://EXAMPLE.ORG/IMAGE.JPG" alt="">\n',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="HTTPS://EXAMPLE.ORG/IMAGE.JPG" alt="">\n',
         ],
         [
             'blob:https://example.org/0a1b2c3d',
-            '<img class="g-md-header-image-plugin" src="blob:https://example.org/0a1b2c3d" alt="">\n',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="blob:https://example.org/0a1b2c3d" alt="">\n',
         ],
         [
             '//example.org/image.jpg',
-            '<img class="g-md-header-image-plugin" src="//example.org/image.jpg" alt="">\n',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="//example.org/image.jpg" alt="">\n',
         ],
-        ['/image.jpg', '<img class="g-md-header-image-plugin" src="/image.jpg" alt="">\n'],
+        [
+            '/image.jpg',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="/image.jpg" alt="">\n',
+        ],
         [
             './.files/image.jpg',
-            '<img class="g-md-header-image-plugin" src="./.files/image.jpg" alt="">\n',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="./.files/image.jpg" alt="">\n',
         ],
         [
             '../images/image.jpg',
-            '<img class="g-md-header-image-plugin" src="../images/image.jpg" alt="">\n',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="../images/image.jpg" alt="">\n',
         ],
-        ['image.jpg', '<img class="g-md-header-image-plugin" src="image.jpg" alt="">\n'],
+        [
+            'image.jpg',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="image.jpg" alt="">\n',
+        ],
         [
             'images/photo 1 (final).jpg',
-            '<img class="g-md-header-image-plugin" src="images/photo 1 (final).jpg" alt="">\n',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="images/photo 1 (final).jpg" alt="">\n',
         ],
         [
             '/image.jpg?size=l#top',
-            '<img class="g-md-header-image-plugin" src="/image.jpg?size=l#top" alt="">\n',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="/image.jpg?size=l#top" alt="">\n',
         ],
-        ['  /image.jpg  ', '<img class="g-md-header-image-plugin" src="/image.jpg" alt="">\n'],
-        ['/картинка.jpg', '<img class="g-md-header-image-plugin" src="/картинка.jpg" alt="">\n'],
+        [
+            '  /image.jpg  ',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="/image.jpg" alt="">\n',
+        ],
+        [
+            '/картинка.jpg',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="/картинка.jpg" alt="">\n',
+        ],
     ])('should render the address %j', (src, html) => {
         expect(md.render(`::header-image{src="${src}"}`)).toBe(html);
     });
@@ -148,6 +162,7 @@ describe('Header image Markdown', () => {
         expect(tokens.map((token) => token.type)).toEqual(['header-image']);
         expect(tokens[0].attrs).toEqual([
             ['class', 'g-md-header-image-plugin'],
+            ['data-files-gallery-exclude', 'true'],
             ['alt', 'Team'],
             ['title', 'Project team'],
         ]);
@@ -243,6 +258,17 @@ describe('Header image Markdown', () => {
         expect(md.render(markup)).not.toContain('g-md-header-image-plugin');
     });
 
+    it.each([
+        ['outside a header', '::header-image{src="/image.jpg"}'],
+        ['inside a header', ':::header\n\n::header-image{src="/image.jpg"}\n:::'],
+    ])('should opt the image %s out of the files galleries', (_place, markup) => {
+        const token = preset.parse(markup, {}).find(({type}) => type === 'header-image');
+        expect(token?.attrGet('data-files-gallery-exclude')).toBe('true');
+        expect(preset.render(markup)).toContain(
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="/image.jpg" alt="">',
+        );
+    });
+
     it('should parse the image as one block token with its attributes', () => {
         const tokens = md.parse(
             'Before\n\n::header-image{src="/image.jpg" alt="Team" title="Project team"}',
@@ -264,6 +290,7 @@ describe('Header image Markdown', () => {
         expect(token.children).toBeNull();
         expect(token.attrs).toEqual([
             ['class', 'g-md-header-image-plugin'],
+            ['data-files-gallery-exclude', 'true'],
             ['src', '/image.jpg'],
             ['alt', 'Team'],
             ['title', 'Project team'],
@@ -303,7 +330,7 @@ describe('Header image Markdown', () => {
     it('should close the tag in the XHTML output', () => {
         const xhtml = new MarkdownIt({xhtmlOut: true}).use(headerImagePlugin);
         expect(xhtml.render('::header-image{src="/image.jpg" alt="Team"}')).toBe(
-            '<img class="g-md-header-image-plugin" src="/image.jpg" alt="Team" />\n',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="/image.jpg" alt="Team" />\n',
         );
     });
 
@@ -343,12 +370,21 @@ describe('Header image options', () => {
     });
 
     it.each([
-        [{}, {class: 'g-md-header-image-plugin', alt: ''}],
-        [{src: '/image.jpg'}, {class: 'g-md-header-image-plugin', src: '/image.jpg', alt: ''}],
+        [{}, {class: 'g-md-header-image-plugin', 'data-files-gallery-exclude': 'true', alt: ''}],
+        [
+            {src: '/image.jpg'},
+            {
+                class: 'g-md-header-image-plugin',
+                'data-files-gallery-exclude': 'true',
+                src: '/image.jpg',
+                alt: '',
+            },
+        ],
         [
             {src: '/image.jpg', alt: 'Team', title: 'Project team'},
             {
                 class: 'g-md-header-image-plugin',
+                'data-files-gallery-exclude': 'true',
                 src: '/image.jpg',
                 alt: 'Team',
                 title: 'Project team',
@@ -356,7 +392,7 @@ describe('Header image options', () => {
         ],
         [
             {src: scriptUrl, alt: 'Team', title: ''},
-            {class: 'g-md-header-image-plugin', alt: 'Team'},
+            {class: 'g-md-header-image-plugin', 'data-files-gallery-exclude': 'true', alt: 'Team'},
         ],
     ])('should build the attributes of %j', (options, attrs) => {
         expect(headerImageAttrs(options)).toEqual(attrs);
@@ -397,19 +433,19 @@ describe('Header image syntax examples', () => {
             'image-013',
             'an empty alternative text',
             `::header-image{src="${exampleImageUrl}" alt=""}`,
-            '<img class="g-md-header-image-plugin" src="https://example.org/banner.jpg" alt="">\n',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="https://example.org/banner.jpg" alt="">\n',
         ],
         [
             'image-014',
             'an empty title',
             `::header-image{src="${exampleImageUrl}" title=""}`,
-            '<img class="g-md-header-image-plugin" src="https://example.org/banner.jpg" alt="">\n',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="https://example.org/banner.jpg" alt="">\n',
         ],
         [
             'image-015',
             'an empty alternative text and an empty title',
             `::header-image{src="${exampleImageUrl}" alt="" title=""}`,
-            '<img class="g-md-header-image-plugin" src="https://example.org/banner.jpg" alt="">\n',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="https://example.org/banner.jpg" alt="">\n',
         ],
     ])('should render %s, %s', (_id, _name, markup, html) => {
         expect(preset.render(example('', markup))).toBe(header(html));
@@ -437,7 +473,7 @@ describe('Header image syntax examples', () => {
     it('should render structure-032, the image before the title, the description and three buttons', () => {
         expect(preset.render(structureMarkup(structureExamples[31]))).toBe(
             header(
-                '<img class="g-md-header-image-plugin" src="https://example.org/banner.jpg" alt="Team">\n' +
+                '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="https://example.org/banner.jpg" alt="Team">\n' +
                     titleHtml +
                     '<div class="g-md-header-content-plugin">\n<p>Portal description.</p>\n</div>\n' +
                     '<p class="g-md-button-plugin-row"><a class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_blue" href="/page" data-view="action" data-color="blue">Button 1</a>\n' +
@@ -482,7 +518,7 @@ describe('Header image syntax examples', () => {
             'boundaries-004',
             'an image outside a header',
             `::header-image{src="${exampleImageUrl}"}`,
-            '<img class="g-md-header-image-plugin" src="https://example.org/banner.jpg" alt="">\n',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="https://example.org/banner.jpg" alt="">\n',
         ],
         [
             'a second image',
@@ -512,7 +548,7 @@ describe('Header image syntax examples', () => {
 
     it('should render an image with a centered header as written', () => {
         expect(preset.render(example('align="center"', exampleImage, exampleTitle))).toBe(
-            `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m g-md-header-plugin_align_center" data-height="s" data-width="m" data-align="center">\n${image(exampleImageUrl, 'Team')}${titleHtml}</div>\n`,
+            `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m g-md-header-plugin_align_center" data-files-gallery-exclude="true" data-height="s" data-width="m" data-align="center">\n${image(exampleImageUrl, 'Team')}${titleHtml}</div>\n`,
         );
     });
 });

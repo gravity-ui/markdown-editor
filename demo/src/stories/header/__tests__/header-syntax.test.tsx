@@ -6,7 +6,7 @@ import {
 import {ThemeProvider} from '@gravity-ui/uikit';
 import {type Root, createRoot} from 'react-dom/client';
 import {act} from 'react-dom/test-utils';
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {SplitModePreview} from '../../../components/SplitModePreview';
 import {HeaderSyntax} from '../HeaderSyntax';
@@ -295,6 +295,78 @@ describe('HeaderSyntax', () => {
         expect(container.querySelectorAll('.g-md-header-plugin > img:first-child')).toHaveLength(
             40,
         );
+    });
+
+    it('should keep the header images out of the files gallery of the preview', async () => {
+        const source = [
+            ':::header\n\n::header-image{src="assets/test-image.jpg" alt="Inside"}\n\n:button[Open]{href="assets/test-image.jpg"}\n:::',
+            '::header-image{src="assets/test-image.jpg" alt="Outside"}',
+            '![Photo](assets/test-image.jpg)',
+        ].join('\n\n');
+        await act(async () => {
+            root.render(
+                <ThemeProvider theme="light">
+                    <SplitModePreview getValue={() => source} needToSanitizeHtml />
+                </ThemeProvider>,
+            );
+        });
+        await act(async () => {
+            await vi.advanceTimersByTimeAsync(250);
+        });
+        const click = async (selector: string) => {
+            const element = container.querySelector(selector);
+            assert(element);
+            const event = new MouseEvent('click', {bubbles: true, cancelable: true});
+            await act(async () => element.dispatchEvent(event));
+            return event;
+        };
+        // The sanitizer keeps the opt-out attribute of the header and of its image.
+        expect(
+            container.querySelectorAll(
+                '.g-md-header-plugin[data-files-gallery-exclude], .g-md-header-image-plugin[data-files-gallery-exclude]',
+            ),
+        ).toHaveLength(3);
+
+        // A click on a header image or on a button opens no gallery and is not prevented.
+        for (const selector of ['img[alt="Inside"]', 'img[alt="Outside"]']) {
+            expect((await click(selector)).defaultPrevented).toBe(false);
+            expect(document.querySelector('[role="dialog"]')).toBeNull();
+        }
+        const button = container.querySelector('.g-md-header-plugin a');
+        assert(button);
+        button.addEventListener('click', (event) => {
+            // Stands for the navigation, which jsdom does not implement.
+            expect(event.defaultPrevented).toBe(false);
+            event.preventDefault();
+        });
+        await click('.g-md-header-plugin a');
+        expect(document.querySelector('[role="dialog"]')).toBeNull();
+
+        // The gallery of the image of the text has no header images.
+        vi.stubGlobal('matchMedia', (media: string) =>
+            Object.assign(new EventTarget(), {matches: false, media, onchange: null}),
+        );
+        vi.stubGlobal(
+            'ResizeObserver',
+            class {
+                observe() {}
+                unobserve() {}
+                disconnect() {}
+            },
+        );
+        Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+            configurable: true,
+            value: vi.fn(),
+        });
+        try {
+            expect((await click('img[alt="Photo"]')).defaultPrevented).toBe(true);
+            const dialog = document.querySelector('[role="dialog"]');
+            expect(dialog?.textContent).toContain('Photo');
+            expect(dialog?.textContent).not.toMatch(/\d+ \/ \d+/);
+        } finally {
+            vi.unstubAllGlobals();
+            Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
+        }
     });
 
     it.each([

@@ -153,7 +153,7 @@ describe('Header image extension', () => {
         );
         const dom = DOMSerializer.fromSchema(schema).serializeNode(doc.child(0)) as HTMLElement;
         expect(dom.outerHTML).toBe(
-            '<img class="g-md-header-image-plugin" src="/image.jpg" alt="Team" title="Project team">',
+            '<img class="g-md-header-image-plugin" data-files-gallery-exclude="true" src="/image.jpg" alt="Team" title="Project team">',
         );
         const container = document.createElement('div');
         container.append(dom);

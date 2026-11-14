@@ -1,5 +1,6 @@
 import {cn} from '@bem-react/classname';
 
+import {filesGalleryExcludeAttrs} from '../const';
 import {toCssUrl} from '../url';
 
 import {
@@ -27,6 +28,7 @@ type HeaderAttrsInput = Partial<
  * The alignment and the background are rendered when they differ from the defaults.
  * The image address is in the `style`: there a relative address resolves against the page,
  * and in a custom property used by the stylesheet it resolves against the stylesheet.
+ * The header opts out of the files galleries: its images and buttons are not gallery files.
  */
 export function headerAttrs(attrs: HeaderAttrsInput): Record<string, string> {
     const dimensions = headerDimensions(attrs);
@@ -45,6 +47,7 @@ export function headerAttrs(attrs: HeaderAttrsInput): Record<string, string> {
             },
             theme === 'system' ? undefined : ['g-root', `g-root_theme_${theme}`],
         ),
+        ...filesGalleryExcludeAttrs,
         'data-height': dimensions.height,
         'data-width': dimensions.width,
     };

@@ -62,10 +62,12 @@ Portal description.
 
 The block is rendered as `div.g-md-header-plugin` with the modifiers `_height_{s,m,l}` and `_width_{s,m,l,full}`; the `data-height` and `data-width` attributes of the element and of the opening token hold the same dimensions.
 The alignment and the background are rendered when they differ from the defaults: the modifiers `_align_{center,right}`, `_vertical_{top,bottom}`, `_bg-color_<value>`, `_bg-image`, `_bg-image-blur` and the attributes `data-align`, `data-vertical`, `data-bg-*`.
+The element also has `data-files-gallery-exclude="true"`: the files galleries of `@gravity-ui/markdown-viewer` (`FilesGallery`) and of `@gravity-ui/markdown-editor` (`useFilesGallery`) skip the images and the links inside an element with this attribute and leave the clicks on them alone, so a header image is not a gallery file and a button navigates as a link. The plugin does not depend on these packages; it writes the attribute name itself.
 
 ```html
 <div
   class="g-md-header-plugin g-md-header-plugin_height_l g-md-header-plugin_width_full g-md-header-plugin_align_center g-md-header-plugin_vertical_bottom g-md-header-plugin_bg-color_blue-light"
+  data-files-gallery-exclude="true"
   data-height="l"
   data-width="full"
   data-align="center"
@@ -337,7 +339,13 @@ Inside Header the description is a row of the header layout: the header sets the
 
 ```html
 <div class="g-md-header-plugin …">
-  <img class="g-md-header-image-plugin" src="./.files/team.jpg" alt="Team" title="Project team" />
+  <img
+    class="g-md-header-image-plugin"
+    data-files-gallery-exclude="true"
+    src="./.files/team.jpg"
+    alt="Team"
+    title="Project team"
+  />
   <div
     class="g-md-header-title-plugin g-md-header-title-plugin_size_2"
     role="heading"
@@ -349,6 +357,7 @@ Inside Header the description is a row of the header layout: the header sets the
 ```
 
 The block is an `img.g-md-header-image-plugin` with the `src`, `alt` and `title` attributes; `headerImageFromAttrs` reads them back.
+The image has `data-files-gallery-exclude="true"` of its own, as [Header](#header) does: it stays out of the files galleries outside a header too.
 The `alt` attribute is always rendered: without it a screen reader announces the address of the image, and with an empty one it skips the image as decorative. An empty `title` is not rendered.
 `title` is the native tooltip of the browser for pointer users: it is not shown on touch or keyboard focus, and it does not describe the image to screen readers. An image with `title` and without `alt` is still decorative (`alt="" title="…"`); an image that matters needs `alt`.
 

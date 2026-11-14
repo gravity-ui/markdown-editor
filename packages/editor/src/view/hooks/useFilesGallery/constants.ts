@@ -16,3 +16,11 @@ export const YfmFileAttrs = {
     Download: 'download',
     Type: 'type',
 } as const;
+
+export const FilesGalleryAttrs = {
+    /**
+     * Opts a subtree of the content out of the gallery: an image or a link inside an element
+     * with this attribute is not collected, and a click on it keeps its normal behavior.
+     */
+    Exclude: 'data-files-gallery-exclude',
+} as const;

@@ -36,7 +36,7 @@ import {headerPreset} from '../preset';
 const md = new MarkdownIt().use(headerPlugin);
 
 const html = (height: string, width: string) =>
-    `<div class="g-md-header-plugin g-md-header-plugin_height_${height} g-md-header-plugin_width_${width}" data-height="${height}" data-width="${width}"></div>\n`;
+    `<div class="g-md-header-plugin g-md-header-plugin_height_${height} g-md-header-plugin_width_${width}" data-files-gallery-exclude="true" data-height="${height}" data-width="${width}"></div>\n`;
 
 describe('Header Markdown', () => {
     it.each(headerHeights.flatMap((height) => headerWidths.map((width) => ({height, width}))))(
@@ -148,7 +148,7 @@ describe('Header Markdown', () => {
 
 describe('Header background', () => {
     const block = (modifiers: string, attrs: string) =>
-        `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m${modifiers}" data-height="s" data-width="m"${attrs}></div>\n`;
+        `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m${modifiers}" data-files-gallery-exclude="true" data-height="s" data-width="m"${attrs}></div>\n`;
     // Built at runtime for the `no-script-url` lint rule.
     const scriptUrl = ['javascript', 'alert(1)'].join(':');
 
@@ -220,7 +220,7 @@ describe('Header background', () => {
 
 describe('Header alignment', () => {
     const block = (modifiers: string, attrs: string) =>
-        `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m${modifiers}" data-height="s" data-width="m"${attrs}></div>\n`;
+        `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m${modifiers}" data-files-gallery-exclude="true" data-height="s" data-width="m"${attrs}></div>\n`;
 
     it.each([
         ['left', '', ''],
@@ -257,7 +257,7 @@ describe('Header alignment', () => {
                 ':::header{bg-color="red-light" vertical="bottom" align="right" width="s" height="l"}\n:::',
             ),
         ).toBe(
-            '<div class="g-md-header-plugin g-md-header-plugin_height_l g-md-header-plugin_width_s g-md-header-plugin_align_right g-md-header-plugin_vertical_bottom g-md-header-plugin_bg-color_red-light" data-height="l" data-width="s" data-align="right" data-vertical="bottom" data-bg-color="red-light"></div>\n',
+            '<div class="g-md-header-plugin g-md-header-plugin_height_l g-md-header-plugin_width_s g-md-header-plugin_align_right g-md-header-plugin_vertical_bottom g-md-header-plugin_bg-color_red-light" data-files-gallery-exclude="true" data-height="l" data-width="s" data-align="right" data-vertical="bottom" data-bg-color="red-light"></div>\n',
         );
     });
 
@@ -275,6 +275,15 @@ describe('Header alignment', () => {
     ])('should resolve the layout of %j', (attrs, layout, values) => {
         expect(headerLayout(attrs)).toEqual(layout);
         expect(headerLayoutValues(headerLayout(attrs))).toEqual(values);
+    });
+
+    it('should opt the header out of the files galleries', () => {
+        expect(headerAttrs({})['data-files-gallery-exclude']).toBe('true');
+        const [open] = md.parse(':::header{bg-image="/a.png"}\n:::', {});
+        expect(open.attrGet('data-files-gallery-exclude')).toBe('true');
+        expect(md.render(':::header\n:::')).toBe(
+            '<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m" data-files-gallery-exclude="true" data-height="s" data-width="m"></div>\n',
+        );
     });
 
     it('should read the options back from the rendered attributes', () => {
@@ -302,7 +311,7 @@ describe('Header alignment', () => {
 
 describe('Header image address', () => {
     const block = (address: string, css: string) =>
-        `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m g-md-header-plugin_bg-image" data-height="s" data-width="m" data-bg-image="${address}" style="background-image:url(&quot;${css}&quot;)"></div>\n`;
+        `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m g-md-header-plugin_bg-image" data-files-gallery-exclude="true" data-height="s" data-width="m" data-bg-image="${address}" style="background-image:url(&quot;${css}&quot;)"></div>\n`;
 
     // The address is taken as written; the renderer escapes it for HTML.
     it.each([
@@ -469,7 +478,7 @@ const backgroundExamples = [
     .map((item, index) => ({id: exampleId('background', index), ...item}));
 
 const mixedTag = (align: string) =>
-    `<div class="g-md-header-plugin g-md-header-plugin_height_l g-md-header-plugin_width_full g-md-header-plugin_align_${align} g-md-header-plugin_vertical_bottom g-md-header-plugin_bg-color_violet-light g-md-header-plugin_bg-image g-md-header-plugin_bg-image-blur g-root g-root_theme_dark" data-height="l" data-width="full" data-align="${align}" data-vertical="bottom" data-bg-color="violet-light" data-bg-image="${exampleImageUrl}" data-bg-image-theme="dark" data-bg-image-blur="true" style="background-image:url(&quot;${exampleImageUrl}&quot;)">`;
+    `<div class="g-md-header-plugin g-md-header-plugin_height_l g-md-header-plugin_width_full g-md-header-plugin_align_${align} g-md-header-plugin_vertical_bottom g-md-header-plugin_bg-color_violet-light g-md-header-plugin_bg-image g-md-header-plugin_bg-image-blur g-root g-root_theme_dark" data-files-gallery-exclude="true" data-height="l" data-width="full" data-align="${align}" data-vertical="bottom" data-bg-color="violet-light" data-bg-image="${exampleImageUrl}" data-bg-image-theme="dark" data-bg-image-blur="true" style="background-image:url(&quot;${exampleImageUrl}&quot;)">`;
 
 describe('Header syntax examples', () => {
     it.each(layoutExamples)(
@@ -490,7 +499,7 @@ describe('Header syntax examples', () => {
                 vertical === 'center' ? '' : ` data-vertical="${vertical}"`,
             ].join('');
             expect(headerTag(markup)).toBe(
-                `<div class="g-md-header-plugin g-md-header-plugin_height_${height} g-md-header-plugin_width_${width}${modifiers}" data-height="${height}" data-width="${width}"${data}>`,
+                `<div class="g-md-header-plugin g-md-header-plugin_height_${height} g-md-header-plugin_width_${width}${modifiers}" data-files-gallery-exclude="true" data-height="${height}" data-width="${width}"${data}>`,
             );
         },
     );
@@ -500,7 +509,7 @@ describe('Header syntax examples', () => {
         ({attrs, modifiers, data}) => {
             const markup = example(attrs, exampleTitle, exampleContent, exampleButtons[0]);
             expect(headerTag(markup)).toBe(
-                `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m${modifiers}" data-height="s" data-width="m"${data}>`,
+                `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m${modifiers}" data-files-gallery-exclude="true" data-height="s" data-width="m"${data}>`,
             );
         },
     );

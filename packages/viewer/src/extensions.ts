@@ -12,6 +12,7 @@ export {
 } from './extensions/HeadingEditButtons';
 export {
     FilesGallery,
+    FILES_GALLERY_EXCLUDE_ATTRIBUTE,
     type FilesGalleryProps,
     type FilesGallerySource,
     type FilesGalleryItemType,

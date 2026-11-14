@@ -11,7 +11,7 @@ export const example = (attrs: string, ...blocks: string[]) =>
 
 /** The opening tag of a header with default attributes. */
 export const defaultHeaderTag =
-    '<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m" data-height="s" data-width="m">';
+    '<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m" data-files-gallery-exclude="true" data-height="s" data-width="m">';
 /** A header with default attributes around the rendered content. */
 export const header = (content: string) =>
     `${defaultHeaderTag}${content && `\n${content}`}</div>\n`;
