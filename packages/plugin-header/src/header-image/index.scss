@@ -1,0 +1,21 @@
+.g-md-header-image-plugin {
+    // The corners of the image in the mock.
+    // FIXME: not in Gravity UI (mock: 16px)
+    --_--border-radius: var(--g-md-header-image-plugin-border-radius, var(--g-border-radius-xl));
+    // Seen while the image loads, behind a transparent image and when the address is broken:
+    // the fill of the empty image of the mock.
+    --_--background: var(--g-md-header-image-plugin-background, var(--g-color-base-float-hover));
+
+    display: block;
+
+    // Doubled class: outweighs the image styles of YFM, which fit an image into its box.
+    &#{&} {
+        max-width: 100%;
+        margin-block: var(--g-md-header-image-plugin-margin-block, 0 var(--g-spacing-4));
+
+        border-radius: var(--_--border-radius);
+        background-color: var(--_--background);
+        // A header gives the image a box of its own: the image fills it and is cropped.
+        object-fit: cover;
+    }
+}

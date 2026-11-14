@@ -7,6 +7,7 @@ markdown-it plugins for the Header markup. Each block has its own plugin, and `h
 | [Header](#header)                 | `headerPlugin`        | `:::header{…}`            |
 | [Header title](#header-title)     | `headerTitlePlugin`   | `::header-title[text]{…}` |
 | [Header content](#header-content) | `headerContentPlugin` | `:::header-content{…}`    |
+| [Header image](#header-image)     | `headerImagePlugin`   | `::header-image{…}`       |
 | [Button](#button)                 | `buttonPlugin`        | `:button[label]{…}`       |
 
 ```ts
@@ -23,6 +24,8 @@ A single block is enabled with its own plugin, for example `md.use(buttonPlugin)
 
 ```markdown
 :::header{height="s" width="m" align="left" vertical="center" bg-color="blue-light" bg-image="./.files/photo.jpg" bg-image-theme="dark" bg-image-blur="true"}
+
+::header-image{src="./.files/team.jpg" alt="Team"}
 
 ::header-title[Team portal]
 
@@ -49,9 +52,15 @@ The block is rendered as `div.g-md-header-plugin` with the modifiers `_height_{s
 The alignment and the background are rendered when they differ from the defaults: the modifiers `_align_{center,right}`, `_vertical_{top,bottom}`, `_bg-color_<value>`, `_bg-image`, `_bg-image-blur` and the attributes `data-align`, `data-vertical`, `data-bg-*`.
 
 ```html
-<div class="g-md-header-plugin g-md-header-plugin_height_l g-md-header-plugin_width_full g-md-header-plugin_align_center g-md-header-plugin_vertical_bottom g-md-header-plugin_bg-color_blue-light"
-     data-height="l" data-width="full" data-align="center" data-vertical="bottom" data-bg-color="blue-light">
-…
+<div
+  class="g-md-header-plugin g-md-header-plugin_height_l g-md-header-plugin_width_full g-md-header-plugin_align_center g-md-header-plugin_vertical_bottom g-md-header-plugin_bg-color_blue-light"
+  data-height="l"
+  data-width="full"
+  data-align="center"
+  data-vertical="bottom"
+  data-bg-color="blue-light"
+>
+  …
 </div>
 ```
 
@@ -64,14 +73,15 @@ The block is a grid of one column, and its child blocks are the rows: the conten
 The padding around the content is 32 px (`--g-spacing-8`), the gap between the blocks of text, such as the title and the description, is 16 px (`--g-spacing-4`), and a row of buttons stands 32 px (`--g-spacing-8`) below the text.
 Long words wrap, so the content never widens the block.
 
-An image beside the text, an element with the class `g-md-header-image-plugin`, takes half of the block and fills its height with 8 px (`--g-spacing-2`) around it: on the right of the text, and on the left of a right-aligned text.
+An image beside the text, the [Header image](#header-image) block, takes half of the block and fills its height with 8 px (`--g-spacing-2`) around it: on the right of the text, and on the left of a right-aligned text. The image is cropped to its box (`object-fit: cover`), so its proportions never change the size of the header.
+A centered header has no place for an image: write an image with `align="left"` or `align="right"`.
 
 `left` and `right` of `align` are the start and the end of the line (`text-align: start` and `end`, logical insets of the image), as the row of buttons: in a right-to-left page the sides swap, and `align="right"` puts the text and the buttons on the left and the image on the right.
 
 A header narrower than 600 px has the narrow layout; it follows the width of the block itself (a container query), not of the window:
 
 - the padding around the content is 16 px (`--g-spacing-4`);
-- the image stands above the text;
+- the image stands above the text with 8 px (`--g-spacing-2`) around it, as wide as the block and 16:10 in proportions;
 - the buttons stand in a column of the full width and have the size `xl` of the UIKit button: 44 px high, the `--g-border-radius-xl` corners, 24 px (`--g-spacing-6`) padding and the `body-2` text.
 
 The alignment stays as set. The block is a query container named `g-md-header-plugin`.
@@ -93,6 +103,7 @@ The numbers are custom properties; a host overrides them:
 | `--g-md-header-plugin-blur`                        | `12px`                                     |
 | `--g-md-header-plugin-blur-inset`                  | `24px`                                     |
 | `--g-md-header-plugin-narrow-padding`              | `var(--g-spacing-4)`                       |
+| `--g-md-header-plugin-narrow-image-aspect-ratio`   | `16 / 10`                                  |
 | `--g-md-header-plugin-narrow-button-height`        | `44px`                                     |
 | `--g-md-header-plugin-narrow-button-border-radius` | `var(--g-border-radius-xl)`                |
 | `--g-md-header-plugin-narrow-button-padding`       | `var(--g-spacing-6)`                       |
@@ -150,7 +161,15 @@ Inline titles and destinations in the opening directive are not supported and re
 
 ```html
 <div class="g-md-header-plugin …">
-<div class="g-md-header-title-plugin g-md-header-title-plugin_size_1 g-md-header-title-plugin_color_blue" role="heading" aria-level="1" data-size="1" data-color="blue">Team portal</div>
+  <div
+    class="g-md-header-title-plugin g-md-header-title-plugin_size_1 g-md-header-title-plugin_color_blue"
+    role="heading"
+    aria-level="1"
+    data-size="1"
+    data-color="blue"
+  >
+    Team portal
+  </div>
 </div>
 ```
 
@@ -286,6 +305,61 @@ A link underline is 2 px thick and 0.2 em below the text and thickens to 3 px on
 
 Inside Header the description is a row of the header layout: the header sets the space around it, 16 px below the title and 32 px to the buttons. The margin applies to a description outside Header.
 
+## Header image
+
+```markdown
+:::header
+
+::header-image{src="./.files/team.jpg" alt="Team" title="Project team"}
+
+::header-title[Team portal]
+:::
+```
+
+```html
+<div class="g-md-header-plugin …">
+  <img class="g-md-header-image-plugin" src="./.files/team.jpg" alt="Team" title="Project team" />
+  <div
+    class="g-md-header-title-plugin g-md-header-title-plugin_size_2"
+    role="heading"
+    aria-level="2"
+  >
+    Team portal
+  </div>
+</div>
+```
+
+The image is a leaf block directive: one line with the attributes, no text in square brackets and no closing line. It stands after an empty line, as a paragraph does.
+
+| Attribute | Values                                                      | Default |
+| --------- | ----------------------------------------------------------- | ------- |
+| `src`     | an `http:`, `https:`, `blob:` or relative address           | none    |
+| `alt`     | the alternative text; an empty one marks a decorative image | empty   |
+| `title`   | the tooltip of the image                                    | none    |
+
+The address passes the same check as the background image of a header, `safeImageUrl`: an address with another scheme, such as `javascript:` or `data:`, or with control characters, is skipped.
+An image without an address, or with a skipped one, keeps its token and renders nothing.
+The values are taken as written: HTML entities in them are not decoded, so `/image?a=1&copy=2` stays this address, and `\"` writes a quote.
+An unknown attribute is skipped; a repeated attribute counts as not set.
+
+The block is an `img.g-md-header-image-plugin` with the `src`, `alt` and `title` attributes; `headerImageFromAttrs` reads them back.
+The `alt` attribute is always rendered: without it a screen reader announces the address of the image, and with an empty one it skips the image as decorative. An empty `title` is not rendered.
+
+### Image styles
+
+Inside Header the image has a box of its own, see [Layout](#layout): half of the block beside the text, or the full width above the text in the narrow layout. The image fills the box and is cropped to it (`object-fit: cover`), whatever its proportions are; an image that fails to load leaves the box with its fill and its alternative text, and the layout of the header stays the same.
+The corners of the image are `--g-border-radius-xl`.
+
+Outside Header the image is a block of its own size, not wider than its container.
+
+| Property                                   | Default                           |
+| ------------------------------------------ | --------------------------------- |
+| `--g-md-header-image-plugin-border-radius` | `var(--g-border-radius-xl)`       |
+| `--g-md-header-image-plugin-background`    | `var(--g-color-base-float-hover)` |
+| `--g-md-header-image-plugin-margin-block`  | `0 var(--g-spacing-4)`            |
+
+The margin applies to an image outside Header.
+
 ## Button
 
 `buttonPlugin` works on its own and inside Header:
@@ -297,7 +371,7 @@ md.use(buttonPlugin);
 ```
 
 ```markdown
-:button[Read more]{href="https://example.com" view="action" color="blue" target="_blank"}
+:button[Read more]{href="https://example.com" view="action" color="blue" target="\_blank"}
 
 :button[Open]{href="/page" view="action" color="blue"} :button[Docs]{href="/docs" view="normal" color="gray"} :button[Skip]{view="flat" color="standard"}
 ```
@@ -323,9 +397,11 @@ Inside Header every button may stand in its own paragraph; paragraphs of buttons
 
 ```html
 <div class="g-md-header-plugin …">
-<p class="g-md-button-plugin-row"><a …>Open</a>
-<a …>Docs</a>
-<a …>Skip</a></p>
+  <p class="g-md-button-plugin-row">
+    <a …>Open</a>
+    <a …>Docs</a>
+    <a …>Skip</a>
+  </p>
 </div>
 ```
 
@@ -353,9 +429,15 @@ An unsupported value is replaced with the default, and a color the view lacks wi
 The button is rendered as a link:
 
 ```html
-<a class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_blue"
-   href="https://example.com" target="_blank" rel="noopener noreferrer"
-   data-view="action" data-color="blue">Read more</a>
+<a
+  class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_blue"
+  href="https://example.com"
+  target="_blank"
+  rel="noopener noreferrer"
+  data-view="action"
+  data-color="blue"
+  >Read more</a
+>
 ```
 
 - Without `href`, or with an unsafe one (`javascript:`, `data:`, `vbscript:`, `file:`), the `<a>` has no `href` and is not interactive.

@@ -99,6 +99,10 @@ $button: '.g-md-button-plugin';
     // The blurred copy of the background extends past the clipped edges by this allowance.
     --_--blur-inset: var(--g-md-header-plugin-blur-inset, 24px);
     --_--narrow-padding: var(--g-md-header-plugin-narrow-padding, var(--g-spacing-4));
+    // The image above the text keeps its proportions at every width of a narrow header.
+    // FIXME: not in the mock as a rule (its narrow frames show images 204px and 133px tall
+    // in a 343px header; the proportions of the first one are taken)
+    --_--narrow-image-aspect-ratio: var(--g-md-header-plugin-narrow-image-aspect-ratio, 16 / 10);
     // The narrow buttons are the `xl` buttons of UIKit.
     --_--narrow-button-height: var(--g-md-header-plugin-narrow-button-height, 44px);
     --_--narrow-button-padding: var(--g-md-header-plugin-narrow-button-padding, var(--g-spacing-6));
@@ -260,7 +264,10 @@ $button: '.g-md-button-plugin';
         grid-column: auto;
 
         width: calc(var(--_--image-width) - 2 * var(--_--image-padding));
+        // The image fills its box: the limits of an image in the text do not apply.
+        max-width: none;
         height: calc(100% - 2 * var(--_--image-padding));
+        max-height: none;
         margin: 0;
     }
 
@@ -324,11 +331,18 @@ $button: '.g-md-button-plugin';
             order: -1;
             grid-column: 1 / -1;
 
-            width: auto;
+            // An image does not stretch to its row as the text does.
+            width: calc(100% - 2 * var(--_--image-padding));
             height: auto;
             margin: var(--_--image-padding);
+            aspect-ratio: var(--_--narrow-image-aspect-ratio);
             // The space under the image and the padding of the text, without the gap of the rows.
             margin-block-end: calc(var(--_--image-padding) - var(--_--text-gap));
+        }
+
+        // Without a text under the image the space around it is the same on every side.
+        &#{&} > #{$image}:only-child {
+            margin-block-end: var(--_--image-padding);
         }
 
         & > #{$button}-row {

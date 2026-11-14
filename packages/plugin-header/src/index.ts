@@ -81,5 +81,16 @@ export {
     headerContentTokenName,
     headerContentValues,
 } from './header-content';
+export {
+    type HeaderImage,
+    headerImage,
+    headerImageAttrs,
+    headerImageClassName,
+    headerImageDefaults,
+    headerImageFromAttrs,
+    headerImagePlugin,
+    headerImageTokenName,
+    headerImageValues,
+} from './header-image';
 export {headerPreset} from './preset';
 export {safeImageUrl, toCssUrl} from './url';

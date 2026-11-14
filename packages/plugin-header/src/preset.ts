@@ -3,11 +3,13 @@ import type {PluginSimple} from 'markdown-it';
 import {buttonPlugin} from './button';
 import {headerPlugin} from './header';
 import {headerContentPlugin} from './header-content';
+import {headerImagePlugin} from './header-image';
 import {headerTitlePlugin} from './header-title';
 
 /** One plugin per block; each one also works on its own. */
 const plugins: readonly PluginSimple[] = [
     headerPlugin,
+    headerImagePlugin,
     headerTitlePlugin,
     headerContentPlugin,
     buttonPlugin,
