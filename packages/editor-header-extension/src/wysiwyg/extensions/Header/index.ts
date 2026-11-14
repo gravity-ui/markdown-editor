@@ -1,6 +1,7 @@
 import type {FileUploadHandler} from '@gravity-ui/markdown-editor';
 import type {Action, ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 
+import {HeaderContent} from '../HeaderContent';
 import {HeaderTitle} from '../HeaderTitle';
 
 import {WHeaderNodeView} from './HeaderNodeView';
@@ -21,6 +22,7 @@ export const Header: ExtensionAuto<HeaderOptions> = (builder, options) => {
     builder
         .use(HeaderSpecs)
         .use(HeaderTitle)
+        .use(HeaderContent)
         .addNodeView(headerNodeName, () => (node) => new WHeaderNodeView(node))
         .addPlugin(() => headerTooltipPlugin(options))
         .addPlugin(headerUploadPlugin)

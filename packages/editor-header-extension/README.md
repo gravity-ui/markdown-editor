@@ -18,12 +18,12 @@ const editor = useMarkdownEditor({
 | `maxImageSize`      | Maximum background image size in bytes; without it, the size is not checked                      |
 | `imageTypes`        | MIME types of background images, such as `['image/jpeg', 'image/png']`; any `image/*` without it |
 
-| Entry point                                                  | Exports                                                                                                            |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| Entry point                                                  | Exports                                                                                                                                                         |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `@gravity-ui/markdown-editor-header-extension`               | `Header`, `Button`, the Markdown commands `insertHeader` and `insertButton`, and the toolbar buttons `toolbarHeaderItem` and `toolbarButtonItem` for both modes |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header`, `Button`, `toolbarHeaderItem`, and `toolbarButtonItem` for the visual editor |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName`, `HeaderTitleSpecs`, `headerTitleNodeName`, `ButtonSpecs`, and `buttonNodeName`    |
-| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader`, `insertButton`, `toolbarHeaderItem`, and `toolbarButtonItem` for the Markdown editor |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header`, `Button`, `toolbarHeaderItem`, and `toolbarButtonItem` for the visual editor                                                                          |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName`, `HeaderTitleSpecs`, `headerTitleNodeName`, `HeaderContentSpecs`, `headerContentNodeName`, `ButtonSpecs`, and `buttonNodeName`  |
+| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader`, `insertButton`, `toolbarHeaderItem`, and `toolbarButtonItem` for the Markdown editor                                                            |
 
 `toolbarHeaderItem` inserts the block.
 In the visual editor, the button is disabled inside another header.
@@ -52,6 +52,9 @@ A new or empty block holds an empty paragraph, and insertion puts the cursor int
 
 `Header` includes `HeaderTitleSpecs`: the title `::header-title[text]{size color}` is a block of plain text with its size and color, so it is not escaped as ordinary text and survives switching modes.
 The editor has no controls for the title yet; its text is edited in place, and the size and the color are kept as written. Default values are not written.
+
+`Header` also includes `HeaderContentSpecs`: the description `:::header-content{size}` is a container of blocks with its size, so its lines are not escaped as ordinary text and it survives switching modes.
+Its paragraphs are edited in place with the marks and links of the editor; there are no controls for the size yet, and it is kept as written. The editor writes the blocks of the description between empty lines, as it writes the blocks of the header.
 
 ## Button
 
