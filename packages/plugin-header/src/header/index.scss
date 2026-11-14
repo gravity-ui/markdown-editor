@@ -1,3 +1,5 @@
+@use 'sass:string';
+
 $bg-colors: (
     'gray-light': var(--g-color-base-neutral-light),
     'gray-medium': var(--g-color-base-neutral-medium),
@@ -26,16 +28,68 @@ $bg-colors: (
     }
 }
 
+// The narrow layout applies to a header narrower than this, so the `s` width keeps the wide one.
+// A container query takes no custom property.
+$narrow-width: 600px;
+$image: '.g-md-header-image-plugin';
+$button: '.g-md-button-plugin';
+
 .g-md-header-plugin {
+    // Block-specific numbers; a host overrides the public properties.
+    --_--height-s: var(--g-md-header-plugin-height-s, 236px);
+    --_--height-m: var(--g-md-header-plugin-height-m, 300px);
+    --_--height-l: var(--g-md-header-plugin-height-l, 360px);
+    --_--width-s: var(--g-md-header-plugin-width-s, 600px);
+    --_--width-m: var(--g-md-header-plugin-width-m, 900px);
+    --_--width-l: var(--g-md-header-plugin-width-l, 1200px);
+    // FIXME: not in Gravity UI (mock: 24px, `--g-border-radius-2xl`)
+    --_--border-radius: var(--g-md-header-plugin-border-radius, var(--g-border-radius-2xl, 16px));
+    --_--padding: var(--g-md-header-plugin-padding, var(--g-spacing-8));
+    // Between the blocks of text, and between the text and the buttons.
+    --_--text-gap: var(--g-md-header-plugin-text-gap, var(--g-spacing-4));
+    --_--gap: var(--g-md-header-plugin-gap, var(--g-spacing-8));
+    // The image column beside the text and the space around the image.
+    --_--image-width: var(--g-md-header-plugin-image-width, 50%);
+    --_--image-padding: var(--g-md-header-plugin-image-padding, var(--g-spacing-2));
+    --_--blur: var(--g-md-header-plugin-blur, 12px);
+    // The blurred copy of the background extends past the clipped edges by this allowance.
+    --_--blur-inset: var(--g-md-header-plugin-blur-inset, 24px);
+    --_--narrow-padding: var(--g-md-header-plugin-narrow-padding, var(--g-spacing-4));
+    --_--narrow-button-height: var(--g-md-header-plugin-narrow-button-height, 44px);
+    // FIXME: not in Gravity UI (mock: 16px)
+    --_--narrow-button-border-radius: var(
+        --g-md-header-plugin-narrow-button-border-radius,
+        var(--g-border-radius-xl)
+    );
+
+    // The place of the content; the narrow layout sets them on the content itself.
+    --_--content-padding: var(--_--padding);
+    --_--content-column: 1 / -1;
+    --_--image-left: auto;
+    --_--image-right: var(--_--image-padding);
+
     // `initial` stops inheritance and selects the fallback of `var()`.
     --_--bg-color: initial;
+
+    position: relative;
+
+    display: grid;
+    align-content: center;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--_--text-gap);
+
     max-width: var(--_--width);
     min-height: var(--_--height);
     margin-block: var(--g-md-header-plugin-margin-block, 0 var(--g-spacing-5, 20px));
     margin-inline: var(--g-md-header-plugin-margin-inline, 0);
 
-    border-radius: var(--g-border-radius-2xl, 16px);
+    text-align: left;
+
+    border-radius: var(--_--border-radius);
     background-color: var(--_--bg-color, transparent);
+    // The content follows the width of the header, not of the window.
+    container: g-md-header-plugin / inline-size;
+    overflow-wrap: anywhere;
 
     @each $name, $_ in $bg-colors {
         &_bg-color_#{$name} {
@@ -43,32 +97,115 @@ $bg-colors: (
         }
     }
 
+    @each $name, $_ in $bg-colors {
+        @if string.index($name, '-heavy') {
+            &_bg-color_#{$name} #{$button}#{$button}_view_action {
+                --_--focus-outline-color: var(--g-color-text-primary);
+            }
+        }
+    }
+
     &_height_s {
-        --_--height: var(--g-md-header-plugin-height-s, 236px);
+        --_--height: var(--_--height-s);
     }
 
     &_height_m {
-        --_--height: var(--g-md-header-plugin-height-m, 300px);
+        --_--height: var(--_--height-m);
     }
 
     &_height_l {
-        --_--height: var(--g-md-header-plugin-height-l, 360px);
+        --_--height: var(--_--height-l);
     }
 
     &_width_s {
-        --_--width: var(--g-md-header-plugin-width-s, 600px);
+        --_--width: var(--_--width-s);
     }
 
     &_width_m {
-        --_--width: var(--g-md-header-plugin-width-m, 900px);
+        --_--width: var(--_--width-m);
     }
 
     &_width_l {
-        --_--width: var(--g-md-header-plugin-width-l, 1200px);
+        --_--width: var(--_--width-l);
     }
 
     &_width_full {
         --_--width: none;
+    }
+
+    &_align_center {
+        text-align: center;
+    }
+
+    &_align_right {
+        text-align: right;
+    }
+
+    &_vertical_top {
+        align-content: start;
+    }
+
+    &_vertical_bottom {
+        align-content: end;
+    }
+
+    // The padding of the block is the margin of its content: a container query reaches
+    // the content only, and the narrow layout has its own padding.
+    // Doubled class: outweighs the margins of Markdown paragraphs.
+    &#{&} > * {
+        grid-column: var(--_--content-column);
+
+        min-width: 0;
+        margin-block: 0;
+        margin-inline: var(--_--content-padding);
+    }
+
+    // The buttons stand apart from the text above them.
+    &#{&} > * + #{$button}-row {
+        margin-block-start: calc(var(--_--gap) - var(--_--text-gap));
+    }
+
+    &#{&} > :nth-child(1 of :not(#{$image})) {
+        margin-block-start: var(--_--content-padding);
+    }
+
+    &#{&} > :nth-last-child(1 of :not(#{$image})) {
+        margin-block-end: var(--_--content-padding);
+    }
+
+    &_align_center > #{$button}-row {
+        justify-content: center;
+    }
+
+    &_align_right > #{$button}-row {
+        justify-content: flex-end;
+    }
+
+    // The image fills the height of the block in a column beside the text:
+    // on the right, and on the left of a right-aligned text.
+    &:has(> #{$image}) {
+        --_--content-column: 1;
+
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    &_align_right:has(> #{$image}) {
+        --_--content-column: 2;
+        --_--image-left: var(--_--image-padding);
+        --_--image-right: auto;
+    }
+
+    &#{&} > #{$image} {
+        position: absolute;
+        top: var(--_--image-padding);
+        right: var(--_--image-right);
+        left: var(--_--image-left);
+        // Placed against the whole block, not against a column of the grid.
+        grid-column: auto;
+
+        width: calc(var(--_--image-width) - 2 * var(--_--image-padding));
+        height: calc(100% - 2 * var(--_--image-padding));
+        margin: 0;
     }
 
     // Doubled class: the `background` shorthand of `.g-root` resets these in a fixed theme.
@@ -78,25 +215,30 @@ $bg-colors: (
         background-size: cover;
     }
 
-    // The sanitizer removes `filter` from the `style` attribute, so blur stays here.
-    // The blurred copy of the background extends past the clipped edges to avoid a transparent border.
-    &_bg-image-blur {
-        position: relative;
+    // An action button has a focus ring of its fill color: on a fill as saturated as its own
+    // and on an image the ring takes the text color. The public property of the button still wins.
+    &_bg-image #{$button}#{$button}_view_action {
+        --_--focus-outline-color: var(--g-color-text-primary);
+    }
 
+    // The sanitizer removes `filter` from the `style` attribute, so blur stays here.
+    // The blurred copy of the background extends past the edges to avoid a transparent border;
+    // the block clips it, so the allowance adds nothing to the scroll area of the page.
+    &_bg-image-blur {
         isolation: isolate;
-        // `overflow` clips at the padding edge and leaves the sharp background under a border.
-        clip-path: inset(0 round var(--g-border-radius-2xl, 16px));
+
+        overflow: clip;
 
         &::before {
             position: absolute;
             z-index: -1;
-            inset: -24px;
+            inset: calc(-1 * var(--_--blur-inset));
 
             content: '';
             pointer-events: none;
 
             background: inherit;
-            filter: blur(12px);
+            filter: blur(var(--_--blur));
         }
     }
 
@@ -107,6 +249,43 @@ $bg-colors: (
         --yfm-color-link: var(--g-color-text-link);
         --yfm-color-link-hover: var(--g-color-text-link-hover);
 
+        // `.g-root` also sets the body typography of the theme; the block keeps its own.
+        font: inherit;
+
         background-color: var(--_--bg-color, var(--g-color-base-background));
+    }
+}
+
+// The narrow layout: one column, the image above the text, the buttons in a column.
+
+@container g-md-header-plugin (width < #{$narrow-width}) {
+    .g-md-header-plugin {
+        &#{&} > * {
+            --_--content-padding: var(--_--narrow-padding);
+            --_--content-column: 1 / -1;
+        }
+
+        &#{&} > #{$image} {
+            position: static;
+
+            order: -1;
+            grid-column: 1 / -1;
+
+            width: auto;
+            height: auto;
+            margin: var(--_--image-padding);
+            // The space under the image and the padding of the text, without the gap of the rows.
+            margin-block-end: calc(var(--_--image-padding) - var(--_--text-gap));
+        }
+
+        & > #{$button}-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        #{$button} {
+            --g-md-button-plugin-height: var(--_--narrow-button-height);
+            --g-md-button-plugin-border-radius: var(--_--narrow-button-border-radius);
+        }
     }
 }

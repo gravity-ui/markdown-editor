@@ -1,4 +1,4 @@
-import {includes} from './utils';
+import {includes} from '../utils';
 
 export const headerBgColorFamilies = ['gray', 'green', 'yellow', 'blue', 'red', 'violet'] as const;
 export const headerBgColorSaturations = ['light', 'medium', 'heavy'] as const;

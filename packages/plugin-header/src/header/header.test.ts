@@ -2,13 +2,24 @@ import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
 import {
+    headerAligns,
+    headerAttrs,
+    headerBackgroundFromAttrs,
+    headerBgColorFamilies,
+    headerBgColorSaturations,
     headerBgColors,
+    headerDimensionsFromAttrs,
     headerHeights,
+    headerLayout,
+    headerLayoutFromAttrs,
+    headerLayoutValues,
     headerPlugin,
+    headerVerticals,
     headerWidths,
     safeImageUrl,
     toCssUrl,
 } from '../index';
+import {headerPreset} from '../preset';
 
 const md = new MarkdownIt().use(headerPlugin);
 
@@ -16,14 +27,13 @@ const html = (height: string, width: string) =>
     `<div class="g-md-header-plugin g-md-header-plugin_height_${height} g-md-header-plugin_width_${width}" data-height="${height}" data-width="${width}"></div>\n`;
 
 describe('Header Markdown', () => {
-    for (const height of headerHeights) {
-        for (const width of headerWidths) {
-            it(`should render height ${height} and width ${width}`, () => {
-                const markup = `:::header{height="${height}" width="${width}"}\n:::`;
-                expect(md.render(markup)).toBe(html(height, width));
-            });
-        }
-    }
+    it.each(headerHeights.flatMap((height) => headerWidths.map((width) => ({height, width}))))(
+        'should render height $height and width $width',
+        ({height, width}) => {
+            const markup = `:::header{height="${height}" width="${width}"}\n:::`;
+            expect(md.render(markup)).toBe(html(height, width));
+        },
+    );
 
     it.each([
         [':::header\n:::', 's', 'm'],
@@ -220,5 +230,386 @@ describe('Header background', () => {
         const output = md.render(':::header{bg-image="a\\".png"}\n:::');
         expect(output).toContain('data-bg-image="a&quot;.png"');
         expect(output).toContain('style="background-image:url(&quot;a%22.png&quot;)"');
+    });
+});
+
+describe('Header alignment', () => {
+    const block = (modifiers: string, attrs: string) =>
+        `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m${modifiers}" data-height="s" data-width="m"${attrs}></div>\n`;
+
+    it.each([
+        ['left', '', ''],
+        ['center', ' g-md-header-plugin_align_center', ' data-align="center"'],
+        ['right', ' g-md-header-plugin_align_right', ' data-align="right"'],
+    ])('should render the %s alignment', (align, modifiers, attrs) => {
+        expect(md.render(`:::header{align="${align}"}\n:::`)).toBe(block(modifiers, attrs));
+    });
+
+    it.each([
+        ['top', ' g-md-header-plugin_vertical_top', ' data-vertical="top"'],
+        ['center', '', ''],
+        ['bottom', ' g-md-header-plugin_vertical_bottom', ' data-vertical="bottom"'],
+    ])('should render the %s vertical alignment', (vertical, modifiers, attrs) => {
+        expect(md.render(`:::header{vertical="${vertical}"}\n:::`)).toBe(block(modifiers, attrs));
+    });
+
+    it.each([
+        ':::header{align="justify"}\n:::',
+        ':::header{align="LEFT"}\n:::',
+        ':::header{align=""}\n:::',
+        ':::header{align="center" align="right"}\n:::',
+        ':::header{vertical="middle"}\n:::',
+        ':::header{vertical="left"}\n:::',
+        ':::header{vertical="top" vertical="bottom"}\n:::',
+        ':::header{valign="top" text-align="center"}\n:::',
+    ])('should use the default alignment for %j', (markup) => {
+        expect(md.render(markup)).toBe(html('s', 'm'));
+    });
+
+    it('should render the alignment between the dimensions and the background', () => {
+        expect(
+            md.render(
+                ':::header{bg-color="red-light" vertical="bottom" align="right" width="s" height="l"}\n:::',
+            ),
+        ).toBe(
+            '<div class="g-md-header-plugin g-md-header-plugin_height_l g-md-header-plugin_width_s g-md-header-plugin_align_right g-md-header-plugin_vertical_bottom g-md-header-plugin_bg-color_red-light" data-height="l" data-width="s" data-align="right" data-vertical="bottom" data-bg-color="red-light"></div>\n',
+        );
+    });
+
+    it.each([
+        [{}, {align: 'left', vertical: 'center'}, {}],
+        [{align: 'center'}, {align: 'center', vertical: 'center'}, {align: 'center'}],
+        [{vertical: 'top'}, {align: 'left', vertical: 'top'}, {vertical: 'top'}],
+        [
+            {align: 'right', vertical: 'bottom'},
+            {align: 'right', vertical: 'bottom'},
+            {align: 'right', vertical: 'bottom'},
+        ],
+        [{align: 'middle', vertical: 1}, {align: 'left', vertical: 'center'}, {}],
+        [{align: null, vertical: undefined}, {align: 'left', vertical: 'center'}, {}],
+    ])('should resolve the layout of %j', (attrs, layout, values) => {
+        expect(headerLayout(attrs)).toEqual(layout);
+        expect(headerLayoutValues(headerLayout(attrs))).toEqual(values);
+    });
+
+    it('should read the options back from the rendered attributes', () => {
+        const attrs = headerAttrs({
+            height: 'm',
+            width: 'full',
+            align: 'center',
+            vertical: 'top',
+            'bg-color': 'blue-heavy',
+            'bg-image': '/a.png',
+            'bg-image-theme': 'light',
+            'bg-image-blur': true,
+        });
+        const getAttr = (name: string) => attrs[name];
+        expect(headerDimensionsFromAttrs(getAttr)).toEqual({height: 'm', width: 'full'});
+        expect(headerLayoutFromAttrs(getAttr)).toEqual({align: 'center', vertical: 'top'});
+        expect(headerBackgroundFromAttrs(getAttr)).toEqual({
+            'bg-color': 'blue-heavy',
+            'bg-image': '/a.png',
+            'bg-image-theme': 'light',
+            'bg-image-blur': true,
+        });
+    });
+});
+
+describe('Header image address', () => {
+    const block = (address: string, css: string) =>
+        `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m g-md-header-plugin_bg-image" data-height="s" data-width="m" data-bg-image="${address}" style="background-image:url(&quot;${css}&quot;)"></div>\n`;
+
+    // The address is taken as written; the renderer escapes it for HTML.
+    it.each([
+        ['/image&copy;.png', '/image&amp;copy;.png', '/image&amp;copy;.png'],
+        ['/image&#10;.png', '/image&amp;#10;.png', '/image&amp;#10;.png'],
+        ['/a.png?x=1&amp;y=2', '/a.png?x=1&amp;amp;y=2', '/a.png?x=1&amp;amp;y=2'],
+        ['/a.png?x=1&y=2&copy=3', '/a.png?x=1&amp;y=2&amp;copy=3', '/a.png?x=1&amp;y=2&amp;copy=3'],
+        ['/a&lt;b&gt;.png', '/a&amp;lt;b&amp;gt;.png', '/a&amp;lt;b&amp;gt;.png'],
+        ['/a\\"b.png', '/a&quot;b.png', '/a%22b.png'],
+        ['/a\\\\b.png', '/a\\b.png', '/a%5Cb.png'],
+        ['/a b (1).png', '/a b (1).png', '/a%20b%20%281%29.png'],
+    ])('should keep the address %j as written', (address, data, css) => {
+        expect(md.render(`:::header{bg-image="${address}"}\n:::`)).toBe(block(data, css));
+    });
+
+    it.each([
+        [":::header{bg-image='/a&copy;.png'}\n:::", '/a&amp;copy;.png'],
+        [':::header{bg-image=image}\n:::', 'image'],
+        [':::header{ height="s"  bg-image = "/a&copy;.png" }\n:::', '/a&amp;copy;.png'],
+        [
+            ':::header{title="bg-image=\\"/wrong.png\\"" bg-image="/a&copy;.png"}\n:::',
+            '/a&amp;copy;.png',
+        ],
+    ])('should read the address of %j as %j', (markup, address) => {
+        expect(md.render(markup)).toBe(block(address, address));
+    });
+
+    it('should not render an image for a repeated address', () => {
+        expect(md.render(':::header{bg-image="/a.png" bg-image="/b.png"}\n:::')).toBe(
+            html('s', 'm'),
+        );
+    });
+
+    it('should not decode an entity into the scheme of the address', () => {
+        // Built at runtime for the `no-script-url` lint rule.
+        const address = ['&#106;avascript', 'alert(1)'].join(':');
+        expect(md.render(`:::header{bg-image="${address}"}\n:::`)).toBe(
+            block('&amp;#106;avascript:alert(1)', '&amp;#106;avascript:alert%281%29'),
+        );
+    });
+
+    it('should keep the address in the token for the editor', () => {
+        const [token] = md.parse(':::header{bg-image="/image&copy;.png?a=1&amp;b=2"}\n:::', {});
+        expect(token.attrGet('data-bg-image')).toBe('/image&copy;.png?a=1&amp;b=2');
+        expect(token.markup).toBe(':::header');
+        expect(token.map).toEqual([0, 2]);
+    });
+});
+
+// The examples of the syntax. The blocks inside a header have their own tests,
+// so here only the tag of the header is compared.
+
+const preset = new MarkdownIt().use(headerPreset);
+const headerTag = (markup: string) => preset.render(markup).match(/^<div[^>]*>/)?.[0];
+const exampleId = (prefix: string, index: number) =>
+    `${prefix}-${String(index + 1).padStart(3, '0')}`;
+const exampleImage = 'https://example.org/banner.jpg';
+const exampleTitle = '::header-title[Team portal]';
+const exampleContent = ':::header-content\nPortal description.\n:::';
+const exampleButtons = [
+    ':button[Button 1]{href="/page" view="action" color="blue"}',
+    ':button[Button 2]{href="/page" view="normal" color="gray"}',
+    ':button[Button 3]{href="/page" view="flat" color="standard"}',
+];
+const example = (attrs: string, ...blocks: string[]) =>
+    `:::header${attrs && `{${attrs}}`}\n${blocks.map((block) => `\n${block}\n`).join('')}:::`;
+const defaultTag =
+    '<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m" data-height="s" data-width="m">';
+
+// layout-001 … layout-108: every height and width with both alignments.
+const layoutExamples = headerHeights
+    .flatMap((height) =>
+        headerWidths.flatMap((width) =>
+            headerAligns.flatMap((align) =>
+                headerVerticals.map((vertical) => ({height, width, align, vertical})),
+            ),
+        ),
+    )
+    .map((item, index) => ({id: exampleId('layout', index), ...item}));
+
+// The image, its theme and its blur as written in the markup, and as rendered:
+// the modifiers, the theme classes and the data attributes after the fill.
+const exampleImages = [
+    ['off', 'omitted', 'omitted', '', '', '', ''],
+    ['on', 'omitted', 'omitted', `bg-image="${exampleImage}"`, '', '', ''],
+    ['on', 'omitted', 'true', `bg-image="${exampleImage}" bg-image-blur="true"`, 'blur', '', ''],
+    ['on', 'system', 'omitted', `bg-image="${exampleImage}" bg-image-theme="system"`, '', '', ''],
+    [
+        'on',
+        'system',
+        'true',
+        `bg-image="${exampleImage}" bg-image-theme="system" bg-image-blur="true"`,
+        'blur',
+        '',
+        '',
+    ],
+    [
+        'on',
+        'light',
+        'omitted',
+        `bg-image="${exampleImage}" bg-image-theme="light"`,
+        '',
+        ' g-root g-root_theme_light',
+        ' data-bg-image-theme="light"',
+    ],
+    [
+        'on',
+        'light',
+        'true',
+        `bg-image="${exampleImage}" bg-image-theme="light" bg-image-blur="true"`,
+        'blur',
+        ' g-root g-root_theme_light',
+        ' data-bg-image-theme="light"',
+    ],
+    [
+        'on',
+        'dark',
+        'omitted',
+        `bg-image="${exampleImage}" bg-image-theme="dark"`,
+        '',
+        ' g-root g-root_theme_dark',
+        ' data-bg-image-theme="dark"',
+    ],
+    [
+        'on',
+        'dark',
+        'true',
+        `bg-image="${exampleImage}" bg-image-theme="dark" bg-image-blur="true"`,
+        'blur',
+        ' g-root g-root_theme_dark',
+        ' data-bg-image-theme="dark"',
+    ],
+] as const;
+
+// background-001 … background-171: no fill and every fill, a family after a family,
+// with every state of the image.
+const backgroundExamples = [
+    'omitted',
+    ...headerBgColorFamilies.flatMap((family) =>
+        headerBgColorSaturations.map((saturation) => `${family}-${saturation}`),
+    ),
+]
+    .flatMap((fill) =>
+        exampleImages.map(([image, theme, blur, markup, blurred, themeClass, themeData]) => {
+            const filled = fill !== 'omitted';
+            return {
+                image,
+                fill,
+                theme,
+                blur,
+                attrs: [filled ? `bg-color="${fill}"` : '', markup].filter(Boolean).join(' '),
+                modifiers: [
+                    filled ? ` g-md-header-plugin_bg-color_${fill}` : '',
+                    image === 'on' ? ' g-md-header-plugin_bg-image' : '',
+                    blurred ? ' g-md-header-plugin_bg-image-blur' : '',
+                    themeClass,
+                ].join(''),
+                data: [
+                    filled ? ` data-bg-color="${fill}"` : '',
+                    image === 'on' ? ` data-bg-image="${exampleImage}"` : '',
+                    themeData,
+                    blurred ? ' data-bg-image-blur="true"' : '',
+                    image === 'on'
+                        ? ` style="background-image:url(&quot;${exampleImage}&quot;)"`
+                        : '',
+                ].join(''),
+            };
+        }),
+    )
+    .map((item, index) => ({id: exampleId('background', index), ...item}));
+
+// structure-001 … structure-032: the image, the title, the description and 0–3 buttons.
+const structureExamples = [false, true]
+    .flatMap((image) =>
+        [false, true].flatMap((title) =>
+            [false, true].flatMap((content) =>
+                [0, 1, 2, 3].map((buttons) => ({image, title, content, buttons})),
+            ),
+        ),
+    )
+    .map((item, index) => ({id: exampleId('structure', index), ...item}));
+
+const mixedAttrs = (align: string) =>
+    `height="l" width="full" align="${align}" vertical="bottom" bg-color="violet-light" bg-image="${exampleImage}" bg-image-theme="dark" bg-image-blur="true"`;
+const mixedTag = (align: string) =>
+    `<div class="g-md-header-plugin g-md-header-plugin_height_l g-md-header-plugin_width_full g-md-header-plugin_align_${align} g-md-header-plugin_vertical_bottom g-md-header-plugin_bg-color_violet-light g-md-header-plugin_bg-image g-md-header-plugin_bg-image-blur g-root g-root_theme_dark" data-height="l" data-width="full" data-align="${align}" data-vertical="bottom" data-bg-color="violet-light" data-bg-image="${exampleImage}" data-bg-image-theme="dark" data-bg-image-blur="true" style="background-image:url(&quot;${exampleImage}&quot;)">`;
+
+// mixed-001 … mixed-016: the centered header, then the same with an image beside the text
+// and the right alignment; the title, the description and 0 or 3 buttons.
+const mixedExamples = [false, true]
+    .flatMap((image) =>
+        [false, true].flatMap((title) =>
+            [false, true].flatMap((content) =>
+                [0, 3].map((buttons) => ({image, title, content, buttons})),
+            ),
+        ),
+    )
+    .map((item, index) => ({id: exampleId('mixed', index), ...item}));
+
+describe('Header syntax examples', () => {
+    it.each(layoutExamples)(
+        'should render $id with height $height, width $width, align $align and vertical $vertical',
+        ({height, width, align, vertical}) => {
+            const markup = example(
+                `height="${height}" width="${width}" align="${align}" vertical="${vertical}"`,
+                exampleTitle,
+                exampleContent,
+                ...exampleButtons,
+            );
+            const modifiers = [
+                align === 'left' ? '' : ` g-md-header-plugin_align_${align}`,
+                vertical === 'center' ? '' : ` g-md-header-plugin_vertical_${vertical}`,
+            ].join('');
+            const data = [
+                align === 'left' ? '' : ` data-align="${align}"`,
+                vertical === 'center' ? '' : ` data-vertical="${vertical}"`,
+            ].join('');
+            expect(headerTag(markup)).toBe(
+                `<div class="g-md-header-plugin g-md-header-plugin_height_${height} g-md-header-plugin_width_${width}${modifiers}" data-height="${height}" data-width="${width}"${data}>`,
+            );
+        },
+    );
+
+    it.each(backgroundExamples)(
+        'should render $id with image $image, fill $fill, theme $theme and blur $blur',
+        ({attrs, modifiers, data}) => {
+            const markup = example(attrs, exampleTitle, exampleContent, exampleButtons[0]);
+            expect(headerTag(markup)).toBe(
+                `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m${modifiers}" data-height="s" data-width="m"${data}>`,
+            );
+        },
+    );
+
+    it.each(structureExamples)(
+        'should render $id with image $image, title $title, description $content and $buttons buttons in the default header',
+        ({image, title, content, buttons}) => {
+            const markup = example(
+                '',
+                ...(image ? [`::header-image{src="${exampleImage}" alt="Team"}`] : []),
+                ...(title ? [exampleTitle] : []),
+                ...(content ? [exampleContent] : []),
+                ...exampleButtons.slice(0, buttons),
+            );
+            const output = preset.render(markup);
+            expect(output.startsWith(defaultTag)).toBe(true);
+            expect(output.endsWith('</div>\n')).toBe(true);
+            expect(output.match(/g-md-header-plugin /g)).toHaveLength(1);
+            expect(output.match(/<a /g) ?? []).toHaveLength(buttons);
+        },
+    );
+
+    it.each(mixedExamples)(
+        'should render $id with image $image, title $title, description $content and $buttons buttons in the header with every attribute',
+        ({image, title, content, buttons}) => {
+            const align = image ? 'right' : 'center';
+            const markup = example(
+                mixedAttrs(align),
+                ...(image ? [`::header-image{src="${exampleImage}" alt="Team"}`] : []),
+                ...(title ? ['::header-title[Team portal]{size="1" color="yellow"}'] : []),
+                ...(content ? [':::header-content{size="3"}\nPortal description.\n:::'] : []),
+                ...exampleButtons.slice(0, buttons),
+            );
+            expect(headerTag(markup)).toBe(mixedTag(align));
+        },
+    );
+
+    it.each([
+        ['defaults-001', 'the empty header', ':::header\n:::'],
+        ['defaults-002', 'the minimal title', example('', exampleTitle)],
+        ['defaults-003', 'the minimal description', example('', exampleContent)],
+        [
+            'defaults-007',
+            'the explicit defaults',
+            example('height="s" width="m" align="left" vertical="center"', exampleTitle),
+        ],
+        [
+            'defaults-008',
+            'the empty title and description',
+            example('', '::header-title[]', ':::header-content\n:::'),
+        ],
+        ['boundaries-007', 'an unknown attribute', example('unknown="value"', exampleTitle)],
+        ['boundaries-008', 'an invalid height', example('height="huge"', exampleTitle)],
+        [
+            'boundaries-014',
+            'the theme and the blur without an image',
+            example('bg-image-theme="dark" bg-image-blur="true"', exampleTitle),
+        ],
+    ])('should render %s, %s, as the default header', (_id, _name, markup) => {
+        expect(headerTag(markup)).toBe(defaultTag);
+    });
+
+    it('should render the empty header without content', () => {
+        expect(preset.render(':::header\n:::')).toBe(`${defaultTag}</div>\n`);
     });
 });
