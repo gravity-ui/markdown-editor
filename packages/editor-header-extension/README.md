@@ -22,7 +22,7 @@ const editor = useMarkdownEditor({
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
 | `@gravity-ui/markdown-editor-header-extension`               | `Header`, `Button`, the Markdown commands `insertHeader` and `insertButton`, and the toolbar buttons `toolbarHeaderItem` and `toolbarButtonItem` for both modes |
 | `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header`, `Button`, `toolbarHeaderItem`, and `toolbarButtonItem` for the visual editor |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName`, `ButtonSpecs`, and `buttonNodeName`                                               |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName`, `HeaderTitleSpecs`, `headerTitleNodeName`, `ButtonSpecs`, and `buttonNodeName`    |
 | `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader`, `insertButton`, `toolbarHeaderItem`, and `toolbarButtonItem` for the Markdown editor |
 
 `toolbarHeaderItem` inserts the block.
@@ -49,6 +49,9 @@ A new or empty block holds an empty paragraph, and insertion puts the cursor int
 
 `HeaderSpecs` adds only the schema, Markdown parsing, and serialization, and runs in Node.js.
 `Header` also needs the editor's React renderer, which the standard presets include.
+
+`Header` includes `HeaderTitleSpecs`: the title `::header-title[text]{size color}` is a block of plain text with its size and color, so it is not escaped as ordinary text and survives switching modes.
+The editor has no controls for the title yet; its text is edited in place, and the size and the color are kept as written. Default values are not written.
 
 ## Button
 

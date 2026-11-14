@@ -1,6 +1,8 @@
 import type {FileUploadHandler} from '@gravity-ui/markdown-editor';
 import type {Action, ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 
+import {HeaderTitleSpecs} from '../HeaderTitle/HeaderTitleSpecs';
+
 import {WHeaderNodeView} from './HeaderNodeView';
 import {HeaderSpecs, headerNodeName} from './HeaderSpecs';
 import {insertHeader} from './commands';
@@ -18,6 +20,8 @@ export type HeaderOptions = HeaderImageLimits & {
 export const Header: ExtensionAuto<HeaderOptions> = (builder, options) => {
     builder
         .use(HeaderSpecs)
+        // The title keeps its markup when the editor mode changes.
+        .use(HeaderTitleSpecs)
         .addNodeView(headerNodeName, () => (node) => new WHeaderNodeView(node))
         .addPlugin(() => headerTooltipPlugin(options))
         .addPlugin(headerUploadPlugin)
