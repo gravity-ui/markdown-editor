@@ -18,12 +18,12 @@ const editor = useMarkdownEditor({
 | `maxImageSize`      | Maximum background image size in bytes; without it, the size is not checked                      |
 | `imageTypes`        | MIME types of background images, such as `['image/jpeg', 'image/png']`; any `image/*` without it |
 
-| Entry point                                                  | Exports                                                                                                                                                         |
-| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@gravity-ui/markdown-editor-header-extension`               | `Header`, `Button`, the Markdown commands `insertHeader` and `insertButton`, and the toolbar buttons `toolbarHeaderItem` and `toolbarButtonItem` for both modes |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header`, `Button`, `toolbarHeaderItem`, and `toolbarButtonItem` for the visual editor                                                                          |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName`, `HeaderTitleSpecs`, `headerTitleNodeName`, `HeaderContentSpecs`, `headerContentNodeName`, `ButtonSpecs`, and `buttonNodeName`  |
-| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader`, `insertButton`, `toolbarHeaderItem`, and `toolbarButtonItem` for the Markdown editor                                                            |
+| Entry point                                                  | Exports                                                                                                                                                                                                   |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@gravity-ui/markdown-editor-header-extension`               | `Header`, `Button`, the Markdown commands `insertHeader` and `insertButton`, and the toolbar buttons `toolbarHeaderItem` and `toolbarButtonItem` for both modes                                           |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header`, `Button`, `toolbarHeaderItem`, and `toolbarButtonItem` for the visual editor                                                                                                                    |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName`, `HeaderTitleSpecs`, `headerTitleNodeName`, `HeaderContentSpecs`, `headerContentNodeName`, `HeaderImageSpecs`, `headerImageNodeName`, `ButtonSpecs`, and `buttonNodeName` |
+| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader`, `insertButton`, `toolbarHeaderItem`, and `toolbarButtonItem` for the Markdown editor                                                                                                      |
 
 `toolbarHeaderItem` inserts the block.
 In the visual editor, the button is disabled inside another header.
@@ -55,6 +55,9 @@ The editor has no controls for the title yet; its text is edited in place, and t
 
 `Header` also includes `HeaderContentSpecs`: the description `:::header-content{size}` is a container of blocks with its size, so its lines are not escaped as ordinary text and it survives switching modes.
 Its paragraphs are edited in place with the marks and links of the editor; there are no controls for the size yet, and it is kept as written. The editor writes the blocks of the description between empty lines, as it writes the blocks of the header.
+
+`Header` also includes `HeaderImageSpecs`: the image `::header-image{src alt title}` is a block without content with its address, alternative text and title, so it is not escaped as ordinary text and survives switching modes.
+The editor shows the image beside the text and has no controls for it yet; it is selected and removed as a whole, and its attributes are kept as written. An empty alternative text and an empty title are not written.
 
 ## Button
 

@@ -4,4 +4,5 @@ export {
     HeaderContentSpecs,
     headerContentNodeName,
 } from './extensions/HeaderContent/HeaderContentSpecs';
+export {HeaderImageSpecs, headerImageNodeName} from './extensions/HeaderImage/HeaderImageSpecs';
 export {ButtonSpecs, buttonNodeName} from './extensions/Button/ButtonSpecs';
