@@ -52,5 +52,20 @@ export {
     buttonViewColors,
     buttonViews,
 } from './button';
+export {
+    type HeaderTitle,
+    type HeaderTitleColor,
+    type HeaderTitleSize,
+    headerTitle,
+    headerTitleAttrs,
+    headerTitleClassName,
+    headerTitleColors,
+    headerTitleDefaults,
+    headerTitleFromAttrs,
+    headerTitlePlugin,
+    headerTitleSizes,
+    headerTitleTokenName,
+    headerTitleValues,
+} from './header-title';
 export {headerPreset} from './preset';
 export {safeImageUrl, toCssUrl} from './url';

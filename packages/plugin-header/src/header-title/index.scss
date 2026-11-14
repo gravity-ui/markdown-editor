@@ -1,0 +1,52 @@
+// The typography of the YFM headings `h1`–`h6`: their variables, then the same sizes
+// of the Gravity UI typography for a page without the YFM styles.
+$sizes: (
+    1: 'display-2',
+    2: 'header-2',
+    3: 'header-1',
+    4: 'subheader-3',
+    5: 'subheader-2',
+    6: 'subheader-1',
+);
+
+// The colors of colored text in YFM: their variables, then the tokens they take in Gravity UI.
+$colors: (
+    'gray': var(--g-color-text-secondary),
+    'yellow': var(--g-color-private-yellow-600-solid),
+    'orange': var(--g-color-private-orange-500-solid),
+    'red': var(--g-color-text-danger),
+    'green': var(--g-color-text-positive),
+    'blue': var(--g-color-text-info),
+    'violet': var(--g-color-text-utility),
+);
+
+.g-md-header-title-plugin {
+    // `initial` stops inheritance and selects the fallback of `var()`.
+    --_--color: initial;
+
+    margin-block: var(--g-md-header-title-plugin-margin-block, 0 var(--g-spacing-4));
+
+    font-size: var(--_--font-size);
+    // The weight of the mock; YFM headings have no variable for theirs.
+    font-weight: var(--g-md-header-title-plugin-font-weight, var(--g-text-header-font-weight));
+    line-height: var(--_--line-height);
+    // `auto` is the color of the text around the title.
+    color: var(--_--color, inherit);
+    overflow-wrap: anywhere;
+
+    @each $size, $text in $sizes {
+        &_size_#{$size} {
+            --_--font-size: var(--yfm-font-size-h#{$size}, var(--g-text-#{$text}-font-size));
+            --_--line-height: var(
+                --yfm-font-line-height-h#{$size},
+                var(--g-text-#{$text}-line-height)
+            );
+        }
+    }
+
+    @each $name, $color in $colors {
+        &_color_#{$name} {
+            --_--color: var(--yfm-colorify-#{$name}, #{$color});
+        }
+    }
+}

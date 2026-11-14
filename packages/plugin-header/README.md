@@ -2,10 +2,11 @@
 
 markdown-it plugins for the Header markup. Each block has its own plugin, and `headerPreset` enables all of them:
 
-| Block             | Plugin         | Markup              |
-| ----------------- | -------------- | ------------------- |
-| [Header](#header) | `headerPlugin` | `:::header{…}`      |
-| [Button](#button) | `buttonPlugin` | `:button[label]{…}` |
+| Block                         | Plugin              | Markup                    |
+| ----------------------------- | ------------------- | ------------------------- |
+| [Header](#header)             | `headerPlugin`      | `:::header{…}`            |
+| [Header title](#header-title) | `headerTitlePlugin` | `::header-title[text]{…}` |
+| [Button](#button)             | `buttonPlugin`      | `:button[label]{…}`       |
 
 ```ts
 import MarkdownIt from 'markdown-it';
@@ -128,6 +129,69 @@ An unknown attribute is skipped, and an unsupported value is replaced with the d
 An image address with another scheme, such as `javascript:` or `data:`, or with control characters, is skipped.
 The container parses its child blocks in the same Markdown token stream.
 Inline titles and destinations in the opening directive are not supported and remain ordinary Markdown.
+
+## Header title
+
+```markdown
+:::header
+
+::header-title[Team portal]{size="1" color="blue"}
+:::
+```
+
+```html
+<div class="g-md-header-plugin …">
+<div class="g-md-header-title-plugin g-md-header-title-plugin_size_1 g-md-header-title-plugin_color_blue" role="heading" aria-level="1" data-size="1" data-color="blue">Team portal</div>
+</div>
+```
+
+The title is a leaf block directive: one line with the text in square brackets and no closing line. It stands after an empty line, as a paragraph does.
+The text is plain: Markdown and HTML entities inside it are shown as written, and `\]` writes a closing bracket.
+A title without a text, `::header-title[]`, keeps its token and renders nothing.
+
+| Attribute | Values                                                               | Default |
+| --------- | -------------------------------------------------------------------- | ------- |
+| `size`    | `1`–`6`: the typography of the headings `h1`–`h6`                    | `2`     |
+| `color`   | `auto`, `gray`, `yellow`, `orange`, `red`, `green`, `blue`, `violet` | `auto`  |
+
+An unknown attribute is skipped, and an unsupported value is replaced with the default: `::header-title[Team portal]{size="7" color="pink"}` is a title of size `2` in the `auto` color.
+
+The title is a `div` with `role="heading"` and `aria-level` of its size, so it is a heading for assistive technology and stays out of the heading tags of the page. The size and the color other than the defaults are also written to `data-size` and `data-color`; `headerTitleFromAttrs` reads them back.
+A sanitizer has to allow `aria-level`: the default list of `@diplodoc/transform` keeps `role` and drops the level, and a heading without a level is read as a heading of level 2.
+
+### Title styles
+
+| Size | Font size and line height                                        | Gravity UI typography |
+| ---- | ---------------------------------------------------------------- | --------------------- |
+| `1`  | `--yfm-font-size-h1`, `--yfm-font-line-height-h1`: 32 px / 40 px | `display-2`           |
+| `2`  | `--yfm-font-size-h2`, `--yfm-font-line-height-h2`: 24 px / 28 px | `header-2`            |
+| `3`  | `--yfm-font-size-h3`, `--yfm-font-line-height-h3`: 20 px / 24 px | `header-1`            |
+| `4`  | `--yfm-font-size-h4`, `--yfm-font-line-height-h4`: 17 px / 24 px | `subheader-3`         |
+| `5`  | `--yfm-font-size-h5`, `--yfm-font-line-height-h5`: 15 px / 20 px | `subheader-2`         |
+| `6`  | `--yfm-font-size-h6`, `--yfm-font-line-height-h6`: 13 px / 18 px | `subheader-1`         |
+
+A size takes the variables of the YFM heading of that level; where they are not set, it takes the Gravity UI typography of the same size.
+The weight is `--g-text-header-font-weight`.
+
+The `auto` color is the color of the text around the title: in a header it follows the page theme, and over a background image the theme of the image.
+The other colors are the colors of colored text in YFM, `--yfm-colorify-<color>`; where they are not set, the title takes the Gravity UI tokens those colors use in the editor:
+
+| Color    | Variable                | Gravity UI token                     |
+| -------- | ----------------------- | ------------------------------------ |
+| `gray`   | `--yfm-colorify-gray`   | `--g-color-text-secondary`           |
+| `yellow` | `--yfm-colorify-yellow` | `--g-color-private-yellow-600-solid` |
+| `orange` | `--yfm-colorify-orange` | `--g-color-private-orange-500-solid` |
+| `red`    | `--yfm-colorify-red`    | `--g-color-text-danger`              |
+| `green`  | `--yfm-colorify-green`  | `--g-color-text-positive`            |
+| `blue`   | `--yfm-colorify-blue`   | `--g-color-text-info`                |
+| `violet` | `--yfm-colorify-violet` | `--g-color-text-utility`             |
+
+| Property                                  | Default                            |
+| ----------------------------------------- | ---------------------------------- |
+| `--g-md-header-title-plugin-font-weight`  | `var(--g-text-header-font-weight)` |
+| `--g-md-header-title-plugin-margin-block` | `0 var(--g-spacing-4)`             |
+
+Inside Header the title is a row of the header layout: the header sets the space around it, 16 px to the description and 32 px to the buttons. The margin applies to a title outside Header.
 
 ## Button
 
