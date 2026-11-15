@@ -1,4 +1,4 @@
-import {StateEffect} from '../../../../cm/state';
-
-export const ShowMarkupGptEffect = StateEffect.define();
-export const HideMarkupGptEffect = StateEffect.define();
+export {
+    ShowMarkupGptEffect,
+    HideMarkupGptEffect,
+} from '@gravity-ui/markdown-editor-gpt-extension/compatibility';

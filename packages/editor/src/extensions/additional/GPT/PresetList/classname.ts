@@ -1,3 +1,1 @@
-import {cn} from '../../../../classname';
-
-export const cnGptDialogPresetList = cn('gpt-dialog-preset-list');
+export {cnGptDialogPresetList} from '@gravity-ui/markdown-editor-gpt-extension/compatibility';

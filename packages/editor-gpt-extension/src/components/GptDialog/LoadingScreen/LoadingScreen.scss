@@ -1,0 +1,30 @@
+.g-md-gpt-dialog-loading-screen {
+    &__header {
+        display: flex;
+        align-items: center;
+
+        margin-bottom: 8px;
+    }
+
+    &__icon {
+        margin-right: 4px;
+    }
+
+    &__text {
+        margin-right: 8px;
+
+        font-size: var(--g-text-body-2-font-size);
+        font-weight: 500;
+    }
+
+    &__skeleton-small-button {
+        width: 90px;
+        height: 28px;
+        margin-right: 8px;
+    }
+
+    &__skeleton-medium-button {
+        width: 120px;
+        height: 28px;
+    }
+}

@@ -2,6 +2,17 @@
 
 ## How to connect GPT extensions to editor
 
+The GPT implementation lives in `@gravity-ui/markdown-editor-gpt-extension`.
+The existing imports from `@gravity-ui/markdown-editor` remain supported and
+connect the editor renderer and Markdown conversion automatically. Existing
+options, callbacks, toolbar items and editor language configuration are preserved.
+
+For a standalone dialog, import `GptDialog` and `GptDialogProps` from
+`@gravity-ui/markdown-editor-gpt-extension/dialog`. Direct integrations can use
+its `./wysiwyg` and `./markup` entry points with an explicit renderer host; see
+[the package README](../packages/editor-gpt-extension/README.md).
+
+
 First to integrate this extension, you need to use the following versions of the packages:
 
     @gravity-ui/markdown-editor version 15.48.0 or higher

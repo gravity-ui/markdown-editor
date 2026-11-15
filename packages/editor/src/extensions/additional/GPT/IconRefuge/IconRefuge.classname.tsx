@@ -1,3 +1,1 @@
-import {cn} from '@bem-react/classname';
-
-export const cnIconRefuge = cn('icon-refuge');
+export {cnIconRefuge} from '@gravity-ui/markdown-editor-gpt-extension/compatibility';
