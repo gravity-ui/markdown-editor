@@ -2,9 +2,8 @@ import {useMemo, useRef} from 'react';
 
 import type {DropdownMenuItem} from '@gravity-ui/uikit';
 
-import type {CommonAnswer} from '../components/ErrorScreen/types';
 import {cnGptDialogPresetList} from '../components/PresetList/classname';
-import type {GptDialogProps, PresetListProps} from '../types';
+import type {CommonAnswer, GptDialogProps, PresetListProps} from '../types';
 
 import {useOverflowingHorizontalItems} from './useOverflowingHorizontalItems';
 

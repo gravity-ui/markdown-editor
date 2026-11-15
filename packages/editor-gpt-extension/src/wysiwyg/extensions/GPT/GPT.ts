@@ -1,10 +1,9 @@
 import type {Node} from 'prosemirror-model';
 import type {Command, Plugin} from 'prosemirror-state';
 
-import type {CommonAnswer} from '../../../components/ErrorScreen/types';
 import {gptHotKeys} from '../../../constants';
 import type {WysiwygGptHost} from '../../../host';
-import type {GptWidgetOptions} from '../../../types';
+import type {CommonAnswer, GptWidgetOptions} from '../../../types';
 
 import {runGpt} from './commands';
 import {gptWidgetPlugin} from './plugin';

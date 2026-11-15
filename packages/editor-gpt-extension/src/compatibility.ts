@@ -33,11 +33,7 @@ export {IconRefuge} from './components/IconRefuge/IconRefuge';
 export {cnGptDialogPresetList} from './components/PresetList/classname';
 export {PresetList} from './components/PresetList/PresetList';
 export {cnGptDialogErrorScreen, ErrorScreen} from './components/ErrorScreen/ErrorScreen';
-export {
-    type PromptPreset,
-    type CommonAnswer,
-    type GptRequestData,
-} from './components/ErrorScreen/types';
+export {type PromptPreset, type CommonAnswer, type GptRequestData} from './types';
 export {
     cnGptDialogLoadingScreen,
     LoadingScreen,

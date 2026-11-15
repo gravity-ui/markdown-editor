@@ -4,8 +4,7 @@ import {gptHotKeys} from '../../constants';
 import {useGptHotKeys} from '../../hooks/useGptHotKeys';
 import {usePresetList} from '../../hooks/usePresetList';
 import {i18n} from '../../i18n/dialog/index';
-import type {PresetListProps} from '../../types';
-import type {CommonAnswer, PromptPreset} from '../ErrorScreen/types';
+import type {CommonAnswer, PresetListProps, PromptPreset} from '../../types';
 
 import {cnGptDialogPresetList} from './classname';
 
@@ -37,7 +36,7 @@ const PresetItem = <
         () => {
             onPresetClick(preset.data);
         },
-        {enableOnFormTags: true, enableOnContentEditable: true},
+        {enabled: !disablePromptPresets, enableOnFormTags: true, enableOnContentEditable: true},
     );
 
     return (
@@ -74,7 +73,7 @@ export const PresetList = <
             {visiblePresets.map((preset, index) => (
                 <PresetItem
                     preset={preset}
-                    key={preset.display}
+                    key={preset.key}
                     hotKey={preset.hotKey || gptHotKeys.presetsKey(String(index + 1))}
                     disablePromptPresets={disablePromptPresets}
                     onPresetClick={onPresetClick}

@@ -12,5 +12,6 @@
   "replace": "Заменить выделенный текст",
   "replace-disabled": "Вставить текст",
   "try-again": "Иначе",
-  "alert-gpt-presets-info": "Выделите текст, чтобы увидеть пресеты GPT"
+  "alert-gpt-presets-info": "Выделите текст, чтобы увидеть пресеты GPT",
+  "submit-prompt": "Отправить запрос"
 }

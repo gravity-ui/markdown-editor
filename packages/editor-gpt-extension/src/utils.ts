@@ -2,9 +2,8 @@ import type React from 'react';
 
 import type {AlertProps} from '@gravity-ui/uikit';
 
-import type {CommonAnswer} from './components/ErrorScreen/types';
 import {i18n} from './i18n/dialog/index';
-import type {GptDialogProps, GptWidgetOptions} from './types';
+import type {CommonAnswer, GptDialogProps, GptWidgetOptions} from './types';
 
 type CombinedKeyboardEvent = KeyboardEvent | React.KeyboardEvent;
 

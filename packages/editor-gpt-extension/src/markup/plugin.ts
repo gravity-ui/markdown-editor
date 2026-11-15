@@ -8,10 +8,9 @@ import {
     type ViewUpdate,
 } from '@codemirror/view';
 
-import type {CommonAnswer} from '../components/ErrorScreen/types';
 import {WIDGET_DECO_CLASS_NAME} from '../constants';
 import type {MarkupGptHost} from '../host';
-import type {GptWidgetOptions} from '../types';
+import type {CommonAnswer, GptWidgetOptions} from '../types';
 import {isEmptyGptPrompts} from '../utils';
 
 import {hideMarkupGpt} from './commands/gpt';
@@ -46,6 +45,7 @@ export function mGptPlugin<
             readonly _renderItem;
 
             _anchor: Element | null = null;
+            _sessionId = 0;
 
             decos: DecorationSet = Decoration.none;
             disablePromptPresets = true;
@@ -66,6 +66,9 @@ export function mGptPlugin<
             update(update: ViewUpdate) {
                 if (update.docChanged || update.selectionSet) {
                     this.decos = Decoration.none;
+                    this._anchor = null;
+                    this._clearSelectedText();
+                    this._renderItem.rerender();
                     return;
                 }
 
@@ -79,6 +82,7 @@ export function mGptPlugin<
                 for (const tr of update.transactions) {
                     for (const eff of tr.effects) {
                         if (eff.is(ShowMarkupGptEffect)) {
+                            this._sessionId++;
                             this._setSelectedText(this._getDecorationText(update, from, to));
 
                             if (from === to) {
@@ -132,16 +136,26 @@ export function mGptPlugin<
                     return null;
                 }
 
+                const sessionId = this._sessionId;
                 return renderPopup(this._anchor as HTMLElement, {
                     ...gptProps,
+                    sessionKey: this._sessionId,
                     disablePromptPresets: this.disablePromptPresets,
+                    onUpdate: (answer) => {
+                        if (sessionId === this._sessionId && this.decos.size)
+                            gptProps.onUpdate?.(answer);
+                    },
                     onClose: () => {
+                        if (sessionId !== this._sessionId || !this.decos.size) return;
                         hideMarkupGpt(this._view);
+                        this._view.contentDOM.focus({preventScroll: true});
 
                         gptProps.onClose?.();
                     },
                     markup: this.markup,
-                    onApplyResult: (changedMarkup) => this._onApplyResult(changedMarkup),
+                    onApplyResult: (changedMarkup) => {
+                        if (sessionId === this._sessionId) this._onApplyResult(changedMarkup);
+                    },
                 });
             }
 
@@ -158,6 +172,7 @@ export function mGptPlugin<
             }
 
             _onApplyResult(changedMarkup: string) {
+                if (!this._anchor || !this.decos.size || this.markup === null) return;
                 const {from, to} = this.selectedPosition;
                 const changes = [{from, to, insert: changedMarkup}];
 
@@ -167,6 +182,8 @@ export function mGptPlugin<
                 });
 
                 this._view.dispatch(transaction);
+                this._view.contentDOM.focus({preventScroll: true});
+                gptProps.onApplyResult?.(changedMarkup);
             }
         },
         {

@@ -1,8 +1,8 @@
 import {Plugin} from 'prosemirror-state';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
-import type {CommonAnswer} from '../../../components/ErrorScreen/types';
 import {WIDGET_DECO_CLASS_NAME, WIDGET_DECO_SPEC_FLAG} from '../../../constants';
+import type {CommonAnswer} from '../../../types';
 import {isEmptyGptPrompts} from '../../../utils';
 
 import {pluginKey} from './plugin-key';
@@ -19,13 +19,14 @@ export const gptWidgetPlugin = <
 >(
     params: GptWidgetDecoViewParams<AnswerData, PromptData>,
 ): Plugin => {
+    const viewParams = {...params};
     return new Plugin({
         key: pluginKey,
         state: {
             init: () => DecorationSet.empty,
             apply: (tr, decos) => {
                 const meta = tr.getMeta(pluginKey) as GptWidgetMeta | undefined;
-                const paramsGpt = params;
+                const paramsGpt = viewParams;
 
                 if (meta?.action === 'show') {
                     paramsGpt.disablePromptPresets = false;
@@ -64,12 +65,14 @@ export const gptWidgetPlugin = <
                     return DecorationSet.empty;
                 }
 
+                if (tr.docChanged || tr.selectionSet) return DecorationSet.empty;
+
                 return decos.map(tr.mapping, tr.doc);
             },
         },
         props: {
             decorations: (state) => pluginKey.getState(state),
         },
-        view: (view) => new GptWidgetDecoView(view, params),
+        view: (view) => new GptWidgetDecoView(view, viewParams),
     });
 };

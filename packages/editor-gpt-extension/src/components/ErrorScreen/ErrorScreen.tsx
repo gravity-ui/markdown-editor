@@ -8,7 +8,7 @@ import {IconRefuge} from '../IconRefuge/IconRefuge';
 import './ErrorScreen.scss';
 
 type ErrorScreenProps = {
-    onRetry: () => void;
+    onRetry?: () => void;
     onStartAgain: () => void;
 };
 
@@ -30,9 +30,11 @@ export const ErrorScreen: React.FC<ErrorScreenProps> = ({onRetry, onStartAgain})
                 <Button view="normal" onClick={onStartAgain}>
                     {i18n('start-again-button')}
                 </Button>
-                <Button view="normal" onClick={onRetry}>
-                    {i18n('retry-button')}
-                </Button>
+                {onRetry && (
+                    <Button view="normal" onClick={onRetry}>
+                        {i18n('retry-button')}
+                    </Button>
+                )}
             </div>
         </div>
     );
