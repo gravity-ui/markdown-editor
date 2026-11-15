@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import {ExtensionsManager} from '@gravity-ui/markdown-editor/core';
+import {deleteSelection} from '@gravity-ui/markdown-editor/pm/commands';
 import {history, undo} from '@gravity-ui/markdown-editor/pm/history';
 import {DOMParser, DOMSerializer, type Node} from '@gravity-ui/markdown-editor/pm/model';
 import {EditorState, NodeSelection, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
@@ -16,8 +17,9 @@ import {HeaderSpecs} from '../Header/HeaderSpecs';
 import {copyHeader, setHeaderDimension} from '../Header/commands';
 
 import {Button} from './Button';
+import {WButtonNodeView} from './ButtonNodeView';
 import {ButtonSpecs, buttonNodeType} from './ButtonSpecs';
-import {insertButton, setButtonAttrs} from './commands';
+import {insertButton, selectButtonAfter, selectButtonBefore, setButtonAttrs} from './commands';
 import {buttonRowPlugin} from './plugins/ButtonRowPlugin';
 
 const {schema, markupParser, serializer} = new ExtensionsManager({
@@ -32,6 +34,27 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
 }).buildDeps();
 const button =
     ':button[Read more]{href="/page?a=1&b=2" view="outline" color="blue" target="_blank"}';
+
+const scriptUrl = ['javascript', 'alert(1)'].join(':');
+const unsafeUrls = [scriptUrl, 'data:text/html,<b>x</b>', 'vbscript:run', 'file:///etc/passwd'];
+
+const buttonPos = (doc: Node) => {
+    let found = -1;
+    doc.descendants((node, pos) => {
+        if (found < 0 && node.type.name === 'button') found = pos;
+    });
+    return found;
+};
+
+function createButtonView(doc: (nodeSchema: typeof schema) => Node) {
+    const deps = new ExtensionsManager({
+        extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(Button),
+    }).build();
+    return new EditorView(document.createElement('div'), {
+        state: EditorState.create({doc: doc(deps.schema), schema: deps.schema}),
+        nodeViews: deps.nodeViews,
+    });
+}
 
 const buttons = (root: Node) => {
     const result: unknown[] = [];
@@ -155,6 +178,56 @@ describe('Button extension', () => {
         expect(state().doc.eq(original)).toBe(true);
         expect(setButtonAttrs(0, {view: 'flat'})(state(), dispatch)).toBe(false);
     });
+    it('should replace a color that the new view lacks', () => {
+        const {state, dispatch} = createState(':button[Open]{view="action" color="standard"}');
+        expect(setButtonAttrs(1, {view: 'normal'})(state(), dispatch)).toBe(true);
+        expect(serializer.serialize(state().doc)).toBe(':button[Open]{view="normal" color="gray"}');
+    });
+    it.each([...unsafeUrls, ` ${scriptUrl.toUpperCase()}`, 'java\tscript:run'])(
+        'should reject the unsafe address %j',
+        (href) => {
+            const {state, dispatch} = createState(button);
+            const doc = state().doc;
+            expect(setButtonAttrs(1, {href, label: 'Changed'})(state(), dispatch)).toBe(false);
+            expect(state().doc).toBe(doc);
+        },
+    );
+    it.each([
+        ['Backspace after a button', selectButtonBefore, `Go ${button} now`, 1],
+        ['Delete before a button', selectButtonAfter, `Go ${button} now`, 0],
+        ['Backspace at the end of a row', selectButtonBefore, button, 1],
+        ['Delete at the start of a row', selectButtonAfter, button, 0],
+    ])(
+        'should select the button on %s and remove it only as a selected node',
+        (_name, command, source, side) => {
+            const {state, dispatch} = createState(source);
+            const pos = buttonPos(state().doc);
+            dispatch(state().tr.setSelection(TextSelection.create(state().doc, pos + side)));
+            const doc = state().doc;
+            expect(command(state(), dispatch)).toBe(true);
+            expect(state().doc).toBe(doc);
+            expect(state().selection).toBeInstanceOf(NodeSelection);
+            expect(state().selection.from).toBe(pos);
+            expect(command(state(), dispatch)).toBe(false);
+            expect(deleteSelection(state(), dispatch)).toBe(true);
+            expect(buttons(state().doc)).toHaveLength(0);
+            expect(undo(state(), dispatch)).toBe(true);
+            expect(state().doc.eq(doc)).toBe(true);
+        },
+    );
+    it.each([
+        ['Backspace in a text', selectButtonBefore, 'Go now', 3, 3],
+        ['Delete in a text', selectButtonAfter, 'Go now', 3, 3],
+        ['Backspace before a button', selectButtonBefore, `${button} now`, 1, 1],
+        ['Delete after a button', selectButtonAfter, `Go ${button}`, 5, 5],
+        ['Backspace with a selected range', selectButtonBefore, `Go ${button} now`, 2, 6],
+    ])('should leave %s to the editor', (_name, command, source, from, to) => {
+        const {state, dispatch} = createState(source);
+        dispatch(state().tr.setSelection(TextSelection.create(state().doc, from, to)));
+        const before = state();
+        expect(command(state(), dispatch)).toBe(false);
+        expect(state()).toBe(before);
+    });
     it.each([
         [button, 'Read more'],
         ['', 'Button'],
@@ -167,6 +240,97 @@ describe('Button extension', () => {
                 .node('paragraph', null, [node])
                 .textBetween(0, 1, '', (leaf) => String(leaf.type.spec.leafText?.(leaf))),
         ).toBe(text);
+    });
+    it.each(unsafeUrls)(
+        'should drop the unsafe address %j of a pasted and of a rendered button',
+        (href) => {
+            const container = document.createElement('div');
+            const pasted = document.createElement('a');
+            pasted.className = 'g-md-button-plugin';
+            pasted.setAttribute('href', href);
+            pasted.setAttribute('data-view', 'outline');
+            pasted.textContent = 'Open';
+            container.append(pasted);
+            expect(buttons(DOMParser.fromSchema(schema).parse(container))).toEqual([
+                {
+                    type: 'button',
+                    attrs: {
+                        href: '',
+                        view: 'outline',
+                        color: 'gray',
+                        target: '_self',
+                        label: 'Open',
+                    },
+                },
+            ]);
+            const node = buttonNodeType(schema).create({href, label: 'Open'});
+            const rendered = DOMSerializer.fromSchema(schema).serializeNode(node) as HTMLElement;
+            expect(rendered.hasAttribute('href')).toBe(false);
+            expect(new WButtonNodeView(node).dom.hasAttribute('href')).toBe(false);
+        },
+    );
+    it.each([
+        [{label: 'Open', href: '/page'}, 'Open', '/page', null],
+        [{label: 'Open'}, 'Open', null, 'button'],
+        [{href: '/page'}, 'Button', '/page', null],
+        [{}, 'Button', null, 'button'],
+    ])(
+        'should expose the button %j as a control that opens its settings',
+        (attrs, name, href, role) => {
+            const view = createButtonView((nodeSchema) =>
+                nodeSchema.node('doc', null, [
+                    nodeSchema.node('paragraph', null, [buttonNodeType(nodeSchema).create(attrs)]),
+                ]),
+            );
+            try {
+                const dom = view.nodeDOM(1) as HTMLElement;
+                expect(dom.getAttribute('href')).toBe(href);
+                expect(dom.getAttribute('role')).toBe(role);
+                expect(dom.getAttribute('aria-haspopup')).toBe('dialog');
+                expect(dom.tabIndex).toBe(-1);
+                expect(dom.textContent).toBe(name);
+            } finally {
+                view.destroy();
+            }
+        },
+    );
+    it.each([
+        ['the style', {view: 'outline', color: 'blue'}],
+        ['the link and the target', {href: '/other', target: '_blank'}],
+        ['an empty link', {href: ''}],
+        ['the label', {label: 'Read'}],
+        ['an empty label', {label: ''}],
+    ] as const)('should update the selected button in place when %s changes', (_name, attrs) => {
+        const view = createButtonView((nodeSchema) =>
+            nodeSchema.node('doc', null, [
+                nodeSchema.node('paragraph', null, [
+                    buttonNodeType(nodeSchema).create({label: 'Open', href: '/page'}),
+                ]),
+            ]),
+        );
+        const domState = (element: HTMLElement) => ({
+            attrs: Object.fromEntries(
+                Array.from(element.attributes, ({name, value}) => [
+                    name,
+                    name === 'class' ? value.split(' ').sort().join(' ') : value,
+                ]),
+            ),
+            html: element.innerHTML,
+        });
+        try {
+            view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, 1)));
+            const dom = view.nodeDOM(1) as HTMLElement;
+            expect(setButtonAttrs(1, attrs)(view.state, view.dispatch)).toBe(true);
+            const node = view.state.doc.nodeAt(1) as Node;
+            const fresh = new WButtonNodeView(node).dom;
+            fresh.classList.add('ProseMirror-selectednode');
+            fresh.draggable = true;
+            expect(view.nodeDOM(1)).toBe(dom);
+            expect(view.state.selection).toMatchObject({from: 1, node});
+            expect(domState(dom)).toEqual(domState(fresh));
+        } finally {
+            view.destroy();
+        }
     });
     it('should render a selectable atom without navigation and open its settings', () => {
         const deps = new ExtensionsManager({

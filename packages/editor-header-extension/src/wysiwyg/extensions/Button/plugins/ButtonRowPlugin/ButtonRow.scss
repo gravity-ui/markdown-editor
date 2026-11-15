@@ -7,6 +7,15 @@
     // The margins of the pseudo-elements stay inside the row and do not collapse with its own margins.
     display: flow-root;
 
+    text-align: start;
+
+    // Each button carries a gap before it, and the row starts a gap earlier,
+    // so a line holds as many buttons as a line of the flex layout.
+    // The editor class outweighs the paragraph margins of the content styles.
+    .ProseMirror & {
+        margin-inline-start: calc(-1 * #{$gap});
+    }
+
     // The lines are a gap apart; the pseudo-elements take half of it back above and below.
     &::before,
     &::after {
@@ -24,13 +33,17 @@
     }
 
     & > .g-md-button-plugin {
+        max-width: calc(100% - #{$gap});
         margin-block: calc(#{$gap} / 2);
-        margin-inline-end: $gap;
+        margin-inline-start: $gap;
     }
 
     &__space {
         display: inline-block;
 
         width: 0;
+
+        vertical-align: middle;
+        white-space: pre;
     }
 }

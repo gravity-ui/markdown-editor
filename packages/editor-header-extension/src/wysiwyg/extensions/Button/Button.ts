@@ -2,7 +2,7 @@ import type {Action, ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 
 import {WButtonNodeView} from './ButtonNodeView';
 import {ButtonSpecs, buttonNodeName} from './ButtonSpecs';
-import {insertButton} from './commands';
+import {insertButton, selectButtonAfter, selectButtonBefore} from './commands';
 import {insertButtonAction} from './const';
 import {buttonRowPlugin} from './plugins/ButtonRowPlugin';
 import {buttonSettingsPlugin} from './plugins/ButtonSettingsPlugin';
@@ -13,8 +13,12 @@ export const Button: ExtensionAuto = (builder) => {
     builder
         .use(ButtonSpecs)
         .addNodeView(buttonNodeName, () => (node) => new WButtonNodeView(node))
-        .addPlugin(buttonSettingsPlugin)
+        .addPlugin(({markupParser}) => buttonSettingsPlugin(markupParser))
         .addPlugin(buttonRowPlugin)
+        .addKeymap(
+            () => ({Backspace: selectButtonBefore, Delete: selectButtonAfter}),
+            builder.Priority.High,
+        )
         .addAction(insertButtonAction, () => ({isEnable: insertButton, run: insertButton}));
 };
 

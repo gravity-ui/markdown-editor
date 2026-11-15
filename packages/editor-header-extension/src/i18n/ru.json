@@ -32,6 +32,7 @@
   "button-settings": "Настройки кнопки",
   "button-label": "Подпись",
   "button-link": "Ссылка",
+  "button-link-error": "Адрес ссылки не поддерживается",
   "button-new-tab": "Открывать в новой вкладке",
   "button-group-action": "Акцентные",
   "button-group-normal": "Второстепенные",

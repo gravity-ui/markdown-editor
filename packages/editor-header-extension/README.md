@@ -53,8 +53,10 @@ A button is an inline node: `:button[Read more]{href="/page" view="action" color
 The button is an atom: a click on it, or Enter while it is selected, opens the settings window under it.
 The window holds the label field, the style list with a preview of the style under the pointer, the link field, and the "Open in a new tab" switch.
 The label is plain text without formatting. Each change is a separate undo step.
-Escape closes the window and returns focus to the editor. Clicking the button does not follow the link.
-A paragraph that holds only buttons and spaces is a row: the editor shows the same gaps between the buttons and between the lines as the rendered page.
+The link field shows an error for an address that the Markdown parser of the editor rejects, such as `javascript:`, and keeps the previous address. Such an address is also dropped from a pasted button.
+Closing the window saves the label and the link. Escape, Enter, and Tab after the last field return focus to the editor. Clicking the button does not follow the link.
+Backspace after a button and Delete before it select the button; the next press removes it.
+A paragraph that holds only buttons and spaces is a row: the editor shows the same gaps between the buttons and between the lines as the rendered page, and wraps the lines at the same buttons.
 
 `toolbarButtonItem` inserts `:button[Button]{view="action" color="standard"}` at the cursor in both modes.
 In the visual editor, the cursor moves after the new button.

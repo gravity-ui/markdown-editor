@@ -6,6 +6,11 @@ import {ButtonStories} from './Button.helpers';
 // Lines under the button leave room for its settings window and style list in the screenshot.
 const withSpace = `:button[Кнопка]{href="https://example.com" view="action" color="standard"}${'\n\nТекст'.repeat(12)}`;
 
+const scriptUrl = ['javascript', 'alert(1)'].join(':');
+
+// The text column holds four buttons with three gaps between them; a fourth gap does not fit.
+const NARROW_ROW_WIDTH = 343;
+
 const stateStyles = [
     ['action', 'standard'],
     ['action', 'blue'],
@@ -232,22 +237,22 @@ test.describe('Button', () => {
         await mount(<ButtonStories.Button initial={withSpace} />);
         await button.openSettings();
         await button.styleSelect.click();
-        await button.option('Green').first().hover();
+        await button.option('Accent, Green').hover();
         await expect(button.preview).toBeVisible();
-        await button.option('Green').first().click();
-        await expect(button.option('Green')).toHaveCount(0);
+        await button.option('Accent, Green').click();
+        await expect(button.option(/, Green$/)).toHaveCount(0);
         await expect(button.preview).toHaveCount(0);
         await button.styleSelect.click();
-        await button.option('Violet').first().hover();
+        await button.option('Accent, Violet').hover();
         await expect(button.preview).toBeVisible();
         await button.newTab.click();
-        await expect(button.option('Violet')).toHaveCount(0);
+        await expect(button.option(/, Violet$/)).toHaveCount(0);
         await expect(button.preview).toHaveCount(0);
         await button.styleSelect.click();
-        await button.option('Red').first().hover();
+        await button.option('Accent, Red').hover();
         await expect(button.preview).toBeVisible();
         await button.styleSelect.press('Escape');
-        await expect(button.option('Red')).toHaveCount(0);
+        await expect(button.option(/, Red$/)).toHaveCount(0);
         await expect(button.preview).toHaveCount(0);
     });
 
@@ -260,16 +265,112 @@ test.describe('Button', () => {
         await mount(<ButtonStories.Button initial={withSpace} />);
         await button.openSettings();
         await button.styleSelect.click();
-        await expect(button.option('Green')).toHaveCount(4);
-        await button.option('Green').first().hover();
+        await expect(button.option(/, Green$/)).toHaveCount(4);
+        await expect(button.styleSelect).toHaveAccessibleName('Style: Accent, Standard');
+        await button.option('Accent, Green').hover();
         await expect(button.preview).toBeVisible();
         await expectScreenshot({component: editor.locators.component});
-        await button.option('Green').first().click();
+        await button.option('Accent, Green').click();
         await expect(button.blocks).toHaveAttribute('data-view', 'action');
         await expect(button.blocks).toHaveAttribute('data-color', 'green');
         await button.newTab.click();
         await expect(button.blocks).toHaveAttribute('target', '_blank');
         await expect(button.settings).toBeVisible();
+    });
+
+    test('should save a field on a click outside and reject an unsafe link @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        button,
+        expectScreenshot,
+    }) => {
+        await mount(<ButtonStories.Button initial={withSpace} />);
+        await button.openSettings();
+        await button.label.fill('Открыть');
+        await editor.locators.contenteditable.getByText('Текст').last().click();
+        await expect(button.settings).toBeHidden();
+        await expect(button.blocks).toHaveText('Открыть');
+        await button.openSettings();
+        await button.link.fill('/docs');
+        await editor.locators.contenteditable.getByText('Текст').last().click();
+        await expect(button.settings).toBeHidden();
+        await expect(button.blocks).toHaveAttribute('href', '/docs');
+        await button.openSettings();
+        await button.link.fill(scriptUrl);
+        await button.link.press('Enter');
+        await expect(button.linkError).toHaveText('Unsupported link address');
+        await expect(button.settings).toBeVisible();
+        await expect(button.blocks).toHaveAttribute('href', '/docs');
+        await page.mouse.move(0, 0);
+        await expectScreenshot({component: editor.locators.component});
+        await button.link.fill('/page');
+        await expect(button.linkError).toBeHidden();
+        await button.link.press('Enter');
+        await expect(button.settings).toBeHidden();
+        await expect(button.blocks).toHaveAttribute('href', '/page');
+        await expect(button.blocks).toHaveText('Открыть');
+    });
+
+    test('should edit and delete a button with the keyboard @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        button,
+        expectScreenshot,
+    }) => {
+        await mount(
+            <ButtonStories.Button
+                initial={`:button[Кнопка]{view="action" color="standard"} и текст${'\n\nТекст'.repeat(12)}`}
+            />,
+        );
+        await expect(button.blocks).toHaveCount(1);
+        await editor.focus();
+        await editor.press('Control+Home');
+        await editor.press('ArrowRight');
+        await expect(button.selectedBlocks).toHaveCount(1);
+        await editor.press('Enter');
+        await expect(button.label).toBeFocused();
+        await page.keyboard.press('Tab');
+        await page.keyboard.press('Tab');
+        await expect(button.styleSelect).toBeFocused();
+        await page.keyboard.press('ArrowDown');
+        await expect(button.option('Accent, Blue')).toBeVisible();
+        await expectScreenshot({component: editor.locators.component});
+        await page.keyboard.press('ArrowDown');
+        await page.keyboard.press('Enter');
+        await expect(button.blocks).toHaveAttribute('data-color', 'blue');
+        await expect(button.option(/, Blue$/)).toHaveCount(0);
+        await expect(button.styleSelect).toHaveAccessibleName('Style: Accent, Blue');
+        await expect(button.styleSelect).toBeFocused();
+        await page.keyboard.press('Tab');
+        await expect(button.link).toBeFocused();
+        await page.keyboard.type('/page');
+        await page.keyboard.press('Tab');
+        await expect(button.blocks).toHaveAttribute('href', '/page');
+        await page.keyboard.press('Space');
+        await expect(button.blocks).toHaveAttribute('target', '_blank');
+        await page.keyboard.press('Tab');
+        await expect(button.settings).toBeHidden();
+        await expect(editor.locators.contenteditable).toBeFocused();
+        await expect(button.selectedBlocks).toHaveCount(1);
+        await editor.press('ArrowRight');
+        await expect(button.selectedBlocks).toHaveCount(0);
+        await editor.press('Backspace');
+        await expect(button.selectedBlocks).toHaveCount(1);
+        await editor.press('Backspace');
+        await expect(button.blocks).toHaveCount(0);
+    });
+
+    test('should fill a line of a row up to the edge of the text column @wysiwyg', async ({
+        mount,
+        button,
+    }) => {
+        await mount(<ButtonStories.Button initial={statesMarkup} width={NARROW_ROW_WIDTH} />);
+        await expect(button.blocks).toHaveCount(stateStyles.length);
+        const {column, start, width, gap} = await button.getRowGeometry();
+        expect(start).toBe(0);
+        expect((await button.getLines())[0]).toBe(Math.floor((column + gap) / (width + gap)));
     });
 
     test('should lay out a paragraph of buttons as a row with the same gaps in both modes @wysiwyg @markup', async ({

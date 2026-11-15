@@ -1,9 +1,10 @@
-import {type KeyboardEvent, useEffect, useMemo, useRef, useState} from 'react';
+import {type KeyboardEvent, useMemo, useRef, useState} from 'react';
 
 import {Link} from '@gravity-ui/icons';
 import {cn} from '@gravity-ui/markdown-editor';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
+import {normalizeButtonHref} from '@gravity-ui/markdown-plugin-header';
 import {Icon, Popup, type PopupAnchorElement, Switch, TextInput} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
@@ -17,42 +18,90 @@ const b = cn('button-settings');
 
 const LINK_ICON_SIZE = 16;
 
+/** The Markdown parser of the editor checks an address the way it checks a link. */
+export type LinkParser = Parameters<typeof normalizeButtonHref>[0];
+
 type ButtonSettingsProps = {
     view: EditorView;
     node: Node;
     pos: number;
     /** The window opens under this button. */
     anchor: HTMLElement;
-    onClose: (focusEditor: boolean) => void;
+    parser: LinkParser;
+    /** The reason comes from the popup; Enter and Tab out of the window pass none. */
+    onClose: (reason?: string) => void;
 };
 
-/** A text field that saves its value on blur, Enter and Escape. */
-function useSavedText(saved: string, save: (value: string) => void, close: () => void) {
+/** A text field that saves its value on blur, on Enter and when the window closes. */
+function useSavedText(saved: string, save: (value: string) => boolean | void, close: () => void) {
     const [value, setValue] = useState(saved);
-    useEffect(() => setValue(saved), [saved]);
+    const [previous, setPrevious] = useState(saved);
+    const [invalid, setInvalid] = useState(false);
+    if (previous !== saved) {
+        setPrevious(saved);
+        setValue(saved);
+    }
     const saveValue = () => {
-        if (value.trim() !== saved) save(value.trim());
+        const next = value.trim();
+        const valid = next === saved || save(next) !== false;
+        setInvalid(!valid);
+        return valid;
     };
     return {
-        value,
-        onUpdate: setValue,
-        onBlur: saveValue,
-        onKeyDown: (event: KeyboardEvent) => {
-            if (event.key === 'Escape') saveValue();
-            if (event.key !== 'Enter') return;
-            event.preventDefault();
-            saveValue();
-            close();
+        invalid,
+        save: saveValue,
+        input: {
+            value,
+            onUpdate: (next: string) => {
+                setValue(next);
+                setInvalid(false);
+            },
+            onBlur: () => {
+                saveValue();
+            },
+            onKeyDown: (event: KeyboardEvent) => {
+                if (event.key !== 'Enter') return;
+                event.preventDefault();
+                if (saveValue()) close();
+            },
         },
     };
 }
 
-export function ButtonSettings({view, node, pos, anchor, onClose}: ButtonSettingsProps) {
+const tabbable = (container: Element) =>
+    Array.from(container.querySelectorAll<HTMLElement>('input, button, [tabindex="0"]')).filter(
+        (element) =>
+            element.tabIndex >= 0 &&
+            !element.matches(':disabled') &&
+            element.checkVisibility?.() !== false,
+    );
+
+const isTabOut = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key !== 'Tab' || event.nativeEvent.defaultPrevented) return false;
+    const controls = tabbable(event.currentTarget);
+    return event.target === (event.shiftKey ? controls[0] : controls[controls.length - 1]);
+};
+
+export function ButtonSettings({view, node, pos, anchor, parser, onClose}: ButtonSettingsProps) {
     const update = (attrs: Parameters<typeof setButtonAttrs>[1]) =>
         setButtonAttrs(pos, attrs)(view.state, view.dispatch);
-    const close = () => onClose(true);
-    const label = useSavedText(node.attrs.label, (value) => update({label: value}), close);
-    const href = useSavedText(node.attrs.href, (value) => update({href: value}), close);
+    const label = useSavedText(node.attrs.label, (value) => update({label: value}), onClose);
+    const href = useSavedText(
+        node.attrs.href,
+        (value) => {
+            const next = normalizeButtonHref(parser, value);
+            if (value && !next) return false;
+            update({href: next});
+            return true;
+        },
+        onClose,
+    );
+    // A field with an unsaved value has no blur when the window closes.
+    const saveAndClose = (reason?: string) => {
+        label.save();
+        href.save();
+        onClose(reason);
+    };
     const labelRef = useRef<HTMLInputElement>(null);
     // Floating UI adds a focus element next to a DOM anchor, and ProseMirror owns the editor DOM.
     const anchorElement = useMemo<PopupAnchorElement>(
@@ -76,17 +125,23 @@ export function ButtonSettings({view, node, pos, anchor, onClose}: ButtonSetting
                     reason === 'outside-press' &&
                     event?.target instanceof window.Node &&
                     anchor.contains(event.target);
-                if (!open && !onButton) onClose(reason === 'escape-key');
+                if (!open && !onButton) saveAndClose(reason);
             }}
         >
+            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Tab out of the window returns the focus to the editor. */}
             <section
                 className={b()}
                 role="dialog"
                 aria-label={i18n('button-settings')}
                 data-qa="button-settings"
+                onKeyDown={(event) => {
+                    if (!isTabOut(event)) return;
+                    event.preventDefault();
+                    saveAndClose();
+                }}
             >
                 <TextInput
-                    {...label}
+                    {...label.input}
                     size="l"
                     hasClear
                     controlRef={labelRef}
@@ -100,8 +155,10 @@ export function ButtonSettings({view, node, pos, anchor, onClose}: ButtonSetting
                         onUpdate={update}
                     />
                     <TextInput
-                        {...href}
+                        {...href.input}
                         size="l"
+                        validationState={href.invalid ? 'invalid' : undefined}
+                        errorMessage={<span role="alert">{i18n('button-link-error')}</span>}
                         placeholder={i18n('button-link')}
                         controlProps={{'aria-label': i18n('button-link')}}
                         startContent={

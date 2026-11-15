@@ -26,12 +26,18 @@ type Style = {view: ButtonView; color: ButtonColor};
 const styleValue = ({view, color}: Style) => `${view}/${color}`;
 const buttonClass = (style: Style) => buttonAttrs(style).class;
 
+const styleName = ({view, color}: Style) =>
+    `${i18n(`button-view-${view}`)}, ${i18n(`button-color-${color}`)}`;
+
 const views = Object.keys(buttonViewColors) as ButtonView[];
 const styles = views.flatMap((view) => buttonViewColors[view].map((color) => ({view, color})));
 
 function Swatch({style, size}: {style: Style; size: 'm' | 'l'}) {
     return (
-        <span className={`${b('swatch', {size, view: style.view})} ${buttonClass(style)}`}>
+        <span
+            className={`${b('swatch', {size, view: style.view})} ${buttonClass(style)}`}
+            aria-hidden
+        >
             {style.view === 'flat' && <Icon data={TextIcon} size={16} />}
         </span>
     );
@@ -86,6 +92,7 @@ export function StyleSelect({style, onUpdate}: StyleSelectProps) {
                         ref={ref as Ref<HTMLButtonElement>}
                         className={b('control')}
                         {...triggerProps}
+                        aria-label={`${i18n('button-style')}: ${styleName(style)}`}
                         type="button"
                     >
                         <Swatch style={style} size="l" />
@@ -97,6 +104,10 @@ export function StyleSelect({style, onUpdate}: StyleSelectProps) {
                 renderOption={({data = style}) => (
                     <div className={b('option')} data-style={styleValue(data)}>
                         <Swatch style={data} size="m" />
+                        {/* Each view has an option of the same color; the view completes its name. */}
+                        <span className={b('option-view')}>
+                            {`${i18n(`button-view-${data.view}`)}, `}
+                        </span>
                         {i18n(`button-color-${data.color}`)}
                     </div>
                 )}

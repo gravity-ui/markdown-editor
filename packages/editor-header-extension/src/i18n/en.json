@@ -32,6 +32,7 @@
   "button-settings": "Button settings",
   "button-label": "Label",
   "button-link": "Link",
+  "button-link-error": "Unsupported link address",
   "button-new-tab": "Open in a new tab",
   "button-group-action": "Accent",
   "button-group-normal": "Secondary",

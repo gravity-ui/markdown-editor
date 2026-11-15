@@ -11,7 +11,7 @@ import {buttonClassName} from '@gravity-ui/markdown-plugin-header';
 
 import {buttonNodeType} from '../../ButtonSpecs';
 
-import {ButtonSettings} from './ButtonSettings';
+import {ButtonSettings, type LinkParser} from './ButtonSettings';
 
 /** Whether the settings window of the selected button is open. */
 const key = new PluginKey<boolean>('button-settings');
@@ -29,10 +29,12 @@ const setOpen = (view: EditorView, open: boolean) =>
 
 class ButtonSettingsView implements PluginView {
     private view: EditorView;
+    private readonly parser: LinkParser;
     private readonly item;
 
-    constructor(view: EditorView) {
+    constructor(view: EditorView, parser: LinkParser) {
         this.view = view;
+        this.parser = parser;
         this.item = getReactRendererFromState(view.state).createItem('button-settings', () =>
             this.render(),
         );
@@ -59,9 +61,10 @@ class ButtonSettingsView implements PluginView {
                     node={(view.state.selection as NodeSelection).node}
                     pos={pos}
                     anchor={anchor}
-                    onClose={(focus) => {
+                    parser={this.parser}
+                    onClose={(reason) => {
                         setOpen(view, false);
-                        if (focus) view.focus();
+                        if (reason !== 'outside-press') view.focus();
                     }}
                 />
             </ErrorLoggerBoundary>
@@ -69,7 +72,7 @@ class ButtonSettingsView implements PluginView {
     }
 }
 
-export const buttonSettingsPlugin = () =>
+export const buttonSettingsPlugin = (parser: LinkParser) =>
     new Plugin<boolean>({
         key,
         state: {
@@ -109,5 +112,5 @@ export const buttonSettingsPlugin = () =>
                 return false;
             },
         },
-        view: (view) => new ButtonSettingsView(view),
+        view: (view) => new ButtonSettingsView(view, parser),
     });
