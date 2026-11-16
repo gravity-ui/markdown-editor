@@ -5,6 +5,23 @@
 
     outline: none;
 
+    &__announcer {
+        position: absolute;
+
+        overflow: hidden;
+
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+
+        white-space: nowrap;
+
+        border: 0;
+
+        clip-path: inset(50%);
+    }
+
     &_split {
         &_vertical {
             display: grid;

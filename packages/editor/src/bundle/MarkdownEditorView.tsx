@@ -431,11 +431,35 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         </>
                     )}
                 </div>
+                <TabFocusModeAnnouncer editor={editor} />
             </ErrorBoundary>
         );
     },
 );
 MarkdownEditorView.displayName = 'MarkdownEditorView';
+
+function TabFocusModeAnnouncer({editor}: {editor: MarkdownEditorInstance}) {
+    const [announcement, setAnnouncement] = useState('');
+
+    useEffect(() => {
+        setAnnouncement('');
+        const onModeChange = ({mode}: {mode: TabFocusMode}) => {
+            setAnnouncement(
+                i18n(mode === 'focus' ? 'tab-focus-mode_focus' : 'tab-focus-mode_indent'),
+            );
+        };
+        editor.on('change-tab-focus-mode', onModeChange);
+        return () => {
+            editor.off('change-tab-focus-mode', onModeChange);
+        };
+    }, [editor]);
+
+    return (
+        <span className={b('announcer')} role="status" aria-live="polite">
+            {announcement}
+        </span>
+    );
+}
 
 interface MarkupSearchAnchorProps extends Pick<EditorSettingsProps, 'mode'> {}
 

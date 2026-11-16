@@ -280,6 +280,138 @@ describe('MarkdownEditorView', () => {
         expect(globalActions).toEqual(actions);
     });
 
+    describe('Tab focus mode announcements', () => {
+        const focusMessage = 'Enabled Tab navigation';
+        const indentMessage = 'Disabled Tab navigation';
+
+        beforeEach(() => {
+            configure({lang: 'en'});
+        });
+
+        it.each(['indent', 'focus'] as const)(
+            'should mount one empty live region outside the editor with initial mode %s',
+            (tabFocusMode) => {
+                renderEditor({options: {initial: {tabFocusMode, toolbarVisible: false}}});
+                const announcer = getAnnouncer();
+                const editorElement = container.querySelector('.g-md-editor-component');
+
+                expect(
+                    container.querySelectorAll('.g-md-editor-component__announcer'),
+                ).toHaveLength(1);
+                expect(announcer.tagName).toBe('SPAN');
+                expect(announcer.getAttribute('role')).toBe('status');
+                expect(announcer.getAttribute('aria-live')).toBe('polite');
+                expect(announcer.textContent).toBe('');
+                expect(announcer.previousElementSibling).toBe(editorElement);
+                expect(announcer.closest('[role="button"], [contenteditable]')).toBeNull();
+            },
+        );
+
+        describe.each([
+            {lang: 'en', focus: focusMessage, indent: indentMessage},
+            {
+                lang: 'ru',
+                focus: 'Включена навигация по Tab',
+                indent: 'Выключена навигация по Tab',
+            },
+        ] as const)('in $lang', ({lang, focus, indent}) => {
+            it.each(['wysiwyg', 'markup'] as const)(
+                'should announce API and keyboard changes in %s mode',
+                async (mode) => {
+                    configure({lang});
+                    renderEditor({options: {initial: {mode, toolbarVisible: false}}});
+                    const announcer = getAnnouncer();
+
+                    act(() => testEditor.setTabFocusMode('focus'));
+                    expect(announcer.textContent).toBe(focus);
+
+                    await act(async () => pressShortcut('m', 'KeyM'));
+
+                    expect(testEditor.tabFocusMode).toBe('indent');
+                    expect(getAnnouncer()).toBe(announcer);
+                    expect(announcer.textContent).toBe(indent);
+                },
+            );
+        });
+
+        it('should keep the live region across editor and preview mode changes with hidden settings', () => {
+            renderEditor({
+                options: {
+                    initial: {mode: 'wysiwyg', toolbarVisible: false},
+                    markupConfig: {renderPreview: () => <span data-qa="preview">Preview</span>},
+                },
+            });
+            const announcer = getAnnouncer();
+            act(() => testEditor.setTabFocusMode('focus'));
+
+            act(() => testEditor.setEditorMode('markup'));
+            expect(getAnnouncer()).toBe(announcer);
+            expect(announcer.textContent).toBe(focusMessage);
+
+            act(() => testEditor.changePreviewVisible(true));
+            expect(container.querySelector('[data-qa="preview"]')).not.toBeNull();
+            expect(getAnnouncer()).toBe(announcer);
+            expect(announcer.textContent).toBe(focusMessage);
+
+            act(() => testEditor.changePreviewVisible(false));
+            expect(container.querySelector('[data-qa="preview"]')).toBeNull();
+            expect(getAnnouncer()).toBe(announcer);
+            expect(announcer.textContent).toBe(focusMessage);
+        });
+
+        it('should leave the live region unchanged while editing or selecting the same Tab mode', async () => {
+            renderEditor({options: {initial: {mode: 'markup', toolbarVisible: false}}});
+            act(() => testEditor.setTabFocusMode('focus'));
+            const announcer = getAnnouncer();
+            const onMutation = vi.fn();
+            const observer = new MutationObserver(onMutation);
+            observer.observe(announcer, {childList: true, characterData: true, subtree: true});
+            onTestFinished(() => observer.disconnect());
+
+            await act(async () => {
+                testEditor.replace('Updated document');
+                testEditor.setTabFocusMode('focus');
+            });
+
+            expect(testEditor.getValue()).toBe('Updated document');
+            expect(getAnnouncer()).toBe(announcer);
+            expect(announcer.textContent).toBe(focusMessage);
+            expect(onMutation).not.toHaveBeenCalled();
+        });
+
+        it('should reset the announcement and unsubscribe when the editor instance changes', () => {
+            renderEditor({options: {initial: {toolbarVisible: false}}, deps: [1]});
+            const previousEditor = testEditor;
+            act(() => previousEditor.setTabFocusMode('focus'));
+            expect(getAnnouncer().textContent).toBe(focusMessage);
+            const off = vi.spyOn(previousEditor, 'off');
+
+            renderEditor({
+                options: {initial: {tabFocusMode: 'focus', toolbarVisible: false}},
+                deps: [2],
+            });
+
+            expect(testEditor).not.toBe(previousEditor);
+            expect(getAnnouncer().textContent).toBe('');
+            expect(off).toHaveBeenCalledWith('change-tab-focus-mode', expect.any(Function));
+
+            act(() => previousEditor.setTabFocusMode('indent'));
+            expect(testEditor.tabFocusMode).toBe('focus');
+            expect(getAnnouncer().textContent).toBe('');
+
+            act(() => testEditor.setTabFocusMode('indent'));
+            expect(getAnnouncer().textContent).toBe(indentMessage);
+        });
+    });
+
+    function getAnnouncer() {
+        const announcer = container.querySelector<HTMLSpanElement>(
+            'span.g-md-editor-component__announcer',
+        );
+        if (!announcer) throw new Error('Tab focus mode announcer is missing');
+        return announcer;
+    }
+
     function pressShortcut(key: string, code: string) {
         getContent().dispatchEvent(
             new KeyboardEvent('keydown', {

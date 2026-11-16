@@ -22,7 +22,9 @@ import {
 } from '@gravity-ui/markdown-editor';
 import type {ToolbarActionData} from '@gravity-ui/markdown-editor/_/bundle/Editor.js';
 import type {SettingItems} from '@gravity-ui/markdown-editor/_/bundle/settings/index.js';
+import {Action, formatter} from '@gravity-ui/markdown-editor/_/shortcuts/index.js';
 import type {Extension} from '@gravity-ui/markdown-editor/cm/state';
+import {EditorView} from '@gravity-ui/markdown-editor/cm/view';
 import {FoldingHeading} from '@gravity-ui/markdown-editor/extensions/additional/FoldingHeading/index.js';
 import {Mermaid} from '@gravity-ui/markdown-editor/extensions/additional/Mermaid/index.js';
 import {YfmHtmlBlock} from '@gravity-ui/markdown-editor/extensions/additional/YfmHtmlBlock/index.js';
@@ -39,6 +41,18 @@ import {updateLocation} from '../utils/location';
 
 import {PlaygroundLayout, b} from './PlaygroundLayout';
 import {SplitModePreviewLazy} from './SplitModePreviewLazy';
+
+const tabFocusShortcut =
+    formatter
+        .toView(Action.ToggleTabFocusMode)
+        ?.split('+')
+        .map((key) => key[0].toUpperCase() + key.slice(1))
+        .join('+')
+        .replace('Ctrl', 'Control') ?? '';
+const contentAttributes = {
+    'aria-description': `Press ${tabFocusShortcut} to toggle Tab navigation.`,
+    'aria-keyshortcuts': tabFocusShortcut,
+};
 
 const fileUploadHandler: FileUploadHandler = async (file) => {
     console.info('[Playground] Uploading file: ' + file.name);
@@ -261,6 +275,13 @@ export const Playground = memo<PlaygroundProps>((props) => {
                         table_ignoreSplittersInInlineMath: true,
                     },
                     ...wysiwygConfig?.extensionOptions,
+                    baseStyles: {
+                        ...wysiwygConfig?.extensionOptions?.baseStyles,
+                        attributes: {
+                            ...contentAttributes,
+                            ...wysiwygConfig?.extensionOptions?.baseStyles?.attributes,
+                        },
+                    },
                 },
             },
             md: {
@@ -289,7 +310,10 @@ export const Playground = memo<PlaygroundProps>((props) => {
             },
             markupConfig: {
                 parseHtmlOnPaste: true,
-                extensions: markupConfigExtensions,
+                extensions: [
+                    ...(markupConfigExtensions ?? []),
+                    EditorView.contentAttributes.of(contentAttributes),
+                ],
                 parseInsertedUrlAsImage,
                 renderPreview,
                 splitMode: splitModeOrientation,

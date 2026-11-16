@@ -8,6 +8,8 @@
   "settings_split-mode-hint": "Разделение редактора на два окна: предпросмотр и редактирование",
   "settings_tab-focus": "Навигация по Tab",
   "settings_tab-focus-hint": "Tab и Shift+Tab перемещают фокус между элементами страницы вместо выполнения команд редактора. Переключить режим: {{shortcut}}",
+  "tab-focus-mode_focus": "Включена навигация по Tab",
+  "tab-focus-mode_indent": "Выключена навигация по Tab",
   "split-mode-text": "Предпросмотр",
   "markup_placeholder": "Добавьте вашу разметку",
   "preview_label": "Предпросмотр",
