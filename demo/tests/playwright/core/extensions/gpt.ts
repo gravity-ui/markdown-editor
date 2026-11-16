@@ -1,4 +1,4 @@
-import type {Locator, Page} from '@playwright/test';
+import type {JSHandle, Locator, Page} from '@playwright/test';
 
 import {test as base, expect} from '../index';
 
@@ -24,6 +24,29 @@ export class GptPopup {
         this.applied = page.getByTestId('gpt-applied');
         this.completed = page.getByTestId('gpt-completed');
         this.updates = page.getByTestId('gpt-updates');
+    }
+    async startScrollTracking() {
+        return this.page.evaluateHandle(() => {
+            const positions = [window.scrollY];
+            const record = () => {
+                if (positions[positions.length - 1] !== window.scrollY)
+                    positions.push(window.scrollY);
+            };
+            window.addEventListener('scroll', record);
+            return {positions, stop: () => window.removeEventListener('scroll', record)};
+        });
+    }
+    async expectScrollUnchanged(trace: JSHandle<{positions: number[]; stop: () => void}>) {
+        const positions = await trace.evaluate(async (state) => {
+            // Include scroll events queued by focus and layout after opening the popup.
+            await new Promise<void>((resolve) => {
+                requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+            });
+            state.stop();
+            return state.positions;
+        });
+        await trace.dispose();
+        expect(positions).toEqual([positions[0]]);
     }
     async open() {
         await this.button.click();

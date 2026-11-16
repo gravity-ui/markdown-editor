@@ -65,6 +65,7 @@ test.describe('GPT', () => {
         await gpt.button.scrollIntoViewIfNeeded();
         const scrollY = await page.evaluate(() => window.scrollY);
         expect(scrollY).toBeGreaterThan(0);
+        const scrollTrace = await gpt.startScrollTracking();
         await gpt.open();
         await gpt.input.fill('draft');
         expect(await page.evaluate(() => window.scrollY)).toBe(scrollY);
@@ -73,6 +74,7 @@ test.describe('GPT', () => {
         expect(await page.evaluate(() => window.scrollY)).toBe(scrollY);
         await gpt.open();
         await expect(gpt.input).toHaveValue('');
+        await gpt.expectScrollUnchanged(scrollTrace);
     });
     test('should preserve scroll and reset on reopen @markup', async ({
         mount,
@@ -85,6 +87,7 @@ test.describe('GPT', () => {
         await gpt.button.scrollIntoViewIfNeeded();
         const scrollY = await page.evaluate(() => window.scrollY);
         expect(scrollY).toBeGreaterThan(0);
+        const scrollTrace = await gpt.startScrollTracking();
         await gpt.open();
         await gpt.input.fill('draft');
         expect(await page.evaluate(() => window.scrollY)).toBe(scrollY);
@@ -93,6 +96,7 @@ test.describe('GPT', () => {
         expect(await page.evaluate(() => window.scrollY)).toBe(scrollY);
         await gpt.open();
         await expect(gpt.input).toHaveValue('');
+        await gpt.expectScrollUnchanged(scrollTrace);
     });
     test('should recover from errors and constrain a long answer @wysiwyg', async ({
         mount,
