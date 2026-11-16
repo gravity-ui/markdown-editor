@@ -3,11 +3,16 @@ import {useEffect, useLayoutEffect, useRef} from 'react';
 import type {QAProps} from '@gravity-ui/uikit';
 
 import type {EditorInt} from './Editor';
+import {
+    type WysiwygContenteditableAttributes,
+    filterContenteditableAttributes,
+    wysiwygForbiddenAttributes,
+} from './contenteditable-attributes';
 
 export type WysiwygEditorComponentProps = QAProps & {
     className?: string;
     autofocus?: boolean;
-    contenteditableAttributes?: Record<string, string>;
+    contenteditableAttributes?: WysiwygContenteditableAttributes;
     editor: EditorInt;
     children?: React.ReactNode;
 };
@@ -27,7 +32,10 @@ export const WysiwygEditorComponent: React.FC<WysiwygEditorComponentProps> =
         useLayoutEffect(() => {
             if (view.isDestroyed) return;
             view.setProps({
-                attributes: contenteditableAttributes ?? {},
+                attributes: filterContenteditableAttributes(
+                    contenteditableAttributes,
+                    wysiwygForbiddenAttributes,
+                ),
             });
         }, [view, contenteditableAttributes]);
 

@@ -1,6 +1,7 @@
 import {StrictMode} from 'react';
 
-import {Prec} from '@codemirror/state';
+import {autocompletion, startCompletion} from '@codemirror/autocomplete';
+import {EditorState, type Extension, Prec} from '@codemirror/state';
 import {EditorView as CodeMirrorView} from '@codemirror/view';
 import {ThemeProvider, Toaster, ToasterProvider} from '@gravity-ui/uikit';
 import {type Root, createRoot} from 'react-dom/client';
@@ -47,7 +48,11 @@ describe('contenteditableAttributes', () => {
         vi.unstubAllGlobals();
     });
 
-    function createEditor(mode: MarkdownEditorMode, attributes: Record<string, string> = {}) {
+    function createEditor(
+        mode: MarkdownEditorMode,
+        attributes: Record<string, string> = {},
+        markupExtensions: Extension[] = [],
+    ) {
         const options: EditorOptions = {
             logger: new Logger2(),
             renderStorage: new ReactRenderStorage(),
@@ -58,7 +63,10 @@ describe('contenteditableAttributes', () => {
                 extensions: (builder) => builder.use(ZeroPreset, {baseStyles: {attributes}}),
             },
             markupConfig: {
-                extensions: [Prec.highest(CodeMirrorView.contentAttributes.of(attributes))],
+                extensions: [
+                    Prec.highest(CodeMirrorView.contentAttributes.of(attributes)),
+                    ...markupExtensions,
+                ],
                 renderPreview: () => <div>Preview content</div>,
             },
         };
@@ -82,7 +90,7 @@ describe('contenteditableAttributes', () => {
         return editor;
     }
 
-    function render(editor: EditorImpl, contenteditableAttributes?: ContenteditableAttributes) {
+    function render(editor: EditorImpl, attributes?: ContenteditableAttributes) {
         act(() => {
             root.render(
                 <ThemeProvider theme="light">
@@ -92,7 +100,7 @@ describe('contenteditableAttributes', () => {
                                 editor={editor}
                                 stickyToolbar={false}
                                 settingsVisible={false}
-                                contenteditableAttributes={contenteditableAttributes}
+                                contenteditableAttributes={attributes}
                             />
                         </StrictMode>
                     </ToasterProvider>
@@ -194,6 +202,225 @@ describe('contenteditableAttributes', () => {
 
             expect(getEditable(nextEditor).getAttribute('aria-label')).toBe('Description');
         });
+
+        it('should preserve editability when a shared attribute map contains a forbidden key', () => {
+            const editor = createEditor(mode);
+            const attributes: Record<string, string> = Object.freeze({
+                contenteditable: 'false',
+                'aria-invalid': 'true',
+            });
+
+            render(editor, attributes);
+
+            expect(getEditable(editor).getAttribute('contenteditable')).toBe('true');
+            expect(getEditable(editor).getAttribute('aria-invalid')).toBe('true');
+            expect(attributes).toEqual({contenteditable: 'false', 'aria-invalid': 'true'});
+        });
+
+        it('should apply own attributes without exposing inherited attributes on the input', () => {
+            const editor = createEditor(mode);
+            const attributes = Object.create(
+                {title: 'Inherited title', 'data-inherited': 'inherited'},
+                {'aria-label': {value: 'Own label', enumerable: true}},
+            ) as Record<string, string>;
+
+            render(editor, attributes);
+
+            const element = getEditable(editor);
+            expect(element.getAttribute('aria-label')).toBe('Own label');
+            expect(element.hasAttribute('title')).toBe(false);
+            expect(element.hasAttribute('data-inherited')).toBe(false);
+        });
+
+        it('should add consumer classes and styles while retaining configured classes', () => {
+            const editor = createEditor(mode, {class: 'configured-editor'});
+
+            render(editor, {class: 'consumer-editor', style: 'background-color: blue'});
+
+            const element = getEditable(editor);
+            expect(element.classList.contains('configured-editor')).toBe(true);
+            expect(element.classList.contains('consumer-editor')).toBe(true);
+            expect(element.style.backgroundColor).toBe('blue');
+        });
+
+        it('should apply flat attributes named after editor modes as ordinary strings', () => {
+            const editor = createEditor(mode);
+
+            render(editor, {wysiwyg: 'visual', markup: 'source', 'aria-label': 'Shared editor'});
+
+            const element = getEditable(editor);
+            expect(element.getAttribute('wysiwyg')).toBe('visual');
+            expect(element.getAttribute('markup')).toBe('source');
+            expect(element.getAttribute('aria-label')).toBe('Shared editor');
+        });
+
+        it('should apply the selected engine restrictions to a flat WYSIWYG attribute map', () => {
+            const editor = createEditor(mode);
+
+            render(editor, {
+                role: 'application',
+                'aria-multiline': 'false',
+                'aria-label': 'Shared editor',
+            });
+
+            const element = getEditable(editor);
+            expect(element.getAttribute('role')).toBe(
+                mode === 'wysiwyg' ? 'application' : 'textbox',
+            );
+            expect(element.getAttribute('aria-multiline')).toBe(
+                mode === 'wysiwyg' ? 'false' : 'true',
+            );
+            expect(element.getAttribute('aria-label')).toBe('Shared editor');
+        });
+
+        it('should remove stale overrides when switching between flat and paired attributes', () => {
+            const editor = createEditor(mode, {title: 'Configured title'});
+            const pair = {
+                wysiwyg: {title: 'Visual title', 'data-pair': 'visual'},
+                markup: {title: 'Markdown title', 'data-pair': 'markdown'},
+            };
+            render(editor, {title: 'Shared title', 'data-flat': 'shared'});
+            const element = getEditable(editor);
+
+            render(editor, pair);
+
+            expect(getEditable(editor)).toBe(element);
+            expect(element.getAttribute('title')).toBe(pair[mode].title);
+            expect(element.getAttribute('data-pair')).toBe(pair[mode]['data-pair']);
+            expect(element.hasAttribute('data-flat')).toBe(false);
+
+            render(editor, {'aria-label': 'Shared label'});
+
+            expect(element.getAttribute('title')).toBe('Configured title');
+            expect(element.hasAttribute('data-pair')).toBe(false);
+            expect(element.getAttribute('aria-label')).toBe('Shared label');
+
+            render(editor, pair);
+            render(editor);
+
+            expect(element.getAttribute('title')).toBe('Configured title');
+            expect(element.hasAttribute('data-pair')).toBe(false);
+            expect(element.hasAttribute('aria-label')).toBe(false);
+        });
+    });
+
+    it('should allow WYSIWYG attributes reserved for the Markdown engine', () => {
+        const editor = createEditor('wysiwyg');
+        const attributes = {
+            role: 'application',
+            'aria-multiline': 'false',
+            'aria-readonly': 'true',
+            'aria-autocomplete': 'none',
+            'aria-haspopup': 'dialog',
+            'aria-controls': 'consumer-popup',
+            'aria-activedescendant': 'consumer-option',
+        };
+
+        render(editor, attributes);
+
+        for (const [name, value] of Object.entries(attributes)) {
+            expect(getEditable(editor).getAttribute(name)).toBe(value);
+        }
+        expect(editor.wysiwygEditor.view.editable).toBe(true);
+    });
+
+    it('should preserve Markdown semantics and readonly state when attributes contain forbidden keys', () => {
+        const editor = createEditor('markup', {}, [EditorState.readOnly.of(true)]);
+        const attributes: Record<string, string> = Object.freeze({
+            contenteditable: 'false',
+            role: 'application',
+            'aria-multiline': 'false',
+            'aria-readonly': 'false',
+            'aria-invalid': 'true',
+        });
+
+        render(editor, {wysiwyg: {}, markup: attributes});
+
+        const element = getEditable(editor);
+        expect(element.getAttribute('contenteditable')).toBe('true');
+        expect(element.getAttribute('role')).toBe('textbox');
+        expect(element.getAttribute('aria-multiline')).toBe('true');
+        expect(element.getAttribute('aria-readonly')).toBe('true');
+        expect(element.getAttribute('aria-invalid')).toBe('true');
+        expect(editor.markupEditor.cm.state.readOnly).toBe(true);
+        expect(attributes.role).toBe('application');
+        expect(attributes['aria-readonly']).toBe('false');
+    });
+
+    it('should retain live Markdown completion attributes when consumer values conflict', async () => {
+        const editor = createEditor('markup', {}, [
+            autocompletion({
+                override: [(context) => ({from: context.pos, options: [{label: 'completion'}]})],
+            }),
+        ]);
+        const attributes: Record<string, string> = Object.freeze({
+            'aria-autocomplete': 'none',
+            'aria-haspopup': 'dialog',
+            'aria-controls': 'consumer-popup',
+            'aria-activedescendant': 'consumer-option',
+            'data-validation': 'valid',
+        });
+        render(editor, {wysiwyg: {}, markup: attributes});
+
+        await act(async () => {
+            startCompletion(editor.markupEditor.cm);
+            await vi.advanceTimersByTimeAsync(100);
+        });
+
+        const element = getEditable(editor);
+        const popupId = element.getAttribute('aria-controls');
+        const optionId = element.getAttribute('aria-activedescendant');
+        expect(element.getAttribute('aria-autocomplete')).toBe('list');
+        expect(element.getAttribute('aria-haspopup')).toBe('listbox');
+        expect(popupId).toMatch(/^cm-ac-/);
+        expect(optionId).toBe(`${popupId}-0`);
+        expect(document.getElementById(popupId ?? '')?.getAttribute('role')).toBe('listbox');
+        expect(document.getElementById(optionId ?? '')?.getAttribute('role')).toBe('option');
+        expect(element.getAttribute('data-validation')).toBe('valid');
+        expect(attributes['aria-controls']).toBe('consumer-popup');
+
+        render(editor);
+
+        expect(element.getAttribute('aria-controls')).toBe(popupId);
+        expect(element.getAttribute('aria-activedescendant')).toBe(optionId);
+        expect(element.hasAttribute('data-validation')).toBe(false);
+    });
+
+    it('should apply independent attributes when switching between editor modes', () => {
+        const editor = createEditor('wysiwyg');
+        const attributes: ContenteditableAttributes = {
+            wysiwyg: {
+                'aria-label': 'Visual editor',
+                'data-wysiwyg': 'active',
+            },
+            markup: {
+                'aria-label': 'Markdown editor',
+                'data-markup': 'active',
+            },
+        };
+        render(editor, attributes);
+        const wysiwygElement = getEditable(editor);
+        editor.markupEditor.getValue();
+
+        act(() => editor.setEditorMode('markup'));
+
+        const markupElement = getEditable(editor);
+        expect(markupElement.getAttribute('aria-label')).toBe('Markdown editor');
+        expect(markupElement.hasAttribute('data-wysiwyg')).toBe(false);
+        expect(wysiwygElement.getAttribute('aria-label')).toBe('Visual editor');
+
+        render(editor, {
+            ...attributes,
+            wysiwyg: {'aria-label': 'Updated visual editor'},
+        });
+        act(() => editor.setEditorMode('wysiwyg'));
+
+        expect(getEditable(editor)).toBe(wysiwygElement);
+        expect(wysiwygElement.getAttribute('aria-label')).toBe('Updated visual editor');
+        expect(wysiwygElement.hasAttribute('data-markup')).toBe(false);
+        expect(wysiwygElement.hasAttribute('data-wysiwyg')).toBe(false);
+        expect(markupElement.getAttribute('aria-label')).toBe('Markdown editor');
+        expect(markupElement.getAttribute('data-markup')).toBe('active');
     });
 
     it('should apply the current value when switching between editor modes', () => {

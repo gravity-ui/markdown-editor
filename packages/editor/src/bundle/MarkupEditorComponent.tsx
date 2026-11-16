@@ -6,11 +6,16 @@ import type {QAProps} from '@gravity-ui/uikit';
 import {inputAttributesCompartment} from '../markup/codemirror/input-attributes';
 
 import type {EditorInt} from './Editor';
+import {
+    type MarkupContenteditableAttributes,
+    filterContenteditableAttributes,
+    markupForbiddenAttributes,
+} from './contenteditable-attributes';
 
 export type MarkupEditorComponentProps = QAProps & {
     editor: EditorInt;
     autofocus?: boolean;
-    contenteditableAttributes?: Record<string, string>;
+    contenteditableAttributes?: MarkupContenteditableAttributes;
     className?: string;
     children?: React.ReactNode;
 };
@@ -30,7 +35,12 @@ export const MarkupEditorComponent: React.FC<MarkupEditorComponentProps> =
         useLayoutEffect(() => {
             view.dispatch({
                 effects: inputAttributesCompartment.reconfigure(
-                    EditorView.contentAttributes.of(contenteditableAttributes ?? {}),
+                    EditorView.contentAttributes.of(
+                        filterContenteditableAttributes(
+                            contenteditableAttributes,
+                            markupForbiddenAttributes,
+                        ),
+                    ),
                 ),
             });
         }, [view, contenteditableAttributes]);

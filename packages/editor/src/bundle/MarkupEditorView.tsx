@@ -10,6 +10,7 @@ import {useRenderTime} from '../react-utils/hooks';
 import type {EditorInt} from './Editor';
 import {MarkupEditorComponent} from './MarkupEditorComponent';
 import {ToolbarView} from './ToolbarView';
+import type {MarkupContenteditableAttributes} from './contenteditable-attributes';
 import {MarkupToolbarContextProvider} from './toolbar/markup/context';
 import type {MToolbarData, MToolbarItemData, ToolbarDisplay} from './toolbar/types';
 import type {MarkdownEditorSplitMode} from './types';
@@ -22,7 +23,7 @@ export type MarkupEditorViewProps = ClassNameProps &
     QAProps & {
         editor: EditorInt;
         autofocus?: boolean;
-        contenteditableAttributes?: Record<string, string>;
+        contenteditableAttributes?: MarkupContenteditableAttributes;
         toolbarConfig: MToolbarData;
         settingsVisible?: boolean;
         toolbarVisible?: boolean;

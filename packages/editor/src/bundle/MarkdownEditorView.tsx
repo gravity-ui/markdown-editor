@@ -25,6 +25,10 @@ import {HorizontalDrag} from './HorizontalDrag';
 import {MarkupEditorView} from './MarkupEditorView';
 import {SplitModeView} from './SplitModeView';
 import {WysiwygEditorView} from './WysiwygEditorView';
+import {
+    type ContenteditableAttributes,
+    resolveContenteditableAttributes,
+} from './contenteditable-attributes';
 import {useMarkdownEditorContext} from './context';
 import {cnEditorComponent} from './editor-classname';
 import type {MarkdownEditorInstance} from './editor-public-types';
@@ -215,7 +219,10 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                         {editorMode === 'wysiwyg' && (
                             <WysiwygEditorView
                                 editor={editor}
-                                contenteditableAttributes={contenteditableAttributes}
+                                contenteditableAttributes={resolveContenteditableAttributes(
+                                    contenteditableAttributes,
+                                    'wysiwyg',
+                                )}
                                 autofocus={autofocus}
                                 settingsVisible={areSettingsVisible}
                                 toolbarConfig={wysiwygToolbarConfig}
@@ -235,7 +242,10 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                         {editorMode === 'markup' && (
                             <MarkupEditorView
                                 editor={editor}
-                                contenteditableAttributes={contenteditableAttributes}
+                                contenteditableAttributes={resolveContenteditableAttributes(
+                                    contenteditableAttributes,
+                                    'markup',
+                                )}
                                 autofocus={autofocus}
                                 settingsVisible={areSettingsVisible}
                                 toolbarConfig={markupToolbarConfig}
@@ -271,13 +281,7 @@ EditorWrapper.displayName = 'EditorWrapper';
 type ViewProps = {
     editor?: MarkdownEditorInstance;
     autofocus?: boolean;
-    /**
-     * HTML attributes forwarded to the editable element in both modes.
-     * Attribute precedence and merging follow the active editor engine's rules.
-     * Omitted attributes fall back to the engine's configuration.
-     * Memoize this object with `useMemo` to avoid redundant editor updates.
-     */
-    contenteditableAttributes?: Record<string, string>;
+    contenteditableAttributes?: ContenteditableAttributes;
     // MAJOR: rename to settings
     /** @default true */
     settingsVisible?: boolean | SettingItems[];
