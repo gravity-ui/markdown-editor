@@ -1,5 +1,6 @@
 import {useLayoutEffect, useMemo} from 'react';
 
+import {createTabFocusModeExtension} from 'src/extensions/behavior/TabFocusMode';
 import {Logger2, globalLogger} from 'src/logger';
 import {ReactRenderStorage} from 'src/modules/react-renderer';
 import {DirectiveSyntaxContext} from 'src/utils/directive';
@@ -24,10 +25,30 @@ export function useMarkdownEditor(
         events,
         markupState: editorMarkupState,
         getInitialMarkup,
+        tabFocusMode,
     } = useMemo(() => {
         const logger = props.logger ?? new Logger2();
+        const {markupConfig = {}, wysiwygConfig = {}} = props;
+        const extraWysiwygExtensions = wysiwygConfig.extensions;
+        const extensionOptions = wysiwygConfig.extensionOptions;
+        const tabFocus = createTabFocusModeExtension({
+            defaultMode: props.initial?.tabFocusMode,
+        });
         const options: EditorOptions = {
             ...props,
+            markupConfig: {
+                ...markupConfig,
+                extensions: [tabFocus.markup, ...(markupConfig.extensions ?? [])],
+            },
+            wysiwygConfig: {
+                ...wysiwygConfig,
+                extensions: (builder) => {
+                    builder.use(tabFocus.wysiwyg);
+                    if (extraWysiwygExtensions) {
+                        builder.use(extraWysiwygExtensions, extensionOptions);
+                    }
+                },
+            },
             logger,
             preset: props.preset ?? 'full',
             renderStorage: new ReactRenderStorage(),
@@ -37,6 +58,7 @@ export function useMarkdownEditor(
         return {
             options,
             markupState,
+            tabFocusMode: tabFocus,
             getInitialMarkup: () => markupState.markup,
             events: new SafeEventEmitter<EditorEventMap>({
                 onError: (error) => {
@@ -55,8 +77,9 @@ export function useMarkdownEditor(
                 wysiwyg,
                 markup,
                 markupState: editorMarkupState,
+                tabFocusMode,
             }),
-        [editorOptions, events, wysiwyg, markup, editorMarkupState],
+        [editorOptions, events, wysiwyg, markup, editorMarkupState, tabFocusMode],
     );
 
     useLayoutEffect(() => {

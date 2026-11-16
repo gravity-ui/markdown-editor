@@ -12,6 +12,7 @@ import {
     type MarkupString,
     NumberInput,
     type RenderPreview,
+    type TabFocusMode,
     type ToolbarsPreset,
     type UseMarkdownEditorProps,
     type WysiwygPlaceholderOptions,
@@ -52,6 +53,7 @@ export type PlaygroundProps = {
     allowHTML?: boolean;
     settingsVisible?: boolean | SettingItems[];
     initialEditor?: MarkdownEditorMode;
+    initialTabFocusMode?: TabFocusMode;
     preserveEmptyRows?: boolean;
     breaks?: boolean;
     linkify?: boolean;
@@ -100,6 +102,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         initial,
         syncMarkupToUrl = true,
         initialEditor,
+        initialTabFocusMode,
         initialSplitModeEnabled,
         settingsVisible,
         allowHTML,
@@ -270,6 +273,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 markup: mdRaw,
                 mode: editorMode,
                 toolbarVisible: true,
+                tabFocusMode: initialTabFocusMode,
                 splitModeEnabled: initialSplitModeEnabled,
             },
             handlers: {
@@ -304,6 +308,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             renderPreview,
             experimental?.needToSetDimensionsForUploadedImages,
             initial,
+            initialTabFocusMode,
             experimental?.enableNewImageSizeCalculation,
             experimental?.needToSetDimensionsForUploadedImages,
             experimental?.beforeEditorModeChange,

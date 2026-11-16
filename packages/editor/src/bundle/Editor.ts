@@ -4,6 +4,11 @@ import type {EditorView as PMEditorView} from 'prosemirror-view';
 
 import type {CommonEditor, MarkupString} from 'src/common';
 import type {ActionStorage, EscapeConfig, WysiwygEditor} from 'src/core';
+import {
+    type TabFocusMode,
+    type TabFocusModeExtension,
+    createTabFocusModeExtension,
+} from 'src/extensions/behavior/TabFocusMode';
 import type {Logger2} from 'src/logger';
 import type {CodeEditor, Editor as MarkupEditor} from 'src/markup/editor';
 import type {ReactRenderStorage, RenderStorage} from 'src/modules/react-renderer';
@@ -34,6 +39,7 @@ export interface EditorInt
     readonly logger: Logger2.ILogger;
     readonly currentMode: EditorMode;
     readonly toolbarVisible: boolean;
+    readonly tabFocusMode: TabFocusMode;
     readonly splitModeEnabled: boolean;
     readonly splitMode: SplitMode;
     readonly preset: EditorPreset;
@@ -59,6 +65,8 @@ export interface EditorInt
 
     setEditorMode(mode: EditorMode, opts?: SetEditorModeOptions): void;
 
+    setTabFocusMode(mode: TabFocusMode): void;
+
     moveCursor(position: 'start' | 'end' | {line: number}): void;
 
     changeToolbarVisibility(opts: {visible: boolean}): void;
@@ -83,6 +91,7 @@ interface EditorRuntime {
     events: SafeEventEmitter<EventMapInt>;
     wysiwyg: ModeCore<WysiwygEditor>;
     markup: ModeCore<MarkupEditor>;
+    tabFocusMode?: TabFocusModeExtension;
 }
 
 /** @internal */
@@ -95,6 +104,8 @@ export class EditorImpl implements EditorInt {
     readonly #markupState: EditorMarkupState;
     #editorMode: EditorMode;
     #toolbarVisible: boolean;
+    readonly #tabFocusMode: TabFocusModeExtension;
+    readonly #unsubscribeTabFocusMode: () => void;
     #splitModeEnabled: boolean;
     #splitMode: SplitMode;
     #previewVisible: boolean;
@@ -189,6 +200,10 @@ export class EditorImpl implements EditorInt {
         return this.#toolbarVisible;
     }
 
+    get tabFocusMode(): TabFocusMode {
+        return this.#tabFocusMode.getMode();
+    }
+
     get splitModeEnabled(): boolean {
         return this.#splitModeEnabled;
     }
@@ -272,6 +287,13 @@ export class EditorImpl implements EditorInt {
         this.#logger = logger;
         this.#editorMode = initial.mode ?? 'wysiwyg';
         this.#toolbarVisible = initial.toolbarVisible ?? true;
+        this.#tabFocusMode =
+            runtime.tabFocusMode ??
+            createTabFocusModeExtension({defaultMode: initial.tabFocusMode});
+        this.#unsubscribeTabFocusMode = this.#tabFocusMode.subscribe(() => {
+            this.emit('rerender', null);
+            this.emit('change-tab-focus-mode', {mode: this.tabFocusMode});
+        });
         this.#splitMode = (markupConfig.renderPreview && markupConfig.splitMode) ?? false;
         this.#splitModeEnabled = (this.#splitMode && initial.splitModeEnabled) ?? false;
         this.#previewVisible = false;
@@ -331,12 +353,17 @@ export class EditorImpl implements EditorInt {
 
     destroy() {
         this.#destroyed = true;
+        this.#unsubscribeTabFocusMode();
         this.#wysiwygCore.destroy();
         this.#markupCore.destroy();
     }
 
     setEditorMode(mode: EditorMode, opts?: SetEditorModeOptions): void {
         this.changeEditorMode({mode, reason: 'manually', emit: opts?.emit});
+    }
+
+    setTabFocusMode(mode: TabFocusMode): void {
+        this.#tabFocusMode.setMode(mode);
     }
 
     changeEditorMode({emit = true, ...opts}: ChangeEditorModeOptions): void {

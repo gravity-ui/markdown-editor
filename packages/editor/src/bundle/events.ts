@@ -1,3 +1,5 @@
+import type {TabFocusMode} from '../extensions/behavior/TabFocusMode';
+
 import type {MarkdownEditorMode} from './preset-base-types';
 
 export type ToolbarActionData = {
@@ -15,6 +17,7 @@ export interface EventMap {
 
     'change-editor-mode': {mode: MarkdownEditorMode};
     'change-toolbar-visibility': {visible: boolean};
+    'change-tab-focus-mode': {mode: TabFocusMode};
     'change-split-mode-enabled': {splitModeEnabled: boolean};
     'change-preview-visible': {visible: boolean};
 }

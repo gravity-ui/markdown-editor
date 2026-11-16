@@ -4,6 +4,7 @@ import type {ReactNode} from 'react';
 
 import type {MarkupString} from '../common';
 import type {EscapeConfig, Extension, WysiwygContenteditableAttributes} from '../core';
+import type {TabFocusMode} from '../extensions/behavior/TabFocusMode';
 import type {Logger2} from '../logger';
 import type {CreateCodemirrorParams, YfmLangOptions} from '../markup';
 import type {MarkupContenteditableAttributes} from '../markup/codemirror/input-attributes';
@@ -61,6 +62,8 @@ export type MarkdownEditorInitialOptions = {
     mode?: MarkdownEditorMode;
     /** Default – true */
     toolbarVisible?: boolean;
+    /** Initial Tab behavior. Defaults to editor commands ('indent'). */
+    tabFocusMode?: TabFocusMode;
     /**
      * Default – false
      *

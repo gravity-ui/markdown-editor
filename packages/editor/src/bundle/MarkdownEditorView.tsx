@@ -14,6 +14,7 @@ import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 
 import type {ClassNameProps} from '../classname';
 import {contextualToolbarsKey} from '../extensions/behavior/ContextualToolbars';
+import type {TabFocusMode} from '../extensions/behavior/TabFocusMode';
 import {i18n} from '../i18n/bundle';
 import {globalLogger} from '../logger';
 import type {ToolbarsPreset} from '../modules/toolbars/types';
@@ -132,6 +133,12 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             },
             [editor],
         );
+        const onTabFocusModeChange = useCallback(
+            (mode: TabFocusMode) => {
+                editor.setTabFocusMode(mode);
+            },
+            [editor],
+        );
         const onSplitModeChange = useCallback(
             (splitModeEnabled: boolean) => {
                 editor.changeSplitModeEnabled({splitModeEnabled});
@@ -177,12 +184,14 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             onShowPreviewChange,
             onSplitModeChange,
             onToolbarVisibilityChange,
+            onTabFocusModeChange,
             renderPreviewButton: canRenderPreview,
             showPreview,
             splitMode: editor.splitMode,
             splitModeEnabled: editor.splitModeEnabled,
             stickyToolbar,
             toolbarVisibility: editor.toolbarVisible && !showPreview,
+            tabFocusMode: editor.tabFocusMode,
             disableMark: editor.mobile,
         };
 

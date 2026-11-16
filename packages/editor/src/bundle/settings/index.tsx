@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import {memo, useState} from 'react';
+import {memo, useId, useState} from 'react';
 
 import {Eye, Gear, LogoMarkdown} from '@gravity-ui/icons';
 import {
@@ -22,11 +22,13 @@ import {
 import {LAYOUT} from 'src/common/layout';
 
 import {type ClassNameProps, cn} from '../../classname';
+import type {TabFocusMode} from '../../extensions/behavior/TabFocusMode';
 import {i18n} from '../../i18n/bundle';
 import WysiwygModeIcon from '../../icons/WysiwygMode';
 import {noop} from '../../lodash';
 import {useTargetZIndex} from '../../react-utils';
 import {useBooleanState} from '../../react-utils/hooks';
+import {Action, createShortcutHandler, formatter} from '../../shortcuts';
 import {ToolbarTooltipDelay} from '../../toolbar';
 import {VERSION} from '../../version';
 import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
@@ -116,7 +118,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
     );
 });
 
-export type SettingItems = 'mode' | 'toolbar' | 'split';
+export type SettingItems = 'mode' | 'toolbar' | 'split' | 'tab-focus';
 
 type SettingsContentProps = ClassNameProps &
     QAProps & {
@@ -128,6 +130,8 @@ type SettingsContentProps = ClassNameProps &
         toolbarVisibility: boolean;
         settingsVisible?: SettingItems[] | boolean;
         onToolbarVisibilityChange: (val: boolean) => void;
+        tabFocusMode: TabFocusMode;
+        onTabFocusModeChange: (mode: TabFocusMode) => void;
         splitMode?: MarkdownEditorSplitMode;
         splitModeEnabled?: boolean;
         onSplitModeChange?: (splitModeEnabled: boolean) => void;
@@ -143,6 +147,8 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
     onModeChange,
     toolbarVisibility,
     onToolbarVisibilityChange,
+    tabFocusMode,
+    onTabFocusModeChange,
     onSplitModeChange,
     splitMode = false,
     splitModeEnabled,
@@ -157,9 +163,27 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
     const showModeSetting = isSettingsArray ? settingsVisible?.includes('mode') : true;
     const showToolbarSetting = isSettingsArray ? settingsVisible?.includes('toolbar') : true;
     const showSplitModeSetting = isSettingsArray ? settingsVisible?.includes('split') : true;
+    const showTabFocusSetting = isSettingsArray ? settingsVisible?.includes('tab-focus') : true;
+    const tabFocusShortcut =
+        formatter
+            .toView(Action.ToggleTabFocusMode)
+            ?.split('+')
+            .map((key) => key[0].toUpperCase() + key.slice(1))
+            .join('+') ?? '';
+    const toggleTabFocusMode = createShortcutHandler(Action.ToggleTabFocusMode, () => {
+        onTabFocusModeChange(tabFocusMode === 'focus' ? 'indent' : 'focus');
+    });
 
     return (
-        <div className={bContent(null, [className])} data-qa={qa}>
+        <div
+            className={bContent(null, [className])}
+            data-qa={qa}
+            onKeyDown={(event) => {
+                if (event.defaultPrevented || !toggleTabFocusMode(event.nativeEvent)) return;
+                event.preventDefault();
+                event.stopPropagation();
+            }}
+        >
             {showModeSetting && (
                 <Menu size="l" className={bContent('mode')}>
                     <Menu.Item
@@ -206,9 +230,10 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                     </Menu.Item>
                 </Menu>
             )}
-            {showModeSetting && (showSplitModeSetting || showToolbarSetting) && (
-                <div className={bContent('separator')} />
-            )}
+            {showModeSetting &&
+                (showSplitModeSetting || showToolbarSetting || showTabFocusSetting) && (
+                    <div className={bContent('separator')} />
+                )}
             {showToolbarSetting && !showPreview && (
                 <CheckboxWithHint
                     checked={toolbarVisibility}
@@ -228,6 +253,17 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                     hint={i18n('settings_split-mode-hint')}
                 />
             )}
+            {showTabFocusSetting && (
+                <CheckboxWithHint
+                    checked={tabFocusMode === 'focus'}
+                    className={bContent('tab-focus')}
+                    onUpdate={(checked) => onTabFocusModeChange(checked ? 'focus' : 'indent')}
+                    title={i18n('settings_tab-focus')}
+                    hint={i18n('settings_tab-focus-hint', {shortcut: tabFocusShortcut})}
+                    ariaKeyShortcuts={tabFocusShortcut.replace('Ctrl', 'Control')}
+                    qa="g-md-settings-tab-focus"
+                />
+            )}
             <Text variant="code-inline-1" className={bContent('version')}>
                 {VERSION}
             </Text>
@@ -242,6 +278,8 @@ type CheckboxWithHintProps = {
     title: string;
     hint: string;
     className: string;
+    ariaKeyShortcuts?: string;
+    qa?: string;
 };
 
 function CheckboxWithHint({
@@ -251,13 +289,29 @@ function CheckboxWithHint({
     title,
     hint,
     className,
+    ariaKeyShortcuts,
+    qa,
 }: CheckboxWithHintProps) {
+    const hintId = useId();
+
     return (
         <Box spacing={{px: 4, pt: 2, pb: 3}} className={bContent('check-box', className)}>
-            <Checkbox size="m" disabled={disabled} checked={checked} onUpdate={onUpdate}>
+            <Checkbox
+                size="m"
+                disabled={disabled}
+                checked={checked}
+                onUpdate={onUpdate}
+                controlProps={{'aria-describedby': hintId, 'aria-keyshortcuts': ariaKeyShortcuts}}
+                qa={qa}
+            >
                 {title}
             </Checkbox>
-            <Text as="div" color="secondary" className={bContent('check-hint', sp({mt: 1, pl: 6}))}>
+            <Text
+                as="div"
+                id={hintId}
+                color="secondary"
+                className={bContent('check-hint', sp({mt: 1, pl: 6}))}
+            >
                 {hint}
             </Text>
         </Box>

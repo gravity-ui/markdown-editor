@@ -1,6 +1,7 @@
 import type {EditorView as PMEditorView} from 'prosemirror-view';
 
 import type {CommonEditor, MarkupString} from '../common';
+import type {TabFocusMode} from '../extensions/behavior/TabFocusMode';
 import type {Logger2} from '../logger';
 import type {Receiver} from '../utils';
 
@@ -17,9 +18,12 @@ export interface MarkdownEditorInstance extends Receiver<EventMap>, CommonEditor
     readonly logger: Logger2.LogReceiver;
     readonly currentMode: MarkdownEditorMode;
     readonly toolbarVisible: boolean;
+    /** Whether Tab runs editor commands ('indent') or native focus navigation ('focus'). */
+    readonly tabFocusMode: TabFocusMode;
     /** Whether the full-screen markup preview is currently visible. */
     readonly previewVisible: boolean;
     setEditorMode(mode: MarkdownEditorMode, opts?: Pick<ChangeEditorModeOptions, 'emit'>): void;
+    setTabFocusMode(mode: TabFocusMode): void;
     moveCursor(position: 'start' | 'end' | {line: number}): void;
     insert(markup: MarkupString): void;
     /**
