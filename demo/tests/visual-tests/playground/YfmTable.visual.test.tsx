@@ -88,10 +88,10 @@ test.describe('YfmTable', () => {
     }) => {
         const initial = dd`
         #|
-        || one ||
-        || ^   ||
-        || ^   ||
-        || two ||
+        || side | one ||
+        || ^    | ^   ||
+        || ^    | ^   ||
+        || ^    | two ||
         |#
         `;
 
@@ -102,16 +102,16 @@ test.describe('YfmTable', () => {
         const table = await editor.yfmTable.getTable(editor.locators.contenteditable);
         const cells = await editor.yfmTable.getCells(table);
 
-        await editor.yfmTable.focusFirstCell(table);
+        await cells.nth(1).getByText('one', {exact: true}).click();
         await editor.press('End');
         await editor.press('ArrowDown');
         await editor.pressSequentially('!');
-        await expect(cells).toHaveText(['one', '!two']);
+        await expect(cells).toHaveText(['side', 'one', '!two']);
 
         await editor.press('Home');
         await editor.press('ArrowUp');
         await editor.pressSequentially('!');
-        await expect(cells).toHaveText(['!one', '!two']);
+        await expect(cells).toHaveText(['side', '!one', '!two']);
         expect(pageErrors).toEqual([]);
     });
 
