@@ -144,9 +144,10 @@ Project docs live in `docs/`. Read the relevant file before working on the corre
 
 ## Commits and pull requests
 
-- Base commit messages on the staged diff (amend: the full resulting diff against the original commit's parent), and PR titles/descriptions on the complete diff from the actual target branch's merge-base.
-- Use Conventional Commits for commit subjects and PR titles in concise English (B1): `type: result`. Use `!` only for an explained breaking change; keep body/footer only for essential context. Reuse the main commit's subject as the PR title when it describes the whole result.
-- For both commit subjects and PR titles, omit scope by default. Add it only to clarify a functional area within a package or shared by the changed packages. Never use a full or shortened package name or its directory name as scope. Omit scope for whole-package changes or changes across packages without a shared functional area.
+- Base commit messages on the staged diff (amend: the full resulting diff against the original commit's parent), and PR titles/descriptions on the full merge-base-to-head diff against the actual target branch.
+- Write commit subjects and PR titles in concise English (B1), using Conventional Commits: `type: result`. Keep body/footer for essential context. Reuse the main commit's subject as the PR title if it describes the whole result.
+- Omit scope by default in commits and PR titles. Use it only for a functional area within a package or shared across changed packages; omit it for whole-package changes. Never use a package name, its abbreviation or its directory as scope.
+- Explain breaking changes; prefer `feat!:` for breaking features. A `BREAKING CHANGE:` body/footer is allowed with or without `!`. Label PRs with breaking changes `breaking change`, and create or comment on an issue with the same label.
 - Publish new PRs as drafts.
-- Write PR descriptions in plain English (A2–B1): problem, resulting behavior, limitations, and what tests protect. Use a PR template if provided; a small PR needs only a few sentences. Omit successful checks covered by CI or required by AGENTS.md; report failures. Keep accurate titles/descriptions unchanged on later revisions.
-- Do not describe stack relationships or merge order in PR titles/descriptions; express the stack through base branches.
+- Write PR descriptions in plain English (A2–B1): problem, resulting behavior, limitations, and what tests protect. Reference related issues; use `Fixes #123` only when resolving them. Follow a PR template if provided; keep small PR descriptions to a few sentences. Omit successful checks covered by CI or required by AGENTS.md; report failures. Keep accurate titles/descriptions unchanged.
+- Use base branches for PR stacks. Omit stack relationships and merge order from titles/descriptions.
