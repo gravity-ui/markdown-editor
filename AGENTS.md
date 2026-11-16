@@ -1,62 +1,24 @@
 # AGENTS.md — gravity-ui/markdown-editor
 
+## Following existing code
+
+Where this file says nothing, copy the closest existing example in the repository: folder structure, file names, names of variables, functions, types and constants, class structure, React components and hooks, styles and CSS class names, i18n keys, exports, tests, demo stories. Add a new kind of file only if the repository already has one like it.
+
 ## Testing
 
-**Always run visual (Playwright) tests in Docker. Never run them locally.**
+**Always run visual (Playwright) tests in Docker. Never run them locally.** Their setup, commands and screenshot rules are in [`demo/AGENTS.md`](demo/AGENTS.md); read it before writing or running a visual test.
 
-Unit tests use Vitest. Import `describe`, `it`, `expect`, hooks, and `vi` explicitly from `vitest`; globals are disabled.
+Unit tests use Vitest and run with `pnpm test` from the root. Import `describe`, `it`, `expect`, hooks, and `vi` explicitly from `vitest`; globals are disabled.
 
 Test names (`it`, `test`, and parameterized cases) must start with `should `, followed by a base-form verb.
 
 Type contract tests follow the same rules in every package:
 
 - Store them in the package's `tests/types/` directory as `*.types.ts`.
-- Include them in the package's TypeScript configuration and check them with its `typecheck` command. Vitest does not run these files.
+- Check source API contracts with the package's `typecheck` command. Contracts that import the built package may use a separate TypeScript configuration and command, run after a fresh build as part of package tests and CI. This does not require a build in `typecheck`.
 - Use explicit type assignments to check result types, methods, and overloads.
 - Use `@ts-expect-error` for inputs or assignments that must be rejected. The check must fail if the expected error disappears.
 - Keep each contract check in a small function or type alias. These files are checked without execution; runtime behavior belongs in Vitest tests.
-
-### Prerequisites
-
-Before each visual test run, start the Podman machine:
-
-```bash
-podman machine start
-```
-
-> First-time setup (install Podman, init, configure resources) — see [`docs/how-to-add-visual-test.md#setup`](docs/how-to-add-visual-test.md#setup).
-
-### Commands
-
-| Task | Command |
-|------|---------|
-| Run visual (Playwright) tests | `pnpm run playwright:docker` (in `demo/`) |
-| Run specific test | `pnpm run playwright:docker --grep 'Test name'` |
-| Update all snapshots | `pnpm run playwright:docker:update` |
-| Update specific snapshot | `pnpm run playwright:docker:update --grep 'Test name'` |
-| Update only failed snapshots | `pnpm run playwright:docker:update --last-failed` |
-| Clear test cache | `pnpm run playwright:docker:clear` |
-| Show test report | `pnpm run playwright:docker:report` |
-| Run from root | `nx playwright:docker @markdown-editor/demo` |
-| Run unit tests | `pnpm test` (root) |
-
-For more details on filtering and updating snapshots see [`docs/how-to-add-visual-test.md`](docs/how-to-add-visual-test.md).
-
-### Never use
-
-- `playwright` (local)
-- `playwright:watch`
-- `playwright:headed`
-
-These run visual tests outside Docker and produce unreliable results.
-
-### Screenshots
-
-- A screenshot of editor content includes the toolbar.
-- The viewport width and height fit the content, without empty space around it.
-- A popup is captured in the real editor, in the test that opens it. A popup component mounted on its own misses changes in how the editor renders it.
-- Each mode gets its own `test()` with the mode tag (`@wysiwyg`, `@markup`) in its name, without `for` loops.
-- Locators and actions for a block live in its class in `demo/tests/playwright/core/editor.ts`, not in the test file.
 
 ## Code style
 
@@ -117,6 +79,44 @@ Published `@gravity-ui/*` packages live directly in `packages/`. The npm name st
 
 - The directory name is the npm name without the `@gravity-ui/markdown-` prefix.
 - Examples: `packages/editor-header-extension` and `packages/plugin-header`.
+
+## Package structure
+
+New editor packages split code by mode:
+
+```
+src/
+  wysiwyg/
+    extensions/
+      <Extension>/
+  markup/
+    commands/
+      <command>.ts
+  toolbar/
+    view/
+      items.ts
+    wysiwyg/
+      items.ts
+      presets.ts   # optional
+    markup/
+      items.ts
+      presets.ts   # optional
+    items.ts       # both modes
+    presets.ts     # both modes, optional
+```
+
+Exports in `package.json`:
+
+| Export | Contents |
+|--------|----------|
+| `.` | Toolbars, WYSIWYG and markup entities |
+| `./wysiwyg` | WYSIWYG entities only: extensions, toolbar items without `markup` |
+| `./wysiwyg/specs` | WYSIWYG specs only: spec extensions, constants |
+| `./wysiwyg/utils` | WYSIWYG utils, optional |
+| `./markup` | Markup entities only: CodeMirror commands and extensions, toolbar items without `wysiwyg` |
+| `./markup/utils` | Markup utils, optional |
+| `./wysiwyg/core` | WYSIWYG core, root editor package only |
+| `./pm/*`, `./cm/*` | ProseMirror and CodeMirror re-exports, root editor package only |
 
 ## Documentation
 

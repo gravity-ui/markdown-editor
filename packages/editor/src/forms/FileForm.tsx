@@ -108,7 +108,7 @@ export const FileForm: React.FC<FileFormProps> = ({
                                     placeholder="https://"
                                     autoFocus={autoFocus}
                                     className={b('input', {type: 'link'})}
-                                    onKeyPress={inputEnterKeyHandler}
+                                    onKeyDown={inputEnterKeyHandler}
                                 />
                             }
                         />
@@ -121,7 +121,7 @@ export const FileForm: React.FC<FileFormProps> = ({
                                     value={name}
                                     onUpdate={setName}
                                     className={b('input', {type: 'name'})}
-                                    onKeyPress={inputEnterKeyHandler}
+                                    onKeyDown={inputEnterKeyHandler}
                                 />
                             }
                         />

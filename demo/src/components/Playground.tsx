@@ -131,6 +131,9 @@ export const Playground = memo<PlaygroundProps>((props) => {
     const [editorMode, setEditorMode] = useState<MarkdownEditorMode>(initialEditor ?? 'wysiwyg');
     const [previewVisible, setPreviewVisible] = useState(false);
     const [mdRaw, setMdRaw] = useState<MarkupString>(initial || '');
+    const [headingEdit, setHeadingEdit] = useState<{line: number; source: MarkupString} | null>(
+        null,
+    );
 
     useEffect(() => {
         if (!syncMarkupToUrl) return undefined;
@@ -138,6 +141,10 @@ export const Playground = memo<PlaygroundProps>((props) => {
         return () => clearTimeout(timeout);
     }, [mdRaw, syncMarkupToUrl]);
 
+    const htmlRuntimeConfig = useMemo(
+        () => ({disabledModes: disabledHTMLBlockModes}),
+        [disabledHTMLBlockModes],
+    );
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md, directiveSyntax}) => (
             <SplitModePreviewLazy
@@ -153,10 +160,11 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     table_ignoreSplittersInInlineMath: true,
                 }}
                 disableMarkdownItAttrs={disableMarkdownItAttrs}
-                htmlRuntimeConfig={{disabledModes: disabledHTMLBlockModes}}
+                htmlRuntimeConfig={htmlRuntimeConfig}
+                onHeadingEdit={(line, source) => setHeadingEdit({line, source})}
             />
         ),
-        [sanitizeHtml, disabledHTMLBlockModes, disableMarkdownItAttrs],
+        [sanitizeHtml, htmlRuntimeConfig, disableMarkdownItAttrs],
     );
 
     const logger = useMemo(() => new Logger2().nested({env: 'playground'}), []);
@@ -302,6 +310,24 @@ export const Playground = memo<PlaygroundProps>((props) => {
             markupParseHtmlOnPaste,
         ],
     );
+
+    useEffect(() => {
+        if (!headingEdit) return;
+        if (headingEdit.source !== mdEditor.getValue()) {
+            setHeadingEdit(null);
+            return;
+        }
+        if (mdEditor.previewVisible) {
+            mdEditor.changePreviewVisible(false);
+            if (mdEditor.previewVisible) {
+                setHeadingEdit(null);
+            }
+            return;
+        }
+        mdEditor.moveCursor({line: headingEdit.line});
+        mdEditor.focus();
+        setHeadingEdit(null);
+    }, [headingEdit, mdEditor, previewVisible]);
 
     useEffect(() => {
         function onCancel() {

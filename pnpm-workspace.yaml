@@ -2,11 +2,14 @@ packages:
   - 'demo'
   - 'infra/*'
   - 'packages/*'
+  - 'packages/viewer/tests/react19'
 
 catalog:
   '@types/markdown-it': ^13.0.0
   '@types/node': ^24.12.2
+  esbuild: 0.28.2
   gulp-cli: 3.1.0
+  react-error-boundary: ^3.1.4
   react-use: ^17.3.2
 
 catalogs:
@@ -39,6 +42,7 @@ catalogs:
 
   testing:
     '@vitest/coverage-v8': 5.0.1
+    jsdom: 25.0.1
     vitest: 5.0.1
 
   linters:
@@ -59,5 +63,7 @@ catalogs:
     react: ^17.0.0
     react-dom: ^17.0.0
   react19:
+    '@types/react': ^19.0.0
+    '@types/react-dom': ^19.0.0
     react: ^19.0.0
     react-dom: ^19.0.0

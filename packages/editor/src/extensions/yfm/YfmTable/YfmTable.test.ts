@@ -147,6 +147,54 @@ nested table
         );
     });
 
+    it('should keep pasted header and body rows in their respective tables', () => {
+        const view = new EditorView(null, {
+            state: EditorState.create({schema}),
+            transformPasted: (slice) => fixPastedTableBodies(slice, schema),
+        });
+        const first =
+            '<table><thead><tr><th>A</th></tr><tr><th>B</th></tr></thead><tbody><tr><td>C</td></tr></tbody></table>';
+        const second =
+            '<table><thead><tr><th>D</th></tr></thead><tbody><tr><td>E</td></tr></tbody></table>';
+
+        try {
+            dispatchPasteEvent(view, {'text/html': first + second, 'text/plain': 'A B C D E'});
+            expect(view.state.doc.toJSON()).toEqual(
+                doc(
+                    table(
+                        {[YfmTableAttr.HeaderRows]: 2},
+                        tbody(tr(td(p('A'))), tr(td(p('B'))), tr(td(p('C')))),
+                    ),
+                    table({[YfmTableAttr.HeaderRows]: 1}, tbody(tr(td(p('D'))), tr(td(p('E'))))),
+                ).toJSON(),
+            );
+        } finally {
+            view.destroy();
+        }
+    });
+
+    it('should count only header rows belonging to the current table', () => {
+        parseDOM(
+            schema,
+            '<table><tbody><tr><td><p>A</p><table><thead><tr><th>B</th></tr></thead><tbody><tr><td>C</td></tr></tbody></table></td></tr></tbody></table>',
+            doc(
+                table(
+                    tbody(
+                        tr(
+                            td(
+                                p('A'),
+                                table(
+                                    {[YfmTableAttr.HeaderRows]: 1},
+                                    tbody(tr(td(p('B'))), tr(td(p('C')))),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        );
+    });
+
     it('should parse table from broken html', () => {
         const text = 'content in thead content in tbody';
         const html =

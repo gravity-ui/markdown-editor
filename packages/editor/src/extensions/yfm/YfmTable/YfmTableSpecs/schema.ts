@@ -35,7 +35,7 @@ export const getSchemaSpecs = (
                 getAttrs(dom) {
                     const attr = dom.getAttribute(YfmTableAttr.HeaderRows);
                     const fromDataAttr = attr ? Math.max(0, parseInt(attr, 10) || 0) : 0;
-                    const theadRows = dom.querySelectorAll('thead > tr').length;
+                    const theadRows = (dom as HTMLTableElement).tHead?.rows.length ?? 0;
                     return {[YfmTableAttr.HeaderRows]: fromDataAttr || theadRows};
                 },
             },
@@ -58,6 +58,13 @@ export const getSchemaSpecs = (
         isolating: true,
         definingAsContext: true,
         parseDOM: [
+            // The schema wraps rows in one body. Keep all direct HTML row groups in that body.
+            {
+                tag: 'table > thead, table > tbody',
+                context: `${YfmTableNode.Table}/|${YfmTableNode.Table}/${YfmTableNode.Body}/`,
+                priority: 201,
+                skip: true,
+            },
             {tag: 'tbody', priority: 200},
             {tag: 'thead', priority: 200},
         ],
