@@ -19,26 +19,21 @@ export const gptWidgetPlugin = <
 >(
     params: GptWidgetDecoViewParams<AnswerData, PromptData>,
 ): Plugin => {
-    const viewParams = {...params};
     return new Plugin({
         key: pluginKey,
         state: {
             init: () => DecorationSet.empty,
-            apply: (tr, decos) => {
+            apply: (tr, decos, previous) => {
                 const meta = tr.getMeta(pluginKey) as GptWidgetMeta | undefined;
-                const paramsGpt = viewParams;
 
                 if (meta?.action === 'show') {
-                    paramsGpt.disablePromptPresets = false;
+                    if (isEmptyGptPrompts(params, meta.from === meta.to))
+                        return DecorationSet.empty;
 
                     if (meta.to === meta.from) {
                         const spanElem = document.createElement('span');
                         spanElem.className = WIDGET_DECO_CLASS_NAME;
                         spanElem.textContent = ' ';
-
-                        paramsGpt.disablePromptPresets = true;
-
-                        if (isEmptyGptPrompts(paramsGpt, true)) return DecorationSet.empty;
 
                         return DecorationSet.create(tr.doc, [
                             Decoration.widget(meta.from, spanElem, {
@@ -46,8 +41,6 @@ export const gptWidgetPlugin = <
                             }),
                         ]);
                     }
-
-                    if (isEmptyGptPrompts(paramsGpt, false)) return DecorationSet.empty;
 
                     return DecorationSet.create(tr.doc, [
                         Decoration.inline(
@@ -59,13 +52,13 @@ export const gptWidgetPlugin = <
                     ]);
                 }
 
-                if (meta?.action === 'hide') {
-                    paramsGpt.disablePromptPresets = false;
-
+                if (
+                    meta?.action === 'hide' ||
+                    tr.docChanged ||
+                    !tr.selection.eq(previous.selection)
+                ) {
                     return DecorationSet.empty;
                 }
-
-                if (tr.docChanged || tr.selectionSet) return DecorationSet.empty;
 
                 return decos.map(tr.mapping, tr.doc);
             },
@@ -73,6 +66,6 @@ export const gptWidgetPlugin = <
         props: {
             decorations: (state) => pluginKey.getState(state),
         },
-        view: (view) => new GptWidgetDecoView(view, viewParams),
+        view: (view) => new GptWidgetDecoView(view, params),
     });
 };

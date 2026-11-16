@@ -2,29 +2,27 @@ import {ArrowRotateLeft, ThumbsDown, ThumbsUp} from '@gravity-ui/icons';
 import {ActionTooltip, Button, Icon} from '@gravity-ui/uikit';
 
 import {gptHotKeys} from '../../constants';
-import type {Feedback} from '../../hooks/useGptFeedback';
+import {useGptFeedback} from '../../hooks/useGptFeedback';
 import {i18n} from '../../i18n/dialog';
-import type {CommonAnswer, GptDialogProps} from '../../types';
+import type {CommonAnswer, GptDialogProps, GptRequestData} from '../../types';
 import {getDisableReplaceButtonText} from '../../utils';
 
 import {cnGptDialog} from './classname';
 
-type Props<A extends CommonAnswer> = {
+type Props<A extends CommonAnswer, P> = Pick<GptDialogProps<A, P>, 'onLike' | 'onDislike'> & {
     answer: A;
+    request: GptRequestData<P>;
     answerRender: GptDialogProps<A>['answerRender'];
     disablePromptPresets?: boolean;
     onRetry?: () => void;
     onReset: () => void;
     onApply: () => void;
     onClose?: () => void;
-    onLike?: () => void;
-    onDislike?: () => void;
-    feedback?: Feedback;
-    pendingFeedback?: Feedback;
 };
 
-export function GptAnswer<A extends CommonAnswer>({
+export function GptAnswer<A extends CommonAnswer, P>({
     answer,
+    request,
     answerRender,
     disablePromptPresets,
     onRetry,
@@ -33,9 +31,10 @@ export function GptAnswer<A extends CommonAnswer>({
     onClose,
     onLike,
     onDislike,
-    feedback,
-    pendingFeedback,
-}: Props<A>) {
+}: Props<A, P>) {
+    const {state, submit} = useGptFeedback(answer, request, onLike, onDislike);
+    const pending = state.status === 'loading';
+    const feedback = state.status === 'success' ? state.type : undefined;
     const replaceText = getDisableReplaceButtonText(disablePromptPresets);
     return (
         <>
@@ -70,10 +69,10 @@ export function GptAnswer<A extends CommonAnswer>({
                             <Button
                                 className={cnGptDialog('like-button')}
                                 aria-label={i18n('like')}
-                                onClick={onLike}
+                                onClick={() => submit('like')}
                                 selected={feedback === 'like'}
-                                loading={pendingFeedback === 'like'}
-                                disabled={Boolean(pendingFeedback)}
+                                loading={pending && state.type === 'like'}
+                                disabled={pending}
                             >
                                 <Icon data={ThumbsUp} size={16} />
                             </Button>
@@ -82,10 +81,10 @@ export function GptAnswer<A extends CommonAnswer>({
                             <Button
                                 className={cnGptDialog('dislike-button')}
                                 aria-label={i18n('dislike')}
-                                onClick={onDislike}
+                                onClick={() => submit('dislike')}
                                 selected={feedback === 'dislike'}
-                                loading={pendingFeedback === 'dislike'}
-                                disabled={Boolean(pendingFeedback)}
+                                loading={pending && state.type === 'dislike'}
+                                disabled={pending}
                             >
                                 <Icon data={ThumbsDown} size={16} />
                             </Button>

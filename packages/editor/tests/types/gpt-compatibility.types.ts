@@ -46,3 +46,8 @@ export function shouldRejectIncompatibleOptions(options: GptWidgetOptions<Answer
     // @ts-expect-error Answers must include the consumer's required fields.
     options.onTryAgain = async () => ({rawText: 'missing request id'});
 }
+
+export function shouldPreserveExtensionBuilderType(builder: Parameters<typeof gptExtension>[0]) {
+    const fullBuilder: ExtensionBuilder = builder;
+    return fullBuilder;
+}

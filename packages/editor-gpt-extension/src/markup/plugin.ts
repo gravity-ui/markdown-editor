@@ -1,4 +1,3 @@
-import {WidgetType} from '@codemirror/view';
 import {
     Decoration,
     type DecorationSet,
@@ -6,6 +5,7 @@ import {
     type PluginValue,
     ViewPlugin,
     type ViewUpdate,
+    WidgetType,
 } from '@codemirror/view';
 
 import {WIDGET_DECO_CLASS_NAME} from '../constants';
@@ -18,43 +18,26 @@ import {HideMarkupGptEffect, ShowMarkupGptEffect} from './effects';
 import {renderPopup} from './popup';
 
 class SpanWidget extends WidgetType {
-    private className = '';
-    private textContent = '';
-
-    constructor(className: string, textContent: string) {
-        super();
-        this.className = className;
-        this.textContent = textContent;
-    }
-
     toDOM() {
-        const spanElem = document.createElement('span');
-        spanElem.className = this.className;
-        spanElem.textContent = this.textContent;
-        return spanElem;
+        const span = document.createElement('span');
+        span.className = WIDGET_DECO_CLASS_NAME;
+        span.textContent = ' ';
+        return span;
     }
 }
 
-export function mGptPlugin<
-    AnswerData extends CommonAnswer = CommonAnswer,
-    PromptData extends unknown = unknown,
->(gptProps: GptWidgetOptions<AnswerData, PromptData>, host: MarkupGptHost) {
+export function mGptPlugin<A extends CommonAnswer = CommonAnswer, P = unknown>(
+    props: GptWidgetOptions<A, P>,
+    host: MarkupGptHost,
+) {
     return ViewPlugin.fromClass(
         class implements PluginValue {
             readonly _view: EditorView;
             readonly _renderItem;
-
-            _anchor: Element | null = null;
+            _anchor: HTMLElement | null = null;
             _sessionId = 0;
-
+            _selection: {from: number; to: number; markup: string} | null = null;
             decos: DecorationSet = Decoration.none;
-            disablePromptPresets = true;
-            markup: string | null = null;
-
-            selectedPosition = {
-                from: 0,
-                to: 0,
-            };
 
             constructor(view: EditorView) {
                 this._view = view;
@@ -64,130 +47,78 @@ export function mGptPlugin<
             }
 
             update(update: ViewUpdate) {
-                if (update.docChanged || update.selectionSet) {
-                    this.decos = Decoration.none;
-                    this._anchor = null;
-                    this._clearSelectedText();
-                    this._renderItem.rerender();
+                if (update.docChanged || !update.state.selection.eq(update.startState.selection)) {
+                    this._close();
                     return;
                 }
-
-                this.decos = this.decos.map(update.changes);
-
-                const {from, to} = update.state.selection.main;
-
-                this.selectedPosition.from = from;
-                this.selectedPosition.to = to;
-
-                for (const tr of update.transactions) {
-                    for (const eff of tr.effects) {
-                        if (eff.is(ShowMarkupGptEffect)) {
-                            this._sessionId++;
-                            this._setSelectedText(this._getDecorationText(update, from, to));
-
-                            if (from === to) {
-                                this.disablePromptPresets = true;
-
-                                if (isEmptyGptPrompts(gptProps, true)) return;
-
-                                const decorationWidget = Decoration.widget({
-                                    widget: new SpanWidget(WIDGET_DECO_CLASS_NAME, ' '),
-                                });
-
-                                this.decos = Decoration.set([decorationWidget.range(from)]);
-
-                                return;
-                            }
-
-                            this.disablePromptPresets = false;
-
-                            if (isEmptyGptPrompts(gptProps, false)) return;
-
-                            this.decos = Decoration.set([
-                                {
-                                    from,
-                                    to,
-                                    value: Decoration.mark({class: WIDGET_DECO_CLASS_NAME}),
-                                },
-                            ]);
-                        }
-
-                        if (eff.is(HideMarkupGptEffect)) {
-                            this.decos = Decoration.none;
-                        }
+                for (const transaction of update.transactions) {
+                    for (const effect of transaction.effects) {
+                        if (effect.is(ShowMarkupGptEffect)) this._open();
+                        if (effect.is(HideMarkupGptEffect)) this._close();
                     }
                 }
             }
 
             docViewUpdate() {
-                this._anchor = this._view.dom
-                    .getElementsByClassName(WIDGET_DECO_CLASS_NAME)
-                    .item(0);
+                this._anchor = this._view.dom.querySelector(`.${WIDGET_DECO_CLASS_NAME}`);
                 this._renderItem.rerender();
             }
 
             destroy() {
-                this._clearSelectedText();
+                this._selection = null;
                 this._renderItem.remove();
             }
 
-            renderPopup() {
-                if (!this._anchor || this.markup === null) {
-                    return null;
-                }
+            _open() {
+                const {from, to} = this._view.state.selection.main;
+                if (isEmptyGptPrompts(props, from === to)) return;
+                this._sessionId++;
+                this._selection = {from, to, markup: this._view.state.doc.sliceString(from, to)};
+                const decoration =
+                    from === to
+                        ? Decoration.widget({widget: new SpanWidget()})
+                        : Decoration.mark({class: WIDGET_DECO_CLASS_NAME});
+                this.decos = Decoration.set([decoration.range(from, to)]);
+            }
 
-                const sessionId = this._sessionId;
-                return renderPopup(this._anchor as HTMLElement, {
-                    ...gptProps,
+            _close() {
+                if (!this._selection) return;
+                this._selection = null;
+                this._anchor = null;
+                this.decos = Decoration.none;
+                this._renderItem.rerender();
+            }
+
+            renderPopup() {
+                const selection = this._selection;
+                if (!this._anchor || !selection) return null;
+                const isCurrent = () => this._selection === selection;
+                return renderPopup(this._anchor, {
+                    ...props,
                     sessionKey: this._sessionId,
-                    disablePromptPresets: this.disablePromptPresets,
+                    markup: selection.markup,
+                    disablePromptPresets: selection.from === selection.to,
                     onUpdate: (answer) => {
-                        if (sessionId === this._sessionId && this.decos.size)
-                            gptProps.onUpdate?.(answer);
+                        if (isCurrent()) props.onUpdate?.(answer);
                     },
                     onClose: () => {
-                        if (sessionId !== this._sessionId || !this.decos.size) return;
+                        if (!isCurrent()) return;
                         hideMarkupGpt(this._view);
                         this._view.contentDOM.focus({preventScroll: true});
-
-                        gptProps.onClose?.();
+                        props.onClose?.();
                     },
-                    markup: this.markup,
-                    onApplyResult: (changedMarkup) => {
-                        if (sessionId === this._sessionId) this._onApplyResult(changedMarkup);
+                    onApplyResult: (markup) => {
+                        if (!isCurrent()) return;
+                        this._view.dispatch({
+                            changes: {from: selection.from, to: selection.to, insert: markup},
+                            effects: HideMarkupGptEffect.of(null),
+                        });
+                        this._view.contentDOM.focus({preventScroll: true});
+                        props.onApplyResult?.(markup);
                     },
                 });
             }
-
-            _getDecorationText(update: ViewUpdate, from: number, to: number): string {
-                return update.state.doc.sliceString(from, to);
-            }
-
-            _clearSelectedText() {
-                this.markup = null;
-            }
-
-            _setSelectedText(str: string) {
-                this.markup = str;
-            }
-
-            _onApplyResult(changedMarkup: string) {
-                if (!this._anchor || !this.decos.size || this.markup === null) return;
-                const {from, to} = this.selectedPosition;
-                const changes = [{from, to, insert: changedMarkup}];
-
-                const transaction = this._view.state.update({
-                    changes,
-                    effects: [HideMarkupGptEffect.of(null)],
-                });
-
-                this._view.dispatch(transaction);
-                this._view.contentDOM.focus({preventScroll: true});
-                gptProps.onApplyResult?.(changedMarkup);
-            }
         },
-        {
-            decorations: (value) => value.decos,
-        },
+        {decorations: (value) => value.decos},
     );
 }

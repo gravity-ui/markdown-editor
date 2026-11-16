@@ -1,7 +1,7 @@
 import {Slice} from 'prosemirror-model';
 import type {EditorState, PluginView} from 'prosemirror-state';
 import {TextSelection} from 'prosemirror-state';
-import type {EditorView} from 'prosemirror-view';
+import type {Decoration, EditorView} from 'prosemirror-view';
 
 import {GptPopup} from '../../../components/GptPopup/GptPopup';
 import {WIDGET_DECO_CLASS_NAME, WIDGET_DECO_SPEC_FLAG} from '../../../constants';
@@ -34,28 +34,24 @@ export class GptWidgetDecoView<
     private readonly _renderer;
 
     private _decoElem: Element | null = null;
-    private _session: object | undefined;
     private _sessionId = 0;
-    private _params: GptWidgetDecoViewParams<AnswerData, PromptData>;
-    private _serializer: WysiwygGptHost['serializer'];
-    private _parser: WysiwygGptHost['parser'];
+    private readonly _params: GptWidgetDecoViewParams<AnswerData, PromptData>;
 
     constructor(view: EditorView, params: GptWidgetDecoViewParams<AnswerData, PromptData>) {
         this._view = view;
 
         this._params = params;
-        this._serializer = params.serializer;
-        this._parser = params.parser;
 
         this._renderer = params
             .getRenderer(view.state)
             .createItem('gpt-widget-view', this._render.bind(this));
     }
 
-    update(view: EditorView, _prevState: EditorState): void {
-        const spec = this._getCurrentDecoration()?.spec;
-        if (spec !== this._session) {
-            this._session = spec;
+    update(view: EditorView, previous: EditorState): void {
+        const decoration = this._getCurrentDecoration();
+        const previousDecoration = this._getCurrentDecoration(previous);
+        if (!decoration && !previousDecoration) return;
+        if (decoration?.spec !== previousDecoration?.spec) {
             this._sessionId++;
         }
 
@@ -66,24 +62,16 @@ export class GptWidgetDecoView<
     }
 
     destroy(): void {
-        this._resetState();
-
+        this._sessionId++;
+        this._decoElem = null;
         this._renderer.remove();
     }
 
-    private _resetState() {
-        this._decoElem = null;
-    }
-
     private _render() {
-        if (!this._decoElem) return null;
+        const decoration = this._getCurrentDecoration();
+        if (!this._decoElem || !decoration) return null;
 
-        const markup = this._getContentOfDecoration();
-
-        if (markup === undefined) {
-            return null;
-        }
-
+        const markup = this._getContentOfDecoration(decoration);
         const sessionId = this._sessionId;
         return (
             <GptPopup
@@ -92,7 +80,7 @@ export class GptWidgetDecoView<
                 anchorElement={this._decoElem}
                 answerRender={this._params.answerRender}
                 promptPresets={this._params.promptPresets}
-                disablePromptPresets={this._params.disablePromptPresets}
+                disablePromptPresets={decoration.from === decoration.to}
                 customPromptPlaceholder={this._params.customPromptPlaceholder}
                 disabledPromptPlaceholder={this._params.disabledPromptPlaceholder}
                 gptAlertProps={this._params.gptAlertProps}
@@ -108,17 +96,11 @@ export class GptWidgetDecoView<
                     if (sessionId === this._sessionId) this._onClose();
                 }}
                 onUpdate={(answer) => {
-                    if (sessionId === this._sessionId) this._onGptAnswerUpdate(answer);
+                    if (sessionId === this._sessionId) this._params.onUpdate?.(answer);
                 }}
             />
         );
     }
-
-    private _onGptAnswerUpdate: NonNullable<GptDialogProps<AnswerData, PromptData>['onUpdate']> = (
-        answer,
-    ) => {
-        if (this._getCurrentDecoration()) this._params.onUpdate?.(answer);
-    };
 
     private _onSubmit: NonNullable<GptDialogProps['onApplyResult']> = (answer: string) => {
         const deco = this._getCurrentDecoration();
@@ -127,7 +109,7 @@ export class GptWidgetDecoView<
 
         const {from, to} = deco;
 
-        const answerNode = this._parser.parse(answer);
+        const answerNode = this._params.parser.parse(answer);
 
         const tr = this._view.state.tr;
         const meta: GptWidgetMeta = {action: 'hide'};
@@ -141,8 +123,6 @@ export class GptWidgetDecoView<
         this._view.dom.focus({preventScroll: true});
 
         this._params.onApplyResult?.(answer);
-
-        this._resetState();
     };
 
     private _onClose = () => {
@@ -164,23 +144,15 @@ export class GptWidgetDecoView<
         this._view.dom.focus({preventScroll: true});
 
         this._params.onClose?.();
-
-        this._resetState();
     };
 
-    private _getContentOfDecoration(): string | undefined {
-        const deco = this._getCurrentDecoration();
-
-        if (!deco) return undefined;
-
+    private _getContentOfDecoration(deco: Decoration): string {
         const {from, to} = deco;
 
         try {
             const fragment = this._view.state.doc.slice(from, to, true).content;
             const document = this._view.state.doc.copy(fragment);
-            const yfmMarkup = this._serializer.serialize(document);
-
-            return yfmMarkup;
+            return this._params.serializer.serialize(document);
         } catch (error) {
             console.error(error);
 
@@ -188,15 +160,9 @@ export class GptWidgetDecoView<
         }
     }
 
-    private _getCurrentDecoration() {
-        return this._getPluginState()?.find(
-            undefined,
-            undefined,
-            (spec) => spec[WIDGET_DECO_SPEC_FLAG],
-        )[0];
-    }
-
-    private _getPluginState() {
-        return pluginKey.getState(this._view.state);
+    private _getCurrentDecoration(state = this._view.state) {
+        return pluginKey
+            .getState(state)
+            ?.find(undefined, undefined, (spec) => spec[WIDGET_DECO_SPEC_FLAG])[0];
     }
 }

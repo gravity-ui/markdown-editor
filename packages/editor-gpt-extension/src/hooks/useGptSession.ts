@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useReducer, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 
 import type {CommonAnswer, GptDialogProps, GptRequestData} from '../types';
 
@@ -7,32 +7,6 @@ export type SessionState<Answer, Prompt> =
     | {status: 'loading'; request: GptRequestData<Prompt>}
     | {status: 'success'; request: GptRequestData<Prompt>; answer: Answer}
     | {status: 'error'; request: GptRequestData<Prompt>};
-
-type SessionEvent<Answer, Prompt> =
-    | {type: 'start'; request: GptRequestData<Prompt>}
-    | {type: 'resolve'; request: GptRequestData<Prompt>; answer: Answer | undefined}
-    | {type: 'reject'; request: GptRequestData<Prompt>}
-    | {type: 'reset'};
-
-function sessionReducer<Answer, Prompt>(
-    _state: SessionState<Answer, Prompt>,
-    event: SessionEvent<Answer, Prompt>,
-): SessionState<Answer, Prompt> {
-    switch (event.type) {
-        case 'start':
-            return {status: 'loading', request: event.request};
-        case 'resolve':
-            return event.answer === undefined
-                ? {status: 'idle', request: event.request}
-                : {status: 'success', request: event.request, answer: event.answer};
-        case 'reject':
-            return {status: 'error', request: event.request};
-        case 'reset':
-            return {status: 'idle'};
-        default:
-            return _state;
-    }
-}
 
 export type SessionOptions<A extends CommonAnswer, P> = Pick<
     GptDialogProps<A, P>,
@@ -45,7 +19,7 @@ export type SessionOptions<A extends CommonAnswer, P> = Pick<
 >;
 
 export function useGptSession<A extends CommonAnswer, P>(options: SessionOptions<A, P>) {
-    const [state, dispatch] = useReducer(sessionReducer<A, P>, {status: 'idle'});
+    const [state, setState] = useState<SessionState<A, P>>({status: 'idle'});
     const [customPrompt, setCustomPrompt] = useState('');
     const revision = useRef(0);
     const mounted = useRef(true);
@@ -73,7 +47,7 @@ export function useGptSession<A extends CommonAnswer, P>(options: SessionOptions
             if (!handler || pending.current || !mounted.current) return;
             const current = ++revision.current;
             pending.current = true;
-            dispatch({type: 'start', request: data});
+            setState({status: 'loading', request: data});
             let answer: A | undefined;
             let failed = false;
             try {
@@ -83,29 +57,27 @@ export function useGptSession<A extends CommonAnswer, P>(options: SessionOptions
             }
             if (!mounted.current || current !== revision.current) return;
             pending.current = false;
-            dispatch(
-                failed ? {type: 'reject', request: data} : {type: 'resolve', request: data, answer},
-            );
+            if (failed) setState({status: 'error', request: data});
+            else if (answer === undefined) setState({status: 'idle', request: data});
+            else setState({status: 'success', request: data, answer});
             onUpdate?.(answer);
         },
         [onUpdate],
     );
 
-    const submitCustom = useCallback(() => {
-        if (!customPrompt.trim()) return undefined;
-        return request(onCustomPromptApply, {markup, customPrompt});
+    const submitCustom = useCallback(async () => {
+        if (customPrompt.trim()) await request(onCustomPromptApply, {markup, customPrompt});
     }, [customPrompt, markup, onCustomPromptApply, request]);
     const submitPreset = useCallback(
         (promptData?: P) => request(onPromptPresetClick, {markup, promptData}),
         [markup, onPromptPresetClick, request],
     );
-    const retry = useCallback(() => {
-        if (state.request) return request(onTryAgain, state.request);
-        return undefined;
+    const retry = useCallback(async () => {
+        if (state.request) await request(onTryAgain, state.request);
     }, [onTryAgain, request, state.request]);
     const reset = useCallback(() => {
         invalidate();
-        dispatch({type: 'reset'});
+        setState({status: 'idle'});
         setCustomPrompt('');
         onUpdate?.(undefined);
     }, [onUpdate, invalidate]);

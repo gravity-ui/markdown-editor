@@ -16,31 +16,23 @@ export function useGptFeedback<A extends CommonAnswer, P>(
     onDislike: GptDialogProps<A, P>['onDislike'],
 ) {
     const [state, setState] = useState<FeedbackState>({status: 'idle'});
-    const revision = useRef(0);
-    const pending = useRef(false);
-    const mounted = useRef(true);
-
-    const invalidate = useCallback(() => {
-        revision.current++;
-    }, []);
+    const session = useRef({active: true, pending: false});
 
     useEffect(() => {
-        mounted.current = true;
-        revision.current++;
-        pending.current = false;
+        const current = {active: true, pending: false};
+        session.current = current;
         setState({status: 'idle'});
         return () => {
-            mounted.current = false;
-            invalidate();
+            current.active = false;
         };
-    }, [answer, request, invalidate]);
+    }, [answer, request]);
 
     const submit = useCallback(
         async (type: Feedback) => {
             const handler = type === 'like' ? onLike : onDislike;
-            if (!answer || !request || !handler || pending.current || !mounted.current) return;
-            const current = ++revision.current;
-            pending.current = true;
+            const current = session.current;
+            if (!answer || !request || !handler || current.pending || !current.active) return;
+            current.pending = true;
             setState({status: 'loading', type});
             let failed = false;
             try {
@@ -48,8 +40,8 @@ export function useGptFeedback<A extends CommonAnswer, P>(
             } catch {
                 failed = true;
             }
-            if (!mounted.current || current !== revision.current) return;
-            pending.current = false;
+            if (!current.active) return;
+            current.pending = false;
             setState(failed ? {status: 'idle'} : {status: 'success', type});
         },
         [answer, request, onLike, onDislike],

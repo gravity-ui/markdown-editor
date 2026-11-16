@@ -49,14 +49,8 @@ export function isEmptyGptPrompts<
     AnswerData extends CommonAnswer = CommonAnswer,
     PromptData extends unknown = unknown,
 >(gptWidgetOptions: GptWidgetOptions<AnswerData, PromptData>, disablePromptPresets: boolean) {
-    if (disablePromptPresets && !gptWidgetOptions.onCustomPromptApply) return true;
-
-    if (
-        !disablePromptPresets &&
-        !gptWidgetOptions.promptPresets?.length &&
-        !gptWidgetOptions.onCustomPromptApply
-    )
-        return true;
-
-    return false;
+    return (
+        !gptWidgetOptions.onCustomPromptApply &&
+        (disablePromptPresets || !gptWidgetOptions.promptPresets?.length)
+    );
 }

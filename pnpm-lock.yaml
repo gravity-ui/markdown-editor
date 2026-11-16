@@ -778,9 +778,6 @@ importers:
       react-hotkeys-hook:
         specifier: ^4.5.0
         version: 4.5.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      react-use:
-        specifier: 'catalog:'
-        version: 17.4.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       tslib:
         specifier: catalog:ts
         version: 2.8.1

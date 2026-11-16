@@ -1,36 +1,16 @@
+import {createGptExtension, gptActionName} from '@gravity-ui/markdown-editor-gpt-extension/wysiwyg';
+
 import type {Action, ExtensionBuilder} from '../../../../core';
+import {getReactRendererFromState} from '../../../behavior/ReactRenderer';
 import type {CommonAnswer} from '../ErrorScreen/types';
-import {showGptWidget} from '../actions';
-import {runGpt} from '../commands';
-import {gptHotKeys} from '../constants';
-import {gptWidgetPlugin} from '../plugin';
 import type {GptWidgetOptions} from '../types';
 
 export type {GptWidgetOptions};
-export const gptActionName = 'addGptWidget';
-
-export const gptExtension = <
-    AnswerData extends CommonAnswer = CommonAnswer,
-    PromptData extends unknown = unknown,
->(
+export {gptActionName};
+export const gptExtension: <A extends CommonAnswer = CommonAnswer, P = unknown>(
     builder: ExtensionBuilder,
-    options: GptWidgetOptions<AnswerData, PromptData>,
-) => {
-    builder.addAction(gptActionName, showGptWidget);
-    builder.addPlugin(({serializer, markupParser}) => {
-        return gptWidgetPlugin({
-            ...options,
-            serializer,
-            parser: markupParser,
-        });
-    });
-    builder.addKeymap(
-        () => ({
-            [gptHotKeys.openGptKey]: runGpt,
-        }),
-        builder.Priority.VeryLow,
-    );
-};
+    options: GptWidgetOptions<A, P>,
+) => void = createGptExtension(getReactRendererFromState);
 
 declare global {
     namespace WysiwygEditor {

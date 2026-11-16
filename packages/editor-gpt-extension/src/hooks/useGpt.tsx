@@ -30,12 +30,6 @@ export function useGpt<A extends CommonAnswer = CommonAnswer, P = unknown>(props
     let mode: 'only-custom' | 'only-presets' | 'custom-and-presets' = 'custom-and-presets';
     if (props.onCustomPromptApply && !props.promptPresets?.length) mode = 'only-custom';
     else if (!props.onCustomPromptApply && props.promptPresets?.length) mode = 'only-presets';
-    const handleCustomPromptApply = useCallback(async () => {
-        await submitCustom();
-    }, [submitCustom]);
-    const handleTryAgain = useCallback(async () => {
-        await retry();
-    }, [retry]);
     return {
         answer,
         customPrompt: session.customPrompt,
@@ -49,9 +43,9 @@ export function useGpt<A extends CommonAnswer = CommonAnswer, P = unknown>(props
         handleDislike,
         handleCustomPromptUpdate: session.setCustomPrompt,
         handleCustomPromptKeyPress,
-        handleCustomPromptApply,
+        handleCustomPromptApply: submitCustom,
         handlePresetClick: session.submitPreset,
-        handleTryAgain,
+        handleTryAgain: retry,
         handleFreshStart: session.reset,
         handleApplyResult: session.apply,
         showTryAgainButton: Boolean(

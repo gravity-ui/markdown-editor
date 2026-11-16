@@ -1,7 +1,6 @@
-import {useCallback, useContext, useLayoutEffect, useRef, useState} from 'react';
+import {useContext, useLayoutEffect, useRef, useState} from 'react';
 
 import {gptHotKeys} from '../../constants';
-import {useGptFeedback} from '../../hooks/useGptFeedback';
 import {GptHotkeysContext, useGptHotKeys} from '../../hooks/useGptHotKeys';
 import {useGptSession} from '../../hooks/useGptSession';
 import type {CommonAnswer, GptDialogProps} from '../../types';
@@ -35,17 +34,15 @@ function DialogContent<A extends CommonAnswer, P>(props: GptDialogProps<A, P>) {
     const session = useGptSession(props);
     const {state} = session;
     const [alertDismissed, setAlertDismissed] = useState(false);
-    const onCloseAlert = useCallback(() => {
+    const onCloseAlert = () => {
         setAlertDismissed(true);
         props.gptAlertProps?.onCloseGptAlert?.();
-    }, [props.gptAlertProps]);
+    };
     const localPromptRef = useRef<HTMLInputElement>(null);
     const popupPromptRef = useContext(GptPromptRefContext);
     const promptRef = popupPromptRef ?? localPromptRef;
     const previousStatus = useRef<typeof state.status>();
     const containerRef = useContext(GptHotkeysContext);
-    const answer = state.status === 'success' ? state.answer : undefined;
-    const feedback = useGptFeedback(answer, state.request, props.onLike, props.onDislike);
 
     useLayoutEffect(() => {
         // The positioned popup owns initial focus. Later screen changes restore it here.
@@ -73,30 +70,15 @@ function DialogContent<A extends CommonAnswer, P>(props: GptDialogProps<A, P>) {
         return (
             <GptAnswer
                 answer={state.answer}
+                request={state.request}
                 answerRender={props.answerRender}
                 disablePromptPresets={props.disablePromptPresets}
                 onRetry={props.onTryAgain ? session.retry : undefined}
                 onReset={session.reset}
                 onApply={session.apply}
                 onClose={props.onClose}
-                onLike={
-                    props.onLike
-                        ? () => {
-                              feedback.submit('like');
-                          }
-                        : undefined
-                }
-                onDislike={
-                    props.onDislike
-                        ? () => {
-                              feedback.submit('dislike');
-                          }
-                        : undefined
-                }
-                feedback={feedback.state.status === 'success' ? feedback.state.type : undefined}
-                pendingFeedback={
-                    feedback.state.status === 'loading' ? feedback.state.type : undefined
-                }
+                onLike={props.onLike}
+                onDislike={props.onDislike}
             />
         );
     return (

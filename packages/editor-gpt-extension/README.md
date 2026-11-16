@@ -12,7 +12,7 @@ to work through compatibility adapters.
 - `./markup`: CodeMirror integration and markup toolbar items.
 - `./configure`: language configuration (`configure({lang: 'en' | 'ru'})`).
 - `./compatibility`: legacy editor adapters; not intended for new integrations.
-- `./styles/*`: stylesheet compatibility paths.
+- `./styles/*.css`: stylesheet compatibility paths.
 
 The package has no dependency on the editor. `createGptExtension(getRenderer)`
 receives a renderer accessor and registers the WYSIWYG action and plugin through
