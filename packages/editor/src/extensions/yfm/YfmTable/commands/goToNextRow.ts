@@ -1,3 +1,4 @@
+import type {ResolvedPos} from 'prosemirror-model';
 import {type Command, TextSelection} from 'prosemirror-state';
 
 import {atEndOfCell, findParentTableFromPos} from 'src/table-utils';
@@ -21,17 +22,26 @@ export function goToNextRow(dir: 'up' | 'down'): Command {
         const parentTable = findParentTableFromPos($cell);
         if (!parentTable) return false;
         const table = TableDesc.create(parentTable.node);
-        if (!table) return false;
+        let from: number | undefined;
+        if (table) {
+            const row = $cell.index(-1);
+            const column = table.rowsDesc[row].cells.findIndex(
+                (cell) => cell.type === 'real' && cell.offset === $cell.parentOffset,
+            );
+            if (column === -1) return false;
 
-        const row = $cell.index(-1);
-        const column = table.rowsDesc[row].cells.findIndex(
-            (cell) => cell.type === 'real' && cell.offset === $cell.parentOffset,
-        );
-        if (column === -1) return false;
+            const target = findNextCell(table, row, column, step);
+            if (target) from = parentTable.pos + target.from + 1;
+        } else {
+            if (!$cell.node(-1).children.some((row) => row.childCount === 0)) return false;
+            const $row = findNextNonEmptyRow($cell, step);
+            if ($row) {
+                if ($cell.index() >= $row.parent.childCount) return false;
+                from = $row.posAtIndex($cell.index());
+            }
+        }
 
-        const target = findNextCell(table, row, column, step);
-        if (target) {
-            const from = parentTable.pos + target.from + 1;
+        if (from !== undefined) {
             dispatch?.(
                 state.tr.setSelection(TextSelection.near(state.doc.resolve(from))).scrollIntoView(),
             );
@@ -64,6 +74,16 @@ function findNextCell(table: TableDesc, sourceRow: number, column: number, step:
 
         const target = table.getRelativePosForCell(targetRow, targetColumn);
         return target.type === 'real' ? target : null;
+    }
+    return null;
+}
+
+function findNextNonEmptyRow($cell: ResolvedPos, step: -1 | 1) {
+    const body = $cell.node(-1);
+    for (let row = $cell.index(-1) + step; row >= 0 && row < body.childCount; row += step) {
+        if (body.child(row).childCount) {
+            return $cell.doc.resolve($cell.posAtIndex(row, $cell.depth - 1) + 1);
+        }
     }
     return null;
 }

@@ -1,4 +1,4 @@
-import type {Node} from 'prosemirror-model';
+import {DOMParser, type Node} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 import {afterEach, describe, expect, it, vi} from 'vitest';
@@ -10,7 +10,7 @@ import {YfmTableSpecs} from '../YfmTableSpecs';
 
 import {goToNextRow} from './goToNextRow';
 
-const {markupParser} = new ExtensionsManager({
+const {markupParser, schema} = new ExtensionsManager({
     extensions: (builder) => builder.use(BaseSchemaSpecs, {}).use(YfmTableSpecs, {}),
 }).buildDeps();
 
@@ -79,6 +79,33 @@ it('should locate the current cell between shared nodes', () => {
     expect(tr.doc).toBe(doc);
 });
 
+it.each([
+    {dir: 'down', source: 'B', target: 'D'},
+    {dir: 'up', source: 'D', target: 'B'},
+] as const)('should skip empty rows $dir in a nested table', ({dir, source, target}) => {
+    const doc = parseHTML(`<table><tr><td><table>
+        <tr><td>A</td><td>B</td></tr>
+        <tr></tr><tr></tr>
+        <tr><td>C</td><td>D</td></tr>
+    </table></td></tr><tr><td>E</td></tr></table>`);
+    createView(doc, source);
+
+    const {res, tr} = move(dir);
+
+    expect(res).toBe(true);
+    expect(tr.selection.from).toBe(textPos(doc, target));
+    expect(tr.doc).toBe(doc);
+});
+
+it('should keep native movement when the next nonempty row has no matching cell', () => {
+    const doc = parseHTML(`<table>
+        <tr><td>A</td><td>B</td></tr><tr></tr><tr><td>C</td></tr>
+    </table>`);
+    createView(doc, 'B');
+
+    expect(move('down')).toStrictEqual({res: false, tr: undefined});
+});
+
 it('should keep native movement inside a textblock', () => {
     createView(markupParser.parse('#|\n|| A ||\n|| B ||\n|#'), 'A');
     vi.mocked(view.endOfTextblock).mockReturnValue(false);
@@ -86,9 +113,22 @@ it('should keep native movement inside a textblock', () => {
     expect(move('down')).toStrictEqual({res: false, tr: undefined});
 });
 
-it.each(['up', 'down'] as const)('should move %s outside the table at its edge', (dir) => {
-    const doc = markupParser.parse('#|\n|| A ||\n|#');
-    createView(doc, 'A');
+it('should keep native movement in a ragged table without empty rows', () => {
+    createView(parseHTML('<table><tr><td>A</td><td>B</td></tr><tr><td>C</td></tr></table>'), 'A');
+
+    expect(move('down')).toStrictEqual({res: false, tr: undefined});
+});
+
+it.each([
+    {dir: 'up', emptyRows: false},
+    {dir: 'down', emptyRows: false},
+    {dir: 'up', emptyRows: true},
+    {dir: 'down', emptyRows: true},
+] as const)('should move $dir outside the table with emptyRows=$emptyRows', ({dir, emptyRows}) => {
+    const doc = emptyRows
+        ? parseHTML('<table><tr><td>A</td></tr><tr></tr><tr><td>B</td></tr></table>')
+        : markupParser.parse('#|\n|| A ||\n|#');
+    createView(doc, emptyRows && dir === 'down' ? 'B' : 'A');
 
     const {res, tr} = move(dir);
 
@@ -123,4 +163,10 @@ function textPos(doc: Node, text: string) {
         if (node.text === text) result = pos;
     });
     return result;
+}
+
+function parseHTML(html: string) {
+    const element = document.createElement('div');
+    element.innerHTML = html;
+    return DOMParser.fromSchema(schema).parse(element);
 }
