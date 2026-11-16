@@ -141,3 +141,12 @@ Project docs live in `docs/`. Read the relevant file before working on the corre
 - Vitest (unit), Playwright (visual/e2e)
 - pnpm + nx monorepo
 - Podman / Docker for containerized test runs
+
+## Commits and pull requests
+
+- Base commit messages on the staged diff (amend: the full resulting diff against the original commit's parent), and PR titles/descriptions on the complete diff from the actual target branch's merge-base.
+- Use Conventional Commits for commit subjects and PR titles in concise English (B1): `type: result`. Use `!` only for an explained breaking change; keep body/footer only for essential context. Reuse the main commit's subject as the PR title when it describes the whole result.
+- For both commit subjects and PR titles, omit scope by default. Add it only to clarify a functional area within a package or shared by the changed packages. Never use a full or shortened package name or its directory name as scope. Omit scope for whole-package changes or changes across packages without a shared functional area.
+- Publish new PRs as drafts.
+- Write PR descriptions in plain English (A2–B1): problem, resulting behavior, limitations, and what tests protect. Use a PR template if provided; a small PR needs only a few sentences. Omit successful checks covered by CI or required by AGENTS.md; report failures. Keep accurate titles/descriptions unchanged on later revisions.
+- Do not describe stack relationships or merge order in PR titles/descriptions; express the stack through base branches.
