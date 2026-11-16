@@ -8,6 +8,7 @@ import {dispatchPasteEvent} from '../../../../tests/dispatch-event';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
+import {appendColumn, appendRow} from '../../../table-utils';
 import {TableDesc} from '../../../table-utils/table-desc';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {BlockquoteSpecs, blockquoteNodeName} from '../../markdown/Blockquote/BlockquoteSpecs';
@@ -342,6 +343,18 @@ nested table
         expect(() => parsed.check()).not.toThrow();
         expect(TableDesc.create(parsed.child(0))).toMatchObject({rows, cols});
         expect(parser.parse(serializer.serialize(parsed))).toMatchNode(parsed);
+    });
+
+    it.each([
+        {name: 'no rows', body: tbody()},
+        {name: 'no cells', body: tbody(tr())},
+    ])('should reject a table with $name in structural commands', ({body}) => {
+        const document = doc(table(body));
+        const state = EditorState.create({schema, doc: document});
+
+        expect(TableDesc.create(document.child(0))).toBeNull();
+        expect(appendRow(state, undefined, undefined, {tablePos: 0})).toBe(false);
+        expect(appendColumn(state, undefined, undefined, {tablePos: 0})).toBe(false);
     });
 
     it('should parse and serialize table with multiple rowspans', () => {

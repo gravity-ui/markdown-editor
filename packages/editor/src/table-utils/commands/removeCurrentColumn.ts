@@ -33,14 +33,16 @@ export const removeCurrentColumn: Command = (state, dispatch) => {
         return false; // TODO: remove first column
     }
 
+    const cells = [];
+    for (const row of findChildTableRows(parentTable.node)) {
+        const cell = findChildTableCells(row.node)[parentCellIndex];
+        if (!cell) return false;
+        cells.push({row, cell});
+    }
+
     if (dispatch) {
         let tr = state.tr;
-        const allRows = findChildTableRows(parentTable.node);
-
-        for (const row of allRows) {
-            const rowCells = findChildTableCells(row.node);
-            const cell = rowCells[parentCellIndex];
-
+        for (const {row, cell} of cells) {
             const from = parentTable.start + row.pos + cell.pos;
             const to = from + cell.node.nodeSize;
 
