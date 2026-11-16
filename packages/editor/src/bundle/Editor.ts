@@ -105,7 +105,6 @@ export class EditorImpl implements EditorInt {
     #editorMode: EditorMode;
     #toolbarVisible: boolean;
     readonly #tabFocusMode: TabFocusModeExtension;
-    readonly #unsubscribeTabFocusMode: () => void;
     #splitModeEnabled: boolean;
     #splitMode: SplitMode;
     #previewVisible: boolean;
@@ -290,10 +289,6 @@ export class EditorImpl implements EditorInt {
         this.#tabFocusMode =
             runtime.tabFocusMode ??
             createTabFocusModeExtension({defaultMode: initial.tabFocusMode});
-        this.#unsubscribeTabFocusMode = this.#tabFocusMode.subscribe(() => {
-            this.emit('rerender', null);
-            this.emit('change-tab-focus-mode', {mode: this.tabFocusMode});
-        });
         this.#splitMode = (markupConfig.renderPreview && markupConfig.splitMode) ?? false;
         this.#splitModeEnabled = (this.#splitMode && initial.splitModeEnabled) ?? false;
         this.#previewVisible = false;
@@ -353,7 +348,6 @@ export class EditorImpl implements EditorInt {
 
     destroy() {
         this.#destroyed = true;
-        this.#unsubscribeTabFocusMode();
         this.#wysiwygCore.destroy();
         this.#markupCore.destroy();
     }

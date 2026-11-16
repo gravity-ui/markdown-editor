@@ -28,11 +28,22 @@ export function useMarkdownEditor(
         tabFocusMode,
     } = useMemo(() => {
         const logger = props.logger ?? new Logger2();
+        const runtimeEvents = new SafeEventEmitter<EditorEventMap>({
+            onError: (error) => {
+                logger.error(error);
+                globalLogger.error(error);
+            },
+        });
         const {markupConfig = {}, wysiwygConfig = {}} = props;
         const extraWysiwygExtensions = wysiwygConfig.extensions;
         const extensionOptions = wysiwygConfig.extensionOptions;
         const tabFocus = createTabFocusModeExtension({
             defaultMode: props.initial?.tabFocusMode,
+        });
+        // This runtime bridge survives StrictMode's replay of view cleanup.
+        tabFocus.subscribe(() => {
+            runtimeEvents.emit('rerender', null);
+            runtimeEvents.emit('change-tab-focus-mode', {mode: tabFocus.getMode()});
         });
         const options: EditorOptions = {
             ...props,
@@ -60,12 +71,7 @@ export function useMarkdownEditor(
             markupState,
             tabFocusMode: tabFocus,
             getInitialMarkup: () => markupState.markup,
-            events: new SafeEventEmitter<EditorEventMap>({
-                onError: (error) => {
-                    logger.error(error);
-                    globalLogger.error(error);
-                },
-            }),
+            events: runtimeEvents,
         };
     }, deps);
     const wysiwyg = useWysiwygCore(editorOptions, events, getInitialMarkup);
