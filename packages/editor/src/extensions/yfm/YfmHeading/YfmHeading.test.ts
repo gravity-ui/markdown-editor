@@ -74,6 +74,13 @@ describe('Heading extension', () => {
         );
     });
 
+    it('should keep the space after bold in a heading with a custom id', () => {
+        same(
+            '## Open the **next** chapter {#chapter}',
+            doc(h2({[YfmHeadingAttr.Id]: 'chapter'}, 'Open the ', b('next'), ' chapter')),
+        );
+    });
+
     it('should parse few headings', () => {
         const markup = dd`
             # h1 {#one}
@@ -196,6 +203,22 @@ describe('Heading extension', () => {
                         'Head',
                         b('ing'),
                         'two',
+                    ),
+                ),
+            );
+        });
+
+        it('should keep the space after bold in a heading with a custom id', () => {
+            const markup = '## Open the **next** chapter {#chapter}';
+
+            same(
+                markup,
+                doc(
+                    h(
+                        {[YfmHeadingAttr.Level]: 2, [YfmHeadingAttr.Id]: 'chapter'},
+                        'Open the ',
+                        b('next'),
+                        ' chapter',
                     ),
                 ),
             );

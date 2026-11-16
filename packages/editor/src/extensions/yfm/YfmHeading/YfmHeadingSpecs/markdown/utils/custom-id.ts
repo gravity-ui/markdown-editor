@@ -25,15 +25,19 @@ export const getCustomIds = (content: string) => {
 
 export const removeCustomId = (content: string) => {
     if (CUSTOM_ID_REGEXP.test(content)) {
-        return content
-            .replace(CUSTOM_ID_REGEXP, (match) => {
-                if (match === CUSTOM_ID_EXCEPTION) {
-                    return match;
-                }
+        return (
+            content
+                .replace(CUSTOM_ID_REGEXP, (match) => {
+                    if (match === CUSTOM_ID_EXCEPTION) {
+                        return match;
+                    }
 
-                return '';
-            })
-            .trim();
+                    return '';
+                })
+                // The space after an inline mark is the start of the next text token.
+                // trim() would delete it together with "{#id}".
+                .trimEnd()
+        );
     }
 
     return content;
