@@ -20,6 +20,7 @@ import type {
     ToolbarItemData,
     ToolbarListButtonData,
 } from './types';
+import {useToolbarMenuNavigation} from './useToolbarMenuNavigation';
 
 import './ToolbarListButton.scss';
 
@@ -52,7 +53,7 @@ export function ToolbarListButton<E>({
     disableTooltip,
 }: ToolbarListButtonProps<E>) {
     const [anchorElement, setAnchorElement] = useElementState();
-    const [open, , hide, toggleOpen] = useBooleanState(false);
+    const [open, show, hide] = useBooleanState(false);
     const [popupItem, setPopupItem] = useState<ToolbarButtonPopupData<E>>();
     const zIndex = useTargetZIndex(LAYOUT.STICKY_TOOLBAR);
 
@@ -61,6 +62,15 @@ export function ToolbarListButton<E>({
     const everyDisabled = alwaysActive ? false : actionsState.every((item) => !item.enabled);
     const popupOpen = everyDisabled ? false : open;
     const shouldForceHide = open && !popupOpen;
+    const menuNavigation = useToolbarMenuNavigation({
+        open: popupOpen,
+        anchorElement,
+        show: () => {
+            setPopupItem(undefined);
+            show();
+        },
+        hide,
+    });
 
     useEffect(() => {
         if (shouldForceHide) {
@@ -97,8 +107,11 @@ export function ToolbarListButton<E>({
                 className={b({arrow: withArrow}, [className])}
                 onClick={() => {
                     if (popupItem) setPopupItem(undefined);
-                    else toggleOpen();
+                    else menuNavigation.onTriggerClick();
                 }}
+                onKeyDown={menuNavigation.onTriggerKeyDown}
+                aria-haspopup="menu"
+                aria-expanded={popupOpen}
                 disableTooltip={disableTooltip || popupOpen}
             >
                 {buttonContent}
@@ -107,9 +120,19 @@ export function ToolbarListButton<E>({
                 anchorElement={anchorElement}
                 open={popupOpen}
                 onOpenChange={hide}
+                initialFocus={menuNavigation.initialFocus}
+                returnFocus={menuNavigation.returnFocus}
+                onTransitionIn={menuNavigation.onTransitionIn}
                 zIndex={typeof zIndex === 'number' ? zIndex : undefined}
             >
-                <Menu size="l" className={b('menu')} qa={qaMenu} data-toolbar-menu-for={titleText}>
+                <Menu
+                    ref={menuNavigation.menuRef}
+                    size="l"
+                    className={b('menu')}
+                    qa={qaMenu}
+                    aria-label={titleText}
+                    data-toolbar-menu-for={titleText}
+                >
                     {data
                         .map((data, idx) => {
                             const {id, title, icon, hotkey, exec, hint, hintWhenDisabled, preview} =
@@ -130,7 +153,7 @@ export function ToolbarListButton<E>({
                                       : i18n('toolbar_action_disabled');
 
                             const handleClick = () => {
-                                hide();
+                                menuNavigation.closeMenu();
 
                                 if (isPopupItem(data)) {
                                     setPopupItem(data);
@@ -170,6 +193,7 @@ export function ToolbarListButton<E>({
                                                 extraProps={{
                                                     ...props,
                                                     'aria-label': titleText,
+                                                    'aria-disabled': disabled,
                                                 }}
                                             >
                                                 <div className={b('item')}>

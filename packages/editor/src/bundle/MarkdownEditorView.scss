@@ -32,6 +32,10 @@
         width: 100%;
     }
 
+    &__settings-wrapper {
+        order: 1;
+    }
+
     &__resizer {
         margin: 0 5px;
         &_horizontal {
