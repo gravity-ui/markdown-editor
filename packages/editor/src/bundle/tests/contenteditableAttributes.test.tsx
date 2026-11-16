@@ -426,6 +426,7 @@ describe('contenteditableAttributes', () => {
     it('should apply the current value when switching between editor modes', () => {
         const editor = createEditor('wysiwyg', {'aria-labelledby': 'editor-label'});
         render(editor, {'data-validation': 'pending'});
+        const initialValue = editor.getValue();
         const wysiwygElement = getEditable(editor);
         // Create the other engine before the current React renderer is replaced.
         editor.markupEditor.getValue();
@@ -447,12 +448,13 @@ describe('contenteditableAttributes', () => {
 
         expect(getEditable(editor)).toBe(markupElement);
         expect(markupElement.hasAttribute('data-validation')).toBe(false);
-        expect(editor.getValue()).toContain('Initial content');
+        expect(editor.getValue()).toBe(initialValue);
     });
 
     it('should apply props changed during preview when returning to the input', () => {
         const editor = createEditor('markup');
         render(editor, {title: 'Original title'});
+        const initialValue = editor.getValue();
         const element = getEditable(editor);
 
         act(() => editor.changePreviewVisible(true));
@@ -465,6 +467,6 @@ describe('contenteditableAttributes', () => {
         expect(container.contains(element)).toBe(true);
         expect(getEditable(editor)).toBe(element);
         expect(element.getAttribute('title')).toBe('Updated title');
-        expect(editor.getValue()).toContain('Initial content');
+        expect(editor.getValue()).toBe(initialValue);
     });
 });
