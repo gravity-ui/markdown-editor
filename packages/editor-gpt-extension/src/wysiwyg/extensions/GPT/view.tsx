@@ -1,26 +1,19 @@
-import {useCallback} from 'react';
-
-import {Popup} from '@gravity-ui/uikit';
-import type {PopupProps} from '@gravity-ui/uikit';
 import {Slice} from 'prosemirror-model';
 import type {EditorState, PluginView} from 'prosemirror-state';
 import {TextSelection} from 'prosemirror-state';
-import type {EditorView} from 'prosemirror-view';
-import {useMount} from 'react-use';
+import type {Decoration, EditorView} from 'prosemirror-view';
 
-import {cn} from '../../../classname';
-import type {CommonAnswer} from '../../../components/ErrorScreen/types';
-import {GptDialog} from '../../../components/GptDialog/GptDialog';
-import {WIDGET_DECO_CLASS_NAME, WIDGET_DECO_SPEC_FLAG, gptPopupPlacement} from '../../../constants';
+import {GptPopup} from '../../../components/GptPopup/GptPopup';
+import {WIDGET_DECO_CLASS_NAME, WIDGET_DECO_SPEC_FLAG} from '../../../constants';
 import type {WysiwygGptHost} from '../../../host';
-import type {GptDialogProps} from '../../../types';
+import type {CommonAnswer, GptDialogProps} from '../../../types';
 
 import type {GptWidgetMeta} from './plugin-key';
 import {pluginKey} from './plugin-key';
 
 import './view.scss';
 
-export const cnGptPopup = cn('gpt-popup');
+export {cnGptPopup} from '../../../components/GptPopup/GptPopup';
 
 export type GptWidgetDecoViewParams<
     AnswerData extends CommonAnswer = CommonAnswer,
@@ -41,35 +34,25 @@ export class GptWidgetDecoView<
     private readonly _renderer;
 
     private _decoElem: Element | null = null;
-    private _params: GptWidgetDecoViewParams<AnswerData, PromptData>;
-    private _serializer: WysiwygGptHost['serializer'];
-    private _parser: WysiwygGptHost['parser'];
-    private _confirmOpen: boolean;
+    private _sessionId = 0;
+    private readonly _params: GptWidgetDecoViewParams<AnswerData, PromptData>;
 
     constructor(view: EditorView, params: GptWidgetDecoViewParams<AnswerData, PromptData>) {
         this._view = view;
 
         this._params = params;
-        this._serializer = params.serializer;
-        this._parser = params.parser;
-        this._confirmOpen = false;
 
         this._renderer = params
             .getRenderer(view.state)
             .createItem('gpt-widget-view', this._render.bind(this));
     }
 
-    update(view: EditorView, prevState: EditorState): void {
-        const {state, dispatch} = view;
-
-        if (this._decoElem && !state.selection.eq(prevState.selection)) {
-            const transaction = state.tr;
-            const meta: GptWidgetMeta = {action: 'hide'};
-
-            dispatch(transaction.setMeta(pluginKey, meta));
-            this._view.focus();
-
-            return;
+    update(view: EditorView, previous: EditorState): void {
+        const decoration = this._getCurrentDecoration();
+        const previousDecoration = this._getCurrentDecoration(previous);
+        if (!decoration && !previousDecoration) return;
+        if (decoration?.spec !== previousDecoration?.spec) {
+            this._sessionId++;
         }
 
         const decoElements = Array.from(view.dom.querySelectorAll(`.${WIDGET_DECO_CLASS_NAME}`));
@@ -79,74 +62,54 @@ export class GptWidgetDecoView<
     }
 
     destroy(): void {
-        this._resetState();
-
+        this._sessionId++;
+        this._decoElem = null;
         this._renderer.remove();
     }
 
-    private _resetState() {
-        this._decoElem = null;
-        this._confirmOpen = false;
-    }
-
-    private _onConfirmCancel = () => {
-        this._confirmOpen = false;
-
-        this._renderer.rerender();
-    };
-
-    private _onConfirmOk = () => {
-        this._onClose();
-    };
-
     private _render() {
-        if (!this._decoElem) return null;
+        const decoration = this._getCurrentDecoration();
+        if (!this._decoElem || !decoration) return null;
 
-        const markup = this._getContentOfDecoration();
-
-        if (markup === undefined) {
-            return null;
-        }
-
+        const markup = this._getContentOfDecoration(decoration);
+        const sessionId = this._sessionId;
         return (
-            <Widget
+            <GptPopup
+                key={this._sessionId}
                 markup={markup}
                 anchorElement={this._decoElem}
                 answerRender={this._params.answerRender}
                 promptPresets={this._params.promptPresets}
-                disablePromptPresets={this._params.disablePromptPresets}
+                disablePromptPresets={decoration.from === decoration.to}
                 customPromptPlaceholder={this._params.customPromptPlaceholder}
                 disabledPromptPlaceholder={this._params.disabledPromptPlaceholder}
                 gptAlertProps={this._params.gptAlertProps}
-                onApplyResult={this._onSubmit}
+                onApplyResult={(answer) => {
+                    if (sessionId === this._sessionId) this._onSubmit(answer);
+                }}
                 onCustomPromptApply={this._params.onCustomPromptApply}
                 onPromptPresetClick={this._params.onPromptPresetClick}
                 onTryAgain={this._params.onTryAgain}
                 onLike={this._params.onLike}
                 onDislike={this._params.onDislike}
-                onClose={this._onClose}
-                onUpdate={this._onGptAnswerUpdate}
-                confirmOpen={this._confirmOpen}
-                onConfirmOk={this._onConfirmOk}
-                onConfirmCancel={this._onConfirmCancel}
+                onClose={() => {
+                    if (sessionId === this._sessionId) this._onClose();
+                }}
+                onUpdate={(answer) => {
+                    if (sessionId === this._sessionId) this._params.onUpdate?.(answer);
+                }}
             />
         );
     }
 
-    private _onGptAnswerUpdate: NonNullable<WidgetProps<AnswerData, PromptData>['onUpdate']> = (
-        answer,
-    ) => {
-        this._params.onUpdate?.(answer);
-    };
-
-    private _onSubmit: NonNullable<WidgetProps['onApplyResult']> = (answer: string) => {
+    private _onSubmit: NonNullable<GptDialogProps['onApplyResult']> = (answer: string) => {
         const deco = this._getCurrentDecoration();
 
         if (!deco) return;
 
         const {from, to} = deco;
 
-        const answerNode = this._parser.parse(answer);
+        const answerNode = this._params.parser.parse(answer);
 
         const tr = this._view.state.tr;
         const meta: GptWidgetMeta = {action: 'hide'};
@@ -157,13 +120,9 @@ export class GptWidgetDecoView<
 
         this._view.dispatch(tr);
 
-        setTimeout(() => {
-            this._view.focus();
-        }, 0);
+        this._view.dom.focus({preventScroll: true});
 
         this._params.onApplyResult?.(answer);
-
-        this._resetState();
     };
 
     private _onClose = () => {
@@ -182,28 +141,18 @@ export class GptWidgetDecoView<
 
         this._view.dispatch(tr);
 
-        setTimeout(() => {
-            this._view.focus();
-        }, 0);
+        this._view.dom.focus({preventScroll: true});
 
         this._params.onClose?.();
-
-        this._resetState();
     };
 
-    private _getContentOfDecoration(): string | undefined {
-        const deco = this._getCurrentDecoration();
-
-        if (!deco) return undefined;
-
+    private _getContentOfDecoration(deco: Decoration): string {
         const {from, to} = deco;
 
         try {
-            // FIXME: Verify and use Node instead of Fragment
             const fragment = this._view.state.doc.slice(from, to, true).content;
-            const yfmMarkup = this._serializer.serialize(fragment as any);
-
-            return yfmMarkup;
+            const document = this._view.state.doc.copy(fragment);
+            return this._params.serializer.serialize(document);
         } catch (error) {
             console.error(error);
 
@@ -211,99 +160,9 @@ export class GptWidgetDecoView<
         }
     }
 
-    private _getCurrentDecoration() {
-        return this._getPluginState()?.find(
-            undefined,
-            undefined,
-            (spec) => spec[WIDGET_DECO_SPEC_FLAG],
-        )[0];
+    private _getCurrentDecoration(state = this._view.state) {
+        return pluginKey
+            .getState(state)
+            ?.find(undefined, undefined, (spec) => spec[WIDGET_DECO_SPEC_FLAG])[0];
     }
-
-    private _getPluginState() {
-        return pluginKey.getState(this._view.state);
-    }
-}
-
-type WidgetProps<
-    AnswerData extends CommonAnswer = CommonAnswer,
-    PromptData extends unknown = unknown,
-> = Pick<PopupProps, 'anchorElement'> & {
-    markup: string;
-    onClose: () => void;
-    confirmOpen: boolean;
-    onConfirmOk: () => void;
-    onConfirmCancel: () => void;
-} & GptDialogProps<AnswerData, PromptData>;
-
-function Widget<
-    AnswerData extends CommonAnswer = CommonAnswer,
-    PromptData extends unknown = unknown,
->({
-    markup,
-    anchorElement,
-    answerRender,
-    promptPresets,
-    disablePromptPresets,
-    customPromptPlaceholder,
-    disabledPromptPlaceholder,
-    onCustomPromptApply,
-    onApplyResult,
-    onPromptPresetClick,
-    onTryAgain,
-    onLike,
-    onDislike,
-    onClose,
-    onUpdate,
-    gptAlertProps,
-}: WidgetProps<AnswerData, PromptData>) {
-    useMount(() => {
-        if (anchorElement && 'scrollIntoView' in anchorElement) {
-            anchorElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center',
-            });
-        }
-    });
-
-    const handleUpdate = useCallback(
-        (result?: AnswerData) => {
-            onUpdate?.(result);
-        },
-        [onUpdate],
-    );
-
-    return (
-        <>
-            <Popup
-                className={cnGptPopup()}
-                open
-                anchorElement={anchorElement}
-                placement={gptPopupPlacement}
-                onOpenChange={(open) => {
-                    if (!open) onClose();
-                }}
-                strategy="absolute"
-            >
-                <div className={cnGptPopup('content')}>
-                    <GptDialog
-                        markup={markup}
-                        answerRender={answerRender}
-                        promptPresets={promptPresets}
-                        disablePromptPresets={disablePromptPresets}
-                        customPromptPlaceholder={customPromptPlaceholder}
-                        disabledPromptPlaceholder={disabledPromptPlaceholder}
-                        onApplyResult={onApplyResult}
-                        onCustomPromptApply={onCustomPromptApply}
-                        onPromptPresetClick={onPromptPresetClick}
-                        onTryAgain={onTryAgain}
-                        onLike={onLike}
-                        onDislike={onDislike}
-                        onClose={onClose}
-                        onUpdate={handleUpdate}
-                        gptAlertProps={gptAlertProps}
-                    />
-                </div>
-            </Popup>
-        </>
-    );
 }

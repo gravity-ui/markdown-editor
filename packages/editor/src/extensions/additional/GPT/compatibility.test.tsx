@@ -41,4 +41,38 @@ describe('legacy GPT integration', () => {
         }
         expect(storage.getItems()).toHaveLength(0);
     });
+    it('should reject callbacks from a closed or replaced popup session', () => {
+        const storage = new ReactRenderStorage();
+        const onApplyResult = vi.fn();
+        const onUpdate = vi.fn();
+        const editor = new WysiwygEditor({
+            initialContent: 'original text',
+            extensions: (builder) =>
+                builder
+                    .use(BaseSchemaSpecs, {})
+                    .use(ReactRendererExtension, storage)
+                    .use(gptExtension, {
+                        answerRender: () => createElement('div'),
+                        onCustomPromptApply: async () => undefined,
+                        onApplyResult,
+                        onUpdate,
+                    }),
+        });
+        try {
+            editor.actions.addGptWidget.run({});
+            const oldPopup = storage.getItems()[0].render() as ReactElement<GptDialogProps>;
+            editor.view.dispatch(editor.view.state.tr.insertText('changed ', 1));
+            oldPopup.props.onApplyResult('stale');
+            oldPopup.props.onUpdate?.({rawText: 'stale'});
+            expect(editor.doc.textContent).toBe('changed original text');
+            editor.actions.addGptWidget.run({});
+            oldPopup.props.onApplyResult('stale after reopen');
+            oldPopup.props.onUpdate?.({rawText: 'stale after reopen'});
+            expect(editor.doc.textContent).toBe('changed original text');
+            expect(onApplyResult).not.toHaveBeenCalled();
+            expect(onUpdate).not.toHaveBeenCalled();
+        } finally {
+            editor.destroy();
+        }
+    });
 });

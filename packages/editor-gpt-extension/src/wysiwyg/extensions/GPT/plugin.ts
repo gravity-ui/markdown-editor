@@ -1,8 +1,8 @@
 import {Plugin} from 'prosemirror-state';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
-import type {CommonAnswer} from '../../../components/ErrorScreen/types';
 import {WIDGET_DECO_CLASS_NAME, WIDGET_DECO_SPEC_FLAG} from '../../../constants';
+import type {CommonAnswer} from '../../../types';
 import {isEmptyGptPrompts} from '../../../utils';
 
 import {pluginKey} from './plugin-key';
@@ -23,21 +23,17 @@ export const gptWidgetPlugin = <
         key: pluginKey,
         state: {
             init: () => DecorationSet.empty,
-            apply: (tr, decos) => {
+            apply: (tr, decos, previous) => {
                 const meta = tr.getMeta(pluginKey) as GptWidgetMeta | undefined;
-                const paramsGpt = params;
 
                 if (meta?.action === 'show') {
-                    paramsGpt.disablePromptPresets = false;
+                    if (isEmptyGptPrompts(params, meta.from === meta.to))
+                        return DecorationSet.empty;
 
                     if (meta.to === meta.from) {
                         const spanElem = document.createElement('span');
                         spanElem.className = WIDGET_DECO_CLASS_NAME;
                         spanElem.textContent = ' ';
-
-                        paramsGpt.disablePromptPresets = true;
-
-                        if (isEmptyGptPrompts(paramsGpt, true)) return DecorationSet.empty;
 
                         return DecorationSet.create(tr.doc, [
                             Decoration.widget(meta.from, spanElem, {
@@ -45,8 +41,6 @@ export const gptWidgetPlugin = <
                             }),
                         ]);
                     }
-
-                    if (isEmptyGptPrompts(paramsGpt, false)) return DecorationSet.empty;
 
                     return DecorationSet.create(tr.doc, [
                         Decoration.inline(
@@ -58,9 +52,11 @@ export const gptWidgetPlugin = <
                     ]);
                 }
 
-                if (meta?.action === 'hide') {
-                    paramsGpt.disablePromptPresets = false;
-
+                if (
+                    meta?.action === 'hide' ||
+                    tr.docChanged ||
+                    !tr.selection.eq(previous.selection)
+                ) {
                     return DecorationSet.empty;
                 }
 

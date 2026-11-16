@@ -1,9 +1,8 @@
 import {keymap} from '@codemirror/view';
 
-import type {CommonAnswer} from '../components/ErrorScreen/types';
 import {gptHotKeys} from '../constants';
 import type {MarkupGptHost} from '../host';
-import type {GptWidgetOptions} from '../types';
+import type {CommonAnswer, GptWidgetOptions} from '../types';
 
 import {runMarkupGpt} from './commands/gpt';
 import {mGptPlugin} from './plugin';

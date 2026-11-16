@@ -1,7 +1,10 @@
 import {createElement} from 'react';
 
 import type {Extension} from '@codemirror/state';
-import type {GptWidgetOptions as PackageOptions} from '@gravity-ui/markdown-editor-gpt-extension';
+import {
+    type GptWidgetOptions as PackageOptions,
+    createGptExtension,
+} from '@gravity-ui/markdown-editor-gpt-extension';
 
 import {
     type ExtensionBuilder,
@@ -11,6 +14,7 @@ import {
     mGptToolbarItem,
     wGptItemData,
 } from '../../src';
+import {getReactRendererFromState} from '../../src/react-renderer';
 
 type Answer = {rawText: string; requestId: string};
 type Prompt = {scenario: 'correct'};
@@ -31,6 +35,7 @@ export function shouldPreserveLegacyGptOptionsAndEntryPoints(builder: ExtensionB
     const packageOptions: PackageOptions<Answer, Prompt> = options;
     const legacyOptions: GptWidgetOptions<Answer, Prompt> = packageOptions;
     gptExtension(builder, legacyOptions);
+    createGptExtension(getReactRendererFromState)(builder, packageOptions);
     const extensions: Extension = mGptExtension(legacyOptions);
     return {extensions, mGptToolbarItem, wGptItemData};
 }
@@ -40,4 +45,9 @@ export function shouldRejectIncompatibleOptions(options: GptWidgetOptions<Answer
     options.promptPresets = [{key: 'wrong', display: 'Wrong', data: 42}];
     // @ts-expect-error Answers must include the consumer's required fields.
     options.onTryAgain = async () => ({rawText: 'missing request id'});
+}
+
+export function shouldPreserveExtensionBuilderType(builder: Parameters<typeof gptExtension>[0]) {
+    const fullBuilder: ExtensionBuilder = builder;
+    return fullBuilder;
 }

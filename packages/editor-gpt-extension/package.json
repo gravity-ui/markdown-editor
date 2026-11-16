@@ -87,7 +87,7 @@
         "default": "./build/cjs/configure.js"
       }
     },
-    "./styles/*": "./build/esm/*"
+    "./styles/*.css": "./build/esm/*.css"
   },
   "main": "build/cjs/index.js",
   "module": "build/esm/index.js",
@@ -103,7 +103,7 @@
     "lodash": "^4.18.1",
     "react-hotkeys-hook": "^4.5.0",
     "tslib": "catalog:ts",
-    "react-use": "catalog:"
+    "@floating-ui/react": "^0.27.16"
   },
   "devDependencies": {
     "@gravity-ui/uikit": "catalog:peer-gravity",

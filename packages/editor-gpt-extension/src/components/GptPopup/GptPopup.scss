@@ -1,0 +1,27 @@
+.g-md-gpt-widget-deco {
+    background-color: var(--g-color-base-info-light-hover);
+}
+
+.g-md-gpt-popup {
+    --layer-navigation-bar: 900;
+    pointer-events: initial;
+
+    &[class] {
+        border-radius: var(--g-spacing-2);
+    }
+
+    &__content {
+        overflow: auto;
+
+        box-sizing: border-box;
+        width: min(720px, calc(100vw - 32px));
+        max-height: min(var(--gpt-popup-max-height, 100vh), calc(100vh - 32px));
+        padding: var(--g-spacing-3);
+
+        pointer-events: all;
+
+        box-shadow:
+            -8px 2px 16px -4px var(--g-color-private-purple-150),
+            8px 2px 16px -4px var(--g-color-private-blue-150);
+    }
+}

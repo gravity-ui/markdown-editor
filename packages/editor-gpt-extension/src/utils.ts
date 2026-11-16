@@ -2,9 +2,8 @@ import type React from 'react';
 
 import type {AlertProps} from '@gravity-ui/uikit';
 
-import type {CommonAnswer} from './components/ErrorScreen/types';
 import {i18n} from './i18n/dialog/index';
-import type {GptDialogProps, GptWidgetOptions} from './types';
+import type {CommonAnswer, GptDialogProps, GptWidgetOptions} from './types';
 
 type CombinedKeyboardEvent = KeyboardEvent | React.KeyboardEvent;
 
@@ -50,14 +49,8 @@ export function isEmptyGptPrompts<
     AnswerData extends CommonAnswer = CommonAnswer,
     PromptData extends unknown = unknown,
 >(gptWidgetOptions: GptWidgetOptions<AnswerData, PromptData>, disablePromptPresets: boolean) {
-    if (disablePromptPresets && !gptWidgetOptions.onCustomPromptApply) return true;
-
-    if (
-        !disablePromptPresets &&
-        !gptWidgetOptions.promptPresets?.length &&
-        !gptWidgetOptions.onCustomPromptApply
-    )
-        return true;
-
-    return false;
+    return (
+        !gptWidgetOptions.onCustomPromptApply &&
+        (disablePromptPresets || !gptWidgetOptions.promptPresets?.length)
+    );
 }
