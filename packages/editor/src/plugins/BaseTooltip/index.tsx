@@ -183,6 +183,8 @@ export class BaseTooltipPluginView implements PluginView {
         const oldNode = this.currentNode;
         this.setCurrentNode(this.view.state.schema.nodes[this.nodeType.name]);
 
+        if (!oldNode && !this.currentNode) return;
+
         // Do not rerender if we have the same node in selection
         if (
             oldNode &&
