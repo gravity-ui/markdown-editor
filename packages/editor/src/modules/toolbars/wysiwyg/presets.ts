@@ -37,7 +37,6 @@ import {
     quoteItemView,
     redoItemView,
     sinkListItemView,
-    statusItemView,
     strikethroughItemView,
     tableItemView,
     tabsItemView,
@@ -76,7 +75,6 @@ import {
     quoteItemWysiwyg,
     redoItemWysiwyg,
     sinkListItemWysiwyg,
-    statusItemWysiwyg,
     strikethroughItemWysiwyg,
     tableItemWysiwyg,
     tabsItemWysiwyg,
@@ -446,10 +444,6 @@ const full: ToolbarsPreset = {
             view: emojiItemView,
             wysiwyg: emojiItemWysiwyg,
         },
-        [Action.status]: {
-            view: statusItemView,
-            wysiwyg: statusItemWysiwyg,
-        },
     },
     orders: {
         ...yfm.orders,
@@ -491,7 +485,6 @@ const full: ToolbarsPreset = {
                 Action.emoji,
                 Action.file,
                 Action.tabs,
-                Action.status,
             ],
         ],
         [Toolbar.wysiwygMain]: [
@@ -529,7 +522,7 @@ const full: ToolbarsPreset = {
                     items: [Action.codeInline, Action.codeBlock],
                 },
             ],
-            [Action.image, Action.file, Action.table, Action.checkbox, Action.status],
+            [Action.image, Action.file, Action.table, Action.checkbox],
         ],
         [Toolbar.wysiwygHidden]: [[Action.horizontalRule, Action.emoji, Action.tabs]],
     },

@@ -1,0 +1,1 @@
+export {removeEmptyLabelPlugin} from './plugin';

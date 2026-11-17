@@ -19,14 +19,17 @@ import sup from '@diplodoc/transform/lib/plugins/sup';
 import yfmTable from '@diplodoc/transform/lib/plugins/table';
 import type {YfmTablePluginOptions} from '@diplodoc/transform/lib/plugins/table/types';
 import video from '@diplodoc/transform/lib/plugins/video';
-import {type RenderPreviewParams, colorClassName, statusPlugin} from '@gravity-ui/markdown-editor';
+import {type RenderPreviewParams, colorClassName} from '@gravity-ui/markdown-editor';
 import {emojiDefs} from '@gravity-ui/markdown-editor/_/bundle/emoji.js';
 import color from '@gravity-ui/markdown-editor/markdown-it/color';
 import {bare as emoji} from '@gravity-ui/markdown-editor/markdown-it/emoji';
 import ins from '@gravity-ui/markdown-editor/markdown-it/ins';
 import mark from '@gravity-ui/markdown-editor/markdown-it/mark';
 import sub from '@gravity-ui/markdown-editor/markdown-it/sub';
+import {labelPlugin} from '@gravity-ui/markdown-plugin-label';
 import type {PluginWithParams} from 'markdown-it/lib';
+
+import '@gravity-ui/markdown-plugin-label/styles.css';
 
 export const LATEX_RUNTIME = 'extension:latex';
 export const MERMAID_RUNTIME = 'extension:mermaid';
@@ -91,7 +94,7 @@ export function getPlugins({
         mark,
         mermaid({bundle: false, runtime: MERMAID_RUNTIME}),
         yfmPageConstructor({bundle: false, runtime: PAGE_CONSTRUCTOR_RUNTIME}),
-        statusPlugin,
+        labelPlugin,
         sub,
         yfmHtmlBlock({
             bundle: false,

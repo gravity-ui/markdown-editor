@@ -111,4 +111,38 @@ export default defineConfig(
             },
         },
     },
+    {
+        files: ['./packages/editor-label-extension/**/*'],
+        languageOptions: {
+            parserOptions: {
+                project: './packages/editor-label-extension/tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: './packages/editor-label-extension/tsconfig.json',
+                },
+            },
+        },
+    },
+    {
+        files: ['./packages/plugin-label/**/*'],
+        languageOptions: {
+            parserOptions: {
+                project: './packages/plugin-label/tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: './packages/plugin-label/tsconfig.json',
+                },
+            },
+        },
+    },
 );

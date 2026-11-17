@@ -34,6 +34,8 @@ export interface BaseTooltipPluginOptions {
     content?: TooltipContentCb;
     nodeType: NodeType | MarkType;
     popupPlacement?: PopupPlacement;
+    popupClassName?: string;
+    popupOffset?: PopupProps['offset'];
     disableHideOnEscapeKeyDown?: boolean;
 }
 
@@ -65,6 +67,8 @@ export class BaseTooltipPluginView implements PluginView {
     protected readonly content?: TooltipContentCb;
     protected readonly nodeType: NodeType | MarkType;
     protected readonly popupPlacement?: PopupPlacement;
+    protected readonly popupClassName?: string;
+    protected readonly popupOffset?: PopupProps['offset'];
     protected manualHidden = false;
     protected destroyed = false;
 
@@ -83,6 +87,8 @@ export class BaseTooltipPluginView implements PluginView {
         this.content = options.content;
         this.nodeType = options.nodeType;
         this.popupPlacement = options.popupPlacement;
+        this.popupClassName = options.popupClassName;
+        this.popupOffset = options.popupOffset;
         this.disableHideOnEscapeKeyDown = options.disableHideOnEscapeKeyDown;
     }
 
@@ -177,6 +183,8 @@ export class BaseTooltipPluginView implements PluginView {
         const oldNode = this.currentNode;
         this.setCurrentNode(this.view.state.schema.nodes[this.nodeType.name]);
 
+        if (!oldNode && !this.currentNode) return;
+
         // Do not rerender if we have the same node in selection
         if (
             oldNode &&
@@ -249,6 +257,8 @@ export class BaseTooltipPluginView implements PluginView {
                 editorElement={this.view.dom}
                 anchorElement={currentNode.dom}
                 placement={this.popupPlacement || defaultPlacement}
+                className={this.popupClassName}
+                offset={this.popupOffset}
                 onOpenChange={this.popupOpenChangeHandler}
             >
                 <div className={b()}>
