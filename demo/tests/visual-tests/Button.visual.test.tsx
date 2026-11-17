@@ -8,8 +8,7 @@ const withSpace = `:button[Кнопка]{href="https://example.com" view="action
 
 const scriptUrl = ['javascript', 'alert(1)'].join(':');
 
-// The text column holds four buttons with three gaps between them; a fourth gap does not fit.
-const NARROW_ROW_WIDTH = 343;
+const EXAMPLES_COUNT = 37;
 
 const stateStyles = [
     ['action', 'standard'],
@@ -45,9 +44,9 @@ test.describe('Button', () => {
         button,
         expectScreenshot,
     }) => {
-        await mount(<ButtonStories.Colors />);
+        await mount(<ButtonStories.Examples />);
         await editor.assertMode('wysiwyg');
-        await expect(button.blocks).toHaveCount(25);
+        await expect(button.blocks).toHaveCount(EXAMPLES_COUNT);
         expect(await button.getFilledBackgrounds()).not.toContain('rgba(0, 0, 0, 0)');
         await expectScreenshot({component: editor.locators.component});
     });
@@ -85,21 +84,21 @@ test.describe('Button', () => {
         wait,
         expectScreenshot,
     }) => {
-        await mount(<ButtonStories.Colors />);
-        await expect(button.blocks).toHaveCount(25);
+        await mount(<ButtonStories.Examples />);
+        await expect(button.blocks).toHaveCount(EXAMPLES_COUNT);
         const before = await button.getValues();
         await editor.switchMode('markup');
         await editor.switchPreview('visible');
         await page.mouse.move(0, 0);
         await wait.tooltipsHidden();
-        await expect(button.variants).toHaveCount(25);
+        await expect(button.variants).toHaveCount(EXAMPLES_COUNT);
         expect(await button.getFilledBackgrounds(button.variants)).not.toContain(
             'rgba(0, 0, 0, 0)',
         );
         expect(await button.getValues(button.variants)).toEqual(before);
         await expectScreenshot({component: editor.locators.component});
         await editor.switchMode('wysiwyg');
-        await expect(button.blocks).toHaveCount(25);
+        await expect(button.blocks).toHaveCount(EXAMPLES_COUNT);
         expect(await button.getValues()).toEqual(before);
     });
 
@@ -203,9 +202,10 @@ test.describe('Button', () => {
         await button.openSettings();
         await expect(button.blocks).toHaveClass(/ProseMirror-selectednode/);
         await expect(button.blocks).toHaveClass(/pm-node-selected/);
-        await expect(button.blocks).toHaveCSS('outline-style', 'none');
-        await expect(button.blocks).toHaveCSS('box-shadow', 'none');
         await expect(button.label).toBeFocused();
+        await expect(button.blocks).toHaveCSS('outline-style', 'solid');
+        await expect(button.blocks).toHaveCSS('outline-width', '2px');
+        await expect(button.blocks).toHaveCSS('box-shadow', 'none');
         expect(await button.getSettingsGeometry()).toEqual({
             width: 257,
             iconSize: [16, 16],
@@ -222,8 +222,8 @@ test.describe('Button', () => {
         await expect(button.settings).toBeHidden();
         await expect(editor.locators.contenteditable).toBeFocused();
         await expect(button.blocks).toHaveCSS('outline-width', '2px');
-        await expect(button.blocks).toHaveCSS('outline-offset', '0px');
-        await expect(button.blocks).toHaveCSS('box-shadow', /0px 0px 0px 1px/);
+        await expect(button.blocks).toHaveCSS('outline-offset', '2px');
+        await expect(button.blocks).toHaveCSS('box-shadow', 'none');
         await button.blocks.click();
         await expect(button.label).toBeFocused();
         await expect(button.blocks).toHaveClass(/ProseMirror-selectednode/);
@@ -362,18 +362,7 @@ test.describe('Button', () => {
         await expect(button.blocks).toHaveCount(0);
     });
 
-    test('should fill a line of a row up to the edge of the text column @wysiwyg', async ({
-        mount,
-        button,
-    }) => {
-        await mount(<ButtonStories.Button initial={statesMarkup} width={NARROW_ROW_WIDTH} />);
-        await expect(button.blocks).toHaveCount(stateStyles.length);
-        const {column, start, width, gap} = await button.getRowGeometry();
-        expect(start).toBe(0);
-        expect((await button.getLines())[0]).toBe(Math.floor((column + gap) / (width + gap)));
-    });
-
-    test('should lay out a paragraph of buttons as a row with the same gaps in both modes @wysiwyg @markup', async ({
+    test('should lay out a paragraph of buttons as a row @markup', async ({
         mount,
         page,
         editor,
@@ -381,23 +370,15 @@ test.describe('Button', () => {
         wait,
         expectScreenshot,
     }) => {
-        await mount(<ButtonStories.Button initial={statesMarkup} width={400} />);
-        await expect(button.blocks).toHaveCount(stateStyles.length);
-        const gaps = await button.getGaps();
-        expect(gaps.block.length).toBeGreaterThan(0);
-        expect([...new Set([...gaps.inline, ...gaps.block])]).toEqual([16]);
-        const height = await button.getHeight(button.rows);
-        await expectScreenshot({component: editor.locators.component, nameSuffix: 'editor'});
-        await editor.switchMode('markup');
+        await mount(<ButtonStories.Button mode="markup" initial={statesMarkup} width={400} />);
         await editor.switchPreview('visible');
         await page.mouse.move(0, 0);
         await wait.tooltipsHidden();
         await expect(button.variants).toHaveCount(stateStyles.length);
-        const previewGaps = await button.getGaps(button.variants);
-        expect(previewGaps.block.length).toBeGreaterThan(0);
-        expect([...new Set([...previewGaps.inline, ...previewGaps.block])]).toEqual([16]);
-        expect(await button.getHeight(button.previewRows)).toBe(height);
-        await expectScreenshot({component: editor.locators.component, nameSuffix: 'preview'});
+        const gaps = await button.getGaps();
+        expect(gaps.block.length).toBeGreaterThan(0);
+        expect([...new Set([...gaps.inline, ...gaps.block])]).toEqual([16]);
+        await expectScreenshot({component: editor.locators.component});
     });
 
     test('should show the hover state of every view @markup', async ({

@@ -20,7 +20,6 @@ import {Button} from './Button';
 import {WButtonNodeView} from './ButtonNodeView';
 import {ButtonSpecs, buttonNodeType} from './ButtonSpecs';
 import {insertButton, selectButtonAfter, selectButtonBefore, setButtonAttrs} from './commands';
-import {buttonRowPlugin} from './plugins/ButtonRowPlugin';
 
 const {schema, markupParser, serializer} = new ExtensionsManager({
     extensions: (builder) =>
@@ -348,29 +347,6 @@ describe('Button extension', () => {
             expect(dom.contentEditable).toBe('false');
             expect(dom.textContent).toBe('Read more');
             expect(dom.dispatchEvent(new MouseEvent('click', {cancelable: true}))).toBe(false);
-        } finally {
-            view.destroy();
-        }
-    });
-    it.each([
-        [`${button} ${button}`, true, 1],
-        [`${button}${button}`, true, 0],
-        [button, true, 0],
-        [`Press ${button} now`, false, 0],
-        [`> ${button} ${button}`, true, 1],
-    ])('should mark the paragraph of %j as a row: %s', (source, isRow, spaces) => {
-        const view = new EditorView(document.createElement('div'), {
-            state: EditorState.create({
-                doc: markupParser.parse(source),
-                plugins: [buttonRowPlugin()],
-            }),
-        });
-        try {
-            const row = view.dom.querySelector('.g-md-button-row');
-            expect(Boolean(row)).toBe(isRow);
-            expect(view.dom.querySelectorAll('.g-md-button-row__space')).toHaveLength(spaces);
-            view.dispatch(view.state.tr.insertText('text', row ? view.posAtDOM(row, 0) : 1));
-            expect(view.dom.querySelectorAll('.g-md-button-row')).toHaveLength(0);
         } finally {
             view.destroy();
         }

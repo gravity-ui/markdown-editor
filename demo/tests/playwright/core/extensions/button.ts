@@ -7,8 +7,6 @@ export class ButtonBlock {
     readonly blocks: Locator;
     readonly selectedBlocks: Locator;
     readonly variants: Locator;
-    readonly rows: Locator;
-    readonly previewRows: Locator;
     readonly settings: Locator;
     readonly label: Locator;
     readonly link: Locator;
@@ -24,8 +22,6 @@ export class ButtonBlock {
         this.blocks = this.content.locator('.g-md-button-plugin');
         this.selectedBlocks = this.blocks.and(page.locator('.ProseMirror-selectednode'));
         this.variants = preview.locator('.g-md-button-plugin');
-        this.rows = this.content.locator('.g-md-button-row');
-        this.previewRows = preview.locator('.g-md-button-plugin-row');
         this.settings = page.getByRole('dialog', {name: 'Button settings'});
         this.label = this.settings.getByRole('textbox', {name: 'Label', exact: true});
         this.link = this.settings.getByRole('textbox', {name: 'Link', exact: true});
@@ -81,45 +77,8 @@ export class ButtonBlock {
         return block.evaluate((element) => getComputedStyle(element).backgroundColor);
     }
 
-    getHeight(block: Locator) {
-        return block.evaluate((element) => element.getBoundingClientRect().height);
-    }
-
-    /** The text column of the first row, and the place and the size of its first button. */
-    getRowGeometry() {
-        return this.rows.first().evaluate((row) => {
-            const column = row.parentElement;
-            const first = row.querySelector('.g-md-button-plugin');
-            if (!column || !first) throw new Error('Missing a button row');
-            const style = getComputedStyle(column);
-            const left = column.getBoundingClientRect().left + parseFloat(style.paddingLeft);
-            const rect = first.getBoundingClientRect();
-            return {
-                column:
-                    column.clientWidth -
-                    parseFloat(style.paddingLeft) -
-                    parseFloat(style.paddingRight),
-                start: rect.left - left,
-                width: rect.width,
-                gap: parseFloat(getComputedStyle(first).marginLeft),
-            };
-        });
-    }
-
-    /** The number of buttons in each line of a row. */
-    getLines(blocks = this.blocks) {
-        return blocks.evaluateAll((elements) => {
-            const lines = new Map<number, number>();
-            for (const element of elements) {
-                const top = Math.round(element.getBoundingClientRect().top);
-                lines.set(top, (lines.get(top) ?? 0) + 1);
-            }
-            return [...lines.values()];
-        });
-    }
-
     /** Distances between neighboring buttons: within a line and between lines. */
-    getGaps(blocks = this.blocks) {
+    getGaps(blocks = this.variants) {
         return blocks.evaluateAll((elements) => {
             const rects = elements.map((element) => element.getBoundingClientRect());
             const inline: number[] = [];
