@@ -7,15 +7,13 @@ import {
     rmSync,
     writeFileSync,
 } from 'node:fs';
-import {dirname, join, relative, resolve} from 'node:path';
+import {dirname, join, relative} from 'node:path';
 import process from 'node:process';
-import {fileURLToPath} from 'node:url';
 
-import {generateExtensionPages} from './generate-extension-pages.mjs';
+import {EXTENSION_PAGES_DIR, generateExtensionPages} from './generate-extension-pages.mjs';
+import {REPO_ROOT} from './repo-root.mjs';
 
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const DOCS_DIR = join(REPO_ROOT, 'docs');
-const EXTENSION_PAGES_DIR = join(REPO_ROOT, 'tmp/docs-gen/stubs');
 const OUT_DIR = join(REPO_ROOT, 'tmp/docs-src');
 const GITHUB_RAW_RE =
     /https:\/\/raw\.githubusercontent\.com\/gravity-ui\/markdown-editor\/(?:refs\/heads\/[^/]+|[^/]+)\/docs\//g;
@@ -273,7 +271,7 @@ function writeYfmConfig() {
 /** Entry point: cleans output, collects docs, and generates the documentation site. */
 function main() {
     cleanOutDir();
-    generateExtensionPages();
+    generateExtensionPages({outDir: EXTENSION_PAGES_DIR});
 
     const docs = collectDocs();
     const {categories, topLevel} = groupByCategory(docs);
