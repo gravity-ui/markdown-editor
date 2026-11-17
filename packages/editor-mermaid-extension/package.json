@@ -110,11 +110,6 @@
     "typescript": "catalog:ts",
     "vitest": "catalog:testing"
   },
-  "peerDependenciesMeta": {
-    "@diplodoc/mermaid-extension": {
-      "optional": true
-    }
-  },
   "peerDependencies": {
     "@diplodoc/mermaid-extension": "^1.0.0 || ^2.0.0",
     "@gravity-ui/markdown-editor": "workspace:^15.47.0 || ^16.0.0",
