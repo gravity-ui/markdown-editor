@@ -89,16 +89,13 @@ export const YfmTableSerializerSpecs: ExtensionAuto<YfmTableSerializerOptions> =
                             colIndex++;
                         }
                     }
-
-                    const isLastCell = trow.lastChild === td;
-                    if (isLastCell) {
-                        while (colIndex in rowspanStack && rowspanStack[colIndex] > 0) {
-                            state.write('|^');
-                            rowspanStack[colIndex]--;
-                            colIndex++;
-                        }
-                    }
                 });
+
+                while (colIndex in rowspanStack && rowspanStack[colIndex] > 0) {
+                    state.write(colIndex === 0 ? '^' : '|^');
+                    rowspanStack[colIndex]--;
+                    colIndex++;
+                }
 
                 state.ensureNewLine();
                 state.write('||');

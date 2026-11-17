@@ -81,6 +81,40 @@ test.describe('YfmTable', () => {
         });
     });
 
+    test('should move vertically across fully covered rows @wysiwyg', async ({
+        mount,
+        editor,
+        page,
+    }) => {
+        const initial = dd`
+        #|
+        || one ||
+        || ^   ||
+        || ^   ||
+        || two ||
+        |#
+        `;
+
+        const pageErrors: Error[] = [];
+        page.on('pageerror', (error) => pageErrors.push(error));
+        await mount(<Playground initial={initial} />);
+
+        const table = await editor.yfmTable.getTable(editor.locators.contenteditable);
+        const cells = await editor.yfmTable.getCells(table);
+
+        await editor.yfmTable.focusFirstCell(table);
+        await editor.press('End');
+        await editor.press('ArrowDown');
+        await editor.pressSequentially('!');
+        await expect(cells).toHaveText(['one', '!two']);
+
+        await editor.press('Home');
+        await editor.press('ArrowUp');
+        await editor.pressSequentially('!');
+        await expect(cells).toHaveText(['!one', '!two']);
+        expect(pageErrors).toEqual([]);
+    });
+
     test('should move focus to the adjacent cell @wysiwyg', async ({
         mount,
         page,

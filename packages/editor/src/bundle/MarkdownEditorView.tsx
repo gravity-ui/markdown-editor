@@ -29,10 +29,11 @@ import {useMarkdownEditorContext} from './context';
 import {cnEditorComponent} from './editor-classname';
 import type {MarkdownEditorInstance} from './editor-public-types';
 import {EditorSettings, type EditorSettingsProps, type SettingItems} from './settings';
+import {resolveContenteditableAttributes} from './shared/contenteditable-attributes';
 import {stickyCn} from './sticky';
 import type {ToolbarConfigs} from './toolbar/types';
 import {getContextualToolbarsConfig, getToolbarsConfigs} from './toolbar/utils/toolbarsConfigs';
-import type {MarkdownEditorMode} from './types';
+import type {ContenteditableAttributes, MarkdownEditorMode} from './types';
 
 import '../styles/styles.scss';
 import './MarkdownEditorView.scss'; // eslint-disable-line import/order
@@ -49,6 +50,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             autofocus,
             editor,
             editorMode,
+            contenteditableAttributes,
             markupHiddenActionsConfig: initialMarkupHiddenActionsConfig,
             markupToolbarConfig: initialMarkupToolbarConfig,
             qa,
@@ -197,6 +199,10 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                         {editorMode === 'wysiwyg' && (
                             <WysiwygEditorView
                                 editor={editor}
+                                contenteditableAttributes={resolveContenteditableAttributes(
+                                    contenteditableAttributes,
+                                    'wysiwyg',
+                                )}
                                 autofocus={autofocus}
                                 settingsVisible={areSettingsVisible}
                                 toolbarConfig={wysiwygToolbarConfig}
@@ -216,6 +222,10 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                         {editorMode === 'markup' && (
                             <MarkupEditorView
                                 editor={editor}
+                                contenteditableAttributes={resolveContenteditableAttributes(
+                                    contenteditableAttributes,
+                                    'markup',
+                                )}
                                 autofocus={autofocus}
                                 settingsVisible={areSettingsVisible}
                                 toolbarConfig={markupToolbarConfig}
@@ -251,6 +261,7 @@ EditorWrapper.displayName = 'EditorWrapper';
 type ViewProps = {
     editor?: MarkdownEditorInstance;
     autofocus?: boolean;
+    contenteditableAttributes?: ContenteditableAttributes;
     // MAJOR: rename to settings
     /** @default true */
     settingsVisible?: boolean | SettingItems[];
@@ -284,6 +295,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             className,
             enableSubmitInPreview = true,
             hidePreviewAfterSubmit = false,
+            contenteditableAttributes,
             markupHiddenActionsConfig,
             markupToolbarConfig,
             qa,
@@ -381,6 +393,7 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         autofocus={autofocus}
                         editor={editor}
                         editorMode={editorMode}
+                        contenteditableAttributes={contenteditableAttributes}
                         markupHiddenActionsConfig={markupHiddenActionsConfig}
                         markupToolbarConfig={markupToolbarConfig}
                         qa="g-md-editor-mode"
