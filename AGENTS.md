@@ -137,6 +137,7 @@ Exports in `package.json`:
 ## Moving code
 
 - A file moves to another package with `git mv`. `git diff --staged -M --stat` shows it as renamed, not as deleted and added.
+- A moved file changes only where the move requires it; other edits go into a separate pull request, so git still detects the rename.
 
 ## Imports
 
