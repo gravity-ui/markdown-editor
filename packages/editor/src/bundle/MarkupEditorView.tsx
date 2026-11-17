@@ -12,7 +12,7 @@ import {MarkupEditorComponent} from './MarkupEditorComponent';
 import {ToolbarView} from './ToolbarView';
 import {MarkupToolbarContextProvider} from './toolbar/markup/context';
 import type {MToolbarData, MToolbarItemData, ToolbarDisplay} from './toolbar/types';
-import type {MarkdownEditorSplitMode} from './types';
+import type {MarkdownEditorSplitMode, MarkupContenteditableAttributes} from './types';
 
 import './MarkupEditorView.scss';
 
@@ -22,6 +22,7 @@ export type MarkupEditorViewProps = ClassNameProps &
     QAProps & {
         editor: EditorInt;
         autofocus?: boolean;
+        contenteditableAttributes?: MarkupContenteditableAttributes;
         toolbarConfig: MToolbarData;
         settingsVisible?: boolean;
         toolbarVisible?: boolean;
@@ -38,6 +39,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
     const {
         editor,
         autofocus,
+        contenteditableAttributes,
         settingsVisible,
         toolbarVisible,
         toolbarConfig,
@@ -91,6 +93,7 @@ export const MarkupEditorView = memo<MarkupEditorViewProps>((props) => {
             <MarkupEditorComponent
                 autofocus={autofocus}
                 editor={editor}
+                contenteditableAttributes={contenteditableAttributes}
                 className={b('editor', {'toolbar-visible': toolbarVisible})}
             >
                 <ReactRendererComponent storage={editor.renderStorage} />

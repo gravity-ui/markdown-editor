@@ -55,6 +55,7 @@ import {type FileUploadHandler, FileUploadHandlerFacet} from './files-upload-fac
 import {FilesUploadPlugin} from './files-upload-plugin';
 import {gravityHighlightStyle, gravityTheme} from './gravity';
 import {MarkdownConverter} from './html-to-markdown/converters';
+import {inputAttributesCompartment} from './input-attributes';
 import {LoggerFacet} from './logger-facet';
 import {PairingCharactersExtension} from './pairing-chars';
 import {ReactRendererFacet} from './react-facet';
@@ -128,7 +129,11 @@ export function createCodemirror(params: CreateCodemirrorParams) {
         searchPanel = true,
     } = params;
 
-    const extensions: Extension[] = [gravityTheme, placeholder(placeholderContent)];
+    const extensions: Extension[] = [
+        Prec.highest(inputAttributesCompartment.of([])),
+        gravityTheme,
+        placeholder(placeholderContent),
+    ];
 
     if (!disabledExtensions.history) {
         extensions.push(history());

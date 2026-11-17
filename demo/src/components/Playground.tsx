@@ -79,7 +79,10 @@ export type PlaygroundProps = {
     storyAdditionalControls?: Record<string, any>;
     yfmMods?: YfmMods;
 } & Pick<UseMarkdownEditorProps, 'experimental' | 'wysiwygConfig'> &
-    Pick<MarkdownEditorViewProps, 'enableSubmitInPreview' | 'hidePreviewAfterSubmit'>;
+    Pick<
+        MarkdownEditorViewProps,
+        'enableSubmitInPreview' | 'hidePreviewAfterSubmit' | 'contenteditableAttributes'
+    >;
 
 logger.setLogger({
     // eslint-disable-next-line no-console
@@ -119,6 +122,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         placeholderOptions,
         enableSubmitInPreview,
         hidePreviewAfterSubmit,
+        contenteditableAttributes,
         experimental,
         directiveSyntax,
         disabledHTMLBlockModes,
@@ -399,6 +403,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                     editor={mdEditor}
                     enableSubmitInPreview={enableSubmitInPreview}
                     hidePreviewAfterSubmit={hidePreviewAfterSubmit}
+                    contenteditableAttributes={contenteditableAttributes}
                 />
             )}
             actions={() => (
