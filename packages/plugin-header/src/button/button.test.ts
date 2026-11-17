@@ -9,6 +9,7 @@ const md = new MarkdownIt({html: true}).use(buttonPlugin);
 const inlineTokens = (markup: string) => md.parseInline(markup, {})[0].children ?? [];
 const openToken = (markup: string) => inlineTokens(markup).find((token) => token.type === 'button');
 const row = '<p class="g-md-button-plugin-row">';
+const scriptUrl = ['javascript', 'alert(1)'].join(':');
 
 describe('Button Markdown', () => {
     it('should preserve the model through HTML attributes', () => {
@@ -59,15 +60,6 @@ describe('Button Markdown', () => {
             expect(md.renderInline(`Before${markup}After`)).toBe('BeforeAfter');
         },
     );
-    it.each([
-        // eslint-disable-next-line no-script-url -- Verify rejection of executable URLs.
-        'javascript:alert(1)',
-        'data:image/png;base64,abc',
-        'vbscript:msgbox(1)',
-        'file:///tmp/file',
-    ])('should omit unsafe href %s', (href) => {
-        expect(openToken(`:button[Open]{href="${href}"}`)?.attrGet('href')).toBeNull();
-    });
     it('should protect links opened in a new tab', () => {
         expect(
             md.renderInline(':button[Open]{href="https://example.com" target="_blank"}'),
@@ -110,11 +102,40 @@ describe('Button Markdown', () => {
             link?.attrGet('href'),
         );
     });
+    // Cases from the link tests xss.txt and normalize.txt of markdown-it 13.0.2:
+    // https://github.com/markdown-it/markdown-it/tree/13.0.2/test/fixtures/markdown-it
     it.each([
-        ['&#106;avascript', 'alert(1)'].join(':'),
-        'data:image/png;base64,AAAA',
-    ])('should drop the unsafe href %s', (href) => {
-        expect(openToken(`:button[Open]{href="${href}"}`)?.attrGet('href')).toBeNull();
+        ['javascript', 'javascript'],
+        [scriptUrl, null],
+        [scriptUrl.toUpperCase(), null],
+        ['vbscript:alert(1)', null],
+        ['VBSCRIPT:alert(1)', null],
+        ['file:///123', null],
+        [
+            '&#34;&#62;&#60;script&#62;alert&#40;&#34;xss&#34;&#41;&#60;/script&#62;',
+            '%22%3E%3Cscript%3Ealert(%22xss%22)%3C/script%3E',
+        ],
+        ['&#74;avascript:alert(1)', null],
+        ['&#x26;#74;avascript:alert(1)', '&#74;avascript:alert(1)'],
+        ['\\&#74;avascript:alert(1)', '&#74;avascript:alert(1)'],
+        ['javascript&#x3A;alert(1)', null],
+        ['data:text/html;base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4K', null],
+        // markdown-it keeps this address, a button drops every data: address.
+        ['data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', null],
+        ['/javascript:link', '/javascript:link'],
+        ['http://example.com/α%CE%B2γ%CE%B4', 'http://example.com/%CE%B1%CE%B2%CE%B3%CE%B4'],
+        [
+            'https://www.google.com/search?q=hello%2E%252Ehello',
+            'https://www.google.com/search?q=hello%2E%252Ehello',
+        ],
+        ['http://xn--n3h.net/', 'http://xn--n3h.net/'],
+        ['http://☃.net/', 'http://xn--n3h.net/'],
+        ['http://xn--xn.com/', 'http://xn--xn.com/'],
+        ['http://xn--γ.com/', 'http://xn--xn---emd.com/'],
+        ['//☃.net/', '//xn--n3h.net/'],
+        ['skype:γγγ', 'skype:%CE%B3%CE%B3%CE%B3'],
+    ])('should read the href %s like the markdown-it link tests', (href, expected) => {
+        expect(openToken(`:button[Open]{href="${href}"}`)?.attrGet('href')).toBe(expected);
     });
     it('should omit a repeated href', () => {
         expect(openToken(':button[Open]{href="/one" href="/two"}')?.attrGet('href')).toBeNull();
