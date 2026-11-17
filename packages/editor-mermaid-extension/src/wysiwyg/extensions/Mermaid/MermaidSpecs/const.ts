@@ -1,17 +1,20 @@
 import {entityIdAttr} from '@gravity-ui/markdown-editor/_/utils/entity-id.js';
 import {nodeTypeFactory} from '@gravity-ui/markdown-editor/_/utils/schema.js';
 
-export const MermaidAttrs = {
-    EntityId: entityIdAttr,
-    content: 'content',
-    class: 'class',
+export enum MermaidAttrs {
+    // @ts-expect-error error TS18055
+    EntityId = entityIdAttr,
+    content = 'content',
+    class = 'class',
     // MAJOR: remove before next major
     /** @deprecated This is no longer used. Removed in next major version */
-    newCreated: 'newCreated',
-} as const;
+    newCreated = 'newCreated',
+}
 
 export const mermaidNodeName = 'mermaid';
 export const mermaidNodeType = nodeTypeFactory(mermaidNodeName);
+
+export const MermaidAction = 'createMermaid';
 
 export const MermaidConsts = {
     NodeName: mermaidNodeName,

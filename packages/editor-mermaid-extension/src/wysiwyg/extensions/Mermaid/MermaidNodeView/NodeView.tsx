@@ -8,10 +8,10 @@ import type {EditorView, NodeView} from '@gravity-ui/markdown-editor/pm/view';
 import {Portal} from '@gravity-ui/uikit';
 import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
 
-import type {MermaidOptions} from '../Mermaid';
-import {MermaidConsts, defaultMermaidEntityId} from '../MermaidSpecs';
+import type {MermaidOptions} from '..';
+import {MermaidConsts, defaultMermaidEntityId} from '../MermaidSpecs/const';
 
-import {MermaidView, STOP_EVENT_CLASSNAME} from './components/MermaidView';
+import {MermaidView, STOP_EVENT_CLASSNAME} from './MermaidView';
 
 let mermaidInstance: Mermaid;
 

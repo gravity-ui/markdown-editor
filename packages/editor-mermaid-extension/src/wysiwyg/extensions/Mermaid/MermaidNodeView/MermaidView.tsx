@@ -16,12 +16,12 @@ import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {Button, Icon, Loader, Menu, Overlay, Popup, useThemeType} from '@gravity-ui/uikit';
 import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
 
-import {i18n} from '../../../../../i18n';
-import type {MermaidOptions} from '../../Mermaid';
-import {MermaidConsts} from '../../MermaidSpecs';
-import type {MermaidEntitySharedState} from '../../types';
+import {i18n} from '../../../../i18n';
+import {MermaidConsts} from '../MermaidSpecs/const';
+import type {MermaidOptions} from '../index';
+import type {MermaidEntitySharedState} from '../types';
 
-export const cnMermaid = cn('mermaid-nodeview');
+export const cnMermaid = cn('Mermaid');
 
 export const STOP_EVENT_CLASSNAME = 'prosemirror-stop-event';
 
@@ -83,13 +83,13 @@ const MermaidPreview: React.FC<{
     }, [mermaidInstance, text, theme, options.theme]);
 
     if (error) {
-        return <div className={b('error')}>{error && <div>{error}</div>}</div>;
+        return <div className={b('Error')}>{error && <div>{error}</div>}</div>;
     }
 
     const loading = !svg || updating;
 
     return (
-        <div className={b('preview', {loading})}>
+        <div className={b('Preview', {loading})}>
             {svg && <div className="mermaid" dangerouslySetInnerHTML={{__html: svg}} />}
             <Overlay visible={loading}>
                 <Loader />
@@ -115,7 +115,7 @@ const DiagramEditMode: React.FC<{
     return (
         <div className={b()}>
             <MermaidPreview mermaidInstance={mermaidInstance} text={value} options={options} />
-            <div className={b('editor')}>
+            <div className={b('Editor')}>
                 <div>
                     <DelayedTextArea
                         controlProps={{
@@ -127,7 +127,7 @@ const DiagramEditMode: React.FC<{
                         autoFocus
                     />
                 </div>
-                <div className={b('controls')}>
+                <div className={b('Controls')}>
                     <div>
                         <Button onClick={onCancel} view={'flat'}>
                             <span className={STOP_EVENT_CLASSNAME}>

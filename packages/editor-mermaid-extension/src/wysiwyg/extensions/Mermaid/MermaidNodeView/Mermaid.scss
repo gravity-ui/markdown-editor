@@ -1,4 +1,4 @@
-.g-md-mermaid-nodeview {
+.g-md-Mermaid {
     display: flex;
     justify-content: space-between;
 
@@ -12,13 +12,13 @@
         display: flex;
     }
 
-    &__preview {
+    &__Preview {
         position: relative;
 
         flex: 1;
     }
 
-    &__error {
+    &__Error {
         flex: 1;
 
         font-family: var(--g-font-family-monospace);
@@ -26,20 +26,20 @@
         color: var(--g-color-text-danger);
     }
 
-    &__editor {
+    &__Editor {
         flex: 1;
 
         white-space: nowrap;
         caret-color: auto;
     }
 
-    &__editor-popover {
+    &__EditorPopover {
         z-index: 1;
 
         float: right;
     }
 
-    &__controls {
+    &__Controls {
         display: flex;
         justify-content: end;
 

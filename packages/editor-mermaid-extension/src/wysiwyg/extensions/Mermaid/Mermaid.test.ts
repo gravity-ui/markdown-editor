@@ -11,7 +11,8 @@ import {builders} from '@gravity-ui/markdown-editor/pm/test-builder';
 import dd from 'ts-dedent';
 import {describe, expect, it, vi} from 'vitest';
 
-import {MermaidAttrs, MermaidSpecs, mermaidNodeName} from './MermaidSpecs';
+import {MermaidSpecs} from './MermaidSpecs';
+import {MermaidAttrs, mermaidNodeName} from './const';
 
 vi.mock(import('@gravity-ui/markdown-editor/_/utils/entity-id.js'), async (importOriginal) => {
     const actual = await importOriginal();

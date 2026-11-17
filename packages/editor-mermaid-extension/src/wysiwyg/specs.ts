@@ -1,9 +1,9 @@
+export {MermaidSpecs} from './extensions/Mermaid/MermaidSpecs';
+export type {MermaidSpecsOptions} from './extensions/Mermaid/MermaidSpecs';
 export {
     MermaidAttrs,
     MermaidConsts,
-    MermaidSpecs,
     defaultMermaidEntityId,
     mermaidNodeName,
     mermaidNodeType,
-} from './extensions/Mermaid/MermaidSpecs';
-export type {MermaidSpecsOptions} from './extensions/Mermaid/MermaidSpecs';
+} from './extensions/Mermaid/MermaidSpecs/const';

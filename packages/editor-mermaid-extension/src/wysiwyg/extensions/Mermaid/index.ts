@@ -1,4 +1,47 @@
-export {Mermaid} from './Mermaid';
-export type {MermaidOptions} from './Mermaid';
-export {MermaidAction} from './const';
-export type {MermaidEntitySharedState} from './types';
+import type {
+    Action,
+    ExtensionAuto,
+    ExtensionDeps,
+    NodeViewConstructor,
+} from '@gravity-ui/markdown-editor/core';
+import type {MermaidConfig} from 'mermaid' with {'resolution-mode': 'import'};
+
+import {WMermaidNodeView} from './MermaidNodeView';
+import {MermaidSpecs, mermaidNodeName} from './MermaidSpecs';
+import {MermaidAction} from './MermaidSpecs/const';
+import {addMermaid} from './actions';
+
+export type MermaidOptions = {
+    loadRuntimeScript: () => void;
+    autoSave?: {
+        enabled: boolean;
+        delay?: number;
+    };
+    theme?: {
+        dark: MermaidConfig['theme'];
+        light: MermaidConfig['theme'];
+    };
+};
+
+export const Mermaid: ExtensionAuto<MermaidOptions> = (builder, options) => {
+    builder.use(MermaidSpecs, {}).addNodeView(mermaidNodeName, MermaidNodeViewFactory(options));
+
+    builder.addAction(MermaidAction, () => addMermaid);
+};
+
+const MermaidNodeViewFactory: (
+    opts: MermaidOptions,
+) => (deps: ExtensionDeps) => NodeViewConstructor = (options) => () => (node, view, getPos) => {
+    return new WMermaidNodeView(node, view, getPos, options);
+};
+
+declare global {
+    namespace WysiwygEditor {
+        interface Actions {
+            [MermaidAction]: Action;
+        }
+    }
+    interface Window {
+        mermaidJsonp: Function[];
+    }
+}

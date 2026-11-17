@@ -62,7 +62,4 @@ The entities keep their names. Only the import path changes.
 | `ActionName.mermaid`                                                                                       | any string key of the preset item, for example `'mermaid'`                                                                            |
 | `icons.mermaid`, `MermaidIcon`                                                                             | `LogoMermaid` from `@gravity-ui/icons`                                                                                                |
 
-`MermaidAttrs` is now a constant object; its keys and string values are unchanged. Use `(typeof MermaidAttrs)[keyof typeof MermaidAttrs]` for the attribute value type.
-NodeView styles use `.g-md-mermaid-nodeview` and lowercase BEM elements instead of `.g-md-Mermaid` and uppercase elements. Update custom CSS overrides accordingly.
-
 The `mermaid` key of the editor's `menubar` keyset is removed. The package registers its own keyset.

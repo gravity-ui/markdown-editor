@@ -1,1 +1,1 @@
-export {WMermaidNodeView} from './MermaidNodeView';
+export * from './NodeView';
