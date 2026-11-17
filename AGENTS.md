@@ -37,6 +37,11 @@ It covers `*.{js,jsx,mjs,ts,tsx,css,scss}` across the whole repository. Its outp
 - Where the linter is silent, follow the file you are editing.
 - Shared rules live in `infra/linters/`; per-package overrides are in the root `eslint.config.mjs`.
 
+## Styles
+
+- A block declares its values as variables at the top of its rule: private custom properties `--_--<name>` or Sass variables `$<name>`. Values shared by several style files of one component go to a Sass partial next to them.
+- Sizes are written without `calc()`. Change the layout so the value is not needed, or derive it from Sass variables, which Sass computes at build time.
+
 ## Extensions
 
 An extension `Block` in `packages/editor/src/extensions/` has this layout:
