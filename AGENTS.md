@@ -72,7 +72,7 @@ Block/
 - CSS blocks and elements are kebab-case: `.g-md-some-block__some-element`. A NodeView block ends with `-nodeview`.
 - A set of named constants is a plain object with `as const`.
 - Each field of a public options type has a comment with its behavior and default.
-- A markup command lives in its own file in `markup/commands/`. A command that inserts a block calls `MarkupHelpers.replaceOrInsertAfter()` from `@gravity-ui/markdown-editor`.
+- A markup command lives in its own file in `markup/commands/`. A command that inserts a block calls `replaceOrInsertAfter()` from `packages/editor/src/markup/commands/helpers.ts`; other packages import it as `MarkupHelpers` from `@gravity-ui/markdown-editor`.
 - An unused translation key is deleted.
 - A markdown-it plugin emits one token stream; extra data goes to `token.meta`.
 - A markdown-it plugin only parses. The serializer lives in the extension and writes through `state`.
