@@ -134,6 +134,10 @@ Exports in `package.json`:
 - A package that the application provides is a peer: React, UIKit, `@gravity-ui/components`, `markdown-it`, Diplodoc packages, and the editor or the viewer that an extension package extends.
 - A third-party package used only by the demo goes to `devDependencies` of `demo/package.json`.
 
+## Moving code
+
+- A file moves to another package with `git mv`. `git diff --staged -M --stat` shows it as renamed, not as deleted and added.
+
 ## Imports
 
 - Outside `packages/editor`, a ProseMirror or CodeMirror module re-exported in `packages/editor/src/pm/` or `packages/editor/src/cm/` is imported from `@gravity-ui/markdown-editor/pm/*` or `@gravity-ui/markdown-editor/cm/*`.
