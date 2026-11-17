@@ -39,7 +39,6 @@ It covers `*.{js,jsx,mjs,ts,tsx,css,scss}` across the whole repository. Its outp
 
 ## Styles
 
-- A block declares its values as variables at the top of its rule: private custom properties `--_--<name>` or Sass variables `$<name>`. Values shared by several style files of one component go to a Sass partial next to them.
 - Sizes are written without CSS math functions: `calc()`, `min()`, `max()`, `clamp()`. Change the layout so the value is not needed, or derive it from Sass variables with static values, which Sass computes at build time. A math function stays only where an operand is known at runtime: a percentage, viewport units, `lh`, or a custom property set from script.
 
 ## Extensions
