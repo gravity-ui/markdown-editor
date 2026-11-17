@@ -2,8 +2,6 @@ import {useEffect, useLayoutEffect, useRef} from 'react';
 
 import type {QAProps} from '@gravity-ui/uikit';
 
-import {setContenteditableAttributes} from '../core/utils/input-attributes';
-
 import type {EditorInt} from './Editor';
 import type {WysiwygContenteditableAttributes} from './types';
 
@@ -25,11 +23,11 @@ export const WysiwygEditorComponent: React.FC<WysiwygEditorComponentProps> =
         qa,
     }) {
         const ref = useRef<HTMLDivElement>(null);
-        const view = editor.wysiwygEditor.view;
+        const wysiwygEditor = editor.wysiwygEditor;
 
         useLayoutEffect(() => {
-            setContenteditableAttributes(view, contenteditableAttributes);
-        }, [view, contenteditableAttributes]);
+            wysiwygEditor.setInputAttributes(contenteditableAttributes);
+        }, [wysiwygEditor, contenteditableAttributes]);
 
         useEffect(() => {
             const {current} = ref;
