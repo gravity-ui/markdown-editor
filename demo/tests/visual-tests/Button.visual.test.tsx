@@ -3,8 +3,10 @@ import {test} from 'playwright/core/extensions/button';
 
 import {ButtonStories} from './Button.helpers';
 
+const singleButton = ':button[Кнопка]{href="https://example.com" view="action" color="standard"}';
+
 // Lines under the button leave room for its settings window and style list in the screenshot.
-const withSpace = `:button[Кнопка]{href="https://example.com" view="action" color="standard"}${'\n\nТекст'.repeat(12)}`;
+const withSpace = `${singleButton}${'\n\nТекст'.repeat(12)}`;
 
 const scriptUrl = ['javascript', 'alert(1)'].join(':');
 
@@ -44,7 +46,7 @@ test.describe('Button', () => {
         button,
         expectScreenshot,
     }) => {
-        await mount(<ButtonStories.Examples />);
+        await mount(<ButtonStories.Button />);
         await editor.assertMode('wysiwyg');
         await expect(button.blocks).toHaveCount(EXAMPLES_COUNT);
         expect(await button.getFilledBackgrounds()).not.toContain('rgba(0, 0, 0, 0)');
@@ -52,7 +54,7 @@ test.describe('Button', () => {
     });
 
     test('should render a button @wysiwyg', async ({mount, editor, button, expectScreenshot}) => {
-        await mount(<ButtonStories.Button />);
+        await mount(<ButtonStories.Button initial={singleButton} />);
         await editor.assertMode('wysiwyg');
         await expect(button.blocks).toHaveCount(1);
         await expect(button.blocks).toHaveAttribute('href', 'https://example.com');
@@ -84,7 +86,7 @@ test.describe('Button', () => {
         wait,
         expectScreenshot,
     }) => {
-        await mount(<ButtonStories.Examples />);
+        await mount(<ButtonStories.Button />);
         await expect(button.blocks).toHaveCount(EXAMPLES_COUNT);
         const before = await button.getValues();
         await editor.switchMode('markup');
@@ -110,7 +112,7 @@ test.describe('Button', () => {
         wait,
         expectScreenshot,
     }) => {
-        await mount(<ButtonStories.Button mode="markup" />);
+        await mount(<ButtonStories.Button initial={singleButton} mode="markup" />);
         await editor.switchPreview('visible');
         await page.mouse.move(0, 0);
         await wait.tooltipsHidden();
@@ -125,7 +127,7 @@ test.describe('Button', () => {
         button,
         expectScreenshot,
     }) => {
-        await mount(<ButtonStories.Button width={400} />);
+        await mount(<ButtonStories.Button initial={singleButton} width={400} />);
         await button.openSettings();
         await button.label.fill('');
         await button.label.press('Enter');
@@ -203,9 +205,8 @@ test.describe('Button', () => {
         await expect(button.blocks).toHaveClass(/ProseMirror-selectednode/);
         await expect(button.blocks).toHaveClass(/pm-node-selected/);
         await expect(button.label).toBeFocused();
-        await expect(button.blocks).toHaveCSS('outline-style', 'solid');
-        await expect(button.blocks).toHaveCSS('outline-width', '2px');
-        await expect(button.blocks).toHaveCSS('box-shadow', 'none');
+        await expect(button.blocks).toHaveCSS('outline-style', 'none');
+        await expect(button.blocks).toHaveCSS('box-shadow', /0px 0px 0px 1px$/);
         expect(await button.getSettingsGeometry()).toEqual({
             width: 257,
             iconSize: [16, 16],
@@ -221,13 +222,45 @@ test.describe('Button', () => {
         await button.label.press('Escape');
         await expect(button.settings).toBeHidden();
         await expect(editor.locators.contenteditable).toBeFocused();
-        await expect(button.blocks).toHaveCSS('outline-width', '2px');
-        await expect(button.blocks).toHaveCSS('outline-offset', '2px');
-        await expect(button.blocks).toHaveCSS('box-shadow', 'none');
+        await expect(button.blocks).toHaveCSS('outline-style', 'none');
+        await expect(button.blocks).toHaveCSS('box-shadow', /0px 0px 0px 1px$/);
         await button.blocks.click();
         await expect(button.label).toBeFocused();
         await expect(button.blocks).toHaveClass(/ProseMirror-selectednode/);
         await editor.press('Escape');
+    });
+
+    test('should keep the window open and the focus in the label after clearing it @wysiwyg', async ({
+        mount,
+        button,
+    }) => {
+        await mount(<ButtonStories.Button initial={withSpace} />);
+        await button.openSettings();
+        await button.label.press('Tab');
+        await expect(button.clearLabel).toBeFocused();
+        await button.clearLabel.press('Enter');
+        await expect(button.label).toBeFocused();
+        await expect(button.label).toHaveValue('');
+        await expect(button.settings).toBeVisible();
+    });
+
+    test('should keep a button in a note selected while its window is open @wysiwyg', async ({
+        mount,
+        editor,
+        button,
+        expectScreenshot,
+    }) => {
+        await mount(
+            <ButtonStories.Button
+                initial={`{% note info "Note" %}\n\nRead :button[Кнопка]{view="action" color="standard"} first\n\n{% endnote %}${'\n\nТекст'.repeat(10)}`}
+            />,
+        );
+        await button.openSettings();
+        await button.label.pressSequentially('!');
+        await expect(button.settings).toBeVisible();
+        await expect(button.selectedBlocks).toHaveCount(1);
+        await expect(button.blocks).toHaveCSS('box-shadow', /0px 0px 0px 1px$/);
+        await expectScreenshot({component: editor.locators.component});
     });
 
     test('should remove the style preview after closing its list @wysiwyg', async ({

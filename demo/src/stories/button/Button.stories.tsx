@@ -8,8 +8,6 @@ export default {
     component: ButtonExample,
 } satisfies Meta<typeof ButtonExample>;
 
-export const Button: StoryObj<typeof ButtonExample> = {};
-
 const capitalize = (value: string) => value[0].toUpperCase() + value.slice(1);
 
 const viewsAndColors = Object.entries(buttonViewColors)
@@ -26,7 +24,7 @@ const viewsAndColors = Object.entries(buttonViewColors)
     )
     .join('\n\n');
 
-export const Examples: StoryObj<typeof ButtonExample> = {
+export const Button: StoryObj<typeof ButtonExample> = {
     args: {
         initial: `
 ## In a paragraph

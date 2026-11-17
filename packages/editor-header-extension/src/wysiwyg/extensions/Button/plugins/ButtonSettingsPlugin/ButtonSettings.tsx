@@ -1,4 +1,4 @@
-import {type KeyboardEvent, useMemo, useRef, useState} from 'react';
+import {type ChangeEvent, type KeyboardEvent, useMemo, useRef, useState} from 'react';
 
 import {Link} from '@gravity-ui/icons';
 import {cn} from '@gravity-ui/markdown-editor';
@@ -55,6 +55,10 @@ function useSavedText(saved: string, save: (value: string) => boolean | void, cl
             onUpdate: (next: string) => {
                 setValue(next);
                 setInvalid(false);
+            },
+            // The clear button takes the focus and disappears with the text.
+            onChange: (event: ChangeEvent<HTMLInputElement>) => {
+                if (!event.currentTarget.value) event.currentTarget.focus();
             },
             onBlur: () => {
                 saveValue();
@@ -114,6 +118,7 @@ export function ButtonSettings({view, node, pos, anchor, parser, onClose}: Butto
     return (
         <Popup
             open
+            returnFocus={false}
             className={b('popup')}
             anchorElement={anchorElement}
             placement={['bottom-start', 'top-start']}

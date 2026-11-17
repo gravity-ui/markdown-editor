@@ -9,9 +9,9 @@
     // The settings window takes the focus from the editor, and the selected button keeps its outline.
     &.ProseMirror-selectednode,
     .g-md-editor.ProseMirror-focused &.ProseMirror-selectednode {
-        outline: 2px solid var(--g-color-text-info-heavy);
-        outline-offset: 2px;
-        box-shadow: none;
+        outline: none;
+        box-shadow: var(--g-md-button-plugin-focus-outline-color, var(--g-color-text-info)) 0 0 0
+            1px;
     }
 
     &__placeholder {

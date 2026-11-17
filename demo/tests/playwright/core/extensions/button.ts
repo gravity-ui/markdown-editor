@@ -9,6 +9,7 @@ export class ButtonBlock {
     readonly variants: Locator;
     readonly settings: Locator;
     readonly label: Locator;
+    readonly clearLabel: Locator;
     readonly link: Locator;
     readonly linkError: Locator;
     readonly styleSelect: Locator;
@@ -24,6 +25,7 @@ export class ButtonBlock {
         this.variants = preview.locator('.g-md-button-plugin');
         this.settings = page.getByRole('dialog', {name: 'Button settings'});
         this.label = this.settings.getByRole('textbox', {name: 'Label', exact: true});
+        this.clearLabel = this.settings.getByRole('button', {name: 'Clear'});
         this.link = this.settings.getByRole('textbox', {name: 'Link', exact: true});
         this.linkError = this.settings.getByRole('alert');
         this.styleSelect = this.settings.getByRole('combobox', {name: /^Style: /});
