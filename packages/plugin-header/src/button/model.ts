@@ -4,7 +4,6 @@ import {safeLinkUrl} from '../url';
 
 export const buttonTokenName = 'button';
 export const buttonClassName = 'g-md-button-plugin';
-export const buttonRowClassName = 'g-md-button-plugin-row';
 
 export const buttonViews = ['action', 'normal', 'outline', 'flat'] as const;
 export const buttonColors = [

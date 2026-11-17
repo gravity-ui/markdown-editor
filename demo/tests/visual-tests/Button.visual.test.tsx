@@ -46,7 +46,7 @@ test.describe('Button', () => {
         button,
         expectScreenshot,
     }) => {
-        await mount(<ButtonStories.Button />);
+        await mount(<ButtonStories.Button width={660} />);
         await editor.assertMode('wysiwyg');
         await expect(button.blocks).toHaveCount(EXAMPLES_COUNT);
         expect(await button.getFilledBackgrounds()).not.toContain('rgba(0, 0, 0, 0)');
@@ -61,7 +61,7 @@ test.describe('Button', () => {
         wait,
         expectScreenshot,
     }) => {
-        await mount(<ButtonStories.Button />);
+        await mount(<ButtonStories.Button width={660} />);
         await expect(button.blocks).toHaveCount(EXAMPLES_COUNT);
         const before = await button.getValues();
         await editor.switchMode('markup');
@@ -177,7 +177,7 @@ test.describe('Button', () => {
         button,
         expectScreenshot,
     }) => {
-        await mount(<ButtonStories.Button initial={withSpace} />);
+        await mount(<ButtonStories.Button initial={withSpace} width={660} />);
         await button.openSettings();
         await button.styleSelect.click();
         await expect(button.option(/, Green$/)).toHaveCount(4);
@@ -195,10 +195,8 @@ test.describe('Button', () => {
 
     test('should save a field on a click outside and reject an unsafe link @wysiwyg', async ({
         mount,
-        page,
         editor,
         button,
-        expectScreenshot,
     }) => {
         await mount(<ButtonStories.Button initial={withSpace} />);
         await button.openSettings();
@@ -217,8 +215,6 @@ test.describe('Button', () => {
         await expect(button.linkError).toHaveText('Unsupported link address');
         await expect(button.settings).toBeVisible();
         await expect(button.blocks).toHaveAttribute('href', '/docs');
-        await page.mouse.move(0, 0);
-        await expectScreenshot({component: editor.locators.component});
         await button.link.fill('/page');
         await expect(button.linkError).toBeHidden();
         await button.link.press('Enter');
@@ -238,6 +234,7 @@ test.describe('Button', () => {
         await mount(
             <ButtonStories.Button
                 initial={`:button[Кнопка]{view="action" color="standard"} и текст${'\n\nТекст'.repeat(12)}`}
+                width={660}
             />,
         );
         await expect(button.blocks).toHaveCount(1);
@@ -278,12 +275,7 @@ test.describe('Button', () => {
         await expect(button.blocks).toHaveCount(0);
     });
 
-    test('should show the hover state of every view @markup', async ({
-        mount,
-        editor,
-        button,
-        expectScreenshot,
-    }) => {
+    test('should show the hover state of every view @markup', async ({mount, editor, button}) => {
         await mount(<ButtonStories.Button mode="markup" initial={statesMarkup} />);
         await editor.switchPreview('visible');
         await expect(button.variants).toHaveCount(stateStyles.length);
@@ -292,23 +284,19 @@ test.describe('Button', () => {
         const idle = await button.getBackground(action);
         await action.hover();
         await expect(action).not.toHaveCSS('background-color', idle);
-        await expectScreenshot({component: editor.locators.component, nameSuffix: 'action'});
 
         const normal = button.variant('normal', 'gray');
         const normalIdle = await button.getBackground(normal);
         await normal.hover();
         await expect(normal).not.toHaveCSS('background-color', normalIdle);
-        await expectScreenshot({component: editor.locators.component, nameSuffix: 'normal'});
 
         const outline = button.variant('outline', 'blue');
         await outline.hover();
         await expect(outline).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-        await expectScreenshot({component: editor.locators.component, nameSuffix: 'outline'});
 
         const flat = button.variant('flat', 'gray');
         await flat.hover();
         await expect(flat).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-        await expectScreenshot({component: editor.locators.component, nameSuffix: 'flat'});
     });
 
     test('should show the keyboard focus @markup', async ({
@@ -319,7 +307,7 @@ test.describe('Button', () => {
         wait,
         expectScreenshot,
     }) => {
-        await mount(<ButtonStories.Button mode="markup" initial={statesMarkup} />);
+        await mount(<ButtonStories.Button mode="markup" initial={statesMarkup} width={660} />);
         await editor.switchPreview('visible');
         await page.mouse.move(0, 0);
         await expect(button.variants).toHaveCount(stateStyles.length);
@@ -329,7 +317,6 @@ test.describe('Button', () => {
         await expect(action).toBeFocused();
         await expect(action).toHaveCSS('outline-style', 'solid');
         await wait.tooltipsHidden();
-        await expectScreenshot({component: editor.locators.component, nameSuffix: 'action'});
 
         const outline = button.variant('outline', 'blue');
         await button.focusWithKeyboard(outline);

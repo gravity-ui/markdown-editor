@@ -55,10 +55,9 @@ Read the guide :button[Read more]{href="https://example.com" view="action" color
 ```
 
 The button is an inline directive: it stays in the line of text.
-A paragraph that holds only buttons, spaces and line breaks gets the class `g-md-button-plugin-row` (`buttonRowClassName`): a wrapping flex row with a gap between the buttons and between the lines.
 Buttons inside running text keep the spaces of the text.
 The label in square brackets is plain text; Markdown inside it is shown as written, and `\]` writes a closing bracket.
-A button with an empty label renders nothing, and a paragraph of such buttons renders no `<p>`. Buttons work independently and inside Header.
+A button with an empty label renders nothing. Buttons work independently and inside Header.
 
 | Attribute | Values                                                         | Default                                               |
 | --------- | -------------------------------------------------------------- | ----------------------------------------------------- |
@@ -93,6 +92,5 @@ The size and typography are custom properties; a host overrides them:
 | `--g-md-button-plugin-focus-outline-offset`          | `0`                                                |
 | `--g-md-button-plugin-transition-duration-transform` | `0.1s`                                             |
 | `--g-md-button-plugin-transition-duration-color`     | `0.15s`                                            |
-| `--g-md-button-plugin-gap`                           | `var(--g-spacing-4)`, between the buttons of a row |
 
 The height is a minimum: a label that does not fit the line wraps, and the button grows.

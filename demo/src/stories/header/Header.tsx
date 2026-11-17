@@ -36,7 +36,7 @@ export const toolbars = {
 export function HeaderExample({
     initial = ':::header{height="s" width="m"}\n\n:::\n\nAfter',
     mode = 'wysiwyg',
-    width = 1000,
+    width,
 }: {
     initial?: string;
     mode?: MarkdownEditorMode;

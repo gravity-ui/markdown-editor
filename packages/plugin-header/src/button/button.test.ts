@@ -8,7 +8,6 @@ import {buttonClassName, buttonDefaults, buttonViewColors} from './model';
 const md = new MarkdownIt({html: true}).use(buttonPlugin);
 const inlineTokens = (markup: string) => md.parseInline(markup, {})[0].children ?? [];
 const openToken = (markup: string) => inlineTokens(markup).find((token) => token.type === 'button');
-const row = '<p class="g-md-button-plugin-row">';
 const scriptUrl = ['javascript', 'alert(1)'].join(':');
 
 describe('Button Markdown', () => {
@@ -23,14 +22,13 @@ describe('Button Markdown', () => {
         const attrs = buttonAttrs(model);
         expect(buttonFromAttrs((name) => attrs[name as keyof typeof attrs])).toEqual(model);
     });
-    it.each([
-        ['javascript', 'alert(1)'].join(':'),
-        'data:text/html,<b>x</b>',
-        'file:///etc/passwd',
-    ])('should drop the unsafe address %j from the attributes', (href) => {
-        expect(buttonAttrs({href})).not.toHaveProperty('href');
-        expect(buttonFromAttrs((name) => (name === 'href' ? href : null)).href).toBe('');
-    });
+    it.each([scriptUrl, 'data:text/html,<b>x</b>', 'file:///etc/passwd'])(
+        'should drop the unsafe address %j from the attributes',
+        (href) => {
+            expect(buttonAttrs({href})).not.toHaveProperty('href');
+            expect(buttonFromAttrs((name) => (name === 'href' ? href : null)).href).toBe('');
+        },
+    );
     it('should render a button with defaults', () => {
         expect(md.renderInline(':button[Read more]{href="/page"}')).toBe(
             '<a class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_standard" href="/page" data-view="action" data-color="standard">Read more</a>',
@@ -140,41 +138,6 @@ describe('Button Markdown', () => {
     it('should omit a repeated href', () => {
         expect(openToken(':button[Open]{href="/one" href="/two"}')?.attrGet('href')).toBeNull();
     });
-    it.each([
-        ['only buttons', ':button[One] :button[Two]', row],
-        ['a single button', ':button[One]', row],
-        ['buttons without a separator', ':button[One]:button[Two]', row],
-        ['buttons with spaces around', '  :button[One]   :button[Two]  ', row],
-        ['buttons on adjacent lines', ':button[One]\n:button[Two]', row],
-        ['a button and an empty button', ':button[One] :button[]', row],
-        ['a button and text', ':button[One] text', '<p>'],
-        ['text and a button', 'text :button[One]', '<p>'],
-        ['a button and a link', ':button[One] [link](/page)', '<p>'],
-        ['a button and an escaped space', ':button[One]&nbsp;:button[Two]', '<p>'],
-        ['a button in emphasis', '**:button[One]**', '<p>'],
-        ['a button in a tight list item', '- :button[One]', '<ul>\n<li><a '],
-        ['a button in a loose list item', '- :button[One]\n\n- :button[Two]', `<ul>\n<li>\n${row}`],
-        ['a button in a quote', '> :button[One]', `<blockquote>\n${row}`],
-    ])('should start a paragraph of %s with %j', (_name, markup, start) => {
-        expect(md.render(markup).startsWith(start)).toBe(true);
-    });
-    it('should render each paragraph of buttons as a row', () => {
-        expect(md.render(':button[One]\n\n:button[Two]').split(row)).toHaveLength(3);
-    });
-    it('should mark a paragraph of buttons inside a header', () => {
-        const parser = new MarkdownIt().use(headerPlugin).use(buttonPlugin);
-        expect(parser.render(':::header\n:button[One] :button[Two]\n:::')).toContain(`\n${row}<a `);
-    });
-    it('should add the row class once when the plugin is used twice', () => {
-        const parser = new MarkdownIt().use(buttonPlugin).use(buttonPlugin);
-        expect(parser.render(':button[One]').startsWith(`${row}<a `)).toBe(true);
-    });
-    it.each([':button[]', ':button[] :button[  ]{href="/page"}'])(
-        'should render no paragraph for the empty buttons %j',
-        (markup) => {
-            expect(md.render(markup).trim()).toBe('');
-        },
-    );
     it.each([':button', ':button{href="/page"}', ':button[Label](url)'])(
         'should not render a button for unsupported syntax %j',
         (markup) => {

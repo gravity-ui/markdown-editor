@@ -20,7 +20,6 @@ export {
     buttonDefaultColor,
     buttonDefaults,
     buttonModel,
-    buttonRowClassName,
     buttonTokenName,
     buttonViewColors,
     normalizeButtonHref,

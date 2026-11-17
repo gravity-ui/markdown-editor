@@ -4,6 +4,7 @@
     --_--focus-outline-width: var(--g-md-button-plugin-focus-outline-width, 2px);
     --_--pressed-scale: var(--g-md-button-plugin-pressed-scale, 0.96);
     --_--padding: var(--g-md-button-plugin-padding, var(--g-spacing-4, 16px));
+    --_--padding-block: var(--g-spacing-2, 8px);
     --_--border-radius: var(--g-md-button-plugin-border-radius, var(--g-border-radius-l, 12px));
     --_--font-size: var(--g-md-button-plugin-font-size, var(--g-text-body-1-font-size, 14px));
     --_--line-height: var(--g-md-button-plugin-line-height, var(--g-text-body-1-line-height, 18px));
@@ -19,13 +20,15 @@
     --_--background-hover: initial;
     --_--color-hover: initial;
 
-    display: inline-block;
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
 
     box-sizing: border-box;
     max-width: 100%;
     min-height: var(--_--height);
-    padding: calc((var(--_--height) - var(--_--line-height)) / 2 - var(--_--border-width))
-        calc(var(--_--padding) - var(--_--border-width));
+    padding: var(--_--padding-block) var(--_--padding);
 
     font-size: var(--_--font-size);
     font-weight: var(--g-text-body-font-weight, 400);
@@ -35,10 +38,20 @@
     white-space: normal;
     text-decoration: none;
 
-    // Every view has a border, so forced-colors mode keeps the boundary of the button.
-    border: var(--_--border-width) solid var(--_--border-color);
     border-radius: var(--_--border-radius);
     overflow-wrap: anywhere;
+
+    // The border lies over the padding, as in the uikit button, so the size does not depend on it.
+    // Every view has a border, so forced-colors mode keeps the boundary of the button.
+    &::before {
+        position: absolute;
+        inset: 0;
+
+        content: '';
+
+        border: var(--_--border-width) solid var(--_--border-color);
+        border-radius: inherit;
+    }
 
     // Keep the label color when rendered as a Markdown link.
     &,
@@ -190,13 +203,4 @@
             print-color-adjust: exact;
         }
     }
-}
-
-.g-md-button-plugin-row {
-    --_--gap: var(--g-md-button-plugin-gap, var(--g-spacing-4, 16px));
-
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--_--gap);
 }

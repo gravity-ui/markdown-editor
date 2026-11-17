@@ -15,7 +15,7 @@ import {toolbars} from '../header/Header';
 export function ButtonExample({
     initial = ':button[Кнопка]{href="https://example.com" view="action" color="standard"}',
     mode = 'wysiwyg',
-    width = 660,
+    width,
 }: {
     initial?: string;
     mode?: MarkdownEditorMode;
