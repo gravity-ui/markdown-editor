@@ -136,9 +136,9 @@ Exports in `package.json`:
 
 ## Imports
 
-- ProseMirror and CodeMirror modules come from `@gravity-ui/markdown-editor/pm/*` and `@gravity-ui/markdown-editor/cm/*`.
-- An editor module outside the public API is imported from `@gravity-ui/markdown-editor/_/…`, not copied.
-- Inside `packages/editor/src`, imports between top-level folders use the `src/` alias.
+- Outside `packages/editor`, a ProseMirror or CodeMirror module re-exported in `packages/editor/src/pm/` or `packages/editor/src/cm/` is imported from `@gravity-ui/markdown-editor/pm/*` or `@gravity-ui/markdown-editor/cm/*`.
+- Outside `packages/editor`, an editor module missing from the public API is imported from `@gravity-ui/markdown-editor/_/…`, not copied.
+- Inside `packages/editor/src`, ProseMirror and CodeMirror modules come from their own packages, and imports between top-level folders use the `src/` alias.
 
 ## Documentation
 
