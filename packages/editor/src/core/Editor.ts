@@ -5,6 +5,7 @@ import {EditorView} from 'prosemirror-view';
 
 import type {CommonEditor, ContentHandler, MarkupString} from '../common';
 import {Logger2} from '../logger';
+import {filterContenteditableAttributes} from '../utils/contenteditable-attributes';
 
 import type {ActionsManager} from './ActionsManager';
 import {WysiwygContentHandler} from './ContentHandler';
@@ -21,6 +22,7 @@ import type {Parser} from './types/parser';
 import type {Serializer} from './types/serializer';
 import {bindActions} from './utils/actions';
 import {convertDynamicModifiersConfigs} from './utils/dynamicModifiers';
+import {type WysiwygContenteditableAttributes, forbiddenAttributes} from './utils/input-attributes';
 import {LoggerFacet} from './utils/logger';
 import {logTransactionMetrics} from './utils/metrics';
 import {ParserFacet} from './utils/parser';
@@ -189,6 +191,13 @@ export class WysiwygEditor implements CommonEditor, ActionStorage, ExporterStora
 
     getExporter<E extends Exporter>(name: string): E {
         return this.#getExporter<E>(name);
+    }
+
+    setInputAttributes(attributes?: WysiwygContenteditableAttributes): void {
+        if (this.#view.isDestroyed) return;
+        this.#view.setProps({
+            attributes: filterContenteditableAttributes(attributes, forbiddenAttributes),
+        });
     }
 
     focus() {

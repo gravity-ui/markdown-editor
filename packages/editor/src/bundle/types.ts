@@ -3,9 +3,10 @@
 import type {ReactNode} from 'react';
 
 import type {MarkupString} from '../common';
-import type {EscapeConfig, Extension} from '../core';
+import type {EscapeConfig, Extension, WysiwygContenteditableAttributes} from '../core';
 import type {Logger2} from '../logger';
 import type {CreateCodemirrorParams, YfmLangOptions} from '../markup';
+import type {MarkupContenteditableAttributes} from '../markup/codemirror/input-attributes';
 import type {FileUploadHandler} from '../utils';
 import type {DirectiveSyntaxContext, DirectiveSyntaxOption} from '../utils/directive';
 import type {ParseInsertedUrlAsImage} from '../utils/upload';
@@ -27,6 +28,17 @@ export type {
 };
 export type {ParseInsertedUrlAsImage};
 export type {MarkdownEditorInstance, ChangeEditorModeOptions} from './editor-public-types';
+export type {WysiwygContenteditableAttributes, MarkupContenteditableAttributes};
+
+type ModeContenteditableAttributes = {
+    wysiwyg: WysiwygContenteditableAttributes;
+    markup: MarkupContenteditableAttributes;
+};
+
+export type ContenteditableAttributes =
+    | WysiwygContenteditableAttributes
+    | MarkupContenteditableAttributes
+    | ModeContenteditableAttributes;
 
 export type RenderPreviewParams = {
     getValue: () => MarkupString;

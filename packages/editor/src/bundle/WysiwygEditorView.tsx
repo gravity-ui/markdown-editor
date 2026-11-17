@@ -9,6 +9,7 @@ import type {EditorInt} from './Editor';
 import {ToolbarView} from './ToolbarView';
 import {WysiwygEditorComponent} from './WysiwygEditorComponent';
 import type {ToolbarDisplay, WToolbarData, WToolbarItemData} from './toolbar/types';
+import type {WysiwygContenteditableAttributes} from './types';
 
 import './WysiwygEditorView.scss';
 
@@ -18,6 +19,7 @@ export type WysiwygEditorViewProps = ClassNameProps &
     QAProps & {
         editor: EditorInt;
         autofocus?: boolean;
+        contenteditableAttributes?: WysiwygContenteditableAttributes;
         settingsVisible?: boolean;
         toolbarConfig: WToolbarData;
         toolbarVisible?: boolean;
@@ -32,6 +34,7 @@ export const WysiwygEditorView: React.FC<WysiwygEditorViewProps> = (props) => {
     const {
         editor,
         autofocus,
+        contenteditableAttributes,
         settingsVisible,
         toolbarVisible,
         toolbarConfig,
@@ -75,7 +78,12 @@ export const WysiwygEditorView: React.FC<WysiwygEditorViewProps> = (props) => {
                     {children}
                 </ToolbarView>
             ) : null}
-            <WysiwygEditorComponent autofocus={autofocus} editor={editor} className={b('editor')}>
+            <WysiwygEditorComponent
+                autofocus={autofocus}
+                editor={editor}
+                contenteditableAttributes={contenteditableAttributes}
+                className={b('editor')}
+            >
                 <ReactRendererComponent storage={editor.renderStorage} />
             </WysiwygEditorComponent>
         </div>
