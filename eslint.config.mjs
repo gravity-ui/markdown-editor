@@ -12,6 +12,24 @@ export default defineConfig(
     ]),
     common,
     {
+        files: ['./packages/editor-gpt-extension/**/*'],
+        languageOptions: {
+            parserOptions: {
+                project: './packages/editor-gpt-extension/tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: './packages/editor-gpt-extension/tsconfig.json',
+                },
+            },
+        },
+    },
+
+    {
         files: ['**/src/**/*.{ts,tsx}'],
         rules: {
             'react-hooks/exhaustive-deps': ['warn', {additionalHooks: '^useViewerEffect$'}],
