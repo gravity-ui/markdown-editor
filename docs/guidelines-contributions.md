@@ -25,14 +25,14 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 #### Key Notes:
 1. Only `feat`, `fix`, `refactor`, and `perf` are included in the changelog.
 2. Other types (e.g., `docs`, `chore`) are excluded from the changelog but still improve clarity.
-3. **Avoid using `feat!`**, as it signals breaking changes. For such changes, create or comment on an issue tagged with `breaking change` in [Planned Breaking Changes](https://github.com/gravity-ui/markdown-editor/issues?q=is%3Aissue+is%3Aopen+label%3A%22breaking+change%22).
+3. **Prefer `feat!:` for breaking features.** A `BREAKING CHANGE:` body/footer is allowed with or without `!`. Label PRs with breaking changes `breaking change`, and create or comment on an issue with the same label in [Planned Breaking Changes](https://github.com/gravity-ui/markdown-editor/issues?q=is%3Aissue+is%3Aopen+label%3A%22breaking+change%22).
 
 ### PR Titles, Descriptions, Linking to Issues
 - **Titles**: Titles will be used in the changelog. Keep them concise, clear, and meaningful.
 - **Commit messages**: These will be squashed during the merge, but clear messages help during code reviews.
 - **Descriptions**:
   - Include a reference to the related issue using `#` (e.g., `#123`).
-  - Use **[keywords](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword)** (e.g., `Fixes #123`) to link the issue in the "Development" section of GitHub.
+  - Use **[keywords](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword)** (e.g., `Fixes #123`) to link the issue in the "Development" section of GitHub only when the PR resolves it.
   - If no issue exists, briefly describe the task and why it’s needed.
   - Add a "before and after" demo if it helps clarify the changes. See an example [here](https://github.com/gravity-ui/markdown-editor/pull/476).
 

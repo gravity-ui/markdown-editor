@@ -754,6 +754,9 @@ importers:
 
   packages/editor-header-extension:
     dependencies:
+      '@floating-ui/react':
+        specifier: ^0.27.16
+        version: 0.27.16(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@gravity-ui/icons':
         specifier: ^2.12.0
         version: 2.23.0(react@18.2.0)
@@ -767,6 +770,9 @@ importers:
       '@gravity-ui/markdown-editor':
         specifier: workspace:*
         version: link:../editor
+      '@gravity-ui/uikit':
+        specifier: catalog:peer-gravity
+        version: 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@markdown-editor/gulp-tasks':
         specifier: workspace:*
         version: link:../../infra/gulp-tasks

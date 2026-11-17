@@ -23,7 +23,7 @@ export const lineNumbersPlugin: PluginSimple = (md) => {
 
             if (token.map && TOKENS.includes(token.type)) {
                 const line = token.map[0];
-                token.attrPush(['data-line', String(line)]);
+                token.attrSet('data-line', String(line));
             }
         }
     };

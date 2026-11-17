@@ -1,4 +1,6 @@
-.g-md-yfm-code-block {
+@use '../../variables' as v;
+
+.#{v.$ns}yfm-code-block {
     position: relative;
 
     pre code.wrap {
