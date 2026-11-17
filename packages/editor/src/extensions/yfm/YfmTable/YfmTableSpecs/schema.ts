@@ -79,7 +79,7 @@ export const getSchemaSpecs = (
 
     [YfmTableNode.Row]: {
         group: 'block yfm-table',
-        content: `${YfmTableNode.Cell}+`,
+        content: `${YfmTableNode.Cell}*`,
         isolating: true,
         definingAsContext: true,
         parseDOM: [{tag: 'tr', priority: 200}],

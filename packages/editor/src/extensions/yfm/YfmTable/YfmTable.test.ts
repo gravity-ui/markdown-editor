@@ -8,6 +8,8 @@ import {dispatchPasteEvent} from '../../../../tests/dispatch-event';
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
 import {ExtensionsManager} from '../../../core';
+import {appendColumn, appendRow} from '../../../table-utils';
+import {TableDesc} from '../../../table-utils/table-desc';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {BlockquoteSpecs, blockquoteNodeName} from '../../markdown/Blockquote/BlockquoteSpecs';
 
@@ -289,6 +291,70 @@ nested table
                 ),
             ),
         );
+    });
+
+    it.each([
+        {
+            name: 'consecutive covered rows with colspan',
+            markup: dd`
+                    #|
+                    || A | > ||
+                    || ^ | ^ ||
+                    || ^ | ^ ||
+                    |#
+                `,
+            expected: table(
+                tbody(
+                    tr(td({[YfmTableAttr.Rowspan]: '3', [YfmTableAttr.Colspan]: '2'}, p('A'))),
+                    tr(),
+                    tr(),
+                ),
+            ),
+            rows: 3,
+            cols: 2,
+        },
+        {
+            name: 'a covered header row between staggered rowspans',
+            markup: dd`
+                    #|
+                    |:{header-rows="3"}
+                    || A | B ||
+                    || ^ | C ||
+                    || ^ | ^ ||
+                    || D | ^ ||
+                    |#
+                `,
+            expected: table(
+                {[YfmTableAttr.HeaderRows]: 3},
+                tbody(
+                    tr(td({[YfmTableAttr.Rowspan]: '3'}, p('A')), td(p('B'))),
+                    tr(td({[YfmTableAttr.Rowspan]: '3'}, p('C'))),
+                    tr(),
+                    tr(td(p('D'))),
+                ),
+            ),
+            rows: 4,
+            cols: 2,
+        },
+    ])('should preserve $name through markdown round-trip', ({markup, expected, rows, cols}) => {
+        const parsed = parser.parse(markup);
+
+        expect(parsed).toMatchNode(doc(expected));
+        expect(() => parsed.check()).not.toThrow();
+        expect(TableDesc.create(parsed.child(0))).toMatchObject({rows, cols});
+        expect(parser.parse(serializer.serialize(parsed))).toMatchNode(parsed);
+    });
+
+    it.each([
+        {name: 'no rows', body: tbody()},
+        {name: 'no cells', body: tbody(tr())},
+    ])('should reject a table with $name in structural commands', ({body}) => {
+        const document = doc(table(body));
+        const state = EditorState.create({schema, doc: document});
+
+        expect(TableDesc.create(document.child(0))).toBeNull();
+        expect(appendRow(state, undefined, undefined, {tablePos: 0})).toBe(false);
+        expect(appendColumn(state, undefined, undefined, {tablePos: 0})).toBe(false);
     });
 
     it('should parse and serialize table with multiple rowspans', () => {
