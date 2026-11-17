@@ -8,8 +8,10 @@ import {
     findParentTable,
     findParentTableCell,
     findParentTableRow,
-} from '../../../../table-utils';
-import {isTextSelection} from '../../../../utils/selection';
+} from 'src/table-utils';
+import {findChildIndex} from 'src/table-utils/helpers';
+import {isTextSelection} from 'src/utils/selection';
+
 import {
     createFakeParagraph,
     findFakeParaPosClosestToPos,
@@ -30,16 +32,13 @@ export function goToNextRow(dir: 'up' | 'down'): Command {
             return false;
         }
 
-        const allRows = findChildTableRows(parentTable.node);
+        const allRows = findChildTableRows(parentTable.node).filter(
+            ({node}: {node: Node}) => node.childCount > 0,
+        );
         const rowIndex = allRows.findIndex((node: {node: Node}) => node.node === parentRow.node);
 
-        let cellIndex;
-
-        for (let i = 0; i < parentRow.node.childCount; i++) {
-            if (parentRow.node.child(i) === parentCell.node) cellIndex = i;
-        }
-
-        if (cellIndex === undefined) {
+        const cellIndex = findChildIndex(parentRow.node, parentCell.node);
+        if (cellIndex === -1) {
             return false;
         }
 
@@ -64,6 +63,7 @@ export function goToNextRow(dir: 'up' | 'down'): Command {
         const newRow = allRows[newRowIndex];
         const childCells = findChildTableCells(newRow.node);
         const cell = childCells[cellIndex];
+        if (!cell) return false;
 
         const from = parentTable.start + newRow.pos + cell.pos + 3;
 

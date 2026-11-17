@@ -23,14 +23,16 @@ export const addColumnAfter: Command = (state, dispatch) => {
         return false;
     }
 
+    const cells = [];
+    for (const row of findChildTableRows(parentTable.node)) {
+        const cell = findChildTableCells(row.node)[parentCellIndex];
+        if (!cell) return false;
+        cells.push({row, cell});
+    }
+
     if (dispatch) {
-        const allRows = findChildTableRows(parentTable.node);
-
         let tr = state.tr;
-        for (const row of allRows) {
-            const rowCells = findChildTableCells(row.node);
-            const cell = rowCells[parentCellIndex];
-
+        for (const {row, cell} of cells) {
             tr = tr.insert(
                 tr.mapping.map(parentTable.pos + row.pos + cell.pos + cell.node.nodeSize + 2),
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
