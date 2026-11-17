@@ -42,7 +42,6 @@ const b = cnEditorComponent;
 interface EditorWrapperProps extends QAProps, ToolbarConfigs, Omit<ViewProps, 'editor'> {
     editor: EditorInt;
     editorMode: MarkdownEditorMode;
-    isFocused: boolean;
 }
 const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
     (
@@ -50,9 +49,6 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             autofocus,
             editor,
             editorMode,
-            enableSubmitInPreview,
-            hidePreviewAfterSubmit,
-            isFocused,
             markupHiddenActionsConfig: initialMarkupHiddenActionsConfig,
             markupToolbarConfig: initialMarkupToolbarConfig,
             qa,
@@ -154,19 +150,6 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             },
             {event: 'keydown'},
             [editorMode, editor, canRenderPreview],
-        );
-
-        useKey(
-            (e) => Boolean(enableSubmitInPreview && showPreview && isFocused && isSubmitKeyDown(e)),
-            () => {
-                editor.emit('submit', null);
-
-                if (hidePreviewAfterSubmit) {
-                    editor.changePreviewVisible(false);
-                }
-            },
-            {event: 'keydown'},
-            [hidePreviewAfterSubmit, enableSubmitInPreview, showPreview, editor],
         );
 
         const settingsProps = {
@@ -333,6 +316,27 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
             }
         }, [divRef, editor, editor.previewVisible]);
 
+        const showPreview = editor.previewVisible;
+
+        useKey(
+            (e) =>
+                Boolean(
+                    enableSubmitInPreview &&
+                    showPreview &&
+                    isWrapperFocused(divRef) &&
+                    isSubmitKeyDown(e),
+                ),
+            () => {
+                editor.emit('submit', null);
+
+                if (hidePreviewAfterSubmit) {
+                    editor.changePreviewVisible(false);
+                }
+            },
+            {event: 'keydown'},
+            [hidePreviewAfterSubmit, enableSubmitInPreview, showPreview, editor, divRef],
+        );
+
         const areSettingsVisible =
             settingsVisible === true ||
             (Array.isArray(settingsVisible) && settingsVisible.length > 0);
@@ -377,9 +381,6 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         autofocus={autofocus}
                         editor={editor}
                         editorMode={editorMode}
-                        enableSubmitInPreview={enableSubmitInPreview}
-                        hidePreviewAfterSubmit={hidePreviewAfterSubmit}
-                        isFocused={isWrapperFocused(divRef)}
                         markupHiddenActionsConfig={markupHiddenActionsConfig}
                         markupToolbarConfig={markupToolbarConfig}
                         qa="g-md-editor-mode"
