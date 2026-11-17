@@ -130,8 +130,8 @@ Exports in `package.json`:
 
 ## Dependencies
 
-- A package that published code imports at runtime goes to `dependencies`. The editor, UIKit and React are peers.
-- A new package declares `react` and `react-dom` peers as `^18.0.0 || ^19.0.0`.
+- A package that published code imports at runtime goes to `dependencies`. UIKit and React are peers.
+- An extension package lists the editor or the viewer it extends in `peerDependencies`.
 - A third-party package used only by the demo goes to `devDependencies` of `demo/package.json`.
 
 ## Documentation
