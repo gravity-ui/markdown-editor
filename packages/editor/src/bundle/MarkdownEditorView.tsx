@@ -25,18 +25,15 @@ import {HorizontalDrag} from './HorizontalDrag';
 import {MarkupEditorView} from './MarkupEditorView';
 import {SplitModeView} from './SplitModeView';
 import {WysiwygEditorView} from './WysiwygEditorView';
-import {
-    type ContenteditableAttributes,
-    resolveContenteditableAttributes,
-} from './contenteditable-attributes';
 import {useMarkdownEditorContext} from './context';
 import {cnEditorComponent} from './editor-classname';
 import type {MarkdownEditorInstance} from './editor-public-types';
 import {EditorSettings, type EditorSettingsProps, type SettingItems} from './settings';
+import {resolveContenteditableAttributes} from './shared/contenteditable-attributes';
 import {stickyCn} from './sticky';
 import type {ToolbarConfigs} from './toolbar/types';
 import {getContextualToolbarsConfig, getToolbarsConfigs} from './toolbar/utils/toolbarsConfigs';
-import type {MarkdownEditorMode} from './types';
+import type {ContenteditableAttributes, MarkdownEditorMode} from './types';
 
 import '../styles/styles.scss';
 import './MarkdownEditorView.scss'; // eslint-disable-line import/order

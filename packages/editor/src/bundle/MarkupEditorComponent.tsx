@@ -1,16 +1,11 @@
 import {useEffect, useLayoutEffect, useRef} from 'react';
 
-import {EditorView} from '@codemirror/view';
 import type {QAProps} from '@gravity-ui/uikit';
 
-import {inputAttributesCompartment} from '../markup/codemirror/input-attributes';
+import {setContenteditableAttributes} from '../markup/codemirror/input-attributes';
 
 import type {EditorInt} from './Editor';
-import {
-    type MarkupContenteditableAttributes,
-    filterContenteditableAttributes,
-    markupForbiddenAttributes,
-} from './contenteditable-attributes';
+import type {MarkupContenteditableAttributes} from './types';
 
 export type MarkupEditorComponentProps = QAProps & {
     editor: EditorInt;
@@ -33,16 +28,7 @@ export const MarkupEditorComponent: React.FC<MarkupEditorComponentProps> =
         const view = editor.markupEditor.cm;
 
         useLayoutEffect(() => {
-            view.dispatch({
-                effects: inputAttributesCompartment.reconfigure(
-                    EditorView.contentAttributes.of(
-                        filterContenteditableAttributes(
-                            contenteditableAttributes,
-                            markupForbiddenAttributes,
-                        ),
-                    ),
-                ),
-            });
+            setContenteditableAttributes(view, contenteditableAttributes);
         }, [view, contenteditableAttributes]);
 
         // insert editor to dom

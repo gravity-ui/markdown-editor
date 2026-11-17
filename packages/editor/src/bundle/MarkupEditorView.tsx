@@ -10,10 +10,9 @@ import {useRenderTime} from '../react-utils/hooks';
 import type {EditorInt} from './Editor';
 import {MarkupEditorComponent} from './MarkupEditorComponent';
 import {ToolbarView} from './ToolbarView';
-import type {MarkupContenteditableAttributes} from './contenteditable-attributes';
 import {MarkupToolbarContextProvider} from './toolbar/markup/context';
 import type {MToolbarData, MToolbarItemData, ToolbarDisplay} from './toolbar/types';
-import type {MarkdownEditorSplitMode} from './types';
+import type {MarkdownEditorSplitMode, MarkupContenteditableAttributes} from './types';
 
 import './MarkupEditorView.scss';
 

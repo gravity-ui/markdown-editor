@@ -8,8 +8,8 @@ import {useRenderTime} from '../react-utils/hooks';
 import type {EditorInt} from './Editor';
 import {ToolbarView} from './ToolbarView';
 import {WysiwygEditorComponent} from './WysiwygEditorComponent';
-import type {WysiwygContenteditableAttributes} from './contenteditable-attributes';
 import type {ToolbarDisplay, WToolbarData, WToolbarItemData} from './toolbar/types';
+import type {WysiwygContenteditableAttributes} from './types';
 
 import './WysiwygEditorView.scss';
 
