@@ -1,6 +1,6 @@
 # Mermaid editor extension
 
-Mermaid diagrams for [@gravity-ui/markdown-editor](https://github.com/gravity-ui/markdown-editor): editing of fenced `mermaid` code blocks in the visual editor, a toolbar button for both modes, and rendering of diagrams in the static preview.
+Mermaid diagrams for [@gravity-ui/markdown-editor](https://github.com/gravity-ui/markdown-editor): editing of fenced `mermaid` code blocks in the visual editor and a toolbar button for both modes.
 
 Requires React and React DOM 18 or 19. Supports `@gravity-ui/markdown-editor` 15.47.0 and higher. Starting with version 16, the editor does not include Mermaid, and this package provides it.
 
@@ -28,7 +28,7 @@ const editor = useMarkdownEditor({
 });
 ```
 
-The Markdown plugin for the markup preview comes from `@diplodoc/mermaid-extension`. The setup of the plugin, the static render and the toolbar is described in [How to connect the Mermaid extension](https://gravity-ui.github.io/markdown-editor/extensions/mermaid-extension.html).
+The Markdown plugin for the markup preview comes from `@diplodoc/mermaid-extension`. The setup of the plugin and the toolbar is described in [How to connect the Mermaid extension](https://gravity-ui.github.io/markdown-editor/extensions/mermaid-extension.html).
 
 | Entry point                                                   | Exports                                                                                                                                                        |
 | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -36,7 +36,6 @@ The Markdown plugin for the markup preview comes from `@diplodoc/mermaid-extensi
 | `@gravity-ui/markdown-editor-mermaid-extension/wysiwyg`       | `Mermaid`, `MermaidAction` and `toolbarMermaidItem` for the visual editor                                                                                      |
 | `@gravity-ui/markdown-editor-mermaid-extension/wysiwyg/specs` | `MermaidSpecs`, `MermaidAttrs`, `MermaidConsts`, `mermaidNodeName`, `mermaidNodeType` and `defaultMermaidEntityId`                                             |
 | `@gravity-ui/markdown-editor-mermaid-extension/markup`        | `insertMermaidDiagram` and `toolbarMermaidItem` for the Markdown editor                                                                                        |
-| `@gravity-ui/markdown-editor-mermaid-extension/view`          | `withMermaid` and `useMermaidRuntime` for the static render                                                                                                    |
 
 `MermaidSpecs` adds only the schema, Markdown parsing and serialization.
 `Mermaid` also needs the editor's React renderer, which the standard presets include.
@@ -51,9 +50,6 @@ The entities keep their names. Only the import path changes.
 | `MermaidAction` from `/extensions/additional/Mermaid/const`                                                | `MermaidAction` from `.` or `/wysiwyg`                                                                                                |
 | `MermaidEntitySharedState` from `/extensions/additional/Mermaid/types`                                     | `MermaidEntitySharedState` from `.` or `/wysiwyg`                                                                                     |
 | `MermaidSpecs`, `MermaidSpecsOptions` and the constants from `/extensions/additional/Mermaid/MermaidSpecs` | the same names from `/wysiwyg/specs`                                                                                                  |
-| `withMermaid`, `MermaidConfig`, `WithMermaidOptions`, `WithMermaidProps` from `/view/hocs/withMermaid`     | the same names from `/view`                                                                                                           |
-| `useMermaidRuntime` from `/view/hocs/withMermaid/useMermaidRuntime`                                        | `useMermaidRuntime` from `/view`                                                                                                      |
-| `PluginRuntime` from `/view/hocs/withMermaid/types`                                                        | `PluginRuntime` from `/view`                                                                                                          |
 | `TransformMeta` from `/view/hocs/withMermaid/types`                                                        | `TransformMeta` from `@gravity-ui/markdown-editor/view`                                                                               |
 | `MarkupCommands.insertMermaidDiagram`                                                                      | `insertMermaidDiagram` from `.` or `/markup`                                                                                          |
 | `mermaidItemView` from `/toolbars`                                                                         | `mermaidItemView` from `.`                                                                                                            |
@@ -61,5 +57,7 @@ The entities keep their names. Only the import path changes.
 | `wMermaidItemData`, `mMermaidButton`, `mMermaidItemData`                                                   | `toolbarMermaidItem` in a [toolbars preset](https://gravity-ui.github.io/markdown-editor/getting-started/toolbars-customization.html) |
 | `ActionName.mermaid`                                                                                       | any string key of the preset item, for example `'mermaid'`                                                                            |
 | `icons.mermaid`, `MermaidIcon`                                                                             | `LogoMermaid` from `@gravity-ui/icons`                                                                                                |
+
+The static render HOC `withMermaid`, the `useMermaidRuntime` hook and their types are removed.
 
 The `mermaid` key of the editor's `menubar` keyset is removed. The package registers its own keyset.

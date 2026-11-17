@@ -852,9 +852,6 @@ importers:
       gulp-cli:
         specifier: 'catalog:'
         version: 3.1.0
-      jsdom:
-        specifier: 25.0.1
-        version: 25.0.1
       mermaid:
         specifier: 11.17.2
         version: 11.17.2
