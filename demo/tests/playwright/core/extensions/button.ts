@@ -79,24 +79,6 @@ export class ButtonBlock {
         return block.evaluate((element) => getComputedStyle(element).backgroundColor);
     }
 
-    /** Distances between neighboring buttons: within a line and between lines. */
-    getGaps(blocks = this.variants) {
-        return blocks.evaluateAll((elements) => {
-            const rects = elements.map((element) => element.getBoundingClientRect());
-            const inline: number[] = [];
-            const block: number[] = [];
-            rects.slice(1).forEach((rect, index) => {
-                const previous = rects[index];
-                if (Math.abs(rect.top - previous.top) < 1) {
-                    inline.push(Math.round(rect.left - previous.right));
-                } else {
-                    block.push(Math.round(rect.top - previous.bottom));
-                }
-            });
-            return {inline, block};
-        });
-    }
-
     /** An option of the style list by its view and color, such as `Accent, Green`. */
     option(name: string | RegExp) {
         return this.page.getByRole('option', {name, exact: true});

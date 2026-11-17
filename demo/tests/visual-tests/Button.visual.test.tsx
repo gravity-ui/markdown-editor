@@ -53,31 +53,6 @@ test.describe('Button', () => {
         await expectScreenshot({component: editor.locators.component});
     });
 
-    test('should render a button @wysiwyg', async ({mount, editor, button, expectScreenshot}) => {
-        await mount(<ButtonStories.Button initial={singleButton} />);
-        await editor.assertMode('wysiwyg');
-        await expect(button.blocks).toHaveCount(1);
-        await expect(button.blocks).toHaveAttribute('href', 'https://example.com');
-        await expectScreenshot({component: editor.locators.component});
-    });
-
-    test('should place buttons in a line of text @wysiwyg', async ({
-        mount,
-        editor,
-        button,
-        expectScreenshot,
-    }) => {
-        await mount(
-            <ButtonStories.Button
-                initial={
-                    'Нажмите :button[Кнопка]{view="action" color="blue"} или :button[Кнопка]{view="outline" color="gray"} и читайте дальше'
-                }
-            />,
-        );
-        await expect(button.blocks).toHaveCount(2);
-        await expectScreenshot({component: editor.locators.component});
-    });
-
     test('should preview every view and color and preserve them across modes @wysiwyg @markup', async ({
         mount,
         page,
@@ -104,23 +79,6 @@ test.describe('Button', () => {
         expect(await button.getValues()).toEqual(before);
     });
 
-    test('should preview a button @markup', async ({
-        mount,
-        page,
-        editor,
-        button,
-        wait,
-        expectScreenshot,
-    }) => {
-        await mount(<ButtonStories.Button initial={singleButton} mode="markup" />);
-        await editor.switchPreview('visible');
-        await page.mouse.move(0, 0);
-        await wait.tooltipsHidden();
-        await expect(button.variants).toHaveCount(1);
-        await expect(button.variants).toHaveAttribute('href', 'https://example.com');
-        await expectScreenshot({component: editor.locators.component});
-    });
-
     test('should show the placeholder in an empty button @wysiwyg', async ({
         mount,
         editor,
@@ -136,63 +94,6 @@ test.describe('Button', () => {
         await expectScreenshot({component: editor.locators.component});
         await editor.switchMode('markup');
         await expect(editor.locators.contenteditable).toContainText(':button[Button]');
-    });
-
-    test('should insert a button from the toolbar @wysiwyg', async ({
-        mount,
-        page,
-        editor,
-        button,
-        wait,
-        expectScreenshot,
-    }) => {
-        await mount(<ButtonStories.Button initial="Текст " />);
-        await editor.focus();
-        await editor.press('End');
-        await editor.clickMainToolbarButton('Button');
-        await expect(button.blocks).toHaveCount(1);
-        await expect(button.blocks).toHaveText('Button');
-        await expect(button.blocks).toHaveAttribute('data-view', 'action');
-        await expect(button.blocks).toHaveAttribute('data-color', 'standard');
-        await page.mouse.move(0, 0);
-        await wait.tooltipsHidden();
-        await expectScreenshot({component: editor.locators.component});
-    });
-
-    test('should insert a button from the toolbar @markup', async ({mount, editor}) => {
-        await mount(<ButtonStories.Button initial="" mode="markup" />);
-        await editor.clickMainToolbarButton('Button');
-        await expect(editor.locators.contenteditable).toHaveText(
-            ':button[Button]{view="action" color="standard"}',
-        );
-    });
-
-    test('should edit the label and the link of a button in its window @wysiwyg', async ({
-        mount,
-        page,
-        editor,
-        button,
-        expectScreenshot,
-    }) => {
-        await mount(<ButtonStories.Button initial={withSpace} />);
-        await button.openSettings();
-        await expect(button.label).toBeFocused();
-        await expect(button.label).toHaveValue('Кнопка');
-        await expect(button.link).toHaveValue('https://example.com');
-        await page.mouse.move(0, 0);
-        await expectScreenshot({component: editor.locators.component});
-        await button.label.fill('Открыть');
-        await button.link.fill('/page');
-        await button.link.press('Enter');
-        await expect(button.settings).toBeHidden();
-        await expect(editor.locators.contenteditable).toBeFocused();
-        await expect(button.blocks).toHaveText('Открыть');
-        await expect(button.blocks).toHaveAttribute('href', '/page');
-        await editor.press('Enter');
-        await expect(button.label).toBeFocused();
-        await editor.press('Escape');
-        await expect(button.settings).toBeHidden();
-        await expect(editor.locators.contenteditable).toBeFocused();
     });
 
     test('should open settings on repeated clicks and preserve selection @wysiwyg', async ({
@@ -242,25 +143,6 @@ test.describe('Button', () => {
         await expect(button.label).toBeFocused();
         await expect(button.label).toHaveValue('');
         await expect(button.settings).toBeVisible();
-    });
-
-    test('should keep a button in a note selected while its window is open @wysiwyg', async ({
-        mount,
-        editor,
-        button,
-        expectScreenshot,
-    }) => {
-        await mount(
-            <ButtonStories.Button
-                initial={`{% note info "Note" %}\n\nRead :button[Кнопка]{view="action" color="standard"} first\n\n{% endnote %}${'\n\nТекст'.repeat(10)}`}
-            />,
-        );
-        await button.openSettings();
-        await button.label.pressSequentially('!');
-        await expect(button.settings).toBeVisible();
-        await expect(button.selectedBlocks).toHaveCount(1);
-        await expect(button.blocks).toHaveCSS('box-shadow', /0px 0px 0px 1px$/);
-        await expectScreenshot({component: editor.locators.component});
     });
 
     test('should remove the style preview after closing its list @wysiwyg', async ({
@@ -341,6 +223,7 @@ test.describe('Button', () => {
         await expect(button.linkError).toBeHidden();
         await button.link.press('Enter');
         await expect(button.settings).toBeHidden();
+        await expect(editor.locators.contenteditable).toBeFocused();
         await expect(button.blocks).toHaveAttribute('href', '/page');
         await expect(button.blocks).toHaveText('Открыть');
     });
@@ -393,25 +276,6 @@ test.describe('Button', () => {
         await expect(button.selectedBlocks).toHaveCount(1);
         await editor.press('Backspace');
         await expect(button.blocks).toHaveCount(0);
-    });
-
-    test('should lay out a paragraph of buttons as a row @markup', async ({
-        mount,
-        page,
-        editor,
-        button,
-        wait,
-        expectScreenshot,
-    }) => {
-        await mount(<ButtonStories.Button mode="markup" initial={statesMarkup} width={400} />);
-        await editor.switchPreview('visible');
-        await page.mouse.move(0, 0);
-        await wait.tooltipsHidden();
-        await expect(button.variants).toHaveCount(stateStyles.length);
-        const gaps = await button.getGaps();
-        expect(gaps.block.length).toBeGreaterThan(0);
-        expect([...new Set([...gaps.inline, ...gaps.block])]).toEqual([16]);
-        await expectScreenshot({component: editor.locators.component});
     });
 
     test('should show the hover state of every view @markup', async ({

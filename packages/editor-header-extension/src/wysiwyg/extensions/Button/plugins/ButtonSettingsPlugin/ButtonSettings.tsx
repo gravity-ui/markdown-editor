@@ -72,20 +72,6 @@ function useSavedText(saved: string, save: (value: string) => boolean | void, cl
     };
 }
 
-const tabbable = (container: Element) =>
-    Array.from(container.querySelectorAll<HTMLElement>('input, button, [tabindex="0"]')).filter(
-        (element) =>
-            element.tabIndex >= 0 &&
-            !element.matches(':disabled') &&
-            element.checkVisibility?.() !== false,
-    );
-
-const isTabOut = (event: KeyboardEvent<HTMLElement>) => {
-    if (event.key !== 'Tab' || event.nativeEvent.defaultPrevented) return false;
-    const controls = tabbable(event.currentTarget);
-    return event.target === (event.shiftKey ? controls[0] : controls[controls.length - 1]);
-};
-
 export function ButtonSettings({view, node, pos, anchor, parser, onClose}: ButtonSettingsProps) {
     const update = (attrs: Parameters<typeof setButtonAttrs>[1]) =>
         setButtonAttrs(pos, attrs)(view.state, view.dispatch);
@@ -105,6 +91,12 @@ export function ButtonSettings({view, node, pos, anchor, parser, onClose}: Butto
         label.save();
         href.save();
         onClose(reason);
+    };
+    // Tab after the last field and Shift+Tab before the first one return the focus to the editor.
+    const closeOnTab = (shiftKey: boolean) => (event: KeyboardEvent) => {
+        if (event.key !== 'Tab' || event.shiftKey !== shiftKey) return;
+        event.preventDefault();
+        saveAndClose();
     };
     const labelRef = useRef<HTMLInputElement>(null);
     // Floating UI adds a focus element next to a DOM anchor, and ProseMirror owns the editor DOM.
@@ -133,20 +125,18 @@ export function ButtonSettings({view, node, pos, anchor, parser, onClose}: Butto
                 if (!open && !onButton) saveAndClose(reason);
             }}
         >
-            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Tab out of the window returns the focus to the editor. */}
             <section
                 className={b()}
                 role="dialog"
                 aria-label={i18n('button-settings')}
                 data-qa="button-settings"
-                onKeyDown={(event) => {
-                    if (!isTabOut(event)) return;
-                    event.preventDefault();
-                    saveAndClose();
-                }}
             >
                 <TextInput
                     {...label.input}
+                    onKeyDown={(event) => {
+                        label.input.onKeyDown(event);
+                        closeOnTab(true)(event);
+                    }}
                     size="l"
                     hasClear
                     controlRef={labelRef}
@@ -174,6 +164,7 @@ export function ButtonSettings({view, node, pos, anchor, parser, onClose}: Butto
                         size="m"
                         checked={node.attrs.target === '_blank'}
                         content={i18n('button-new-tab')}
+                        controlProps={{onKeyDown: closeOnTab(false)}}
                         onUpdate={(checked) => update({target: checked ? '_blank' : '_self'})}
                     />
                 </div>

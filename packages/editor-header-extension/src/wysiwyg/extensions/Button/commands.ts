@@ -2,20 +2,7 @@ import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
 import {type Command, NodeSelection, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
 import {type ButtonModel, buttonModel, safeLinkUrl} from '@gravity-ui/markdown-plugin-header';
 
-import {i18n} from '../../../i18n';
-
 import {buttonNodeType} from './ButtonSpecs';
-
-export const insertButton: Command = (state, dispatch) => {
-    const type = buttonNodeType(state.schema);
-    const {$from, $to} = state.selection;
-    if (!$from.parent.canReplaceWith($from.index(), $to.index(), type)) return false;
-    if (dispatch) {
-        const button = type.create({label: i18n('button-placeholder')});
-        dispatch(state.tr.replaceSelectionWith(button, false).scrollIntoView());
-    }
-    return true;
-};
 
 export const setButtonAttrs =
     (pos: number, attrs: Partial<ButtonModel & {label: string}>): Command =>

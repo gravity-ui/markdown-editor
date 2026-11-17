@@ -1,4 +1,8 @@
 .g-md-button-nodeview {
+    --_--selection-width: 1px;
+    --_--selection-color: var(--g-md-button-plugin-focus-outline-color, var(--g-color-text-info));
+    --_--placeholder-opacity: 0.6;
+
     cursor: pointer;
 
     // A click selects the button in the editor; only the link of the rendered page is pressed.
@@ -10,11 +14,10 @@
     &.ProseMirror-selectednode,
     .g-md-editor.ProseMirror-focused &.ProseMirror-selectednode {
         outline: none;
-        box-shadow: var(--g-md-button-plugin-focus-outline-color, var(--g-color-text-info)) 0 0 0
-            1px;
+        box-shadow: var(--_--selection-color) 0 0 0 var(--_--selection-width);
     }
 
     &__placeholder {
-        opacity: 0.6;
+        opacity: var(--_--placeholder-opacity);
     }
 }

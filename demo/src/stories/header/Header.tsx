@@ -7,12 +7,7 @@ import {
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
 import {ActionName as Action, ToolbarName, full} from '@gravity-ui/markdown-editor/toolbars';
-import {
-    Button,
-    Header,
-    toolbarButtonItem,
-    toolbarHeaderItem,
-} from '@gravity-ui/markdown-editor-header-extension';
+import {Button, Header, toolbarHeaderItem} from '@gravity-ui/markdown-editor-header-extension';
 
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
@@ -21,14 +16,13 @@ const mainToolbar = [
     [Action.undo, Action.redo],
     [Action.bold, Action.italic, Action.underline, Action.strike, Action.mono, Action.mark],
     [Action.link],
-    ['header', 'button'],
+    ['header'],
 ];
 
 export const toolbars = {
     items: {
         ...full.items,
         header: toolbarHeaderItem,
-        button: toolbarButtonItem,
     },
     orders: {
         ...full.orders,

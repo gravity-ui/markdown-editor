@@ -1,3 +1,3 @@
-export {insertButton, insertHeader} from './markup';
-export {toolbarButtonItem, toolbarHeaderItem} from './toolbar/items';
+export {insertHeader} from './markup';
+export {toolbarHeaderItem} from './toolbar/items';
 export {Button, Header} from './wysiwyg';

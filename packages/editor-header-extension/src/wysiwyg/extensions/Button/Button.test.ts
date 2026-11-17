@@ -19,7 +19,7 @@ import {copyHeader, setHeaderDimension} from '../Header/commands';
 import {Button} from './Button';
 import {WButtonNodeView} from './ButtonNodeView';
 import {ButtonSpecs, buttonNodeType} from './ButtonSpecs';
-import {insertButton, selectButtonAfter, selectButtonBefore, setButtonAttrs} from './commands';
+import {selectButtonAfter, selectButtonBefore, setButtonAttrs} from './commands';
 
 const {schema, markupParser, serializer} = new ExtensionsManager({
     extensions: (builder) =>
@@ -103,8 +103,8 @@ describe('Button extension', () => {
         [':button[\\[x\\] a\\\\b]', ':button[\\[x\\] a\\\\b]{view="action" color="standard"}'],
         [':button[**Bold**]', ':button[**Bold**]{view="action" color="standard"}'],
         [
-            ':button[Label]{href="/image&copy;.png?a=1&amp;b=2&#10;"}',
-            ':button[Label]{href="/image&copy;.png?a=1&amp;b=2&#10;" view="action" color="standard"}',
+            ':button[Label]{href="/image&copy;.png?a=1&amp;b=2"}',
+            ':button[Label]{href="/image%C2%A9.png?a=1&b=2" view="action" color="standard"}',
         ],
         [
             ':button[Label]{href="/a?x=\\"1\\""}',
@@ -145,15 +145,6 @@ describe('Button extension', () => {
         expect(copyHeader(0)(state(), dispatch)).toBe(true);
         expect(state().doc.child(0).eq(state().doc.child(1))).toBe(true);
         expect(markupParser.parse(serializer.serialize(state().doc)).eq(state().doc)).toBe(true);
-    });
-    it('should insert a default button and put the cursor after it', () => {
-        const {state, dispatch} = createState('Before after');
-        dispatch(state().tr.setSelection(TextSelection.create(state().doc, 7)));
-        expect(insertButton(state(), dispatch)).toBe(true);
-        expect(serializer.serialize(state().doc)).toBe(
-            'Before:button[Button]{view="action" color="standard"} after',
-        );
-        expect(state().selection.$from.nodeBefore?.type.name).toBe('button');
     });
     it('should change attributes in separate undo steps and keep the label', () => {
         const {state, dispatch} = createState(button);

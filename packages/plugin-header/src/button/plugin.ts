@@ -3,8 +3,6 @@ import type {PluginSimple} from 'markdown-it';
 import type {RuleCore} from 'markdown-it/lib/parser_core';
 import type Token from 'markdown-it/lib/token';
 
-import {directiveRawAttrs} from '../directive';
-
 import {buttonAttrs} from './attrs';
 import {buttonRowClassName, buttonTokenName, normalizeButtonHref} from './model';
 
@@ -49,15 +47,11 @@ export const buttonPlugin: PluginSimple = (md) => {
         // A button without a label consumes its markup and renders nothing.
         if (!label) return true;
         const attrs = params.attrs ?? {};
-        const {href} = directiveRawAttrs(
-            md,
-            state.src.slice(params.content.endPos + 1, params.endPos),
-            attrs,
-            ['href'],
-        );
         const token = state.push(buttonTokenName, 'a', 0);
         token.content = label;
-        token.attrs = Object.entries(buttonAttrs({...attrs, href: normalizeButtonHref(md, href)}));
+        token.attrs = Object.entries(
+            buttonAttrs({...attrs, href: normalizeButtonHref(md, attrs.href)}),
+        );
         return true;
     });
     if (!md.core.ruler.getRules('').includes(buttonRows)) {

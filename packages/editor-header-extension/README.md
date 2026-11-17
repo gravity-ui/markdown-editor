@@ -13,10 +13,10 @@ const editor = useMarkdownEditor({
 
 | Entry point                                                  | Exports                                                                                                            |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `@gravity-ui/markdown-editor-header-extension`               | `Header`, `Button`, the Markdown commands `insertHeader` and `insertButton`, and the toolbar buttons `toolbarHeaderItem` and `toolbarButtonItem` for both modes |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header`, `Button`, `toolbarHeaderItem`, and `toolbarButtonItem` for the visual editor |
+| `@gravity-ui/markdown-editor-header-extension`               | `Header`, `Button`, the Markdown command `insertHeader`, and the toolbar button `toolbarHeaderItem` for both modes |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header`, `Button`, and `toolbarHeaderItem` for the visual editor                                                  |
 | `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName`, `ButtonSpecs`, and `buttonNodeName`                                               |
-| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader`, `insertButton`, `toolbarHeaderItem`, and `toolbarButtonItem` for the Markdown editor |
+| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader` and `toolbarHeaderItem` for the Markdown editor                                                     |
 
 `toolbarHeaderItem` inserts the block.
 In the visual editor, the button is disabled inside another header.
@@ -54,11 +54,8 @@ The button is an atom: a click on it, or Enter while it is selected, opens the s
 The window holds the label field, the style list with a preview of the style under the pointer, the link field, and the "Open in a new tab" switch.
 The label is plain text without formatting. Each change is a separate undo step.
 The link field shows an error for an address that the Markdown parser of the editor rejects, such as `javascript:`, and keeps the previous address. Such an address is also dropped from a pasted button.
-Closing the window saves the label and the link. Escape, Enter, and Tab after the last field return focus to the editor. Clicking the button does not follow the link.
+Closing the window saves the label and the link. Escape, Enter, Tab after the last field, and Shift+Tab before the first field return focus to the editor. Clicking the button does not follow the link.
 Backspace after a button and Delete before it select the button; the next press removes it.
-
-`toolbarButtonItem` inserts `:button[Button]{view="action" color="standard"}` at the cursor in both modes.
-In the visual editor, the cursor moves after the new button.
 
 The editor always writes `view` and `color`; `href` is written when set, and `target` when it differs from `_self`.
 

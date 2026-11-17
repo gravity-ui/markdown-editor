@@ -9,7 +9,6 @@
     --_--line-height: var(--g-md-button-plugin-line-height, var(--g-text-body-1-line-height, 18px));
     --_--focus-outline-color: var(--g-color-line-focus);
     --_--focus-outline-offset: 0;
-    --_--action-focus-outline-offset: 1px;
     --_--transition-duration-transform: var(
         --g-md-button-plugin-transition-duration-transform,
         0.1s
@@ -93,8 +92,6 @@
     &.g-md-button-plugin_view_action {
         --_--color: var(--_--action-color, var(--g-color-text-light-primary));
         --_--background-hover: var(--_--action-background-hover);
-        --_--focus-outline-color: var(--_--action-background);
-        --_--focus-outline-offset: var(--_--action-focus-outline-offset);
 
         background-color: var(--_--action-background);
     }

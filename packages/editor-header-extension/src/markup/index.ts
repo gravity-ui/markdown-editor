@@ -1,3 +1,2 @@
-export {toolbarButtonItem, toolbarHeaderItem} from '../toolbar/markup/items';
-export {insertButton} from './commands/insertButton';
+export {toolbarHeaderItem} from '../toolbar/markup/items';
 export {insertHeader} from './commands/insertHeader';

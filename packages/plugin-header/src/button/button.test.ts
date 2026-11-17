@@ -103,10 +103,18 @@ describe('Button Markdown', () => {
         '/page?a=1&amp;b=2',
         '/image&#10;.png',
         '/a&lt;b&gt;c&quot;d',
-    ])('should keep the href %s as written', (href) => {
-        expect(openToken(`:button[Open]{href="${href}"}`)?.attrGet('href')).toBe(href);
-        const html = md.renderInline(`:button[Open]{href="${href}"}`);
-        expect(md.utils.unescapeAll(/href="([^"]*)"/.exec(html)?.[1] ?? '')).toBe(href);
+        '/a\\(b\\)',
+    ])('should read the href %s like the address of a link', (href) => {
+        const link = inlineTokens(`[Open](${href})`).find((token) => token.type === 'link_open');
+        expect(openToken(`:button[Open]{href="${href}"}`)?.attrGet('href')).toBe(
+            link?.attrGet('href'),
+        );
+    });
+    it.each([
+        ['&#106;avascript', 'alert(1)'].join(':'),
+        'data:image/png;base64,AAAA',
+    ])('should drop the unsafe href %s', (href) => {
+        expect(openToken(`:button[Open]{href="${href}"}`)?.attrGet('href')).toBeNull();
     });
     it('should omit a repeated href', () => {
         expect(openToken(':button[Open]{href="/one" href="/two"}')?.attrGet('href')).toBeNull();

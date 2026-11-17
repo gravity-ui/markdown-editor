@@ -1,9 +1,8 @@
-import type {Action, ExtensionAuto} from '@gravity-ui/markdown-editor/core';
+import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 
 import {WButtonNodeView} from './ButtonNodeView';
 import {ButtonSpecs, buttonNodeName} from './ButtonSpecs';
-import {insertButton, selectButtonAfter, selectButtonBefore} from './commands';
-import {insertButtonAction} from './const';
+import {selectButtonAfter, selectButtonBefore} from './commands';
 import {buttonSettingsPlugin} from './plugins/ButtonSettingsPlugin';
 
 import '@gravity-ui/markdown-plugin-header/styles.css';
@@ -16,14 +15,5 @@ export const Button: ExtensionAuto = (builder) => {
         .addKeymap(
             () => ({Backspace: selectButtonBefore, Delete: selectButtonAfter}),
             builder.Priority.High,
-        )
-        .addAction(insertButtonAction, () => ({isEnable: insertButton, run: insertButton}));
+        );
 };
-
-declare global {
-    namespace WysiwygEditor {
-        interface Actions {
-            [insertButtonAction]: Action;
-        }
-    }
-}

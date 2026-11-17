@@ -1,0 +1,7 @@
+$padding: 16px;
+$border-radius: var(--g-border-radius-xl);
+$font-size: 14px;
+$field-height: 36px;
+$divider-height: 1px;
+// The window padding, the label field, the divider and its margins above the style select.
+$style-top: 3 * $padding + $field-height + $divider-height;
