@@ -122,7 +122,8 @@ export class TableDesc {
 
         // ---> validation
         const rowsCount = rows.length;
-        const colsCount = rows[0].cells.length;
+        const colsCount = rows[0]?.cells.length;
+        if (!colsCount) return null;
         for (let r = 0; r < rowsCount; r++) {
             if (!rows[r] || rows[r].cells.length !== colsCount) return null;
 
@@ -135,7 +136,7 @@ export class TableDesc {
         const rawHeaderRows = Number(table.attrs['data-header-rows']) || 0;
         const headerRows = Math.max(0, Math.min(rawHeaderRows, rows.length));
 
-        const desc = new this(rows.length, rows[0].cells.length, rows, baseOffset, headerRows);
+        const desc = new this(rowsCount, colsCount, rows, baseOffset, headerRows);
         this.__cache.set(table, desc);
         return desc;
     }

@@ -15,7 +15,7 @@ Test names (`it`, `test`, and parameterized cases) must start with `should `, fo
 Type contract tests follow the same rules in every package:
 
 - Store them in the package's `tests/types/` directory as `*.types.ts`.
-- Include them in the package's TypeScript configuration and check them with its `typecheck` command. Vitest does not run these files.
+- Check source API contracts with the package's `typecheck` command. Contracts that import the built package may use a separate TypeScript configuration and command, run after a fresh build as part of package tests and CI. This does not require a build in `typecheck`.
 - Use explicit type assignments to check result types, methods, and overloads.
 - Use `@ts-expect-error` for inputs or assignments that must be rejected. The check must fail if the expected error disappears.
 - Keep each contract check in a small function or type alias. These files are checked without execution; runtime behavior belongs in Vitest tests.
@@ -36,6 +36,10 @@ It covers `*.{js,jsx,mjs,ts,tsx,css,scss}` across the whole repository. Its outp
 - Write code the way the linter wants it from the start: `T[]` instead of `Array<T>`, object shorthand (`{foo}` instead of `{foo: foo}`), inline type imports (`import {type Foo} from './foo'`).
 - Where the linter is silent, follow the file you are editing.
 - Shared rules live in `infra/linters/`; per-package overrides are in the root `eslint.config.mjs`.
+
+## Styles
+
+- Sizes are written without CSS math functions: `calc()`, `min()`, `max()`, `clamp()`. Change the layout so the value is not needed, or derive it from Sass variables with static values, which Sass computes at build time. A math function stays only where an operand is known at runtime: a percentage, viewport units, `lh`, or a custom property set from script.
 
 ## Extensions
 
@@ -142,3 +146,13 @@ Project docs live in `docs/`. Read the relevant file before working on the corre
 - Vitest (unit), Playwright (visual/e2e)
 - pnpm + nx monorepo
 - Podman / Docker for containerized test runs
+
+## Commits and pull requests
+
+- Base commit messages on the staged diff (amend: the full resulting diff against the original commit's parent), and PR titles/descriptions on the full merge-base-to-head diff against the actual target branch.
+- Write commit subjects and PR titles in concise English (B1), using Conventional Commits: `type: result`. Keep body/footer for essential context. Reuse the main commit's subject as the PR title if it describes the whole result.
+- Omit scope by default in commits and PR titles. Use it only for a functional area within a package or shared across changed packages; omit it for whole-package changes. Never use a package name, its abbreviation or its directory as scope.
+- Explain breaking changes; prefer `feat!:` for breaking features. A `BREAKING CHANGE:` body/footer is allowed with or without `!`. Label PRs with breaking changes `breaking change`, and create or comment on an issue with the same label.
+- Publish new PRs as drafts.
+- Write PR descriptions in plain English (A2–B1): problem, resulting behavior, limitations, and what tests protect. Reference related issues; use `Fixes #123` only when resolving them. Follow a PR template if provided; keep small PR descriptions to a few sentences. Omit successful checks covered by CI or required by AGENTS.md; report failures. Keep accurate titles/descriptions unchanged.
+- Use base branches for PR stacks. Omit stack relationships and merge order from titles/descriptions.

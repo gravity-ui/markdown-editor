@@ -19,6 +19,7 @@ import type {Logger2} from '../../../logger';
 import {isCodeBlock} from '../../../utils/nodes';
 import {contextualToolbarsKey} from '../ContextualToolbars';
 
+import {createToolbarDataResolver} from './toolbar-data';
 import {type ContextConfig, TooltipView} from './tooltip';
 
 export type {
@@ -68,11 +69,14 @@ class SelectionTooltip implements PluginSpec<PluginState> {
     private hideTimeoutRef: ReturnType<typeof setTimeout> | null = null;
 
     private _isMousePressed = false;
+    private readonly actions: ActionStorage;
     private readonly config: ContextConfig;
+    private readonly getToolbarData = createToolbarDataResolver();
 
     constructor(actions: ActionStorage, logger: Logger2.ILogger, options: SelectionContextOptions) {
+        this.actions = actions;
         this.config = options.config ?? [];
-        this.tooltip = new TooltipView(actions, this.config, logger, {
+        this.tooltip = new TooltipView(actions, logger, {
             ...options,
             onPopupOpenChange: (_open, _event, reason) => {
                 if (reason !== 'escape-key' && this.editorView)
@@ -196,7 +200,13 @@ class SelectionTooltip implements PluginSpec<PluginState> {
             return;
         }
 
-        this.tooltip.show(view, config);
+        const toolbarData = this.getToolbarData(config, this.actions, state);
+        if (!toolbarData.length) {
+            this.tooltip.hide(view);
+            return;
+        }
+
+        this.tooltip.show(view, toolbarData);
     }
 
     private getConfig(state: EditorState): ContextConfig {

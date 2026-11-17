@@ -80,7 +80,12 @@ export const insertEmptyColumn = (params: InsertEmptyColumnParams): Command => {
                     td.createAndFill(bg ? {[YfmTableAttr.CellBg]: bg} : undefined)!,
                 );
             }
-            tr.setSelection(TextSelection.near(tr.doc.resolve(cellsToInsert[0].pos), 1));
+
+            const firstCell = cellsToInsert[0];
+            if (firstCell) {
+                tr.setSelection(TextSelection.near(tr.doc.resolve(firstCell.pos), 1));
+            }
+
             dispatch(tr.scrollIntoView());
         }
 
