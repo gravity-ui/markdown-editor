@@ -18,6 +18,7 @@ on:
           - 'packages/page-constructor-extension'
           - 'packages/viewer'
           - 'packages/viewer-yfm-latex-extension'
+          - 'packages/viewer-yfm-mermaid-extension'
       tag:
         description: 'Publish with tag'
         required: true
