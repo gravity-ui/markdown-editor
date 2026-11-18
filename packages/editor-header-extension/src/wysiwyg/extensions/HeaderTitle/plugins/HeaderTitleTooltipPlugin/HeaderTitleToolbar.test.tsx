@@ -1,31 +1,20 @@
 // @vitest-environment jsdom
-import type {SVGProps} from 'react';
-
 import {ToolbarDataType} from '@gravity-ui/markdown-editor';
 import {SelectionContext} from '@gravity-ui/markdown-editor/extensions';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {headerTitle, headerTitleSizes} from '@gravity-ui/markdown-plugin-header';
-import {act} from 'react-dom/test-utils';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
-
 import {
-    createTestEditor,
-    description,
-    header,
-    press,
-    setCursor,
-    textPos,
-} from '../../../../../../tests/editor';
+    headerTitle,
+    headerTitleClassName,
+    headerTitleColors,
+    headerTitleSizes,
+} from '@gravity-ui/markdown-plugin-header';
+import {act} from 'react-dom/test-utils';
+import {beforeEach, describe, expect, it} from 'vitest';
+
+import {createTestEditor, header, press, setCursor, textPos} from '../../../../../../tests/editor';
 import {createEditorWithRenderer, createToolbarRoot, settle} from '../../../../../../tests/toolbar';
 
 import {HeaderTitleToolbar} from './HeaderTitleToolbar';
-
-vi.mock('@gravity-ui/icons', async (importOriginal) => ({
-    ...(await importOriginal<object>()),
-    Font: ({style, ...props}: SVGProps<SVGSVGElement>) => (
-        <svg {...props} data-color={style?.color} />
-    ),
-}));
 
 const {createView, markup} = createTestEditor();
 
@@ -80,20 +69,11 @@ describe('Header title toolbar', () => {
         expect(markup(view)).toContain(`::header-title[Team portal]${written}\n`);
     });
 
-    it.each([
-        ['auto', null],
-        ['gray', '--g-color-text-secondary'],
-        ['yellow', '--g-color-private-yellow-600-solid'],
-        ['orange', '--g-color-private-orange-500-solid'],
-        ['red', '--g-color-text-danger'],
-        ['green', '--g-color-text-positive'],
-        ['blue', '--g-color-text-info'],
-        ['violet', '--g-color-text-utility'],
-    ])('should paint the color button with the %s color of the title', async (color, token) => {
+    it.each(headerTitleColors)('should paint the color button with the %s color', async (color) => {
         view.dispatch(view.state.tr.setNodeAttribute(TITLE_POS, 'color', color));
         await render();
-        expect(button('Title color')?.querySelector('svg svg')?.getAttribute('data-color')).toBe(
-            token && `var(--yfm-colorify-${color}, var(${token}))`,
+        expect(button('Title color')?.querySelector('svg svg')?.getAttribute('class')).toBe(
+            color === 'auto' ? null : `${headerTitleClassName}_color_${color}`,
         );
     });
 });
@@ -136,7 +116,7 @@ describe('Selection toolbar over the header title', () => {
         ['the title', 'Team portal', false],
         ['the description', 'Portal description.', true],
     ])('should show the selection toolbar over %s: %s', async (_name, text, shown) => {
-        const view = await start(header('::header-title[Team portal]', description));
+        const view = await start(header('::header-title[Team portal]', 'Portal description.'));
         view.coordsAtPos = () => ({left: 0, right: 0, top: 0, bottom: 0});
         const from = textPos(view, text);
         await act(async () => setCursor(view, from + 1, from + 5));

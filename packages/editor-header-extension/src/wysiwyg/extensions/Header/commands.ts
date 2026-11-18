@@ -80,7 +80,7 @@ function partFromParagraph(part: HeaderPart, paragraph: Node): Node | undefined 
     if (!paragraph.childCount) return undefined;
     let plain = part === 'title';
     paragraph.forEach((child) => {
-        plain &&= child.isText;
+        plain &&= child.isText && !child.marks.length;
     });
     return plain
         ? headerTitleNodeType(schema)?.create(null, schema.text(paragraph.textContent))
@@ -137,5 +137,20 @@ export const setHeaderPart =
             }
         }
         dispatch?.(keepSelection(tr, pos));
+        return true;
+    };
+
+export type RemovedParts = Map<HeaderPart, Node>;
+
+/** Keeps a removed part in `removed` and inserts it back when the part is enabled again. */
+export const toggleHeaderPart =
+    (pos: number, part: HeaderPart, enabled: boolean, removed: RemovedParts): Command =>
+    (state, dispatch, view) => {
+        const header = headerAt(state, pos);
+        if (!header) return false;
+        const found = findParts(header, pos)[part];
+        if (!setHeaderPart(pos, part, enabled, removed.get(part))(state, dispatch, view))
+            return false;
+        if (dispatch && found) removed.set(part, found.node);
         return true;
     };

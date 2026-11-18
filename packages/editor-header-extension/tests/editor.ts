@@ -28,20 +28,7 @@ const {LoggerFacet} = loggerUtils as unknown as {
 export const header = (...blocks: string[]) =>
     [':::header{height="s" width="m"}', ...blocks, ':::'].join('\n\n');
 
-export const headerContentMarkup = (paragraphs: readonly string[]) =>
-    `:::header-content\n\n${paragraphs.map((text) => `${text}\n\n`).join('')}:::`;
-
-export const description = headerContentMarkup(['Portal description.']);
-
-export const button = ':button[Open]{href="/page" view="action" color="standard"}';
-
 export const title = '::header-title[Team portal]';
-
-export const image = '::header-image{src="/a.png" alt="A"}';
-
-export const emptyImage = '::header-image';
-
-export const scriptUrl = ['javascript', 'alert(1)'].join(':');
 
 export const headerExtensions =
     (extra?: ExtensionAuto, storage = new ReactRenderStorage()): ExtensionAuto =>
@@ -56,9 +43,6 @@ export {runCommand as run} from '../src/wysiwyg/extensions/commands';
 export const setCursor = (editor: EditorView, from: number, to = from) =>
     editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, from, to)));
 
-export const selectNode = (editor: EditorView, pos: number) =>
-    editor.dispatch(editor.state.tr.setSelection(NodeSelection.create(editor.state.doc, pos)));
-
 export const press = (editor: EditorView, key: string, modifiers?: KeyboardEventInit) =>
     Boolean(
         editor.someProp('handleKeyDown', (handler) =>
@@ -66,27 +50,7 @@ export const press = (editor: EditorView, key: string, modifiers?: KeyboardEvent
         ),
     );
 
-export function copy(editor: EditorView) {
-    const data = new Map<string, string>();
-    const clipboardData = {
-        types: [] as string[],
-        files: [],
-        clearData: () => data.clear(),
-        setData: (type: string, value: string) => data.set(type, value),
-        getData: (type: string) => data.get(type) ?? '',
-    };
-    const event = {clipboardData, preventDefault() {}} as unknown as ClipboardEvent;
-    editor.someProp('handleDOMEvents', (handlers) => handlers.copy?.(editor, event));
-    clipboardData.types = [...data.keys()];
-    return {event, html: data.get('text/html') ?? '', yfm: data.get('text/yfm') ?? ''};
-}
-
-export type Copied = ReturnType<typeof copy>;
-
-export const paste = (editor: EditorView, {event}: Copied) =>
-    editor.someProp('handleDOMEvents', (handlers) => handlers.paste?.(editor, event));
-
-export const nodePositions = (editor: EditorView, name: string) => {
+const nodePositions = (editor: EditorView, name: string) => {
     const found: number[] = [];
     editor.state.doc.descendants((node, pos) => {
         if (node.type.name === name) found.push(pos);
@@ -101,24 +65,6 @@ export const nodePos = (editor: EditorView, name: string) => {
     return found.length ? found[found.length - 1] : -1;
 };
 
-export const buttonRanges = (editor: EditorView) => {
-    const found: {from: number; to: number}[] = [];
-    editor.state.doc.descendants((node, pos) => {
-        if (node.type.name === 'button') {
-            found.push({from: pos, to: pos + node.nodeSize});
-        }
-    });
-    return found;
-};
-
-export const countButtons = (editor: EditorView) => buttonRanges(editor).length;
-
-export const buttonPos = (editor: EditorView, end = false) => {
-    const last = buttonRanges(editor).at(-1);
-    if (!last) return -1;
-    return end ? last.to : last.from;
-};
-
 export const textPos = (editor: EditorView, text: string, end = false) => {
     let found = -1;
     editor.state.doc.descendants((node, pos) => {
@@ -127,7 +73,7 @@ export const textPos = (editor: EditorView, text: string, end = false) => {
     return found;
 };
 
-export function pasteData(editor: EditorView, data: Record<string, string>) {
+function pasteData(editor: EditorView, data: Record<string, string>) {
     const event = new Event('paste', {bubbles: true, cancelable: true});
     const clipboardData = {
         types: Object.keys(data),
@@ -162,7 +108,7 @@ export function drop(
     editor.dom.dispatchEvent(event);
 }
 
-export const codeText = 'line1\n\nline2';
+const codeText = 'line1\n\nline2';
 
 export const codeBlock = `\`\`\`\n${codeText}\n\`\`\``;
 

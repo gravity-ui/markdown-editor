@@ -5,11 +5,17 @@ import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {headerDimensions} from '@gravity-ui/markdown-plugin-header';
 
 import {i18n} from '../../../../../i18n';
-import {runCommand} from '../../../commands';
-import {copyHeader, removeHeader, setHeaderDimension, setHeaderPart} from '../../commands';
-import {findParts, headerParts} from '../../utils';
+import {
+    type RemovedParts,
+    copyHeader,
+    removeHeader,
+    setHeaderDimension,
+    toggleHeaderPart,
+} from '../../commands';
+import {headerParts} from '../../utils';
 
 import {HeaderSettings} from './Settings/HeaderSettings';
+import type {ContentControls} from './Settings/SettingsFields';
 
 import './HeaderToolbar.scss';
 
@@ -18,8 +24,18 @@ const b = cn('header-toolbar');
 /** The open toolbar of each editor, for the keymap to move focus into it. */
 export const headerToolbars = new WeakMap<EditorView, HTMLElement>();
 
+/** The blocks removed with the settings switches, by banner, until the page reloads. */
+const removedParts = new WeakMap<HTMLElement, RemovedParts>();
+
+function removedPartsOf(block: HTMLElement | null): RemovedParts {
+    if (!block) return new Map();
+    const removed = removedParts.get(block) ?? new Map();
+    removedParts.set(block, removed);
+    return removed;
+}
+
 const isActive = () => false;
-const isEnable = () => true;
+export const isEnable = () => true;
 
 type HeaderToolbarProps = {
     view: EditorView;
@@ -29,6 +45,11 @@ type HeaderToolbarProps = {
 };
 
 export function HeaderToolbar({view, node, pos, block}: HeaderToolbarProps) {
+    const content: ContentControls = {
+        parts: headerParts(node),
+        onPartChange: (part, enabled) =>
+            toggleHeaderPart(pos, part, enabled, removedPartsOf(block))(view.state, view.dispatch),
+    };
     const data: ToolbarData<EditorView> = [
         [
             {
@@ -47,12 +68,7 @@ export function HeaderToolbar({view, node, pos, block}: HeaderToolbarProps) {
                         onChange={(name, value) =>
                             setHeaderDimension(pos, name, value)(view.state, view.dispatch)
                         }
-                        content={{
-                            parts: headerParts(node),
-                            partNode: (part) => findParts(node, pos)[part]?.node,
-                            setPart: (part, enabled, restored) =>
-                                runCommand(view, setHeaderPart(pos, part, enabled, restored)),
-                        }}
+                        content={content}
                         onClose={hide}
                     />
                 ),

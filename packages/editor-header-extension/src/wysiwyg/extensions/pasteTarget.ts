@@ -79,13 +79,16 @@ export function dropLine(schema: Schema, slice: Slice) {
 
 function pastedLine(parser: Parser, data: DataTransfer) {
     const text = data.getData(DataTransferType.Text);
-    if (isVSCode(data) || isJetBrains(data)) return singleLine(text).trim();
+    if (isVSCode(data) || isJetBrains(data)) return singleLine(text);
     const html = data.getData(DataTransferType.Html);
     const pasted = html ? clipboardUtils.extractTextContentFromHtml(html) : text;
     if (!pasted) return '';
     const parsed = tryCatch(() => parser.parse(pasted));
     const content = parsed.success && parsed.result.content;
-    return (content && inlineMarkdown(content) ? lineText(content) : singleLine(pasted)).trim();
+    const line = content && inlineMarkdown(content) ? lineText(content) : singleLine(pasted);
+    // Markdown parsing drops the spaces at the edges of the pasted text.
+    const edge = (space: boolean) => (space ? ' ' : '');
+    return edge(/^[ \t]/.test(pasted)) + line.trim() + edge(/[ \t]$/.test(pasted));
 }
 
 export function pasteLine(view: EditorView, data: DataTransfer, parser: Parser) {

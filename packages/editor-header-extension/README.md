@@ -48,5 +48,6 @@ Each choice is a separate change of the attribute and keeps the text and the cur
 With the cursor in the title, Tab focuses the title toolbar.
 
 The Title switch in the Text section of the settings panel shows whether the header has a title.
-Turning it on inserts a title with default text at the start of the header; in a header that holds only one paragraph of plain text, that paragraph becomes the title. Turning it off removes the title, and undo brings it back.
-While the panel stays open, turning the switch off and on again restores the removed title with its text, size and color.
+Turning it on inserts a title with default text at the start of the header; in a header that holds only one paragraph of plain text without formatting, that paragraph becomes the title. Turning it off removes the title, and undo brings it back.
+Until the page reloads, turning the switch on again restores the removed title of that header with its text, size and color, also after the panel is closed.
+A header holds one title: a second title in the Markdown of a header stays a paragraph of text, and an edit that adds a second title to a header is rejected.

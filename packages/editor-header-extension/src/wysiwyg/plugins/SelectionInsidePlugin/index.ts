@@ -1,1 +1,1 @@
-export {findDepth, selectionInsidePlugin, textRange} from './plugin';
+export {selectionInsidePlugin} from './plugin';

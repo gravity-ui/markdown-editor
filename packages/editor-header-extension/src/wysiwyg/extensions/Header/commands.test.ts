@@ -1,13 +1,23 @@
 // @vitest-environment jsdom
 import {undo} from '@gravity-ui/markdown-editor/pm/history';
+import {BoldSpecs, LinkSpecs} from '@gravity-ui/markdown-editor/specs';
 import {describe, expect, it} from 'vitest';
 
-import {createTestEditor, header, run, setCursor, title} from '../../../../tests/editor';
+import {
+    createTestEditor,
+    header,
+    headerExtensions,
+    run,
+    setCursor,
+    title,
+} from '../../../../tests/editor';
 
-import {setHeaderPart} from './commands';
+import {type RemovedParts, setHeaderPart, toggleHeaderPart} from './commands';
 import {headerParts} from './utils';
 
-const {markupParser, createView, markup} = createTestEditor();
+const {markupParser, createView, markup} = createTestEditor(
+    headerExtensions((builder) => builder.use(BoldSpecs).use(LinkSpecs, {})),
+);
 
 const defaultTitle = '::header-title[This is your start page]';
 const text = 'Plain text';
@@ -64,22 +74,26 @@ describe('Header commands', () => {
         expect(markup(editor)).toBe(header(...before));
     });
 
-    it('should restore the removed title with its text and attributes', () => {
-        const source = header('::header-title[Team portal]{size="1" color="red"}', text);
-        const editor = createView(source);
-        const removed = editor.state.doc.child(0).child(0);
-        expect(run(editor, setHeaderPart(0, 'title', false))).toBe(true);
-        expect(markup(editor)).toBe(header(text));
-        expect(run(editor, setHeaderPart(0, 'title', true, removed))).toBe(true);
-        expect(markup(editor)).toBe(source);
+    it.each([
+        ['marks', '**Bold** text'],
+        ['a link', '[Link](/page) text'],
+    ])('should keep a paragraph with %s and insert a new title', (_name, paragraph) => {
+        const editor = createView(header(paragraph));
+        expect(run(editor, setHeaderPart(0, 'title', true))).toBe(true);
+        expect(markup(editor)).toBe(header(defaultTitle, paragraph));
     });
 
-    it('should restore the removed title into a header with only a text', () => {
-        const source = header(title, text);
+    it('should restore the removed title after undo and a second removal', () => {
+        const source = header('::header-title[Team portal]{size="1" color="red"}', text);
         const editor = createView(source);
-        const removed = editor.state.doc.child(0).child(0);
-        run(editor, setHeaderPart(0, 'title', false));
-        expect(run(editor, setHeaderPart(0, 'title', true, removed))).toBe(true);
+        const removed: RemovedParts = new Map();
+        expect(run(editor, toggleHeaderPart(0, 'title', false, removed))).toBe(true);
+        expect(markup(editor)).toBe(header(text));
+        expect(run(editor, toggleHeaderPart(0, 'title', true, removed))).toBe(true);
+        expect(markup(editor)).toBe(source);
+        expect(undo(editor.state, editor.dispatch)).toBe(true);
+        expect(markup(editor)).toBe(header(text));
+        expect(run(editor, toggleHeaderPart(0, 'title', true, removed))).toBe(true);
         expect(markup(editor)).toBe(source);
     });
 

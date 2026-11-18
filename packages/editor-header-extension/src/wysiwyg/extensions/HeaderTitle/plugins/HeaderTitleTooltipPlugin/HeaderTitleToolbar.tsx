@@ -6,6 +6,7 @@ import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {
     type HeaderTitle,
     type HeaderTitleColor,
+    headerTitleClassName,
     headerTitleColors,
     headerTitleSizes,
 } from '@gravity-ui/markdown-plugin-header';
@@ -15,22 +16,9 @@ import {BlockToolbar, type ToolbarOption, optionsButton} from '../../../blockToo
 import {runCommand} from '../../../commands';
 import {setHeaderTitleAttrs} from '../../commands';
 
-const colorTokens: Record<Exclude<HeaderTitleColor, 'auto'>, string> = {
-    gray: '--g-color-text-secondary',
-    yellow: '--g-color-private-yellow-600-solid',
-    orange: '--g-color-private-orange-500-solid',
-    red: '--g-color-text-danger',
-    green: '--g-color-text-positive',
-    blue: '--g-color-text-info',
-    violet: '--g-color-text-utility',
-};
-
 const colorIcon = (color: HeaderTitleColor): ToolbarIconData => {
-    const style =
-        color === 'auto'
-            ? undefined
-            : {color: `var(--yfm-colorify-${color}, var(${colorTokens[color]}))`};
-    return {data: (props: SVGProps<SVGSVGElement>) => <Font {...props} style={style} />};
+    const className = color === 'auto' ? undefined : `${headerTitleClassName}_color_${color}`;
+    return {data: (props: SVGProps<SVGSVGElement>) => <Font {...props} className={className} />};
 };
 
 const headingIcons = [Heading1, Heading2, Heading3, Heading4, Heading5, Heading6];

@@ -13,8 +13,6 @@ import {
 import {headerTitleGuardPlugin} from './plugins/HeaderTitleGuardPlugin';
 import {headerTitleTooltip} from './plugins/HeaderTitleTooltipPlugin';
 
-import '@gravity-ui/markdown-plugin-header/header-title/styles.css';
-
 export const HeaderTitle: ExtensionAuto = (builder) => {
     const tooltip = headerTitleTooltip();
     builder
@@ -29,5 +27,5 @@ export const HeaderTitle: ExtensionAuto = (builder) => {
             }),
             builder.Priority.High,
         )
-        .addKeymap(() => ({Tab: tooltip.focus()}), builder.Priority.VeryHigh);
+        .addKeymap(() => ({Tab: tooltip.focus}), builder.Priority.VeryHigh);
 };

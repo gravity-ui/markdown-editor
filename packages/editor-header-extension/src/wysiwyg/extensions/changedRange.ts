@@ -1,11 +1,5 @@
 import type {Transaction} from '@gravity-ui/markdown-editor/pm/state';
-import {
-    AddMarkStep,
-    Mapping,
-    RemoveMarkStep,
-    type Step,
-    StepMap,
-} from '@gravity-ui/markdown-editor/pm/transform';
+import {AddMarkStep, RemoveMarkStep, type Step} from '@gravity-ui/markdown-editor/pm/transform';
 
 export type Range = {from: number; to: number};
 
@@ -38,12 +32,6 @@ export function changedRange(tr: Transaction, doc: 'before' | 'after') {
 function rangeBefore(tr: Transaction, {from, to}: Range): Range {
     const back = tr.mapping.invert();
     return {from: back.map(from, -1), to: back.map(to, 1)};
-}
-
-export function coveringMapping(tr: Transaction, range: Range) {
-    const {from, to} = rangeBefore(tr, range);
-    const resized = tr.doc.content.size - tr.before.content.size;
-    return new Mapping([new StepMap([from, to - from, to - from + resized])]);
 }
 
 function mapThroughLater(

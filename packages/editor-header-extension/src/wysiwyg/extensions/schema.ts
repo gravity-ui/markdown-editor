@@ -8,8 +8,7 @@ export const placeholderSpec = (
     builder: ExtensionBuilder,
     nodeName: string,
     content: () => string,
-    alwaysVisible = true,
 ): NonNullable<NodeSpec['placeholder']> => ({
     content: builder.context.get('placeholder')?.[nodeName] ?? content,
-    ...(alwaysVisible && {alwaysVisible}),
+    alwaysVisible: true,
 });

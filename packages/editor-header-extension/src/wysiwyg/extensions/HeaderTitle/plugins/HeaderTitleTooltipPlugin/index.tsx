@@ -1,7 +1,6 @@
 import {headerTitle} from '@gravity-ui/markdown-plugin-header';
 
 import {blockTooltip} from '../../../blockToolbar';
-import {headerAlignPlacement} from '../../../placement';
 import {headerTitleNodeType} from '../../HeaderTitleSpecs';
 
 import {HeaderTitleToolbar} from './HeaderTitleToolbar';
@@ -10,7 +9,8 @@ export const headerTitleTooltip = () =>
     blockTooltip({
         idPrefix: 'header-title-tooltip',
         nodeType: headerTitleNodeType,
-        placement: headerAlignPlacement,
+        // Below the title, so the panel never covers the editor toolbar.
+        placement: ['bottom-start', 'top-start'],
         content: (view, {node, pos}) => (
             <HeaderTitleToolbar view={view} pos={pos} {...headerTitle(node.attrs)} />
         ),

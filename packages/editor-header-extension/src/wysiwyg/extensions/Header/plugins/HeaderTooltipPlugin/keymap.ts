@@ -1,12 +1,15 @@
 import type {Keymap} from '@gravity-ui/markdown-editor/core';
 import type {Command} from '@gravity-ui/markdown-editor/pm/state';
+import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 
 import {headerToolbars} from './HeaderToolbar';
 
-const focusToolbar =
-    (last: boolean): Command =>
+export type Toolbars = WeakMap<EditorView, HTMLElement>;
+
+export const focusToolbar =
+    (toolbars: Toolbars, last: boolean): Command =>
     (_state, _dispatch, view) => {
-        const toolbar = view && headerToolbars.get(view);
+        const toolbar = view && toolbars.get(view);
         if (!toolbar) return false;
         const buttons = toolbar.querySelectorAll('button');
         const button = buttons[last ? buttons.length - 1 : 0];
@@ -16,6 +19,6 @@ const focusToolbar =
     };
 
 export const headerKeymap = (): Keymap => ({
-    Tab: focusToolbar(false),
-    'Shift-Tab': focusToolbar(true),
+    Tab: focusToolbar(headerToolbars, false),
+    'Shift-Tab': focusToolbar(headerToolbars, true),
 });

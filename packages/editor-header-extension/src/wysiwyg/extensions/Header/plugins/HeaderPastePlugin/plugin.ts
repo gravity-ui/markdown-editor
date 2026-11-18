@@ -12,6 +12,7 @@ import {type EditorState, Plugin} from '@gravity-ui/markdown-editor/pm/state';
 import {headerTitleNodeType} from '../../../HeaderTitle/HeaderTitleSpecs';
 import {
     type PasteTarget,
+    draggedRange,
     dropLine,
     dropTarget,
     innerSlice,
@@ -59,6 +60,9 @@ const isTitle = ($pos: ResolvedPos) =>
 
 const inTitle = ({selection}: EditorState) => isTitle(selection.$from);
 
+const rangeCutsTitle = ({$from, $to}: PasteTarget) =>
+    (isTitle($from) || isTitle($to)) && !$from.sameParent($to);
+
 export const headerTitlePastePlugin = ({textParser}: ExtensionDeps) =>
     new Plugin({
         props: {
@@ -89,7 +93,12 @@ export const headerPastePlugin = ({markupParser}: ExtensionDeps) =>
                 return Boolean($drop && isTitle($drop) && !slice.size);
             },
             handleDOMEvents: {
-                drop: trackDrop,
+                drop(view, event) {
+                    const dragged = draggedRange(view);
+                    if (!dragged || !rangeCutsTitle(dragged)) return trackDrop(view, event);
+                    event.preventDefault();
+                    return true;
+                },
                 paste(view, event) {
                     const data = event.clipboardData;
                     const {state} = view;

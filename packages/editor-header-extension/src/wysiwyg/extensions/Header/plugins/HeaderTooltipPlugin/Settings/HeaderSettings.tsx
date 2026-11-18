@@ -2,7 +2,6 @@ import {useMemo, useRef} from 'react';
 
 import {limitShift, shift, size} from '@floating-ui/react';
 import {Xmark} from '@gravity-ui/icons';
-import type {Node as PmNode} from '@gravity-ui/markdown-editor/pm/model';
 import {
     type HeaderDimensions,
     headerHeights,
@@ -11,11 +10,10 @@ import {
 import {Button, Icon, Popup, type PopupAnchorElement, Text, useUniqId} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
-import type {HeaderPart, HeaderParts} from '../../../utils';
 
 import {DimensionSelect} from './DimensionSelect';
 import {cnHeaderSettings} from './HeaderSettings.classname';
-import {SettingsFields} from './SettingsFields';
+import {type ContentControls, SettingsFields} from './SettingsFields';
 
 import './HeaderSettings.scss';
 
@@ -47,12 +45,6 @@ const middlewares = [
     shift({padding: PANEL_INSET, crossAxis: true, limiter: limitShift()}),
 ];
 
-export type HeaderContent = {
-    parts: HeaderParts;
-    partNode: (part: HeaderPart) => PmNode | undefined;
-    setPart: (part: HeaderPart, enabled: boolean, restored?: PmNode) => void;
-};
-
 type HeaderSettingsProps = {
     /** The panel opens inside this banner, at its top right corner. */
     block: HTMLElement | null;
@@ -60,7 +52,7 @@ type HeaderSettingsProps = {
     button: HTMLElement | null;
     dimensions: HeaderDimensions;
     onChange: <K extends keyof HeaderDimensions>(name: K, value: HeaderDimensions[K]) => void;
-    content: HeaderContent;
+    content: ContentControls;
     onClose: () => void;
 };
 
@@ -75,12 +67,6 @@ export function HeaderSettings({
     const titleId = useUniqId();
     const anchorElement = useMemo(() => block && insideTopEdge(block), [block]);
     const heightRef = useRef<HTMLButtonElement>(null);
-    // A part turned off in this window comes back with its text and attributes.
-    const removed = useRef<Partial<Record<HeaderPart, PmNode>>>({});
-    const onPartChange = (part: HeaderPart, enabled: boolean) => {
-        if (!enabled) removed.current[part] = content.partNode(part);
-        content.setPart(part, enabled, enabled ? removed.current[part] : undefined);
-    };
     return (
         <Popup
             open
@@ -136,7 +122,7 @@ export function HeaderSettings({
                     }
                     onUpdate={(value) => onChange('width', value)}
                 />
-                <SettingsFields content={{parts: content.parts, onPartChange}} />
+                <SettingsFields content={content} />
             </section>
         </Popup>
     );

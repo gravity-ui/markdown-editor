@@ -1,6 +1,7 @@
 import {Mark, type Node} from '@gravity-ui/markdown-editor/pm/model';
 import {Plugin, type Transaction} from '@gravity-ui/markdown-editor/pm/state';
 
+import {headerNodeType} from '../../../Header/HeaderSpecs/const';
 import {changedRange} from '../../../changedRange';
 import {joinTextLines} from '../../../joinTextLines';
 import {plainTextInput} from '../../../plainTextInput';
@@ -31,9 +32,26 @@ function keepsTitles(tr: Transaction) {
     return kept;
 }
 
+function oneTitlePerHeader(tr: Transaction) {
+    const range = tr.docChanged && changedRange(tr, 'after');
+    if (!range) return true;
+    const {schema} = tr.doc.type;
+    let single = true;
+    tr.doc.nodesBetween(range.from, range.to, (node) => {
+        if (node.type !== headerNodeType(schema)) return !node.isTextblock;
+        let titles = 0;
+        node.forEach((child) => {
+            if (child.type === headerTitleNodeType(schema)) titles++;
+        });
+        single &&= titles < 2;
+        return single;
+    });
+    return single;
+}
+
 export const headerTitleGuardPlugin = () =>
     new Plugin({
-        filterTransaction: keepsTitles,
+        filterTransaction: (tr) => keepsTitles(tr) && oneTitlePerHeader(tr),
         appendTransaction: (trs, _oldState, state) =>
             joinTextLines(
                 trs,

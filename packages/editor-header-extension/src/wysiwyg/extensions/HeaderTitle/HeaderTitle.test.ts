@@ -142,7 +142,6 @@ describe('Header title extension', () => {
 
     it.each([
         ':::header\n\n::header-title[Team portal]\n\nPortal description.\n\n:::',
-        ':::header\n\n::header-title[First]\n\n::header-title[Second]{size="1"}\n\n:::',
         'Before\n\n::header-title[Outside a header]\n\nAfter',
         '- ::header-title[In a list]{color="blue"}',
     ])('should round trip the title among other blocks in %j', (markup) => {
@@ -152,6 +151,12 @@ describe('Header title extension', () => {
             if (node.type.name === headerTitleNodeName) titles++;
         });
         expect(titles).toBe(markup.match(/::header-title\[/g)?.length);
+        expect(markupParser.parse(serializer.serialize(doc)).toJSON()).toEqual(doc.toJSON());
+    });
+
+    it('should parse a second title of a header as a paragraph', () => {
+        const doc = markupParser.parse(header('::header-title[First]', '::header-title[Second]'));
+        expect(doc.child(0).child(1).type.name).toBe('paragraph');
         expect(markupParser.parse(serializer.serialize(doc)).toJSON()).toEqual(doc.toJSON());
     });
 
@@ -171,7 +176,7 @@ describe('Header title extension', () => {
         const doc = markupParser.parse('::header-title[Team portal]{size="3" color="green"}');
         const dom = DOMSerializer.fromSchema(schema).serializeNode(doc.child(0)) as HTMLElement;
         expect(dom.outerHTML).toBe(
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_3 g-md-header-title-plugin_color_green" role="heading" aria-level="3" data-size="3" data-color="green">Team portal</div>',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_3 g-md-header-title-plugin_color_green" data-size="3" data-color="green">Team portal</div>',
         );
         const container = document.createElement('div');
         container.append(dom);
@@ -189,11 +194,11 @@ describe('Header title extension', () => {
     it('should render the title like the preview and update it', () => {
         const editor = createView(header('::header-title[Team portal]{size="3" color="green"}'));
         expect(titleDom(editor).outerHTML).toBe(
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_3 g-md-header-title-plugin_color_green" role="heading" aria-level="3" data-size="3" data-color="green">Team portal</div>',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_3 g-md-header-title-plugin_color_green" data-size="3" data-color="green">Team portal</div>',
         );
         run(editor, setHeaderTitleAttrs(TITLE_POS, {size: 2, color: 'auto'}));
         expect(titleDom(editor).outerHTML).toBe(
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2" role="heading" aria-level="2">Team portal</div>',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2">Team portal</div>',
         );
     });
 

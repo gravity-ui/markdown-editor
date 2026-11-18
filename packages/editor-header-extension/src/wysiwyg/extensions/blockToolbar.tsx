@@ -18,32 +18,20 @@ import {
     cn,
 } from '@gravity-ui/markdown-editor';
 import type {ExtensionDeps} from '@gravity-ui/markdown-editor/core';
-import type {Node, NodeType, Schema} from '@gravity-ui/markdown-editor/pm/model';
-import {
-    type Command,
-    type EditorState,
-    Plugin,
-    type Selection,
-    type Transaction,
-} from '@gravity-ui/markdown-editor/pm/state';
+import type {NodeType, Schema} from '@gravity-ui/markdown-editor/pm/model';
+import {Plugin, type Selection} from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import type {PopupPlacement} from '@gravity-ui/uikit';
 
+import {isEnable} from './Header/plugins/HeaderTooltipPlugin/HeaderToolbar';
+import {type Toolbars, focusToolbar} from './Header/plugins/HeaderTooltipPlugin/keymap';
 import {closeOnTabOut} from './popup';
 
 import './blockToolbar.scss';
 
 const b = cn('header-block-toolbar');
 
-export type Toolbars = WeakMap<EditorView, HTMLElement>;
-
-export type Tooltips = WeakMap<EditorView, {show(): void}>;
-
 const ToolbarsContext = createContext<Toolbars>(new WeakMap());
-
-export const isEnable = () => true;
-
-export const isActive = () => false;
 
 export type ToolbarOption<V> = {value: V; icon: ToolbarIconData; title: () => string};
 
@@ -81,18 +69,6 @@ export const optionsButton = <V,>({
     };
 };
 
-const focusToolbar =
-    (toolbars: Toolbars, last: boolean): Command =>
-    (_state, _dispatch, view) => {
-        const toolbar = view && toolbars.get(view);
-        if (!toolbar) return false;
-        const buttons = toolbar.querySelectorAll('button');
-        const button = buttons[last ? buttons.length - 1 : 0];
-        if (!button) return false;
-        button.focus();
-        return true;
-    };
-
 type BlockToolbarProps = {
     view: EditorView;
     qa: string;
@@ -127,24 +103,16 @@ export function BlockToolbar({view, qa, data}: BlockToolbarProps) {
         menu.onOpenChange(false, event.nativeEvent, 'escape-key');
     };
     return (
-        // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-        <div className={b()} ref={ref} onKeyDown={onKeyDown}>
+        <div className={b()} ref={ref} role="toolbar" onKeyDown={onKeyDown}>
             <Toolbar editor={view} focus={focusEditor} qa={qa} data={data} />
         </div>
     );
 }
 
-type Placement = (state: EditorState, pos: number) => PopupPlacement;
-
 type BlockTooltipOptions = {
     idPrefix: string;
     nodeType: (schema: Schema) => NodeType;
-    placement: Placement;
-    watch?: (state: EditorState, node: Node) => unknown;
-    skip?: (state: EditorState) => boolean;
-    toolbars?: Toolbars;
-    tooltips?: Tooltips;
-    keepWithin?: (view: EditorView) => Element | null | undefined;
+    placement: PopupPlacement;
     content: (
         view: EditorView,
         node: BaseTooltipPlugin.BaseTooltipNode,
@@ -154,17 +122,13 @@ type BlockTooltipOptions = {
 
 class BlockTooltipView extends BaseTooltipPlugin.BaseTooltipPluginView {
     declare protected popupPlacement: PopupPlacement | undefined;
-    private readonly placement: Placement;
-    private readonly watch?: (state: EditorState, node: Node) => unknown;
-    private readonly skip?: (state: EditorState) => boolean;
-    private watched: unknown;
     private engaged = false;
     private focusSelection: Selection | null = null;
     private outsideHidden = false;
 
     constructor(
         view: EditorView,
-        {idPrefix, nodeType, placement, watch, skip, keepWithin, content}: BlockTooltipOptions,
+        {idPrefix, nodeType, placement, content}: BlockTooltipOptions,
         toolbars: Toolbars,
         deps: ExtensionDeps,
     ) {
@@ -177,14 +141,9 @@ class BlockTooltipView extends BaseTooltipPlugin.BaseTooltipPluginView {
                 </ToolbarsContext.Provider>
             ),
         });
-        this.placement = placement;
-        this.watch = watch;
-        this.skip = skip;
+        this.popupPlacement = placement;
         const openChange = this.popupOpenChangeHandler;
         this.popupOpenChangeHandler = (open, event, reason) => {
-            const target = event instanceof FocusEvent ? event.relatedTarget : event?.target;
-            const within = keepWithin?.(this.view);
-            if (!open && target instanceof window.Node && within?.contains(target)) return;
             const focused = toolbars.get(this.view)?.contains(document.activeElement);
             openChange?.(open, event, reason);
             this.outsideHidden = this.manualHidden && reason === 'outside-press';
@@ -217,7 +176,7 @@ class BlockTooltipView extends BaseTooltipPlugin.BaseTooltipPluginView {
     protected setCurrentNode(nodeType: NodeType) {
         const {state} = this.view;
         const {$from, $to} = state.selection;
-        let skipped = Boolean(this.skip?.(state));
+        let skipped = false;
         for (let depth = $from.depth; !skipped && depth > $to.depth; depth--) {
             skipped = $from.node(depth).type === nodeType;
         }
@@ -244,29 +203,23 @@ class BlockTooltipView extends BaseTooltipPlugin.BaseTooltipPluginView {
             this.focusSelection = null;
         }
         const previous = this.currentNode;
-        const {popupPlacement: placement, manualHidden: hidden, watched} = this;
+        const hidden = this.manualHidden;
         this.setCurrentNode(this.view.state.schema.nodes[this.nodeType.name]);
         const current = this.currentNode;
-        this.watched = current ? this.watch?.(this.view.state, current.node) : undefined;
         if (!current) {
             if (previous) this.render();
             return;
         }
-        this.popupPlacement = this.placement(this.view.state, current.pos);
         const same =
             previous?.pos === current.pos &&
             previous.dom === current.dom &&
             hidden === this.manualHidden &&
-            watched === this.watched &&
             previous.node.sameMarkup(current.node);
-        if (!same || this.popupPlacement !== placement) this.render();
+        if (!same) this.render();
     }
 }
 
-export const isDomSelectionReset = (trs: readonly Transaction[]) =>
-    trs.every((tr) => !tr.docChanged && !tr.getMeta('pointer') && !tr.scrolledIntoView);
-
-export function pointerFocusEvents(onFocus: (view: EditorView, pointer: boolean) => void) {
+function pointerFocusEvents(onFocus: (view: EditorView, pointer: boolean) => void) {
     let pointer = false;
     return {
         mousedown: (view: EditorView) => {
@@ -283,14 +236,13 @@ export function pointerFocusEvents(onFocus: (view: EditorView, pointer: boolean)
 }
 
 export function blockTooltip(options: BlockTooltipOptions) {
-    const toolbars: Toolbars = options.toolbars ?? new WeakMap();
+    const toolbars: Toolbars = new WeakMap();
     return {
         plugin: (deps: ExtensionDeps) => {
             let tooltip: BlockTooltipView | undefined;
             return new Plugin({
                 view: (view) => {
                     tooltip = new BlockTooltipView(view, options, toolbars, deps);
-                    options.tooltips?.set(view, tooltip);
                     return tooltip;
                 },
                 props: {
@@ -300,6 +252,6 @@ export function blockTooltip(options: BlockTooltipOptions) {
                 },
             });
         },
-        focus: (last = false) => focusToolbar(toolbars, last),
+        focus: focusToolbar(toolbars, false),
     };
 }

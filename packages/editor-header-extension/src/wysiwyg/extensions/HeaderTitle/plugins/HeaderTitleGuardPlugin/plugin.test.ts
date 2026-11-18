@@ -15,6 +15,7 @@ import {
     codeBlock,
     countNodes,
     createTestEditor,
+    drop,
     header,
     headerExtensions,
     multiLineEditors,
@@ -133,6 +134,13 @@ describe('Header title guard plugin', () => {
             'joining the title into the block before it',
             (editor: EditorView) => editor.state.tr.join(nodePos(editor, headerTitleNodeName)),
         ],
+        [
+            'a second title in the header',
+            (editor: EditorView) => {
+                const pos = nodePos(editor, headerTitleNodeName);
+                return editor.state.tr.insert(pos, editor.state.doc.nodeAt(pos)!);
+            },
+        ],
     ])('should reject %s', (_name, edit) => {
         const source = header('Intro', title, paragraph);
         const editor = createView(source);
@@ -155,6 +163,14 @@ describe('Header title guard plugin', () => {
             (editor: EditorView) =>
                 editor.state.tr.setNodeAttribute(nodePos(editor, headerTitleNodeName), 'size', '1'),
             header('::header-title[Team portal]{size="1"}', paragraph),
+        ],
+        [
+            'a title in another header',
+            (editor: EditorView) => {
+                const {doc, tr} = editor.state;
+                return tr.insert(doc.child(0).nodeSize, doc.child(0));
+            },
+            `${header(title, paragraph)}\n\n${header(title, paragraph)}`,
         ],
         [
             'typing into the title',
@@ -189,6 +205,24 @@ describe('Header title guard plugin', () => {
             expect(editing.markup(editor)).toBe(source);
         },
     );
+
+    it.each([
+        ['moving', true],
+        ['copying', false],
+    ])('should cancel %s a range from a paragraph into the title', (_name, move) => {
+        const source = `Before\n\n${header(title, paragraph)}\n\nAfter`;
+        const editor = createView(source);
+        setCursor(editor, textPos(editor, 'Before') + 2, textPos(editor, 'Team portal') + 4);
+        drop(editor, editor.state.selection.content(), textPos(editor, 'After') + 2, move);
+        expect(markup(editor)).toBe(source);
+    });
+
+    it('should keep the spaces of plain text pasted into the title', () => {
+        const editor = createView(header('::header-title[Tea coffee]'));
+        setCursor(editor, textPos(editor, 'Tea coffee') + 'Tea'.length);
+        pasteText(editor, ' and');
+        expect(markup(editor)).toBe(header('::header-title[Tea and coffee]'));
+    });
 
     it('should paste a line break of plain text into the title as a space', () => {
         const source = `${header(title)}\n\nAfter`;
