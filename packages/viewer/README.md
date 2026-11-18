@@ -40,6 +40,8 @@ export function Document({html}: {html: string}) {
 
 `cnYFM(mods?, mix?)` returns the `yfm` class, modifier classes, and extra classes from `mix`. The package also exports the `YFMMods` type.
 
+For viewer extensions, `cn` builds class names with the viewer prefix. For example, `cn('diagram')('caption')` returns `g-md-v-diagram__caption`.
+
 | Modifier          | Effect                               |
 | ----------------- | ------------------------------------ |
 | `no-list-reset`   | Keep list counters from being reset. |
