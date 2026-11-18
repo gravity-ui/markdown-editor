@@ -13,10 +13,19 @@ describe('getToggleTabFocusModeShortcut', () => {
         {platform: 'Win32', shortcut: 'Control+M'},
         {platform: 'Linux x86_64', shortcut: 'Control+M'},
         {platform: 'MacIntel', shortcut: 'Control+Shift+M'},
-    ])('should return $shortcut on $platform', async ({platform, shortcut}) => {
-        vi.stubGlobal('navigator', {platform});
-        const {getToggleTabFocusModeShortcut} = await import('./index');
+    ])(
+        'should preserve $shortcut on $platform after CodeMirror formatting',
+        async ({platform, shortcut}) => {
+            vi.stubGlobal('navigator', {platform});
+            const {Action, formatter, getToggleTabFocusModeShortcut} = await import('./index');
+            const viewShortcut = formatter.toView(Action.ToggleTabFocusMode);
 
-        expect(getToggleTabFocusModeShortcut()).toBe(shortcut);
-    });
+            expect(getToggleTabFocusModeShortcut()).toBe(shortcut);
+
+            formatter.toCM(Action.ToggleTabFocusMode);
+
+            expect(getToggleTabFocusModeShortcut()).toBe(shortcut);
+            expect(formatter.toView(Action.ToggleTabFocusMode)).toBe(viewShortcut);
+        },
+    );
 });
