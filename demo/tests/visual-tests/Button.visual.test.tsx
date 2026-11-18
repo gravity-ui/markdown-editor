@@ -24,10 +24,7 @@ const stateStyles = [
     ['flat', 'blue'],
 ] as const;
 const statesMarkup = stateStyles
-    .map(
-        ([view, color]) =>
-            `:button[Button](https://example.com){view="${view}" color="${color}"}`,
-    )
+    .map(([view, color]) => `:button[Button](https://example.com){view="${view}" color="${color}"}`)
     .join(' ');
 
 test.describe('Button', () => {

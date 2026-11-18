@@ -1,5 +1,5 @@
-import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {escapeParenthesesInUrl} from '@gravity-ui/markdown-editor/_/extensions/markdown/Link/LinkSpecs/utils.js';
+import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {buttonDefaults, buttonModel} from '@gravity-ui/markdown-plugin-header';
 
 import {buttonNodeName} from './const';

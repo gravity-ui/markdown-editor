@@ -61,9 +61,9 @@ describe('Button Markdown', () => {
         },
     );
     it('should protect links opened in a new tab', () => {
-        expect(
-            md.renderInline(':button[Open](https://example.com){target="_blank"}'),
-        ).toContain('target="_blank" rel="noopener noreferrer"');
+        expect(md.renderInline(':button[Open](https://example.com){target="_blank"}')).toContain(
+            'target="_blank" rel="noopener noreferrer"',
+        );
     });
     it('should ignore unsupported attributes and normalize styles', () => {
         const token = openToken(
