@@ -9,7 +9,7 @@ LaTeX runtime, styles, and fonts when needed.
 pnpm add @gravity-ui/markdown-viewer-yfm-latex-extension @gravity-ui/markdown-viewer @diplodoc/latex-extension katex
 ```
 
-Requires React 18 or 19, MarkdownViewer 1.x, and Diplodoc LaTeX SDK
+Requires React 18 or 19, MarkdownViewer `^0.1.0`, and Diplodoc LaTeX extension
 `^1.3.4 || ^2.0.0`. Your bundler must support dynamic JavaScript and CSS imports.
 
 ## Usage

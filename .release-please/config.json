@@ -16,6 +16,8 @@
     "packages/latex-extension": {},
     "packages/page-constructor-extension": {},
     "packages/viewer": {},
-    "packages/viewer-yfm-latex-extension": {}
+    "packages/viewer-yfm-latex-extension": {
+      "initial-version": "0.1.0"
+    }
   }
 }
