@@ -81,7 +81,7 @@ test.describe('YfmTable', () => {
         });
     });
 
-    test('should move vertically across fully covered rows @wysiwyg', async ({
+    test('should move vertically across fully covered rows and leave the table @wysiwyg', async ({
         mount,
         editor,
         page,
@@ -102,7 +102,7 @@ test.describe('YfmTable', () => {
         const table = await editor.yfmTable.getTable(editor.locators.contenteditable);
         const cells = await editor.yfmTable.getCells(table);
 
-        await cells.nth(1).getByText('one', {exact: true}).click();
+        await editor.yfmTable.focusCellByText('one', table);
         await editor.press('End');
         await editor.press('ArrowDown');
         await editor.pressSequentially('!');
@@ -111,6 +111,14 @@ test.describe('YfmTable', () => {
         await editor.press('Home');
         await editor.press('ArrowUp');
         await editor.pressSequentially('!');
+        await expect(cells).toHaveText(['side', '!one', '!two']);
+
+        await editor.yfmTable.focusCellByText('side', table);
+        await editor.press('End');
+        await editor.press('ArrowDown');
+        await editor.pressSequentially('!');
+        const paragraph = editor.yfmTable.getParagraphAfterTable(editor.locators.contenteditable);
+        await expect(paragraph).toHaveText('!');
         await expect(cells).toHaveText(['side', '!one', '!two']);
         expect(pageErrors).toEqual([]);
     });

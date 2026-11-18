@@ -61,21 +61,22 @@ it.each([
     expect(tr.doc).toBe(doc);
 });
 
-it('should locate the current cell between shared nodes', () => {
+it('should locate the current cell between shared rows and cells', () => {
     const parsed = markupParser.parse('#|\n|| A ||\n|#');
     const table = parsed.child(0);
     const body = table.child(0);
-    const row = body.child(0);
+    const cell = body.child(0).child(0);
+    const row = body.child(0).type.create(null, [cell, cell]);
     const doc = parsed.type.create(
         null,
         table.type.create(null, body.type.create(null, [row, row, row])),
     );
-    createView(doc, 12);
+    createView(doc, 22);
 
     const {res, tr} = move('down');
 
     expect(res).toBe(true);
-    expect(tr.selection.from).toBe(19);
+    expect(tr.selection.from).toBe(34);
     expect(tr.doc).toBe(doc);
 });
 
@@ -130,15 +131,28 @@ it.each([
         : markupParser.parse('#|\n|| A ||\n|#');
     createView(doc, emptyRows && dir === 'down' ? 'B' : 'A');
 
-    const {res, tr} = move(dir);
+    expectGapCursor(dir, dir === 'up' ? 0 : doc.content.size);
+});
 
-    expect(res).toBe(true);
-    expect(tr.doc).toBe(doc);
-    expect(tr.selection).toMatchObject({
-        selectionName: 'GapCursorSelection',
-        from: dir === 'up' ? 0 : doc.content.size,
-        meta: {direction: dir === 'up' ? 'before' : 'after'},
-    });
+it.each([
+    {dir: 'up', source: 'B'},
+    {dir: 'down', source: 'C'},
+] as const)('should move $dir outside a ragged table at its edge', ({dir, source}) => {
+    const doc = parseHTML(
+        '<table><tr><td>A</td><td>B</td></tr><tr><td>C</td><td>D</td><td>E</td></tr></table>',
+    );
+    createView(doc, source);
+
+    expectGapCursor(dir, dir === 'up' ? 0 : doc.content.size);
+});
+
+it('should leave a nested table after a rowspan inside its parent cell', () => {
+    const doc = markupParser.parse(
+        '#|\n||\n\n#|\n|| A | B ||\n|| ^ | C ||\n|#\n\n| outside ||\n|#',
+    );
+    createView(doc, 'A');
+
+    expectGapCursor('down', 27);
 });
 
 function createView(doc: Node, source: string | number) {
@@ -155,6 +169,19 @@ function createView(doc: Node, source: string | number) {
 
 function move(dir: 'up' | 'down') {
     return applyCommand(view.state, (state, dispatch) => goToNextRow(dir)(state, dispatch, view));
+}
+
+function expectGapCursor(dir: 'up' | 'down', from: number) {
+    const doc = view.state.doc;
+    const {res, tr} = move(dir);
+
+    expect(res).toBe(true);
+    expect(tr.doc).toBe(doc);
+    expect(tr.selection).toMatchObject({
+        selectionName: 'GapCursorSelection',
+        from,
+        meta: {direction: dir === 'up' ? 'before' : 'after'},
+    });
 }
 
 function textPos(doc: Node, text: string) {

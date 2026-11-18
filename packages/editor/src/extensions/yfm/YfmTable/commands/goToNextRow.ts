@@ -32,8 +32,7 @@ export function goToNextRow(dir: 'up' | 'down'): Command {
 
             const target = findNextCell(table, row, column, step);
             if (target) from = parentTable.pos + target.from + 1;
-        } else {
-            if (!$cell.node(-1).children.some((row) => row.childCount === 0)) return false;
+        } else if ($cell.node(-1).children.some((row) => row.childCount === 0)) {
             const $row = findNextNonEmptyRow($cell, step);
             if ($row) {
                 if ($cell.index() >= $row.parent.childCount) return false;
@@ -52,9 +51,10 @@ export function goToNextRow(dir: 'up' | 'down'): Command {
         if (isTextSelection(sel) && view.endOfTextblock(dir)) {
             const [direction, $cursor] =
                 dir === 'up' ? (['before', sel.$from] as const) : (['after', sel.$to] as const);
+            const $boundary = table ? $cell : $cursor;
             const $pos =
                 findFakeParaPosForTextSelection(sel, direction) ??
-                findFakeParaPosClosestToPos($cursor, $cursor.depth - 2, direction);
+                findFakeParaPosClosestToPos($boundary, $boundary.depth - 2, direction);
             if ($pos) {
                 dispatch?.(createFakeParagraph(state.tr, $pos, direction).scrollIntoView());
                 return true;
