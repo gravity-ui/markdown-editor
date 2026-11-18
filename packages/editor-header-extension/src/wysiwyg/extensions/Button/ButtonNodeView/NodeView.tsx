@@ -64,12 +64,11 @@ export class WButtonNodeView implements NodeView {
         this.dom.setAttribute('aria-haspopup', 'dialog');
         this.renderAttrs();
         this.renderLabel();
-        this.dom.addEventListener('mousedown', this.openSettings);
-        this.dom.addEventListener('click', (event) => event.preventDefault());
+        this.dom.addEventListener('mousedown', this.handleMouseDown);
+        this.dom.addEventListener('click', this.handleClick);
         this.renderSettings(decorations);
     }
 
-    // The settings window is anchored to the element, so a change of attributes keeps it.
     update(node: Node, decorations: readonly Decoration[]) {
         if (node.type !== this.node.type) return false;
         const prev = this.node;
@@ -107,7 +106,7 @@ export class WButtonNodeView implements NodeView {
         this.dom.replaceChildren(placeholder);
     }
 
-    private openSettings = (event: MouseEvent) => {
+    private handleMouseDown = (event: MouseEvent) => {
         const pos = this.getPos();
         if (event.button !== 0 || pos === undefined) return;
         // The editor skips a prevented event, so the click does not move the cursor.
@@ -115,6 +114,13 @@ export class WButtonNodeView implements NodeView {
         const {state} = this.view;
         const tr = state.tr.setSelection(NodeSelection.create(state.doc, pos));
         this.view.dispatch(setButtonSettingsOpen(tr, true));
+    };
+
+    private handleClick = (event: MouseEvent) => event.preventDefault();
+
+    private handleSettingsClose = (reason?: string) => {
+        this.view.dispatch(setButtonSettingsOpen(this.view.state.tr, false));
+        if (reason !== 'outside-press') this.view.focus();
     };
 
     private renderSettings(decorations: readonly Decoration[]) {
@@ -138,10 +144,7 @@ export class WButtonNodeView implements NodeView {
                     getPos={this.getPos}
                     anchor={this.dom}
                     parser={this.parser}
-                    onClose={(reason) => {
-                        this.view.dispatch(setButtonSettingsOpen(this.view.state.tr, false));
-                        if (reason !== 'outside-press') this.view.focus();
-                    }}
+                    onClose={this.handleSettingsClose}
                 />
             </ErrorLoggerBoundary>
         );

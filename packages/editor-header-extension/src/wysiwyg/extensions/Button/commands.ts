@@ -15,7 +15,6 @@ export const setButtonAttrs =
             for (const [name, value] of Object.entries(attrs)) {
                 if (node.attrs[name] !== value) tr.setNodeAttribute(pos, name, value);
             }
-            // Each change in the settings window is its own undo step.
             if (tr.docChanged) dispatch(closeHistory(tr));
         }
         return true;

@@ -46,7 +46,6 @@ export class ButtonBlock {
             const input = rect('.g-text-input_has-start-content input');
             const style = rect('.g-md-button-style__control');
             const swatch = rect('.g-md-button-style__swatch');
-            // The window stands at a fractional position, so distances are compared in whole pixels.
             const {round} = Math;
             return {
                 width: round(element.getBoundingClientRect().width),
@@ -67,7 +66,6 @@ export class ButtonBlock {
         });
     }
 
-    /** A button of the preview by its view and color. */
     variant(view: string, color: string) {
         return this.variants.and(this.page.locator(`[data-view="${view}"][data-color="${color}"]`));
     }
@@ -76,12 +74,10 @@ export class ButtonBlock {
         return block.evaluate((element) => getComputedStyle(element).backgroundColor);
     }
 
-    /** An option of the style list by its view and color, such as `Accent, Green`. */
     option(name: string | RegExp) {
         return this.page.getByRole('option', {name, exact: true});
     }
 
-    /** A click on the button opens its settings window with the label field focused. */
     async openSettings(block = this.blocks.first()) {
         await block.click();
         await this.label.waitFor({state: 'visible'});

@@ -9,7 +9,6 @@ import {Decoration, DecorationSet} from '@gravity-ui/markdown-editor/pm/view';
 
 import {buttonNodeType} from '../../ButtonSpecs';
 
-/** Whether the settings window of the selected button is open. */
 const key = new PluginKey<boolean>('button-settings');
 const decorationSpec = {buttonSettings: true};
 

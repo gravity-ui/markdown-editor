@@ -19,7 +19,6 @@ export type ButtonModel = {
     view: ButtonView;
     color: ButtonColor;
     target: ButtonTarget;
-    /** An empty `href` means a button without an address. */
     href: string;
     title: string;
 };

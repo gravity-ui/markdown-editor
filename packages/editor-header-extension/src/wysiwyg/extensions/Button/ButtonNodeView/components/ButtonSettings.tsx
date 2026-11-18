@@ -5,7 +5,14 @@ import {cn} from '@gravity-ui/markdown-editor';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {normalizeLinkUrl} from '@gravity-ui/markdown-plugin-header';
-import {Icon, Popup, type PopupAnchorElement, Switch, TextInput} from '@gravity-ui/uikit';
+import {
+    Icon,
+    Popup,
+    type PopupAnchorElement,
+    type PopupProps,
+    Switch,
+    TextInput,
+} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
 import {ButtonNodeAttr} from '../../ButtonSpecs';
@@ -99,6 +106,21 @@ export function ButtonSettings({view, node, getPos, anchor, parser, onClose}: Bu
         event.preventDefault();
         saveAndClose();
     };
+    const handleOpenChange: PopupProps['onOpenChange'] = (open, event, reason) => {
+        const onButton =
+            reason === 'outside-press' &&
+            event?.target instanceof window.Node &&
+            anchor.contains(event.target);
+        if (!open && !onButton) saveAndClose(reason);
+    };
+    const handleLabelKeyDown = (event: KeyboardEvent) => {
+        label.input.onKeyDown(event);
+        closeOnTab(true)(event);
+    };
+    const handleNewTabKeyDown = closeOnTab(false);
+    const handleNewTabUpdate = (checked: boolean) => {
+        update({target: checked ? '_blank' : '_self'});
+    };
     const labelRef = useRef<HTMLInputElement>(null);
     // Floating UI adds a focus element next to a DOM anchor, and ProseMirror owns the editor DOM.
     const anchorElement = useMemo<PopupAnchorElement>(
@@ -117,13 +139,7 @@ export function ButtonSettings({view, node, getPos, anchor, parser, onClose}: Bu
             placement={['bottom-start', 'top-start']}
             offset={4}
             initialFocus={labelRef}
-            onOpenChange={(open, event, reason) => {
-                const onButton =
-                    reason === 'outside-press' &&
-                    event?.target instanceof window.Node &&
-                    anchor.contains(event.target);
-                if (!open && !onButton) saveAndClose(reason);
-            }}
+            onOpenChange={handleOpenChange}
         >
             <section
                 className={b()}
@@ -134,10 +150,7 @@ export function ButtonSettings({view, node, getPos, anchor, parser, onClose}: Bu
                 <div className={b('label')}>
                     <TextInput
                         {...label.input}
-                        onKeyDown={(event) => {
-                            label.input.onKeyDown(event);
-                            closeOnTab(true)(event);
-                        }}
+                        onKeyDown={handleLabelKeyDown}
                         size="l"
                         hasClear
                         controlRef={labelRef}
@@ -170,8 +183,8 @@ export function ButtonSettings({view, node, getPos, anchor, parser, onClose}: Bu
                         size="m"
                         checked={node.attrs[ButtonNodeAttr.Target] === '_blank'}
                         content={i18n('button-new-tab')}
-                        controlProps={{onKeyDown: closeOnTab(false)}}
-                        onUpdate={(checked) => update({target: checked ? '_blank' : '_self'})}
+                        controlProps={{onKeyDown: handleNewTabKeyDown}}
+                        onUpdate={handleNewTabUpdate}
                     />
                 </div>
             </section>

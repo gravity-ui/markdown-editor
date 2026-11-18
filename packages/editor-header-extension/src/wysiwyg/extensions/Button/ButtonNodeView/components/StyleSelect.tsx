@@ -1,4 +1,4 @@
-import {type Ref, useEffect, useRef, useState} from 'react';
+import {type MouseEvent, type Ref, useEffect, useRef, useState} from 'react';
 
 import {ChevronDown, Text as TextIcon} from '@gravity-ui/icons';
 import {cn} from '@gravity-ui/markdown-editor';
@@ -52,7 +52,6 @@ type StyleSelectProps = {
 
 export function StyleSelect({style, onUpdate}: StyleSelectProps) {
     const [open, setOpen] = useState(false);
-    // The preview stands next to the row under the pointer.
     const [preview, setPreview] = useState<Preview | null>(null);
     const hoveredRow = useRef<Element | null>(null);
     const previewTimer = useRef<number>();
@@ -67,6 +66,23 @@ export function StyleSelect({style, onUpdate}: StyleSelectProps) {
         }
     };
     useEffect(() => () => window.clearTimeout(previewTimer.current), []);
+    const handleMouseOver = ({target}: MouseEvent) => {
+        if (!open) return;
+        const row = target instanceof Element ? target.closest('[role="option"]') : null;
+        const value = row?.querySelector('[data-style]')?.getAttribute('data-style');
+        const hovered = styles.find((item) => styleValue(item) === value);
+        hoverRow(row && hovered ? {style: hovered, row} : null);
+    };
+    const handleMouseLeave = () => hoverRow(null);
+    const handleOpenChange = (nextOpen: boolean) => {
+        setOpen(nextOpen);
+        if (!nextOpen) hoverRow(null);
+    };
+    const handleUpdate = ([value]: string[]) => {
+        hoverRow(null);
+        const next = styles.find((item) => styleValue(item) === value);
+        if (next) onUpdate(next);
+    };
     const options = views.map((view) => ({
         label: i18n(`button-group-${view}`),
         options: buttonViewColors[view].map(
@@ -79,16 +95,10 @@ export function StyleSelect({style, onUpdate}: StyleSelectProps) {
     return (
         <div
             className={b()}
-            onMouseLeave={() => hoverRow(null)}
+            onMouseLeave={handleMouseLeave}
             // Mouse events of the list reach this element through the React tree.
             // eslint-disable-next-line jsx-a11y/mouse-events-have-key-events -- The preview repeats the swatch of the row.
-            onMouseOver={({target}) => {
-                if (!open) return;
-                const row = target instanceof Element ? target.closest('[role="option"]') : null;
-                const value = row?.querySelector('[data-style]')?.getAttribute('data-style');
-                const hovered = styles.find((item) => styleValue(item) === value);
-                hoverRow(row && hovered ? {style: hovered, row} : null);
-            }}
+            onMouseOver={handleMouseOver}
         >
             <Select<Style>
                 className={b('select')}
@@ -126,15 +136,8 @@ export function StyleSelect({style, onUpdate}: StyleSelectProps) {
                         {i18n(`button-color-${data.color}`)}
                     </div>
                 )}
-                onOpenChange={(nextOpen) => {
-                    setOpen(nextOpen);
-                    if (!nextOpen) hoverRow(null);
-                }}
-                onUpdate={([value]) => {
-                    hoverRow(null);
-                    const next = styles.find((item) => styleValue(item) === value);
-                    if (next) onUpdate(next);
-                }}
+                onOpenChange={handleOpenChange}
+                onUpdate={handleUpdate}
             />
             {open && preview && (
                 <Popup

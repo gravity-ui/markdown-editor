@@ -5,7 +5,6 @@ import {ButtonStories} from './Button.helpers';
 
 const singleButton = ':button[Кнопка](https://example.com){view="action" color="standard"}';
 
-// Lines under the button leave room for its settings window and style list in the screenshot.
 const withSpace = `${singleButton}${'\n\nТекст'.repeat(12)}`;
 
 const scriptUrl = ['javascript', 'alert(1)'].join(':');
