@@ -8,7 +8,7 @@ Quote links for [@gravity-ui/markdown-editor](https://github.com/gravity-ui/mark
 > Quote text
 ```
 
-Supports `@gravity-ui/markdown-editor` 15.47.0 and higher. Starting with version 16, the editor does not include the quote link extension, and this package provides it.
+Requires React 18 or 19. Supports `@gravity-ui/markdown-editor` 15.47.0 and higher. Starting with version 16, the editor does not include the quote link extension, and this package provides it.
 
 ## Installation
 
