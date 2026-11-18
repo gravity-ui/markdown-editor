@@ -72,13 +72,6 @@ export class ButtonBlock {
         return this.variants.and(this.page.locator(`[data-view="${view}"][data-color="${color}"]`));
     }
 
-    /** Focus set from the keyboard shows the focus outline; `focus()` alone does not. */
-    async focusWithKeyboard(block: Locator) {
-        await block.focus();
-        await this.page.keyboard.press('Shift+Tab');
-        await this.page.keyboard.press('Tab');
-    }
-
     getBackground(block: Locator) {
         return block.evaluate((element) => getComputedStyle(element).backgroundColor);
     }

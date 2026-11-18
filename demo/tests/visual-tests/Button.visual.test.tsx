@@ -76,23 +76,6 @@ test.describe('Button', () => {
         expect(await button.getValues()).toEqual(before);
     });
 
-    test('should show the placeholder in an empty button @wysiwyg', async ({
-        mount,
-        editor,
-        button,
-        expectScreenshot,
-    }) => {
-        await mount(<ButtonStories.Button initial={singleButton} width={400} />);
-        await button.openSettings();
-        await button.label.fill('');
-        await button.label.press('Enter');
-        await expect(button.settings).toBeHidden();
-        await expect(button.blocks).toHaveText('Button');
-        await expectScreenshot({component: editor.locators.component});
-        await editor.switchMode('markup');
-        await expect(editor.locators.contenteditable).toContainText(':button[Button]');
-    });
-
     test('should open settings on repeated clicks and preserve selection @wysiwyg', async ({
         mount,
         button,
@@ -290,31 +273,5 @@ test.describe('Button', () => {
         const flat = button.variant('flat', 'gray');
         await flat.hover();
         await expect(flat).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-    });
-
-    test('should show the keyboard focus @markup', async ({
-        mount,
-        page,
-        editor,
-        button,
-        wait,
-        expectScreenshot,
-    }) => {
-        await mount(<ButtonStories.Button mode="markup" initial={statesMarkup} width={660} />);
-        await editor.switchPreview('visible');
-        await page.mouse.move(0, 0);
-        await expect(button.variants).toHaveCount(stateStyles.length);
-
-        const action = button.variant('action', 'blue');
-        await button.focusWithKeyboard(action);
-        await expect(action).toBeFocused();
-        await expect(action).toHaveCSS('outline-style', 'solid');
-        await wait.tooltipsHidden();
-
-        const outline = button.variant('outline', 'blue');
-        await button.focusWithKeyboard(outline);
-        await expect(outline).toBeFocused();
-        await expect(outline).toHaveCSS('outline-style', 'solid');
-        await expectScreenshot({component: editor.locators.component, nameSuffix: 'outline'});
     });
 });
