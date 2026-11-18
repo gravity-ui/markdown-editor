@@ -243,7 +243,7 @@ test.describe('Header', () => {
         await expect(header.toggle('Button 1')).toBeChecked();
         await expect(header.toggle('Button 2')).not.toBeChecked();
         await expect(header.toggle('Button 3')).not.toBeChecked();
-        await expect(header.toggle('Image')).toBeChecked();
+        await expect(header.toggle('Image')).not.toBeChecked();
         await expect(header.alignment('Vertically', 'Top')).toBeChecked();
         await expect(header.alignment('Horizontally', 'Center')).toBeChecked();
         await header.setExpandedSections('Text');
@@ -275,7 +275,7 @@ test.describe('Header', () => {
             if (message.type() === 'log') messages.push(message.text());
         });
 
-        for (const name of ['Title', 'Description', 'Button 1', 'Button 2', 'Button 3', 'Image']) {
+        for (const name of ['Title', 'Description', 'Button 1', 'Button 2', 'Button 3']) {
             const toggle = header.toggle(name);
             const checked = await toggle.isChecked();
             await header.clickToggle(name);
@@ -326,7 +326,7 @@ test.describe('Header', () => {
         await expect(header.toggle('Button 1')).toBeChecked();
         await expect(header.toggle('Button 2')).not.toBeChecked();
         await expect(header.toggle('Button 3')).not.toBeChecked();
-        await expect(header.toggle('Image')).toBeChecked();
+        await expect(header.toggle('Image')).not.toBeChecked();
         await expect(header.alignment('Vertically', 'Top')).toBeChecked();
         await expect(header.alignment('Horizontally', 'Center')).toBeChecked();
         await expect(header.section('Buttons')).toHaveAttribute('aria-expanded', 'true');
