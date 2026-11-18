@@ -7,5 +7,4 @@ export const YfmHeadingAttr = {
     Level: headingLevelAttr,
     DataLine: headingLineNumberAttr,
     Id: 'id',
-    Folding: 'folded', // TODO: move to FoldingHeadingExtension
 } as const;

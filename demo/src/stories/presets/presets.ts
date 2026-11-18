@@ -21,12 +21,13 @@ import {
     redoItemWysiwyg,
     textContextItemView,
     textContextItemWisywig,
-    toggleHeadingFoldingItemView,
-    toggleHeadingFoldingItemWysiwyg,
     undoItemMarkup,
     undoItemView,
     undoItemWysiwyg,
 } from '@gravity-ui/markdown-editor/toolbars';
+import {toolbarFoldingHeadingItem} from '@gravity-ui/markdown-editor-folding-heading-extension';
+
+const foldingHeading = 'foldingHeading';
 
 export const toolbarPresets: Record<string, ToolbarsPreset> = {
     custom: {
@@ -56,10 +57,7 @@ export const toolbarPresets: Record<string, ToolbarsPreset> = {
                 markup: colorifyItemMarkup,
             },
             [Action.text]: {view: textContextItemView, wysiwyg: textContextItemWisywig},
-            [Action.foldingHeading]: {
-                view: toggleHeadingFoldingItemView,
-                wysiwyg: toggleHeadingFoldingItemWysiwyg,
-            },
+            [foldingHeading]: toolbarFoldingHeadingItem,
             [Action.paragraph]: {view: paragraphItemView, wysiwyg: paragraphItemWisywig},
             [Action.heading1]: {view: heading1ItemView, wysiwyg: heading1ItemWysiwyg},
             [Action.heading2]: {view: heading2ItemView, wysiwyg: heading2ItemWysiwyg},
@@ -68,7 +66,7 @@ export const toolbarPresets: Record<string, ToolbarsPreset> = {
             [Toolbar.wysiwygMain]: [[Action.colorify], [Action.bold], [Action.undo, Action.redo]],
             [Toolbar.markupMain]: [[Action.colorify], [Action.italic], [Action.undo, Action.redo]],
             [Toolbar.wysiwygSelection]: [
-                [Action.foldingHeading, Action.text],
+                [foldingHeading, Action.text],
                 [Action.bold, Action.italic],
             ],
             [Toolbar.wysiwygSlash]: [[Action.paragraph, Action.heading1, Action.heading2]],

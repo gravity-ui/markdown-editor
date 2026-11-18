@@ -13,6 +13,7 @@
   ],
   "packages": {
     "packages/editor": {},
+    "packages/editor-folding-heading-extension": {},
     "packages/latex-extension": {},
     "packages/page-constructor-extension": {},
     "packages/viewer": {}

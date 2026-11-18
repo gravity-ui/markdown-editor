@@ -28,7 +28,6 @@ export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, 
         attrs: {
             ...prev.attrs,
             [YfmHeadingAttr.Id]: {default: ''},
-            [YfmHeadingAttr.Folding]: {default: null},
         },
         selectable: true,
         parseDOM: [
@@ -50,13 +49,11 @@ export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, 
         toDOM(node) {
             const id = node.attrs[YfmHeadingAttr.Id];
             const lineNumber = node.attrs[YfmHeadingAttr.DataLine];
-            const folding = node.attrs[YfmHeadingAttr.Folding];
             return [
                 'h' + node.attrs[YfmHeadingAttr.Level],
                 {
                     id: id || null,
                     [YfmHeadingAttr.DataLine]: lineNumber,
-                    [`data-${YfmHeadingAttr.Folding}`]: folding,
                 },
                 0,
                 // [
@@ -88,7 +85,6 @@ export const YfmHeadingSpecs: ExtensionAuto<YfmHeadingSpecsOptions> = (builder, 
             // attrs have id only if it explicitly specified manually
             return {
                 [YfmHeadingAttr.Level]: Number(token.tag.slice(1)),
-                [YfmHeadingAttr.Folding]: token.meta?.folding === true ? true : null,
                 ...attrs,
             };
         },

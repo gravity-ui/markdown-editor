@@ -231,13 +231,6 @@ export const liftListItemWysiwyg: ToolbarItemWysiwyg = {
     isEnable: (e) => e.actions.liftListItem.isEnable(),
 };
 
-export const toggleHeadingFoldingItemWysiwyg: ToolbarItemWysiwyg = {
-    isActive: (editor) => editor.actions.toggleHeadingFolding?.isActive() ?? false,
-    isEnable: (editor) => editor.actions.toggleHeadingFolding?.isEnable() ?? false,
-    exec: (editor) => editor.actions.toggleHeadingFolding.run(),
-    condition: 'enabled',
-};
-
 export const textContextItemWisywig: ToolbarItemWysiwyg<ToolbarDataType.ReactComponent> = {
     component: WToolbarTextSelect,
     width: 0,

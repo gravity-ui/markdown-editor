@@ -8,6 +8,7 @@ import {
     yfmHtmlBlockItemView,
     yfmHtmlBlockItemWysiwyg,
 } from '@gravity-ui/markdown-editor/toolbars';
+import {toolbarFoldingHeadingItem} from '@gravity-ui/markdown-editor-folding-heading-extension';
 import {
     latexBlockItemView,
     latexBlockItemWysiwyg,
@@ -19,11 +20,13 @@ import {
     pageConstructorItemWysiwyg,
 } from '@gravity-ui/markdown-editor-page-constructor-extension/configs';
 
+const foldingHeading = 'foldingHeading';
 const pageConstructor = 'pageConstructor';
 
 export const playgroundToolbarsPreset: ToolbarsPreset = {
     items: {
         ...full.items,
+        [foldingHeading]: toolbarFoldingHeadingItem,
         [Action.mathInline]: {view: latexInlineItemView, wysiwyg: latexInlineItemWysiwyg},
         [Action.mathBlock]: {view: latexBlockItemView, wysiwyg: latexBlockItemWysiwyg},
         [Action.mermaid]: {view: mermaidItemView, wysiwyg: mermaidItemWysiwyg},
@@ -32,6 +35,10 @@ export const playgroundToolbarsPreset: ToolbarsPreset = {
     },
     orders: {
         ...full.orders,
+        [Toolbar.wysiwygSelection]: [
+            [foldingHeading, Action.text],
+            ...full.orders[Toolbar.wysiwygSelection].slice(1),
+        ],
         [Toolbar.wysiwygSlash]: [
             [
                 ...full.orders[Toolbar.wysiwygSlash].flat(),

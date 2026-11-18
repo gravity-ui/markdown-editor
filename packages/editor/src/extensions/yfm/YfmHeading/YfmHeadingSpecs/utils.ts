@@ -13,15 +13,7 @@ export const getNodeAttrs =
     (node) => ({
         [YfmHeadingAttr.Level]: level,
         [YfmHeadingAttr.Id]: node.getAttribute('id') || '',
-        [YfmHeadingAttr.Folding]: getFoldingAttr(node),
     });
-
-function getFoldingAttr(node: HTMLElement): boolean | null {
-    const value = node.getAttribute(`data-${YfmHeadingAttr.Folding}`);
-    if (value === 'true') return true;
-    if (value === 'false') return false;
-    return null;
-}
 
 // export const slugify = (str: string) =>
 //     // same config as in yfm-transform
@@ -32,10 +24,9 @@ function getFoldingAttr(node: HTMLElement): boolean | null {
 //     });
 
 export const renderYfmHeadingMarkup: SerializerNodeToken = (state, node) => {
-    const folding = node.attrs[YfmHeadingAttr.Folding];
     const level = node.attrs[YfmHeadingAttr.Level];
 
-    state.write(state.repeat('#', level) + (typeof folding === 'boolean' ? '+' : '') + ' ');
+    state.write(state.repeat('#', level) + ' ');
 };
 
 export const renderYfmHeadingAttributes: SerializerNodeToken = (state, node) => {
