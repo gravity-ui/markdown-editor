@@ -39,6 +39,7 @@
     "@gravity-ui/markdown-editor-page-constructor-extension": "workspace:*",
     "@gravity-ui/markdown-plugin-header": "workspace:*",
     "@gravity-ui/markdown-viewer": "workspace:*",
+    "@gravity-ui/markdown-viewer-yfm-latex-extension": "workspace:*",
     "@gravity-ui/page-constructor": "catalog:peer-gravity",
     "@gravity-ui/uikit": "catalog:peer-gravity",
     "markdown-it": "catalog:peers",
