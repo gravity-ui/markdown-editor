@@ -65,9 +65,15 @@ Block/
 ```
 
 - `Block.ts` holds the extension; every `index.ts` only re-exports.
-- `BlockSpecs/` holds the schema, the parser and the serializer; `const.ts` holds node and attribute names.
+- `BlockSpecs/` holds the schema, the parser and the serializer; `const.ts` holds node and attribute names. Actions and their names belong to the main extension.
+- Specs register a node with three calls: `addNodeSpec()`, `addMarkdownTokenParserSpec()` and `addNodeSerializerSpec()`; a mark with `addMarkSpec()`, `addMarkdownTokenParserSpec()` and `addMarkSerializerSpec()`. A NodeView or a mark view is registered in the main extension with `addNodeView()` or `addMarkView()`.
 - A NodeView is a class in `BlockNodeView/`; its React components live in `components/`.
 - Class names come from `cn`; element state is a modifier.
+- CSS blocks and elements are kebab-case: `.g-md-some-block__some-element`. A NodeView block ends with `-nodeview`.
+- A set of named constants is a plain object with `as const`.
+- Each field of a public options type has a comment with its behavior and default.
+- A markup command lives in its own file in `markup/commands/`. A command that inserts a block calls `replaceOrInsertAfter()` from `packages/editor/src/markup/commands/helpers.ts`; other packages import it as `MarkupHelpers` from `@gravity-ui/markdown-editor`.
+- An unused translation key is deleted.
 - A markdown-it plugin emits one token stream; extra data goes to `token.meta`.
 - A markdown-it plugin only parses. The serializer lives in the extension and writes through `state`.
 
@@ -121,6 +127,23 @@ Exports in `package.json`:
 | `./markup/utils` | Markup utils, optional |
 | `./wysiwyg/core` | WYSIWYG core, root editor package only |
 | `./pm/*`, `./cm/*` | ProseMirror and CodeMirror re-exports, root editor package only |
+
+## Dependencies
+
+- A package that published code imports at runtime goes to `dependencies`, unless the application provides it.
+- A package that the application provides is a peer: React, UIKit, `@gravity-ui/components`, `markdown-it`, Diplodoc packages, and the editor or the viewer that an extension package extends.
+- A third-party package used only by the demo goes to `devDependencies` of `demo/package.json`.
+
+## Moving code
+
+- A file moves to another package with `git mv`. `git diff --staged -M --stat` shows it as renamed, not as deleted and added.
+- A moved file changes only where the move requires it; other edits go into a separate pull request, so git still detects the rename.
+
+## Imports
+
+- Outside `packages/editor`, a ProseMirror or CodeMirror module re-exported in `packages/editor/src/pm/` or `packages/editor/src/cm/` is imported from `@gravity-ui/markdown-editor/pm/*` or `@gravity-ui/markdown-editor/cm/*`.
+- Outside `packages/editor`, an editor module missing from the public API is imported from `@gravity-ui/markdown-editor/_/…`, not copied.
+- Inside `packages/editor/src`, ProseMirror and CodeMirror modules come from their own packages, and imports between top-level folders use the `src/` alias.
 
 ## Documentation
 
