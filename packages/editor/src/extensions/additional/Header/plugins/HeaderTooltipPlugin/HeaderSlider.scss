@@ -1,0 +1,22 @@
+.g-md-header-slider {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    width: 220px;
+    padding: 8px 16px 4px;
+
+    &__label {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+
+        font-size: var(--g-text-body-1-font-size);
+
+        color: var(--g-color-text-secondary);
+    }
+
+    &__value {
+        color: var(--g-color-text-primary);
+    }
+}
