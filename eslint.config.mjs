@@ -51,6 +51,12 @@ export default defineConfig(
         },
     },
     {
+        files: ['./packages/viewer-yfm-mermaid-extension/tests/**/*'],
+        settings: {
+            'import/internal-regex': '^@gravity-ui/markdown-viewer-yfm-mermaid-extension(?:/|$)',
+        },
+    },
+    {
         files: ['./demo/**/*'],
         languageOptions: {
             parserOptions: {
