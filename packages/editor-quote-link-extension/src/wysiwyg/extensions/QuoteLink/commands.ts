@@ -1,5 +1,5 @@
 import {isTextSelection} from '@gravity-ui/markdown-editor';
-import {wrapIn} from '@gravity-ui/markdown-editor/_/pm/commands.js';
+import {wrapIn} from '@gravity-ui/markdown-editor/pm/commands';
 import type {ResolvedPos} from '@gravity-ui/markdown-editor/pm/model';
 import type {Command} from '@gravity-ui/markdown-editor/pm/state';
 

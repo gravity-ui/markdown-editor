@@ -1,9 +1,9 @@
 import '@diplodoc/quote-link-extension/runtime';
 import {isMarkActive, linkType} from '@gravity-ui/markdown-editor';
-import {hasParentNodeOfType} from '@gravity-ui/markdown-editor/_/pm/utils.js';
 import {wrappingInputRule} from '@gravity-ui/markdown-editor/_/utils/rulebuilders.js';
 import type {Action, ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import type {NodeType} from '@gravity-ui/markdown-editor/pm/model';
+import {hasParentNodeOfType} from '@gravity-ui/markdown-editor/pm/utils';
 
 import {QuoteLinkSpecs, quoteLinkType} from './QuoteLinkSpecs';
 import {addQuoteLink, toggleQuote} from './commands';

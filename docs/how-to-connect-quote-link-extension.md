@@ -69,8 +69,8 @@ const toolbarsPreset: ToolbarsPreset = {
   },
   orders: {
     ...defaultPreset.orders,
-    [Toolbar.wysiwygMain]: [[quoteLink], ...defaultPreset.orders[Toolbar.wysiwygMain]],
-    [Toolbar.markupMain]: [[quoteLink], ...defaultPreset.orders[Toolbar.markupMain]],
+    [Toolbar.wysiwygMain]: [...defaultPreset.orders[Toolbar.wysiwygMain], [quoteLink]],
+    [Toolbar.markupMain]: [...defaultPreset.orders[Toolbar.markupMain], [quoteLink]],
   },
 };
 ```

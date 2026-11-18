@@ -8,7 +8,7 @@ import {
     type ToolbarsPreset,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
-import {ToolbarName as Toolbar, defaultPreset} from '@gravity-ui/markdown-editor/toolbars';
+import {ToolbarName as Toolbar, commonmark} from '@gravity-ui/markdown-editor/toolbars';
 import {
     QuoteLink as QuoteLinkExtension,
     toolbarQuoteLinkItem,
@@ -25,12 +25,15 @@ const quoteLink = 'quoteLink';
 
 const toolbarsPreset: ToolbarsPreset = {
     items: {
-        ...defaultPreset.items,
+        ...commonmark.items,
         [quoteLink]: toolbarQuoteLinkItem,
     },
     orders: {
-        [Toolbar.wysiwygMain]: [[quoteLink], ...defaultPreset.orders[Toolbar.wysiwygMain]],
-        [Toolbar.markupMain]: [[quoteLink], ...defaultPreset.orders[Toolbar.markupMain]],
+        ...commonmark.orders,
+        [Toolbar.wysiwygMain]: [...commonmark.orders[Toolbar.wysiwygMain], [quoteLink]],
+        [Toolbar.markupMain]: [...commonmark.orders[Toolbar.markupMain], [quoteLink]],
+        [Toolbar.wysiwygHidden]: [],
+        [Toolbar.markupHidden]: [],
     },
 };
 
@@ -38,10 +41,12 @@ export const QuoteLink = memo(function QuoteLink({
     initial = '',
     mode,
     width,
+    height,
 }: {
     initial?: string;
     mode?: MarkdownEditorMode;
     width?: number;
+    height?: number;
 }) {
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md}) => (
@@ -79,6 +84,7 @@ export const QuoteLink = memo(function QuoteLink({
         <PlaygroundLayout
             editor={editor}
             viewWidth={width}
+            viewHeight={height}
             view={({className}) => (
                 <MarkdownEditorView
                     qa="demo-md-editor"

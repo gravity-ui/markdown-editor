@@ -11,14 +11,13 @@ import {
     LinkPlaceholderWidget,
     type LinkPlaceholderWidgetProps,
 } from '@gravity-ui/markdown-editor/_/extensions/markdown/Link/PlaceholderWidget/widget.js';
-import {TextSelection} from '@gravity-ui/markdown-editor/_/pm/state.js';
+import type {ExtensionDeps} from '@gravity-ui/markdown-editor/core';
+import type {Fragment, Node} from '@gravity-ui/markdown-editor/pm/model';
+import {TextSelection, type Transaction} from '@gravity-ui/markdown-editor/pm/state';
 import {
     findParentNodeOfType,
     findParentNodeOfTypeClosestToPos,
-} from '@gravity-ui/markdown-editor/_/pm/utils.js';
-import type {ExtensionDeps} from '@gravity-ui/markdown-editor/core';
-import type {Fragment, Node} from '@gravity-ui/markdown-editor/pm/model';
-import type {Transaction} from '@gravity-ui/markdown-editor/pm/state';
+} from '@gravity-ui/markdown-editor/pm/utils';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 
 import {QuoteLinkAttr, quoteLinkType} from '../QuoteLinkSpecs';

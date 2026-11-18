@@ -62,5 +62,6 @@ The entities keep their names. Only the import path changes.
 | `ActionName.quoteLink`                                                                                                                            | any string key of the preset item, for example `'quoteLink'` |
 | `icons.quoteLink`, `QuoteLinkIcon`                                                                                                                | `CircleLink` from `@gravity-ui/icons`                        |
 
+`QuoteLinkAttr` is a plain object with `as const`; its keys and values are the same.
 The `quotelink` key of the editor's `menubar` keyset is removed. The package registers its own keyset.
 `@gravity-ui/markdown-editor` no longer lists `@diplodoc/quote-link-extension` as an optional peer dependency; this package requires it.
