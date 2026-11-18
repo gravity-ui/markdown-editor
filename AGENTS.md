@@ -128,6 +128,12 @@ Exports in `package.json`:
 | `./wysiwyg/core` | WYSIWYG core, root editor package only |
 | `./pm/*`, `./cm/*` | ProseMirror and CodeMirror re-exports, root editor package only |
 
+## Dependencies
+
+- A package that published code imports at runtime goes to `dependencies`, unless the application provides it.
+- A package that the application provides is a peer: React, UIKit, `@gravity-ui/components`, `markdown-it`, Diplodoc packages, and the editor or the viewer that an extension package extends.
+- A third-party package used only by the demo goes to `devDependencies` of `demo/package.json`.
+
 ## Documentation
 
 Project docs live in `docs/`. Read the relevant file before working on the corresponding area:
