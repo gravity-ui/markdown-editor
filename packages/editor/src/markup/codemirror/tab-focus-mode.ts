@@ -27,7 +27,7 @@ export function createMarkupTabFocusMode(state: TabFocusModeState): {
         state.toggle();
         return true;
     };
-    const bindings: KeyBinding[] = [{mac: 'Shift-Alt-m', run: toggle, stopPropagation: true}];
+    const bindings: KeyBinding[] = [];
     const shortcut = formatter.toCM(Action.ToggleTabFocusMode);
     if (shortcut) {
         bindings.push({key: shortcut, run: toggle, stopPropagation: true});

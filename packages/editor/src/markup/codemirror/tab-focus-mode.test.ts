@@ -169,31 +169,6 @@ describe('markup Tab focus mode', () => {
         expect(handler).toHaveBeenCalledExactlyOnceWith(event);
     });
 
-    it('should synchronize the shared mode with the native macOS shortcut', () => {
-        const state = new TabFocusModeState();
-        const change = vi.fn();
-        state.on('change', change);
-        const view = createView(state);
-        const shortcut = {
-            key: 'M',
-            code: 'KeyM',
-            keyCode: 77,
-            altKey: true,
-            shiftKey: true,
-        };
-
-        expect(pressKey(view, shortcut).defaultPrevented).toBe(true);
-        expect(state.getMode()).toBe('focus');
-        expect(change).toHaveBeenCalledExactlyOnceWith({mode: 'focus'});
-        expect(pressTab(view).defaultPrevented).toBe(false);
-
-        expect(pressKey(view, shortcut).defaultPrevented).toBe(true);
-        expect(state.getMode()).toBe('indent');
-        expect(change).toHaveBeenLastCalledWith({mode: 'indent'});
-        expect(change).toHaveBeenCalledTimes(2);
-        expect(pressTab(view).defaultPrevented).toBe(true);
-    });
-
     it('should preserve the mode and remove listeners when a view is recreated', () => {
         const state = new TabFocusModeState('focus');
         const oldView = createView(state);
