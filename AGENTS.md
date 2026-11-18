@@ -65,7 +65,8 @@ Block/
 ```
 
 - `Block.ts` holds the extension; every `index.ts` only re-exports.
-- `BlockSpecs/` holds the schema, the parser and the serializer; `const.ts` holds node and attribute names.
+- `BlockSpecs/` holds the schema, the parser and the serializer; `const.ts` holds node and attribute names. Actions and their names belong to the main extension.
+- Specs register a node with three calls: `addNodeSpec()`, `addMarkdownTokenParserSpec()` and `addNodeSerializerSpec()`; a mark with `addMarkSpec()`, `addMarkdownTokenParserSpec()` and `addMarkSerializerSpec()`. A NodeView or a mark view is registered in the main extension with `addNodeView()` or `addMarkView()`.
 - A NodeView is a class in `BlockNodeView/`; its React components live in `components/`.
 - Class names come from `cn`; element state is a modifier.
 - A markdown-it plugin emits one token stream; extra data goes to `token.meta`.
