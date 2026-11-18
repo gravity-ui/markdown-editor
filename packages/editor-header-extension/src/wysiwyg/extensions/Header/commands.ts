@@ -1,8 +1,13 @@
 import {get$Cursor, pType, removeNode} from '@gravity-ui/markdown-editor';
 import {type Command, type EditorState, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
-import type {HeaderDimensions} from '@gravity-ui/markdown-plugin-header';
+import {
+    type HeaderBackground,
+    type HeaderDimensions,
+    headerBackground,
+} from '@gravity-ui/markdown-plugin-header';
 
 import {headerNodeType} from './HeaderSpecs';
+import {type UploadMeta, uploadsKey} from './plugins/HeaderUploadPlugin/const';
 
 function headerAt(state: EditorState, pos: number) {
     const node = state.doc.nodeAt(pos);
@@ -36,6 +41,26 @@ export const setHeaderDimension =
     (state, dispatch) => {
         if (!headerAt(state, pos)) return false;
         dispatch?.(state.tr.setNodeAttribute(pos, name, value));
+        return true;
+    };
+
+/** Changes background attributes in one undo step; the theme and the blur are reset without an image. */
+export const setHeaderBackground =
+    (pos: number, background: Partial<HeaderBackground>): Command =>
+    (state, dispatch) => {
+        const node = headerAt(state, pos);
+        if (!node) return false;
+        if (dispatch) {
+            const next = headerBackground({...headerBackground(node.attrs), ...background});
+            const tr = state.tr;
+            for (const [name, value] of Object.entries(next)) {
+                if (node.attrs[name] !== value) tr.setNodeAttribute(pos, name, value);
+            }
+            // A source choice supersedes uploads even when it leaves the attributes unchanged.
+            const changesSource = 'bg-image' in background || 'bg-color' in background;
+            if (changesSource) tr.setMeta(uploadsKey, {pos} satisfies UploadMeta);
+            if (tr.docChanged || changesSource) dispatch(tr);
+        }
         return true;
     };
 
