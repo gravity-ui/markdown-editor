@@ -15,15 +15,15 @@ import {
     normalizeHeaderActionAttrs,
     normalizeHeaderAttrs,
     normalizeHeaderImageAttrs,
-    normalizeHeaderTitleSize,
+    normalizeHeaderTitleLevel,
 } from '../attrs';
 import {
     HEADER_MAX_ACTIONS,
     HeaderClassName,
-    HeaderSlot,
     HeaderToken,
     headerActionName,
     headerDirectiveName,
+    headerImageName,
     headerTokenName,
 } from '../const';
 import {
@@ -89,21 +89,20 @@ function filterInline(state: StateCore) {
 }
 
 /**
- * Контейнеры блока, внутри которых сейчас идёт разбор. `state.parentType` для этого не годится:
+ * Глубина вложенности обложек при разборе. `state.parentType` для этого не годится:
  * правило `lheading` в markdown-it 13 не восстанавливает его после абзаца.
  */
-const parents = new WeakMap<StateBlock, string[]>();
+const depths = new WeakMap<StateBlock, number>();
 
-const isInside = (state: StateBlock, parent: string) => parents.get(state)?.at(-1) === parent;
+const isInside = (state: StateBlock) => Boolean(depths.get(state));
 
-function tokenizeInside(state: StateBlock, parent: string, params: ContainerDirectiveParams) {
-    const stack = parents.get(state) ?? [];
-    parents.set(state, stack);
-    stack.push(parent);
+function tokenizeInside(state: StateBlock, params: ContainerDirectiveParams) {
+    const depth = depths.get(state) ?? 0;
+    depths.set(state, depth + 1);
     try {
         tokenizeBlockContent(state, params.content);
     } finally {
-        stack.pop();
+        depths.set(state, depth);
     }
 }
 
@@ -121,29 +120,16 @@ export const headerDirective = (md: MarkdownIt) => {
         return token;
     };
 
-    const tokenizeSlot = (
-        state: StateBlock,
-        type: string,
-        className: string,
-        params: ContainerDirectiveParams,
-        slot: string,
-    ) => {
+    const pushWrapped = (state: StateBlock, type: string, className: string, content: Token[]) => {
+        if (!content.length) return;
         state.push(`${type}_open`, 'div', 1).attrSet('class', className);
-        tokenizeInside(state, slot, params);
+        state.tokens.push(...content);
         state.push(`${type}_close`, 'div', -1);
     };
 
-    // Директива слота вне своего контейнера поглощается без вывода.
-    registerLeafBlockDirective(md, HeaderSlot.Title, (state, params) => {
-        if (!isInside(state, headerDirectiveName)) return true;
-        const token = pushLeaf(state, HeaderToken.Title, params);
-        token.content = md.utils.unescapeAll(params.inlineContent?.raw ?? '').trim();
-        token.meta = {size: normalizeHeaderTitleSize(params.attrs)};
-        return true;
-    });
-
-    registerLeafBlockDirective(md, HeaderSlot.Image, (state, params) => {
-        if (!isInside(state, headerDirectiveName)) return true;
+    // Директива блока вне обложки поглощается без вывода.
+    registerLeafBlockDirective(md, headerImageName, (state, params) => {
+        if (!isInside(state)) return true;
         const image: HeaderImage = {
             ...normalizeHeaderImageAttrs(params.attrs),
             src: toSafeUrl(md.normalizeLink(params.dests?.link ?? '')) ?? '',
@@ -154,7 +140,7 @@ export const headerDirective = (md: MarkdownIt) => {
     });
 
     registerLeafBlockDirective(md, headerActionName, (state, params) => {
-        if (!isInside(state, HeaderSlot.Actions)) return true;
+        if (!isInside(state)) return true;
         const href = params.dests?.link ?? '';
         const action: HeaderAction = {
             ...normalizeHeaderActionAttrs(params.attrs),
@@ -165,53 +151,29 @@ export const headerDirective = (md: MarkdownIt) => {
         return true;
     });
 
-    registerContainerDirective(md, HeaderSlot.Content, (state, params) => {
-        if (isInside(state, headerDirectiveName)) {
-            tokenizeSlot(state, HeaderToken.Body, HeaderClassName.Body, params, HeaderSlot.Content);
-        }
-        return true;
-    });
-
-    registerContainerDirective(md, HeaderSlot.Actions, (state, params) => {
-        if (isInside(state, headerDirectiveName)) {
-            tokenizeSlot(
-                state,
-                HeaderToken.Actions,
-                HeaderClassName.Actions,
-                params,
-                HeaderSlot.Actions,
-            );
-        }
-        return true;
-    });
-
     registerContainerDirective(md, headerDirectiveName, (state, params) => {
         const start = state.tokens.length;
-        tokenizeInside(state, headerDirectiveName, params);
-
-        const slots = new Map<string, Token[]>();
-        for (const group of topLevel(state.tokens.splice(start))) {
-            const name = blockName(group[0]);
-            if (!slots.has(name)) slots.set(name, group);
-        }
-        const slot = (name: string) => slots.get(name) ?? [];
-        const [title] = slot(HeaderToken.Title);
-        const [image] = slot(HeaderToken.Image);
-        const body = slot(HeaderToken.Body);
-        const actions = slot(HeaderToken.Actions);
+        tokenizeInside(state, params);
+        const tokens = state.tokens.splice(start);
+        const [image] = topLevelOf(HeaderToken.Image, tokens);
+        const title = md.utils.unescapeAll(params.inlineContent?.raw ?? '').trim();
 
         const open = state.push(`${headerTokenName}_open`, 'div', 1);
         open.map = [params.startLine, params.endLine];
         open.meta = normalizeHeaderAttrs(params.attrs);
 
         state.push(`${HeaderToken.Text}_open`, 'div', 1).attrSet('class', HeaderClassName.Text);
-        if (title?.content) state.tokens.push(title);
-        state.tokens.push(...wrap(body, filterBlocks(inner(body))));
-        state.tokens.push(
-            ...wrap(
-                actions,
-                topLevelOf(HeaderToken.Action, inner(actions)).slice(0, HEADER_MAX_ACTIONS),
-            ),
+        if (title) {
+            const token = state.push(HeaderToken.Title, '', 0);
+            token.content = title;
+            token.meta = {level: normalizeHeaderTitleLevel(params.attrs)};
+        }
+        pushWrapped(state, HeaderToken.Body, HeaderClassName.Body, filterBlocks(tokens));
+        pushWrapped(
+            state,
+            HeaderToken.Actions,
+            HeaderClassName.Actions,
+            topLevelOf(HeaderToken.Action, tokens).slice(0, HEADER_MAX_ACTIONS),
         );
         state.push(`${HeaderToken.Text}_close`, 'div', -1);
 
@@ -225,7 +187,7 @@ export const headerDirective = (md: MarkdownIt) => {
     rules[`${headerTokenName}_open`] = (tokens, idx) => headerHtmlOpen(tokens[idx].meta, escape);
     rules[`${headerTokenName}_close`] = () => headerHtmlClose();
     rules[HeaderToken.Title] = (tokens, idx) =>
-        headerTitleHtml(tokens[idx].content, tokens[idx].meta.size, escape);
+        headerTitleHtml(tokens[idx].content, tokens[idx].meta.level, escape);
     rules[HeaderToken.Image] = (tokens, idx) => headerImageHtml(tokens[idx].meta, escape);
     rules[HeaderToken.Action] = (tokens, idx) => headerActionHtml(tokens[idx].meta, escape);
 };

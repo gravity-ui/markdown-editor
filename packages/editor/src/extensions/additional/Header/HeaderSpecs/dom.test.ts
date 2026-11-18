@@ -11,8 +11,7 @@ const open = (patch: Record<string, unknown>) =>
 describe('header dom', () => {
     it('should expose the background and image settings through data attributes', () => {
         const attrs = domAttrs({
-            bg: 'image',
-            image,
+            bg: image,
             layout: 'object',
             fit: 'whole',
             focus: 'right',
@@ -49,7 +48,7 @@ describe('header dom', () => {
         expect(html).not.toContain('g-md-header__shape');
     });
 
-    it('should ignore the image address unless the background is an image', () => {
+    it('should ignore a separate image parameter', () => {
         const attrs = domAttrs({bg: 'fill', image});
         expect(attrs['data-image']).toBeUndefined();
         expect(attrs.style).toBeUndefined();
@@ -64,7 +63,7 @@ describe('header dom', () => {
     });
 
     it('should draw shapes over an image too', () => {
-        expect(open({bg: 'image', image, decor: 'shapes'})).toContain('g-md-header__shape');
+        expect(open({bg: image, decor: 'shapes'})).toContain('g-md-header__shape');
     });
 
     it('should mark mesh spots with the fill they take', () => {
@@ -83,6 +82,6 @@ describe('header dom', () => {
     it('should reject unsupported URL schemes', () => {
         const unsafe = ['java', 'script:alert(1)'].join('');
         expect(toCssUrl(unsafe)).toBe(null);
-        expect(domAttrs({bg: 'image', image: unsafe})['data-image']).toBeUndefined();
+        expect(domAttrs({bg: unsafe})['data-image']).toBeUndefined();
     });
 });

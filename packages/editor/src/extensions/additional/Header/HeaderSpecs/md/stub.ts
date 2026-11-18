@@ -7,10 +7,9 @@ import {
 import type MarkdownIt from 'markdown-it';
 import type StateBlock from 'markdown-it/lib/rules_block/state_block';
 
-import {HeaderSlot, headerActionName, headerDirectiveName, headerTokenName} from '../const';
+import {headerActionName, headerDirectiveName, headerImageName, headerTokenName} from '../const';
 
-const containers = [headerDirectiveName, HeaderSlot.Content, HeaderSlot.Actions];
-const leaves = [HeaderSlot.Title, HeaderSlot.Image, headerActionName];
+const leaves = [headerImageName, headerActionName];
 
 /**
  * Разбор для ВИЗИВИГ: блок и его директивы, в том числе вне обложки, превращаются в один токен
@@ -27,6 +26,6 @@ export const headerStubPlugin = (md: MarkdownIt) => {
         return true;
     };
 
-    for (const name of containers) registerContainerDirective(md, name, keepMarkup);
+    registerContainerDirective(md, headerDirectiveName, keepMarkup);
     for (const name of leaves) registerLeafBlockDirective(md, name, keepMarkup);
 };

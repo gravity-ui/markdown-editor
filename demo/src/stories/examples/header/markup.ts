@@ -7,21 +7,17 @@ const longText = [
 ];
 
 const block = (open: string, ...parts: string[]) => [open, ...parts, ':::'].join('\n\n');
-const header = (attrs: string, ...slots: string[]) =>
-    block(attrs ? `:::header{${attrs}}` : ':::header', ...slots);
-const title = (value: string, attrs = '') => `::header-title[${value}]${attrs && `{${attrs}}`}`;
-const content = (...blocks: string[]) => block(':::header-content', ...blocks);
+const header = (title: string, attrs: string, ...body: string[]) =>
+    block(`:::header${title && `[${title}]`}${attrs && `{${attrs}}`}`, ...body);
 const image = (alt: string, src: string, attrs = '') =>
-    `::header-image[${alt}](${src})${attrs && `{${attrs}}`}`;
+    `::image[${alt}](${src})${attrs && `{${attrs}}`}`;
 const action = (label: string, attrs = '') =>
     `::action[${label}](https://example.com)${attrs && `{${attrs}}`}`;
-const actions = (...items: string[]) => block(':::header-actions', ...items);
 const covers = (...items: string[]) => items.join('\n\n');
 
 const primary = action('Get started', 'color="blue"');
 const secondary = action('Learn more');
-const page = (attrs: string) =>
-    header(attrs, title('Your title'), content(text), actions(primary, secondary));
+const page = (attrs: string) => header('Your title', attrs, text, primary, secondary);
 
 /** `button` → `Button`. */
 const label = (value: string) => value[0].toUpperCase() + value.slice(1);
@@ -81,7 +77,7 @@ const decorAttrs = (decor: string) =>
 
 /**
  * Примеры сгруппированы по темам: группа → имя примера → разметка.
- * Имена групп и примеров совпадают с каталогом варианта с плоским телом: по ним сравнивают синтаксисы.
+ * Имена групп и примеров совпадают с каталогом варианта со слотами: по ним сравнивают синтаксисы.
  * Адреса `cover.png` и `landscape.jpg` передаёт история: так примеры читаются и в юнит-тестах без сборщика.
  */
 export function getHeaderExamples(
@@ -104,14 +100,15 @@ export function getHeaderExamples(
                 (format) => page(`format="${format}" fill="blue-light"`),
             ),
             'Format small, short content': header(
+                'Only a title',
                 'format="small" fill="blue-light"',
-                title('Only a title'),
             ),
             'Format small, long content': header(
+                'Your title',
                 'format="small" fill="blue-light"',
-                title('Your title'),
-                content(...longText),
-                actions(primary, secondary),
+                ...longText,
+                primary,
+                secondary,
             ),
         },
         Width: Object.fromEntries(
@@ -119,9 +116,9 @@ export function getHeaderExamples(
                 ['rounded', 'bleed'].map((edges) => [
                     `Edges ${edges}, fixed ${fixed}`,
                     header(
+                        'Your title',
                         `edges="${edges}" fixed="${fixed}" fill="blue-light"`,
-                        title('Your title'),
-                        content(`${text} ${text}`),
+                        `${text} ${text}`,
                     ),
                 ]),
             ),
@@ -130,18 +127,14 @@ export function getHeaderExamples(
             borders.flatMap((border) =>
                 ['system', 'blue-light'].map((fill) => [
                     `Border ${border}, fill ${fill}`,
-                    header(
-                        `format="small" border="${border}" fill="${fill}"`,
-                        title('Your title'),
-                        content(text),
-                    ),
+                    header('Your title', `format="small" border="${border}" fill="${fill}"`, text),
                 ]),
             ),
         ),
         Fill: each(
             ['system', ...palette],
             (fill) => `Fill ${fill}`,
-            (fill) => header(`format="small" fill="${fill}"`, title('Your title'), content(text)),
+            (fill) => header('Your title', `format="small" fill="${fill}"`, text),
         ),
         'Background image': {
             ...Object.fromEntries(
@@ -149,20 +142,20 @@ export function getHeaderExamples(
                     ['crop', 'whole'].map((fit) => [
                         `Layout ${layout}, fit ${fit}`,
                         header(
+                            'Your title',
                             // Заливку видно только там, где изображение не закрывает блок целиком.
                             layout === 'cover' && fit === 'crop'
-                                ? `bg="image" image="${landscape}" layout="cover" fit="${fit}"`
-                                : `bg="image" image="${landscape}" layout="${layout}" fit="${fit}" fill="blue-light"`,
-                            title('Your title'),
-                            content(text),
+                                ? `bg="${landscape}" layout="cover" fit="${fit}"`
+                                : `bg="${landscape}" layout="${layout}" fit="${fit}" fill="blue-light"`,
+                            text,
                         ),
                     ]),
                 ),
             ),
             ...each(focuses, focusName, (focus) =>
                 header(
-                    `format="${focusFormat(focus)}" bg="image" image="${landscape}" focus="${focus}"`,
-                    title('Your title'),
+                    'Your title',
+                    `format="${focusFormat(focus)}" bg="${landscape}" focus="${focus}"`,
                 ),
             ),
         },
@@ -172,35 +165,30 @@ export function getHeaderExamples(
                 ['none', 'darken', 'lighten', 'shapes'],
                 (decor) => `Decor ${decor} over fill`,
                 (decor) =>
-                    header(
-                        `format="small" fill="blue-light" decor="${decor}"`,
-                        title('Your title'),
-                        content(text),
-                    ),
+                    header('Your title', `format="small" fill="blue-light" decor="${decor}"`, text),
             ),
             ...each(
                 decors,
                 (decor) => `Decor ${decor} over image`,
                 (decor) =>
                     header(
-                        `format="small" bg="image" image="${landscape}" ${decorAttrs(decor)}`,
-                        title('Your title'),
-                        content(text),
+                        'Your title',
+                        `format="small" bg="${landscape}" ${decorAttrs(decor)}`,
+                        text,
                     ),
             ),
             ...each(
                 palette,
                 (fill2) => `Fill2 ${fill2}`,
-                (fill2) =>
-                    header(`format="small" fill2="${fill2}" decor="gradient"`, title('Your title')),
+                (fill2) => header('Your title', `format="small" fill2="${fill2}" decor="gradient"`),
             ),
             ...each(
                 directions,
                 (direction) => `Decor gradient, direction ${direction}`,
                 (direction) =>
                     header(
+                        'Your title',
                         `format="small" fill="blue-light" fill2="purple" decor="gradient" direction="${direction}"`,
-                        title('Your title'),
                     ),
             ),
             ...each(
@@ -208,8 +196,8 @@ export function getHeaderExamples(
                 (shape) => `Decor mesh, shape ${shape}`,
                 (shape) =>
                     header(
+                        'Your title',
                         `format="small" fill="blue-light" fill2="purple" decor="mesh" shape="${shape}"`,
-                        title('Your title'),
                     ),
             ),
             ...each(
@@ -217,8 +205,8 @@ export function getHeaderExamples(
                 (shape) => `Decor shapes, shape ${shape}`,
                 (shape) =>
                     header(
+                        'Your title',
                         `format="small" fill="blue" decor="shapes" shape="${shape}"`,
-                        title('Your title'),
                     ),
             ),
         },
@@ -226,11 +214,7 @@ export function getHeaderExamples(
             ['blue-light', 'blue'].flatMap((fill) =>
                 textColors.map((color) => [
                     `Text ${color}, fill ${fill}`,
-                    header(
-                        `format="small" fill="${fill}" text="${color}"`,
-                        title('Your title'),
-                        content(text),
-                    ),
+                    header('Your title', `format="small" fill="${fill}" text="${color}"`, text),
                 ]),
             ),
         ),
@@ -240,97 +224,87 @@ export function getHeaderExamples(
                     ['crop', 'whole'].map((fit) => [
                         `Side ${side}, fit ${fit}`,
                         header(
+                            'Your title',
                             'fill="blue-light"',
-                            title('Your title'),
-                            content(text),
+                            text,
                             image('Abstract waves', cover, `side="${side}" fit="${fit}"`),
-                            actions(primary, secondary),
+                            primary,
+                            secondary,
                         ),
                     ]),
                 ),
             ),
             ...each(focuses.slice(1), focusName, (focus) =>
                 header(
+                    'Your title',
                     `format="${focusFormat(focus)}" fill="blue-light"`,
-                    title('Your title'),
                     isVertical(focus)
                         ? image('Abstract waves', cover, `focus="${focus}"`)
                         : image('Mountain lake', landscape, `focus="${focus}"`),
                 ),
             ),
             'With a background image': header(
-                `bg="image" image="${landscape}"`,
-                title('Two images'),
-                content(text),
+                'Two images',
+                `bg="${landscape}"`,
+                text,
                 image('Abstract waves', cover, 'side="left"'),
-                actions(primary),
+                primary,
             ),
         },
         Title: each(
             ['1', '2', '3', '4', '5', '6'],
-            (size) => `Level ${size}`,
-            (size) =>
-                header(
-                    'format="small" fill="blue-light"',
-                    title(`Level ${size}`, `size="${size}"`),
-                ),
+            (level) => `Level ${level}`,
+            (level) => header(`Level ${level}`, `h="${level}" format="small" fill="blue-light"`),
         ),
         Content: {
             Marks: header(
+                'Marks',
                 'fill="green-light"',
-                title('Marks'),
-                content(
-                    '**Bold**, _italic_, ++underline++, ~~strike~~, ##monospace##, `code`, [link](https://example.com), ==highlight== and {red}(color).',
-                ),
+                '**Bold**, _italic_, ++underline++, ~~strike~~, ##monospace##, `code`, [link](https://example.com), ==highlight== and {red}(color).',
             ),
             'Heading inside content': header(
+                'Release notes',
                 'fill="purple-light"',
-                title('Release notes'),
-                content('## What is new', text),
+                '## What is new',
+                text,
             ),
-            Quote: header(
-                'fill="purple-light"',
-                title('Quote'),
-                content('> Short words are best.'),
-            ),
+            Quote: header('Quote', 'fill="purple-light"', '> Short words are best.'),
             'Dropped lists, table and code': header(
+                'Only text remains',
                 'fill="yellow-light"',
-                title('Only text remains'),
-                content(
-                    'The lists, the table and the code block below are not shown.',
-                    '- Faster search\n- Dark theme\n- Offline mode',
-                    '1. Install\n2. Sign in',
-                    '| Column | Column |\n| --- | --- |\n| Cell | Cell |',
-                    '```\nconst hidden = true;\n```',
-                ),
+                'The lists, the table and the code block below are not shown.',
+                '- Faster search\n- Dark theme\n- Offline mode',
+                '1. Install\n2. Sign in',
+                '| Column | Column |\n| --- | --- |\n| Cell | Cell |',
+                '```\nconst hidden = true;\n```',
             ),
         },
         Actions: {
-            One: header('fill="blue-light"', title('One action'), actions(primary)),
-            Two: header('fill="blue-light"', title('Two actions'), actions(primary, secondary)),
+            One: header('One action', 'fill="blue-light"', primary),
+            Two: header('Two actions', 'fill="blue-light"', primary, secondary),
             Three: header(
+                'Three actions',
                 'fill="blue-light"',
-                title('Three actions'),
-                actions(primary, secondary, action('Read the docs', 'type="link"')),
+                primary,
+                secondary,
+                action('Read the docs', 'type="link"'),
             ),
             'Four, the last is dropped': header(
+                'Four actions',
                 'fill="blue-light"',
-                title('Four actions'),
-                actions(
-                    action('First', 'color="blue"'),
-                    action('Second'),
-                    action('Third', 'type="link"'),
-                    action('Fourth', 'type="link" color="blue"'),
-                ),
+                action('First', 'color="blue"'),
+                action('Second'),
+                action('Third', 'type="link"'),
+                action('Fourth', 'type="link" color="blue"'),
             ),
             ...each(
                 ['button', 'link'],
                 (type) => `Type ${type}`,
                 (type) =>
                     header(
+                        'Your title',
                         'format="small" fill="blue-light"',
-                        title('Your title'),
-                        actions(action(label(type), `type="${type}"`)),
+                        action(label(type), `type="${type}"`),
                     ),
             ),
             ...each(
@@ -338,136 +312,121 @@ export function getHeaderExamples(
                 (color) => `Color ${color}`,
                 (color) =>
                     header(
+                        'Your title',
                         'format="small" border="solid"',
-                        title('Your title'),
-                        actions(
-                            action('Button', `color="${color}"`),
-                            action('Link', `type="link" color="${color}"`),
-                        ),
+                        action('Button', `color="${color}"`),
+                        action('Link', `type="link" color="${color}"`),
                     ),
             ),
         },
         Combinations: {
             'Travel guide': header(
-                `format="large" vertical="top" bg="image" image="${landscape}" decor="lighten" text="green"`,
-                title('Northern lakes'),
-                content(
-                    'Six quiet routes through the mountains, with places to stay along the shore.',
-                ),
-                actions(
-                    action('Plan a trip', 'color="green"'),
-                    action('See the map', 'type="link" color="green"'),
-                ),
+                'Northern lakes',
+                `format="large" vertical="top" bg="${landscape}" decor="lighten" text="green"`,
+                'Six quiet routes through the mountains, with places to stay along the shore.',
+                action('Plan a trip', 'color="green"'),
+                action('See the map', 'type="link" color="green"'),
             ),
             'Photo essay': header(
-                `format="large" align="center" bg="image" image="${landscape}" decor="blur"`,
-                title('A week without a signal'),
-                content('Notes and pictures from a walk around the lake.'),
-                actions(action('Read the story', 'color="blue"')),
+                'A week without a signal',
+                `format="large" align="center" bg="${landscape}" decor="blur"`,
+                'Notes and pictures from a walk around the lake.',
+                action('Read the story', 'color="blue"'),
             ),
             'Field notes': header(
-                `bg="image" image="${landscape}" focus="bottom" fill="green-light" fill2="blue-light" decor="gradient" direction="right"`,
-                title('Field notes', 'size="2"'),
-                content('Weather, water level and trail conditions, updated every morning.'),
+                'Field notes',
+                `h="2" bg="${landscape}" focus="bottom" fill="green-light" fill2="blue-light" decor="gradient" direction="right"`,
+                'Weather, water level and trail conditions, updated every morning.',
                 image('Abstract waves', cover, 'side="left"'),
-                actions(action('Open the log', 'color="green"'), secondary),
+                action('Open the log', 'color="green"'),
+                secondary,
             ),
             'Spring release': header(
+                'Spring release',
                 'fill="green-light"',
-                title('Spring release'),
-                content('Offline mode, faster search and a new dark theme.'),
+                'Offline mode, faster search and a new dark theme.',
                 image('Abstract waves', cover),
-                actions(
-                    action('Update now', 'color="green"'),
-                    action('Release notes', 'type="link" color="green"'),
-                ),
+                action('Update now', 'color="green"'),
+                action('Release notes', 'type="link" color="green"'),
             ),
             'Developer portal': header(
+                'Build on our platform',
                 'format="large" edges="bleed" fixed="false" fill="blue" fill2="purple" decor="mesh" shape="corner"',
-                title('Build on our platform'),
-                content('Guides, API reference and examples for every language we support.'),
-                actions(
-                    action('Get an API key', 'color="purple-light"'),
-                    action('Browse the docs', 'type="link"'),
-                ),
+                'Guides, API reference and examples for every language we support.',
+                action('Get an API key', 'color="purple-light"'),
+                action('Browse the docs', 'type="link"'),
             ),
             'Team handbook': header(
-                'border="dashed" fill="yellow-light"',
-                title('Team handbook', 'size="2"'),
-                content('How we plan, review and ship. **Start here** if you joined this month.'),
-                actions(action('Open the handbook', 'color="yellow"'), secondary),
+                'Team handbook',
+                'h="2" border="dashed" fill="yellow-light"',
+                'How we plan, review and ship. **Start here** if you joined this month.',
+                action('Open the handbook', 'color="yellow"'),
+                secondary,
             ),
             'Security notice': header(
-                'format="small" border="solid" fill="red-light" text="red"',
-                title('Rotate your access tokens', 'size="3"'),
-                content('Tokens created before March stop working on Monday.'),
-                actions(action('How to rotate', 'type="link" color="red"')),
+                'Rotate your access tokens',
+                'h="3" format="small" border="solid" fill="red-light" text="red"',
+                'Tokens created before March stop working on Monday.',
+                action('How to rotate', 'type="link" color="red"'),
             ),
             'Weekly digest': header(
-                'format="small" align="right" vertical="top" fill="grey" decor="shapes" shape="scatter"',
-                title('Weekly digest', 'size="4"'),
-                content('Twelve merged changes, three new pages, one fixed outage.'),
+                'Weekly digest',
+                'h="4" format="small" align="right" vertical="top" fill="grey" decor="shapes" shape="scatter"',
+                'Twelve merged changes, three new pages, one fixed outage.',
             ),
             'Research lab': header(
-                'fill="purple" fill2="blue" decor="gradient" direction="right"',
-                title('Research lab', 'size="2"'),
-                content('> We publish every experiment, including the ones that failed.'),
+                'Research lab',
+                'h="2" fill="purple" fill2="blue" decor="gradient" direction="right"',
+                '> We publish every experiment, including the ones that failed.',
                 image('Abstract waves', cover, 'side="left"'),
-                actions(action('Read the papers', 'color="purple-light"')),
+                action('Read the papers', 'color="purple-light"'),
             ),
             'Photo of the month': header(
-                `edges="bleed" align="right" vertical="bottom" border="solid" bg="image" image="${landscape}" layout="object" focus="top" fill="blue-light"`,
-                actions(action('Photo of the month', 'color="blue"')),
+                '',
+                `edges="bleed" align="right" vertical="bottom" border="solid" bg="${landscape}" layout="object" focus="top" fill="blue-light"`,
+                action('Photo of the month', 'color="blue"'),
             ),
             'Evening webinar': header(
+                'Evening webinar',
                 'align="center" fill="purple" decor="shapes" shape="edges"',
-                title('Evening webinar'),
-                content('Thursday, 19:00. Questions from the audience at the end.'),
-                actions(
-                    action('Register', 'color="yellow"'),
-                    action('Add to calendar', 'type="link" color="purple-light"'),
-                ),
+                'Thursday, 19:00. Questions from the audience at the end.',
+                action('Register', 'color="yellow"'),
+                action('Add to calendar', 'type="link" color="purple-light"'),
             ),
             'Getting started': header(
+                'Getting started',
                 'align="center" border="dotted"',
-                title('Getting started'),
-                content('Install the package, connect the editor and write your first page.'),
-                actions(
-                    action('Install', 'color="blue"'),
-                    secondary,
-                    action('Ask a question', 'type="link" color="blue"'),
-                ),
+                'Install the package, connect the editor and write your first page.',
+                action('Install', 'color="blue"'),
+                secondary,
+                action('Ask a question', 'type="link" color="blue"'),
             ),
             Changelog: header(
-                'format="small" edges="bleed" align="right" vertical="bottom" fill="green"',
-                title('Version 2.4', 'size="5"'),
-                content('Released on 14 October. Fixes for tables, lists and the toolbar.'),
-                actions(action('All versions', 'type="link"')),
+                'Version 2.4',
+                'h="5" format="small" edges="bleed" align="right" vertical="bottom" fill="green"',
+                'Released on 14 October. Fixes for tables, lists and the toolbar.',
+                action('All versions', 'type="link"'),
             ),
         },
         'Edge cases': {
-            'Empty block': header(''),
-            'No title': header('fill="green-light"', content(text), actions(primary)),
-            'Unknown parameter': header(
-                'fill="green-light" color="red"',
-                title('Unknown parameter'),
-            ),
+            'Empty block': header('', ''),
+            'No title': header('', 'fill="green-light"', text, primary),
+            'Unknown parameter': header('Unknown parameter', 'fill="green-light" color="red"'),
             'Unknown value': header(
+                'Unknown value',
                 'format="huge" fill="magenta" decor="sparkles"',
-                title('Unknown value'),
             ),
             'Inside a cut': [
                 '{% cut "Cover inside a cut" %}',
-                header('fill="green-light"', title('Inside a cut'), content(text)),
+                header('Inside a cut', 'fill="green-light"', text),
                 '{% endcut %}',
             ].join('\n\n'),
             'Two covers in a row': covers(
-                header('format="small" fill="blue-light"', title('First')),
-                header('format="small" fill="yellow-light"', title('Second')),
+                header('First', 'format="small" fill="blue-light"'),
+                header('Second', 'format="small" fill="yellow-light"'),
             ),
             'Directives outside a cover': covers(
                 'The directives below are outside a cover and are not shown.',
-                title('Lost title'),
                 image('Lost image', cover),
                 action('Lost action'),
             ),
