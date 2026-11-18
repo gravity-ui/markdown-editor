@@ -118,6 +118,23 @@ export default defineConfig(
         },
     },
     {
+        files: ['./packages/editor-quote-link-extension/**/*'],
+        languageOptions: {
+            parserOptions: {
+                project: './packages/editor-quote-link-extension/tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: './packages/editor-quote-link-extension/tsconfig.json',
+                },
+            },
+        },
+    },
+    {
         files: ['./packages/plugin-header/**/*'],
         languageOptions: {
             parserOptions: {

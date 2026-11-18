@@ -1,19 +1,8 @@
 import {TokenType, transform as quoteLink} from '@diplodoc/quote-link-extension';
-import type {Node} from 'prosemirror-model';
+import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 
-import type {ExtensionAuto} from '#core';
-import {nodeTypeFactory} from 'src/utils';
-
+import {QuoteLinkAttr, quoteLinkNodeName} from './const';
 import {moveLinkToQuoteAttributes} from './md/moveLinkToQuoteAttributes';
-
-export const quoteLinkNodeName = 'yfm_quote-link';
-export const quoteLinkType = nodeTypeFactory(quoteLinkNodeName);
-export const isQuoteLinkNode = (node: Node) => node.type.name === quoteLinkNodeName;
-
-export enum QuoteLinkAttr {
-    Cite = 'cite',
-    DataContent = 'data-content',
-}
 
 export const QuoteLinkSpecs: ExtensionAuto = (builder) => {
     builder

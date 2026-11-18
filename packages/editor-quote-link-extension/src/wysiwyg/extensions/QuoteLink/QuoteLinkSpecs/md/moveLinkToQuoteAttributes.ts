@@ -1,8 +1,8 @@
 import type {PluginSimple} from 'markdown-it';
 
-import {matchLinkAtInlineStart} from 'src/extensions/additional/QuoteLink/QuoteLinkSpecs/md/utils';
+import {QuoteLinkAttr} from '../const';
 
-import {QuoteLinkAttr} from '..';
+import {matchLinkAtInlineStart} from './utils';
 
 export const moveLinkToQuoteAttributes: PluginSimple = (md) => {
     md.core.ruler.push('move-link-to-quote-attributes', (state) => {

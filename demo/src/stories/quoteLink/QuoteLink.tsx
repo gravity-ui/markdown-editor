@@ -1,45 +1,48 @@
 import {memo, useCallback} from 'react';
 
-import {transform as quoteLink} from '@diplodoc/quote-link-extension';
+import {transform as quoteLinkPlugin} from '@diplodoc/quote-link-extension';
 import {
+    type MarkdownEditorMode,
     MarkdownEditorView,
     type RenderPreview,
     type ToolbarsPreset,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
-import {QuoteLink as QuoteLinkExtension} from '@gravity-ui/markdown-editor/extensions/additional/QuoteLink/index.js';
+import {ToolbarName as Toolbar, defaultPreset} from '@gravity-ui/markdown-editor/toolbars';
 import {
-    ActionName as Action,
-    ToolbarName as Toolbar,
-    defaultPreset,
-    quoteLinkItemMarkup,
-    quoteLinkItemView,
-    quoteLinkItemWysiwyg,
-} from '@gravity-ui/markdown-editor/toolbars';
+    QuoteLink as QuoteLinkExtension,
+    toolbarQuoteLinkItem,
+} from '@gravity-ui/markdown-editor-quote-link-extension';
 import type {PluginWithParams} from 'markdown-it/lib';
 
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
 import {useLogs} from '../../hooks/useLogs';
 
-const extraPlugins: PluginWithParams[] = [quoteLink({bundle: false})];
+const extraPlugins: PluginWithParams[] = [quoteLinkPlugin({bundle: false})];
+
+const quoteLink = 'quoteLink';
 
 const toolbarsPreset: ToolbarsPreset = {
     items: {
         ...defaultPreset.items,
-        [Action.quoteLink]: {
-            view: quoteLinkItemView,
-            wysiwyg: quoteLinkItemWysiwyg,
-            markup: quoteLinkItemMarkup,
-        },
+        [quoteLink]: toolbarQuoteLinkItem,
     },
     orders: {
-        [Toolbar.wysiwygMain]: [[Action.quoteLink], ...defaultPreset.orders[Toolbar.wysiwygMain]],
-        [Toolbar.markupMain]: [[Action.quoteLink], ...defaultPreset.orders[Toolbar.markupMain]],
+        [Toolbar.wysiwygMain]: [[quoteLink], ...defaultPreset.orders[Toolbar.wysiwygMain]],
+        [Toolbar.markupMain]: [[quoteLink], ...defaultPreset.orders[Toolbar.markupMain]],
     },
 };
 
-export const QuoteLink = memo(() => {
+export const QuoteLink = memo(function QuoteLink({
+    initial = '',
+    mode,
+    width,
+}: {
+    initial?: string;
+    mode?: MarkdownEditorMode;
+    width?: number;
+}) {
     const renderPreview = useCallback<RenderPreview>(
         ({getValue, md}) => (
             <SplitModePreviewLazy
@@ -56,7 +59,7 @@ export const QuoteLink = memo(() => {
     );
 
     const editor = useMarkdownEditor({
-        initial: {markup: ''},
+        initial: {markup: initial, mode},
         markupConfig: {renderPreview},
         wysiwygConfig: {
             extensions: QuoteLinkExtension,
@@ -75,8 +78,10 @@ export const QuoteLink = memo(() => {
     return (
         <PlaygroundLayout
             editor={editor}
+            viewWidth={width}
             view={({className}) => (
                 <MarkdownEditorView
+                    qa="demo-md-editor"
                     autofocus
                     stickyToolbar
                     settingsVisible
@@ -88,5 +93,3 @@ export const QuoteLink = memo(() => {
         />
     );
 });
-
-QuoteLink.displayName = 'GPT';

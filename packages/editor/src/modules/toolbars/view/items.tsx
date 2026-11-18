@@ -95,13 +95,6 @@ export const quoteItemView: ToolbarItemView = {
     hotkey: f.toView(A.Quote),
 };
 
-// ---- Quote Link ----
-export const quoteLinkItemView: ToolbarItemView = {
-    type: ToolbarDataType.SingleButton,
-    title: i18n.bind(null, 'quotelink'),
-    icon: icons.quoteLink,
-};
-
 // ---- Cut ----
 export const cutItemView: ToolbarItemView = {
     type: ToolbarDataType.SingleButton,

@@ -1,0 +1,112 @@
+{
+  "name": "@gravity-ui/markdown-editor-quote-link-extension",
+  "version": "0.0.0",
+  "description": "Quote link extension for @gravity-ui/markdown-editor",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gravity-ui/markdown-editor"
+  },
+  "keywords": [
+    "md",
+    "yfm",
+    "wysiwyg",
+    "markdown",
+    "codemirror",
+    "prosemirror",
+    "quote-link"
+  ],
+  "scripts": {
+    "clean": "gulp clean",
+    "build": "gulp build",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "run-p -cs lint:*",
+    "lint:js": "eslint './**/*.{js,jsx,mjs,ts,tsx}'",
+    "lint:styles": "stylelint './**/*.{css,scss}' --allow-empty-input",
+    "lint:prettier": "prettier --check './**/*.{js,jsx,mjs,ts,tsx,css,scss}'",
+    "test": "run-s test:unit test:package",
+    "test:unit": "vitest run",
+    "test:package": "pnpm build && node --test \"tests/package-imports/*.mjs\"",
+    "prepublishOnly": "nx lint && nx clean && nx build"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./build/esm/index.d.ts",
+        "default": "./build/esm/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/index.d.ts",
+        "default": "./build/cjs/index.js"
+      }
+    },
+    "./markup": {
+      "import": {
+        "types": "./build/esm/markup/index.d.ts",
+        "default": "./build/esm/markup/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/markup/index.d.ts",
+        "default": "./build/cjs/markup/index.js"
+      }
+    },
+    "./wysiwyg": {
+      "import": {
+        "types": "./build/esm/wysiwyg/index.d.ts",
+        "default": "./build/esm/wysiwyg/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/wysiwyg/index.d.ts",
+        "default": "./build/cjs/wysiwyg/index.js"
+      }
+    },
+    "./wysiwyg/specs": {
+      "import": {
+        "types": "./build/esm/wysiwyg/specs.d.ts",
+        "default": "./build/esm/wysiwyg/specs.js"
+      },
+      "require": {
+        "types": "./build/cjs/wysiwyg/specs.d.ts",
+        "default": "./build/cjs/wysiwyg/specs.js"
+      }
+    }
+  },
+  "main": "build/cjs/index.js",
+  "module": "build/esm/index.js",
+  "types": "build/esm/index.d.ts",
+  "files": [
+    "build",
+    "README.md"
+  ],
+  "dependencies": {
+    "@gravity-ui/icons": "^2.12.0",
+    "tslib": "catalog:ts"
+  },
+  "devDependencies": {
+    "@diplodoc/quote-link-extension": "catalog:peer-diplodoc",
+    "@gravity-ui/markdown-editor": "workspace:*",
+    "@markdown-editor/gulp-tasks": "workspace:*",
+    "@markdown-editor/linters": "workspace:*",
+    "@markdown-editor/tsconfig": "workspace:*",
+    "@markdown-editor/vitest-config": "workspace:*",
+    "@types/markdown-it": "catalog:",
+    "@types/react": "catalog:react",
+    "gulp-cli": "catalog:",
+    "jsdom": "catalog:testing",
+    "markdown-it": "catalog:peers",
+    "npm-run-all": "^4.1.5",
+    "react": "catalog:react",
+    "ts-dedent": "2.3.0",
+    "typescript": "catalog:ts",
+    "vitest": "catalog:testing"
+  },
+  "peerDependencies": {
+    "@diplodoc/quote-link-extension": "^0.1.3",
+    "@gravity-ui/markdown-editor": "workspace:^15.47.0 || ^16.0.0",
+    "react": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+  },
+  "sideEffects": [
+    "*.css",
+    "*.scss"
+  ]
+}

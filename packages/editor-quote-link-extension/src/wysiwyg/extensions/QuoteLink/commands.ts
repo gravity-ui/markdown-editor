@@ -1,10 +1,7 @@
-import {wrapIn} from 'prosemirror-commands';
-import type {ResolvedPos} from 'prosemirror-model';
-import type {Command} from 'prosemirror-state';
-
-import {isTextSelection} from 'src/utils';
-
-import '../../../types/spec';
+import {isTextSelection} from '@gravity-ui/markdown-editor';
+import {wrapIn} from '@gravity-ui/markdown-editor/_/pm/commands.js';
+import type {ResolvedPos} from '@gravity-ui/markdown-editor/pm/model';
+import type {Command} from '@gravity-ui/markdown-editor/pm/state';
 
 import {addQuoteLinkPlaceholder} from './PlaceholderWidget/commands';
 import {isQuoteLinkNode, quoteLinkType} from './QuoteLinkSpecs';
