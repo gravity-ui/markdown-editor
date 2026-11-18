@@ -3,6 +3,8 @@ import {Fragment} from 'prosemirror-model';
 import {isListItemNode, isListNode} from 'src/extensions/markdown/Lists/utils';
 import {isEmptyString} from 'src/utils';
 
+export {isFilesWithoutText} from 'src/utils/clipboard';
+
 /** Сontains all data formats known to us */
 export enum DataTransferType {
     Text = 'text/plain',

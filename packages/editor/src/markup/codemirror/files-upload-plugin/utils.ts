@@ -1,4 +1,4 @@
-import {isFilesFromHtml, isFilesOnly} from '../../../utils';
+import {isFilesWithoutText} from '../../../utils';
 
 export {uniqueId} from '../../../lodash';
 export {isImageFile} from '../../../utils/clipboard';
@@ -22,6 +22,6 @@ export async function loadImage(imgFile: File) {
 
 export function getTransferFiles(data: DataTransfer | null): File[] | null {
     if (!data) return null;
-    if (!isFilesOnly(data) && !isFilesFromHtml(data)) return null;
+    if (!isFilesWithoutText(data)) return null;
     return Array.from(data.files);
 }

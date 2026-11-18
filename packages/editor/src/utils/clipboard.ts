@@ -21,6 +21,13 @@ export function isFilesFromHtml({types}: DataTransfer): boolean {
     );
 }
 
+/** Apps add HTML, RTF or empty text to a copied image, so the list of types varies. */
+export function isFilesWithoutText(data: DataTransfer): boolean {
+    return (
+        data.types.includes(DataTransferType.Files) && !data.getData(DataTransferType.Text).trim()
+    );
+}
+
 export function isImageFile(file: File): boolean {
     return file.type.startsWith('image/');
 }
