@@ -19,21 +19,17 @@ const b = cn('button-settings');
 
 const LINK_ICON_SIZE = 16;
 
-/** The Markdown parser of the editor checks an address the way it checks a link. */
 export type LinkParser = Parameters<typeof normalizeLinkUrl>[0];
 
 type ButtonSettingsProps = {
     view: EditorView;
     node: Node;
     getPos: () => number | undefined;
-    /** The window opens under this button. */
     anchor: HTMLElement;
     parser: LinkParser;
-    /** The reason comes from the popup; Enter and Tab out of the window pass none. */
     onClose: (reason?: string) => void;
 };
 
-/** A text field that saves its value on blur, on Enter and when the window closes. */
 function useSavedText(saved: string, save: (value: string) => boolean | void, close: () => void) {
     const [value, setValue] = useState(saved);
     const [previous, setPrevious] = useState(saved);
@@ -93,13 +89,11 @@ export function ButtonSettings({view, node, getPos, anchor, parser, onClose}: Bu
         },
         onClose,
     );
-    // A field with an unsaved value has no blur when the window closes.
     const saveAndClose = (reason?: string) => {
         label.save();
         href.save();
         onClose(reason);
     };
-    // Tab after the last field and Shift+Tab before the first one return the focus to the editor.
     const closeOnTab = (shiftKey: boolean) => (event: KeyboardEvent) => {
         if (event.key !== 'Tab' || event.shiftKey !== shiftKey) return;
         event.preventDefault();
@@ -124,7 +118,6 @@ export function ButtonSettings({view, node, getPos, anchor, parser, onClose}: Bu
             offset={4}
             initialFocus={labelRef}
             onOpenChange={(open, event, reason) => {
-                // A click on the button keeps its window open.
                 const onButton =
                     reason === 'outside-press' &&
                     event?.target instanceof window.Node &&

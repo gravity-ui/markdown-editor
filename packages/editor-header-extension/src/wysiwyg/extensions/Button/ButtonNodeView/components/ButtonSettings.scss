@@ -1,13 +1,9 @@
-@use 'button-settings';
-
 .g-md-button-settings {
-    $width: 256px;
-
-    width: $width;
+    width: 256px;
 
     .g-text-input__control,
     .g-switch__content {
-        font-size: button-settings.$font-size;
+        font-size: 14px;
     }
 
     &__popup {
@@ -21,7 +17,7 @@
     &__style {
         padding-block-start: var(--g-spacing-4);
 
-        border-block-start: button-settings.$border-width solid var(--g-color-line-generic);
+        border-block-start: 1px solid var(--g-color-line-generic);
     }
 
     &__fields {
