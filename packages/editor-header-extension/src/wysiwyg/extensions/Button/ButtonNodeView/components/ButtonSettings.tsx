@@ -2,6 +2,7 @@ import {type ChangeEvent, type KeyboardEvent, useMemo, useRef, useState} from 'r
 
 import {Link} from '@gravity-ui/icons';
 import {cn} from '@gravity-ui/markdown-editor';
+import {enterKeyHandler} from '@gravity-ui/markdown-editor/_/utils/handlers.js';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {normalizeLinkUrl} from '@gravity-ui/markdown-plugin-header';
@@ -67,11 +68,10 @@ function useSavedText(saved: string, save: (value: string) => boolean | void, cl
             onBlur: () => {
                 saveValue();
             },
-            onKeyDown: (event: KeyboardEvent) => {
-                if (event.key !== 'Enter') return;
+            onKeyDown: enterKeyHandler((event: KeyboardEvent) => {
                 event.preventDefault();
                 if (saveValue()) close();
-            },
+            }),
         },
     };
 }
