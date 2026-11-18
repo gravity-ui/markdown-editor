@@ -12,6 +12,9 @@ pnpm add @gravity-ui/markdown-viewer-yfm-latex-extension @gravity-ui/markdown-vi
 Requires React 18 or 19, MarkdownViewer `^0.1.0`, and Diplodoc LaTeX extension
 `^1.3.4 || ^2.0.0`. Your bundler must support dynamic JavaScript and CSS imports.
 
+The CommonJS entry requires a runtime that can load ES modules through `require()`.
+The Diplodoc React hook is only available as an ES module.
+
 ## Usage
 
 Pass the HTML and metadata produced by the Diplodoc LaTeX transform:
@@ -51,3 +54,7 @@ Changes to HTML, metadata, or options trigger rendering. The extension skips
 React slots and formula nodes containing them. Pending asset loads are ignored
 after cleanup. Removing `YfmLatex` leaves rendered formulas in place and keeps
 the shared runtime available.
+
+Keep `meta`, `options`, and `onError` references stable to avoid rendering formulas
+again on unrelated parent updates. Use `useMemo` for objects and `useCallback`
+for the error handler.

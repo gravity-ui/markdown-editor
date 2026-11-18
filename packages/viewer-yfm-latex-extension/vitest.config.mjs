@@ -1,4 +1,5 @@
 import {createRequire} from 'node:module';
+import {dirname, join} from 'node:path';
 import process from 'node:process';
 
 import common from '@markdown-editor/vitest-config';
@@ -21,7 +22,10 @@ export default mergeConfig(
                 },
                 {
                     find: '@diplodoc/latex-extension/runtime',
-                    replacement: require.resolve(`${latex}/runtime`),
+                    replacement: join(
+                        dirname(require.resolve(`${latex}/runtime`)),
+                        'index-browser.js',
+                    ),
                 },
                 {
                     find: '@diplodoc/latex-extension/react',
