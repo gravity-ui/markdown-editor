@@ -50,3 +50,4 @@ These run visual tests outside Docker and produce unreliable results.
 
 - An editor story renders the editor inside `PlaygroundLayout`.
 - Usage examples live in `demo/src/stories/examples/`.
+- An extension story builds its toolbars from the `commonmark` preset with empty hidden toolbars and adds the extension button as the last group of the main toolbars.
