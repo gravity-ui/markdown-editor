@@ -5,7 +5,9 @@ import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {headerDimensions} from '@gravity-ui/markdown-plugin-header';
 
 import {i18n} from '../../../../../i18n';
-import {copyHeader, removeHeader, setHeaderDimension} from '../../commands';
+import {runCommand} from '../../../commands';
+import {copyHeader, removeHeader, setHeaderDimension, setHeaderPart} from '../../commands';
+import {findParts, headerParts} from '../../utils';
 
 import {HeaderSettings} from './Settings/HeaderSettings';
 
@@ -45,6 +47,12 @@ export function HeaderToolbar({view, node, pos, block}: HeaderToolbarProps) {
                         onChange={(name, value) =>
                             setHeaderDimension(pos, name, value)(view.state, view.dispatch)
                         }
+                        content={{
+                            parts: headerParts(node),
+                            partNode: (part) => findParts(node, pos)[part]?.node,
+                            setPart: (part, enabled, restored) =>
+                                runCommand(view, setHeaderPart(pos, part, enabled, restored)),
+                        }}
                         onClose={hide}
                     />
                 ),

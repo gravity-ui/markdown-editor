@@ -6,6 +6,18 @@
   "full-width": "Full width",
   "text": "Text",
   "heading": "Title",
+  "title-placeholder": "Banner title",
+  "title-size": "Title size: {{value}}",
+  "heading-size": "Heading {{size}}",
+  "title-color": "Title color: {{value}}",
+  "title-color-auto": "Default",
+  "title-color-gray": "Gray",
+  "title-color-yellow": "Yellow",
+  "title-color-orange": "Orange",
+  "title-color-red": "Red",
+  "title-color-green": "Green",
+  "title-color-blue": "Blue",
+  "title-color-violet": "Violet",
   "description": "Description",
   "alignment": "Alignment",
   "vertical-alignment": "Vertically",
@@ -26,5 +38,6 @@
   "close": "Close",
   "settings": "Settings",
   "copy": "Copy",
-  "remove": "Delete"
+  "remove": "Delete",
+  "preview-title": "This is your start page"
 }
