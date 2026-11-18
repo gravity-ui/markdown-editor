@@ -2,6 +2,7 @@ import type {CommonEditor, MarkupString} from 'src/common';
 import type {Logger2} from 'src/logger';
 import type {ReactRenderStorage} from 'src/modules/react-renderer';
 import type {DirectiveSyntaxContext} from 'src/utils/directive';
+import type {TabFocusModeState} from 'src/utils/tab-focus-mode';
 
 import type {MarkdownEditorOptions, MarkdownEditorPreset} from '../types';
 
@@ -22,6 +23,7 @@ export type ModeCoreOptions = Pick<
     logger: Logger2.ILogger;
     renderStorage: ReactRenderStorage;
     directiveSyntax: DirectiveSyntaxContext;
+    tabFocusMode: TabFocusModeState;
 };
 
 /** @internal */

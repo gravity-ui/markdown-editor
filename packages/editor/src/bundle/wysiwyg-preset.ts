@@ -6,6 +6,7 @@ import {
     EditorModeKeymap,
     type EditorModeKeymapOptions,
 } from '../extensions/behavior/EditorModeKeymap';
+import {createWysiwygTabFocusModeExtension} from '../extensions/behavior/TabFocusMode';
 import {BaseNode, YfmHeadingAttr, YfmNoteNode} from '../extensions/specs';
 import {i18n as i18nPlaceholder} from '../i18n/placeholder';
 import {CommonMarkPreset, type CommonMarkPresetOptions} from '../presets/commonmark';
@@ -15,6 +16,7 @@ import {YfmPreset, type YfmPresetOptions} from '../presets/yfm';
 import {ZeroPreset, type ZeroPresetOptions} from '../presets/zero';
 import {Action as A, formatter as f} from '../shortcuts';
 import type {DirectiveSyntaxContext} from '../utils/directive';
+import type {TabFocusModeState} from '../utils/tab-focus-mode';
 import type {FileUploadHandler} from '../utils/upload';
 
 import {emojiDefs} from './emoji';
@@ -42,6 +44,7 @@ export type BundlePresetOptions = ExtensionsOptions &
         needToSetDimensionsForUploadedImages?: boolean;
         enableNewImageSizeCalculation?: boolean;
         directiveSyntax: DirectiveSyntaxContext;
+        tabFocusMode: TabFocusModeState;
         // MAJOR: remove markdown-it-attrs
         disableMdAttrs?: boolean;
         mobile?: boolean;
@@ -281,4 +284,5 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
         onCancel: opts.onCancel,
         ignoreKeysList,
     });
+    builder.use(createWysiwygTabFocusModeExtension(opts.tabFocusMode));
 };

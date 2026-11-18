@@ -1,8 +1,6 @@
 import {useLayoutEffect, useMemo} from 'react';
 
-import {createWysiwygTabFocusModeExtension} from 'src/extensions/behavior/TabFocusMode';
 import {Logger2, globalLogger} from 'src/logger';
-import {createMarkupTabFocusMode} from 'src/markup/codemirror/tab-focus-mode';
 import {ReactRenderStorage} from 'src/modules/react-renderer';
 import {DirectiveSyntaxContext} from 'src/utils/directive';
 import {SafeEventEmitter} from 'src/utils/event-emitter';
@@ -27,8 +25,6 @@ export function useMarkdownEditor(
         events,
         markupState: editorMarkupState,
         getInitialMarkup,
-        tabFocusMode,
-        initializeMarkup,
     } = useMemo(() => {
         const logger = props.logger ?? new Logger2();
         const runtimeEvents = new SafeEventEmitter<EditorEventMap>({
@@ -37,47 +33,29 @@ export function useMarkdownEditor(
                 globalLogger.error(error);
             },
         });
-        const {markupConfig = {}, wysiwygConfig = {}} = props;
-        const extraWysiwygExtensions = wysiwygConfig.extensions;
-        const extensionOptions = wysiwygConfig.extensionOptions;
         const tabFocus = new TabFocusModeState(props.initial?.tabFocusMode);
-        const markupTabFocus = createMarkupTabFocusMode(tabFocus);
         tabFocus.on('change', ({mode}) => {
             runtimeEvents.emit('rerender', null);
             runtimeEvents.emit('change-tab-focus-mode', {mode});
         });
         const options: EditorOptions = {
             ...props,
-            markupConfig: {
-                ...markupConfig,
-                extensions: [markupTabFocus.extension, ...(markupConfig.extensions ?? [])],
-            },
-            wysiwygConfig: {
-                ...wysiwygConfig,
-                extensions: (builder) => {
-                    builder.use(createWysiwygTabFocusModeExtension(tabFocus));
-                    if (extraWysiwygExtensions) {
-                        builder.use(extraWysiwygExtensions, extensionOptions);
-                    }
-                },
-            },
             logger,
             preset: props.preset ?? 'full',
             renderStorage: new ReactRenderStorage(),
             directiveSyntax: new DirectiveSyntaxContext(props.experimental?.directiveSyntax),
+            tabFocusMode: tabFocus,
         };
         const markupState: EditorMarkupState = {markup: props.initial?.markup ?? ''};
         return {
             options,
             markupState,
-            tabFocusMode: tabFocus,
-            initializeMarkup: markupTabFocus.initialize,
             getInitialMarkup: () => markupState.markup,
             events: runtimeEvents,
         };
     }, deps);
     const wysiwyg = useWysiwygCore(editorOptions, events, getInitialMarkup);
-    const markup = useMarkupCore(editorOptions, events, getInitialMarkup, initializeMarkup);
+    const markup = useMarkupCore(editorOptions, events, getInitialMarkup);
     const editor = useMemo(
         () =>
             new EditorImpl(editorOptions, {
@@ -85,9 +63,8 @@ export function useMarkdownEditor(
                 wysiwyg,
                 markup,
                 markupState: editorMarkupState,
-                tabFocusMode,
             }),
-        [editorOptions, events, wysiwyg, markup, editorMarkupState, tabFocusMode],
+        [editorOptions, events, wysiwyg, markup, editorMarkupState],
     );
 
     useLayoutEffect(() => {

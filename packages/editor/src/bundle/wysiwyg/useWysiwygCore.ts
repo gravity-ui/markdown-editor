@@ -20,6 +20,7 @@ export function useWysiwygCore(
             preset,
             renderStorage,
             directiveSyntax,
+            tabFocusMode,
             md = {},
             handlers = {},
             experimental = {},
@@ -35,6 +36,7 @@ export function useWysiwygCore(
                 ...extensionOptions,
                 emoji: {...config.emoji, ...extensionOptions?.emoji},
                 directiveSyntax,
+                tabFocusMode,
                 preset,
                 reactRenderer: renderStorage,
                 onCancel: () => {

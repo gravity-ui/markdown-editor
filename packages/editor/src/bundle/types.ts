@@ -62,6 +62,7 @@ export type MarkdownEditorInitialOptions = {
     mode?: MarkdownEditorMode;
     /** Default – true */
     toolbarVisible?: boolean;
+    /** Default – indent */
     tabFocusMode?: TabFocusMode;
     /**
      * Default – false

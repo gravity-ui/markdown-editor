@@ -59,6 +59,7 @@ describe('contenteditableAttributes', () => {
             renderStorage: new ReactRenderStorage(),
             preset: 'zero',
             directiveSyntax: new DirectiveSyntaxContext(undefined),
+            tabFocusMode: new TabFocusModeState(),
             initial: {mode, markup: 'Initial content', toolbarVisible: false},
             wysiwygConfig: {
                 extensions: (builder) => builder.use(ZeroPreset, {baseStyles: {attributes}}),
@@ -82,7 +83,6 @@ describe('contenteditableAttributes', () => {
         const editor = new EditorImpl(options, {
             events,
             markupState,
-            tabFocusMode: new TabFocusModeState(),
             wysiwyg: new WysiwygCore(options, events, getInitialMarkup),
             markup: new MarkupCore(options, events, getInitialMarkup),
         });

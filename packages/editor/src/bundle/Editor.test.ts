@@ -173,6 +173,7 @@ function createEditor(overrides: Partial<ConstructorParameters<typeof EditorImpl
         renderStorage: new ReactRenderStorage(),
         preset: 'full',
         directiveSyntax: new DirectiveSyntaxContext(undefined),
+        tabFocusMode: new TabFocusModeState(overrides.initial?.tabFocusMode),
         ...overrides,
     };
     const events = new SafeEventEmitter<EditorEventMap>({
@@ -186,7 +187,6 @@ function createEditor(overrides: Partial<ConstructorParameters<typeof EditorImpl
     return new EditorImpl(options, {
         events,
         markupState,
-        tabFocusMode: new TabFocusModeState(options.initial?.tabFocusMode),
         wysiwyg: new WysiwygCore(options, events, getInitialMarkup),
         markup: new MarkupCore(options, events, getInitialMarkup),
     });

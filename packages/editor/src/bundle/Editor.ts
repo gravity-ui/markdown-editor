@@ -87,7 +87,6 @@ interface EditorRuntime {
     events: SafeEventEmitter<EventMapInt>;
     wysiwyg: ModeCore<WysiwygEditor>;
     markup: ModeCore<MarkupEditor>;
-    tabFocusMode: TabFocusModeState;
 }
 
 /** @internal */
@@ -282,7 +281,7 @@ export class EditorImpl implements EditorInt {
         this.#logger = logger;
         this.#editorMode = initial.mode ?? 'wysiwyg';
         this.#toolbarVisible = initial.toolbarVisible ?? true;
-        this.#tabFocusMode = runtime.tabFocusMode;
+        this.#tabFocusMode = opts.tabFocusMode;
         this.#splitMode = (markupConfig.renderPreview && markupConfig.splitMode) ?? false;
         this.#splitModeEnabled = (this.#splitMode && initial.splitModeEnabled) ?? false;
         this.#previewVisible = false;
