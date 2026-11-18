@@ -15,7 +15,7 @@ const editor = useMarkdownEditor({
 | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
 | `@gravity-ui/markdown-editor-header-extension`               | `Header`, the Markdown command `insertHeader`, and the toolbar button `toolbarHeaderItem` for both modes |
 | `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header` and `toolbarHeaderItem` for the visual editor                                                   |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs` and `headerNodeName`                                                                       |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName` and `headerContentNodeName`                                              |
 | `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader` and `toolbarHeaderItem` for the Markdown editor                                           |
 
 `toolbarHeaderItem` inserts the block.
@@ -34,3 +34,20 @@ A new or empty block holds an empty paragraph, and insertion puts the cursor int
 
 `HeaderSpecs` adds only the schema, Markdown parsing, and serialization, and runs in Node.js.
 `Header` also needs the editor's React renderer, which the standard presets include.
+
+## Header description
+
+`Header` also includes the description: the container `:::header-content` with paragraphs, marks and links.
+`HeaderSpecs` adds its schema, Markdown parsing, and serialization; its syntax and styles are in `@gravity-ui/markdown-plugin-header`.
+The description has no attributes: an attribute written on `:::header-content` in Markdown, such as `size`, is dropped.
+A banner holds one description. A description outside a banner, inside another block, or after the first one in a banner is parsed as its blocks, without the container.
+The description is edited in place as rich text with the marks and links of the editor and its selection toolbar; other blocks written in Markdown, such as lists, are kept.
+An empty description shows a placeholder. Change its text with the editor `placeholder` option: `{placeholder: {header_content: 'Text'}}`.
+Enter starts a paragraph inside the description and does nothing in an empty paragraph, so the text never leaves the block.
+Backspace at its start and Delete at its end keep it and do not join it with the blocks around it; an empty paragraph next to it is removed instead.
+Deleting all the selected text of the description leaves an empty paragraph in it, and blocks without text at its edges stay; a selection that runs from the description to the start of the next block stays inside the description.
+
+The Description switch of the banner settings removes the description or adds it as the first block of the banner.
+A removed description is kept until the page reloads, and the switch inserts it back with its text.
+Without a removed description, the switch turns the only paragraph of the banner into the description or adds a description with a sample text.
+Each switch change is a separate undo step.
