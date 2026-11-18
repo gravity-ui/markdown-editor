@@ -27,7 +27,7 @@ import WysiwygModeIcon from '../../icons/WysiwygMode';
 import {noop} from '../../lodash';
 import {useTargetZIndex} from '../../react-utils';
 import {useBooleanState} from '../../react-utils/hooks';
-import {Action, formatter} from '../../shortcuts';
+import {getToggleTabFocusModeShortcut} from '../../shortcuts';
 import {ToolbarTooltipDelay} from '../../toolbar';
 import type {TabFocusMode} from '../../utils/tab-focus-mode';
 import {VERSION} from '../../version';
@@ -164,12 +164,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
     const showToolbarSetting = isSettingsArray ? settingsVisible?.includes('toolbar') : true;
     const showSplitModeSetting = isSettingsArray ? settingsVisible?.includes('split') : true;
     const showTabFocusSetting = isSettingsArray ? settingsVisible?.includes('tab-focus') : true;
-    const tabFocusShortcut =
-        formatter
-            .toView(Action.ToggleTabFocusMode)
-            ?.split('+')
-            .map((key) => key[0].toUpperCase() + key.slice(1))
-            .join('+') ?? '';
+    const tabFocusShortcut = getToggleTabFocusModeShortcut();
 
     return (
         <div className={bContent(null, [className])} data-qa={qa}>

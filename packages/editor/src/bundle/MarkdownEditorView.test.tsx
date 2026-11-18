@@ -405,7 +405,7 @@ describe('MarkdownEditorView', () => {
                 const editorElement = container.querySelector('.g-md-editor-component');
 
                 expect(
-                    container.querySelectorAll('.g-md-editor-component__announcer'),
+                    container.querySelectorAll('span.g-md-visually-hidden[role="status"]'),
                 ).toHaveLength(1);
                 expect(announcer.tagName).toBe('SPAN');
                 expect(announcer.getAttribute('role')).toBe('status');
@@ -515,7 +515,7 @@ describe('MarkdownEditorView', () => {
 
     function getAnnouncer() {
         const announcer = container.querySelector<HTMLSpanElement>(
-            'span.g-md-editor-component__announcer',
+            'span.g-md-visually-hidden[role="status"]',
         );
         if (!announcer) throw new Error('Tab focus mode announcer is missing');
         return announcer;

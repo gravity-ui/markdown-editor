@@ -12,7 +12,7 @@ import {type QAProps, useToaster} from '@gravity-ui/uikit';
 import {ErrorBoundary} from 'react-error-boundary';
 import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 
-import type {ClassNameProps} from '../classname';
+import {type ClassNameProps, cn} from '../classname';
 import {contextualToolbarsKey} from '../extensions/behavior/ContextualToolbars';
 import {i18n} from '../i18n/bundle';
 import {globalLogger} from '../logger';
@@ -40,6 +40,7 @@ import '../styles/styles.scss';
 import './MarkdownEditorView.scss'; // eslint-disable-line import/order
 
 const b = cnEditorComponent;
+const visuallyHiddenCn = cn('visually-hidden');
 
 interface EditorWrapperProps extends QAProps, ToolbarConfigs, Omit<ViewProps, 'editor'> {
     editor: EditorInt;
@@ -455,7 +456,7 @@ function TabFocusModeAnnouncer({editor}: {editor: MarkdownEditorInstance}) {
     }, [editor]);
 
     return (
-        <span className={b('announcer')} role="status" aria-live="polite">
+        <span className={visuallyHiddenCn()} role="status" aria-live="polite">
             {announcement}
         </span>
     );

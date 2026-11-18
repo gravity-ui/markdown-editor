@@ -17,12 +17,12 @@ import {
     type UseMarkdownEditorProps,
     type WysiwygPlaceholderOptions,
     type YfmMods,
+    getToggleTabFocusModeShortcut,
     logger,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
 import type {ToolbarActionData} from '@gravity-ui/markdown-editor/_/bundle/Editor.js';
 import type {SettingItems} from '@gravity-ui/markdown-editor/_/bundle/settings/index.js';
-import {Action, formatter} from '@gravity-ui/markdown-editor/_/shortcuts/index.js';
 import type {Extension} from '@gravity-ui/markdown-editor/cm/state';
 import {EditorView} from '@gravity-ui/markdown-editor/cm/view';
 import {FoldingHeading} from '@gravity-ui/markdown-editor/extensions/additional/FoldingHeading/index.js';
@@ -42,13 +42,7 @@ import {updateLocation} from '../utils/location';
 import {PlaygroundLayout, b} from './PlaygroundLayout';
 import {SplitModePreviewLazy} from './SplitModePreviewLazy';
 
-const tabFocusShortcut =
-    formatter
-        .toView(Action.ToggleTabFocusMode)
-        ?.split('+')
-        .map((key) => key[0].toUpperCase() + key.slice(1))
-        .join('+')
-        .replace('Ctrl', 'Control') ?? '';
+const tabFocusShortcut = getToggleTabFocusModeShortcut();
 const contentAttributes = {
     'aria-description': `Press ${tabFocusShortcut} to toggle Tab navigation.`,
     'aria-keyshortcuts': tabFocusShortcut,

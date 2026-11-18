@@ -24,6 +24,8 @@ export * as MarkupHelpers from './markup/commands/helpers';
 
 export {Lang, configure} from './configure';
 
+export {getToggleTabFocusModeShortcut} from './shortcuts';
+
 export {isMac} from './utils/platform';
 export {markInputRule, nodeInputRule, inlineNodeInputRule} from './utils/inputrules';
 export {findMark, isMarkActive} from './utils/marks';
