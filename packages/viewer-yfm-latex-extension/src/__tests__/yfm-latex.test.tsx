@@ -1,13 +1,11 @@
 import {type ReactNode, StrictMode} from 'react';
 
-import '@diplodoc/latex-extension/runtime';
 import {MarkdownViewer, ViewerTargets} from '@gravity-ui/markdown-viewer';
 import {type Root, createRoot} from 'react-dom/client';
 import {act} from 'react-dom/test-utils';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {DiplodocLatex} from '../DiplodocLatex';
-import type {TransformMeta} from '../types';
+import {YfmLatex, type YfmLatexProps} from '../index';
 
 const meta = {
     script: ['_assets/latex-extension.js'],
@@ -15,7 +13,7 @@ const meta = {
 };
 const html = '<span class="yfm-latex" data-content="a%5E2"></span>';
 
-describe('DiplodocLatex', () => {
+describe('YfmLatex', () => {
     let container: HTMLDivElement;
     let root: Root;
 
@@ -32,13 +30,13 @@ describe('DiplodocLatex', () => {
     });
 
     it('should render only the viewer with matching metadata', async () => {
-        const view = (currentMeta?: TransformMeta) => (
+        const view = (currentMeta?: YfmLatexProps['meta']) => (
             <StrictMode>
                 <MarkdownViewer html={html} qa="active">
-                    <DiplodocLatex meta={currentMeta} />
+                    <YfmLatex meta={currentMeta} />
                 </MarkdownViewer>
                 <MarkdownViewer html={html} qa="other">
-                    <DiplodocLatex />
+                    <YfmLatex />
                 </MarkdownViewer>
             </StrictMode>
         );
@@ -57,7 +55,7 @@ describe('DiplodocLatex', () => {
                 <ViewerTargets selector=".nested-viewer" as="div">
                     {() => (
                         <MarkdownViewer html={html}>
-                            <DiplodocLatex meta={meta} />
+                            <YfmLatex meta={meta} />
                         </MarkdownViewer>
                     )}
                 </ViewerTargets>
@@ -70,7 +68,7 @@ describe('DiplodocLatex', () => {
     it('should keep rendered nodes on an unrelated rerender', async () => {
         const view = () => (
             <MarkdownViewer html={html}>
-                <DiplodocLatex meta={meta} />
+                <YfmLatex meta={meta} />
             </MarkdownViewer>
         );
         await render(view());
@@ -83,13 +81,13 @@ describe('DiplodocLatex', () => {
     });
 
     it('should render updated HTML and handle a document without formulas', async () => {
-        const view = (content: string, currentMeta?: TransformMeta) => (
+        const view = (content: string) => (
             <MarkdownViewer html={content}>
-                <DiplodocLatex meta={currentMeta} />
+                <YfmLatex meta={meta} />
             </MarkdownViewer>
         );
-        await render(view(html, meta));
-        await render(view('<span class="yfm-latex" data-content="b%5E2"></span>', meta));
+        await render(view(html));
+        await render(view('<span class="yfm-latex" data-content="b%5E2"></span>'));
         expect(container.querySelector('annotation')?.textContent).toBe('b^2');
 
         await render(view('<p>Plain text</p>'));
@@ -99,7 +97,7 @@ describe('DiplodocLatex', () => {
     it('should leave formulas and foreign slots when the adapter is removed', async () => {
         const view = (showAdapter: boolean, children?: ReactNode) => (
             <MarkdownViewer html={html}>
-                {showAdapter && <DiplodocLatex meta={meta} />}
+                {showAdapter && <YfmLatex meta={meta} />}
                 {children}
             </MarkdownViewer>
         );
@@ -127,11 +125,29 @@ describe('DiplodocLatex', () => {
         expect(slot?.textContent).toBe('React formula');
     });
 
+    it('should skip pending rendering after the adapter is removed', async () => {
+        act(() =>
+            root.render(
+                <MarkdownViewer html={html}>
+                    <YfmLatex meta={meta} />
+                </MarkdownViewer>,
+            ),
+        );
+        const formula = container.querySelector('.yfm-latex');
+        expect(formula).not.toBeNull();
+
+        act(() => root.render(<MarkdownViewer html={html} />));
+        await act(async () => vi.dynamicImportSettled());
+
+        expect(container.querySelector('.yfm-latex')).toBe(formula);
+        expect(formula?.childElementCount).toBe(0);
+    });
+
     it('should protect slots added before pending rendering finishes', async () => {
         const content = html + '<span class="yfm-latex protected" data-content="y%5E2"></span>';
         const view = (withSlots: boolean) => (
             <MarkdownViewer html={content}>
-                <DiplodocLatex meta={meta} />
+                <YfmLatex meta={meta} />
                 {withSlots && (
                     <ViewerTargets selector=".protected">
                         {() => (
@@ -157,7 +173,7 @@ describe('DiplodocLatex', () => {
         const customMeta = {script: [runtime], style: [runtime]};
         const view = (value: string) => (
             <MarkdownViewer html='<span class="custom-formula" data-content="%5Cvalue"></span>'>
-                <DiplodocLatex
+                <YfmLatex
                     meta={customMeta}
                     runtime={runtime}
                     selector=".custom-formula"
@@ -179,7 +195,7 @@ describe('DiplodocLatex', () => {
 
         await render(
             <MarkdownViewer html='<span class="yfm-latex" data-content="%5Cfrac%7B"></span>'>
-                <DiplodocLatex meta={meta} options={{throwOnError: true}} onError={onError} />
+                <YfmLatex meta={meta} options={{throwOnError: true}} onError={onError} />
             </MarkdownViewer>,
         );
 

@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@diplodoc/latex-extension/react": [
+        "node_modules/@diplodoc/latex-extension-v1/build/react/index.d.ts"
+      ],
+      "@diplodoc/latex-extension/runtime": [
+        "node_modules/@diplodoc/latex-extension-v1/build/runtime/index.d.ts"
+      ]
+    }
+  }
+}
