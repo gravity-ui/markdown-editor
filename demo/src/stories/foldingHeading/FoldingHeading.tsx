@@ -4,9 +4,10 @@ import {
     type MarkdownEditorMode,
     MarkdownEditorView,
     type RenderPreview,
+    type ToolbarsPreset,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
-import {ActionName as Action, ToolbarName, full} from '@gravity-ui/markdown-editor/toolbars';
+import {ActionName as Action, ToolbarName, commonmark} from '@gravity-ui/markdown-editor/toolbars';
 import {
     FoldingHeading,
     toolbarFoldingHeadingItem,
@@ -17,14 +18,23 @@ import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
 
 const foldingHeading = 'foldingHeading';
 
-const toolbars = {
+const toolbars: ToolbarsPreset = {
     items: {
-        ...full.items,
+        ...commonmark.items,
         [foldingHeading]: toolbarFoldingHeadingItem,
     },
     orders: {
-        ...full.orders,
-        [ToolbarName.wysiwygSelection]: [[foldingHeading, Action.text]],
+        ...commonmark.orders,
+        [ToolbarName.wysiwygMain]: [
+            ...commonmark.orders[ToolbarName.wysiwygMain],
+            [foldingHeading],
+        ],
+        [ToolbarName.wysiwygHidden]: [],
+        [ToolbarName.markupHidden]: [],
+        [ToolbarName.wysiwygSelection]: [
+            [foldingHeading, Action.text],
+            ...commonmark.orders[ToolbarName.wysiwygSelection].slice(1),
+        ],
     },
 };
 

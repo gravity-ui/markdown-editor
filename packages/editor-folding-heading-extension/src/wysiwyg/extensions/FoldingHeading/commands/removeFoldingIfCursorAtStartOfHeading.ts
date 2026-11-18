@@ -1,7 +1,7 @@
 import {get$Cursor} from '@gravity-ui/markdown-editor';
 import type {Command} from '@gravity-ui/markdown-editor/pm/state';
 
-import {FoldingHeadingAttr} from '../const';
+import {YfmHeadingAttr} from '../const';
 import {isFoldingHeading} from '../utils';
 
 export const removeFoldingIfCursorAtStartOfHeading: Command = (state, dispatch) => {
@@ -9,7 +9,7 @@ export const removeFoldingIfCursorAtStartOfHeading: Command = (state, dispatch) 
     if (!$cursor) return false;
 
     if ($cursor.parentOffset === 0 && isFoldingHeading($cursor.parent)) {
-        dispatch?.(state.tr.setNodeAttribute($cursor.before(), FoldingHeadingAttr.Folding, null));
+        dispatch?.(state.tr.setNodeAttribute($cursor.before(), YfmHeadingAttr.Folding, null));
         return true;
     }
 

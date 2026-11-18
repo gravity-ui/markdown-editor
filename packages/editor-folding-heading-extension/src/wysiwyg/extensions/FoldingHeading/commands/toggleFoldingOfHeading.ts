@@ -1,7 +1,7 @@
 import type {Command} from '@gravity-ui/markdown-editor/pm/state';
 import {pType} from '@gravity-ui/markdown-editor/specs';
 
-import {FoldingHeadingAttr} from '../const';
+import {YfmHeadingAttr} from '../const';
 import {insideHeading, isFoldingHeading, parseLevel} from '../utils';
 
 export const toggleFoldingOfHeading: Command = (state, dispatch) => {
@@ -13,7 +13,7 @@ export const toggleFoldingOfHeading: Command = (state, dispatch) => {
 
         const tr = state.tr.setNodeAttribute(
             $head.before(),
-            FoldingHeadingAttr.Folding,
+            YfmHeadingAttr.Folding,
             folding ? null : false,
         );
 

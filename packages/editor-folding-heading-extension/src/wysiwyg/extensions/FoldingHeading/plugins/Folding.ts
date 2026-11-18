@@ -1,11 +1,10 @@
-import {Plugin} from '@gravity-ui/markdown-editor/_/pm/state.js';
-import {findChildren} from '@gravity-ui/markdown-editor/_/pm/utils.js';
-import {Decoration, DecorationSet} from '@gravity-ui/markdown-editor/_/pm/view.js';
 import {isNonStructuralTr} from '@gravity-ui/markdown-editor/_/utils/transaction.js';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
-import type {DecorationAttrs} from '@gravity-ui/markdown-editor/pm/view';
+import {Plugin} from '@gravity-ui/markdown-editor/pm/state';
+import {findChildren} from '@gravity-ui/markdown-editor/pm/utils';
+import {Decoration, type DecorationAttrs, DecorationSet} from '@gravity-ui/markdown-editor/pm/view';
 
-import {FoldingHeadingAttr} from '../const';
+import {YfmHeadingAttr} from '../const';
 import {
     isFoldedHeading,
     isFoldingHeading,
@@ -48,8 +47,8 @@ export const foldingPlugin = () => {
                         view.state.tr
                             .setNodeAttribute(
                                 nodePos,
-                                FoldingHeadingAttr.Folding,
-                                !node.attrs[FoldingHeadingAttr.Folding],
+                                YfmHeadingAttr.Folding,
+                                !node.attrs[YfmHeadingAttr.Folding],
                             )
                             .setMeta(CHANGE_META_KEY, true),
                     );

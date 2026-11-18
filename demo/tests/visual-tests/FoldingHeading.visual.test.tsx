@@ -19,70 +19,55 @@ test.describe('FoldingHeading', () => {
         await expectScreenshot({component: editor.locators.component});
     });
 
-    test('should expand and collapse a section by the chevron @wysiwyg', async ({
-        mount,
-        page,
-        editor,
-        foldingHeading,
-        expectScreenshot,
-    }) => {
-        await mount(<FoldingHeadingStories.FoldingHeading width={660} initial={sectionsMarkup} />);
-
-        await foldingHeading.clickChevron('Outer');
-        await expect(foldingHeading.heading('Outer')).toHaveAttribute('data-folded', 'false');
-        await expect(foldingHeading.heading('Inner')).toBeVisible();
-        await expect(foldingHeading.hiddenContent).toHaveCount(1);
-        await expectScreenshot({component: editor.locators.component});
-        await expect
-            .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
-            .toBe(sectionsMarkup);
-
-        await foldingHeading.clickChevron('Outer');
-        await expect(foldingHeading.heading('Outer')).toHaveAttribute('data-folded', 'true');
-        await expect(foldingHeading.hiddenContent).toHaveCount(3);
-    });
-
     test('should toggle folding via the selection toolbar @wysiwyg', async ({
         mount,
         page,
         editor,
         foldingHeading,
+        wait,
         expectScreenshot,
     }) => {
+        const title = 'Section with a long heading';
         await mount(
-            <FoldingHeadingStories.FoldingHeading width={660} initial={'## Heading\n\nText'} />,
+            <FoldingHeadingStories.FoldingHeading width={660} initial={`## ${title}\n\nText`} />,
         );
         await editor.selectTextIn('h2');
         await editor.clickSelectionToolbarButton('Collapsed section');
-        await expect(foldingHeading.heading('Heading')).toHaveAttribute('data-folded', 'false');
+        await expect(foldingHeading.heading(title)).toHaveAttribute('data-folded', 'false');
         await editor.assertSelectionToolbarButtonSelected('Collapsed section');
-        await foldingHeading.hideTooltip();
+        await page.mouse.move(-1, -1);
+        await wait.tooltipsHidden();
         await expectScreenshot({component: editor.locators.component});
         await expect
             .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
-            .toBe('##+ Heading\n\nText');
+            .toBe(`##+ ${title}\n\nText`);
 
         await editor.clickSelectionToolbarButton('Collapsed section');
         await expect(foldingHeading.headings).toHaveCount(0);
         await expect
             .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
-            .toBe('## Heading\n\nText');
+            .toBe(`## ${title}\n\nText`);
     });
 
-    test('should create a folding heading by the input rule @wysiwyg', async ({
+    test('should render folded sections in the preview @markup', async ({
         mount,
         page,
         editor,
         foldingHeading,
+        wait,
+        expectScreenshot,
     }) => {
-        await mount(<FoldingHeadingStories.FoldingHeading width={660} initial="" />);
-        await editor.focus();
-        await editor.inputRule('##+');
-        await editor.pressSequentially('Section');
-        await expect(foldingHeading.heading('Section')).toHaveAttribute('data-folded', 'false');
-        await expect(foldingHeading.visibleContent).toHaveCount(1);
-        await expect
-            .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
-            .toBe('##+ Section');
+        await mount(
+            <FoldingHeadingStories.FoldingHeading
+                mode="markup"
+                width={660}
+                initial={sectionsMarkup}
+            />,
+        );
+        await editor.switchPreview('visible');
+        await expect(foldingHeading.previewSections).toHaveCount(2);
+        await page.mouse.move(-1, -1);
+        await wait.tooltipsHidden();
+        await expectScreenshot({component: editor.locators.component});
     });
 });

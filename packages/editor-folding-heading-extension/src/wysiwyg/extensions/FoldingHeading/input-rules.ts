@@ -1,9 +1,9 @@
-import {InputRule} from '@gravity-ui/markdown-editor/_/pm/inputrules.js';
 import {hasCodeMark} from '@gravity-ui/markdown-editor/_/utils/inputrules.js';
+import {InputRule} from '@gravity-ui/markdown-editor/pm/inputrules';
 import type {NodeType} from '@gravity-ui/markdown-editor/pm/model';
 import {pType} from '@gravity-ui/markdown-editor/specs';
 
-import {FoldingHeadingAttr, type HeadingLevel, YfmHeadingAttr} from './const';
+import {type HeadingLevel, YfmHeadingAttr} from './const';
 import {isFoldingHeading, isHeading, parseLevel} from './utils';
 
 export function foldingHeadingRule(nodeType: NodeType, maxLevel: HeadingLevel) {
@@ -23,7 +23,7 @@ export function foldingHeadingRule(nodeType: NodeType, maxLevel: HeadingLevel) {
 
             if (!isHeading($start.parent)) tr.setNodeMarkup(pos, nodeType);
             tr.setNodeAttribute(pos, YfmHeadingAttr.Level, level);
-            tr.setNodeAttribute(pos, FoldingHeadingAttr.Folding, false);
+            tr.setNodeAttribute(pos, YfmHeadingAttr.Folding, false);
 
             // insert empty paragraph if content of new folding heading is empty
             const nextNode = $start.node(-1).maybeChild($start.indexAfter(-1));

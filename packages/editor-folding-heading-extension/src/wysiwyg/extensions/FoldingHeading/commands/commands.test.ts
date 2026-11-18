@@ -15,8 +15,7 @@ import {
 } from '@gravity-ui/markdown-editor/specs';
 import {describe, expect, it} from 'vitest';
 
-import {FoldingHeadingSpecs} from '../FoldingHeadingSpecs';
-import {FoldingHeadingAttr} from '../const';
+import {FoldingHeadingAttr, FoldingHeadingSpecs} from '../FoldingHeadingSpecs';
 
 import {
     openHeadingAndCreateParagraphAfterIfCursorAtEndOfHeading,

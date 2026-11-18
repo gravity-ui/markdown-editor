@@ -1,10 +1,9 @@
 import {get$Cursor} from '@gravity-ui/markdown-editor';
-import {TextSelection} from '@gravity-ui/markdown-editor/_/pm/state.js';
 import type {ResolvedPos} from '@gravity-ui/markdown-editor/pm/model';
-import type {Command, Selection} from '@gravity-ui/markdown-editor/pm/state';
+import {type Command, type Selection, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
 import {pType} from '@gravity-ui/markdown-editor/specs';
 
-import {FoldingHeadingAttr} from '../const';
+import {YfmHeadingAttr} from '../const';
 import {isFoldedHeading} from '../utils';
 
 export const openHeadingAndCreateParagraphAfterIfCursorAtEndOfHeading: Command = (
@@ -16,7 +15,7 @@ export const openHeadingAndCreateParagraphAfterIfCursorAtEndOfHeading: Command =
 
     if (dispatch) {
         const tr = state.tr
-            .setNodeAttribute($cursor.before(), FoldingHeadingAttr.Folding, false)
+            .setNodeAttribute($cursor.before(), YfmHeadingAttr.Folding, false)
             .insert($cursor.after(), pType(state.schema).createAndFill()!);
         dispatch(
             tr.setSelection(TextSelection.create(tr.doc, $cursor.after() + 1)).scrollIntoView(),
