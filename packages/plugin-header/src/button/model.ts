@@ -64,12 +64,11 @@ export function buttonModel(attrs: Partial<Record<keyof ButtonModel, unknown>>):
     };
 }
 
-/** `md.validateLink` accepts `data:image/…`; a button rejects every `data:` address. */
 export function normalizeButtonHref(
     md: Pick<MarkdownIt, 'normalizeLink' | 'validateLink'>,
     value: unknown,
 ): string {
     if (typeof value !== 'string' || !value.trim()) return '';
     const href = md.normalizeLink(value.trim());
-    return md.validateLink(href) && !/^data:/i.test(href) ? href : '';
+    return md.validateLink(href) ? href : '';
 }

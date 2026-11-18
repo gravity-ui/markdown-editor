@@ -118,8 +118,10 @@ describe('Button Markdown', () => {
         ['\\&#74;avascript:alert(1)', '&#74;avascript:alert(1)'],
         ['javascript&#x3A;alert(1)', null],
         ['data:text/html;base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4K', null],
-        // markdown-it keeps this address, a button drops every data: address.
-        ['data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', null],
+        [
+            'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+            'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+        ],
         ['/javascript:link', '/javascript:link'],
         ['http://example.com/α%CE%B2γ%CE%B4', 'http://example.com/%CE%B1%CE%B2%CE%B3%CE%B4'],
         [

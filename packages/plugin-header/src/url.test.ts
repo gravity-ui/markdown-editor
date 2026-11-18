@@ -11,6 +11,7 @@ describe('safeLinkUrl', () => {
         ` ${scriptUrl}`,
         'vbscript:msgbox(1)',
         'data:text/html,<script>alert(1)</script>',
+        'data:image/svg+xml,<svg></svg>',
         'file:///etc/passwd',
         'java\tscript:alert(1)',
         '/page\u0000',
@@ -28,6 +29,7 @@ describe('safeLinkUrl', () => {
         ['mailto:team@example.com', 'mailto:team@example.com'],
         ['tel:+10000000000', 'tel:+10000000000'],
         ['page?next=javascript:1', 'page?next=javascript:1'],
+        ['data:image/png;base64,iVBORw0KGgo=', 'data:image/png;base64,iVBORw0KGgo='],
     ])('should accept the link address %j', (url, expected) => {
         expect(safeLinkUrl(url)).toBe(expected);
     });
