@@ -101,6 +101,23 @@ export default defineConfig(
         },
     },
     {
+        files: ['./packages/editor-folding-heading-extension/**/*'],
+        languageOptions: {
+            parserOptions: {
+                project: './packages/editor-folding-heading-extension/tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: './packages/editor-folding-heading-extension/tsconfig.json',
+                },
+            },
+        },
+    },
+    {
         files: ['./packages/editor-header-extension/**/*'],
         languageOptions: {
             parserOptions: {

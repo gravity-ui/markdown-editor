@@ -312,14 +312,6 @@ export const liftListItemView: ToolbarItemView = {
     hotkey: f.toView(A.LiftListItem),
 };
 
-// ---- Toggle Heading Folding ----
-export const toggleHeadingFoldingItemView: ToolbarItemView = {
-    type: ToolbarDataType.SingleButton,
-    icon: icons.foldingHeading,
-    title: () => i18n('folding-heading'),
-    hint: () => i18n('folding-heading__hint'),
-};
-
 // ---- Text Context ----
 export const textContextItemView: ToolbarItemView<ToolbarDataType.ReactComponent> = {
     type: ToolbarDataType.ReactComponent,

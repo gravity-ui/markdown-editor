@@ -1,6 +1,6 @@
 import {builders} from 'prosemirror-test-builder';
 import dd from 'ts-dedent';
-import {describe, it} from 'vitest';
+import {describe, expect, it} from 'vitest';
 
 import {parseDOM} from '../../../../tests/parse-dom';
 import {createMarkupChecker} from '../../../../tests/sameMarkup';
@@ -225,4 +225,17 @@ describe('Heading extension', () => {
             );
         },
     );
+
+    it('should parse html of a folding heading as a common heading', () => {
+        parseDOM(
+            schema,
+            '<h2 data-folded="true">Heading</h2>',
+            doc(h({[YfmHeadingAttr.Level]: 2}, 'Heading')),
+        );
+        expect(schema.nodes[headingNodeName].spec.attrs).not.toHaveProperty('folded');
+    });
+
+    it('should parse the folding heading syntax as a paragraph', () => {
+        expect(parser.parse('#+ heading')).toMatchNode(doc(p('#+ heading')));
+    });
 });

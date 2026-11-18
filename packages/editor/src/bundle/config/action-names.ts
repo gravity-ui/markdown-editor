@@ -13,7 +13,6 @@ const names = [
     'emoji',
     'file',
     'filePopup',
-    'foldingHeading',
     'gpt',
     'heading1',
     'heading2',

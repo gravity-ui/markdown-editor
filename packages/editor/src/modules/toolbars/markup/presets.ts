@@ -41,7 +41,6 @@ import {
     tableItemView,
     tabsItemView,
     textContextItemView,
-    toggleHeadingFoldingItemView,
     underlineItemView,
     undoItemView,
 } from '../view/items';
@@ -363,9 +362,6 @@ const yfm: ToolbarsPreset = {
 const full: ToolbarsPreset = {
     items: {
         ...yfm.items,
-        [Action.foldingHeading]: {
-            view: toggleHeadingFoldingItemView,
-        },
         [Action.mark]: {
             view: markedItemView,
             markup: markedItemMarkup,

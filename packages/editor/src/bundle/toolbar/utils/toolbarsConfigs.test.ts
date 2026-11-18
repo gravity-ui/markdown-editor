@@ -2,7 +2,7 @@ import {describe, expect, it} from 'vitest';
 
 import {filterActions} from '../../../extensions/behavior/CommandMenu/handler';
 import {ActionName, ToolbarName} from '../../../modules/toolbars/constants';
-import {textContextItemWisywig} from '../../../modules/toolbars/items';
+import {boldItemWysiwyg, textContextItemWisywig} from '../../../modules/toolbars/items';
 import {commonmark, defaultPreset, full, yfm, zero} from '../../../modules/toolbars/presets';
 import type {ToolbarsPreset} from '../../../modules/toolbars/types';
 import {mHiddenData, mToolbarConfig} from '../../config/markup';
@@ -24,7 +24,6 @@ import {
 
 const presets = {zero, commonmark, default: defaultPreset, yfm, full};
 const migratedIds: Record<string, string> = {
-    'folding-heading': ActionName.foldingHeading,
     code_inline: ActionName.codeInline,
     code_block: ActionName.codeBlock,
     horizontalrule: ActionName.horizontalRule,
@@ -161,18 +160,28 @@ describe('Contextual toolbar presets', () => {
     });
 
     it('should preserve selection conditions and custom component props', () => {
-        expect(getContextualToolbarsConfig(full).selection?.[0][1]).toEqual(
+        expect(getContextualToolbarsConfig(full).selection?.[0][0]).toEqual(
             expect.objectContaining({props: {disablePortal: true}}),
         );
         const preset: ToolbarsPreset = {
             items: {
                 ...full.items,
+                enabledBold: {
+                    view: full.items.bold.view,
+                    wysiwyg: {...boldItemWysiwyg, condition: 'enabled'},
+                },
                 text: {
                     ...full.items.text,
                     wysiwyg: {...textContextItemWisywig, props: {disablePortal: false}},
                 },
             },
-            orders: full.orders,
+            orders: {
+                ...full.orders,
+                [ToolbarName.wysiwygSelection]: [
+                    ['enabledBold', ActionName.text],
+                    ...(full.orders[ToolbarName.wysiwygSelection] ?? []).slice(1),
+                ],
+            },
         };
         const config = getContextualToolbarsConfig(preset).selection;
         expect(config?.[0][0].condition).toBe('enabled');

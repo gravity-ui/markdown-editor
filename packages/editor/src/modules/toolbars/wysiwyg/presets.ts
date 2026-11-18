@@ -41,7 +41,6 @@ import {
     tableItemView,
     tabsItemView,
     textContextItemView,
-    toggleHeadingFoldingItemView,
     underlineItemView,
     undoItemView,
 } from '../view/items';
@@ -79,7 +78,6 @@ import {
     tableItemWysiwyg,
     tabsItemWysiwyg,
     textContextItemWisywig,
-    toggleHeadingFoldingItemWysiwyg,
     underlineItemWysiwyg,
     undoItemWysiwyg,
 } from './items';
@@ -428,10 +426,6 @@ const yfm: ToolbarsPreset = {
 const full: ToolbarsPreset = {
     items: {
         ...yfm.items,
-        [Action.foldingHeading]: {
-            view: toggleHeadingFoldingItemView,
-            wysiwyg: toggleHeadingFoldingItemWysiwyg,
-        },
         [Action.mark]: {
             view: markedItemView,
             wysiwyg: markedItemWysiwyg,
@@ -448,7 +442,7 @@ const full: ToolbarsPreset = {
     orders: {
         ...yfm.orders,
         [Toolbar.wysiwygSelection]: [
-            [Action.foldingHeading, Action.text],
+            [Action.text],
             [
                 Action.bold,
                 Action.italic,
