@@ -1,68 +1,67 @@
-import {nodeTypeFactory} from 'src/utils/schema';
-
 export const headerNodeName = 'header';
 export const headerDirectiveName = 'header';
 export const headerTokenName = 'header';
-export const headerTitleName = 'header_title';
-export const headerContentName = 'header_content';
-export const headerActionsName = 'header_actions';
+export const headerMarkupAttr = 'markup';
 
-export const headerType = nodeTypeFactory(headerNodeName);
+export const HeaderSlot = {
+    Title: 'header-title',
+    Content: 'header-content',
+    Image: 'header-image',
+    Actions: 'header-actions',
+} as const;
+
+export const headerActionName = 'action';
+
+/** Токены превью, из которых собирается HTML блока. */
+export const HeaderToken = {
+    Text: 'header_text',
+    Title: 'header_title',
+    Body: 'header_body',
+    Actions: 'header_actions',
+    Action: 'header_action',
+    Image: 'header_image',
+} as const;
 
 /** Порядок повторяет порядок сериализации: так таблицу атрибутов проще сверять с разметкой. */
 export const HeaderAttr = {
     Format: 'format',
+    Edges: 'edges',
+    Fixed: 'fixed',
     Align: 'align',
     Vertical: 'vertical',
-    Fixed: 'fixed',
-    Title: 'title',
-    Description: 'description',
+    Border: 'border',
     Background: 'bg',
-    Fill: 'fill',
-    Fill2: 'fill2',
-    Direction: 'direction',
-    Shapes: 'shapes',
-    Scale: 'scale',
-    Effect: 'effect',
     Image: 'image',
-    ImageEnabled: 'image-enabled',
-    ImageName: 'image-name',
-    Layer: 'layer',
+    Layout: 'layout',
     Fit: 'fit',
     Focus: 'focus',
+    Fill: 'fill',
+    Fill2: 'fill2',
+    Decor: 'decor',
+    Direction: 'direction',
+    Shape: 'shape',
     Text: 'text',
 } as const;
 
-export const HeaderFormat = {
-    Large: 'large',
-    Medium: 'medium',
-    Small: 'small',
+export const HeaderFormat = {Small: 'small', Medium: 'medium', Large: 'large'} as const;
+export const HeaderEdges = {Rounded: 'rounded', Bleed: 'bleed'} as const;
+export const HeaderAlign = {Left: 'left', Center: 'center', Right: 'right'} as const;
+export const HeaderVertical = {Top: 'top', Center: 'center', Bottom: 'bottom'} as const;
+export const HeaderBorder = {
+    None: 'none',
+    Solid: 'solid',
+    Dashed: 'dashed',
+    Dotted: 'dotted',
 } as const;
 
-/** Слой фона: рисуется сам по себе, а под изображением на всю площадь остаётся скрытым. */
-export const HeaderBackground = {
-    Surface: 'surface',
-    Fill: 'fill',
-    Shapes: 'shapes',
-    Gradient: 'gradient',
-    Mesh: 'mesh',
-    Pattern: 'pattern',
-} as const;
+/** Фон: заливка `fill` или фоновое изображение из `image`. */
+export const HeaderBackground = {Fill: 'fill', Image: 'image'} as const;
 
-/** Какой слой занимает файл автора: нижний на всю площадь, объект поверх основы, повтор поверх основы. */
-export const HeaderLayer = {
-    Full: 'full',
-    Left: 'left',
-    Right: 'right',
-    Object: 'object',
-    Tile: 'tile',
-} as const;
+/** Раскладка фонового изображения: на всю площадь или объектом внутри отступов. */
+export const HeaderLayout = {Cover: 'cover', Object: 'object'} as const;
 
 /** Масштаб кадра. */
-export const HeaderFit = {
-    Crop: 'crop',
-    Whole: 'whole',
-} as const;
+export const HeaderFit = {Crop: 'crop', Whole: 'whole'} as const;
 
 /** Положение кадра. */
 export const HeaderFocus = {
@@ -77,114 +76,94 @@ export const HeaderFocus = {
     BottomLeft: 'bottom-left',
 } as const;
 
-/** Слой поверх изображения. */
-export const HeaderEffect = {
+/** Дополнительный слой поверх фона: и поверх заливки, и поверх изображения. */
+export const HeaderDecor = {
     None: 'none',
-    Blur: 'blur',
     Darken: 'darken',
-    Fade: 'fade',
+    Lighten: 'lighten',
+    Blur: 'blur',
+    Gradient: 'gradient',
+    Mesh: 'mesh',
+    Shapes: 'shapes',
 } as const;
 
 export const HeaderDirection = {Diagonal: 'diagonal', Right: 'right', Down: 'down'} as const;
-export const HeaderShapes = {
+
+/** Раскладка фигур слоёв `mesh` и `shapes`. */
+export const HeaderShape = {
     Diagonal: 'diagonal',
     Corner: 'corner',
     Edges: 'edges',
     Bottom: 'bottom',
     Scatter: 'scatter',
 } as const;
-export const HeaderScale = {Small: 'small', Medium: 'medium', Large: 'large'} as const;
 
+/** Значение без цвета: цвет приходит из темы. */
+export const HEADER_SYSTEM_COLOR = 'system';
+
+/** Палитра заливки ячеек таблицы, `$cell-bg-colors` в `yc-table-cell-bg.scss`. */
+export const HeaderPalette = {
+    Grey: 'grey',
+    YellowLight: 'yellow-light',
+    Yellow: 'yellow',
+    RedLight: 'red-light',
+    Red: 'red',
+    PurpleLight: 'purple-light',
+    Purple: 'purple',
+    BlueLight: 'blue-light',
+    Blue: 'blue',
+    GreenLight: 'green-light',
+    Green: 'green',
+} as const;
+
+export const HeaderFill = {System: HEADER_SYSTEM_COLOR, ...HeaderPalette} as const;
+
+/** Цвета текста — переменные `--g-color-text-*`. У светлых оттенков палитры таких переменных нет. */
 export const HeaderText = {
-    Auto: 'auto',
-    Light: 'light',
-    Dark: 'dark',
-    Primary: 'primary',
-    Brand: 'brand',
-    Blue: 'blue',
+    System: HEADER_SYSTEM_COLOR,
     Grey: 'grey',
-    YellowLight: 'yellow-light',
     Yellow: 'yellow',
-    RedLight: 'red-light',
     Red: 'red',
-    PurpleLight: 'purple-light',
     Purple: 'purple',
-    BlueLight: 'blue-light',
-    GreenLight: 'green-light',
+    Blue: 'blue',
     Green: 'green',
 } as const;
 
-export const HeaderFill = {
-    Grey: 'grey',
-    YellowLight: 'yellow-light',
-    RedLight: 'red-light',
-    PurpleLight: 'purple-light',
-    BlueLight: 'blue-light',
-    GreenLight: 'green-light',
-    Blue: 'blue',
-    Indigo: 'indigo',
-    Purple: 'purple',
-    Violet: 'violet',
-    Teal: 'teal',
-    Green: 'green',
-    Sky: 'sky',
-    LightBlue: 'light-blue',
-    Amber: 'amber',
-    Yellow: 'yellow',
-    Sand: 'sand',
-    Red: 'red',
-    Navy: 'navy',
-} as const;
+/** Сторона изображения-содержимого относительно текста. */
+export const HeaderSide = {Left: 'left', Right: 'right'} as const;
 
-export type HeaderFormatValue = (typeof HeaderFormat)[keyof typeof HeaderFormat];
-export type HeaderBackgroundValue = (typeof HeaderBackground)[keyof typeof HeaderBackground];
-export type HeaderLayerValue = (typeof HeaderLayer)[keyof typeof HeaderLayer];
-export type HeaderFitValue = (typeof HeaderFit)[keyof typeof HeaderFit];
-export type HeaderFocusValue = (typeof HeaderFocus)[keyof typeof HeaderFocus];
-export type HeaderDirectionValue = (typeof HeaderDirection)[keyof typeof HeaderDirection];
-export type HeaderShapesValue = (typeof HeaderShapes)[keyof typeof HeaderShapes];
-export type HeaderScaleValue = (typeof HeaderScale)[keyof typeof HeaderScale];
-export type HeaderEffectValue = (typeof HeaderEffect)[keyof typeof HeaderEffect];
-export type HeaderTextValue = (typeof HeaderText)[keyof typeof HeaderText];
-export type HeaderFillValue = (typeof HeaderFill)[keyof typeof HeaderFill];
+export const HeaderActionType = {Button: 'button', Link: 'link'} as const;
+export const HeaderActionColor = HeaderFill;
 
-/** Порядок задаёт и палитру тулбара, и выбор цвета генератором. Синхронно с `$header-fills` в fills.scss. */
-export const HEADER_FILLS: readonly HeaderFillValue[] = [
-    HeaderFill.YellowLight,
-    HeaderFill.RedLight,
-    HeaderFill.PurpleLight,
-    HeaderFill.BlueLight,
-    HeaderFill.GreenLight,
-    HeaderFill.Grey,
-    HeaderFill.Yellow,
-    HeaderFill.Red,
-    HeaderFill.Purple,
-    HeaderFill.Blue,
-    HeaderFill.Green,
-];
+export const HEADER_TITLE_SIZES = ['1', '2', '3', '4', '5', '6'] as const;
+export const HEADER_MAX_ACTIONS = 3;
 
-/** Полный оборот: угол приводится по модулю, потому что 523° и 163° — один и тот же наклон. */
+type ValueOf<T> = T[keyof T];
+
+export type HeaderFitValue = ValueOf<typeof HeaderFit>;
+export type HeaderFocusValue = ValueOf<typeof HeaderFocus>;
+export type HeaderSideValue = ValueOf<typeof HeaderSide>;
+export type HeaderActionTypeValue = ValueOf<typeof HeaderActionType>;
+export type HeaderActionColorValue = ValueOf<typeof HeaderActionColor>;
+
 export const HeaderDefaults = {
     [HeaderAttr.Format]: HeaderFormat.Medium,
-    [HeaderAttr.Align]: 'left',
-    [HeaderAttr.Vertical]: 'center',
+    [HeaderAttr.Edges]: HeaderEdges.Rounded,
     [HeaderAttr.Fixed]: 'true',
-    [HeaderAttr.Title]: 'true',
-    [HeaderAttr.Description]: 'true',
-    [HeaderAttr.Background]: HeaderBackground.Shapes,
-    [HeaderAttr.Fill]: HeaderFill.Blue,
-    [HeaderAttr.Fill2]: HeaderFill.Purple,
-    [HeaderAttr.Direction]: HeaderDirection.Diagonal,
-    [HeaderAttr.Shapes]: HeaderShapes.Diagonal,
-    [HeaderAttr.Scale]: HeaderScale.Medium,
-    [HeaderAttr.Effect]: HeaderEffect.None,
+    [HeaderAttr.Align]: HeaderAlign.Left,
+    [HeaderAttr.Vertical]: HeaderVertical.Center,
+    [HeaderAttr.Border]: HeaderBorder.None,
+    [HeaderAttr.Background]: HeaderBackground.Fill,
     [HeaderAttr.Image]: '',
-    [HeaderAttr.ImageEnabled]: 'true',
-    [HeaderAttr.ImageName]: '',
-    [HeaderAttr.Layer]: HeaderLayer.Full,
+    [HeaderAttr.Layout]: HeaderLayout.Cover,
     [HeaderAttr.Fit]: HeaderFit.Crop,
     [HeaderAttr.Focus]: HeaderFocus.Center,
-    [HeaderAttr.Text]: HeaderText.Auto,
+    [HeaderAttr.Fill]: HeaderFill.System,
+    [HeaderAttr.Fill2]: HeaderPalette.Blue,
+    [HeaderAttr.Decor]: HeaderDecor.None,
+    [HeaderAttr.Direction]: HeaderDirection.Diagonal,
+    [HeaderAttr.Shape]: HeaderShape.Diagonal,
+    [HeaderAttr.Text]: HeaderText.System,
 } as const;
 
 export const HeaderClassName = {
@@ -192,6 +171,14 @@ export const HeaderClassName = {
     Decor: 'g-md-header__decor',
     Shape: 'g-md-header__shape',
     Content: 'g-md-header__content',
+    Text: 'g-md-header__text',
     Title: 'g-md-header__title',
+    Body: 'g-md-header__body',
     Actions: 'g-md-header__actions',
+    Action: 'g-md-header__action',
+    Media: 'g-md-header__media',
+    Image: 'g-md-header__image',
+    Stub: 'g-md-header-stub',
+    StubMessage: 'g-md-header-stub__message',
+    StubMarkup: 'g-md-header-stub__markup',
 } as const;

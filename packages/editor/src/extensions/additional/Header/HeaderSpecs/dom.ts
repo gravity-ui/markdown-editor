@@ -1,18 +1,25 @@
-import type Token from 'markdown-it/lib/token';
-import type {DOMOutputSpec, Node} from 'prosemirror-model';
-
-import {type HeaderAttrs, normalizeHeaderAttrs} from './attrs';
+import type {HeaderActionAttrs, HeaderAttrs, HeaderImageAttrs} from './attrs';
+import {hasImage} from './attrs';
 import {HeaderAttr, HeaderClassName} from './const';
-import {type HeaderShape, getHeaderShapes} from './decor';
+import {type HeaderShapeItem, getHeaderShapes} from './decor';
+
+type Escape = (value: string) => string;
 
 const SAFE_SCHEMES = ['http:', 'https:', 'blob:', 'data:image/'];
 
-export function toCssUrl(raw: string): string | null {
+/** Адрес без схемы или со схемой из белого списка. `data:` допускается только для изображений. */
+export function toSafeUrl(raw: string): string | null {
     const value = raw.trim();
     if (!value) return null;
     const lower = value.toLowerCase();
     const absolute = /^[a-z][a-z0-9+.-]*:/.test(lower);
     if (absolute && !SAFE_SCHEMES.some((scheme) => lower.startsWith(scheme))) return null;
+    return value;
+}
+
+export function toCssUrl(raw: string): string | null {
+    const value = toSafeUrl(raw);
+    if (!value) return null;
     const escaped = value.replace(/["'()\\\s]/g, (char) =>
         encodeURIComponent(char).replace(
             /[!'()*]/g,
@@ -24,7 +31,7 @@ export function toCssUrl(raw: string): string | null {
 
 const percent = (value: number) => `${Number((value * 100).toFixed(2))}%`;
 
-function shapeDomAttrs(shape: HeaderShape): Record<string, string> {
+function shapeDomAttrs(shape: HeaderShapeItem): Record<string, string> {
     const style = [
         `width:${percent(shape.size)}`,
         `left:${percent(shape.x)}`,
@@ -34,63 +41,72 @@ function shapeDomAttrs(shape: HeaderShape): Record<string, string> {
         `--g-md-header-shape-delay:${shape.delay}s`,
     ].join(';');
     const attrs: Record<string, string> = {class: HeaderClassName.Shape, style};
-    if (shape.fill) attrs['data-fill'] = shape.fill;
+    if (shape.tone) attrs['data-tone'] = shape.tone;
     return attrs;
 }
 
 export function headerDomAttrs(attrs: HeaderAttrs): Record<string, string> {
     const dom: Record<string, string> = {class: HeaderClassName.Root, 'data-qa': 'header'};
     for (const [name, value] of Object.entries(attrs)) {
-        if (name !== HeaderAttr.Image) dom[`data-${name}`] = String(value);
+        if (name !== HeaderAttr.Image) dom[`data-${name}`] = value;
     }
-    const image = toCssUrl(attrs[HeaderAttr.Image]);
+    const image = hasImage(attrs) ? toCssUrl(attrs[HeaderAttr.Image]) : null;
     if (image) {
         dom['data-image'] = attrs[HeaderAttr.Image];
-        if (attrs[HeaderAttr.ImageEnabled] === 'true') dom.style = `--g-md-header-image:${image}`;
+        dom.style = `--g-md-header-image:${image}`;
     }
     return dom;
 }
 
 const decorAttrs = {class: HeaderClassName.Decor, 'aria-hidden': 'true', contenteditable: 'false'};
 
-export function headerToDOM(node: Node): DOMOutputSpec {
-    const attrs = normalizeHeaderAttrs(node.attrs);
-    const shapes: DOMOutputSpec[] = getHeaderShapes(attrs).map((shape) => [
-        'span',
-        shapeDomAttrs(shape),
-    ]);
-    const decor: DOMOutputSpec = ['span', decorAttrs, ...shapes];
-    return ['div', headerDomAttrs(attrs), decor, ['div', {class: HeaderClassName.Content}, 0]];
-}
-
-const renderAttrs = (attrs: Record<string, string>, escape: (value: string) => string) =>
+const renderAttrs = (attrs: Record<string, string>, escape: Escape) =>
     Object.entries(attrs)
         .map(([name, value]) => ` ${name}="${escape(value)}"`)
         .join('');
 
-export function headerHtmlOpen(attrs: HeaderAttrs, escape: (value: string) => string): string {
+export function headerHtmlOpen(attrs: HeaderAttrs, escape: Escape): string {
     const shapes = getHeaderShapes(attrs)
         .map((shape) => `<span${renderAttrs(shapeDomAttrs(shape), escape)}></span>`)
         .join('');
-    return `<div${renderAttrs(headerDomAttrs(attrs), escape)}><span${renderAttrs(decorAttrs, escape)}>${shapes}</span><div class="${HeaderClassName.Content}">`;
+    return `<div${renderAttrs(headerDomAttrs(attrs), escape)}><span${renderAttrs(decorAttrs, escape)}>${shapes}</span><div class="${HeaderClassName.Content}">\n`;
 }
 
 export function headerHtmlClose(): string {
-    return '</div></div>';
+    return '</div></div>\n';
 }
 
-export function headerHtml(
-    attrs: HeaderAttrs,
-    title: string,
-    escape: (value: string) => string,
-): string {
-    return `${headerHtmlOpen(attrs, escape)}<div class="${HeaderClassName.Title}">${escape(title)}</div>${headerHtmlClose()}`;
+export function headerTitleHtml(text: string, size: number, escape: Escape): string {
+    return `<h${size} class="${HeaderClassName.Title}">${escape(text)}</h${size}>\n`;
 }
 
-export function renderHeaderAction(token: Token, escape: (value: string) => string): string {
-    const attrs = Object.fromEntries(token.attrs ?? []);
-    const href = attrs.href ?? '';
-    const type = attrs['data-type'] ?? 'button';
-    const color = attrs['data-color'] ?? 'default';
-    return `<a class="g-md-header__action" href="${escape(href)}" data-type="${escape(type)}" data-color="${escape(color)}" data-enabled="${attrs['data-enabled'] === 'false' ? 'false' : 'true'}">${escape(token.content)}</a>`;
+export type HeaderImage = HeaderImageAttrs & {src: string; alt: string};
+
+export function headerImageHtml(image: HeaderImage, escape: Escape): string {
+    const media = renderAttrs(
+        {
+            class: HeaderClassName.Media,
+            'data-side': image.side,
+            'data-fit': image.fit,
+            'data-focus': image.focus,
+        },
+        escape,
+    );
+    const img = renderAttrs({class: HeaderClassName.Image, src: image.src, alt: image.alt}, escape);
+    return `<div${media}><img${img} /></div>\n`;
+}
+
+export type HeaderAction = HeaderActionAttrs & {href: string; text: string};
+
+export function headerActionHtml(action: HeaderAction, escape: Escape): string {
+    const attrs = renderAttrs(
+        {
+            class: HeaderClassName.Action,
+            href: action.href,
+            'data-type': action.type,
+            'data-color': action.color,
+        },
+        escape,
+    );
+    return `<a${attrs}>${escape(action.text)}</a>`;
 }
