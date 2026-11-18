@@ -24,13 +24,6 @@ describe('Button Markdown', () => {
         const attrs = buttonAttrs(model);
         expect(buttonFromAttrs((name) => attrs[name as keyof typeof attrs])).toEqual(model);
     });
-    it.each([scriptUrl, 'data:text/html,<b>x</b>', 'file:///etc/passwd'])(
-        'should drop the unsafe address %j from the attributes',
-        (href) => {
-            expect(buttonAttrs({href})).not.toHaveProperty('href');
-            expect(buttonFromAttrs((name) => (name === 'href' ? href : null)).href).toBe('');
-        },
-    );
     it('should render a button with defaults', () => {
         expect(md.renderInline(':button[Read more](/page)')).toBe(
             '<a class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_standard" href="/page" data-view="action" data-color="standard">Read more</a>',

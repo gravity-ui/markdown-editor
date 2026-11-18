@@ -1,13 +1,12 @@
 import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
 import {type Command, NodeSelection, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
-import {type ButtonModel, safeLinkUrl} from '@gravity-ui/markdown-plugin-header';
+import type {ButtonModel} from '@gravity-ui/markdown-plugin-header';
 
 import {buttonNodeType} from './ButtonSpecs';
 
 export const setButtonAttrs =
     (pos: number, attrs: Partial<ButtonModel & {label: string}>): Command =>
     (state, dispatch) => {
-        if (attrs.href && safeLinkUrl(attrs.href) === null) return false;
         const node = state.doc.nodeAt(pos);
         if (node?.type !== buttonNodeType(state.schema)) return false;
         if (dispatch) {

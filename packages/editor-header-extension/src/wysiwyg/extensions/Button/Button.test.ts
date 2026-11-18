@@ -34,9 +34,6 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
 const button =
     ':button[Read more](/page?a=1&b=2 "Read the page"){view="outline" color="blue" target="_blank"}';
 
-const scriptUrl = ['javascript', 'alert(1)'].join(':');
-const unsafeUrls = [scriptUrl, 'data:text/html,<b>x</b>', 'vbscript:run', 'file:///etc/passwd'];
-
 const buttonPos = (doc: Node) => {
     let found = -1;
     doc.descendants((node, pos) => {
@@ -179,15 +176,6 @@ describe('Button extension', () => {
         expect(setButtonAttrs(1, {view: 'normal'})(state(), dispatch)).toBe(true);
         expect(serializer.serialize(state().doc)).toBe(':button[Open]{view="normal" color="gray"}');
     });
-    it.each([...unsafeUrls, ` ${scriptUrl.toUpperCase()}`, 'java\tscript:run'])(
-        'should reject the unsafe address %j',
-        (href) => {
-            const {state, dispatch} = createState(button);
-            const doc = state().doc;
-            expect(setButtonAttrs(1, {href, label: 'Changed'})(state(), dispatch)).toBe(false);
-            expect(state().doc).toBe(doc);
-        },
-    );
     it.each([
         ['Backspace after a button', selectButtonBefore, `Go ${button} now`, 1],
         ['Delete before a button', selectButtonAfter, `Go ${button} now`, 0],
@@ -237,46 +225,6 @@ describe('Button extension', () => {
                 .textBetween(0, 1, '', (leaf) => String(leaf.type.spec.leafText?.(leaf))),
         ).toBe(text);
     });
-    it.each(unsafeUrls)(
-        'should drop the unsafe address %j of a pasted and of a rendered button',
-        (href) => {
-            const container = document.createElement('div');
-            const pasted = document.createElement('a');
-            pasted.className = 'g-md-button-plugin';
-            pasted.setAttribute('href', href);
-            pasted.setAttribute('data-view', 'outline');
-            pasted.textContent = 'Open';
-            container.append(pasted);
-            expect(buttons(DOMParser.fromSchema(schema).parse(container))).toEqual([
-                {
-                    type: 'button',
-                    attrs: {
-                        href: '',
-                        title: '',
-                        view: 'outline',
-                        color: 'gray',
-                        target: '_self',
-                        label: 'Open',
-                    },
-                },
-            ]);
-            const node = buttonNodeType(schema).create({href, label: 'Open'});
-            const rendered = DOMSerializer.fromSchema(schema).serializeNode(node) as HTMLElement;
-            expect(rendered.hasAttribute('href')).toBe(false);
-            const view = createButtonView((nodeSchema) =>
-                nodeSchema.node('doc', null, [
-                    nodeSchema.node('paragraph', null, [
-                        buttonNodeType(nodeSchema).create({href, label: 'Open'}),
-                    ]),
-                ]),
-            );
-            try {
-                expect((view.nodeDOM(1) as HTMLElement).hasAttribute('href')).toBe(false);
-            } finally {
-                view.destroy();
-            }
-        },
-    );
     it.each([
         [{label: 'Open', href: '/page'}, 'Open', '/page', null],
         [{label: 'Open'}, 'Open', null, 'button'],

@@ -53,7 +53,7 @@ A button is an inline node: `:button[Read more](/page){view="action" color="blue
 The button is an atom: a click on it, or Enter while it is selected, opens the settings window under it.
 The window holds the label field, the style list with a preview of the style under the pointer, the link field, and the "Open in a new tab" switch.
 The label is plain text without formatting. Each change is a separate undo step.
-The link field shows an error for an address that the Markdown parser of the editor rejects, such as `javascript:`, and keeps the previous address. Such an address is also dropped from a pasted button.
+The link field shows an error for an address that the Markdown parser of the editor rejects, such as `javascript:`, and keeps the previous address.
 Closing the window saves the label and the link. Escape, Enter, Tab after the last field, and Shift+Tab before the first field return focus to the editor. Clicking the button does not follow the link.
 Backspace after a button and Delete before it select the button; the next press removes it.
 

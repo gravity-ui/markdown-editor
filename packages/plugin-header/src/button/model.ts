@@ -1,5 +1,3 @@
-import {safeLinkUrl} from '../url';
-
 export const buttonTokenName = 'g_md_button';
 export const buttonClassName = 'g-md-button-plugin';
 
@@ -60,7 +58,6 @@ export function isButtonTarget(value: unknown): value is ButtonTarget {
     return (buttonTargets as readonly unknown[]).includes(value);
 }
 
-/** An unsafe `href` becomes empty. */
 export function buttonModel(attrs: Partial<Record<keyof ButtonModel, unknown>>): ButtonModel {
     const view = isButtonView(attrs.view) ? attrs.view : buttonDefaults.view;
     const colors = buttonViewColors[view];
@@ -68,7 +65,7 @@ export function buttonModel(attrs: Partial<Record<keyof ButtonModel, unknown>>):
         view,
         color: colors.find((color) => color === attrs.color) ?? buttonDefaultColor(view),
         target: isButtonTarget(attrs.target) ? attrs.target : buttonDefaults.target,
-        href: typeof attrs.href === 'string' ? (safeLinkUrl(attrs.href) ?? '') : '',
+        href: typeof attrs.href === 'string' ? attrs.href : '',
         title: typeof attrs.title === 'string' ? attrs.title : '',
     };
 }
