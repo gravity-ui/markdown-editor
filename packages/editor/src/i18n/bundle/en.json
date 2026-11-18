@@ -8,7 +8,7 @@
   "split-mode-text": "Preview",
   "settings_split-mode-hint": "Splitting the editor into two windows: preview and editing",
   "settings_tab-focus": "Tab navigation",
-  "settings_tab-focus-hint": "Tab and Shift+Tab move focus between page elements instead of running editor commands. Press {{shortcut}} while the editor is focused to toggle the mode.",
+  "settings_tab-focus-hint": "Switch the Tab key between focus navigation and editor commands. Press {{shortcut}} in the editor to toggle this setting",
   "tab-focus-mode_focus": "Enabled Tab navigation",
   "tab-focus-mode_indent": "Disabled Tab navigation",
   "markup_placeholder": "Add your markup here",

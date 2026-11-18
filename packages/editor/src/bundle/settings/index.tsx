@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import {memo, useId, useState} from 'react';
+import {memo, useState} from 'react';
 
 import {Eye, Gear, LogoMarkdown} from '@gravity-ui/icons';
 import {
@@ -249,8 +249,6 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                     onUpdate={(checked) => onTabFocusModeChange(checked ? 'focus' : 'indent')}
                     title={i18n('settings_tab-focus')}
                     hint={i18n('settings_tab-focus-hint', {shortcut: tabFocusShortcut})}
-                    ariaKeyShortcuts={tabFocusShortcut.replace('Ctrl', 'Control')}
-                    qa="g-md-settings-tab-focus"
                 />
             )}
             <Text variant="code-inline-1" className={bContent('version')}>
@@ -267,8 +265,6 @@ type CheckboxWithHintProps = {
     title: string;
     hint: string;
     className: string;
-    ariaKeyShortcuts?: string;
-    qa?: string;
 };
 
 function CheckboxWithHint({
@@ -278,29 +274,13 @@ function CheckboxWithHint({
     title,
     hint,
     className,
-    ariaKeyShortcuts,
-    qa,
 }: CheckboxWithHintProps) {
-    const hintId = useId();
-
     return (
         <Box spacing={{px: 4, pt: 2, pb: 3}} className={bContent('check-box', className)}>
-            <Checkbox
-                size="m"
-                disabled={disabled}
-                checked={checked}
-                onUpdate={onUpdate}
-                controlProps={{'aria-describedby': hintId, 'aria-keyshortcuts': ariaKeyShortcuts}}
-                qa={qa}
-            >
+            <Checkbox size="m" disabled={disabled} checked={checked} onUpdate={onUpdate}>
                 {title}
             </Checkbox>
-            <Text
-                as="div"
-                id={hintId}
-                color="secondary"
-                className={bContent('check-hint', sp({mt: 1, pl: 6}))}
-            >
+            <Text as="div" color="secondary" className={bContent('check-hint', sp({mt: 1, pl: 6}))}>
                 {hint}
             </Text>
         </Box>
