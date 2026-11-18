@@ -36,9 +36,11 @@ const consumers = {
     },
     markup: {
         contents: `
-            import {TabFocusModeState, createMarkupTabFocusModeExtension} from '@gravity-ui/markdown-editor';
+            import {TabFocusModeState, createMarkupTabFocusMode} from '@gravity-ui/markdown-editor';
             export const state = new TabFocusModeState('focus');
-            export const extension = createMarkupTabFocusModeExtension(state);
+            const tabFocus = createMarkupTabFocusMode(state);
+            export const extension = tabFocus.extension;
+            export const initialize = tabFocus.initialize;
         `,
         forbiddenDependencies: [
             /prosemirror-/,

@@ -1,27 +1,23 @@
 import {type Extension, Prec} from '@codemirror/state';
-import {type Command, type KeyBinding, ViewPlugin, keymap} from '@codemirror/view';
+import {type Command, type EditorView, type KeyBinding, ViewPlugin, keymap} from '@codemirror/view';
 
 import {Action, formatter} from '../../shortcuts';
-import {createTabFocusModeKeydownHandler} from '../../shortcuts/tab-focus-mode';
 import type {TabFocusModeState} from '../../utils/tab-focus-mode';
 
-export function createMarkupTabFocusModeExtension(state: TabFocusModeState): Extension {
-    const onKeyDown = createTabFocusModeKeydownHandler(state);
+export function createMarkupTabFocusMode(state: TabFocusModeState): {
+    extension: Extension;
+    initialize(view: EditorView): void;
+} {
     const plugin = ViewPlugin.define((view) => {
         let destroyed = false;
         const syncMode = () => view.setTabFocusMode(state.getMode() === 'focus');
-        view.dom.addEventListener('keydown', onKeyDown, true);
-        queueMicrotask(() => {
-            if (!destroyed) syncMode();
-        });
-        state.on('change', syncMode);
         return {
             get active() {
                 return !destroyed;
             },
+            syncMode,
             destroy() {
                 destroyed = true;
-                view.dom.removeEventListener('keydown', onKeyDown, true);
                 state.off('change', syncMode);
             },
         };
@@ -37,5 +33,15 @@ export function createMarkupTabFocusModeExtension(state: TabFocusModeState): Ext
         bindings.push({key: shortcut, run: toggle, stopPropagation: true});
     }
 
-    return [plugin, Prec.highest(keymap.of(bindings))];
+    return {
+        extension: [plugin, Prec.highest(keymap.of(bindings))],
+        initialize(view) {
+            const value = view.plugin(plugin);
+            if (value?.active) {
+                state.off('change', value.syncMode);
+                state.on('change', value.syncMode);
+                value.syncMode();
+            }
+        },
+    };
 }

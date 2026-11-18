@@ -1,3 +1,4 @@
+import {Plugin} from 'prosemirror-state';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {WysiwygEditor} from '../../../core/Editor';
@@ -6,6 +7,10 @@ import {TabFocusModeState} from '../../../utils/tab-focus-mode';
 import {BaseSchemaSpecs} from '../../base/BaseSchema/BaseSchemaSpecs';
 
 import {createWysiwygTabFocusModeExtension} from './TabFocusMode';
+
+vi.hoisted(() => {
+    Object.defineProperty(window.navigator, 'platform', {value: 'MacIntel', configurable: true});
+});
 
 describe('WYSIWYG Tab focus mode', () => {
     const editors: WysiwygEditor[] = [];
@@ -17,16 +22,18 @@ describe('WYSIWYG Tab focus mode', () => {
 
     function createEditor(state: TabFocusModeState) {
         const command = vi.fn(() => true);
+        const domHandler = vi.fn(() => false);
         const editor = new WysiwygEditor({
             initialContent: 'Text',
             extensions: (builder) =>
                 builder
                     .use(BaseSchemaSpecs, {})
                     .use(createWysiwygTabFocusModeExtension(state))
+                    .addPlugin(() => new Plugin({props: {handleDOMEvents: {keydown: domHandler}}}))
                     .addKeymap(() => ({Tab: command, 'Shift-Tab': command})),
         });
         editors.push(editor);
-        return {editor, command};
+        return {editor, command, domHandler};
     }
 
     function dispatchKey(editor: WysiwygEditor, init: KeyboardEventInit) {
@@ -39,20 +46,23 @@ describe('WYSIWYG Tab focus mode', () => {
         'should bypass editor commands only in focus mode with Shift %s',
         (shiftKey) => {
             const state = new TabFocusModeState();
-            const {editor, command} = createEditor(state);
+            const {editor, command, domHandler} = createEditor(state);
 
             expect(dispatchKey(editor, {key: 'Tab', shiftKey}).defaultPrevented).toBe(true);
             expect(command).toHaveBeenCalledTimes(1);
+            expect(domHandler).toHaveBeenCalledTimes(1);
 
             state.setMode('focus');
 
             expect(dispatchKey(editor, {key: 'Tab', shiftKey}).defaultPrevented).toBe(false);
             expect(command).toHaveBeenCalledTimes(1);
+            expect(domHandler).toHaveBeenCalledTimes(1);
 
             state.setMode('indent');
 
             expect(dispatchKey(editor, {key: 'Tab', shiftKey}).defaultPrevented).toBe(true);
             expect(command).toHaveBeenCalledTimes(2);
+            expect(domHandler).toHaveBeenCalledTimes(2);
         },
     );
 
@@ -126,7 +136,7 @@ describe('WYSIWYG Tab focus mode', () => {
                 shiftKey: isMac(),
             };
 
-            expect(dispatchKey(editor, {...shortcut, altKey: true}).defaultPrevented).toBe(false);
+            expect(dispatchKey(editor, {...shortcut, metaKey: true}).defaultPrevented).toBe(false);
             expect(change).not.toHaveBeenCalled();
 
             expect(dispatchKey(editor, shortcut).defaultPrevented).toBe(true);
@@ -155,9 +165,35 @@ describe('WYSIWYG Tab focus mode', () => {
         expect(event.defaultPrevented).toBe(false);
     });
 
-    it('should stop nested widget handlers without cancelling native Tab navigation', () => {
+    it.each([
+        {name: 'Tab', init: {}},
+        {name: 'Shift+Tab', init: {shiftKey: true}},
+        {name: 'Option+Tab', init: {altKey: true}},
+        {name: 'Control+Tab', init: {ctrlKey: true}},
+        {name: 'Meta+Tab', init: {metaKey: true}},
+        {name: 'Tab during composition', init: {isComposing: true}},
+    ])(
+        'should let $name bypass ProseMirror handlers and reach the parent in focus mode',
+        ({init}) => {
+            const state = new TabFocusModeState('focus');
+            const {editor, command, domHandler} = createEditor(state);
+            const parent = document.createElement('div');
+            const handler = vi.fn();
+            parent.addEventListener('keydown', handler);
+            parent.append(editor.dom);
+
+            const event = dispatchKey(editor, {key: 'Tab', ...init});
+
+            expect(handler).toHaveBeenCalledExactlyOnceWith(event);
+            expect(command).not.toHaveBeenCalled();
+            expect(domHandler).not.toHaveBeenCalled();
+            expect(event.defaultPrevented).toBe(false);
+        },
+    );
+
+    it('should preserve nested widget handlers in focus mode', () => {
         const state = new TabFocusModeState('focus');
-        const {editor} = createEditor(state);
+        const {editor, command} = createEditor(state);
         const widget = document.createElement('button');
         const handler = vi.fn((event: KeyboardEvent) => event.preventDefault());
         widget.addEventListener('keydown', handler);
@@ -170,30 +206,8 @@ describe('WYSIWYG Tab focus mode', () => {
 
         widget.dispatchEvent(event);
 
-        expect(handler).not.toHaveBeenCalled();
-        expect(event.defaultPrevented).toBe(false);
-    });
-
-    it('should remove the Tab capture listener when its editor is destroyed', () => {
-        const state = new TabFocusModeState('focus');
-        const {editor} = createEditor(state);
-        const dom = editor.dom;
-        editor.destroy();
-        editors.splice(editors.indexOf(editor), 1);
-
-        const widget = document.createElement('button');
-        const handler = vi.fn((event: KeyboardEvent) => event.preventDefault());
-        widget.addEventListener('keydown', handler);
-        dom.append(widget);
-        const event = new KeyboardEvent('keydown', {
-            key: 'Tab',
-            bubbles: true,
-            cancelable: true,
-        });
-        widget.dispatchEvent(event);
-
-        expect(state.getMode()).toBe('focus');
         expect(handler).toHaveBeenCalledOnce();
+        expect(command).not.toHaveBeenCalled();
         expect(event.defaultPrevented).toBe(true);
     });
 });

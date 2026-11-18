@@ -16,7 +16,7 @@ export * from './bundle';
 export {
     DirectiveSyntaxFacet,
     ReactRendererFacet,
-    createMarkupTabFocusModeExtension,
+    createMarkupTabFocusMode,
     getImageDimensions,
 } from './markup';
 export * as MarkupCommands from './markup/commands';

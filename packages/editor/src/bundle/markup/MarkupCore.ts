@@ -19,12 +19,14 @@ export class MarkupCore implements ModeCore<Editor> {
     readonly #options: MarkupCoreOptions;
     readonly #events: ModeEvents;
     readonly #getInitialMarkup: () => MarkupString;
+    readonly #initializeEditor?: (view: EditorView) => void;
     readonly #emojiDefs?: Record<string, string>;
 
     constructor(
         options: MarkupCoreOptions,
         events: ModeEvents,
         getInitialMarkup: () => MarkupString,
+        initializeEditor?: (view: EditorView) => void,
     ) {
         this.#options = {
             ...options,
@@ -34,6 +36,7 @@ export class MarkupCore implements ModeCore<Editor> {
         };
         this.#events = events;
         this.#getInitialMarkup = getInitialMarkup;
+        this.#initializeEditor = initializeEditor;
         this.#emojiDefs =
             options.preset === 'full' ? (options.config?.emoji?.defs ?? emojiDefs) : undefined;
     }
@@ -93,6 +96,7 @@ export class MarkupCore implements ModeCore<Editor> {
                     searchPanel: markupConfig.searchPanel,
                 }),
             );
+            this.#initializeEditor?.(this.#editor.cm);
         }
         return this.#editor;
     }

@@ -1,4 +1,5 @@
 import type {Extension as CodeMirrorExtension} from '@codemirror/state';
+import type {EditorView as CodeMirrorEditorView} from '@codemirror/view';
 
 import type * as Public from '../../src';
 import type * as Core from '../../src/core';
@@ -59,17 +60,41 @@ export function shouldKeepModeSpecificTabFocusExtensions(
         extensions.createWysiwygTabFocusModeExtension;
     const publicWysiwyg: typeof Extensions.createWysiwygTabFocusModeExtension =
         api.createWysiwygTabFocusModeExtension;
-    const createMarkup: (state: Core.TabFocusModeState) => CodeMirrorExtension =
-        api.createMarkupTabFocusModeExtension;
+    const createMarkup: (state: Core.TabFocusModeState) => {
+        extension: CodeMirrorExtension;
+        initialize: (view: CodeMirrorEditorView) => void;
+    } = api.createMarkupTabFocusMode;
     const wysiwyg: Core.Extension = createWysiwyg(state);
-    const markup: CodeMirrorExtension = createMarkup(state);
+    const markup = createMarkup(state);
+    const markupExtension: CodeMirrorExtension = markup.extension;
+    const initialize: (view: CodeMirrorEditorView) => void = markup.initialize;
 
     // @ts-expect-error The WYSIWYG adapter requires a shared state object.
     createWysiwyg();
     // @ts-expect-error The Markdown adapter requires a shared state object.
     createMarkup('focus');
+    // @ts-expect-error The Markdown adapter requires a shared state object.
+    createMarkup();
 
-    return {wysiwyg, markup, publicWysiwyg};
+    return {wysiwyg, markupExtension, initialize, publicWysiwyg};
+}
+
+export function shouldKeepMarkupTabFocusInitialization(
+    api: typeof Public,
+    state: Core.TabFocusModeState,
+    view: CodeMirrorEditorView,
+) {
+    const tabFocus = api.createMarkupTabFocusMode(state);
+    const result: void = tabFocus.initialize(view);
+
+    // @ts-expect-error Initialization requires a CodeMirror view.
+    tabFocus.initialize();
+    // @ts-expect-error Initialization does not accept a mode instead of a view.
+    tabFocus.initialize('focus');
+    // @ts-expect-error Initialization does not create a new view.
+    const invalidResult: CodeMirrorEditorView = tabFocus.initialize(view);
+
+    return {result, invalidResult};
 }
 
 export function shouldKeepBundledTabFocusAPI(editor: Public.MarkdownEditorInstance) {

@@ -2,23 +2,21 @@ import {type Command, Plugin} from 'prosemirror-state';
 
 import type {Action, Extension, Keymap} from '../../../core';
 import {Action as ShortcutAction, formatter} from '../../../shortcuts';
-import {createTabFocusModeKeydownHandler} from '../../../shortcuts/tab-focus-mode';
 import {withLogAction} from '../../../utils/keymap';
 import type {TabFocusModeState} from '../../../utils/tab-focus-mode';
 
 const action = 'toggleTabFocusMode';
 
 export function createWysiwygTabFocusModeExtension(state: TabFocusModeState): Extension {
-    const handleTab = createTabFocusModeKeydownHandler(state);
-    const toggle: Command = (_editorState, dispatch) => {
-        if (dispatch) state.toggle();
+    const toggle: Command = () => {
+        state.toggle();
         return true;
     };
 
     return (builder) => {
         builder.addAction(action, () => ({
             isActive: () => state.getMode() === 'focus',
-            isEnable: toggle,
+            isEnable: () => true,
             run: toggle,
         }));
         builder.addKeymap(() => {
@@ -32,13 +30,12 @@ export function createWysiwygTabFocusModeExtension(state: TabFocusModeState): Ex
         builder.addPlugin(
             () =>
                 new Plugin({
-                    view(view) {
-                        view.dom.addEventListener('keydown', handleTab, true);
-                        return {
-                            destroy() {
-                                view.dom.removeEventListener('keydown', handleTab, true);
+                    props: {
+                        handleDOMEvents: {
+                            keydown(_view, event) {
+                                return state.getMode() === 'focus' && event.key === 'Tab';
                             },
-                        };
+                        },
                     },
                 }),
             builder.Priority.Highest,

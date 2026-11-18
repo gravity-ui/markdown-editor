@@ -1,10 +1,10 @@
-import {defaultKeymap, insertTab} from '@codemirror/commands';
-import {EditorView, keymap} from '@codemirror/view';
-import {afterEach, describe, expect, it, vi} from 'vitest';
+import {defaultKeymap, indentLess, insertTab} from '@codemirror/commands';
+import {EditorView, ViewPlugin, keymap} from '@codemirror/view';
+import {afterEach, describe, expect, it, onTestFinished, vi} from 'vitest';
 
 import {TabFocusModeState} from '../../utils/tab-focus-mode';
 
-import {createMarkupTabFocusModeExtension} from './tab-focus-mode';
+import {createMarkupTabFocusMode} from './tab-focus-mode';
 
 vi.hoisted(() => {
     Object.defineProperty(window.navigator, 'platform', {value: 'MacIntel', configurable: true});
@@ -19,15 +19,18 @@ describe('markup Tab focus mode', () => {
         vi.restoreAllMocks();
     });
 
-    function createView(state: TabFocusModeState) {
+    function createView(state: TabFocusModeState, doc = '') {
+        const tabFocus = createMarkupTabFocusMode(state);
         const view = new EditorView({
+            doc,
             parent: document.body,
             extensions: [
-                createMarkupTabFocusModeExtension(state),
-                keymap.of([{key: 'Tab', run: insertTab}, ...defaultKeymap]),
+                tabFocus.extension,
+                keymap.of([{key: 'Tab', run: insertTab, shift: indentLess}, ...defaultKeymap]),
             ],
         });
         views.add(view);
+        tabFocus.initialize(view);
         view.focus();
         return view;
     }
@@ -53,24 +56,19 @@ describe('markup Tab focus mode', () => {
 
     it.each(['indent', 'focus'] as const)(
         'should apply the initial %s mode to Tab handling',
-        async (mode) => {
+        (mode) => {
             const state = new TabFocusModeState(mode);
             const view = createView(state);
-            const setTabFocusMode = vi.spyOn(view, 'setTabFocusMode');
-
-            await Promise.resolve();
             const event = pressTab(view);
 
-            expect(setTabFocusMode).toHaveBeenCalledWith(mode === 'focus');
             expect(event.defaultPrevented).toBe(mode === 'indent');
             expect(view.state.sliceDoc()).toBe(mode === 'indent' ? '\t' : '');
         },
     );
 
-    it('should update Tab handling when the shared mode changes', async () => {
+    it('should update Tab handling when the shared mode changes', () => {
         const state = new TabFocusModeState();
         const view = createView(state);
-        await Promise.resolve();
         const setTabFocusMode = vi.spyOn(view, 'setTabFocusMode');
 
         state.setMode('focus');
@@ -86,12 +84,11 @@ describe('markup Tab focus mode', () => {
         expect(view.state.sliceDoc()).toBe('\t');
     });
 
-    it('should toggle the shared mode once with the configured shortcut', async () => {
+    it('should toggle the shared mode once with the configured shortcut', () => {
         const state = new TabFocusModeState();
         const change = vi.fn();
         state.on('change', change);
         const view = createView(state);
-        await Promise.resolve();
 
         const event = pressKey(view, {
             key: 'M',
@@ -109,12 +106,11 @@ describe('markup Tab focus mode', () => {
 
     it.each(['M', 'Ь'])(
         'should run the native shortcut command with the %s layout on every keydown',
-        async (key) => {
+        (key) => {
             const state = new TabFocusModeState();
             const change = vi.fn();
             state.on('change', change);
             const view = createView(state);
-            await Promise.resolve();
             const shortcut = {
                 key,
                 code: 'KeyM',
@@ -133,10 +129,27 @@ describe('markup Tab focus mode', () => {
         },
     );
 
-    it('should preserve native Tab navigation before nested widget handlers in focus mode', async () => {
+    it.each([false, true])(
+        'should let Tab reach parent handlers in focus mode with Shift %s',
+        (shiftKey) => {
+            const state = new TabFocusModeState('focus');
+            const doc = '\tText';
+            const view = createView(state, doc);
+            const handler = vi.fn();
+            document.body.addEventListener('keydown', handler);
+            onTestFinished(() => document.body.removeEventListener('keydown', handler));
+
+            const event = pressKey(view, {key: 'Tab', code: 'Tab', keyCode: 9, shiftKey});
+
+            expect(event.defaultPrevented).toBe(false);
+            expect(handler).toHaveBeenCalledExactlyOnceWith(event);
+            expect(view.state.sliceDoc()).toBe(doc);
+        },
+    );
+
+    it('should allow nested widgets to handle Tab in focus mode', () => {
         const state = new TabFocusModeState('focus');
         const view = createView(state);
-        await Promise.resolve();
         const widget = document.createElement('button');
         const handler = vi.fn((event: KeyboardEvent) => event.preventDefault());
         widget.addEventListener('keydown', handler);
@@ -152,16 +165,15 @@ describe('markup Tab focus mode', () => {
         widget.dispatchEvent(event);
 
         expect(state.getMode()).toBe('focus');
-        expect(event.defaultPrevented).toBe(false);
-        expect(handler).not.toHaveBeenCalled();
+        expect(event.defaultPrevented).toBe(true);
+        expect(handler).toHaveBeenCalledExactlyOnceWith(event);
     });
 
-    it('should synchronize the shared mode with the native macOS shortcut', async () => {
+    it('should synchronize the shared mode with the native macOS shortcut', () => {
         const state = new TabFocusModeState();
         const change = vi.fn();
         state.on('change', change);
         const view = createView(state);
-        await Promise.resolve();
         const shortcut = {
             key: 'M',
             code: 'KeyM',
@@ -182,10 +194,9 @@ describe('markup Tab focus mode', () => {
         expect(pressTab(view).defaultPrevented).toBe(true);
     });
 
-    it('should preserve the mode and remove listeners when a view is recreated', async () => {
+    it('should preserve the mode and remove listeners when a view is recreated', () => {
         const state = new TabFocusModeState('focus');
         const oldView = createView(state);
-        await Promise.resolve();
         const setOldMode = vi.spyOn(oldView, 'setTabFocusMode');
 
         destroyView(oldView);
@@ -201,7 +212,6 @@ describe('markup Tab focus mode', () => {
         expect(state.getMode()).toBe('focus');
 
         const view = createView(state);
-        await Promise.resolve();
 
         expect(state.countOf('change')).toBe(1);
         expect(pressTab(view).defaultPrevented).toBe(false);
@@ -212,16 +222,58 @@ describe('markup Tab focus mode', () => {
         expect(pressTab(view).defaultPrevented).toBe(true);
     });
 
-    it('should skip pending initialization after the view is destroyed', async () => {
+    it('should initialize only views with the active adapter installed', () => {
         const state = new TabFocusModeState('focus');
-        const view = createView(state);
+        const tabFocus = createMarkupTabFocusMode(state);
+        const view = new EditorView({extensions: [tabFocus.extension]});
+        views.add(view);
         const setTabFocusMode = vi.spyOn(view, 'setTabFocusMode');
-
-        destroyView(view);
-        state.setMode('indent');
-        await Promise.resolve();
 
         expect(setTabFocusMode).not.toHaveBeenCalled();
         expect(state.countOf('change')).toBe(0);
+        tabFocus.initialize(view);
+        expect(setTabFocusMode).toHaveBeenCalledExactlyOnceWith(true);
+        expect(state.countOf('change')).toBe(1);
+
+        tabFocus.initialize(view);
+        expect(state.countOf('change')).toBe(1);
+
+        destroyView(view);
+        tabFocus.initialize(view);
+        state.setMode('indent');
+
+        expect(setTabFocusMode).toHaveBeenCalledTimes(2);
+        expect(state.countOf('change')).toBe(0);
+
+        const unrelatedView = new EditorView();
+        views.add(unrelatedView);
+        const setUnrelatedMode = vi.spyOn(unrelatedView, 'setTabFocusMode');
+        tabFocus.initialize(unrelatedView);
+
+        expect(setUnrelatedMode).not.toHaveBeenCalled();
+    });
+
+    it('should initialize with shared mode changes made during view construction', () => {
+        const state = new TabFocusModeState();
+        const tabFocus = createMarkupTabFocusMode(state);
+        const view = new EditorView({
+            extensions: [
+                tabFocus.extension,
+                ViewPlugin.define(() => {
+                    state.setMode('focus');
+                    return {};
+                }),
+                keymap.of([{key: 'Tab', run: insertTab}]),
+            ],
+        });
+        views.add(view);
+        view.focus();
+
+        expect(state.countOf('change')).toBe(0);
+        tabFocus.initialize(view);
+
+        expect(state.countOf('change')).toBe(1);
+        expect(pressTab(view).defaultPrevented).toBe(false);
+        expect(view.state.sliceDoc()).toBe('');
     });
 });

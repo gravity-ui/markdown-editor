@@ -2,7 +2,7 @@ import {useLayoutEffect, useMemo} from 'react';
 
 import {createWysiwygTabFocusModeExtension} from 'src/extensions/behavior/TabFocusMode';
 import {Logger2, globalLogger} from 'src/logger';
-import {createMarkupTabFocusModeExtension} from 'src/markup/codemirror/tab-focus-mode';
+import {createMarkupTabFocusMode} from 'src/markup/codemirror/tab-focus-mode';
 import {ReactRenderStorage} from 'src/modules/react-renderer';
 import {DirectiveSyntaxContext} from 'src/utils/directive';
 import {SafeEventEmitter} from 'src/utils/event-emitter';
@@ -28,6 +28,7 @@ export function useMarkdownEditor(
         markupState: editorMarkupState,
         getInitialMarkup,
         tabFocusMode,
+        initializeMarkup,
     } = useMemo(() => {
         const logger = props.logger ?? new Logger2();
         const runtimeEvents = new SafeEventEmitter<EditorEventMap>({
@@ -40,6 +41,7 @@ export function useMarkdownEditor(
         const extraWysiwygExtensions = wysiwygConfig.extensions;
         const extensionOptions = wysiwygConfig.extensionOptions;
         const tabFocus = new TabFocusModeState(props.initial?.tabFocusMode);
+        const markupTabFocus = createMarkupTabFocusMode(tabFocus);
         tabFocus.on('change', ({mode}) => {
             runtimeEvents.emit('rerender', null);
             runtimeEvents.emit('change-tab-focus-mode', {mode});
@@ -48,10 +50,7 @@ export function useMarkdownEditor(
             ...props,
             markupConfig: {
                 ...markupConfig,
-                extensions: [
-                    createMarkupTabFocusModeExtension(tabFocus),
-                    ...(markupConfig.extensions ?? []),
-                ],
+                extensions: [markupTabFocus.extension, ...(markupConfig.extensions ?? [])],
             },
             wysiwygConfig: {
                 ...wysiwygConfig,
@@ -72,12 +71,13 @@ export function useMarkdownEditor(
             options,
             markupState,
             tabFocusMode: tabFocus,
+            initializeMarkup: markupTabFocus.initialize,
             getInitialMarkup: () => markupState.markup,
             events: runtimeEvents,
         };
     }, deps);
     const wysiwyg = useWysiwygCore(editorOptions, events, getInitialMarkup);
-    const markup = useMarkupCore(editorOptions, events, getInitialMarkup);
+    const markup = useMarkupCore(editorOptions, events, getInitialMarkup, initializeMarkup);
     const editor = useMemo(
         () =>
             new EditorImpl(editorOptions, {

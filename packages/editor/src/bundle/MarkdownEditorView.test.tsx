@@ -288,6 +288,27 @@ describe('MarkdownEditorView', () => {
             configure({lang: 'en'});
         });
 
+        it.each(['indent', 'focus'] as const)(
+            'should apply the initial %s Tab mode synchronously when markup is created',
+            (tabFocusMode) => {
+                renderEditor({
+                    options: {initial: {mode: 'markup', tabFocusMode, toolbarVisible: false}},
+                });
+                const event = new KeyboardEvent('keydown', {
+                    key: 'Tab',
+                    code: 'Tab',
+                    keyCode: 9,
+                    bubbles: true,
+                    cancelable: true,
+                });
+
+                act(() => getContent().dispatchEvent(event));
+
+                expect(event.defaultPrevented).toBe(tabFocusMode === 'indent');
+                expect(testEditor.getValue()).toBe(tabFocusMode === 'indent' ? '\t' : '');
+            },
+        );
+
         it.each(['wysiwyg', 'markup'] as const)(
             'should ignore the Tab mode shortcut in the settings popup for %s mode',
             async (mode) => {
