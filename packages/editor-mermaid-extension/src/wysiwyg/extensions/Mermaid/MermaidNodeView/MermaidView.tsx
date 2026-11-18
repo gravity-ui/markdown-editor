@@ -1,19 +1,22 @@
 import {useEffect, useMemo, useState} from 'react';
 
 import {Ellipsis as DotsIcon} from '@gravity-ui/icons';
+import {
+    SharedStateKey,
+    cn,
+    removeNode,
+    useAutoSave,
+    useBooleanState,
+    useElementState,
+    useSharedEditingState,
+} from '@gravity-ui/markdown-editor';
+import {DelayedTextArea} from '@gravity-ui/markdown-editor/_/react-utils/components/DelayedTextArea.js';
+import type {Node} from '@gravity-ui/markdown-editor/pm/model';
+import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {Button, Icon, Loader, Menu, Overlay, Popup, useThemeType} from '@gravity-ui/uikit';
 import type {Mermaid} from 'mermaid' with {'resolution-mode': 'import'};
-import type {Node} from 'prosemirror-model';
-import type {EditorView} from 'prosemirror-view';
 
-import {SharedStateKey} from 'src/extensions/behavior/SharedState';
-import {DelayedTextArea} from 'src/react-utils/components/DelayedTextArea';
-import {useSharedEditingState} from 'src/react-utils/useSharedEditingState';
-
-import {cn} from '../../../../classname';
-import {i18n} from '../../../../i18n/common';
-import {useAutoSave, useBooleanState, useElementState} from '../../../../react-utils';
-import {removeNode} from '../../../../utils';
+import {i18n} from '../../../../i18n';
 import {MermaidConsts} from '../MermaidSpecs/const';
 import type {MermaidOptions} from '../index';
 import type {MermaidEntitySharedState} from '../types';

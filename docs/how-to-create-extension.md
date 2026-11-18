@@ -87,7 +87,7 @@ See [Exporters](./core-exporters.md) for `getExporter`.
 
 The node must already be registered by `addNodeSpec` or `addNode`, and it can have only one view — a second registration for the same node throws.
 
-See the [full example of the extension](https://github.com/gravity-ui/markdown-editor/tree/main/src/extensions/yfm/Mermaid/MermaidNodeView) for more details.
+See the [full example of the extension](https://github.com/gravity-ui/markdown-editor/tree/main/packages/editor-mermaid-extension/src/wysiwyg/extensions/Mermaid/MermaidNodeView) for more details.
 
 #### 3. Add Plugins
 

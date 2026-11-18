@@ -6,7 +6,6 @@ import {i18n} from '../../i18n/menubar';
 import {
     insertHRule,
     insertLink,
-    insertMermaidDiagram,
     insertYfmHtmlBlock,
     insertYfmTable,
     insertYfmTabs,
@@ -305,17 +304,6 @@ export const mYfmHtmlBlockButton: MToolbarSingleItemData = {
     isEnable: enable,
 };
 export const mYfmHtmlBlockItemData = mYfmHtmlBlockButton;
-
-export const mMermaidButton: MToolbarSingleItemData = {
-    id: ActionName.mermaid,
-    type: ToolbarDataType.SingleButton,
-    title: i18n.bind(null, 'mermaid'),
-    icon: icons.mermaid,
-    exec: (e) => insertMermaidDiagram(e.cm),
-    isActive: inactive,
-    isEnable: enable,
-};
-export const mMermaidItemData = mMermaidButton;
 
 export const mCodeblockItemData: MToolbarItemData = {
     id: ActionName.code_block,

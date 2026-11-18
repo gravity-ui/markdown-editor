@@ -191,13 +191,6 @@ export const yfmHtmlBlockItemView: ToolbarItemView = {
     icon: icons.html,
 };
 
-// ---- Mermaid ----
-export const mermaidItemView: ToolbarItemView = {
-    type: ToolbarDataType.SingleButton,
-    title: i18n.bind(null, 'mermaid'),
-    icon: icons.mermaid,
-};
-
 // ---- Code Block ----
 export const codeBlockItemView: ToolbarItemView = {
     type: ToolbarDataType.SingleButton,

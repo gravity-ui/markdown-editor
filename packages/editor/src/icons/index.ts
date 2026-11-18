@@ -58,7 +58,6 @@ export {
     LayoutColumns3 as LayoutIcon,
     //
     LogoDrawIo as DrawIoIcon,
-    LogoMermaid as MermaidIcon,
     FolderCode as HtmlBlockIcon,
     ArrowChevronRight as FoldingHeadingIcon,
     CircleLink as QuoteLinkIcon,

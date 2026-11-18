@@ -1,6 +1,10 @@
+import type {
+    Action,
+    ExtensionAuto,
+    ExtensionDeps,
+    NodeViewConstructor,
+} from '@gravity-ui/markdown-editor/core';
 import type {MermaidConfig} from 'mermaid' with {'resolution-mode': 'import'};
-
-import type {Action, ExtensionAuto, ExtensionDeps, NodeViewConstructor} from '#core';
 
 import {WMermaidNodeView} from './MermaidNodeView';
 import {MermaidSpecs, mermaidNodeName} from './MermaidSpecs';

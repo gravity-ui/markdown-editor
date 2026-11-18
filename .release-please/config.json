@@ -13,6 +13,7 @@
   ],
   "packages": {
     "packages/editor": {},
+    "packages/editor-mermaid-extension": {},
     "packages/latex-extension": {},
     "packages/page-constructor-extension": {},
     "packages/viewer": {}

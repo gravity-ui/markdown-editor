@@ -1,7 +1,6 @@
 import {transform} from '@diplodoc/mermaid-extension';
-
-import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
-import {generateEntityId} from 'src/utils/entity-id';
+import {generateEntityId} from '@gravity-ui/markdown-editor/_/utils/entity-id.js';
+import type {ExtensionAuto, ExtensionNodeSpec} from '@gravity-ui/markdown-editor/core';
 
 import {MermaidConsts, defaultMermaidEntityId, mermaidNodeName} from './const';
 export {mermaidNodeName, MermaidConsts} from './const';

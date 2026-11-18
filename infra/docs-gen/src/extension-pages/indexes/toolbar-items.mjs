@@ -9,6 +9,8 @@ import {asFunction, objectProperty, unwrapExpression} from '../syntax.mjs';
 
 /** `<name>ItemView` holds the title, `<name>ItemWysiwyg` holds the action; some WYSIWYG items are spelled `Wisywig`. */
 const ITEM_NAME = /^(\w+)Item(View|Wysiwyg|Wisywig)$/;
+/** `toolbar<Name>Item` holds the action in its `wysiwyg` object and pairs with `<name>ItemView`. */
+const TOOLBAR_ITEM_NAME = /^toolbar(\w+)Item$/;
 const KEYSET_FILE = 'en.json';
 
 /** Reads the i18n function and the key of `title: i18n.bind(null, '<key>')` or `title: () => i18n('<key>')`. */
@@ -71,9 +73,23 @@ function keyset(index, i18n) {
 export function collectToolbarItem(node, {index}) {
     if (!ts.isVariableDeclaration(node) || !ts.isIdentifier(node.name)) return;
 
-    const match = node.name.text.match(ITEM_NAME);
     const object = unwrapExpression(node.initializer);
-    if (!match || !object || !ts.isObjectLiteralExpression(object)) return;
+    if (!object || !ts.isObjectLiteralExpression(object)) return;
+
+    const toolbarMatch = node.name.text.match(TOOLBAR_ITEM_NAME);
+    const wysiwyg =
+        toolbarMatch && unwrapExpression(objectProperty(object, 'wysiwyg')?.initializer);
+    if (wysiwyg && ts.isObjectLiteralExpression(wysiwyg)) {
+        const name = toolbarMatch[1][0].toLowerCase() + toolbarMatch[1].slice(1);
+        index.toolbarParts.set(name, {
+            ...index.toolbarParts.get(name),
+            action: actionName(wysiwyg),
+        });
+        return;
+    }
+
+    const match = node.name.text.match(ITEM_NAME);
+    if (!match) return;
 
     const [, name, mode] = match;
     const part = index.toolbarParts.get(name) ?? {};

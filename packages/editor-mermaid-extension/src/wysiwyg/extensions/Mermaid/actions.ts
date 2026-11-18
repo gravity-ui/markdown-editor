@@ -1,6 +1,5 @@
-import type {ActionSpec} from '#core';
-import {SharedStateKey} from 'src/extensions/behavior/SharedState/utils';
-import {generateEntityId} from 'src/utils/entity-id';
+import {SharedStateKey, generateEntityId} from '@gravity-ui/markdown-editor';
+import type {ActionSpec} from '@gravity-ui/markdown-editor/core';
 
 import {MermaidConsts} from './MermaidSpecs';
 import type {MermaidEntitySharedState} from './types';

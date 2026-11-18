@@ -46,13 +46,35 @@ export const PAGE_CONSTRUCTOR_PACKAGE = {
     toolbarFiles: ['extension/toolbar.ts'],
 };
 
+export const MERMAID_PACKAGE = {
+    name: '@gravity-ui/markdown-editor-mermaid-extension',
+    dir: 'packages/editor-mermaid-extension',
+    title: 'the Mermaid extension',
+    discovery: {
+        extensions: [
+            {dir: 'wysiwyg/extensions/Mermaid', name: 'Mermaid'},
+            {dir: 'wysiwyg/extensions/Mermaid/MermaidSpecs', name: 'MermaidSpecs'},
+        ],
+    },
+    entries: [
+        {subpath: '', file: 'index.ts'},
+        {subpath: '/wysiwyg', file: 'wysiwyg/index.ts'},
+        {subpath: '/wysiwyg/specs', file: 'wysiwyg/specs.ts'},
+    ],
+    toolbarFiles: ['toolbar/view/items.ts', 'toolbar/wysiwyg/items.ts'],
+};
+
 /** Places package directories under a root directory. */
 export function packagesAt(root, packages) {
     return packages.map((descriptor) => ({...descriptor, dir: join(root, descriptor.dir)}));
 }
 
 /** Packages of the repository. */
-export const REPO_PACKAGES = packagesAt(REPO_ROOT, [EDITOR_PACKAGE, PAGE_CONSTRUCTOR_PACKAGE]);
+export const REPO_PACKAGES = packagesAt(REPO_ROOT, [
+    EDITOR_PACKAGE,
+    PAGE_CONSTRUCTOR_PACKAGE,
+    MERMAID_PACKAGE,
+]);
 
 /** Returns the `src` directory of a package. */
 export function sourceDir(descriptor) {

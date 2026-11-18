@@ -56,6 +56,7 @@ Default: `'disabled'`
 | Sample block | `toSample` |
 | Sample frame | `toggleSampleFrame` |
 | Sample from another keyset | `toSample` |
+| Sample list | `toSample` |
 
 ## Markdown plugin
 

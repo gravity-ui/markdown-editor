@@ -5,4 +5,6 @@ export const sampleItemView = {title: i18n.bind(null, 'sample')};
 
 export const sampleFrameItemView = {title: () => i18n('sample-frame')};
 
+export const sampleListItemView = {title: i18n.bind(null, 'sample-list')};
+
 export const sampleExtraItemView = {title: i18nExtra.bind(null, 'sample-extra')};
