@@ -32,7 +32,7 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
             .use(ButtonSpecs),
 }).buildDeps();
 const button =
-    ':button[Read more]{href="/page?a=1&b=2" view="outline" color="blue" target="_blank"}';
+    ':button[Read more](/page?a=1&b=2 "Read the page"){view="outline" color="blue" target="_blank"}';
 
 const scriptUrl = ['javascript', 'alert(1)'].join(':');
 const unsafeUrls = [scriptUrl, 'data:text/html,<b>x</b>', 'vbscript:run', 'file:///etc/passwd'];
@@ -79,6 +79,7 @@ describe('Button extension', () => {
         expect(paragraph.child(1).isAtom).toBe(true);
         expect(paragraph.child(1).attrs).toEqual({
             href: '/page?a=1&b=2',
+            title: 'Read the page',
             view: 'outline',
             color: 'blue',
             target: '_blank',
@@ -88,13 +89,13 @@ describe('Button extension', () => {
     it.each([
         [':button[Label]', ':button[Label]{view="action" color="standard"}'],
         [
-            ':button[Label]{view="action" color="standard" target="_self" href=""}',
+            ':button[Label](){view="action" color="standard" target="_self"}',
             ':button[Label]{view="action" color="standard"}',
         ],
         [':button[Label]{view="normal"}', ':button[Label]{view="normal" color="gray"}'],
         [
-            ':button[Label]{target="_blank" color="blue" view="outline" href="/page"}',
-            ':button[Label]{href="/page" view="outline" color="blue" target="_blank"}',
+            ':button[Label](/page){target="_blank" color="blue" view="outline"}',
+            ':button[Label](/page){view="outline" color="blue" target="_blank"}',
         ],
         [
             ':button[Label]{target="_top"}',
@@ -103,13 +104,18 @@ describe('Button extension', () => {
         [':button[\\[x\\] a\\\\b]', ':button[\\[x\\] a\\\\b]{view="action" color="standard"}'],
         [':button[**Bold**]', ':button[**Bold**]{view="action" color="standard"}'],
         [
-            ':button[Label]{href="/image&copy;.png?a=1&amp;b=2"}',
-            ':button[Label]{href="/image%C2%A9.png?a=1&b=2" view="action" color="standard"}',
+            ':button[Label](/image&copy;.png?a=1&amp;b=2)',
+            ':button[Label](/image%C2%A9.png?a=1&b=2){view="action" color="standard"}',
         ],
         [
-            ':button[Label]{href="/a?x=\\"1\\""}',
-            ':button[Label]{href="/a?x=%221%22" view="action" color="standard"}',
+            ':button[Label](/a?x=\\"1\\")',
+            ':button[Label](/a?x=%221%22){view="action" color="standard"}',
         ],
+        [
+            ':button[Label](</a (b)> \'A "quoted" \\\\ title\')',
+            ':button[Label](/a%20\\(b\\) "A \\"quoted\\" \\\\ title"){view="action" color="standard"}',
+        ],
+        [':button[Label]{href="/page"}', ':button[Label]{view="action" color="standard"}'],
     ])('should save %j as %j', (source, expected) => {
         expect(serializer.serialize(markupParser.parse(source))).toBe(expected);
     });
@@ -246,6 +252,7 @@ describe('Button extension', () => {
                     type: 'button',
                     attrs: {
                         href: '',
+                        title: '',
                         view: 'outline',
                         color: 'gray',
                         target: '_self',
@@ -256,7 +263,18 @@ describe('Button extension', () => {
             const node = buttonNodeType(schema).create({href, label: 'Open'});
             const rendered = DOMSerializer.fromSchema(schema).serializeNode(node) as HTMLElement;
             expect(rendered.hasAttribute('href')).toBe(false);
-            expect(new WButtonNodeView(node).dom.hasAttribute('href')).toBe(false);
+            const view = createButtonView((nodeSchema) =>
+                nodeSchema.node('doc', null, [
+                    nodeSchema.node('paragraph', null, [
+                        buttonNodeType(nodeSchema).create({href, label: 'Open'}),
+                    ]),
+                ]),
+            );
+            try {
+                expect((view.nodeDOM(1) as HTMLElement).hasAttribute('href')).toBe(false);
+            } finally {
+                view.destroy();
+            }
         },
     );
     it.each([
@@ -312,7 +330,7 @@ describe('Button extension', () => {
             const dom = view.nodeDOM(1) as HTMLElement;
             expect(setButtonAttrs(1, attrs)(view.state, view.dispatch)).toBe(true);
             const node = view.state.doc.nodeAt(1) as Node;
-            const fresh = new WButtonNodeView(node).dom;
+            const fresh = new WButtonNodeView(node, view, () => 1, markupParser).dom;
             fresh.classList.add('ProseMirror-selectednode');
             fresh.draggable = true;
             expect(view.nodeDOM(1)).toBe(dom);

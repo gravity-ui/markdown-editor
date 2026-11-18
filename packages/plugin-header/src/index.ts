@@ -13,6 +13,7 @@ export {headerPlugin} from './header/plugin';
 export {buttonPlugin} from './button/plugin';
 export {buttonAttrs, buttonFromAttrs} from './button/attrs';
 export {
+    ButtonAttr,
     type ButtonColor,
     type ButtonModel,
     type ButtonView,
@@ -22,6 +23,5 @@ export {
     buttonModel,
     buttonTokenName,
     buttonViewColors,
-    normalizeButtonHref,
 } from './button/model';
-export {safeLinkUrl} from './url';
+export {normalizeLinkUrl, safeLinkUrl} from './url';

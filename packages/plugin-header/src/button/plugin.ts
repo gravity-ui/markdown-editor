@@ -1,21 +1,19 @@
 import {directiveParser, registerInlineDirective} from '@diplodoc/directive';
 import type {PluginSimple} from 'markdown-it';
 
+import {normalizeLinkUrl} from '../url';
+
 import {buttonAttrs} from './attrs';
-import {buttonTokenName, normalizeButtonHref} from './model';
+import {buttonTokenName} from './model';
 
 export const buttonPlugin: PluginSimple = (md) => {
     md.use(directiveParser());
-    registerInlineDirective(md, buttonTokenName, (state, params) => {
-        if (!params.content || params.dests) return false;
-        const label = md.utils.unescapeMd(params.content.raw).trim();
-        // A button without a label consumes its markup and renders nothing.
-        if (!label) return true;
-        const attrs = params.attrs ?? {};
+    registerInlineDirective(md, 'button', (state, {content, dests, attrs}) => {
+        if (!content) return false;
         const token = state.push(buttonTokenName, 'a', 0);
-        token.content = label;
+        token.content = md.utils.unescapeMd(content.raw).trim();
         token.attrs = Object.entries(
-            buttonAttrs({...attrs, href: normalizeButtonHref(md, attrs.href)}),
+            buttonAttrs({...attrs, href: normalizeLinkUrl(md, dests?.link), title: dests?.string}),
         );
         return true;
     });

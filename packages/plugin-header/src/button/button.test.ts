@@ -3,11 +3,12 @@ import {describe, expect, it} from 'vitest';
 
 import {buttonAttrs, buttonFromAttrs, buttonPlugin, headerPlugin} from '../index';
 
-import {buttonClassName, buttonDefaults, buttonViewColors} from './model';
+import {buttonClassName, buttonDefaults, buttonTokenName, buttonViewColors} from './model';
 
 const md = new MarkdownIt({html: true}).use(buttonPlugin);
 const inlineTokens = (markup: string) => md.parseInline(markup, {})[0].children ?? [];
-const openToken = (markup: string) => inlineTokens(markup).find((token) => token.type === 'button');
+const openToken = (markup: string) =>
+    inlineTokens(markup).find((token) => token.type === buttonTokenName);
 const scriptUrl = ['javascript', 'alert(1)'].join(':');
 
 describe('Button Markdown', () => {
@@ -15,6 +16,7 @@ describe('Button Markdown', () => {
         const model = {
             ...buttonDefaults,
             href: '/help',
+            title: 'Help',
             view: 'outline',
             color: 'blue',
             target: '_blank',
@@ -30,7 +32,7 @@ describe('Button Markdown', () => {
         },
     );
     it('should render a button with defaults', () => {
-        expect(md.renderInline(':button[Read more]{href="/page"}')).toBe(
+        expect(md.renderInline(':button[Read more](/page)')).toBe(
             '<a class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_standard" href="/page" data-view="action" data-color="standard">Read more</a>',
         );
     });
@@ -52,15 +54,15 @@ describe('Button Markdown', () => {
         const html = md.renderInline(':button[**Bold** & <b>tag</b> \\] [pair]]');
         expect(html).toContain('>**Bold** &amp; &lt;b&gt;tag&lt;/b&gt; ] [pair]</a>');
     });
-    it.each([':button[]', ':button[   ]', ':button[]{href="/page"}'])(
-        'should render nothing for the empty button %j',
+    it.each([':button[]', ':button[   ]', ':button[](/page)'])(
+        'should render an empty link for the empty button %j',
         (markup) => {
-            expect(md.renderInline(`Before${markup}After`)).toBe('BeforeAfter');
+            expect(md.renderInline(`Before${markup}After`)).toMatch(/^Before<a [^>]+><\/a>After$/);
         },
     );
     it('should protect links opened in a new tab', () => {
         expect(
-            md.renderInline(':button[Open]{href="https://example.com" target="_blank"}'),
+            md.renderInline(':button[Open](https://example.com){target="_blank"}'),
         ).toContain('target="_blank" rel="noopener noreferrer"');
     });
     it('should ignore unsupported attributes and normalize styles', () => {
@@ -83,7 +85,7 @@ describe('Button Markdown', () => {
             const tokens = parser
                 .parse(':::header\n:button[One] :button[Two]\n:::', {})
                 .flatMap((token) => token.children ?? []);
-            expect(tokens.filter((token) => token.type === 'button')).toHaveLength(2);
+            expect(tokens.filter((token) => token.type === buttonTokenName)).toHaveLength(2);
         },
     );
     it.each([
@@ -94,12 +96,21 @@ describe('Button Markdown', () => {
         '/image&#10;.png',
         '/a&lt;b&gt;c&quot;d',
         '/a\\(b\\)',
-    ])('should read the href %s like the address of a link', (href) => {
+    ])('should read the address %s like the address of a link', (href) => {
         const link = inlineTokens(`[Open](${href})`).find((token) => token.type === 'link_open');
-        expect(openToken(`:button[Open]{href="${href}"}`)?.attrGet('href')).toBe(
-            link?.attrGet('href'),
-        );
+        expect(openToken(`:button[Open](${href})`)?.attrGet('href')).toBe(link?.attrGet('href'));
     });
+    it.each(['"Title"', "'Title'", '(Title)', '"A \\"quoted\\" &amp; title"'])(
+        'should read the title %s like the title of a link',
+        (title) => {
+            const link = inlineTokens(`[Open](/page ${title})`).find(
+                (token) => token.type === 'link_open',
+            );
+            expect(openToken(`:button[Open](/page ${title})`)?.attrGet('title')).toBe(
+                link?.attrGet('title'),
+            );
+        },
+    );
     // Cases from the link tests xss.txt and normalize.txt of markdown-it 13.0.2:
     // https://github.com/markdown-it/markdown-it/tree/13.0.2/test/fixtures/markdown-it
     it.each([
@@ -134,13 +145,15 @@ describe('Button Markdown', () => {
         ['http://xn--γ.com/', 'http://xn--xn---emd.com/'],
         ['//☃.net/', '//xn--n3h.net/'],
         ['skype:γγγ', 'skype:%CE%B3%CE%B3%CE%B3'],
-    ])('should read the href %s like the markdown-it link tests', (href, expected) => {
-        expect(openToken(`:button[Open]{href="${href}"}`)?.attrGet('href')).toBe(expected);
+    ])('should read the address %s like the markdown-it link tests', (href, expected) => {
+        expect(openToken(`:button[Open](${href})`)?.attrGet('href')).toBe(expected);
     });
-    it('should omit a repeated href', () => {
-        expect(openToken(':button[Open]{href="/one" href="/two"}')?.attrGet('href')).toBeNull();
+    it('should ignore the address and the title in the attributes', () => {
+        const token = openToken(':button[Open]{href="/page" title="Title"}');
+        expect(token?.attrGet('href')).toBeNull();
+        expect(token?.attrGet('title')).toBeNull();
     });
-    it.each([':button', ':button{href="/page"}', ':button[Label](url)'])(
+    it.each([':button', ':button(/page)', ':button{view="flat"}'])(
         'should not render a button for unsupported syntax %j',
         (markup) => {
             expect(md.renderInline(markup)).not.toContain(buttonClassName);

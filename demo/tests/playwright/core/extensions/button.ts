@@ -46,19 +46,23 @@ export class ButtonBlock {
             const input = rect('.g-text-input_has-start-content input');
             const style = rect('.g-md-button-style__control');
             const swatch = rect('.g-md-button-style__swatch');
+            // The window stands at a fractional position, so distances are compared in whole pixels.
+            const {round} = Math;
             return {
-                width: element.getBoundingClientRect().width,
-                iconSize: [icon.width, icon.height],
-                iconLeft: icon.left - link.left,
-                iconCenter: icon.top + icon.height / 2 - (link.top + link.height / 2),
-                textLeft:
+                width: round(element.getBoundingClientRect().width),
+                iconSize: [round(icon.width), round(icon.height)],
+                iconLeft: round(icon.left - link.left),
+                iconCenter: round(icon.top + icon.height / 2 - (link.top + link.height / 2)),
+                textLeft: round(
                     input.left +
-                    parseFloat(
-                        getComputedStyle(find('.g-text-input_has-start-content input')).paddingLeft,
-                    ) -
-                    link.left,
-                swatchLeft: swatch.left - style.left,
-                fieldGap: link.top - style.bottom,
+                        parseFloat(
+                            getComputedStyle(find('.g-text-input_has-start-content input'))
+                                .paddingLeft,
+                        ) -
+                        link.left,
+                ),
+                swatchLeft: round(swatch.left - style.left),
+                fieldGap: round(link.top - style.bottom),
             };
         });
     }

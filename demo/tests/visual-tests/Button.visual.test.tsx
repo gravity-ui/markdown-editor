@@ -3,7 +3,7 @@ import {test} from 'playwright/core/extensions/button';
 
 import {ButtonStories} from './Button.helpers';
 
-const singleButton = ':button[Кнопка]{href="https://example.com" view="action" color="standard"}';
+const singleButton = ':button[Кнопка](https://example.com){view="action" color="standard"}';
 
 // Lines under the button leave room for its settings window and style list in the screenshot.
 const withSpace = `${singleButton}${'\n\nТекст'.repeat(12)}`;
@@ -26,7 +26,7 @@ const stateStyles = [
 const statesMarkup = stateStyles
     .map(
         ([view, color]) =>
-            `:button[Button]{href="https://example.com" view="${view}" color="${color}"}`,
+            `:button[Button](https://example.com){view="${view}" color="${color}"}`,
     )
     .join(' ');
 
@@ -107,12 +107,12 @@ test.describe('Button', () => {
         await expect(button.blocks).toHaveClass(/pm-node-selected/);
         await expect(button.label).toBeFocused();
         expect(await button.getSettingsGeometry()).toEqual({
-            width: 257,
+            width: 256,
             iconSize: [16, 16],
             iconLeft: 12,
             iconCenter: 0,
-            textLeft: 36,
-            swatchLeft: 8,
+            textLeft: 34,
+            swatchLeft: 9,
             fieldGap: 12,
         });
         await button.blocks.dblclick();

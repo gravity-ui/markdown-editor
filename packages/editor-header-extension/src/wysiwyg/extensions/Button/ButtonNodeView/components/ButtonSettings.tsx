@@ -4,10 +4,11 @@ import {Link} from '@gravity-ui/icons';
 import {cn} from '@gravity-ui/markdown-editor';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {normalizeButtonHref} from '@gravity-ui/markdown-plugin-header';
+import {normalizeLinkUrl} from '@gravity-ui/markdown-plugin-header';
 import {Icon, Popup, type PopupAnchorElement, Switch, TextInput} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
+import {ButtonNodeAttr} from '../../ButtonSpecs';
 import {setButtonAttrs} from '../../commands';
 
 import {StyleSelect} from './StyleSelect';
@@ -19,12 +20,12 @@ const b = cn('button-settings');
 const LINK_ICON_SIZE = 16;
 
 /** The Markdown parser of the editor checks an address the way it checks a link. */
-export type LinkParser = Parameters<typeof normalizeButtonHref>[0];
+export type LinkParser = Parameters<typeof normalizeLinkUrl>[0];
 
 type ButtonSettingsProps = {
     view: EditorView;
     node: Node;
-    pos: number;
+    getPos: () => number | undefined;
     /** The window opens under this button. */
     anchor: HTMLElement;
     parser: LinkParser;
@@ -72,14 +73,20 @@ function useSavedText(saved: string, save: (value: string) => boolean | void, cl
     };
 }
 
-export function ButtonSettings({view, node, pos, anchor, parser, onClose}: ButtonSettingsProps) {
-    const update = (attrs: Parameters<typeof setButtonAttrs>[1]) =>
-        setButtonAttrs(pos, attrs)(view.state, view.dispatch);
-    const label = useSavedText(node.attrs.label, (value) => update({label: value}), onClose);
+export function ButtonSettings({view, node, getPos, anchor, parser, onClose}: ButtonSettingsProps) {
+    const update = (attrs: Parameters<typeof setButtonAttrs>[1]) => {
+        const pos = getPos();
+        return pos !== undefined && setButtonAttrs(pos, attrs)(view.state, view.dispatch);
+    };
+    const label = useSavedText(
+        node.attrs[ButtonNodeAttr.Label],
+        (value) => update({label: value}),
+        onClose,
+    );
     const href = useSavedText(
-        node.attrs.href,
+        node.attrs[ButtonNodeAttr.Href],
         (value) => {
-            const next = normalizeButtonHref(parser, value);
+            const next = normalizeLinkUrl(parser, value);
             if (value && !next) return false;
             update({href: next});
             return true;
@@ -131,24 +138,30 @@ export function ButtonSettings({view, node, pos, anchor, parser, onClose}: Butto
                 aria-label={i18n('button-settings')}
                 data-qa="button-settings"
             >
-                <TextInput
-                    {...label.input}
-                    onKeyDown={(event) => {
-                        label.input.onKeyDown(event);
-                        closeOnTab(true)(event);
-                    }}
-                    size="l"
-                    hasClear
-                    controlRef={labelRef}
-                    placeholder={i18n('button-placeholder')}
-                    controlProps={{'aria-label': i18n('button-label')}}
-                />
-                <div className={b('divider')} />
-                <div className={b('fields')}>
+                <div className={b('label')}>
+                    <TextInput
+                        {...label.input}
+                        onKeyDown={(event) => {
+                            label.input.onKeyDown(event);
+                            closeOnTab(true)(event);
+                        }}
+                        size="l"
+                        hasClear
+                        controlRef={labelRef}
+                        placeholder={i18n('button-placeholder')}
+                        controlProps={{'aria-label': i18n('button-label')}}
+                    />
+                </div>
+                <div className={b('style')}>
                     <StyleSelect
-                        style={{view: node.attrs.view, color: node.attrs.color}}
+                        style={{
+                            view: node.attrs[ButtonNodeAttr.View],
+                            color: node.attrs[ButtonNodeAttr.Color],
+                        }}
                         onUpdate={update}
                     />
+                </div>
+                <div className={b('fields')}>
                     <TextInput
                         {...href.input}
                         size="l"
@@ -162,7 +175,7 @@ export function ButtonSettings({view, node, pos, anchor, parser, onClose}: Butto
                     />
                     <Switch
                         size="m"
-                        checked={node.attrs.target === '_blank'}
+                        checked={node.attrs[ButtonNodeAttr.Target] === '_blank'}
                         content={i18n('button-new-tab')}
                         controlProps={{onKeyDown: closeOnTab(false)}}
                         onUpdate={(checked) => update({target: checked ? '_blank' : '_self'})}

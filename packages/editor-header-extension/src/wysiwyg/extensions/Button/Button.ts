@@ -10,8 +10,13 @@ import '@gravity-ui/markdown-plugin-header/styles.css';
 export const Button: ExtensionAuto = (builder) => {
     builder
         .use(ButtonSpecs)
-        .addNodeView(buttonNodeName, () => (node) => new WButtonNodeView(node))
-        .addPlugin(({markupParser}) => buttonSettingsPlugin(markupParser))
+        .addNodeView(
+            buttonNodeName,
+            ({markupParser}) =>
+                (node, view, getPos, decorations) =>
+                    new WButtonNodeView(node, view, getPos, markupParser, decorations),
+        )
+        .addPlugin(buttonSettingsPlugin)
         .addKeymap(
             () => ({Backspace: selectButtonBefore, Delete: selectButtonAfter}),
             builder.Priority.High,

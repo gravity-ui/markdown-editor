@@ -1,6 +1,6 @@
 import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
 import {type Command, NodeSelection, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
-import {type ButtonModel, buttonModel, safeLinkUrl} from '@gravity-ui/markdown-plugin-header';
+import {type ButtonModel, safeLinkUrl} from '@gravity-ui/markdown-plugin-header';
 
 import {buttonNodeType} from './ButtonSpecs';
 
@@ -11,10 +11,9 @@ export const setButtonAttrs =
         const node = state.doc.nodeAt(pos);
         if (node?.type !== buttonNodeType(state.schema)) return false;
         if (dispatch) {
-            const next = {...node.attrs, ...attrs};
             const tr = state.tr;
             // An attribute step keeps the selection of the node, which keeps the settings window open.
-            for (const [name, value] of Object.entries({...next, ...buttonModel(next)})) {
+            for (const [name, value] of Object.entries(attrs)) {
                 if (node.attrs[name] !== value) tr.setNodeAttribute(pos, name, value);
             }
             // Each change in the settings window is its own undo step.

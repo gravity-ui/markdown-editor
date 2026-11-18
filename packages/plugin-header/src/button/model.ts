@@ -1,8 +1,6 @@
-import type MarkdownIt from 'markdown-it';
-
 import {safeLinkUrl} from '../url';
 
-export const buttonTokenName = 'button';
+export const buttonTokenName = 'g_md_button';
 export const buttonClassName = 'g-md-button-plugin';
 
 export const buttonViews = ['action', 'normal', 'outline', 'flat'] as const;
@@ -25,7 +23,16 @@ export type ButtonModel = {
     target: ButtonTarget;
     /** An empty `href` means a button without an address. */
     href: string;
+    title: string;
 };
+
+export const ButtonAttr = {
+    Href: 'href',
+    Title: 'title',
+    View: 'view',
+    Color: 'color',
+    Target: 'target',
+} as const satisfies Record<string, keyof ButtonModel>;
 
 /** Colors of each view; the first one replaces a color the view lacks. */
 export const buttonViewColors: Readonly<Record<ButtonView, readonly ButtonColor[]>> = {
@@ -37,6 +44,7 @@ export const buttonViewColors: Readonly<Record<ButtonView, readonly ButtonColor[
 
 export const buttonDefaults: Readonly<ButtonModel> = {
     href: '',
+    title: '',
     view: 'action',
     color: 'standard',
     target: '_self',
@@ -61,14 +69,6 @@ export function buttonModel(attrs: Partial<Record<keyof ButtonModel, unknown>>):
         color: colors.find((color) => color === attrs.color) ?? buttonDefaultColor(view),
         target: isButtonTarget(attrs.target) ? attrs.target : buttonDefaults.target,
         href: typeof attrs.href === 'string' ? (safeLinkUrl(attrs.href) ?? '') : '',
+        title: typeof attrs.title === 'string' ? attrs.title : '',
     };
-}
-
-export function normalizeButtonHref(
-    md: Pick<MarkdownIt, 'normalizeLink' | 'validateLink'>,
-    value: unknown,
-): string {
-    if (typeof value !== 'string' || !value.trim()) return '';
-    const href = md.normalizeLink(value.trim());
-    return md.validateLink(href) ? href : '';
 }

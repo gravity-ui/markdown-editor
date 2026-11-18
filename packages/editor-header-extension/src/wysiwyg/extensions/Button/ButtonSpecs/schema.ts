@@ -8,7 +8,7 @@ import {
 
 import {i18n} from '../../../../i18n';
 
-import {buttonNodeName} from './const';
+import {ButtonNodeAttr, buttonNodeName} from './const';
 import {buttonLabel} from './utils';
 
 export const ButtonSchemaSpecs: ExtensionAuto = (builder) => {
@@ -19,11 +19,12 @@ export const ButtonSchemaSpecs: ExtensionAuto = (builder) => {
         atom: true,
         selectable: true,
         attrs: {
-            href: {default: buttonDefaults.href},
-            view: {default: buttonDefaults.view},
-            color: {default: buttonDefaults.color},
-            target: {default: buttonDefaults.target},
-            label: {default: ''},
+            [ButtonNodeAttr.Href]: {default: buttonDefaults.href},
+            [ButtonNodeAttr.Title]: {default: buttonDefaults.title},
+            [ButtonNodeAttr.View]: {default: buttonDefaults.view},
+            [ButtonNodeAttr.Color]: {default: buttonDefaults.color},
+            [ButtonNodeAttr.Target]: {default: buttonDefaults.target},
+            [ButtonNodeAttr.Label]: {default: ''},
         },
         placeholder: {content: placeholder ?? (() => i18n('button-placeholder'))},
         parseDOM: [
@@ -32,11 +33,11 @@ export const ButtonSchemaSpecs: ExtensionAuto = (builder) => {
                 priority: 60,
                 getAttrs: (dom) => ({
                     ...buttonFromAttrs((name) => dom.getAttribute(name)),
-                    label: dom.textContent?.trim() ?? '',
+                    [ButtonNodeAttr.Label]: dom.textContent?.trim() ?? '',
                 }),
             },
         ],
         leafText: buttonLabel,
-        toDOM: (node) => ['a', buttonAttrs(node.attrs), node.attrs.label],
+        toDOM: (node) => ['a', buttonAttrs(node.attrs), node.attrs[ButtonNodeAttr.Label]],
     }));
 };

@@ -13,7 +13,7 @@ import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
 import {toolbars} from '../header/Header';
 
 export function ButtonExample({
-    initial = ':button[Кнопка]{href="https://example.com" view="action" color="standard"}',
+    initial = ':button[Кнопка](https://example.com){view="action" color="standard"}',
     mode = 'wysiwyg',
     width,
 }: {

@@ -49,27 +49,26 @@ import '@gravity-ui/markdown-plugin-header/styles.css';
 const md = new MarkdownIt().use(buttonPlugin);
 ```
 
-<!-- prettier-ignore -->
 ```markdown
-Read the guide :button[Read more]{href="https://example.com" view="action" color="blue" target="_blank"} or ask a question.
+Read the guide :button[Read more](https://example.com "Example link"){view="action" color="blue" target="_blank"} or ask a question.
 ```
 
 The button is an inline directive: it stays in the line of text.
 Buttons inside running text keep the spaces of the text.
 The label in square brackets is plain text; Markdown inside it is shown as written, and `\]` writes a closing bracket.
-A button with an empty label renders nothing. Buttons work independently and inside Header.
+The address and the title in parentheses are written and read like those of a Markdown link; the title becomes the `title` attribute.
+A button without parentheses has no address. A button with an empty label renders an empty link.
+Buttons work independently and inside Header.
 
 | Attribute | Values                                                         | Default                                               |
 | --------- | -------------------------------------------------------------- | ----------------------------------------------------- |
-| `href`    | Link address                                                   | Empty                                                 |
 | `view`    | `action`, `normal`, `outline`, `flat`                          | `action`                                              |
 | `color`   | `standard`, `gray`, `blue`, `green`, `yellow`, `red`, `violet` | `standard` for action/flat, `gray` for normal/outline |
 | `target`  | `_self`, `_blank`, `_parent`, `_top`                           | `_self`                                               |
 
 `action` does not support gray; `normal` and `outline` do not support standard.
 Unsupported values use the defaults. Unknown attributes are ignored.
-Unsafe link addresses are omitted. New-tab links include `rel="noopener noreferrer"`.
-The address is read like the destination of a Markdown link: HTML entities and `\"` are decoded, then `md.normalizeLink` and `md.validateLink` check it.
+`md.normalizeLink` and `md.validateLink` check the address; an unsafe address is omitted. New-tab links include `rel="noopener noreferrer"`.
 Colors use Gravity theme variables; the host application supplies their values.
 
 A button with an address shows the hover fill of its color (`…-hover` variables, `--g-color-base-simple-hover` for `outline` and `flat`), shrinks while pressed and gets an outline on keyboard focus.

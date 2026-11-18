@@ -49,7 +49,7 @@ const editor = useMarkdownEditor({
 
 Register `buttonPlugin` from `@gravity-ui/markdown-plugin-header` in the Markdown preview.
 
-A button is an inline node: `:button[Read more]{href="/page" view="action" color="blue"}`.
+A button is an inline node: `:button[Read more](/page){view="action" color="blue"}`.
 The button is an atom: a click on it, or Enter while it is selected, opens the settings window under it.
 The window holds the label field, the style list with a preview of the style under the pointer, the link field, and the "Open in a new tab" switch.
 The label is plain text without formatting. Each change is a separate undo step.
@@ -57,6 +57,6 @@ The link field shows an error for an address that the Markdown parser of the edi
 Closing the window saves the label and the link. Escape, Enter, Tab after the last field, and Shift+Tab before the first field return focus to the editor. Clicking the button does not follow the link.
 Backspace after a button and Delete before it select the button; the next press removes it.
 
-The editor always writes `view` and `color`; `href` is written when set, and `target` when it differs from `_self`.
+The editor always writes `view` and `color`, and `target` when it differs from `_self`. The address and the title are written in parentheses when the address is set.
 
 An empty button shows the text "Button" in the visual editor and saves it as the label. Change the text with the editor `placeholder` option: `{placeholder: {button: 'Open'}}`.

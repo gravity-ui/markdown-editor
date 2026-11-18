@@ -1,7 +1,8 @@
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {buttonFromAttrs, buttonPlugin, buttonTokenName} from '@gravity-ui/markdown-plugin-header';
 
-import {buttonNodeName} from './const';
+import {ButtonNodeAttr, buttonNodeName} from './const';
+
 export const ButtonParserSpecs: ExtensionAuto = (builder) => {
     builder
         .configureMd((md) => md.use(buttonPlugin))
@@ -10,7 +11,7 @@ export const ButtonParserSpecs: ExtensionAuto = (builder) => {
             type: 'node',
             getAttrs: (token) => ({
                 ...buttonFromAttrs((name) => token.attrGet(name)),
-                label: token.content,
+                [ButtonNodeAttr.Label]: token.content,
             }),
         }));
 };

@@ -1,41 +1,22 @@
 @use 'button-settings';
 
 .g-md-button-style {
-    $control-padding-start: 7px;
-    $control-padding-end: 9px;
-    $border-width: 1px;
+    $field-height: 36px;
     $group-font-size: 12px;
     $row-height: 28px;
     $list-rows: 14;
     $list-padding-block: 8px;
-    // The Select puts its list 1px away from the anchor on both axes.
-    $list-offset: 1px;
-    $list-gap: 4px;
-    $swatch-border-radius: 4px;
     $swatch-size-m: 16px;
     $swatch-size-l: 20px;
-    $swatch-margin-m: 2px;
-    $swatch-outline-width: 1.5px;
     $preview-width: 140px;
     $preview-height: 100px;
-    $preview-border-radius: 4px;
 
-    height: button-settings.$field-height;
-
-    // The list opens at the right edge of the select anchor, so the anchor covers the window
-    // from its top edge and ends where the list starts.
+    // The select spans the window, so its list opens at the window edge.
     & &__select {
-        position: absolute;
-        inset-block: (-$list-offset) auto;
-        inset-inline: 0 ($list-offset - $list-gap);
+        display: block;
 
-        box-sizing: border-box;
         max-width: none;
-        padding-block: (button-settings.$style-top + $list-offset) 0;
-        padding-inline: button-settings.$padding
-            (button-settings.$padding + $list-gap - $list-offset);
-
-        pointer-events: none;
+        padding-inline: var(--g-spacing-4);
     }
 
     &__control {
@@ -45,16 +26,15 @@
 
         box-sizing: border-box;
         width: 100%;
-        height: button-settings.$field-height;
-        padding: 0 $control-padding-end 0 $control-padding-start;
+        height: $field-height;
+        padding: 0 var(--g-spacing-2);
 
         font: inherit;
         font-size: button-settings.$font-size;
         cursor: pointer;
-        pointer-events: auto;
 
         color: var(--g-color-text-primary);
-        border: $border-width solid var(--g-color-line-generic);
+        border: 1px solid var(--g-color-line-generic);
         border-radius: var(--g-border-radius-l);
         background: none;
 
@@ -142,22 +122,18 @@
         min-height: 0;
         padding: 0;
 
-        border-radius: $swatch-border-radius;
+        border-radius: var(--g-border-radius-xs);
     }
 
     &__swatch_size_m {
         width: $swatch-size-m;
         height: $swatch-size-m;
-        margin-inline: $swatch-margin-m;
+        margin-inline: var(--g-spacing-half);
     }
 
     &__swatch_size_l {
         width: $swatch-size-l;
         height: $swatch-size-l;
-    }
-
-    &__swatch_view_outline.g-md-button-plugin {
-        box-shadow: inset 0 0 0 $swatch-outline-width var(--_--line-color);
     }
 
     &__preview-popup {
@@ -174,7 +150,7 @@
         width: $preview-width;
         height: $preview-height;
 
-        border-radius: $preview-border-radius;
+        border-radius: var(--g-border-radius-xs);
         background-color: var(--g-color-base-generic);
     }
 }
