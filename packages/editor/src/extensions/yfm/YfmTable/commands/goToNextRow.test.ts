@@ -3,8 +3,9 @@ import {EditorState, TextSelection} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
+import {ExtensionsManager} from 'src/core';
+
 import {applyCommand} from '../../../../../tests/utils';
-import {ExtensionsManager} from '../../../../core';
 import {BaseSchemaSpecs} from '../../../base/specs';
 import {YfmTableSpecs} from '../YfmTableSpecs';
 
@@ -167,10 +168,6 @@ function createView(doc: Node, source: string | number) {
     vi.spyOn(view, 'endOfTextblock').mockReturnValue(true);
 }
 
-function move(dir: 'up' | 'down') {
-    return applyCommand(view.state, (state, dispatch) => goToNextRow(dir)(state, dispatch, view));
-}
-
 function expectGapCursor(dir: 'up' | 'down', from: number) {
     const doc = view.state.doc;
     const {res, tr} = move(dir);
@@ -182,6 +179,10 @@ function expectGapCursor(dir: 'up' | 'down', from: number) {
         from,
         meta: {direction: dir === 'up' ? 'before' : 'after'},
     });
+}
+
+function move(dir: 'up' | 'down') {
+    return applyCommand(view.state, (state, dispatch) => goToNextRow(dir)(state, dispatch, view));
 }
 
 function textPos(doc: Node, text: string) {
