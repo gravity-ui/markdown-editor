@@ -1,4 +1,4 @@
-import {type Ref, useState} from 'react';
+import {type Ref, useEffect, useRef, useState} from 'react';
 
 import {ChevronDown, Text as TextIcon} from '@gravity-ui/icons';
 import {cn} from '@gravity-ui/markdown-editor';
@@ -20,8 +20,10 @@ const ROW_HEIGHT = 28;
 const LIST_WIDTH = 158;
 // The row ends 4px before the edge of the list.
 const PREVIEW_OFFSET = 8;
+const PREVIEW_DELAY = 100;
 
 type Style = {view: ButtonView; color: ButtonColor};
+type Preview = {style: Style; row: Element};
 
 const styleValue = ({view, color}: Style) => `${view}/${color}`;
 const buttonClass = (style: Style) => buttonAttrs(style).class;
@@ -51,7 +53,20 @@ type StyleSelectProps = {
 export function StyleSelect({style, onUpdate}: StyleSelectProps) {
     const [open, setOpen] = useState(false);
     // The preview stands next to the row under the pointer.
-    const [preview, setPreview] = useState<{style: Style; row: Element} | null>(null);
+    const [preview, setPreview] = useState<Preview | null>(null);
+    const hoveredRow = useRef<Element | null>(null);
+    const previewTimer = useRef<number>();
+    const hoverRow = (next: Preview | null) => {
+        if (next?.row === hoveredRow.current) return;
+        hoveredRow.current = next?.row ?? null;
+        window.clearTimeout(previewTimer.current);
+        if (next) {
+            previewTimer.current = window.setTimeout(() => setPreview(next), PREVIEW_DELAY);
+        } else {
+            setPreview(null);
+        }
+    };
+    useEffect(() => () => window.clearTimeout(previewTimer.current), []);
     const options = views.map((view) => ({
         label: i18n(`button-group-${view}`),
         options: buttonViewColors[view].map(
@@ -64,7 +79,7 @@ export function StyleSelect({style, onUpdate}: StyleSelectProps) {
     return (
         <div
             className={b()}
-            onMouseLeave={() => setPreview(null)}
+            onMouseLeave={() => hoverRow(null)}
             // Mouse events of the list reach this element through the React tree.
             // eslint-disable-next-line jsx-a11y/mouse-events-have-key-events -- The preview repeats the swatch of the row.
             onMouseOver={({target}) => {
@@ -72,7 +87,7 @@ export function StyleSelect({style, onUpdate}: StyleSelectProps) {
                 const row = target instanceof Element ? target.closest('[role="option"]') : null;
                 const value = row?.querySelector('[data-style]')?.getAttribute('data-style');
                 const hovered = styles.find((item) => styleValue(item) === value);
-                setPreview(row && hovered ? {style: hovered, row} : null);
+                hoverRow(row && hovered ? {style: hovered, row} : null);
             }}
         >
             <Select<Style>
@@ -113,10 +128,10 @@ export function StyleSelect({style, onUpdate}: StyleSelectProps) {
                 )}
                 onOpenChange={(nextOpen) => {
                     setOpen(nextOpen);
-                    if (!nextOpen) setPreview(null);
+                    if (!nextOpen) hoverRow(null);
                 }}
                 onUpdate={([value]) => {
-                    setPreview(null);
+                    hoverRow(null);
                     const next = styles.find((item) => styleValue(item) === value);
                     if (next) onUpdate(next);
                 }}
