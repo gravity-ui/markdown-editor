@@ -15,8 +15,6 @@ export function headerTitleAttrs(attrs: {size?: unknown; color?: unknown}): Reco
             size: String(size),
             color: color === headerTitleDefaults.color ? undefined : color,
         }),
-        role: 'heading',
-        'aria-level': String(size),
         ...toDataAttrs(title, headerTitleDefaults),
     };
 }

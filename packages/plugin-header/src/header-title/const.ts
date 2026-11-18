@@ -17,7 +17,3 @@ export type HeaderTitleColor = (typeof headerTitleColors)[number];
 export type HeaderTitle = {size: HeaderTitleSize; color: HeaderTitleColor};
 
 export const headerTitleDefaults: Readonly<HeaderTitle> = {size: 2, color: 'auto'};
-
-export const headerSanitizeAllowedAttributes: Readonly<Record<string, readonly string[]>> = {
-    div: ['aria-level'],
-};

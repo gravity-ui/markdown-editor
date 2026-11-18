@@ -53,8 +53,6 @@ Inline titles and destinations in the opening directive are not supported and re
 <div class="g-md-header-plugin …">
   <div
     class="g-md-header-title-plugin g-md-header-title-plugin_size_1 g-md-header-title-plugin_color_blue"
-    role="heading"
-    aria-level="1"
     data-size="1"
     data-color="blue"
   >
@@ -63,12 +61,12 @@ Inline titles and destinations in the opening directive are not supported and re
 </div>
 ```
 
-The title is a `div` with `role="heading"` and `aria-level` of its size, so it is a heading for assistive technology and stays out of the heading tags of the page. The size and the color other than the defaults are also written to `data-size` and `data-color`; `headerTitleFromAttrs` reads them back.
-A sanitizer has to allow `aria-level`: the default list of `@diplodoc/transform` keeps `role` and drops the level, and a heading without a level is read as a heading of level 2 (see [Sanitizer](#sanitizer)).
+The size and the color other than the defaults are also written to `data-size` and `data-color`; `headerTitleFromAttrs` reads them back.
 
 The title is a leaf block directive: one line with the text in square brackets and no closing line. It stands after an empty line, as a paragraph does.
 The text is plain: Markdown and HTML entities inside it are shown as written, and `\]` writes a closing bracket.
 A title without a text, `::header-title[]`, keeps its token and renders nothing.
+A header holds one title: a second title in the same header stays a paragraph of text.
 
 An unknown attribute is skipped, and an unsupported value is replaced with the default: `::header-title[Team portal]{size="7" color="pink"}` is a title of size `2` in the `auto` color.
 
@@ -105,14 +103,4 @@ Use colored titles at sizes `1`–`3`, or set `--yfm-colorify-<color>` to the co
 | Property                                  | Default                               |
 | ----------------------------------------- | ------------------------------------- |
 | `--g-md-header-title-plugin-font-weight`  | the weight of the size, see the table |
-| `--g-md-header-title-plugin-margin-block` | `0 var(--g-spacing-4)`                |
-
-## Sanitizer
-
-`headerSanitizeAllowedAttributes` holds only what the defaults of the `@diplodoc/transform` sanitizer lack (`aria-level` on `div`, for the [title](#header-title) heading); add it to the allowed attributes of that sanitizer:
-
-```ts
-import {headerSanitizeAllowedAttributes} from '@gravity-ui/markdown-plugin-header';
-
-const allowedAttributes = {iframe: ['srcdoc'], ...headerSanitizeAllowedAttributes};
-```
+| `--g-md-header-title-plugin-margin-block` | `0 var(--g-spacing-4, 16px)`          |

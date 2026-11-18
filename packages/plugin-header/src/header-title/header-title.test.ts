@@ -4,7 +4,6 @@ import {describe, expect, it} from 'vitest';
 import {headerPlugin} from '../directive';
 
 import {
-    headerSanitizeAllowedAttributes,
     headerTitle,
     headerTitleAttrs,
     headerTitleColors,
@@ -23,7 +22,7 @@ const header = (content: string) =>
     `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m" data-height="s" data-width="m">\n${content}</div>\n`;
 
 const title = (size: number | string = 2, color = 'auto', text = 'Team portal') =>
-    `<div class="g-md-header-title-plugin g-md-header-title-plugin_size_${size}${color === 'auto' ? '' : ` g-md-header-title-plugin_color_${color}`}" role="heading" aria-level="${size}"${String(size) === '2' ? '' : ` data-size="${size}"`}${color === 'auto' ? '' : ` data-color="${color}"`}>${text}</div>\n`;
+    `<div class="g-md-header-title-plugin g-md-header-title-plugin_size_${size}${color === 'auto' ? '' : ` g-md-header-title-plugin_color_${color}`}"${String(size) === '2' ? '' : ` data-size="${size}"`}${color === 'auto' ? '' : ` data-color="${color}"`}>${text}</div>\n`;
 const titles = (output: string) =>
     output.match(/<div class="g-md-header-title-plugin[^>]*>[^<]*<\/div>\n/g) ?? [];
 
@@ -47,27 +46,24 @@ describe('Header title Markdown', () => {
     it.each([
         [
             1,
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_1" role="heading" aria-level="1" data-size="1">Title</div>\n',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_1" data-size="1">Title</div>\n',
         ],
-        [
-            2,
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2" role="heading" aria-level="2">Title</div>\n',
-        ],
+        [2, '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2">Title</div>\n'],
         [
             3,
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_3" role="heading" aria-level="3" data-size="3">Title</div>\n',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_3" data-size="3">Title</div>\n',
         ],
         [
             4,
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_4" role="heading" aria-level="4" data-size="4">Title</div>\n',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_4" data-size="4">Title</div>\n',
         ],
         [
             5,
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_5" role="heading" aria-level="5" data-size="5">Title</div>\n',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_5" data-size="5">Title</div>\n',
         ],
         [
             6,
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_6" role="heading" aria-level="6" data-size="6">Title</div>\n',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_6" data-size="6">Title</div>\n',
         ],
     ])('should render size %s as a heading of that level', (size, html) => {
         expect(md.render(`::header-title[Title]{size="${size}"}`)).toBe(html);
@@ -76,35 +72,35 @@ describe('Header title Markdown', () => {
     it.each([
         [
             'auto',
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2" role="heading" aria-level="2">Title</div>\n',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2">Title</div>\n',
         ],
         [
             'gray',
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2 g-md-header-title-plugin_color_gray" role="heading" aria-level="2" data-color="gray">Title</div>\n',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2 g-md-header-title-plugin_color_gray" data-color="gray">Title</div>\n',
         ],
         [
             'yellow',
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2 g-md-header-title-plugin_color_yellow" role="heading" aria-level="2" data-color="yellow">Title</div>\n',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2 g-md-header-title-plugin_color_yellow" data-color="yellow">Title</div>\n',
         ],
         [
             'orange',
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2 g-md-header-title-plugin_color_orange" role="heading" aria-level="2" data-color="orange">Title</div>\n',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2 g-md-header-title-plugin_color_orange" data-color="orange">Title</div>\n',
         ],
         [
             'red',
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2 g-md-header-title-plugin_color_red" role="heading" aria-level="2" data-color="red">Title</div>\n',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2 g-md-header-title-plugin_color_red" data-color="red">Title</div>\n',
         ],
         [
             'green',
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2 g-md-header-title-plugin_color_green" role="heading" aria-level="2" data-color="green">Title</div>\n',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2 g-md-header-title-plugin_color_green" data-color="green">Title</div>\n',
         ],
         [
             'blue',
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2 g-md-header-title-plugin_color_blue" role="heading" aria-level="2" data-color="blue">Title</div>\n',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2 g-md-header-title-plugin_color_blue" data-color="blue">Title</div>\n',
         ],
         [
             'violet',
-            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2 g-md-header-title-plugin_color_violet" role="heading" aria-level="2" data-color="violet">Title</div>\n',
+            '<div class="g-md-header-title-plugin g-md-header-title-plugin_size_2 g-md-header-title-plugin_color_violet" data-color="violet">Title</div>\n',
         ],
     ])('should render the %s color', (color, html) => {
         expect(md.render(`::header-title[Title]{color="${color}"}`)).toBe(html);
@@ -217,7 +213,6 @@ describe('Header title Markdown', () => {
         expect(token.markup).toBe('::header-title');
         expect(token.content).toBe('Team **portal**');
         expect(token.children).toBeNull();
-        expect(token.attrGet('aria-level')).toBe('3');
         expect(token.attrGet('data-size')).toBe('3');
         expect(token.attrGet('data-color')).toBe('red');
     });
@@ -287,21 +282,8 @@ describe('Header title options', () => {
         },
     );
 
-    it('should list the level of the title for the sanitizer', () => {
-        expect(headerSanitizeAllowedAttributes).toEqual({div: ['aria-level']});
-    });
-
     it('should read the defaults from an element without the attributes', () => {
         expect(headerTitleFromAttrs(() => null)).toEqual({size: 2, color: 'auto'});
-    });
-
-    it('should read the size from the data attribute, not from the level', () => {
-        const attrs: Record<string, string> = {'aria-level': '5', 'data-size': '3'};
-        expect(headerTitleFromAttrs((name) => attrs[name])).toEqual({size: 3, color: 'auto'});
-        expect(headerTitleFromAttrs((name) => (name === 'aria-level' ? '5' : null))).toEqual({
-            size: 2,
-            color: 'auto',
-        });
     });
 
     it.each([
@@ -309,16 +291,12 @@ describe('Header title options', () => {
             {},
             {
                 class: 'g-md-header-title-plugin g-md-header-title-plugin_size_2',
-                role: 'heading',
-                'aria-level': '2',
             },
         ],
         [
             {size: 1, color: 'red'},
             {
                 class: 'g-md-header-title-plugin g-md-header-title-plugin_size_1 g-md-header-title-plugin_color_red',
-                role: 'heading',
-                'aria-level': '1',
                 'data-size': '1',
                 'data-color': 'red',
             },
@@ -327,8 +305,6 @@ describe('Header title options', () => {
             {size: '9', color: 'pink'},
             {
                 class: 'g-md-header-title-plugin g-md-header-title-plugin_size_2',
-                role: 'heading',
-                'aria-level': '2',
             },
         ],
     ])('should build the attributes of %j', (options, attrs) => {
@@ -352,16 +328,31 @@ describe('Header title in a header', () => {
     it.each([
         ['a title outside a header', '::header-title[Heading]', title(2, 'auto', 'Heading')],
         [
-            'a second title',
-            example('::header-title[First]', '::header-title[Second]'),
-            header(title(2, 'auto', 'First') + title(2, 'auto', 'Second')),
-        ],
-        [
-            'the title between the other blocks of a header in the source order',
-            example('Text', exampleTitle, '::header-title[Last]{size="6"}'),
-            header(`<p>Text</p>\n${title()}${title(6, 'auto', 'Last')}`),
+            'the title after the other blocks of a header',
+            example('Text', exampleTitle),
+            header(`<p>Text</p>\n${title()}`),
         ],
     ])('should render %s as written', (_name, markup, html) => {
         expect(withHeader.render(markup)).toBe(html);
+    });
+
+    it.each([
+        ['', ''],
+        [' after other blocks', 'Text'],
+    ])('should render a second title%s as a paragraph', (_name, text) => {
+        const markup = example(
+            '::header-title[First]',
+            ...(text ? [text] : []),
+            '::header-title[Second]',
+        );
+        const between = text ? `<p>${text}</p>\n` : '';
+        expect(withHeader.render(markup)).toBe(
+            header(`${title(2, 'auto', 'First')}${between}<p>::header-title[Second]</p>\n`),
+        );
+    });
+
+    it('should render one title in each of two headers', () => {
+        const markup = `${example(exampleTitle)}\n\n${example(exampleTitle)}`;
+        expect(titles(withHeader.render(markup))).toEqual([title(), title()]);
     });
 });

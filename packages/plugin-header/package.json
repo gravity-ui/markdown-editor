@@ -37,8 +37,7 @@
         "default": "./build/cjs/index.js"
       }
     },
-    "./styles.css": "./build/styles.css",
-    "./header-title/styles.css": "./build/esm/header-title/index.css"
+    "./styles.css": "./build/styles.css"
   },
   "main": "build/cjs/index.js",
   "module": "build/esm/index.js",
