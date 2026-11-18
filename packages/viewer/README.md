@@ -155,12 +155,18 @@ export function Document({html}: {html: string}) {
 
 Images support `picture` and `srcset`. Ctrl/Meta/Shift/Alt-click and images inside links keep their normal behavior.
 
+To keep a part of the document out of the gallery, render the `data-files-gallery-exclude` attribute on it (`FILES_GALLERY_EXCLUDE_ATTRIBUTE`). Images and links inside an element with this attribute are not collected, and a click on them keeps its normal behavior: the gallery does not open and the event is not prevented, so a link navigates. The value of the attribute does not matter.
+
+```html
+<div data-files-gallery-exclude="true"><img src="/banner.png" alt="" /></div>
+```
+
 On desktop, the copy button shows feedback in a tooltip. On mobile, the menu closes after a tap. Use `onLinkCopied` to show a message after a successful copy.
 
 <details>
 <summary>Gallery props and HTML updates</summary>
 
-The entry point exports `FilesGalleryProps`, `FilesGallerySource`, and `FilesGalleryItemType` (`'image' | 'video' | 'file'`).
+The entry point exports `FILES_GALLERY_EXCLUDE_ATTRIBUTE`, `FilesGalleryProps`, `FilesGallerySource`, and `FilesGalleryItemType` (`'image' | 'video' | 'file'`).
 
 Callbacks receive `source` with `url`, `type`, `element`, and optional `name` and `mimeType`. Callback inputs, including the item passed to `transformItem`, are shallow readonly in TypeScript.
 
