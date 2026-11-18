@@ -6,6 +6,7 @@ import {Logger2, globalLogger} from 'src/logger';
 import {ReactRenderStorage} from 'src/modules/react-renderer';
 import {DirectiveSyntaxContext} from 'src/utils/directive';
 import {SafeEventEmitter} from 'src/utils/event-emitter';
+import {TabFocusModeState} from 'src/utils/tab-focus-mode';
 
 import {EditorImpl, type EditorOptions} from './Editor';
 import {MarkupCore} from './markup/MarkupCore';
@@ -185,6 +186,7 @@ function createEditor(overrides: Partial<ConstructorParameters<typeof EditorImpl
     return new EditorImpl(options, {
         events,
         markupState,
+        tabFocusMode: new TabFocusModeState(options.initial?.tabFocusMode),
         wysiwyg: new WysiwygCore(options, events, getInitialMarkup),
         markup: new MarkupCore(options, events, getInitialMarkup),
     });

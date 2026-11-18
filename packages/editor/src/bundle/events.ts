@@ -1,4 +1,4 @@
-import type {TabFocusMode} from '../extensions/behavior/TabFocusMode';
+import type {TabFocusMode} from '../utils/tab-focus-mode';
 
 import type {MarkdownEditorMode} from './preset-base-types';
 

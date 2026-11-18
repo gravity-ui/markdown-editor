@@ -4,16 +4,12 @@ import type {EditorView as PMEditorView} from 'prosemirror-view';
 
 import type {CommonEditor, MarkupString} from 'src/common';
 import type {ActionStorage, EscapeConfig, WysiwygEditor} from 'src/core';
-import {
-    type TabFocusMode,
-    type TabFocusModeExtension,
-    createTabFocusModeExtension,
-} from 'src/extensions/behavior/TabFocusMode';
 import type {Logger2} from 'src/logger';
 import type {CodeEditor, Editor as MarkupEditor} from 'src/markup/editor';
 import type {ReactRenderStorage, RenderStorage} from 'src/modules/react-renderer';
 import type {DirectiveSyntaxContext} from 'src/utils/directive';
 import type {Emitter, Listener, Receiver, SafeEventEmitter} from 'src/utils/event-emitter';
+import type {TabFocusMode, TabFocusModeState} from 'src/utils/tab-focus-mode';
 import type {FileUploadHandler} from 'src/utils/upload';
 
 import type {ChangeEditorModeOptions, MarkdownEditorInstance} from './editor-public-types';
@@ -91,7 +87,7 @@ interface EditorRuntime {
     events: SafeEventEmitter<EventMapInt>;
     wysiwyg: ModeCore<WysiwygEditor>;
     markup: ModeCore<MarkupEditor>;
-    tabFocusMode?: TabFocusModeExtension;
+    tabFocusMode: TabFocusModeState;
 }
 
 /** @internal */
@@ -104,7 +100,7 @@ export class EditorImpl implements EditorInt {
     readonly #markupState: EditorMarkupState;
     #editorMode: EditorMode;
     #toolbarVisible: boolean;
-    readonly #tabFocusMode: TabFocusModeExtension;
+    readonly #tabFocusMode: TabFocusModeState;
     #splitModeEnabled: boolean;
     #splitMode: SplitMode;
     #previewVisible: boolean;
@@ -286,9 +282,7 @@ export class EditorImpl implements EditorInt {
         this.#logger = logger;
         this.#editorMode = initial.mode ?? 'wysiwyg';
         this.#toolbarVisible = initial.toolbarVisible ?? true;
-        this.#tabFocusMode =
-            runtime.tabFocusMode ??
-            createTabFocusModeExtension({defaultMode: initial.tabFocusMode});
+        this.#tabFocusMode = runtime.tabFocusMode;
         this.#splitMode = (markupConfig.renderPreview && markupConfig.splitMode) ?? false;
         this.#splitModeEnabled = (this.#splitMode && initial.splitModeEnabled) ?? false;
         this.#previewVisible = false;

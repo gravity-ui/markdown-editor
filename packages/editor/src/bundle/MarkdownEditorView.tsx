@@ -14,12 +14,12 @@ import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 
 import type {ClassNameProps} from '../classname';
 import {contextualToolbarsKey} from '../extensions/behavior/ContextualToolbars';
-import type {TabFocusMode} from '../extensions/behavior/TabFocusMode';
 import {i18n} from '../i18n/bundle';
 import {globalLogger} from '../logger';
 import type {ToolbarsPreset} from '../modules/toolbars/types';
 import {useSticky} from '../react-utils';
 import {isMac} from '../utils';
+import type {TabFocusMode} from '../utils/tab-focus-mode';
 
 import type {EditorInt} from './Editor';
 import {HorizontalDrag} from './HorizontalDrag';

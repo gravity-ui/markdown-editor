@@ -288,6 +288,94 @@ describe('MarkdownEditorView', () => {
             configure({lang: 'en'});
         });
 
+        it.each(['wysiwyg', 'markup'] as const)(
+            'should ignore the Tab mode shortcut in the settings popup for %s mode',
+            async (mode) => {
+                document.body.appendChild(container);
+                renderEditor({
+                    options: {initial: {mode, toolbarVisible: false}},
+                    view: {settingsVisible: ['tab-focus']},
+                });
+                const button = container.querySelector<HTMLButtonElement>(
+                    '[data-qa="g-md-settings-button"]',
+                );
+                if (!button) throw new Error('Settings button is missing');
+                await act(async () => button.click());
+                const checkbox = document.querySelector<HTMLInputElement>(
+                    '[data-qa="g-md-settings-content"] input[type="checkbox"]',
+                );
+                if (!checkbox) throw new Error('Tab focus checkbox is missing');
+                const changes = vi.fn();
+                testEditor.on('change-tab-focus-mode', changes);
+                const press = () => {
+                    const event = new KeyboardEvent('keydown', {
+                        key: 'm',
+                        code: 'KeyM',
+                        keyCode: 77,
+                        ctrlKey: true,
+                        bubbles: true,
+                        cancelable: true,
+                    });
+                    act(() => checkbox.dispatchEvent(event));
+                    return event;
+                };
+
+                act(() => checkbox.focus());
+                expect(document.activeElement).toBe(checkbox);
+                expect(press().defaultPrevented).toBe(false);
+                expect(testEditor.tabFocusMode).toBe('indent');
+                expect(checkbox.checked).toBe(false);
+                expect(changes).not.toHaveBeenCalled();
+
+                act(() => checkbox.click());
+                expect(testEditor.tabFocusMode).toBe('focus');
+                expect(checkbox.checked).toBe(true);
+
+                expect(press().defaultPrevented).toBe(false);
+                expect(testEditor.tabFocusMode).toBe('focus');
+                expect(checkbox.checked).toBe(true);
+                expect(changes.mock.calls).toEqual([[{mode: 'focus'}]]);
+            },
+        );
+
+        it('should share the Tab mode between both engines after keyboard changes', async () => {
+            renderEditor({
+                options: {initial: {tabFocusMode: 'focus', toolbarVisible: false}},
+            });
+            const changes = vi.fn();
+            testEditor.on('change-tab-focus-mode', changes);
+            const pressTab = () => {
+                const event = new KeyboardEvent('keydown', {
+                    key: 'Tab',
+                    code: 'Tab',
+                    keyCode: 9,
+                    bubbles: true,
+                    cancelable: true,
+                });
+                act(() => getContent().dispatchEvent(event));
+                return event.defaultPrevented;
+            };
+
+            expect(pressTab()).toBe(false);
+            await act(async () => testEditor.setEditorMode('markup'));
+            expect(testEditor.tabFocusMode).toBe('focus');
+            expect(pressTab()).toBe(false);
+
+            await act(async () => pressShortcut('m', 'KeyM'));
+            expect(testEditor.tabFocusMode).toBe('indent');
+            expect(pressTab()).toBe(true);
+            await act(async () => testEditor.setEditorMode('wysiwyg'));
+            expect(testEditor.tabFocusMode).toBe('indent');
+            expect(pressTab()).toBe(true);
+
+            await act(async () => pressShortcut('m', 'KeyM'));
+            expect(pressTab()).toBe(false);
+            await act(async () => testEditor.setEditorMode('markup'));
+            expect(testEditor.tabFocusMode).toBe('focus');
+            expect(pressTab()).toBe(false);
+            expect(changes.mock.calls).toEqual([[{mode: 'indent'}], [{mode: 'focus'}]]);
+        });
+
         it.each(['indent', 'focus'] as const)(
             'should mount one empty live region outside the editor with initial mode %s',
             (tabFocusMode) => {
@@ -417,6 +505,7 @@ describe('MarkdownEditorView', () => {
             new KeyboardEvent('keydown', {
                 key,
                 code,
+                keyCode: code.startsWith('Key') ? code.charCodeAt(3) : 0,
                 ctrlKey: true,
                 bubbles: true,
                 cancelable: true,

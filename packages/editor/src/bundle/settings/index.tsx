@@ -22,14 +22,14 @@ import {
 import {LAYOUT} from 'src/common/layout';
 
 import {type ClassNameProps, cn} from '../../classname';
-import type {TabFocusMode} from '../../extensions/behavior/TabFocusMode';
 import {i18n} from '../../i18n/bundle';
 import WysiwygModeIcon from '../../icons/WysiwygMode';
 import {noop} from '../../lodash';
 import {useTargetZIndex} from '../../react-utils';
 import {useBooleanState} from '../../react-utils/hooks';
-import {Action, createShortcutHandler, formatter} from '../../shortcuts';
+import {Action, formatter} from '../../shortcuts';
 import {ToolbarTooltipDelay} from '../../toolbar';
+import type {TabFocusMode} from '../../utils/tab-focus-mode';
 import {VERSION} from '../../version';
 import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
 
@@ -170,20 +170,9 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
             ?.split('+')
             .map((key) => key[0].toUpperCase() + key.slice(1))
             .join('+') ?? '';
-    const toggleTabFocusMode = createShortcutHandler(Action.ToggleTabFocusMode, () => {
-        onTabFocusModeChange(tabFocusMode === 'focus' ? 'indent' : 'focus');
-    });
 
     return (
-        <div
-            className={bContent(null, [className])}
-            data-qa={qa}
-            onKeyDown={(event) => {
-                if (event.defaultPrevented || !toggleTabFocusMode(event.nativeEvent)) return;
-                event.preventDefault();
-                event.stopPropagation();
-            }}
-        >
+        <div className={bContent(null, [className])} data-qa={qa}>
             {showModeSetting && (
                 <Menu size="l" className={bContent('mode')}>
                     <Menu.Item

@@ -6,10 +6,6 @@ import type {Defs, PlatfrormDefs} from './types';
 class ShortCutFormatter {
     #map = new Map<string, Defs>();
 
-    get(name: string): readonly string[] | undefined {
-        return this.#map.get(name);
-    }
-
     set(name: string, defs: Defs | PlatfrormDefs) {
         if (Array.isArray(defs)) {
             this.#map.set(name, defs);

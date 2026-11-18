@@ -13,6 +13,7 @@ import {Logger2, globalLogger} from '../../logger';
 import {ZeroPreset} from '../../presets/zero';
 import {DirectiveSyntaxContext} from '../../utils/directive';
 import {SafeEventEmitter} from '../../utils/event-emitter';
+import {TabFocusModeState} from '../../utils/tab-focus-mode';
 import {EditorImpl, type EditorOptions} from '../Editor';
 import {MarkdownEditorView, type MarkdownEditorViewProps} from '../MarkdownEditorView';
 import {MarkupCore} from '../markup/MarkupCore';
@@ -81,6 +82,7 @@ describe('contenteditableAttributes', () => {
         const editor = new EditorImpl(options, {
             events,
             markupState,
+            tabFocusMode: new TabFocusModeState(),
             wysiwyg: new WysiwygCore(options, events, getInitialMarkup),
             markup: new MarkupCore(options, events, getInitialMarkup),
         });

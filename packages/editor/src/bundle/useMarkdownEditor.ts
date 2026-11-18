@@ -1,10 +1,12 @@
 import {useLayoutEffect, useMemo} from 'react';
 
-import {createTabFocusModeExtension} from 'src/extensions/behavior/TabFocusMode';
+import {createWysiwygTabFocusModeExtension} from 'src/extensions/behavior/TabFocusMode';
 import {Logger2, globalLogger} from 'src/logger';
+import {createMarkupTabFocusModeExtension} from 'src/markup/codemirror/tab-focus-mode';
 import {ReactRenderStorage} from 'src/modules/react-renderer';
 import {DirectiveSyntaxContext} from 'src/utils/directive';
 import {SafeEventEmitter} from 'src/utils/event-emitter';
+import {TabFocusModeState} from 'src/utils/tab-focus-mode';
 
 import {EditorImpl, type EditorOptions} from './Editor';
 import type {MarkdownEditorInstance} from './editor-public-types';
@@ -37,24 +39,24 @@ export function useMarkdownEditor(
         const {markupConfig = {}, wysiwygConfig = {}} = props;
         const extraWysiwygExtensions = wysiwygConfig.extensions;
         const extensionOptions = wysiwygConfig.extensionOptions;
-        const tabFocus = createTabFocusModeExtension({
-            defaultMode: props.initial?.tabFocusMode,
-        });
-        // This runtime bridge survives StrictMode's replay of view cleanup.
-        tabFocus.subscribe(() => {
+        const tabFocus = new TabFocusModeState(props.initial?.tabFocusMode);
+        tabFocus.on('change', ({mode}) => {
             runtimeEvents.emit('rerender', null);
-            runtimeEvents.emit('change-tab-focus-mode', {mode: tabFocus.getMode()});
+            runtimeEvents.emit('change-tab-focus-mode', {mode});
         });
         const options: EditorOptions = {
             ...props,
             markupConfig: {
                 ...markupConfig,
-                extensions: [tabFocus.markup, ...(markupConfig.extensions ?? [])],
+                extensions: [
+                    createMarkupTabFocusModeExtension(tabFocus),
+                    ...(markupConfig.extensions ?? []),
+                ],
             },
             wysiwygConfig: {
                 ...wysiwygConfig,
                 extensions: (builder) => {
-                    builder.use(tabFocus.wysiwyg);
+                    builder.use(createWysiwygTabFocusModeExtension(tabFocus));
                     if (extraWysiwygExtensions) {
                         builder.use(extraWysiwygExtensions, extensionOptions);
                     }

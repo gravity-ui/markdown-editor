@@ -4,12 +4,12 @@ import type {ReactNode} from 'react';
 
 import type {MarkupString} from '../common';
 import type {EscapeConfig, Extension, WysiwygContenteditableAttributes} from '../core';
-import type {TabFocusMode} from '../extensions/behavior/TabFocusMode';
 import type {Logger2} from '../logger';
 import type {CreateCodemirrorParams, YfmLangOptions} from '../markup';
 import type {MarkupContenteditableAttributes} from '../markup/codemirror/input-attributes';
 import type {FileUploadHandler} from '../utils';
 import type {DirectiveSyntaxContext, DirectiveSyntaxOption} from '../utils/directive';
+import type {TabFocusMode} from '../utils/tab-focus-mode';
 import type {ParseInsertedUrlAsImage} from '../utils/upload';
 
 import type {ChangeEditorModeOptions} from './editor-public-types';
@@ -62,7 +62,6 @@ export type MarkdownEditorInitialOptions = {
     mode?: MarkdownEditorMode;
     /** Default – true */
     toolbarVisible?: boolean;
-    /** Initial Tab behavior. Defaults to editor commands ('indent'). */
     tabFocusMode?: TabFocusMode;
     /**
      * Default – false
