@@ -59,6 +59,7 @@
     "@markdown-editor/vitest-config": "workspace:*",
     "gulp-cli": "catalog:",
     "markdown-it": "catalog:peers",
+    "markdown-it-ins": "^4.0.0",
     "npm-run-all": "^4.1.5",
     "typescript": "catalog:ts",
     "vitest": "catalog:testing"
