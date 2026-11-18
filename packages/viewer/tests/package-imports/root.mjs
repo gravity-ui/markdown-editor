@@ -21,6 +21,7 @@ for (const [format, api] of [
         assert.equal(typeof api.revealYfmElement, 'function');
         assert.equal(api.revealYfmElement(null), null);
         assert.equal(api.VIEWER_SLOT_ATTRIBUTE, 'data-markdown-viewer-slot');
+        assert.equal(api.NAMESPACE, 'g-md-v-');
         assert.equal(api.cn('diagram')('caption'), 'g-md-v-diagram__caption');
         assert.equal(api.cnYFM(), 'yfm');
         const result = renderToString(
