@@ -153,10 +153,15 @@ describe('Button Markdown', () => {
         expect(token?.attrGet('href')).toBeNull();
         expect(token?.attrGet('title')).toBeNull();
     });
-    it.each([':button', ':button(/page)', ':button{view="flat"}'])(
+    it.each([':button', ':button(/page)', ':button{view="flat"}', ':button(/page) x]'])(
         'should not render a button for unsupported syntax %j',
         (markup) => {
             expect(md.renderInline(markup)).not.toContain(buttonClassName);
         },
     );
+    it('should keep a link around `:button` without a label', () => {
+        expect(md.renderInline('[Press the :button now](/help)')).toBe(
+            '<a href="/help">Press the :button now</a>',
+        );
+    });
 });
