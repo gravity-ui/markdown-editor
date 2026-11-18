@@ -1,0 +1,32 @@
+.g-md-header-image-nodeview {
+    --_--selection-width: 1px;
+    --_--selection-color: var(--g-color-text-info);
+    --_--placeholder-padding: var(--g-spacing-4, 16px);
+
+    cursor: pointer;
+
+    // The image window takes the focus from the editor, and the selected image keeps its outline.
+    &.ProseMirror-selectednode,
+    .g-md-editor.ProseMirror-focused &.ProseMirror-selectednode {
+        outline: none;
+        box-shadow: var(--_--selection-color) 0 0 0 var(--_--selection-width);
+    }
+
+    &_empty {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        box-sizing: border-box;
+        padding: var(--_--placeholder-padding);
+    }
+
+    &__icon {
+        flex-shrink: 1;
+
+        min-height: 0;
+
+        color: var(--g-color-text-hint);
+    }
+}

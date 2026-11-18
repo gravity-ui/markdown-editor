@@ -6,7 +6,7 @@ import {headerHeights, headerPlugin, headerWidths} from './index';
 const md = new MarkdownIt().use(headerPlugin);
 
 const html = (height: string, width: string) =>
-    `<div class="g-md-header-plugin g-md-header-plugin_height_${height} g-md-header-plugin_width_${width}" data-height="${height}" data-width="${width}"></div>\n`;
+    `<div class="g-md-header-plugin g-md-header-plugin_height_${height} g-md-header-plugin_width_${width}" data-files-gallery-exclude="true" data-height="${height}" data-width="${width}"></div>\n`;
 
 describe('Header Markdown', () => {
     for (const height of headerHeights) {

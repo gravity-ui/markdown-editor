@@ -1,0 +1,1 @@
+export {HeaderImage} from './HeaderImage';

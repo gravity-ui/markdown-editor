@@ -1,7 +1,7 @@
 import {cn} from '@gravity-ui/markdown-editor';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {NodeView} from '@gravity-ui/markdown-editor/pm/view';
-import {headerClassNames} from '@gravity-ui/markdown-plugin-header';
+import {filesGalleryExcludeAttrs, headerClassNames} from '@gravity-ui/markdown-plugin-header';
 
 import './NodeView.scss';
 
@@ -15,6 +15,9 @@ export class WHeaderNodeView implements NodeView {
     constructor(node: Node) {
         this.node = node;
         this.dom = this.contentDOM = document.createElement('div');
+        for (const [name, value] of Object.entries(filesGalleryExcludeAttrs)) {
+            this.dom.setAttribute(name, value);
+        }
         this.updateClassName();
     }
 

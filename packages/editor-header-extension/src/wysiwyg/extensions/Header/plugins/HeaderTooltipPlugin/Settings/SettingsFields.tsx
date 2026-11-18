@@ -10,6 +10,7 @@ import {
 import {Button, Divider, Icon, Text, useUniqId} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
+import type {HeaderPart, HeaderParts} from '../../../utils';
 
 import {AlignmentSelect} from './AlignmentSelect';
 import {cnHeaderSettings} from './HeaderSettings.classname';
@@ -17,7 +18,12 @@ import {SettingsSection} from './SettingsSection';
 import {SettingsSwitch} from './SettingsSwitch';
 import {logClick} from './utils';
 
-export function SettingsFields() {
+type SettingsFieldsProps = {
+    parts: HeaderParts;
+    onPartChange: (part: HeaderPart, enabled: boolean) => void;
+};
+
+export function SettingsFields({parts, onPartChange}: SettingsFieldsProps) {
     const backgroundLabelId = useUniqId();
     const backgroundValueId = useUniqId();
     return (
@@ -84,7 +90,12 @@ export function SettingsFields() {
             </SettingsSection>
             <Divider />
             <SettingsSection title={i18n('image-and-background')} action="Image and background">
-                <SettingsSwitch label={i18n('image')} action="Image" defaultChecked />
+                <SettingsSwitch
+                    label={i18n('image')}
+                    action="Image"
+                    checked={parts.image}
+                    onUpdate={(enabled) => onPartChange('image', enabled)}
+                />
                 <div className={cnHeaderSettings('row')}>
                     <Text variant="body-1" id={backgroundLabelId}>
                         {i18n('background')}

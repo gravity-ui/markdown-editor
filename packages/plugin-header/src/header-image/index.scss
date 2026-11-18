@@ -1,0 +1,52 @@
+$header: '.g-md-header-plugin';
+$image: '.g-md-header-image-plugin';
+$narrow-width: 600px;
+$padding: 8px;
+$border-radius: 8px;
+
+#{$header}:has(> #{$image}) {
+    --_--image-width: var(--g-md-header-plugin-image-width, 50%);
+    --_--image-padding: var(--g-md-header-plugin-image-padding, var(--g-spacing-2, #{$padding}));
+
+    position: relative;
+
+    display: grid;
+    align-content: start;
+    grid-template-columns: minmax(0, 1fr) var(--_--image-width);
+    container: g-md-header-plugin / inline-size;
+
+    > * {
+        grid-column: 1;
+    }
+}
+
+#{$header} > #{$image} {
+    position: absolute;
+    inset-block-start: var(--_--image-padding);
+    inset-inline-end: var(--_--image-padding);
+
+    width: calc(var(--_--image-width) - 2 * var(--_--image-padding));
+    max-width: none;
+    height: calc(100% - 2 * var(--_--image-padding));
+    max-height: none;
+    margin: 0;
+
+    border-radius: var(--g-md-header-image-plugin-border-radius, #{$border-radius});
+    background-color: var(--g-md-header-image-plugin-background, var(--g-color-base-float-hover));
+    object-fit: cover;
+}
+
+@container g-md-header-plugin (width < #{$narrow-width}) {
+    #{$header}:has(> #{$image}) > * {
+        grid-column: 1 / -1;
+    }
+
+    #{$header} > #{$image} {
+        position: static;
+
+        width: calc(100% - 2 * var(--_--image-padding));
+        height: auto;
+        margin: var(--_--image-padding);
+        aspect-ratio: var(--g-md-header-plugin-narrow-image-aspect-ratio, 16 / 10);
+    }
+}

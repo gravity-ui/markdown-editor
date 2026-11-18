@@ -1,13 +1,16 @@
 # Header editor extension
 
-Header block for [@gravity-ui/markdown-editor](https://github.com/gravity-ui/markdown-editor): a block container with independent height and width.
+Header block for [@gravity-ui/markdown-editor](https://github.com/gravity-ui/markdown-editor): a block container with independent height and width and an optional image.
 
 ```ts
 import {useMarkdownEditor} from '@gravity-ui/markdown-editor';
 import {Header} from '@gravity-ui/markdown-editor-header-extension';
 
 const editor = useMarkdownEditor({
-  wysiwygConfig: {extensions: (builder) => builder.use(Header)},
+  wysiwygConfig: {
+    extensions: (builder) =>
+      builder.use(Header, {fileUploadHandler, imageTypes: ['image/png'], maxImageSize: 2 ** 21}),
+  },
 });
 ```
 
@@ -34,3 +37,14 @@ A new or empty block holds an empty paragraph, and insertion puts the cursor int
 
 `HeaderSpecs` adds only the schema, Markdown parsing, and serialization, and runs in Node.js.
 `Header` also needs the editor's React renderer, which the standard presets include.
+
+## Image
+
+The «Image» switch in the settings panel adds an image at the start of the block or removes it from the markup.
+Switching it on again restores the removed image until the page reloads.
+A new image is a placeholder; a click on it or Enter on the selected image opens the image window.
+The window sets the image by a link or by a file upload through `fileUploadHandler`; `imageTypes` and `maxImageSize` limit the files.
+A failed upload keeps the previous image, and the response of an outdated upload is ignored.
+«Reset» in the window returns the placeholder.
+Backspace and Delete remove the selected image; each change is one undo step.
+The schema allows one image, only as the first block of a header.
