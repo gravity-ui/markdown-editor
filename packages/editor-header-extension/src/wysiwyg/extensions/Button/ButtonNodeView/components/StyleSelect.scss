@@ -1,6 +1,5 @@
 .g-md-button-style {
     $field-height: 36px;
-    $group-font-size: 12px;
     $row-height: 28px;
     $list-rows: 14;
     $list-padding-block: 8px;
@@ -8,6 +7,12 @@
     $swatch-size-l: 20px;
     $preview-width: 140px;
     $preview-height: 100px;
+
+    &,
+    &__list {
+        --_--font-size: 14px;
+        --_--group-font-size: 12px;
+    }
 
     // The select spans the window, so its list opens at the window edge.
     & &__select {
@@ -28,7 +33,7 @@
         padding: 0 var(--g-spacing-2);
 
         font: inherit;
-        font-size: 14px;
+        font-size: var(--_--font-size);
         cursor: pointer;
 
         color: var(--g-color-text-primary);
@@ -62,7 +67,6 @@
         color: var(--g-color-text-secondary);
     }
 
-    // The list shows 14 rows between its 4px margins and scrolls the rest.
     // The doubled class outweighs the height limit of the Select.
     &__list#{&}__list {
         box-sizing: border-box;
@@ -79,7 +83,7 @@
     &__group {
         padding-inline: var(--g-spacing-3);
 
-        font-size: $group-font-size;
+        font-size: var(--_--group-font-size);
         font-weight: var(--g-text-body-font-weight);
         line-height: $row-height;
 
@@ -91,7 +95,7 @@
         align-items: center;
         gap: var(--g-spacing-3);
 
-        font-size: 14px;
+        font-size: var(--_--font-size);
         line-height: $row-height;
     }
 

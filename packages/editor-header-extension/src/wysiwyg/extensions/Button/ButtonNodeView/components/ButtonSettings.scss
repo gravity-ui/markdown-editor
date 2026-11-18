@@ -1,9 +1,13 @@
 .g-md-button-settings {
-    width: 256px;
+    $width: 256px;
+
+    --_--font-size: 14px;
+
+    width: $width;
 
     .g-text-input__control,
     .g-switch__content {
-        font-size: 14px;
+        font-size: var(--_--font-size);
     }
 
     &__popup {
