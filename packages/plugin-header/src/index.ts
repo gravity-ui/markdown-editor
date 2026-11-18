@@ -10,3 +10,4 @@ export {
     headerWidths,
 } from './dimensions';
 export {headerPlugin} from './directive';
+export * from './header-title';
