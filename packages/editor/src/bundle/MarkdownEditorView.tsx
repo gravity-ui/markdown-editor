@@ -441,6 +441,7 @@ MarkdownEditorView.displayName = 'MarkdownEditorView';
 
 function TabFocusModeAnnouncer({editor}: {editor: MarkdownEditorInstance}) {
     const [announcement, setAnnouncement] = useState('');
+    const initialMode = useMemo(() => editor.tabFocusMode, [editor]);
 
     useEffect(() => {
         setAnnouncement('');
@@ -450,10 +451,16 @@ function TabFocusModeAnnouncer({editor}: {editor: MarkdownEditorInstance}) {
             );
         };
         editor.on('change-tab-focus-mode', onModeChange);
+
+        const currentMode = editor.tabFocusMode;
+        if (currentMode !== initialMode) {
+            onModeChange({mode: currentMode});
+        }
+
         return () => {
             editor.off('change-tab-focus-mode', onModeChange);
         };
-    }, [editor]);
+    }, [editor, initialMode]);
 
     return (
         <span className={visuallyHiddenCn()} role="status" aria-live="polite">

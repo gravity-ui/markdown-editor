@@ -1,4 +1,4 @@
-import {type DependencyList, createRef} from 'react';
+import {type DependencyList, createRef, useLayoutEffect} from 'react';
 
 import {searchPanelOpen} from '@codemirror/search';
 import {EditorView} from '@codemirror/view';
@@ -287,6 +287,48 @@ describe('MarkdownEditorView', () => {
         beforeEach(() => {
             configure({lang: 'en'});
         });
+
+        it.each([
+            {initialMode: 'indent', mode: 'focus', message: focusMessage},
+            {initialMode: 'focus', mode: 'indent', message: indentMessage},
+        ] as const)(
+            'should announce $initialMode to $mode changes from an owner layout effect',
+            ({initialMode, mode, message}) => {
+                function Owner() {
+                    const editor = useMarkdownEditor({
+                        initial: {
+                            mode: 'markup',
+                            tabFocusMode: initialMode,
+                            toolbarVisible: false,
+                        },
+                    });
+                    testEditor = editor;
+                    useLayoutEffect(() => {
+                        editor.setTabFocusMode(mode);
+                    }, [editor]);
+                    return (
+                        <MarkdownEditorView
+                            editor={editor}
+                            stickyToolbar={false}
+                            settingsVisible={false}
+                        />
+                    );
+                }
+
+                act(() =>
+                    root.render(
+                        <ToasterProvider toaster={new Toaster()}>
+                            <ThemeProvider>
+                                <Owner />
+                            </ThemeProvider>
+                        </ToasterProvider>,
+                    ),
+                );
+
+                expect(testEditor.tabFocusMode).toBe(mode);
+                expect(getAnnouncer().textContent).toBe(message);
+            },
+        );
 
         it.each(['indent', 'focus'] as const)(
             'should apply the initial %s Tab mode synchronously when markup is created',
