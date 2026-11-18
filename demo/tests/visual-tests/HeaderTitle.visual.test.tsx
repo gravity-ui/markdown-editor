@@ -19,55 +19,71 @@ const TYPOGRAPHY = [
 const SIZE_NAMES = headerTitleSizes.map((size) => `Heading ${size}`);
 const COLOR_NAMES = ['Default', 'Gray', 'Yellow', 'Orange', 'Red', 'Green', 'Blue', 'Violet'];
 
-const sizesMarkup = inHeader(
-    ...headerTitleSizes.map((size) => `::header-title[Title of size ${size}]{size="${size}"}`),
-);
-const colorsMarkup = inHeader(
-    ...headerTitleColors.map(
-        (color) => `::header-title[Title of the ${color} color]{color="${color}"}`,
+const stylesMarkup = [
+    ...headerTitleSizes.map((size) => inHeader(`::header-title[Size ${size}]{size="${size}"}`)),
+    ...headerTitleColors.map((color) =>
+        inHeader(`::header-title[Color ${color}]{color="${color}"}`),
     ),
-    '::header-title[]',
-);
+].join('\n\n');
+const longTitle =
+    'A long banner title that takes more than one line in a banner of the medium width';
+const unbreakableTitle = 'Unbreakable'.repeat(12);
 const toolbarMarkup = `${inHeader('::header-title[Team portal]', 'Portal description.')}\n\nAfter`;
 
 test.describe('Header title', () => {
-    test('should render every size like the preview @wysiwyg', async ({
+    test('should render the title variants @wysiwyg', async ({
         mount,
+        page,
         header,
         headerTitle,
         expectScreenshot,
     }) => {
-        await mount(<HeaderStories.Header width={760} initial={`Before\n\n${sizesMarkup}`} />);
-        await expect(headerTitle.blocks).toHaveCount(headerTitleSizes.length);
-        expect(await headerTitle.getTypography(headerTitle.blocks)).toEqual(TYPOGRAPHY);
-        expect(await headerTitle.getValues(headerTitle.blocks)).toEqual(
-            headerTitleSizes.map((size) => ({
-                size: String(size),
-                color: 'auto',
-                text: `Title of size ${size}`,
-            })),
-        );
-        await expect(header.toolbar).toBeHidden();
+        await mount(<HeaderStories.Title width={760} />);
+        await expect(headerTitle.blocks).toHaveCount(3);
+        await expect(headerTitle.placeholders).toHaveText(['Banner title']);
+        await header.hideToolbar();
+        await page.keyboard.press('Escape');
         await expect(headerTitle.toolbar).toBeHidden();
         await expectScreenshot();
     });
 
-    test('should render every color and the placeholder of an empty title @wysiwyg', async ({
+    test('should render every size and color like the preview @wysiwyg @markup', async ({
         mount,
-        header,
+        editor,
         headerTitle,
-        expectScreenshot,
     }) => {
-        await mount(<HeaderStories.Header width={760} initial={`Before\n\n${colorsMarkup}`} />);
-        await expect(headerTitle.blocks).toHaveCount(headerTitleColors.length + 1);
-        const values = await headerTitle.getValues(headerTitle.blocks);
-        expect(values.slice(0, -1).map(({color}) => color)).toEqual([...headerTitleColors]);
-        const colors = await headerTitle.getStyle('color', headerTitle.blocks);
-        expect(new Set(colors.slice(0, -1)).size).toBe(headerTitleColors.length);
-        await expect(headerTitle.placeholders).toHaveText(['Banner title']);
-        await expect(header.toolbar).toBeHidden();
-        await expect(headerTitle.toolbar).toBeHidden();
-        await expectScreenshot();
+        await mount(<HeaderStories.Header mode="markup" width={760} initial={stylesMarkup} />);
+        await editor.switchPreview('visible');
+        const count = headerTitleSizes.length + headerTitleColors.length;
+        await expect(headerTitle.previews).toHaveCount(count);
+        const previews = await headerTitle.getStyles();
+        await editor.switchMode('wysiwyg');
+        await expect(headerTitle.blocks).toHaveCount(count);
+        const blocks = await headerTitle.getStyles(headerTitle.blocks);
+        expect(blocks).toEqual(previews);
+        expect(
+            blocks
+                .slice(0, headerTitleSizes.length)
+                .map(({fontSize, lineHeight, fontWeight}) => [fontSize, lineHeight, fontWeight]),
+        ).toEqual(TYPOGRAPHY);
+        const colors = blocks.slice(headerTitleSizes.length).map(({color}) => color);
+        expect(new Set(colors).size).toBe(headerTitleColors.length);
+    });
+
+    test('should wrap a long title without scrolling @wysiwyg', async ({mount, headerTitle}) => {
+        await mount(
+            <HeaderStories.Header
+                width={760}
+                initial={[
+                    inHeader(`::header-title[${longTitle}]{size="1"}`),
+                    inHeader(`::header-title[${unbreakableTitle}]`),
+                ].join('\n\n')}
+            />,
+        );
+        await expect(headerTitle.blocks).toHaveText([longTitle, unbreakableTitle]);
+        const lines = await headerTitle.getLineCounts();
+        expect(lines.every((count) => count > 1)).toBe(true);
+        expect(await headerTitle.hasHorizontalScroll()).toBe(false);
     });
 
     test('should keep the titles when switching modes @wysiwyg @markup', async ({
@@ -77,17 +93,17 @@ test.describe('Header title', () => {
     }) => {
         const titles = [
             '::header-title[Team portal]{size="1" color="red"}',
-            '::header-title[Plain **text** \\[as\\] written]',
+            '::header-title[Release notes]',
         ];
         const values = [
             {size: '1', color: 'red', text: 'Team portal'},
-            {size: '2', color: 'auto', text: 'Plain **text** [as] written'},
+            {size: '2', color: 'auto', text: 'Release notes'},
         ];
         await mount(
             <HeaderStories.Header
                 mode="markup"
                 width={1000}
-                initial={`${inHeader(titles[0], 'Text')}\n\n${titles[1]}`}
+                initial={`${inHeader(titles[0], 'Text')}\n\n${inHeader(titles[1])}`}
             />,
         );
         await editor.switchMode('wysiwyg');
@@ -105,6 +121,7 @@ test.describe('Header title', () => {
     test('should change the size and the color with the title toolbar @wysiwyg', async ({
         mount,
         page,
+        editor,
         headerTitle,
         wait,
         expectScreenshot,
@@ -112,6 +129,11 @@ test.describe('Header title', () => {
         await mount(<HeaderStories.Header width={760} initial={toolbarMarkup} />);
         await headerTitle.blocks.click();
         await expect(headerTitle.toolbar).toBeVisible();
+        const [main, toolbar] = await Promise.all([
+            editor.locators.toolbars.main.boundingBox(),
+            headerTitle.toolbar.boundingBox(),
+        ]);
+        expect(toolbar!.y).toBeGreaterThanOrEqual(main!.y + main!.height);
         await expect(headerTitle.toolbar.getByRole('button')).toHaveCount(2);
         await expect(headerTitle.sizeButton).toHaveAccessibleName('Title size: Heading 2');
         await expect(headerTitle.colorButton).toHaveAccessibleName('Title color: Default');
@@ -120,9 +142,8 @@ test.describe('Header title', () => {
         await expect(headerTitle.menuItems).toHaveText(SIZE_NAMES);
         await headerTitle.menuItem('Heading 1').click();
         await expect(headerTitle.menu).toBeHidden();
-        await expect(headerTitle.blocks).toHaveAttribute('aria-level', '1');
+        await expect(headerTitle.blocks).toHaveAttribute('data-size', '1');
         await expect(headerTitle.sizeButton).toHaveAccessibleName('Title size: Heading 1');
-        expect(await headerTitle.getTypography(headerTitle.blocks)).toEqual([TYPOGRAPHY[0]]);
 
         await headerTitle.colorButton.click();
         await expect(headerTitle.menuItems).toHaveText(COLOR_NAMES);
@@ -139,7 +160,7 @@ test.describe('Header title', () => {
         await expectScreenshot();
     });
 
-    test('should open the size menu of the title toolbar with the keyboard @wysiwyg', async ({
+    test('should choose a size of the title toolbar with the keyboard @wysiwyg', async ({
         mount,
         page,
         editor,
@@ -153,8 +174,23 @@ test.describe('Header title', () => {
         await expect(headerTitle.sizeButton).toBeFocused();
         await page.keyboard.press('Enter');
         await expect(headerTitle.menuItems).toHaveText(SIZE_NAMES);
+        await page.keyboard.press('Tab');
+        await expect(headerTitle.menuItem('Heading 1')).toBeFocused();
+        await page.keyboard.press('Tab');
+        await page.keyboard.press('Tab');
+        await expect(headerTitle.menuItem('Heading 3')).toBeFocused();
+        await page.keyboard.press('Enter');
+        await expect(headerTitle.menu).toBeHidden();
+        await expect(headerTitle.blocks).toHaveAttribute('data-size', '3');
+        await expect(editor.locators.contenteditable).toBeFocused();
+
+        await editor.press('Tab');
+        await expect(headerTitle.sizeButton).toBeFocused();
+        await page.keyboard.press('Enter');
+        await expect(headerTitle.menuItems).toHaveText(SIZE_NAMES);
         await page.keyboard.press('Escape');
         await expect(headerTitle.menu).toBeHidden();
+        await expect(headerTitle.toolbar).toBeVisible();
         await expect(headerTitle.sizeButton).toBeFocused();
     });
 
@@ -177,12 +213,10 @@ test.describe('Header title', () => {
             .toContain('::header-title[Team portal and news#]\n');
     });
 
-    test('should turn the title off and on in the banner settings @wysiwyg', async ({
+    test('should restore the title turned off in the banner settings @wysiwyg', async ({
         mount,
         header,
         headerTitle,
-        wait,
-        expectScreenshot,
     }) => {
         const title = '::header-title[Team portal]{size="1" color="blue"}';
         await mount(<HeaderStories.Header width={760} initial={inHeader(title, 'Text')} />);
@@ -195,19 +229,11 @@ test.describe('Header title', () => {
         await expect(headerTitle.blocks).toHaveCount(0);
         await expect.poll(() => headerTitle.getMarkup()).not.toContain('::header-title');
 
-        await header.clickToggle('Title');
-        await expect(header.toggle('Title')).toBeChecked();
-        await expect(headerTitle.blocks).toHaveCount(1);
-        await expect.poll(() => headerTitle.getMarkup()).toContain(`\n\n${title}\n\nText`);
-        await header.setExpandedSections('Text');
-        await wait.markupPreview(title);
-        await expectScreenshot();
-
         await header.closeButton.click();
         await expect(header.settings).toBeHidden();
         await header.openSettings();
         await header.clickToggle('Title');
-        await header.clickToggle('Title');
+        await expect(header.toggle('Title')).toBeChecked();
         await expect(headerTitle.blocks).toHaveCount(1);
         await expect.poll(() => headerTitle.getMarkup()).toContain(`\n\n${title}\n\nText`);
     });

@@ -1,38 +1,72 @@
 import type {Locator, Page} from '@playwright/test';
 
 import {test as base} from './header';
-import {ToolbarBlock} from './preview-block';
 
-export class HeaderTitleBlock extends ToolbarBlock {
+const SELECTOR = '.g-md-header-title-plugin';
+
+export class HeaderTitleBlock {
+    readonly blocks: Locator;
+    readonly previews: Locator;
+    readonly placeholders: Locator;
+    readonly toolbar: Locator;
     readonly sizeButton: Locator;
     readonly colorButton: Locator;
+    readonly menu: Locator;
+    readonly menuItems: Locator;
 
     constructor(page: Page, preview: Locator) {
-        super(page, preview, '.g-md-header-title-plugin', 'g-md-toolbar-header-title');
+        this.blocks = page.locator(`.ProseMirror ${SELECTOR}`);
+        this.previews = preview.locator(SELECTOR);
+        this.placeholders = this.blocks.locator('.g-md-placeholder');
+        this.toolbar = page.getByTestId('g-md-toolbar-header-title');
         this.sizeButton = this.toolbar.getByRole('button', {name: /^Title size: /});
         this.colorButton = this.toolbar.getByRole('button', {name: /^Title color: /});
+        this.menu = page.getByTestId('g-md-toolbar-menu');
+        this.menuItems = this.menu.getByRole('menuitem');
+    }
+
+    menuItem(name: string) {
+        return this.menu.getByRole('menuitem', {name, exact: true});
     }
 
     getValues(blocks = this.previews) {
         return blocks.evaluateAll((elements) =>
             elements.map((element) => ({
-                size: element.getAttribute('aria-level'),
+                size: element.className.match(/_size_(\d)/)?.[1],
                 color: element.getAttribute('data-color') ?? 'auto',
                 text: element.textContent?.trim(),
             })),
         );
     }
 
-    getMarkup() {
-        return this.blocks.page().evaluate(() => window.mdEditor?.getValue());
+    getStyles(blocks = this.previews) {
+        return blocks.evaluateAll((elements) =>
+            elements.map((element) => {
+                const {fontSize, lineHeight, fontWeight, color} = getComputedStyle(element);
+                return {fontSize, lineHeight, fontWeight, color};
+            }),
+        );
     }
 
-    getParentColors(blocks = this.previews) {
+    getLineCounts(blocks = this.blocks) {
         return blocks.evaluateAll((elements) =>
             elements.map((element) =>
-                element.parentElement ? getComputedStyle(element.parentElement).color : '',
+                Math.round(
+                    element.getBoundingClientRect().height /
+                        parseFloat(getComputedStyle(element).lineHeight),
+                ),
             ),
         );
+    }
+
+    hasHorizontalScroll(blocks = this.blocks) {
+        return blocks.evaluateAll((elements) =>
+            elements.some((element) => element.scrollWidth > element.clientWidth),
+        );
+    }
+
+    getMarkup() {
+        return this.blocks.page().evaluate(() => window.mdEditor?.getValue());
     }
 }
 

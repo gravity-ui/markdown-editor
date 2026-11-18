@@ -18,7 +18,9 @@ export const Title: StoryObj<typeof HeaderExample> = {
             ':::header{height="s" width="m"}',
             '::header-title[Release notes]{size="1" color="blue"}',
             ':::',
-            'After',
+            ':::header{height="s" width="m"}',
+            '::header-title[]',
+            ':::',
         ].join('\n\n'),
     },
 };
