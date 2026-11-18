@@ -69,6 +69,9 @@ Block/
 - Specs register a node with three calls: `addNodeSpec()`, `addMarkdownTokenParserSpec()` and `addNodeSerializerSpec()`; a mark with `addMarkSpec()`, `addMarkdownTokenParserSpec()` and `addMarkSerializerSpec()`. A NodeView or a mark view is registered in the main extension with `addNodeView()` or `addMarkView()`.
 - A NodeView is a class in `BlockNodeView/`; its React components live in `components/`.
 - Class names come from `cn`; element state is a modifier.
+- CSS blocks and elements are kebab-case: `.g-md-some-block__some-element`. A NodeView block ends with `-nodeview`.
+- A set of named constants is a plain object with `as const`.
+- Each field of a public options type has a comment with its behavior and default.
 - A markdown-it plugin emits one token stream; extra data goes to `token.meta`.
 - A markdown-it plugin only parses. The serializer lives in the extension and writes through `state`.
 
