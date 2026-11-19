@@ -20,6 +20,7 @@ import {
 } from '@gravity-ui/markdown-viewer-yfm-html-extension';
 import {YfmLatex} from '@gravity-ui/markdown-viewer-yfm-latex-extension';
 import {YfmMermaid} from '@gravity-ui/markdown-viewer-yfm-mermaid-extension';
+import {YfmPageConstructor} from '@gravity-ui/markdown-viewer-yfm-page-constructor-extension';
 import type MarkdownIt from 'markdown-it';
 import {useDebounce} from 'react-use';
 
@@ -33,9 +34,6 @@ import {
 } from '../defaults/md-plugins';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 import {lineNumbersPlugin} from '../utils/line-numbers';
-
-import {DiplodocPageConstructor} from './viewer-extensions/DiplodocPageConstructor';
-import type {TransformMeta} from './viewer-extensions/types';
 
 import '@diplodoc/cut-extension/runtime/styles.css';
 import '@diplodoc/folding-headings-extension/runtime/styles.css';
@@ -96,7 +94,7 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
     );
     const [result, setResult] = useState<{
         html: string;
-        meta?: TransformMeta;
+        meta?: {script?: string[]; style?: string[]};
         source: MarkupString;
     }>({html: '', source: ''});
 
@@ -148,7 +146,7 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
                 <YfmCodeBlockActions />
                 <FilesGallery getCopyUrl={getGalleryUrl} getDownloadUrl={getGalleryUrl} />
                 <YfmLatex meta={result.meta} runtime={LATEX_RUNTIME} />
-                <DiplodocPageConstructor meta={result.meta} runtime={PAGE_CONSTRUCTOR_RUNTIME} />
+                <YfmPageConstructor meta={result.meta} runtime={PAGE_CONSTRUCTOR_RUNTIME} />
                 <YfmMermaid meta={result.meta} runtime={MERMAID_RUNTIME} />
                 <YfmHtmlBlock
                     meta={result.meta}

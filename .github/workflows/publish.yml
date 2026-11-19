@@ -20,6 +20,7 @@ on:
           - 'packages/viewer-yfm-html-extension'
           - 'packages/viewer-yfm-latex-extension'
           - 'packages/viewer-yfm-mermaid-extension'
+          - 'packages/viewer-yfm-page-constructor-extension'
       tag:
         description: 'Publish with tag'
         required: true

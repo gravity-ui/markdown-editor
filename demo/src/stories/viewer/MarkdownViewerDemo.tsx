@@ -22,9 +22,9 @@ import {
     YfmMermaid,
     type YfmMermaidOptions,
 } from '@gravity-ui/markdown-viewer-yfm-mermaid-extension';
+import {YfmPageConstructor} from '@gravity-ui/markdown-viewer-yfm-page-constructor-extension';
 import {Button, Flex, SegmentedRadioGroup, Text, sp} from '@gravity-ui/uikit';
 
-import {DiplodocPageConstructor} from '../../components/viewer-extensions/DiplodocPageConstructor';
 import useYfmHtmlBlockStyles from '../../hooks/useYfmHtmlBlockStyles';
 
 import {cn} from './cn';
@@ -120,7 +120,7 @@ export function MarkdownViewerDemo({
                     <HeadingAnchors getHref={getHeadingHref} onClick={navigateToHeading} />
                     <YfmCodeBlockActions />
                     <YfmLatex meta={result.meta} />
-                    <DiplodocPageConstructor meta={result.meta} />
+                    <YfmPageConstructor meta={result.meta} />
                     <YfmMermaid meta={result.meta} options={mermaidOptions} />
                     <YfmHtmlBlock meta={result.meta} config={htmlBlockConfig} />
                     <FilesGallery
