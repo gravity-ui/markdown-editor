@@ -14,9 +14,15 @@ const {schema} = new ExtensionsManager({
 
 describe('TableDesc.create', () => {
     it.each(['colspan', 'rowspan'])('should reject invalid %s values without throwing', (attr) => {
-        for (const value of [0, -1, 1.5, '1.5', 'oops', '', true, NaN, Infinity, 2 ** 53]) {
+        const invalid = [0, -1, 1.5, '1.5', '1.0', '1e0', 'oops', '', true, NaN, Infinity, 2 ** 53];
+        for (const value of invalid) {
             expect(TableDesc.create(table(row(cell({[attr]: value}))))).toBeNull();
         }
+    });
+
+    it('should limit colspan to 1000 per cell', () => {
+        expect(TableDesc.create(table(row(cell({colspan: 1000}), cell())))?.cols).toBe(1001);
+        expect(TableDesc.create(table(row(cell({colspan: 1001}))))).toBeNull();
     });
 
     it('should reject rowspans beyond the last row without throwing', () => {
@@ -58,8 +64,8 @@ describe('TableDesc.create', () => {
     });
 
     it('should accept explicit unit spans and rows fully covered by rowspans', () => {
-        expect(TableDesc.create(table(row(cell({rowspan: '1', colspan: 1}))))?.cols).toBe(1);
-        expect(TableDesc.create(table(row(cell({rowspan: 2})), row()))?.rows).toBe(2);
+        expect(TableDesc.create(table(row(cell({rowspan: '01', colspan: 1}))))?.cols).toBe(1);
+        expect(TableDesc.create(table(row(cell({rowspan: ' 2 '})), row()))?.rows).toBe(2);
     });
 });
 

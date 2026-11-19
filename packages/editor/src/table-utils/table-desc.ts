@@ -2,6 +2,8 @@ import type {Node} from 'prosemirror-model';
 
 import {isTableBodyNode, isTableCellNode, isTableNode, isTableRowNode} from './utils';
 
+const MAX_COLSPAN = 1000;
+
 // TableDesc creates a virtual table description containing info about real and virtual cells needed for correct table operations.
 // This description is cached.
 // At the same time, positions of rows and cells may change, so a separate class (TableDescBinded) has been added
@@ -80,15 +82,14 @@ export class TableDesc {
                 if (!isTableCellNode(tcell)) return null;
                 const colspan = readSpan(tcell.attrs['colspan']);
                 const rowspan = readSpan(tcell.attrs['rowspan']);
-                if (colspan === null || rowspan === null || trowIndex + rowspan > rows.length)
-                    return null;
+                if (colspan === null || colspan > MAX_COLSPAN) return null;
+                if (rowspan === null || trowIndex + rowspan > rows.length) return null;
 
                 let tcellIndex = tcellRealIndex;
                 while (rowDesc.cells[tcellIndex]) {
                     tcellIndex++;
                 }
 
-                if (!Number.isSafeInteger(tcellIndex + colspan)) return null;
                 if (trowIndex > 0 && tcellIndex + colspan > rows[0].cells.length) return null;
 
                 const cellDesc: TableCellRealDesc = (rowDesc.cells[tcellIndex] = {
@@ -474,9 +475,6 @@ export type {TableDescBinded};
 
 function readSpan(value: unknown): number | null {
     if (value === null || value === undefined) return 1;
-    if (typeof value !== 'number' && typeof value !== 'string') return null;
-    const span = Number(value);
-    return Number.isSafeInteger(span) && span > 0 && parseInt(String(value), 10) === span
-        ? span
-        : null;
+    const span = typeof value === 'string' && /^\d+$/.test(value.trim()) ? Number(value) : value;
+    return typeof span === 'number' && Number.isSafeInteger(span) && span > 0 ? span : null;
 }
