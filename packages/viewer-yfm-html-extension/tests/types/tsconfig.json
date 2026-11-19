@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "../..",
+    "types": [],
+    "skipLibCheck": false,
+    "paths": {"@gravity-ui/markdown-viewer-yfm-html-extension": ["./src/index.ts"]}
+  },
+  "include": ["*.types.ts"]
+}

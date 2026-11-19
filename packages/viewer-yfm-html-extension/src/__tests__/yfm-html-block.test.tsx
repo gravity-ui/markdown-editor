@@ -1,16 +1,12 @@
-import type {ReactNode} from 'react';
-
-import type {HTMLRuntimeConfig} from '@diplodoc/html-extension';
 import {MarkdownViewer} from '@gravity-ui/markdown-viewer';
 import {type Root, createRoot} from 'react-dom/client';
 import {act} from 'react-dom/test-utils';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {DiplodocHtml} from '../DiplodocHtml';
-import type {TransformMeta} from '../types';
+import {YfmHtmlBlock, type YfmHtmlBlockProps} from '../index';
 
 const {controller, useController, setupRuntimeConfig} = vi.hoisted(() => {
-    const sharedController = {initialize: vi.fn(async () => [])};
+    const sharedController = {initialize: vi.fn(async () => []), disposeChildren: vi.fn()};
     return {
         controller: sharedController,
         useController: vi.fn<() => typeof sharedController | null>(() => sharedController),
@@ -18,21 +14,20 @@ const {controller, useController, setupRuntimeConfig} = vi.hoisted(() => {
     };
 });
 vi.mock('@diplodoc/html-extension/react', () => ({
-    useDiplodocEmbeddedContentController: useController,
+    default: {useDiplodocEmbeddedContentController: useController},
 }));
-vi.mock('@diplodoc/html-extension/utils', () => ({setupRuntimeConfig}));
+vi.mock('@diplodoc/html-extension/utils', () => ({default: {setupRuntimeConfig}}));
 
 const meta = {script: ['_assets/html-extension.js']};
 const html = '<iframe data-yfm-sandbox-mode="srcdoc" srcdoc="<p>HTML block</p>"></iframe>';
 
-describe('DiplodocHtml', () => {
+describe('YfmHtmlBlock', () => {
     let container: HTMLDivElement;
     let root: Root;
 
     beforeEach(() => {
         vi.clearAllMocks();
         vi.doMock('@diplodoc/html-extension/runtime', () => ({}));
-        controller.initialize.mockResolvedValue([]);
         useController.mockReturnValue(controller);
         container = document.createElement('div');
         document.body.append(container);
@@ -48,18 +43,13 @@ describe('DiplodocHtml', () => {
         const runtime = 'custom-html.js';
         const loadRuntime = vi.fn(() => ({}));
         vi.doMock('@diplodoc/html-extension/runtime', loadRuntime);
-        const view = (currentMeta?: TransformMeta) => (
-            <MarkdownViewer html={html}>
-                <DiplodocHtml meta={currentMeta} runtime={runtime} />
-            </MarkdownViewer>
-        );
-        await render(view());
-        await render(view({script: ['other-runtime.js']}));
+        await renderBlock({meta: undefined, runtime});
+        await renderBlock({meta: {script: ['other-runtime.js']}, runtime});
         expect(loadRuntime).not.toHaveBeenCalled();
         expect(setupRuntimeConfig).not.toHaveBeenCalled();
         expect(controller.initialize).not.toHaveBeenCalled();
 
-        await render(view({script: [runtime]}));
+        await renderBlock({meta: {script: [runtime]}, runtime});
 
         expect(loadRuntime).toHaveBeenCalledOnce();
         expect(setupRuntimeConfig).toHaveBeenCalledWith({disabledModes: ['shadow']});
@@ -69,44 +59,41 @@ describe('DiplodocHtml', () => {
         expect(controller.initialize).toHaveBeenCalledExactlyOnceWith(undefined);
     });
 
-    it('should pass config and runtime policy to the SDK', async () => {
-        const runtimeConfig: HTMLRuntimeConfig = {disabledModes: ['shadow', 'isolated']};
+    it('should pass iframe settings and runtime policy to Diplodoc', async () => {
+        const runtimeConfig: NonNullable<YfmHtmlBlockProps['runtimeConfig']> = {
+            disabledModes: ['isolated'],
+        };
         const config = {classNames: ['light'], styles: {'--color': 'white'}};
-        await render(
-            <MarkdownViewer html={html}>
-                <DiplodocHtml meta={meta} config={config} runtimeConfig={runtimeConfig} />
-            </MarkdownViewer>,
-        );
+        await renderBlock({config, runtimeConfig});
         expect(controller.initialize).toHaveBeenCalledExactlyOnceWith(config);
-        expect(setupRuntimeConfig).toHaveBeenCalledWith(runtimeConfig);
+        expect(setupRuntimeConfig).toHaveBeenCalledWith({disabledModes: ['isolated']});
+    });
+
+    it('should keep shared controller children when the viewer unmounts', async () => {
+        await renderBlock();
+        expect(controller.initialize).toHaveBeenCalledOnce();
+
+        await act(async () => root.unmount());
+
+        expect(controller.disposeChildren).not.toHaveBeenCalled();
     });
 
     it('should initialize updated HTML', async () => {
-        const view = (content: string) => (
-            <MarkdownViewer html={content}>
-                <DiplodocHtml meta={meta} />
-            </MarkdownViewer>
-        );
-        await render(view(html));
+        await renderBlock();
         expect(controller.initialize).toHaveBeenCalledTimes(1);
 
-        await render(view(html.replace('HTML block', 'Updated block')));
+        await renderBlock({}, html.replace('HTML block', 'Updated block'));
 
         expect(controller.initialize).toHaveBeenCalledTimes(2);
     });
 
-    it('should initialize when the SDK controller becomes available', async () => {
-        const view = () => (
-            <MarkdownViewer html={html}>
-                <DiplodocHtml meta={meta} />
-            </MarkdownViewer>
-        );
+    it('should initialize when the controller becomes available', async () => {
         useController.mockReturnValue(null);
-        await render(view());
+        await renderBlock();
         expect(controller.initialize).not.toHaveBeenCalled();
 
         useController.mockReturnValue(controller);
-        await render(view());
+        await renderBlock();
 
         expect(controller.initialize).toHaveBeenCalledOnce();
     });
@@ -124,7 +111,7 @@ describe('DiplodocHtml', () => {
             await act(async () =>
                 root.render(
                     <MarkdownViewer html={html}>
-                        <DiplodocHtml meta={meta} onError={onError} />
+                        <YfmHtmlBlock meta={meta} onError={onError} />
                     </MarkdownViewer>,
                 ),
             );
@@ -148,11 +135,7 @@ describe('DiplodocHtml', () => {
         });
         const onError = vi.fn();
 
-        await render(
-            <MarkdownViewer html={html}>
-                <DiplodocHtml meta={meta} onError={onError} />
-            </MarkdownViewer>,
-        );
+        await renderBlock({onError});
 
         expect(onError).toHaveBeenCalledExactlyOnceWith(expect.any(Error));
         expect(controller.initialize).not.toHaveBeenCalled();
@@ -163,17 +146,19 @@ describe('DiplodocHtml', () => {
         const onError = vi.fn();
         controller.initialize.mockRejectedValueOnce(error);
 
-        await render(
-            <MarkdownViewer html={html}>
-                <DiplodocHtml meta={meta} onError={onError} />
-            </MarkdownViewer>,
-        );
+        await renderBlock({onError});
 
         expect(onError).toHaveBeenCalledExactlyOnceWith(error);
     });
 
-    async function render(children: ReactNode) {
-        await act(async () => root.render(children));
+    async function renderBlock(props: YfmHtmlBlockProps = {}, content = html) {
+        await act(async () =>
+            root.render(
+                <MarkdownViewer html={content}>
+                    <YfmHtmlBlock meta={meta} {...props} />
+                </MarkdownViewer>,
+            ),
+        );
         await act(async () => vi.dynamicImportSettled());
     }
 });

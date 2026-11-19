@@ -16,6 +16,7 @@ import {
     HeadingAnchors,
     YfmCodeBlockActions,
 } from '@gravity-ui/markdown-viewer/extensions';
+import {YfmHtmlBlock} from '@gravity-ui/markdown-viewer-yfm-html-extension';
 import {YfmLatex} from '@gravity-ui/markdown-viewer-yfm-latex-extension';
 import {
     YfmMermaid,
@@ -23,7 +24,6 @@ import {
 } from '@gravity-ui/markdown-viewer-yfm-mermaid-extension';
 import {Button, Flex, SegmentedRadioGroup, Text, sp} from '@gravity-ui/uikit';
 
-import {DiplodocHtml} from '../../components/viewer-extensions/DiplodocHtml';
 import {DiplodocPageConstructor} from '../../components/viewer-extensions/DiplodocPageConstructor';
 import useYfmHtmlBlockStyles from '../../hooks/useYfmHtmlBlockStyles';
 
@@ -122,7 +122,7 @@ export function MarkdownViewerDemo({
                     <YfmLatex meta={result.meta} />
                     <DiplodocPageConstructor meta={result.meta} />
                     <YfmMermaid meta={result.meta} options={mermaidOptions} />
-                    <DiplodocHtml meta={result.meta} config={htmlBlockConfig} />
+                    <YfmHtmlBlock meta={result.meta} config={htmlBlockConfig} />
                     <FilesGallery
                         getCopyUrl={getGalleryUrl}
                         getDownloadUrl={getGalleryUrl}
