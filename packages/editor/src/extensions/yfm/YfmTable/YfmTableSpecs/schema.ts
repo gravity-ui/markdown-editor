@@ -1,13 +1,11 @@
 import type {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto} from '#core';
+import {TableRole} from 'src/table-utils';
+import type {PlaceholderOptions} from 'src/utils/placeholder';
 
-import {TableRole} from '../../../../table-utils';
-import type {PlaceholderOptions} from '../../../../utils/placeholder';
-
-import {YfmTableAttr, YfmTableNode} from './const';
-
-const DEFAULT_CELL_PLACEHOLDER = 'Table cell';
+import {DEFAULT_CELL_PLACEHOLDER, YfmTableAttr, YfmTableNode} from './const';
+import {getCellAttrs, getTableAttrs} from './dom';
 
 export type YfmTableSchemaOptions = {
     /**
@@ -32,26 +30,7 @@ export const getSchemaSpecs = (
             {
                 tag: 'table',
                 priority: 200,
-                getAttrs(dom) {
-                    const attr = dom.getAttribute(YfmTableAttr.HeaderRows);
-                    const rows = Array.from((dom as HTMLTableElement).rows);
-                    let headers = 0;
-                    for (const row of rows) {
-                        if (
-                            row.parentElement?.tagName !== 'THEAD' &&
-                            (!row.cells.length ||
-                                Array.from(row.cells).some((cell) => cell.tagName !== 'TH'))
-                        )
-                            break;
-                        headers++;
-                    }
-                    return {
-                        [YfmTableAttr.HeaderRows]:
-                            attr === null
-                                ? headers
-                                : Math.min(rows.length, Math.max(0, parseInt(attr, 10) || 0)),
-                    };
-                },
+                getAttrs: getTableAttrs,
             },
         ],
         toDOM(node) {
@@ -149,26 +128,3 @@ export const YfmTableSchemaSpecs: ExtensionAuto<YfmTableSchemaOptions> = (builde
         .addNodeSpec(YfmTableNode.Row, () => schemaSpecs[YfmTableNode.Row])
         .addNodeSpec(YfmTableNode.Cell, () => schemaSpecs[YfmTableNode.Cell]);
 };
-
-function getCellAttrs(dom: HTMLElement) {
-    const align =
-        dom.getAttribute('align') ||
-        dom.style.textAlign ||
-        // Older HTML may carry the alignment only in this attribute.
-        dom.getAttribute('cell-align') ||
-        null;
-    return {
-        [YfmTableAttr.Colspan]: dom.getAttribute(YfmTableAttr.Colspan),
-        [YfmTableAttr.Rowspan]: dom.getAttribute(YfmTableAttr.Rowspan),
-        [YfmTableAttr.CellAlign]:
-            dom.getAttribute(YfmTableAttr.CellAlign) ??
-            (align && !align.startsWith('cell-align-')
-                ? `cell-align-${dom.style.verticalAlign || 'top'}-${align}`
-                : align),
-        [YfmTableAttr.CellBg]:
-            dom.getAttribute(YfmTableAttr.CellBg) ||
-            dom.getAttribute('bgcolor') ||
-            dom.style.backgroundColor ||
-            null,
-    };
-}
