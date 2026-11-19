@@ -12,9 +12,17 @@ import {headerDimensions} from '@gravity-ui/markdown-plugin-header';
 import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
-import {removeHeader, setHeaderDimension} from '../../commands';
+import {runCommand} from '../../../commands';
+import {
+    type RemovedParts,
+    removeHeader,
+    setHeaderDimension,
+    toggleHeaderPart,
+} from '../../commands';
+import {headerPartTypes, headerParts} from '../../parts';
 
 import {HeaderSettings} from './Settings/HeaderSettings';
+import type {ContentControls} from './Settings/SettingsFields';
 
 import './HeaderToolbar.scss';
 
@@ -22,6 +30,16 @@ const b = cn('header-toolbar');
 
 /** The open toolbar of each editor, for the keymap to move focus into it. */
 export const headerToolbars = new WeakMap<EditorView, HTMLElement>();
+
+/** The blocks removed with the settings switches, by banner, until the page reloads. */
+const removedParts = new WeakMap<HTMLElement, RemovedParts>();
+
+function removedPartsOf(block: HTMLElement | null): RemovedParts {
+    if (!block) return new Map();
+    const removed = removedParts.get(block) ?? new Map();
+    removedParts.set(block, removed);
+    return removed;
+}
 
 const isActive = () => false;
 const isEnable = () => true;
@@ -44,6 +62,12 @@ type HeaderToolbarProps = {
 };
 
 export function HeaderToolbar({view, node, pos, block, markup}: HeaderToolbarProps) {
+    const content: ContentControls = {
+        parts: headerParts(node),
+        available: headerPartTypes(view.state.schema),
+        onPartChange: (part, enabled) =>
+            runCommand(view, toggleHeaderPart(pos, part, enabled, removedPartsOf(block))),
+    };
     const data: ToolbarData<EditorView> = [
         [
             {
@@ -60,8 +84,9 @@ export function HeaderToolbar({view, node, pos, block, markup}: HeaderToolbarPro
                         button={anchorElement}
                         dimensions={headerDimensions(node.attrs)}
                         onChange={(name, value) =>
-                            setHeaderDimension(pos, name, value)(view.state, view.dispatch)
+                            runCommand(view, setHeaderDimension(pos, name, value))
                         }
+                        content={content}
                         onClose={hide}
                     />
                 ),
@@ -84,7 +109,7 @@ export function HeaderToolbar({view, node, pos, block, markup}: HeaderToolbarPro
                 title: i18n('remove'),
                 isActive,
                 isEnable,
-                exec: (editor) => removeHeader(pos)(editor.state, editor.dispatch),
+                exec: (editor) => runCommand(editor, removeHeader(pos)),
             },
         ],
     ];

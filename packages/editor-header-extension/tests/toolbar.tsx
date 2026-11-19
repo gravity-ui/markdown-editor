@@ -11,6 +11,15 @@ import {createTestEditor, headerExtensions} from './editor';
 
 const SETTLE_TIMEOUT = 2000;
 
+const emptyRects = (): DOMRectList =>
+    Object.assign([], {item: () => null}) as unknown as DOMRectList;
+
+// jsdom has no layout: ProseMirror measures ranges when it scrolls to the selection.
+if (!Range.prototype.getClientRects) {
+    Range.prototype.getClientRects = emptyRects;
+    Range.prototype.getBoundingClientRect = () => new DOMRect();
+}
+
 export const settle = async (until: () => unknown = () => true) => {
     const end = Date.now() + SETTLE_TIMEOUT;
     for (;;) {
