@@ -2,6 +2,8 @@ import {expect, test} from 'playwright/core';
 
 import {ViewerStories} from './MarkdownViewer.helpers';
 
+const contentChunk = '**/YfmPageConstructorContent-*.js';
+
 test.describe('MarkdownViewer Page Constructor', () => {
     test('should render a block with styles in both themes', async ({
         mount,
@@ -16,13 +18,10 @@ test.describe('MarkdownViewer Page Constructor', () => {
     });
 
     test('should discard a pending block when the document changes', async ({mount, page}) => {
-        let release!: () => void;
-        const pending = new Promise<void>((resolve) => {
-            release = resolve;
-        });
-        const requested = page.waitForRequest('**/DiplodocPageConstructorContent-*.js');
-        await page.route('**/DiplodocPageConstructorContent-*.js', async (route) => {
-            await pending;
+        const pending = Promise.withResolvers<void>();
+        const requested = page.waitForRequest(contentChunk);
+        await page.route(contentChunk, async (route) => {
+            await pending.promise;
             await route.continue();
         });
         await mount(<ViewerStories.PageConstructor />);
@@ -32,7 +31,7 @@ test.describe('MarkdownViewer Page Constructor', () => {
 
         await page.getByRole('radio', {name: 'Updated block'}).check();
         await page.getByRole('radio', {name: 'Plain text'}).check();
-        release();
+        pending.resolve();
 
         await expect(viewer.locator('.yfm-page-constructor')).toHaveCount(0);
 
@@ -42,7 +41,7 @@ test.describe('MarkdownViewer Page Constructor', () => {
     });
 
     test('should show an import error inside the block', async ({mount, page}) => {
-        await page.route('**/DiplodocPageConstructorContent-*.js', (route) => route.abort());
+        await page.route(contentChunk, (route) => route.abort());
         await mount(<ViewerStories.PageConstructor />);
         const viewer = page.getByTestId('demo-markdown-viewer');
         const block = viewer.locator('.yfm-page-constructor');

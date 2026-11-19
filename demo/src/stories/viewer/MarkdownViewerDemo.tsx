@@ -16,13 +16,15 @@ import {
     HeadingAnchors,
     YfmCodeBlockActions,
 } from '@gravity-ui/markdown-viewer/extensions';
+import {YfmHtmlBlock} from '@gravity-ui/markdown-viewer-yfm-html-extension';
 import {YfmLatex} from '@gravity-ui/markdown-viewer-yfm-latex-extension';
+import {
+    YfmMermaid,
+    type YfmMermaidOptions,
+} from '@gravity-ui/markdown-viewer-yfm-mermaid-extension';
+import {YfmPageConstructor} from '@gravity-ui/markdown-viewer-yfm-page-constructor-extension';
 import {Button, Flex, SegmentedRadioGroup, Text, sp} from '@gravity-ui/uikit';
 
-import {DiplodocHtml} from '../../components/viewer-extensions/DiplodocHtml';
-import {DiplodocMermaid} from '../../components/viewer-extensions/DiplodocMermaid';
-import {DiplodocPageConstructor} from '../../components/viewer-extensions/DiplodocPageConstructor';
-import type {DiplodocMermaidOptions} from '../../components/viewer-extensions/types';
 import useYfmHtmlBlockStyles from '../../hooks/useYfmHtmlBlockStyles';
 
 import {cn} from './cn';
@@ -50,7 +52,7 @@ const sanitizeOptions = buildYfmHtmlBlockOptions({allowedAttributes: {iframe: ['
 interface MarkdownViewerDemoProps {
     documents?: readonly {label: string; source: string}[];
     showFeedbackToggle?: boolean;
-    mermaidOptions?: DiplodocMermaidOptions;
+    mermaidOptions?: YfmMermaidOptions;
 }
 
 export function MarkdownViewerDemo({
@@ -118,9 +120,9 @@ export function MarkdownViewerDemo({
                     <HeadingAnchors getHref={getHeadingHref} onClick={navigateToHeading} />
                     <YfmCodeBlockActions />
                     <YfmLatex meta={result.meta} />
-                    <DiplodocPageConstructor meta={result.meta} />
-                    <DiplodocMermaid meta={result.meta} options={mermaidOptions} />
-                    <DiplodocHtml meta={result.meta} config={htmlBlockConfig} />
+                    <YfmPageConstructor meta={result.meta} />
+                    <YfmMermaid meta={result.meta} options={mermaidOptions} />
+                    <YfmHtmlBlock meta={result.meta} config={htmlBlockConfig} />
                     <FilesGallery
                         getCopyUrl={getGalleryUrl}
                         getDownloadUrl={getGalleryUrl}
