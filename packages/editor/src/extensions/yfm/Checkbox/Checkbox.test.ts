@@ -1,3 +1,4 @@
+import {DOMParser, DOMSerializer} from 'prosemirror-model';
 import {builders} from 'prosemirror-test-builder';
 import dd from 'ts-dedent';
 import {describe, it} from 'vitest';
@@ -91,6 +92,13 @@ describe('Checkbox extension', () => {
                 ),
             ),
         ));
+
+    it('should preserve a checked checkbox and its bold label through HTML', () => {
+        const markdown = '[X] **done**';
+        const {content} = parser.parse(markdown);
+        const html = DOMSerializer.fromSchema(schema).serializeFragment(content);
+        serialize(DOMParser.fromSchema(schema).parse(html), markdown);
+    });
 
     it('should substitute placeholder when label is empty', () => {
         serialize(doc(checkbox(cbInput(), cbLabel())), '[ ] checkbox-placeholder');
