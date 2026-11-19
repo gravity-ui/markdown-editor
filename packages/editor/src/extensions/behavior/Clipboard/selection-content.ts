@@ -1,4 +1,5 @@
 import type {Selection} from '#pm/state';
+import {isListItemNode} from 'src/extensions/markdown/Lists/utils';
 
 /**
  * @internal
@@ -13,7 +14,10 @@ export function getSelectionContent(sel: Selection) {
     const sharedNode = sel.$from.node(sharedDepth);
     const sharedNodeComplex = sharedNode.type.spec.complex;
 
-    if (sharedNodeComplex && sharedNodeComplex !== 'leaf') {
+    // The marker of a list item belongs to its first block
+    const hasListItemMarker = isListItemNode(sharedNode) && sel.$from.index(sharedDepth) === 0;
+
+    if ((sharedNodeComplex && sharedNodeComplex !== 'leaf') || hasListItemMarker) {
         // Find the nearest ancestor with complex='root' to avoid
         // wrapping copied content in outer containers (blockquote, table cell, etc.)
         let rootDepth = sharedDepth;
