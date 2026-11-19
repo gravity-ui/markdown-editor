@@ -1,12 +1,24 @@
 import {type ReactNode, StrictMode} from 'react';
 
 import {MarkdownViewer, ViewerTargets} from '@gravity-ui/markdown-viewer';
+import {Theme} from '@gravity-ui/page-constructor';
 import {ThemeProvider} from '@gravity-ui/uikit';
 import {type Root, createRoot} from 'react-dom/client';
 import {act} from 'react-dom/test-utils';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {YfmPageConstructor, type YfmPageConstructorProps} from '../index';
+
+// Loading the real renderer can time out in CI. The browser tests cover it in both themes.
+vi.mock('@gravity-ui/page-constructor', () => ({
+    Theme: {Light: 'light', Dark: 'dark'},
+    PageConstructorProvider: ({children, theme}: {children: ReactNode; theme: Theme}) => (
+        <div data-theme={theme}>{children}</div>
+    ),
+    PageConstructor: ({content}: {content: {blocks: {title: string}[]}}) => (
+        <h1>{content.blocks[0].title}</h1>
+    ),
+}));
 
 const meta = {script: ['_assets/page-constructor.js']};
 const html = createHtml('Title');
@@ -16,9 +28,6 @@ describe('YfmPageConstructor', () => {
     let root: Root;
 
     beforeEach(() => {
-        vi.stubGlobal('matchMedia', (media: string) =>
-            Object.assign(new EventTarget(), {media, matches: false}),
-        );
         container = document.createElement('div');
         document.body.append(container);
         root = createRoot(container);
@@ -28,7 +37,6 @@ describe('YfmPageConstructor', () => {
         await act(async () => root.unmount());
         container.remove();
         vi.restoreAllMocks();
-        vi.unstubAllGlobals();
     });
 
     it('should render only the viewer with matching metadata', async () => {
@@ -105,8 +113,6 @@ describe('YfmPageConstructor', () => {
     });
 
     it('should use a custom runtime, selector and theme', async () => {
-        const {Theme} = await import('@gravity-ui/page-constructor');
-
         await render(
             <MarkdownViewer html={html.replace('yfm-page-constructor', 'custom-block')}>
                 <YfmPageConstructor
@@ -119,7 +125,7 @@ describe('YfmPageConstructor', () => {
         );
 
         expect(container.querySelector('h1')?.textContent).toBe('Title');
-        expect(container.querySelector('.custom-block .g-root_theme_dark')).not.toBeNull();
+        expect(container.querySelector('.custom-block [data-theme="dark"]')).not.toBeNull();
     });
 
     async function render(children: ReactNode) {
