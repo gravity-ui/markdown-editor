@@ -25,6 +25,20 @@ export {
     headerWidths,
 } from './header/model';
 export {headerPlugin} from './header/plugin';
+export {headerTitlePlugin} from './header-title/plugin';
+export {headerTitleAttrs, headerTitleFromAttrs} from './header-title/attrs';
+export {
+    type HeaderTitleColor,
+    type HeaderTitleModel,
+    type HeaderTitleSize,
+    headerTitleClassName,
+    headerTitleColors,
+    headerTitleDefaults,
+    headerTitleModel,
+    headerTitleSizes,
+    headerTitleTokenName,
+    headerTitleValues,
+} from './header-title/model';
 export {buttonPlugin} from './button/plugin';
 export {buttonAttrs, buttonFromAttrs} from './button/attrs';
 export {
