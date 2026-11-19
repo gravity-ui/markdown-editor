@@ -3,6 +3,7 @@ import type {Page} from '@playwright/test';
 import {expect} from 'playwright/core';
 import {test} from 'playwright/core/extensions/header-image';
 
+import {TEST_IMAGE} from './Header.const';
 import {HeaderStories} from './Header.helpers';
 
 const HEADER_WIDTH = 600;
@@ -10,7 +11,12 @@ const VIEW_WIDTH = 760;
 const IMAGE_RADIUS = '10px';
 const IMAGE_MARGIN = 16;
 const LANDSCAPE = 'assets/header-image-landscape.svg';
-const SQUARE_IMAGE = '::header-image{src="/assets/header-image-square.svg"}';
+const SQUARE = '/assets/header-image-square.svg';
+const SQUARE_IMAGE = `::header-image{src="${SQUARE}"}`;
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
+const SCRIPT_URL = ['javascript', 'alert(1)'].join(':');
+
+const imageMarkup = (src: string) => `::header-image{src="${src}"}`;
 
 const inHeader = (...blocks: string[]) =>
     [':::header{height="s" width="s"}', ...blocks, ':::'].join('\n\n');
@@ -123,12 +129,115 @@ test.describe('Header image', () => {
         await expect(headerImage.images).toHaveCount(1);
     });
 
-    test('should select the image with a click @wysiwyg', async ({mount, headerImage}) => {
+    test('should select the image and open its window with a click @wysiwyg', async ({
+        mount,
+        headerImage,
+    }) => {
         await mount(
             <HeaderStories.Header width={VIEW_WIDTH} initial={inHeader(SQUARE_IMAGE, 'Text')} />,
         );
         await headerImage.images.click();
         await expect(headerImage.selectedBlocks).toHaveCount(1);
         await expect(headerImage.images).toHaveClass(/ProseMirror-selectednode/);
+        await expect(headerImage.popup).toBeVisible();
+        await expect(headerImage.source.fileName).toHaveText('header-image-square.svg');
+    });
+
+    test('should add an image to a placeholder by a link @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        headerImage,
+        expectScreenshot,
+    }) => {
+        const initial = inHeader('::header-image', 'Text');
+        await mount(<HeaderStories.Header width={VIEW_WIDTH} initial={initial} />);
+        await headerImage.placeholders.click();
+        await expect(headerImage.popup).toBeVisible();
+        await expect(headerImage.selectedBlocks).toHaveCount(1);
+        await expect(headerImage.popup).toContainText('JPEG, GIF or PNG, up to 2 MB');
+        await headerImage.source.tab('Add by link').click();
+        await headerImage.source.linkInput.fill(SCRIPT_URL);
+        await headerImage.source.submitLinkButton.click();
+        await expect(headerImage.source.error).toHaveText('Unsupported image address');
+        expect(await markupOf(page)).toBe(initial);
+        await page.mouse.move(0, 0);
+        await expectScreenshot({component: headerImage.popup});
+
+        await headerImage.source.linkInput.fill(SQUARE);
+        await headerImage.source.submitLinkButton.click();
+        await expect(headerImage.images).toHaveCount(1);
+        await expect(headerImage.source.fileName).toHaveText('header-image-square.svg');
+        await expect.poll(() => markupOf(page)).toBe(inHeader(imageMarkup(SQUARE), 'Text'));
+        await editor.press('ControlOrMeta+z');
+        await expect(headerImage.placeholders).toHaveCount(1);
+    });
+
+    test('should upload a file to a placeholder and reset it @wysiwyg', async ({
+        mount,
+        page,
+        headerImage,
+    }) => {
+        await mount(
+            <HeaderStories.Header
+                width={VIEW_WIDTH}
+                initial={inHeader('::header-image', 'Text')}
+            />,
+        );
+        await headerImage.placeholders.click();
+        await expect(headerImage.popup).toBeVisible();
+        await headerImage.chooseFile(headerImage.source.uploadButton, {
+            name: 'large.png',
+            mimeType: 'image/png',
+            buffer: Buffer.alloc(MAX_IMAGE_SIZE + 1),
+        });
+        await expect(headerImage.source.error).toHaveText('The file is larger than 2 MB');
+        await expect(headerImage.images).toHaveCount(0);
+
+        await headerImage.chooseFile(headerImage.source.uploadButton, {
+            name: 'photo.png',
+            mimeType: 'image/png',
+            buffer: Buffer.from('image'),
+        });
+        await expect(headerImage.images).toHaveCount(1);
+        await expect.poll(() => markupOf(page)).toBe(inHeader(imageMarkup(TEST_IMAGE), 'Text'));
+        await expect(headerImage.source.replaceFileButton).toBeFocused();
+
+        await headerImage.resetButton.click();
+        await expect(headerImage.placeholders).toHaveCount(1);
+        await expect(headerImage.popup).toBeVisible();
+        await expect.poll(() => markupOf(page)).toBe(inHeader('::header-image', 'Text'));
+    });
+
+    test('should open and close the image window with the keyboard @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        headerImage,
+    }) => {
+        await mount(
+            <HeaderStories.Header width={VIEW_WIDTH} initial={inHeader(SQUARE_IMAGE, 'Text')} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+End');
+        await editor.press('Home');
+        await editor.press('Backspace');
+        await expect(headerImage.selectedBlocks).toHaveCount(1);
+        await editor.press('Enter');
+        await expect(headerImage.popup).toBeVisible();
+        await expect(headerImage.source.replaceFileButton).toBeFocused();
+        await page.keyboard.press('Escape');
+        await expect(headerImage.popup).toBeHidden();
+        await expect(editor.locators.contenteditable).toBeFocused();
+        await expect(headerImage.selectedBlocks).toHaveCount(1);
+
+        await editor.press('Enter');
+        await expect(headerImage.source.replaceFileButton).toBeFocused();
+        await page.keyboard.press('Tab');
+        await expect(headerImage.resetButton).toBeFocused();
+        await page.keyboard.press('Tab');
+        await expect(headerImage.popup).toBeHidden();
+        await expect(editor.locators.contenteditable).toBeFocused();
+        await expect.poll(() => markupOf(page)).toBe(inHeader(SQUARE_IMAGE, 'Text'));
     });
 });
