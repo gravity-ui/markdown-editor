@@ -5,12 +5,14 @@ import {expectTypeOf} from 'vitest';
 import {
     MarkdownViewer,
     type MarkdownViewerProps,
+    type NAMESPACE,
     type ViewerEffect,
     type ViewerEffectCleanup,
     type ViewerEffectContext,
     ViewerTargets,
     type ViewerTargetsProps,
     type YFMMods,
+    cn,
     cnYFM,
     useViewerEffect,
 } from '../../src';
@@ -66,6 +68,8 @@ expectTypeOf<ViewerEffectContext['root']>().toEqualTypeOf<HTMLDivElement>();
 expectTypeOf<ViewerEffectContext['signal']>().toEqualTypeOf<AbortSignal>();
 expectTypeOf<ReturnType<ViewerEffect>>().toEqualTypeOf<void | ViewerEffectCleanup>();
 expectTypeOf(useViewerEffect).parameters.toEqualTypeOf<[ViewerEffect, DependencyList]>();
+expectTypeOf(cn('diagram')('caption')).toEqualTypeOf<string>();
+expectTypeOf<typeof NAMESPACE>().toEqualTypeOf<'g-md-v-'>();
 expectTypeOf(cnYFM).parameter(0).toEqualTypeOf<YFMMods | null | undefined>();
 expectTypeOf<ViewerTargetsProps['children']>().parameter(0).toEqualTypeOf<HTMLElement>();
 expectTypeOf<ViewerTargetsProps['className']>().toEqualTypeOf<string | undefined>();
