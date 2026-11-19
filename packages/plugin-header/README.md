@@ -228,7 +228,7 @@ The button is an inline directive: it stays in the line of text.
 Buttons inside running text keep the spaces of the text.
 The label in square brackets is plain text; Markdown inside it is shown as written, and `\]` writes a closing bracket.
 The address and the title in parentheses are written and read like those of a Markdown link; the title becomes the `title` attribute.
-A button without parentheses has no address. A button with an empty label renders an empty link.
+A button without parentheses has no address. A button without square brackets or with an empty label renders an empty link.
 Buttons work independently and inside Header.
 
 | Attribute | Values                                                         | Default                                               |
