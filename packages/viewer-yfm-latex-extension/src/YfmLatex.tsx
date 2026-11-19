@@ -1,13 +1,18 @@
 import {useLatex} from '@diplodoc/latex-extension/react';
 import {inspectViewerNode, useViewerEffect} from '@gravity-ui/markdown-viewer';
 
-import type {DiplodocLatexOptions, DiplodocLatexRuntime, TransformMeta} from './types';
+import type {YfmLatexOptions, YfmLatexRuntime} from './types';
 
-interface DiplodocLatexProps {
-    meta?: TransformMeta;
-    runtime?: DiplodocLatexRuntime;
+export interface YfmLatexProps {
+    /** Transform metadata. No assets are loaded when it is missing. */
+    meta?: {script?: string[]; style?: string[]};
+    /** Asset names in metadata. Defaults to `_assets/latex-extension.js` and `.css`. */
+    runtime?: YfmLatexRuntime;
+    /** Formula selector. Defaults to `.yfm-latex`. React slots are skipped. */
     selector?: string;
-    options?: DiplodocLatexOptions;
+    /** Runtime options. Defaults to non-throwing errors in the theme error color. */
+    options?: YfmLatexOptions;
+    /** Handle active render errors. Defaults to `console.error`. */
     onError?: (error: unknown) => void;
 }
 
@@ -16,13 +21,13 @@ const defaultRuntime = {
     style: '_assets/latex-extension.css',
 };
 
-export function DiplodocLatex({
+export function YfmLatex({
     meta,
     runtime = defaultRuntime,
     selector = '.yfm-latex',
     options,
     onError = console.error,
-}: DiplodocLatexProps) {
+}: YfmLatexProps) {
     const renderLatex = useLatex();
 
     useViewerEffect(

@@ -15,6 +15,7 @@ import {
     HeadingEditButtons,
     YfmCodeBlockActions,
 } from '@gravity-ui/markdown-viewer/extensions';
+import {YfmLatex} from '@gravity-ui/markdown-viewer-yfm-latex-extension';
 import type MarkdownIt from 'markdown-it';
 import {useDebounce} from 'react-use';
 
@@ -30,7 +31,6 @@ import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 import {lineNumbersPlugin} from '../utils/line-numbers';
 
 import {DiplodocHtml} from './viewer-extensions/DiplodocHtml';
-import {DiplodocLatex} from './viewer-extensions/DiplodocLatex';
 import {DiplodocMermaid} from './viewer-extensions/DiplodocMermaid';
 import {DiplodocPageConstructor} from './viewer-extensions/DiplodocPageConstructor';
 import type {TransformMeta} from './viewer-extensions/types';
@@ -145,7 +145,7 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
                 )}
                 <YfmCodeBlockActions />
                 <FilesGallery getCopyUrl={getGalleryUrl} getDownloadUrl={getGalleryUrl} />
-                <DiplodocLatex meta={result.meta} runtime={LATEX_RUNTIME} />
+                <YfmLatex meta={result.meta} runtime={LATEX_RUNTIME} />
                 <DiplodocPageConstructor meta={result.meta} runtime={PAGE_CONSTRUCTOR_RUNTIME} />
                 <DiplodocMermaid meta={result.meta} runtime={MERMAID_RUNTIME} />
                 <DiplodocHtml
