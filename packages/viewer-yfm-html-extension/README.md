@@ -48,4 +48,11 @@ const config = {
 
 The package exports `YfmHtmlBlockProps`, `YfmHtmlBlockRuntime`, and `YfmHtmlRuntimeConfig` for TypeScript users.
 
-Viewers share the Diplodoc controller. Unmounting a viewer keeps it available to other viewers.
+Viewers on the same page share one Diplodoc controller. Choose a single `runtimeConfig`
+before the HTML runtime first loads and pass it to every viewer. The controller reads
+the policy once, when it is created.
+
+Each time a viewer initializes HTML blocks, the controller applies that viewer's `config`
+to all new blocks in the document, including blocks in other viewers. Use the same iframe
+settings for viewers shown together. Existing blocks keep the settings they started with.
+Unmounting a viewer keeps the controller available to other viewers.

@@ -12,9 +12,15 @@ export interface YfmHtmlBlockProps {
     meta?: {script?: string[]; style?: string[]};
     /** Asset name to match in metadata. Defaults to `_assets/html-extension.js`. */
     runtime?: YfmHtmlBlockRuntime;
-    /** Iframe settings passed to the shared controller. Uses the runtime defaults when omitted. */
+    /**
+     * Iframe settings for all new HTML blocks in the document, including blocks in other viewers.
+     * Existing blocks keep their settings. Defaults to the runtime settings.
+     */
     config?: IHTMLIFrameElementConfig;
-    /** Shared runtime policy. By default, shadow mode is disabled. */
+    /**
+     * Page-wide policy read once when the controller is created. Use the same value in all viewers.
+     * Defaults to `{disabledModes: ['shadow']}`. A custom value replaces this default.
+     */
     runtimeConfig?: YfmHtmlRuntimeConfig;
     /** Handle active runtime import or initialization errors. Defaults to `console.error`. */
     onError?: (error: unknown) => void;
