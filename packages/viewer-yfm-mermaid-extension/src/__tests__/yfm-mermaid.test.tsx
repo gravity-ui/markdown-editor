@@ -6,19 +6,15 @@ import {type Root, createRoot} from 'react-dom/client';
 import {act} from 'react-dom/test-utils';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {DiplodocMermaid} from '../DiplodocMermaid';
-import type {DiplodocMermaidOptions, TransformMeta} from '../types';
+import {YfmMermaid, type YfmMermaidOptions, type YfmMermaidProps} from '../index';
 
-const {renderMermaid, useMermaid} = vi.hoisted(() => {
-    const render = vi.fn();
-    return {renderMermaid: render, useMermaid: vi.fn(() => render)};
-});
-vi.mock('@diplodoc/mermaid-extension/react', () => ({useMermaid}));
+const {renderMermaid} = vi.hoisted(() => ({renderMermaid: vi.fn()}));
+vi.mock('@diplodoc/mermaid-extension/react', () => ({useMermaid: () => renderMermaid}));
 
 const meta = {script: ['_assets/mermaid-extension.js']};
 const html = '<div class="mermaid" data-content="graph%20TD%3B%20A--%3EB"></div>';
 
-describe('DiplodocMermaid', () => {
+describe('YfmMermaid', () => {
     let container: HTMLDivElement;
     let root: Root;
 
@@ -37,13 +33,13 @@ describe('DiplodocMermaid', () => {
     });
 
     it('should activate only matching metadata and keep other viewers unchanged', async () => {
-        const view = (currentMeta?: TransformMeta) => (
+        const view = (currentMeta?: YfmMermaidProps['meta']) => (
             <>
                 <MarkdownViewer html={html} qa="active">
-                    <DiplodocMermaid meta={currentMeta} />
+                    <YfmMermaid meta={currentMeta} />
                 </MarkdownViewer>
                 <MarkdownViewer html={html} qa="other">
-                    <DiplodocMermaid />
+                    <YfmMermaid />
                 </MarkdownViewer>
             </>
         );
@@ -65,7 +61,7 @@ describe('DiplodocMermaid', () => {
         const view = () => (
             <StrictMode>
                 <MarkdownViewer html={html}>
-                    <DiplodocMermaid meta={meta} theme={{light: 'forest', dark: 'dark'}} />
+                    <YfmMermaid meta={meta} theme={{light: 'forest', dark: 'dark'}} />
                 </MarkdownViewer>
             </StrictMode>
         );
@@ -89,7 +85,7 @@ describe('DiplodocMermaid', () => {
                         </b>
                     )}
                 </ViewerTargets>
-                <DiplodocMermaid meta={meta} />
+                <YfmMermaid meta={meta} />
             </MarkdownViewer>,
         );
 
@@ -100,7 +96,7 @@ describe('DiplodocMermaid', () => {
     it('should apply a new theme with a custom runtime and selector', async () => {
         const view = (theme: 'forest' | 'dark') => (
             <MarkdownViewer html={html.replace('mermaid', 'diagram')}>
-                <DiplodocMermaid
+                <YfmMermaid
                     meta={{script: ['custom-mermaid.js']}}
                     runtime="custom-mermaid.js"
                     selector=".diagram"
@@ -120,7 +116,7 @@ describe('DiplodocMermaid', () => {
     it('should select a configured Mermaid theme from the current UIKit theme', async () => {
         const view = () => (
             <MarkdownViewer html={html}>
-                <DiplodocMermaid meta={meta} theme={{light: 'neutral', dark: 'base'}} />
+                <YfmMermaid meta={meta} theme={{light: 'neutral', dark: 'base'}} />
             </MarkdownViewer>
         );
         await render(view());
@@ -133,7 +129,7 @@ describe('DiplodocMermaid', () => {
     });
 
     it('should pass Mermaid settings and the style nonce to the runtime', async () => {
-        const options: DiplodocMermaidOptions = {
+        const options: YfmMermaidOptions = {
             fontFamily: 'monospace',
             flowchart: {curve: 'linear'},
             zoom: {showMenu: true, maximumScale: 3},
@@ -141,7 +137,7 @@ describe('DiplodocMermaid', () => {
 
         await render(
             <MarkdownViewer html={html}>
-                <DiplodocMermaid meta={meta} options={options} nonce="viewer-styles" />
+                <YfmMermaid meta={meta} options={options} nonce="viewer-styles" />
             </MarkdownViewer>,
         );
 
@@ -160,9 +156,7 @@ describe('DiplodocMermaid', () => {
         vi.doMock('@diplodoc/mermaid-extension/runtime', loadRuntime);
         const view = (enabled: boolean) => (
             <ThemeProvider theme="light">
-                <MarkdownViewer html={html}>
-                    {enabled && <DiplodocMermaid meta={meta} />}
-                </MarkdownViewer>
+                <MarkdownViewer html={html}>{enabled && <YfmMermaid meta={meta} />}</MarkdownViewer>
             </ThemeProvider>
         );
         await act(async () => root.render(view(true)));
@@ -184,7 +178,7 @@ describe('DiplodocMermaid', () => {
 
         await render(
             <MarkdownViewer html={html}>
-                <DiplodocMermaid meta={meta} onError={onError} />
+                <YfmMermaid meta={meta} onError={onError} />
             </MarkdownViewer>,
         );
 
@@ -195,13 +189,10 @@ describe('DiplodocMermaid', () => {
 
     it('should discard a pending result after the document changes', async () => {
         const pending = Promise.withResolvers<void>();
-        renderMermaid.mockImplementationOnce(async (...args: Parameters<typeof renderDiagrams>) => {
-            await pending.promise;
-            await renderDiagrams(...args);
-        });
+        renderMermaid.mockImplementationOnce(renderAfter(pending.promise));
         const view = (source: string) => (
             <MarkdownViewer html={source}>
-                <DiplodocMermaid meta={meta} />
+                <YfmMermaid meta={meta} />
             </MarkdownViewer>
         );
         await render(view(html));
@@ -219,13 +210,10 @@ describe('DiplodocMermaid', () => {
         const pending = Promise.withResolvers<void>();
         renderMermaid
             .mockImplementationOnce(renderDiagrams)
-            .mockImplementationOnce(async (...args: Parameters<typeof renderDiagrams>) => {
-                await pending.promise;
-                await renderDiagrams(...args);
-            });
+            .mockImplementationOnce(renderAfter(pending.promise));
         const view = (enabled: boolean) => (
             <MarkdownViewer html={html + html + html}>
-                {enabled && <DiplodocMermaid meta={meta} />}
+                {enabled && <YfmMermaid meta={meta} />}
             </MarkdownViewer>
         );
         await render(view(true));
@@ -240,15 +228,36 @@ describe('DiplodocMermaid', () => {
         expect(renderMermaid).toHaveBeenCalledTimes(2);
     });
 
+    it('should restore the previous diagram when unmounted during a theme change', async () => {
+        const view = (
+            <MarkdownViewer html={html}>
+                <YfmMermaid meta={meta} />
+            </MarkdownViewer>
+        );
+        await render(view);
+        const previous = container.querySelector('svg');
+        expect(previous).not.toBeNull();
+
+        const pending = Promise.withResolvers<void>();
+        renderMermaid.mockImplementationOnce(renderAfter(pending.promise));
+        await render(view, 'dark');
+        expect(renderMermaid).toHaveBeenCalledTimes(2);
+        await render(<MarkdownViewer html={html} />, 'dark');
+        const afterUnmount = container.querySelector('svg');
+
+        await act(async () => pending.resolve());
+
+        expect(afterUnmount).toBe(previous);
+        expect(container.querySelectorAll('svg')).toHaveLength(1);
+        expect(container.querySelector('svg')).toBe(previous);
+    });
+
     it('should preserve a sibling React slot across render and theme updates', async () => {
         const pending = Promise.withResolvers<void>();
-        renderMermaid.mockImplementationOnce(async (...args: Parameters<typeof renderDiagrams>) => {
-            await pending.promise;
-            await renderDiagrams(...args);
-        });
+        renderMermaid.mockImplementationOnce(renderAfter(pending.promise));
         const view = (withSlot: boolean, theme: 'forest' | 'dark' = 'forest') => (
             <MarkdownViewer html={html}>
-                <DiplodocMermaid meta={meta} theme={theme} />
+                <YfmMermaid meta={meta} theme={theme} />
                 {withSlot && (
                     <ViewerTargets selector=".mermaid">{() => <b>React diagram</b>}</ViewerTargets>
                 )}
@@ -278,7 +287,7 @@ describe('DiplodocMermaid', () => {
         });
         const view = (enabled: boolean) => (
             <MarkdownViewer html={html}>
-                {enabled && <DiplodocMermaid meta={meta} />}
+                {enabled && <YfmMermaid meta={meta} />}
                 <ViewerTargets selector=".mermaid">{() => <b>React diagram</b>}</ViewerTargets>
             </MarkdownViewer>
         );
@@ -305,17 +314,14 @@ describe('DiplodocMermaid', () => {
         const pending = Promise.withResolvers<void>();
         renderMermaid
             .mockImplementationOnce(renderDiagrams)
-            .mockImplementationOnce(async (...args: Parameters<typeof renderDiagrams>) => {
-                await pending.promise;
-                await renderDiagrams(...args);
-            });
+            .mockImplementationOnce(renderAfter(pending.promise));
         await render(
             <>
                 <MarkdownViewer html={html + html}>
-                    <DiplodocMermaid meta={meta} theme="forest" />
+                    <YfmMermaid meta={meta} theme="forest" />
                 </MarkdownViewer>
                 <MarkdownViewer html={html}>
-                    <DiplodocMermaid meta={meta} theme="dark" />
+                    <YfmMermaid meta={meta} theme="dark" />
                 </MarkdownViewer>
             </>,
         );
@@ -338,10 +344,10 @@ describe('DiplodocMermaid', () => {
         await render(
             <>
                 <MarkdownViewer html={html} qa="failed">
-                    <DiplodocMermaid meta={meta} onError={onError} />
+                    <YfmMermaid meta={meta} onError={onError} />
                 </MarkdownViewer>
                 <MarkdownViewer html={html} qa="next">
-                    <DiplodocMermaid meta={meta} />
+                    <YfmMermaid meta={meta} />
                 </MarkdownViewer>
             </>,
         );
@@ -361,4 +367,11 @@ async function renderDiagrams({theme}: {theme?: string}, {nodes}: {nodes: HTMLEl
     for (const node of nodes) {
         node.innerHTML = `<svg data-source="${node.getAttribute('data-content')}"><text>${theme}</text></svg>`;
     }
+}
+
+function renderAfter(pending: Promise<void>): typeof renderDiagrams {
+    return async (...args) => {
+        await pending;
+        await renderDiagrams(...args);
+    };
 }

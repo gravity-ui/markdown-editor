@@ -1,33 +1,34 @@
 import {useMermaid} from '@diplodoc/mermaid-extension/react';
-import {inspectViewerNode, useViewerEffect} from '@gravity-ui/markdown-viewer';
+import {cn, inspectViewerNode, useViewerEffect} from '@gravity-ui/markdown-viewer';
 import {useThemeType} from '@gravity-ui/uikit';
 
-import {block} from '../../utils/cn';
+import type {YfmMermaidOptions, YfmMermaidRuntime, YfmMermaidTheme} from './types';
 
-import type {
-    DiplodocMermaidOptions,
-    DiplodocMermaidRuntime,
-    DiplodocMermaidTheme,
-    TransformMeta,
-} from './types';
+import './YfmMermaid.scss';
+import '@diplodoc/mermaid-extension/styles/zoom.css';
 
-import './DiplodocMermaid.css';
-
-interface DiplodocMermaidProps {
-    meta?: TransformMeta;
-    runtime?: DiplodocMermaidRuntime;
+export interface YfmMermaidProps {
+    /** Transform metadata. No runtime is loaded when it is missing. */
+    meta?: {script?: string[]; style?: string[]};
+    /** Asset name in metadata. Defaults to `_assets/mermaid-extension.js`. */
+    runtime?: YfmMermaidRuntime;
+    /** Diagram selector. Defaults to `.mermaid[data-content]`. React slots are skipped. */
     selector?: string;
-    theme?: DiplodocMermaidTheme;
-    options?: DiplodocMermaidOptions;
+    /** Mermaid theme or UIKit theme map. Defaults to forest in light mode and dark in dark mode. */
+    theme?: YfmMermaidTheme;
+    /** Mermaid settings, including zoom. Automatic document rendering is disabled. */
+    options?: YfmMermaidOptions;
+    /** Nonce for SVG styles. No nonce is set by default. */
     nonce?: string;
+    /** Handle runtime loading and rendering failures. Diplodoc handles diagram syntax errors. Defaults to `console.error`. */
     onError?: (error: unknown) => void;
 }
 
-const cn = block('diplodoc-mermaid');
-const defaultTheme: DiplodocMermaidTheme = {light: 'forest', dark: 'dark'};
+const b = cn('yfm-mermaid');
+const defaultTheme: YfmMermaidTheme = {light: 'forest', dark: 'dark'};
 let pendingRender = Promise.resolve();
 
-export function DiplodocMermaid({
+export function YfmMermaid({
     meta,
     runtime = '_assets/mermaid-extension.js',
     selector = '.mermaid[data-content]',
@@ -35,7 +36,7 @@ export function DiplodocMermaid({
     options,
     nonce,
     onError = console.error,
-}: DiplodocMermaidProps) {
+}: YfmMermaidProps) {
     const renderMermaid = useMermaid();
     const themeType = useThemeType();
     const diagramTheme = typeof theme === 'string' ? theme : theme[themeType];
@@ -45,7 +46,7 @@ export function DiplodocMermaid({
         ({root, signal}) => {
             if (!hasRuntime) return undefined;
 
-            let pendingNode: HTMLElement | undefined;
+            let undoPendingRender: (() => void) | undefined;
             const operation = pendingRender.then(render);
             // Keep initialize and the full async run together across viewers.
             pendingRender = operation.catch(() => {});
@@ -67,26 +68,30 @@ export function DiplodocMermaid({
 
                     // The runtime owns this child; React slots stay next to it.
                     const node = root.ownerDocument.createElement('div');
-                    node.className = cn();
+                    node.className = b();
                     node.setAttribute('data-content', target.getAttribute('data-content') || '');
-                    const previous = target.querySelector(`:scope > .${cn()}`);
+                    const previous = target.querySelector(`:scope > .${b()}`);
                     if (previous) {
                         previous.replaceWith(node);
+                        undoPendingRender = () => {
+                            if (node.parentNode === target) node.replaceWith(previous);
+                        };
                     } else {
                         target.append(node);
+                        undoPendingRender = () => node.remove();
                     }
-                    pendingNode = node;
                     await renderMermaid(
                         {...options, theme: diagramTheme, startOnLoad: false},
                         {nodes: [node], nonce},
                     );
                     if (signal.aborted) return;
-                    pendingNode = undefined;
+                    undoPendingRender = undefined;
                 }
             }
 
             function cleanup() {
-                pendingNode?.remove();
+                undoPendingRender?.();
+                undoPendingRender = undefined;
             }
         },
         [hasRuntime, renderMermaid, selector, diagramTheme, options, nonce, onError],

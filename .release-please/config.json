@@ -20,6 +20,9 @@
     },
     "packages/viewer-yfm-latex-extension": {
       "initial-version": "0.1.0"
+    },
+    "packages/viewer-yfm-mermaid-extension": {
+      "initial-version": "0.1.0"
     }
   }
 }
