@@ -22,7 +22,7 @@ const editor = useMarkdownEditor({
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
 | `@gravity-ui/markdown-editor-header-extension`               | `Header`, `Button`, the Markdown command `insertHeader`, and the toolbar button `toolbarHeaderItem` for both modes |
 | `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header`, `Button`, and `toolbarHeaderItem` for the visual editor                                                  |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName`, `ButtonSpecs`, and `buttonNodeName`                                               |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName`, `headerTitleNodeName`, `ButtonSpecs`, and `buttonNodeName`                        |
 | `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader` and `toolbarHeaderItem` for the Markdown editor                                                     |
 
 `toolbarHeaderItem` inserts the block.
@@ -57,8 +57,25 @@ The Title, Description, and Image switches of the settings panel show whether th
 A switched-on part goes after the parts before it in the order image → title → description; the parts of a document keep their order. A part replaces the only empty paragraph of the banner.
 Switching a part back on restores the block removed by the switch, with its content and attributes, until the page reloads.
 
-`HeaderSpecs` adds only the schema, Markdown parsing, and serialization, and runs in Node.js.
+`HeaderSpecs` adds only the schema, Markdown parsing, and serialization of the banner and its title, and runs in Node.js.
 `Header` also needs the editor's React renderer, which the standard presets include.
+
+## Header title
+
+`Header` includes the banner title: `HeaderSpecs` adds its schema, Markdown parsing, and serialization, and `Header` adds its editing.
+
+Register `headerTitlePlugin` from `@gravity-ui/markdown-plugin-header` in the Markdown preview, next to `headerPlugin`.
+
+The title `::header-title[Text]{size="1" color="blue"}` is a block of plain text with its size and color, so it survives switching modes; the editor writes `size` and `color` other than the defaults.
+The title looks like its preview and is edited in place as plain text: marks and line breaks are not allowed, and pasted or dropped content becomes one line of text without formatting.
+An empty title shows a placeholder. Change its text with the editor `placeholder` option: `{placeholder: {header_title: 'Title'}}`.
+Deleting a selection that starts at the title start and goes past its end empties the title and keeps the block; a selection dragged from the title stays inside it.
+Enter in the title never splits it. In a title outside a banner, such as one written in Markdown inside a quote, a list item or a table cell, Enter at its end starts an empty paragraph after it.
+The title never turns into another block: block shortcuts do nothing there, and typed text such as `# ` stays text. Backspace and Delete at its edges do not join it with the blocks next to it.
+
+The title is the `title` part of the banner. The Title switch of the settings panel inserts a title with the default text after the image; a banner that holds only one paragraph of plain text without formatting turns it into the title.
+Turning the switch off removes the title; turning it on again restores the removed title with its text, size and color, also after the panel is closed.
+A banner holds one title: a second title in the Markdown of a banner stays a paragraph of text, and an edit that adds a second title to a banner is rejected.
 
 ## Button
 
