@@ -1,5 +1,10 @@
 import type {FileUploadHandler} from '@gravity-ui/markdown-editor';
-import {type Command, Plugin, PluginKey} from '@gravity-ui/markdown-editor/pm/state';
+import {
+    type Command,
+    Plugin,
+    PluginKey,
+    type Transaction,
+} from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {safeImageUrl} from '@gravity-ui/markdown-plugin-header';
 
@@ -51,12 +56,16 @@ export const headerUploadPlugin = () =>
         }),
     });
 
+/** Drops the uploads into the node at `pos` with the transaction that sets a new source of the node. */
+export const dropHeaderUploads = (tr: Transaction, pos: number) =>
+    tr.setMeta(uploadsKey, {pos} satisfies UploadMeta);
+
 /** Drops the uploads into the node at `pos`: their results are not written. */
 export function cancelHeaderUploads(view: EditorView, pos: number) {
     if (view.isDestroyed) return;
     const uploads = uploadsKey.getState(view.state);
     if (!uploads?.size || !Array.from(uploads.values()).includes(pos)) return;
-    view.dispatch(view.state.tr.setMeta(uploadsKey, {pos} satisfies UploadMeta));
+    view.dispatch(dropHeaderUploads(view.state.tr, pos));
 }
 
 /**

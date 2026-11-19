@@ -22,7 +22,7 @@ export const headerExtensions =
     (builder) => {
         builder.use(BaseSchemaSpecs, {}).use(ReactRendererExtension, storage);
         if (extra) builder.use(extra);
-        builder.use(Header);
+        builder.use(Header, {});
     };
 
 export const setCursor = (editor: EditorView, from: number, to = from) =>

@@ -7,8 +7,13 @@ import {
     TextSelection,
     type Transaction,
 } from '@gravity-ui/markdown-editor/pm/state';
-import type {HeaderDimensions} from '@gravity-ui/markdown-plugin-header';
+import {
+    type HeaderBackground,
+    type HeaderDimensions,
+    headerBackground,
+} from '@gravity-ui/markdown-plugin-header';
 
+import {dropHeaderUploads} from '../../plugins/HeaderUploadPlugin';
 import {changedAttrs} from '../attrs';
 import {removeChild} from '../commands';
 
@@ -53,6 +58,28 @@ export const setHeaderDimension =
         if (!node) return false;
         if (dispatch && changedAttrs(node.attrs, {[name]: value}).length) {
             dispatch(state.tr.setNodeAttribute(pos, name, value));
+        }
+        return true;
+    };
+
+/**
+ * Changes the background attributes in one undo step; the theme and the blur are reset without an image.
+ * A new source of the background drops the uploads into the banner, even when the attributes stay the same.
+ */
+export const setHeaderBackground =
+    (pos: number, background: Partial<HeaderBackground>): Command =>
+    (state, dispatch) => {
+        const node = headerAt(state, pos);
+        if (!node) return false;
+        if (dispatch) {
+            const next = headerBackground({...headerBackground(node.attrs), ...background});
+            const tr = state.tr;
+            for (const [name, value] of changedAttrs(node.attrs, next)) {
+                tr.setNodeAttribute(pos, name, value);
+            }
+            const changesSource = 'bg-image' in background || 'bg-color' in background;
+            if (changesSource) dropHeaderUploads(tr, pos);
+            if (tr.docChanged || changesSource) dispatch(closeHistory(tr));
         }
         return true;
     };
