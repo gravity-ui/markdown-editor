@@ -1,4 +1,5 @@
 import {get$Cursor, pType} from '@gravity-ui/markdown-editor';
+import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
 import type {
     Attrs,
     Node,
@@ -19,14 +20,18 @@ import {changedAttrs} from './attrs';
 export const runCommand = (view: EditorView, command: Command) =>
     command(view.state, view.dispatch, view);
 
-/**
- * A command factory that sets attributes of the node of `nodeType` at `pos`;
- * `normalize` replaces unsupported values, and only the changed attributes are written.
- */
+type SetNodeAttrsOptions<T> = {accept?: (attrs: Partial<T>) => boolean; history?: boolean};
+
+/** Writes the normalized attributes of the node at `pos`; `history` makes each change one undo step. */
 export const setNodeAttrs =
-    <T extends object>(nodeType: (schema: Schema) => NodeType, normalize: (attrs: Attrs) => T) =>
+    <T extends object>(
+        nodeType: (schema: Schema) => NodeType,
+        normalize: (attrs: Attrs) => T,
+        {accept = () => true, history = false}: SetNodeAttrsOptions<T> = {},
+    ) =>
     (pos: number, attrs: Partial<T>): Command =>
     (state, dispatch) => {
+        if (!accept(attrs)) return false;
         const node = state.doc.nodeAt(pos);
         if (node?.type !== nodeType(state.schema)) return false;
         if (dispatch) {
@@ -35,7 +40,7 @@ export const setNodeAttrs =
             for (const [name, value] of changedAttrs(node.attrs, next)) {
                 tr.setNodeAttribute(pos, name, value);
             }
-            if (tr.docChanged) dispatch(tr);
+            if (tr.docChanged) dispatch(history ? closeHistory(tr) : tr);
         }
         return true;
     };
