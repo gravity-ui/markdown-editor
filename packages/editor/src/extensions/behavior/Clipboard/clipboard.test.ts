@@ -32,7 +32,10 @@ describe('ordinary clipboard', () => {
         const data = new DataTransferMock();
         data.setData(DataTransferType.Text, 'previous');
 
-        view.dispatchEvent(new ClipboardEventMock('cut', {clipboardData: data}));
+        const cut = new ClipboardEventMock('cut', {clipboardData: data});
+        const preventDefault = vi.spyOn(cut, 'preventDefault');
+        view.dispatchEvent(cut);
+        expect(preventDefault).toHaveBeenCalled();
         expect(view.state.doc).toBe(doc);
         expect(data.getData(DataTransferType.Text)).toBe('previous');
 
