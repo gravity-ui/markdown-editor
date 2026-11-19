@@ -31,6 +31,7 @@ interface YfmHtmlBlockViewProps {
     html: string;
     onClick: () => void;
     config?: IHTMLIFrameElementConfig;
+    hiddenUntilLoad: boolean;
 }
 
 export function generateID() {
@@ -52,31 +53,20 @@ const createLinkCLickHandler = (value: Element, document: Document) => (event: E
     }
 };
 
-const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onClick, config}) => {
+const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({
+    html,
+    onClick,
+    config,
+    hiddenUntilLoad,
+}) => {
     const ref = useRef<HTMLIFrameElement>(null);
     const styles = useRef<Record<string, string>>({});
     const classNames = useRef<string[]>([]);
     const resizeConfig = useRef<Record<string, number>>({});
+    const disposeOnload = useRef<(() => void) | void>();
 
     const [height, setHeight] = useState('100%');
-
-    useEffect(() => {
-        setStyles(config?.styles);
-        setClassNames(config?.classNames);
-    }, [config, ref.current?.contentWindow?.document?.body]);
-
-    const handleLoadIFrame = () => {
-        const contentWindow = ref.current?.contentWindow;
-
-        handleResizeIFrame();
-
-        if (contentWindow) {
-            const frameDocument = contentWindow.document;
-            frameDocument.addEventListener('dblclick', () => {
-                onClick();
-            });
-        }
-    };
+    const [loaded, setLoaded] = useState(false);
 
     const handleResizeIFrame = () => {
         if (ref.current) {
@@ -158,14 +148,27 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onClick, co
         }
     };
 
-    useEffect(() => {
-        ref.current?.addEventListener('load', handleLoadIFrame);
-        ref.current?.addEventListener('load', createAnchorLinkHandlers('add'));
-        return () => {
-            ref.current?.removeEventListener('load', handleLoadIFrame);
-            ref.current?.removeEventListener('load', createAnchorLinkHandlers('remove'));
-        };
-    }, [html]);
+    const handleLoadIFrame = () => {
+        const iframe = ref.current;
+        const contentWindow = iframe?.contentWindow;
+
+        if (iframe && contentWindow) {
+            disposeOnload.current?.();
+            setStyles(config?.styles);
+            setClassNames(config?.classNames);
+            disposeOnload.current = config?.onload?.(iframe);
+            handleResizeIFrame();
+            createAnchorLinkHandlers('add')();
+            setLoaded(true);
+
+            const frameDocument = contentWindow.document;
+            frameDocument.addEventListener('dblclick', () => {
+                onClick();
+            });
+        }
+    };
+
+    useEffect(() => () => disposeOnload.current?.(), []);
 
     useEffect(() => {
         if (ref.current) {
@@ -173,14 +176,19 @@ const YfmHtmlBlockPreview: React.FC<YfmHtmlBlockViewProps> = ({html, onClick, co
                 debounce(handleResizeIFrame, DEFAULT_DELAY),
             );
             resizeObserver.observe(ref.current);
+            return () => resizeObserver.disconnect();
         }
+        return undefined;
     }, [ref.current?.contentWindow?.document?.body]);
 
     return (
         <iframe
             style={{
                 height,
+                // hide the unstyled document until config is applied on load
+                visibility: loaded || !hiddenUntilLoad ? 'visible' : 'hidden',
             }}
+            onLoad={handleLoadIFrame}
             ref={ref}
             title={generateID()}
             frameBorder={0}
@@ -293,7 +301,14 @@ export const YfmHtmlBlockView: React.FC<{
             <Label className={b('label')} icon={<Icon size={16} data={Eye} />}>
                 {i18n('preview')}
             </Label>
-            <YfmHtmlBlockPreview html={resultHtml} onClick={setEditing} config={config} />
+            <YfmHtmlBlockPreview
+                // onload may change the document, so a new html or config gets a fresh iframe
+                key={JSON.stringify([resultHtml, config?.classNames, config?.styles])}
+                html={resultHtml}
+                onClick={setEditing}
+                config={config}
+                hiddenUntilLoad={Boolean(useConfig)}
+            />
 
             <div className={b('menu')}>
                 <Button

@@ -142,6 +142,18 @@ class YfmNote {
     }
 }
 
+class YfmHtmlBlock {
+    readonly preview: Locator;
+
+    constructor(page: Page) {
+        this.preview = page.locator('.g-md-yfm-html-block__content').first();
+    }
+
+    getPreviewBody() {
+        return this.preview.contentFrame().locator('body');
+    }
+}
+
 class YfmTable {
     readonly buttonPlusRowLocator;
     readonly buttonPlusColumnLocator;
@@ -408,6 +420,7 @@ export class MarkdownEditorPage {
     readonly yfmTable;
     readonly colorify;
     readonly yfmNote;
+    readonly yfmHtmlBlock;
     readonly image;
     readonly link;
     readonly searchPanel;
@@ -423,6 +436,7 @@ export class MarkdownEditorPage {
         this.yfmTable = new YfmTable(page, expect);
         this.colorify = new Colorify(page, expect, this.locators);
         this.yfmNote = new YfmNote(page);
+        this.yfmHtmlBlock = new YfmHtmlBlock(page);
         this.image = new Image(page);
         this.link = new Link(page, expect);
         this.searchPanel = new SearchPanel(page);
