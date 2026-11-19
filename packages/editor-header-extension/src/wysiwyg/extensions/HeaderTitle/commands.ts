@@ -1,11 +1,15 @@
 import {get$Cursor, pType} from '@gravity-ui/markdown-editor';
 import {chainCommands} from '@gravity-ui/markdown-editor/pm/commands';
 import {type Command, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
+import {headerTitleModel} from '@gravity-ui/markdown-plugin-header';
 
 import {headerNodeType} from '../Header/HeaderSpecs';
-import {siblingBlock, stopAtBlockEdge} from '../commands';
+import {setNodeAttrs, siblingBlock, stopAtBlockEdge} from '../commands';
 
 import {headerTitleNodeType} from './HeaderTitleSpecs';
+
+/** Sets the size and the color of the title at `pos`; an unsupported value becomes the default. */
+export const setHeaderTitleAttrs = setNodeAttrs(headerTitleNodeType, headerTitleModel);
 
 /**
  * Enter never splits the title. At the end of a title outside a banner it adds a paragraph after the title.
