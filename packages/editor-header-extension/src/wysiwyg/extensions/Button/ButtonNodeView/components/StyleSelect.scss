@@ -2,7 +2,6 @@
     $field-height: 36px;
     $row-height: 28px;
     $list-rows: 14;
-    $list-padding-block: 8px;
     $swatch-size-m: 16px;
     $swatch-size-l: 20px;
     $preview-width: 140px;
@@ -67,13 +66,17 @@
         color: var(--g-color-text-secondary);
     }
 
-    // The doubled class outweighs the height limit of the Select.
+    // The doubled class outweighs the styles of the popup.
     &__list#{&}__list {
         box-sizing: border-box;
-        max-height: $list-rows * $row-height + $list-padding-block;
         padding-inline: var(--g-spacing-1);
 
         border-radius: var(--g-border-radius-l);
+
+        // The element scrolls the options.
+        .g-select-list {
+            max-height: $list-rows * $row-height;
+        }
 
         [role='option'] {
             border-radius: var(--g-border-radius-s);
