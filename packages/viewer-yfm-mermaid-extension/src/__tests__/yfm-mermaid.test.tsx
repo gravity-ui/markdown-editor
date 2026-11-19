@@ -228,6 +228,30 @@ describe('YfmMermaid', () => {
         expect(renderMermaid).toHaveBeenCalledTimes(2);
     });
 
+    it('should restore the previous diagram when unmounted during a theme change', async () => {
+        const view = (
+            <MarkdownViewer html={html}>
+                <YfmMermaid meta={meta} />
+            </MarkdownViewer>
+        );
+        await render(view);
+        const previous = container.querySelector('svg');
+        expect(previous).not.toBeNull();
+
+        const pending = Promise.withResolvers<void>();
+        renderMermaid.mockImplementationOnce(renderAfter(pending.promise));
+        await render(view, 'dark');
+        expect(renderMermaid).toHaveBeenCalledTimes(2);
+        await render(<MarkdownViewer html={html} />, 'dark');
+        const afterUnmount = container.querySelector('svg');
+
+        await act(async () => pending.resolve());
+
+        expect(afterUnmount).toBe(previous);
+        expect(container.querySelectorAll('svg')).toHaveLength(1);
+        expect(container.querySelector('svg')).toBe(previous);
+    });
+
     it('should preserve a sibling React slot across render and theme updates', async () => {
         const pending = Promise.withResolvers<void>();
         renderMermaid.mockImplementationOnce(renderAfter(pending.promise));

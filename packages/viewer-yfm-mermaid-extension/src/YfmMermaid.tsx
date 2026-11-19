@@ -46,7 +46,7 @@ export function YfmMermaid({
         ({root, signal}) => {
             if (!hasRuntime) return undefined;
 
-            let pendingNode: HTMLElement | undefined;
+            let undoPendingRender: (() => void) | undefined;
             const operation = pendingRender.then(render);
             // Keep initialize and the full async run together across viewers.
             pendingRender = operation.catch(() => {});
@@ -73,21 +73,25 @@ export function YfmMermaid({
                     const previous = target.querySelector(`:scope > .${b()}`);
                     if (previous) {
                         previous.replaceWith(node);
+                        undoPendingRender = () => {
+                            if (node.parentNode === target) node.replaceWith(previous);
+                        };
                     } else {
                         target.append(node);
+                        undoPendingRender = () => node.remove();
                     }
-                    pendingNode = node;
                     await renderMermaid(
                         {...options, theme: diagramTheme, startOnLoad: false},
                         {nodes: [node], nonce},
                     );
                     if (signal.aborted) return;
-                    pendingNode = undefined;
+                    undoPendingRender = undefined;
                 }
             }
 
             function cleanup() {
-                pendingNode?.remove();
+                undoPendingRender?.();
+                undoPendingRender = undefined;
             }
         },
         [hasRuntime, renderMermaid, selector, diagramTheme, options, nonce, onError],
