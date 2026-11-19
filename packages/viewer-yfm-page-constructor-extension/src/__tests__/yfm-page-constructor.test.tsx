@@ -1,30 +1,33 @@
 import {type ReactNode, StrictMode} from 'react';
 
 import {MarkdownViewer, ViewerTargets} from '@gravity-ui/markdown-viewer';
+import {Theme} from '@gravity-ui/page-constructor';
 import {ThemeProvider} from '@gravity-ui/uikit';
 import {type Root, createRoot} from 'react-dom/client';
 import {act} from 'react-dom/test-utils';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {DiplodocPageConstructor} from '../DiplodocPageConstructor';
-import type {TransformMeta} from '../types';
+import {YfmPageConstructor, type YfmPageConstructorProps} from '../index';
+
+// Loading the real renderer can time out in CI. The browser tests cover it in both themes.
+vi.mock('@gravity-ui/page-constructor', () => ({
+    Theme: {Light: 'light', Dark: 'dark'},
+    PageConstructorProvider: ({children, theme}: {children: ReactNode; theme: Theme}) => (
+        <div data-theme={theme}>{children}</div>
+    ),
+    PageConstructor: ({content}: {content: {blocks: {title: string}[]}}) => (
+        <h1>{content.blocks[0].title}</h1>
+    ),
+}));
 
 const meta = {script: ['_assets/page-constructor.js']};
 const html = createHtml('Title');
 
-describe('DiplodocPageConstructor', () => {
+describe('YfmPageConstructor', () => {
     let container: HTMLDivElement;
     let root: Root;
 
     beforeEach(() => {
-        vi.stubGlobal('matchMedia', (media: string) => ({
-            media,
-            matches: false,
-            addListener() {},
-            removeListener() {},
-            addEventListener() {},
-            removeEventListener() {},
-        }));
         container = document.createElement('div');
         document.body.append(container);
         root = createRoot(container);
@@ -34,17 +37,16 @@ describe('DiplodocPageConstructor', () => {
         await act(async () => root.unmount());
         container.remove();
         vi.restoreAllMocks();
-        vi.unstubAllGlobals();
     });
 
     it('should render only the viewer with matching metadata', async () => {
-        const view = (currentMeta?: TransformMeta) => (
+        const view = (currentMeta?: YfmPageConstructorProps['meta']) => (
             <StrictMode>
                 <MarkdownViewer html={html} qa="active">
-                    <DiplodocPageConstructor meta={currentMeta} />
+                    <YfmPageConstructor meta={currentMeta} />
                 </MarkdownViewer>
                 <MarkdownViewer html={html} qa="other">
-                    <DiplodocPageConstructor />
+                    <YfmPageConstructor meta={{script: ['other.js']}} />
                 </MarkdownViewer>
             </StrictMode>
         );
@@ -60,11 +62,12 @@ describe('DiplodocPageConstructor', () => {
     it('should render updated HTML and unmount blocks from the old host', async () => {
         const view = (content: string) => (
             <MarkdownViewer html={content}>
-                <DiplodocPageConstructor meta={meta} />
+                <YfmPageConstructor meta={meta} />
             </MarkdownViewer>
         );
         await render(view(html));
         const host = container.querySelector('.yfm-page-constructor');
+        expect(host?.querySelector('h1')?.textContent).toBe('Title');
 
         await render(view(createHtml('Updated title')));
 
@@ -73,9 +76,9 @@ describe('DiplodocPageConstructor', () => {
     });
 
     it('should remove only its own slot when metadata is disabled', async () => {
-        const view = (currentMeta?: TransformMeta) => (
+        const view = (currentMeta?: YfmPageConstructorProps['meta']) => (
             <MarkdownViewer html={html}>
-                <DiplodocPageConstructor meta={currentMeta} />
+                <YfmPageConstructor meta={currentMeta} />
                 <ViewerTargets selector=".yfm-page-constructor">
                     {() => <span data-other>Another extension</span>}
                 </ViewerTargets>
@@ -83,40 +86,49 @@ describe('DiplodocPageConstructor', () => {
         );
         await render(view(meta));
         const foreign = container.querySelector('[data-other]');
+        expect(foreign?.textContent).toBe('Another extension');
         expect(container.querySelector('h1')).not.toBeNull();
 
         await render(view());
 
         expect(container.querySelector('h1')).toBeNull();
         expect(container.querySelector('[data-other]')).toBe(foreign);
-        expect(foreign?.textContent).toBe('Another extension');
     });
 
-    it('should show a payload error and keep other blocks visible', async () => {
-        const onError = vi.fn();
-        vi.spyOn(console, 'error').mockImplementation(() => {});
+    it.each(['onError', 'console.error'])(
+        'should report a payload error to %s and keep other blocks visible',
+        async (handler) => {
+            const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+            const onError = handler === 'onError' ? vi.fn() : undefined;
 
-        await render(
-            <MarkdownViewer
-                html={html + '<div class="yfm-page-constructor" data-content-encoded="%"></div>'}
-            >
-                <DiplodocPageConstructor meta={meta} onError={onError} />
-            </MarkdownViewer>,
-        );
+            await render(
+                <MarkdownViewer
+                    html={
+                        html + '<div class="yfm-page-constructor" data-content-encoded="%"></div>'
+                    }
+                >
+                    <YfmPageConstructor meta={meta} onError={onError} />
+                </MarkdownViewer>,
+            );
 
-        expect(container.querySelector('h1')?.textContent).toBe('Title');
-        expect(container.textContent).toContain('URI malformed');
-        expect(onError).toHaveBeenCalledWith(expect.any(URIError));
-    });
+            expect(container.querySelector('h1')?.textContent).toBe('Title');
+            expect(container.textContent).toContain('URI malformed');
+            expect(onError ?? consoleError).toHaveBeenCalledWith(expect.any(URIError));
+        },
+    );
 
-    it('should use a custom runtime, selector and theme', async () => {
-        const {Theme} = await import('@gravity-ui/page-constructor');
-
+    it.each([
+        {form: 'script name', runtime: 'extension:page-constructor'},
+        {
+            form: 'asset pair',
+            runtime: {script: 'extension:page-constructor', style: 'custom:styles'},
+        },
+    ])('should use a custom runtime ($form), selector and theme', async ({runtime}) => {
         await render(
             <MarkdownViewer html={html.replace('yfm-page-constructor', 'custom-block')}>
-                <DiplodocPageConstructor
-                    meta={{script: ['custom:page-constructor']}}
-                    runtime={{script: 'custom:page-constructor', style: 'custom:styles'}}
+                <YfmPageConstructor
+                    meta={{script: ['extension:page-constructor']}}
+                    runtime={runtime}
                     selector=".custom-block"
                     theme={Theme.Dark}
                 />
@@ -124,7 +136,7 @@ describe('DiplodocPageConstructor', () => {
         );
 
         expect(container.querySelector('h1')?.textContent).toBe('Title');
-        expect(container.querySelector('.custom-block .g-root_theme_dark')).not.toBeNull();
+        expect(container.querySelector('.custom-block [data-theme="dark"]')).not.toBeNull();
     });
 
     async function render(children: ReactNode) {

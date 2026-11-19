@@ -5,5 +5,6 @@
   "packages/viewer": "0.0.0",
   "packages/viewer-yfm-html-extension": "0.0.0",
   "packages/viewer-yfm-latex-extension": "0.0.0",
-  "packages/viewer-yfm-mermaid-extension": "0.0.0"
+  "packages/viewer-yfm-mermaid-extension": "0.0.0",
+  "packages/viewer-yfm-page-constructor-extension": "0.0.0"
 }
