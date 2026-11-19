@@ -2,9 +2,10 @@ import codemark from 'prosemirror-codemark';
 import {toggleMark} from 'prosemirror-commands';
 import {Plugin} from 'prosemirror-state';
 
-import type {Action, ExtensionAuto} from '../../../core';
-import {createMarkdownInlineMarkAction} from '../../../utils/actions';
-import {withLogAction} from '../../../utils/keymap';
+import type {Action, ExtensionAuto} from 'src/core';
+import {createMarkdownInlineMarkAction} from 'src/utils/actions';
+import {withLogAction} from 'src/utils/keymap';
+import {isDefaultSelection} from 'src/utils/selection';
 
 import {CodeSpecs, codeType} from './CodeSpecs';
 
@@ -33,7 +34,7 @@ export const Code: ExtensionAuto<CodeOptions> = (builder, opts) => {
         // adds fake cursor behaviour when crossing inline_code boundaries,
         // wrap current selected text to inline_code when '`' was pressed.
         // See demo: https://curvenote.github.io/prosemirror-codemark/
-        .addPlugin(({schema}) => codemark({markType: codeType(schema)}));
+        .addPlugin(({schema}) => codemark({markType: codeType(schema)}).map(adaptCodemarkKeyboard));
 
     builder.addPlugin(
         () =>
@@ -73,4 +74,20 @@ declare global {
             [codeAction]: Action;
         }
     }
+}
+
+function adaptCodemarkKeyboard(plugin: Plugin): Plugin {
+    const handleKeyDown = plugin.spec.props?.handleKeyDown;
+    if (!handleKeyDown) return plugin;
+
+    return new Plugin({
+        ...plugin.spec,
+        props: {
+            ...plugin.spec.props,
+            handleKeyDown(view, event) {
+                if (!isDefaultSelection(view.state.selection)) return false;
+                return handleKeyDown.call(this, view, event);
+            },
+        },
+    });
 }
