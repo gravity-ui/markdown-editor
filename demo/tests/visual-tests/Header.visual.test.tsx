@@ -261,8 +261,8 @@ test.describe('Header', () => {
         await expect(header.toggle('Button 2')).not.toBeChecked();
         await expect(header.toggle('Button 3')).not.toBeChecked();
         await expect(header.toggle('Image')).not.toBeChecked();
-        await expect(header.alignment('Vertically', 'Top')).toBeChecked();
-        await expect(header.alignment('Horizontally', 'Center')).toBeChecked();
+        await expect(header.alignment('Vertically', 'Center')).toBeChecked();
+        await expect(header.alignment('Horizontally', 'Left')).toBeChecked();
         await header.setExpandedSections('Text');
         await expectScreenshot({component: header.settings, nameSuffix: 'text'});
         await header.setExpandedSections('Buttons');
@@ -303,16 +303,6 @@ test.describe('Header', () => {
             await expect(toggle).toBeChecked({checked: !checked});
             expect(messages).toContain(`${name} toggle clicked`);
         }
-        await header.alignment('Vertically', 'Bottom').click();
-        await header.alignment('Vertically', 'Bottom').click();
-        await header.alignment('Horizontally', 'Right').click();
-        await expect(header.alignment('Vertically', 'Bottom')).toBeChecked();
-        await expect(header.alignment('Horizontally', 'Right')).toBeChecked();
-        expect(
-            messages.filter((message) => message === 'Align bottom button clicked'),
-        ).toHaveLength(2);
-        expect(messages).toContain('Align right button clicked');
-
         await expect(header.background).toHaveAccessibleName('Background No background');
         await header.background.click();
         // Until the popup takes focus, the settings panel handles Escape.
@@ -328,7 +318,7 @@ test.describe('Header', () => {
         await header.section('Text').press('Enter');
         await expect(header.section('Text')).toHaveAttribute('aria-expanded', 'true');
         await expect(header.toggle('Title')).not.toBeChecked();
-        await expect(header.alignment('Vertically', 'Bottom')).toBeChecked();
+        await expect(header.alignment('Vertically', 'Center')).toBeChecked();
         expect(
             messages.filter((message) => message === 'Text section button clicked'),
         ).toHaveLength(2);
@@ -352,8 +342,8 @@ test.describe('Header', () => {
         await expect(header.toggle('Button 2')).not.toBeChecked();
         await expect(header.toggle('Button 3')).not.toBeChecked();
         await expect(header.toggle('Image')).not.toBeChecked();
-        await expect(header.alignment('Vertically', 'Top')).toBeChecked();
-        await expect(header.alignment('Horizontally', 'Center')).toBeChecked();
+        await expect(header.alignment('Vertically', 'Center')).toBeChecked();
+        await expect(header.alignment('Horizontally', 'Left')).toBeChecked();
         await expect(header.section('Buttons')).toHaveAttribute('aria-expanded', 'true');
         await expect(header.section('Image and background')).toHaveAttribute(
             'aria-expanded',

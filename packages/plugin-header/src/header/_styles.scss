@@ -1,3 +1,7 @@
+@use '../layout';
+
+$image: '.g-md-header-image-plugin';
+
 $bg-colors: (
     'gray-light': var(--g-color-base-neutral-light),
     'gray-medium': var(--g-color-base-neutral-medium),
@@ -27,16 +31,35 @@ $bg-colors: (
 }
 
 .g-md-header-plugin {
+    --_--padding: var(--g-md-header-plugin-padding, var(--g-spacing-8, 32px));
+    --_--narrow-padding: var(--g-md-header-plugin-narrow-padding, var(--g-spacing-4, 16px));
+    --_--image-width: var(--g-md-header-plugin-image-width, 50%);
+    --_--image-padding: var(--g-md-header-plugin-image-padding, var(--g-spacing-2, 8px));
+    --_--narrow-image-aspect-ratio: var(--g-md-header-plugin-narrow-image-aspect-ratio, 16 / 10);
+    --_--content-padding: var(--_--padding);
+    --_--text-column: 1 / -1;
+    --_--image-column: 2 / 3;
     // `initial` stops inheritance and selects the fallback of `var()`.
     --_--bg-color: initial;
 
+    position: relative;
+
+    display: grid;
+    align-content: center;
+    grid-template-columns: minmax(0, 1fr);
+
+    box-sizing: border-box;
     max-width: var(--_--width);
     min-height: var(--_--height);
     margin-block: var(--g-md-header-plugin-margin-block, 0 var(--g-spacing-5, 20px));
     margin-inline: var(--g-md-header-plugin-margin-inline, 0);
 
+    text-align: start;
+
     border-radius: var(--g-border-radius-2xl, 16px);
     background-color: var(--_--bg-color, transparent);
+    // The narrow layout depends on the width of the banner, not of the page.
+    container: g-md-header-plugin / inline-size;
 
     @each $name, $_ in $bg-colors {
         &_bg-color_#{$name} {
@@ -70,6 +93,76 @@ $bg-colors: (
 
     &_width_full {
         --_--width: none;
+    }
+
+    &_align_center {
+        text-align: center;
+    }
+
+    &_align_right {
+        text-align: end;
+    }
+
+    &_vertical_top {
+        align-content: start;
+    }
+
+    &_vertical_bottom {
+        align-content: end;
+    }
+
+    // The blocks keep the order of the source; the grid places them.
+    // Doubled class: the margins of `.yfm` blocks are more specific than one class.
+    &#{&} > * {
+        grid-column: var(--_--text-column);
+
+        min-width: 0;
+        margin-inline: var(--_--content-padding);
+    }
+
+    &#{&} > :nth-child(1 of :not(#{$image})) {
+        margin-block-start: var(--_--content-padding);
+    }
+
+    &#{&} > :nth-last-child(1 of :not(#{$image})) {
+        margin-block-end: var(--_--content-padding);
+    }
+
+    // A wide banner with an image: the text takes one column, the image fills the other one.
+    &:has(> #{$image}) {
+        --_--text-column: 1;
+
+        grid-template-columns: minmax(0, 1fr) minmax(0, var(--_--image-width));
+    }
+
+    &_align_right:has(> #{$image}) {
+        --_--text-column: 2;
+        --_--image-column: 1 / 2;
+
+        grid-template-columns: minmax(0, var(--_--image-width)) minmax(0, 1fr);
+    }
+
+    // An absolutely positioned grid item: its grid area is the containing block, and the `auto` rows
+    // stretch it over the full height. Both column lines are set: an `auto` end line is the container edge.
+    &#{&} > #{$image} {
+        position: absolute;
+        inset-block-start: var(--_--image-padding);
+        inset-inline-start: var(--_--image-padding);
+
+        grid-column: var(--_--image-column);
+
+        box-sizing: border-box;
+        width: calc(100% - 2 * var(--_--image-padding));
+        max-width: none;
+        height: calc(100% - 2 * var(--_--image-padding));
+        margin: 0;
+
+        object-fit: cover;
+    }
+
+    // An image without text fills the banner.
+    &#{&} > #{$image}:only-child {
+        grid-column: 1 / -1;
     }
 
     // Doubled class: the `background` shorthand of `.g-root` resets these in a fixed theme.
@@ -109,5 +202,28 @@ $bg-colors: (
         --yfm-color-link-hover: var(--g-color-text-link-hover);
 
         background-color: var(--_--bg-color, var(--g-color-base-background));
+    }
+}
+
+// A banner narrower than the breakpoint shows the image above the text in one column.
+
+@container g-md-header-plugin (width < #{layout.$narrow-width}) {
+    .g-md-header-plugin.g-md-header-plugin > * {
+        --_--content-padding: var(--_--narrow-padding);
+        --_--text-column: 1 / -1;
+    }
+
+    // An image without text keeps filling the banner.
+    .g-md-header-plugin.g-md-header-plugin > #{$image}:not(:only-child) {
+        position: static;
+        // The image goes above the text whatever its place in the source.
+        order: -1;
+        grid-column: 1 / -1;
+
+        width: calc(100% - 2 * var(--_--image-padding));
+        height: auto;
+        margin: var(--_--image-padding);
+
+        aspect-ratio: var(--_--narrow-image-aspect-ratio);
     }
 }

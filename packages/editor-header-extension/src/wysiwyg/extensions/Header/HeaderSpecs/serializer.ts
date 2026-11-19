@@ -3,6 +3,8 @@ import {
     headerBackground,
     headerBackgroundValues,
     headerDimensions,
+    headerLayout,
+    headerLayoutValues,
 } from '@gravity-ui/markdown-plugin-header';
 
 import {directiveAttrs} from '../../directive';
@@ -13,6 +15,7 @@ export const HeaderSerializerSpecs: ExtensionAuto = (builder) => {
     builder.addNodeSerializerSpec(headerNodeName, () => (state, node) => {
         const attrs = {
             ...headerDimensions(node.attrs),
+            ...headerLayoutValues(headerLayout(node.attrs)),
             ...headerBackgroundValues(headerBackground(node.attrs)),
         };
         state.write(`:::header${directiveAttrs(attrs)}`);

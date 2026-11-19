@@ -8,7 +8,7 @@ import {
 } from '@gravity-ui/markdown-editor';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {headerBackground, headerDimensions} from '@gravity-ui/markdown-plugin-header';
+import {headerBackground, headerDimensions, headerLayout} from '@gravity-ui/markdown-plugin-header';
 import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
@@ -19,6 +19,7 @@ import {
     removeHeader,
     setHeaderBackground,
     setHeaderDimension,
+    setHeaderLayout,
     toggleHeaderPart,
 } from '../../commands';
 import type {HeaderOptions} from '../../index';
@@ -26,7 +27,7 @@ import {headerPartTypes, headerParts} from '../../parts';
 
 import type {BackgroundControls} from './Settings/BackgroundField';
 import {HeaderSettings} from './Settings/HeaderSettings';
-import type {ContentControls} from './Settings/SettingsFields';
+import type {ContentControls, LayoutControls} from './Settings/SettingsFields';
 
 import './HeaderToolbar.scss';
 
@@ -81,6 +82,10 @@ export function HeaderToolbar({
         onPartChange: (part, enabled) =>
             runCommand(view, toggleHeaderPart(pos, part, enabled, removedPartsOf(block))),
     };
+    const layout: LayoutControls = {
+        value: headerLayout(node.attrs),
+        onChange: (name, value) => runCommand(view, setHeaderLayout(pos, name, value)),
+    };
     const background: BackgroundControls = {
         value: headerBackground(node.attrs),
         imageTypes,
@@ -113,6 +118,7 @@ export function HeaderToolbar({
                             runCommand(view, setHeaderDimension(pos, name, value))
                         }
                         content={content}
+                        layout={layout}
                         background={background}
                         onClose={hide}
                     />
