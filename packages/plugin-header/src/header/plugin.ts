@@ -1,8 +1,8 @@
 import {directiveParser, registerContainerDirective} from '@diplodoc/directive';
 import type {PluginSimple} from 'markdown-it';
 
-import {headerAttrs} from './classname';
-import {headerTokenName} from './const';
+import {headerAttrs} from './attrs';
+import {headerTokenName} from './model';
 
 export const headerPlugin: PluginSimple = (md) => {
     md.use(directiveParser());

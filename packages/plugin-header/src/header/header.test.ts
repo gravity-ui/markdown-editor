@@ -1,9 +1,11 @@
 import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
-import {headerHeights, headerPlugin, headerWidths} from './index';
+import {headerHeights, headerPlugin, headerTokenName, headerWidths} from '../index';
 
 const md = new MarkdownIt().use(headerPlugin);
+const headerOpen = `${headerTokenName}_open`;
+const headerClose = `${headerTokenName}_close`;
 
 const html = (height: string, width: string) =>
     `<div class="g-md-header-plugin g-md-header-plugin_height_${height} g-md-header-plugin_width_${width}" data-height="${height}" data-width="${width}"></div>\n`;
@@ -47,11 +49,11 @@ describe('Header Markdown', () => {
         const markup = ':::header\nText **with formatting**\n:::';
         const tokens = md.parse(markup, {});
         expect(tokens.map((token) => token.type)).toEqual([
-            'header_open',
+            headerOpen,
             'paragraph_open',
             'inline',
             'paragraph_close',
-            'header_close',
+            headerClose,
         ]);
         expect(tokens[0].attrGet('data-height')).toBe('s');
         expect(tokens[0].attrGet('data-width')).toBe('m');
@@ -61,15 +63,15 @@ describe('Header Markdown', () => {
     it.each([':::header[Title]{width="s"}\n:::', ':::header(link)\n:::', ':::header Title\n:::'])(
         'should leave unsupported opening syntax as Markdown in %j',
         (markup) => {
-            expect(md.parse(markup, {}).some((token) => token.type === 'header_open')).toBe(false);
+            expect(md.parse(markup, {}).some((token) => token.type === headerOpen)).toBe(false);
         },
     );
 
     it('should preserve nested containers and paragraphs after them', () => {
         const tokens = md.parse(':::header\n:::header\nInner\n:::\nOuter\n:::', {});
-        expect(tokens.filter((token) => token.type === 'header_open')).toHaveLength(2);
-        expect(tokens.filter((token) => token.type === 'header_close')).toHaveLength(2);
-        expect(tokens[tokens.length - 1].type).toBe('header_close');
+        expect(tokens.filter((token) => token.type === headerOpen)).toHaveLength(2);
+        expect(tokens.filter((token) => token.type === headerClose)).toHaveLength(2);
+        expect(tokens[tokens.length - 1].type).toBe(headerClose);
         expect(
             tokens.filter((token) => token.type === 'inline').map((token) => token.content),
         ).toEqual(['Inner', 'Outer']);
@@ -77,8 +79,8 @@ describe('Header Markdown', () => {
 
     const expectContainer = (markup: string, contents: string[]) => {
         const tokens = md.parse(markup, {});
-        expect(tokens[0].type).toBe('header_open');
-        expect(tokens[tokens.length - 1].type).toBe('header_close');
+        expect(tokens[0].type).toBe(headerOpen);
+        expect(tokens[tokens.length - 1].type).toBe(headerClose);
         expect(
             tokens.filter((token) => token.type === 'inline').map((token) => token.content),
         ).toEqual(contents);
@@ -96,7 +98,7 @@ describe('Header Markdown', () => {
     it.each([':::header\nUnclosed', '    :::header\n    :::'])(
         'should leave incomplete or indented directives as Markdown in %j',
         (markup) => {
-            expect(md.parse(markup, {}).some((token) => token.type === 'header_open')).toBe(false);
+            expect(md.parse(markup, {}).some((token) => token.type === headerOpen)).toBe(false);
         },
     );
 
