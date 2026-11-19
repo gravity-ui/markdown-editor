@@ -45,6 +45,13 @@ export {
     headerTitleTokenName,
     headerTitleValues,
 } from './header-title/model';
+export {headerContentPlugin} from './header-content/plugin';
+export {headerContentAttrs} from './header-content/attrs';
+export {
+    headerContentClassName,
+    headerContentDirectiveName,
+    headerContentTokenName,
+} from './header-content/model';
 export {buttonPlugin} from './button/plugin';
 export {buttonAttrs, buttonFromAttrs} from './button/attrs';
 export {

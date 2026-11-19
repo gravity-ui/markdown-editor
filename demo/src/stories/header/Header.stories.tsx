@@ -1,6 +1,7 @@
 import type {Meta, StoryObj} from '@storybook/react';
 
 import {HeaderExample} from './Header';
+import {headerDescriptionMarkup} from './markup';
 
 export default {
     title: 'Extensions / Landing / Header',
@@ -23,4 +24,8 @@ export const Title: StoryObj<typeof HeaderExample> = {
             ':::',
         ].join('\n\n'),
     },
+};
+
+export const Description: StoryObj<typeof HeaderExample> = {
+    args: {initial: headerDescriptionMarkup},
 };
