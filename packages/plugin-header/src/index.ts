@@ -13,7 +13,22 @@ export {
     headerBgImageThemes,
     toCssUrl,
 } from './header/background';
-export {headerAttrs, headerBackgroundFromAttrs, headerDimensionsFromAttrs} from './header/attrs';
+export {
+    headerAttrs,
+    headerBackgroundFromAttrs,
+    headerDimensionsFromAttrs,
+    headerLayoutFromAttrs,
+} from './header/attrs';
+export {
+    type HeaderAlign,
+    type HeaderLayout,
+    type HeaderVertical,
+    headerAligns,
+    headerLayout,
+    headerLayoutDefaults,
+    headerLayoutValues,
+    headerVerticals,
+} from './header/layout';
 export {headerClassName, headerTokenName} from './header/model';
 export {
     type HeaderDimensions,

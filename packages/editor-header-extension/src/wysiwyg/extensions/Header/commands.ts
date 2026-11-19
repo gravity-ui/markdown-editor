@@ -10,6 +10,7 @@ import {
 import {
     type HeaderBackground,
     type HeaderDimensions,
+    type HeaderLayout,
     headerBackground,
 } from '@gravity-ui/markdown-plugin-header';
 
@@ -55,6 +56,18 @@ export const setHeaderDimension =
     (state, dispatch) => {
         if (!headerAt(state, pos)) return false;
         dispatch?.(state.tr.setNodeAttribute(pos, name, value));
+        return true;
+    };
+
+/** Changes the alignment or the vertical position of the content; each change is one undo step. */
+export const setHeaderLayout =
+    <K extends keyof HeaderLayout>(pos: number, name: K, value: HeaderLayout[K]): Command =>
+    (state, dispatch) => {
+        const node = headerAt(state, pos);
+        if (!node) return false;
+        if (dispatch && node.attrs[name] !== value) {
+            dispatch(closeHistory(state.tr.setNodeAttribute(pos, name, value)));
+        }
         return true;
     };
 

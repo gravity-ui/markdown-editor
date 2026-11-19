@@ -9,7 +9,7 @@ import {HeaderStories} from './Header.helpers';
 const HEADER_WIDTH = 600;
 const VIEW_WIDTH = 760;
 const IMAGE_RADIUS = '10px';
-const IMAGE_MARGIN = 16;
+const IMAGE_PADDING = 8;
 const LANDSCAPE = 'assets/header-image-landscape.svg';
 const SQUARE = '/assets/header-image-square.svg';
 const SQUARE_IMAGE = `::header-image{src="${SQUARE}"}`;
@@ -24,7 +24,7 @@ const inHeader = (...blocks: string[]) =>
 const markupOf = (page: Page) => page.evaluate(() => window.mdEditor?.getValue());
 
 test.describe('Header image', () => {
-    test('should render the image in the flow of the banner in the preview @markup', async ({
+    test('should render the image beside the text of a wide banner in the preview @markup', async ({
         mount,
         page,
         editor,
@@ -40,18 +40,17 @@ test.describe('Header image', () => {
         ]);
         const [placement] = await headerImage.getPlacement();
         expect(placement).toMatchObject({
-            left: 0,
-            width: HEADER_WIDTH,
+            left: HEADER_WIDTH / 2 + IMAGE_PADDING,
+            width: HEADER_WIDTH / 2 - 2 * IMAGE_PADDING,
             bannerWidth: HEADER_WIDTH,
             radius: IMAGE_RADIUS,
         });
-        expect(placement.textBelow).toBeGreaterThanOrEqual(IMAGE_MARGIN);
         await page.mouse.move(0, 0);
         await expect(page.getByRole('tooltip')).toBeHidden();
         await expectScreenshot();
     });
 
-    test('should render the image and the placeholder in the flow of the banner @wysiwyg', async ({
+    test('should render the image and the placeholder beside the text of a wide banner @wysiwyg', async ({
         mount,
         editor,
         header,
@@ -67,11 +66,10 @@ test.describe('Header image', () => {
         const placements = await headerImage.getPlacement(
             headerImage.images.or(headerImage.emptyBlocks),
         );
-        for (const placement of placements) {
-            expect(placement.left).toBe(0);
-            expect(placement.width).toBe(placement.bannerWidth);
-            expect(placement.textBelow).toBeGreaterThanOrEqual(IMAGE_MARGIN);
-            expect(placement.radius).toBe(IMAGE_RADIUS);
+        for (const {left, width, bannerWidth = 0, radius} of placements) {
+            expect(left).toBe(bannerWidth / 2 + IMAGE_PADDING);
+            expect(width).toBe(bannerWidth / 2 - 2 * IMAGE_PADDING);
+            expect(radius).toBe(IMAGE_RADIUS);
         }
         await editor.focus();
         await editor.press('ControlOrMeta+End');

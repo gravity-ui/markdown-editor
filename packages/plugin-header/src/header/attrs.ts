@@ -6,11 +6,14 @@ import {
     headerBackgroundValues,
     toCssUrl,
 } from './background';
+import {type HeaderLayout, headerLayout, headerLayoutValues} from './layout';
 import {type HeaderDimensions, headerClassName, headerDimensions} from './model';
 
 const b = cn(headerClassName);
 
-type HeaderAttrsInput = Partial<Record<keyof HeaderDimensions | keyof HeaderBackground, unknown>>;
+type HeaderAttrsInput = Partial<
+    Record<keyof HeaderDimensions | keyof HeaderLayout | keyof HeaderBackground, unknown>
+>;
 
 /**
  * Modifiers and the `style` render the block; data attributes carry its options for parsing.
@@ -19,6 +22,7 @@ type HeaderAttrsInput = Partial<Record<keyof HeaderDimensions | keyof HeaderBack
  */
 export function headerAttrs(attrs: HeaderAttrsInput): Record<string, string> {
     const dimensions = headerDimensions(attrs);
+    const layout = headerLayoutValues(headerLayout(attrs));
     const background = headerBackground(attrs);
     const image = background['bg-image'] && toCssUrl(background['bg-image']);
     const theme = background['bg-image-theme'];
@@ -26,6 +30,7 @@ export function headerAttrs(attrs: HeaderAttrsInput): Record<string, string> {
         class: b(
             {
                 ...dimensions,
+                ...layout,
                 'bg-color': background['bg-color'] ?? undefined,
                 'bg-image': Boolean(image),
                 'bg-image-blur': background['bg-image-blur'],
@@ -35,6 +40,7 @@ export function headerAttrs(attrs: HeaderAttrsInput): Record<string, string> {
         'data-height': dimensions.height,
         'data-width': dimensions.width,
     };
+    for (const [name, value] of Object.entries(layout)) result[`data-${name}`] = value;
     for (const [name, value] of Object.entries(headerBackgroundValues(background))) {
         result[`data-${name}`] = value;
     }
@@ -44,6 +50,10 @@ export function headerAttrs(attrs: HeaderAttrsInput): Record<string, string> {
 
 export function headerDimensionsFromAttrs(getAttr: (name: string) => string | null | undefined) {
     return headerDimensions({height: getAttr('data-height'), width: getAttr('data-width')});
+}
+
+export function headerLayoutFromAttrs(getAttr: (name: string) => string | null | undefined) {
+    return headerLayout({align: getAttr('data-align'), vertical: getAttr('data-vertical')});
 }
 
 export function headerBackgroundFromAttrs(getAttr: (name: string) => string | null | undefined) {

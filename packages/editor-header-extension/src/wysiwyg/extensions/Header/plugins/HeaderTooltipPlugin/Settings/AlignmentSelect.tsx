@@ -1,21 +1,20 @@
-import {useState} from 'react';
-
 import {Icon, type IconData, SegmentedRadioGroup} from '@gravity-ui/uikit';
 
 import {SettingsRow} from '../../../../settings';
 
-import {logClick} from './utils';
-
-export function AlignmentSelect({
-    label,
-    defaultValue,
-    options,
-}: {
+type AlignmentSelectProps<T extends string> = {
     label: string;
-    defaultValue: string;
-    options: {value: string; label: string; icon: IconData; action: string}[];
-}) {
-    const [value, setValue] = useState(defaultValue);
+    value: T;
+    options: readonly {value: T; label: string; icon: IconData}[];
+    onUpdate: (value: T) => void;
+};
+
+export function AlignmentSelect<T extends string>({
+    label,
+    value,
+    options,
+    onUpdate,
+}: AlignmentSelectProps<T>) {
     return (
         <SettingsRow label={label}>
             {(labelId) => (
@@ -23,17 +22,14 @@ export function AlignmentSelect({
                     size="m"
                     aria-labelledby={labelId}
                     value={value}
-                    onUpdate={setValue}
+                    onUpdate={(next) => onUpdate(next as T)}
                 >
                     {options.map((option) => (
                         <SegmentedRadioGroup.Option
                             key={option.value}
                             value={option.value}
                             title={option.label}
-                            controlProps={{
-                                'aria-label': option.label,
-                                onClick: () => logClick(`${option.action} button`),
-                            }}
+                            controlProps={{'aria-label': option.label}}
                         >
                             <Icon data={option.icon} size={16} />
                         </SegmentedRadioGroup.Option>

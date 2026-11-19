@@ -31,6 +31,7 @@ import {
     type HeaderDimensions,
     headerBackgroundDefaults,
     headerDefaults,
+    headerLayoutDefaults,
 } from '@gravity-ui/markdown-plugin-header';
 import {afterEach, describe, expect, it} from 'vitest';
 
@@ -104,7 +105,12 @@ describe('Header extension', () => {
     ])('should round trip %j', ({height, width}) => {
         const source = `:::header{height="${height}" width="${width}"}\n\n:::`;
         const doc = markupParser.parse(source);
-        expect(doc.firstChild?.attrs).toEqual({height, width, ...headerBackgroundDefaults});
+        expect(doc.firstChild?.attrs).toEqual({
+            height,
+            width,
+            ...headerLayoutDefaults,
+            ...headerBackgroundDefaults,
+        });
         expect(serializer.serialize(doc)).toBe(source);
         const container = document.createElement('div');
         container.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
@@ -125,7 +131,7 @@ describe('Header extension', () => {
     });
 
     it('should use the same defaults in the schema and parser', () => {
-        const defaults = {...headerDefaults, ...headerBackgroundDefaults};
+        const defaults = {...headerDefaults, ...headerLayoutDefaults, ...headerBackgroundDefaults};
         expect(schema.nodes.header.create().attrs).toEqual(defaults);
         expect(markupParser.parse(':::header\n:::').firstChild?.attrs).toEqual(defaults);
     });
@@ -193,6 +199,7 @@ describe('Header extension', () => {
         expect(doc.firstChild?.attrs).toEqual({
             height: 'l',
             width: 'full',
+            ...headerLayoutDefaults,
             ...headerBackgroundDefaults,
         });
     });
