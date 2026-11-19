@@ -1,5 +1,6 @@
 import type {DataTransferType, MarkdownEditorMode} from '@gravity-ui/markdown-editor';
 import {SearchQA} from '@gravity-ui/markdown-editor/_/modules/search/qa.js';
+import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import type {Expect, Locator, Page} from '@playwright/test';
 
 type YfmTableCellMenuType = 'row' | 'column';
@@ -146,13 +147,15 @@ class YfmTable {
     readonly buttonPlusColumnLocator;
     readonly cellBgPaletteLocator: Locator;
     private readonly tableLocator;
+    private readonly expect: Expect;
 
     private readonly rowButtonLocator;
     private readonly columnButtonLocator;
     private readonly cellMenus: Readonly<Record<YfmTableCellMenuType, Locator>>;
     private readonly cellMenuActions: Readonly<Record<YfmTableActionKind, Locator>>;
 
-    constructor(page: Page) {
+    constructor(page: Page, expect: Expect) {
+        this.expect = expect;
         this.tableLocator = page.locator('table');
         this.buttonPlusRowLocator = page.getByTestId('g-md-yfm-table-plus-row');
         this.buttonPlusColumnLocator = page.getByTestId('g-md-yfm-table-plus-column');
@@ -230,6 +233,29 @@ class YfmTable {
         const firstCell = cells.first();
         await firstCell.waitFor({state: 'visible'});
         await firstCell.click();
+    }
+
+    async focusCellByText(text: string, tableLocator?: Locator) {
+        const cells = await this.getCells(tableLocator);
+        const cellText = cells.getByText(text, {exact: true});
+        await cellText.click();
+        await this.expect
+            .poll(() =>
+                cellText.evaluate((element) => {
+                    const editor:
+                        | (typeof window.mdEditor & {_wysiwygView?: EditorView})
+                        | undefined = window.mdEditor;
+                    const view = editor?._wysiwygView;
+                    return Boolean(
+                        view && element.contains(view.domAtPos(view.state.selection.head).node),
+                    );
+                }),
+            )
+            .toBe(true);
+    }
+
+    getParagraphAfterTable(contenteditable: Locator) {
+        return contenteditable.locator(':scope > table + p');
     }
 
     getCellBgSwatchLocator(label: string) {
@@ -394,7 +420,7 @@ export class MarkdownEditorPage {
         this.expect = expect;
 
         this.locators = new MarkdownEditorLocators(page);
-        this.yfmTable = new YfmTable(page);
+        this.yfmTable = new YfmTable(page, expect);
         this.colorify = new Colorify(page, expect, this.locators);
         this.yfmNote = new YfmNote(page);
         this.image = new Image(page);

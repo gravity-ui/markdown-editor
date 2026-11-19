@@ -9,6 +9,7 @@ import {
 } from '@gravity-ui/markdown-editor';
 import {ActionName as Action, ToolbarName, full} from '@gravity-ui/markdown-editor/toolbars';
 import {
+    Button,
     Header,
     type HeaderOptions,
     toolbarHeaderItem,
@@ -36,7 +37,7 @@ const imageLimits = {
     maxImageSize: 2 * 1024 * 1024,
 } satisfies HeaderOptions;
 
-const toolbars = {
+export const toolbars = {
     items: {
         ...full.items,
         header: toolbarHeaderItem,
@@ -53,7 +54,7 @@ const toolbars = {
 export function HeaderExample({
     initial = ':::header{height="s" width="m"}\n\n:::\n\nAfter',
     mode = 'wysiwyg',
-    width = 1000,
+    width,
     uploadFile = fileUploadHandler,
 }: {
     initial?: string;
@@ -70,7 +71,7 @@ export function HeaderExample({
         handlers: {uploadFile},
         wysiwygConfig: {
             extensions: (builder) =>
-                builder.use(Header, {...imageLimits, fileUploadHandler: uploadFile}),
+                builder.use(Header, {...imageLimits, fileUploadHandler: uploadFile}).use(Button),
         },
         markupConfig: {renderPreview},
     });

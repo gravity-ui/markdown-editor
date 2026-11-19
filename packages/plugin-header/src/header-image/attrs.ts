@@ -1,4 +1,4 @@
-import {filesGalleryExcludeAttrs} from '../const';
+import {filesGalleryExcludeAttrs} from '../header/model';
 import type {GetAttr} from '../utils';
 
 import {type HeaderImage, headerImageClassName} from './const';

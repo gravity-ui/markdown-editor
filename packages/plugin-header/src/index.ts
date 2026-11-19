@@ -1,5 +1,5 @@
-export {headerAttrs, headerClassNames, headerDimensionsFromAttrs} from './classname';
-export {filesGalleryExcludeAttrs, headerClassName, headerTokenName} from './const';
+export {headerAttrs, headerClassNames, headerDimensionsFromAttrs} from './header/attrs';
+export {filesGalleryExcludeAttrs, headerClassName, headerTokenName} from './header/model';
 export {
     type HeaderDimensions,
     type HeaderHeight,
@@ -8,7 +8,21 @@ export {
     headerDimensions,
     headerHeights,
     headerWidths,
-} from './dimensions';
-export {headerPlugin} from './directive';
+} from './header/model';
+export {headerPlugin} from './header/plugin';
 export * from './header-image';
-export {safeImageUrl} from './url';
+export {buttonPlugin} from './button/plugin';
+export {buttonAttrs, buttonFromAttrs} from './button/attrs';
+export {
+    ButtonAttr,
+    type ButtonColor,
+    type ButtonModel,
+    type ButtonView,
+    buttonClassName,
+    buttonDefaultColor,
+    buttonDefaults,
+    buttonModel,
+    buttonTokenName,
+    buttonViewColors,
+} from './button/model';
+export {normalizeLinkUrl, safeImageUrl} from './url';

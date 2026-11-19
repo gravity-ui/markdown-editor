@@ -1,7 +1,7 @@
 import {directiveParser, registerLeafBlockDirective} from '@diplodoc/directive';
 import type {PluginSimple} from 'markdown-it';
 
-import {headerTokenName} from '../const';
+import {headerTokenName} from '../header/model';
 
 import {headerImageAttrs} from './attrs';
 import {headerImageTokenName} from './const';
