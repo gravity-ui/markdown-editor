@@ -15,6 +15,20 @@
     "packages/editor": {},
     "packages/latex-extension": {},
     "packages/page-constructor-extension": {},
-    "packages/viewer": {}
+    "packages/viewer": {
+      "initial-version": "0.1.0"
+    },
+    "packages/viewer-yfm-html-extension": {
+      "initial-version": "0.1.0"
+    },
+    "packages/viewer-yfm-latex-extension": {
+      "initial-version": "0.1.0"
+    },
+    "packages/viewer-yfm-mermaid-extension": {
+      "initial-version": "0.1.0"
+    },
+    "packages/viewer-yfm-page-constructor-extension": {
+      "initial-version": "0.1.0"
+    }
   }
 }

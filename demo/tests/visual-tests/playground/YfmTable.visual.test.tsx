@@ -81,17 +81,17 @@ test.describe('YfmTable', () => {
         });
     });
 
-    test('should move vertically across fully covered rows @wysiwyg', async ({
+    test('should move vertically across fully covered rows and leave the table @wysiwyg', async ({
         mount,
         editor,
         page,
     }) => {
         const initial = dd`
         #|
-        || one ||
-        || ^   ||
-        || ^   ||
-        || two ||
+        || side | one ||
+        || ^    | ^   ||
+        || ^    | ^   ||
+        || ^    | two ||
         |#
         `;
 
@@ -102,16 +102,24 @@ test.describe('YfmTable', () => {
         const table = await editor.yfmTable.getTable(editor.locators.contenteditable);
         const cells = await editor.yfmTable.getCells(table);
 
-        await editor.yfmTable.focusFirstCell(table);
+        await editor.yfmTable.focusCellByText('one', table);
         await editor.press('End');
         await editor.press('ArrowDown');
         await editor.pressSequentially('!');
-        await expect(cells).toHaveText(['one', '!two']);
+        await expect(cells).toHaveText(['side', 'one', '!two']);
 
         await editor.press('Home');
         await editor.press('ArrowUp');
         await editor.pressSequentially('!');
-        await expect(cells).toHaveText(['!one', '!two']);
+        await expect(cells).toHaveText(['side', '!one', '!two']);
+
+        await editor.yfmTable.focusCellByText('side', table);
+        await editor.press('End');
+        await editor.press('ArrowDown');
+        await editor.pressSequentially('!');
+        const paragraph = editor.yfmTable.getParagraphAfterTable(editor.locators.contenteditable);
+        await expect(paragraph).toHaveText('!');
+        await expect(cells).toHaveText(['side', '!one', '!two']);
         expect(pageErrors).toEqual([]);
     });
 

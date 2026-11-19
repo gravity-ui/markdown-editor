@@ -220,6 +220,18 @@ importers:
       '@gravity-ui/markdown-plugin-header':
         specifier: workspace:*
         version: link:../packages/plugin-header
+      '@gravity-ui/markdown-viewer-yfm-html-extension':
+        specifier: workspace:*
+        version: link:../packages/viewer-yfm-html-extension
+      '@gravity-ui/markdown-viewer-yfm-latex-extension':
+        specifier: workspace:*
+        version: link:../packages/viewer-yfm-latex-extension
+      '@gravity-ui/markdown-viewer-yfm-mermaid-extension':
+        specifier: workspace:*
+        version: link:../packages/viewer-yfm-mermaid-extension
+      '@gravity-ui/markdown-viewer-yfm-page-constructor-extension':
+        specifier: workspace:*
+        version: link:../packages/viewer-yfm-page-constructor-extension
       '@gravity-ui/markdown-viewer':
         specifier: workspace:*
         version: link:../packages/viewer
@@ -232,9 +244,6 @@ importers:
       markdown-it:
         specifier: catalog:peers
         version: 13.0.2
-      react-error-boundary:
-        specifier: 'catalog:'
-        version: 3.1.4(react@18.2.0)
     devDependencies:
       '@babel/preset-env':
         specifier: 7.29.7
@@ -1050,6 +1059,238 @@ importers:
       react-dom:
         specifier: catalog:react19
         version: 19.3.1(react@19.3.1)
+
+  packages/viewer-yfm-html-extension:
+    dependencies:
+      tslib:
+        specifier: catalog:ts
+        version: 2.8.1
+    devDependencies:
+      '@diplodoc/html-extension':
+        specifier: catalog:peer-diplodoc
+        version: 2.9.6(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@types/markdown-it@13.0.9)(markdown-it@13.0.2)(react@18.2.0)
+      '@gravity-ui/markdown-viewer':
+        specifier: workspace:*
+        version: link:../viewer
+      '@markdown-editor/gulp-tasks':
+        specifier: workspace:*
+        version: link:../../infra/gulp-tasks
+      '@markdown-editor/linters':
+        specifier: workspace:*
+        version: link:../../infra/linters
+      '@markdown-editor/tsconfig':
+        specifier: workspace:*
+        version: link:../../infra/tsconfig
+      '@markdown-editor/vitest-config':
+        specifier: workspace:*
+        version: link:../../infra/vitest-config
+      '@types/react':
+        specifier: catalog:react
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: catalog:react
+        version: 18.2.25
+      gulp-cli:
+        specifier: 'catalog:'
+        version: 3.1.0
+      jsdom:
+        specifier: catalog:testing
+        version: 25.0.1
+      markdown-it:
+        specifier: catalog:peers
+        version: 13.0.2
+      react:
+        specifier: catalog:react
+        version: 18.2.0
+      react-dom:
+        specifier: catalog:react
+        version: 18.2.0(react@18.2.0)
+      typescript:
+        specifier: catalog:ts
+        version: 5.9.3
+      vitest:
+        specifier: catalog:testing
+        version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.106.1)(terser@5.51.2)(yaml@2.9.1))
+
+  packages/viewer-yfm-latex-extension:
+    dependencies:
+      '@types/katex':
+        specifier: ^0.16.7
+        version: 0.16.7
+      tslib:
+        specifier: catalog:ts
+        version: 2.8.1
+    devDependencies:
+      '@diplodoc/latex-extension':
+        specifier: 2.0.0
+        version: 2.0.0(katex@0.16.27)(markdown-it@13.0.2)(react@18.2.0)
+      '@diplodoc/latex-extension-v1':
+        specifier: npm:@diplodoc/latex-extension@1.3.4
+        version: '@diplodoc/latex-extension@1.3.4(katex@0.16.27)(markdown-it@13.0.2)(react@18.2.0)'
+      '@gravity-ui/markdown-viewer':
+        specifier: workspace:*
+        version: link:../viewer
+      '@markdown-editor/gulp-tasks':
+        specifier: workspace:*
+        version: link:../../infra/gulp-tasks
+      '@markdown-editor/linters':
+        specifier: workspace:*
+        version: link:../../infra/linters
+      '@markdown-editor/tsconfig':
+        specifier: workspace:*
+        version: link:../../infra/tsconfig
+      '@markdown-editor/vitest-config':
+        specifier: workspace:*
+        version: link:../../infra/vitest-config
+      '@types/react':
+        specifier: catalog:react
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: catalog:react
+        version: 18.2.25
+      gulp-cli:
+        specifier: 'catalog:'
+        version: 3.1.0
+      jsdom:
+        specifier: catalog:testing
+        version: 25.0.1
+      katex:
+        specifier: catalog:peers
+        version: 0.16.27
+      markdown-it:
+        specifier: catalog:peers
+        version: 13.0.2
+      react:
+        specifier: catalog:react
+        version: 18.2.0
+      react-dom:
+        specifier: catalog:react
+        version: 18.2.0(react@18.2.0)
+      typescript:
+        specifier: catalog:ts
+        version: 5.9.3
+      vitest:
+        specifier: catalog:testing
+        version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.106.1)(terser@5.51.2)(yaml@2.9.1))
+
+  packages/viewer-yfm-mermaid-extension:
+    dependencies:
+      tslib:
+        specifier: catalog:ts
+        version: 2.8.1
+    devDependencies:
+      '@diplodoc/mermaid-extension':
+        specifier: 2.0.0
+        version: 2.0.0(markdown-it@13.0.2)(react@18.2.0)
+      '@gravity-ui/markdown-viewer':
+        specifier: workspace:*
+        version: link:../viewer
+      '@gravity-ui/uikit':
+        specifier: catalog:peer-gravity
+        version: 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@markdown-editor/gulp-tasks':
+        specifier: workspace:*
+        version: link:../../infra/gulp-tasks
+      '@markdown-editor/linters':
+        specifier: workspace:*
+        version: link:../../infra/linters
+      '@markdown-editor/tsconfig':
+        specifier: workspace:*
+        version: link:../../infra/tsconfig
+      '@markdown-editor/vitest-config':
+        specifier: workspace:*
+        version: link:../../infra/vitest-config
+      '@types/react':
+        specifier: catalog:react
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: catalog:react
+        version: 18.2.25
+      esbuild:
+        specifier: 'catalog:'
+        version: 0.28.2
+      gulp-cli:
+        specifier: 'catalog:'
+        version: 3.1.0
+      jsdom:
+        specifier: catalog:testing
+        version: 25.0.1
+      markdown-it:
+        specifier: catalog:peers
+        version: 13.0.2
+      react:
+        specifier: catalog:react
+        version: 18.2.0
+      react-dom:
+        specifier: catalog:react
+        version: 18.2.0(react@18.2.0)
+      typescript:
+        specifier: catalog:ts
+        version: 5.9.3
+      vitest:
+        specifier: catalog:testing
+        version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.106.1)(terser@5.51.2)(yaml@2.9.1))
+
+  packages/viewer-yfm-page-constructor-extension:
+    dependencies:
+      react-error-boundary:
+        specifier: 'catalog:'
+        version: 3.1.4(react@18.2.0)
+      tslib:
+        specifier: catalog:ts
+        version: 2.8.1
+    devDependencies:
+      '@diplodoc/page-constructor-extension':
+        specifier: catalog:peer-diplodoc
+        version: 0.13.3(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/markdown-it@13.0.9)(@types/react@18.2.79)(markdown-it@13.0.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+      '@gravity-ui/markdown-viewer':
+        specifier: workspace:*
+        version: link:../viewer
+      '@gravity-ui/page-constructor':
+        specifier: catalog:peer-gravity
+        version: 7.25.0(@diplodoc/transform@4.75.1(@types/markdown-it@13.0.9)(highlight.js@11.11.1)(react@18.2.0))(@gravity-ui/uikit@7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.2.79)(js-yaml@4.3.2)(react-dom@18.2.0(react@18.2.0))(react-is@18.3.1)(react@18.2.0)
+      '@gravity-ui/uikit':
+        specifier: catalog:peer-gravity
+        version: 7.39.0(@babel/runtime@7.29.2)(@types/react@18.2.79)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@markdown-editor/gulp-tasks':
+        specifier: workspace:*
+        version: link:../../infra/gulp-tasks
+      '@markdown-editor/linters':
+        specifier: workspace:*
+        version: link:../../infra/linters
+      '@markdown-editor/tsconfig':
+        specifier: workspace:*
+        version: link:../../infra/tsconfig
+      '@markdown-editor/vitest-config':
+        specifier: workspace:*
+        version: link:../../infra/vitest-config
+      '@types/react':
+        specifier: catalog:react
+        version: 18.2.79
+      '@types/react-dom':
+        specifier: catalog:react
+        version: 18.2.25
+      esbuild:
+        specifier: 'catalog:'
+        version: 0.28.2
+      gulp-cli:
+        specifier: 'catalog:'
+        version: 3.1.0
+      jsdom:
+        specifier: catalog:testing
+        version: 25.0.1
+      react:
+        specifier: catalog:react
+        version: 18.2.0
+      react-dom:
+        specifier: catalog:react
+        version: 18.2.0(react@18.2.0)
+      typescript:
+        specifier: catalog:ts
+        version: 5.9.3
+      vitest:
+        specifier: catalog:testing
+        version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.106.1)(terser@5.51.2)(yaml@2.9.1))
 
 packages:
 
@@ -9378,6 +9619,26 @@ packages:
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
+
+  '@diplodoc/latex-extension@1.3.4':
+    resolution: {integrity: sha512-bmkXNuDo6lex5kTISa0JHGV75Gvm/AxCLZVsKbHDK7m+pJAR6k4c82wbyrj++K24ovZejWAifX+3EAvMnbMDwg==}
+    peerDependencies:
+      katex: ^0.16.9
+      markdown-it: ^13.0.0
+      react: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
+
+  '@diplodoc/latex-extension@2.0.0':
+    resolution: {integrity: sha512-BTmJToEVZPtEAPK0I9mUiGgkgaGUb8GVDw8PoSpW6y32nAuDGcbyHWgfzQvahGLVJQYSpOgoEr63X5uxyY5Ydg==}
+    peerDependencies:
+      katex: ^0.16.9
+      markdown-it: ^13.0.0
+      react: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
 
 snapshots:
 
@@ -19595,3 +19856,16 @@ snapshots:
   zimmerframe@1.1.5: {}
 
   zwitch@2.0.4: {}
+  '@diplodoc/latex-extension@1.3.4(katex@0.16.27)(markdown-it@13.0.2)(react@18.2.0)':
+    dependencies:
+      katex: 0.16.27
+      markdown-it: 13.0.2
+    optionalDependencies:
+      react: 18.2.0
+
+  '@diplodoc/latex-extension@2.0.0(katex@0.16.27)(markdown-it@13.0.2)(react@18.2.0)':
+    dependencies:
+      katex: 0.16.27
+      markdown-it: 13.0.2
+    optionalDependencies:
+      react: 18.2.0

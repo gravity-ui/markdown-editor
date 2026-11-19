@@ -1,7 +1,7 @@
 import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
-import {headerPlugin} from '../directive';
+import {headerPlugin} from '../header/plugin';
 
 import {
     headerTitle,
