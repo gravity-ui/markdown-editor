@@ -4,6 +4,7 @@ import {NodeSelection} from '@gravity-ui/markdown-editor/pm/state';
 import type {Decoration, EditorView, NodeView} from '@gravity-ui/markdown-editor/pm/view';
 import {buttonAttrs} from '@gravity-ui/markdown-plugin-header';
 
+import {syncDomAttrs} from '../../nodeview';
 import {ButtonNodeAttr} from '../ButtonSpecs';
 import {buttonLabel} from '../ButtonSpecs/utils';
 import {hasButtonSettings, setButtonSettingsOpen} from '../plugins/ButtonSettingsPlugin';
@@ -17,24 +18,6 @@ const b = cn('button-nodeview');
 type DomAttrs = Record<string, string>;
 type GetPos = () => number | undefined;
 type RenderItem = ReturnType<ReturnType<typeof getReactRendererFromState>['createItem']>;
-
-const classNames = (value: string | undefined) => (value ? value.split(' ') : []);
-
-// The element keeps the classes that the editor adds to a selected node.
-function syncDomAttrs(dom: HTMLElement, prev: DomAttrs, next: DomAttrs) {
-    const {class: prevClass, ...prevAttrs} = prev;
-    const {class: nextClass, ...nextAttrs} = next;
-    if (prevClass !== nextClass) {
-        dom.classList.remove(...classNames(prevClass));
-        dom.classList.add(...classNames(nextClass));
-    }
-    for (const name of Object.keys(prevAttrs)) {
-        if (!(name in nextAttrs)) dom.removeAttribute(name);
-    }
-    for (const [name, value] of Object.entries(nextAttrs)) {
-        if (prevAttrs[name] !== value) dom.setAttribute(name, value);
-    }
-}
 
 export class WButtonNodeView implements NodeView {
     readonly dom: HTMLElement;
