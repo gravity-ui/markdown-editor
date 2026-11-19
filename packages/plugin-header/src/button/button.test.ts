@@ -3,7 +3,7 @@ import {describe, expect, it} from 'vitest';
 
 import {buttonAttrs, buttonFromAttrs, buttonPlugin, headerPlugin} from '../index';
 
-import {buttonClassName, buttonDefaults, buttonTokenName, buttonViewColors} from './model';
+import {buttonDefaults, buttonTokenName, buttonViewColors} from './model';
 
 const md = new MarkdownIt({html: true}).use(buttonPlugin);
 const inlineTokens = (markup: string) => md.parseInline(markup, {})[0].children ?? [];
@@ -47,12 +47,16 @@ describe('Button Markdown', () => {
         const html = md.renderInline(':button[**Bold** & <b>tag</b> \\] [pair]]');
         expect(html).toContain('>**Bold** &amp; &lt;b&gt;tag&lt;/b&gt; ] [pair]</a>');
     });
-    it.each([':button[]', ':button[   ]', ':button[](/page)'])(
-        'should render an empty link for the empty button %j',
-        (markup) => {
-            expect(md.renderInline(`Before${markup}After`)).toMatch(/^Before<a [^>]+><\/a>After$/);
-        },
-    );
+    it.each([
+        ':button',
+        ':button[]',
+        ':button[   ]',
+        ':button[](/page)',
+        ':button(/page)',
+        ':button{view="flat"}',
+    ])('should render an empty link for the empty button %j', (markup) => {
+        expect(md.renderInline(`Before ${markup} After`)).toMatch(/^Before <a [^>]+><\/a> After$/);
+    });
     it('should protect links opened in a new tab', () => {
         expect(md.renderInline(':button[Open](https://example.com){target="_blank"}')).toContain(
             'target="_blank" rel="noopener noreferrer"',
@@ -146,10 +150,4 @@ describe('Button Markdown', () => {
         expect(token?.attrGet('href')).toBeNull();
         expect(token?.attrGet('title')).toBeNull();
     });
-    it.each([':button', ':button(/page)', ':button{view="flat"}'])(
-        'should not render a button for unsupported syntax %j',
-        (markup) => {
-            expect(md.renderInline(markup)).not.toContain(buttonClassName);
-        },
-    );
 });

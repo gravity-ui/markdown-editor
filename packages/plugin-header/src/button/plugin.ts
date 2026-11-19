@@ -12,9 +12,8 @@ export const buttonPlugin: PluginSimple = (md) => {
     // and breaks `[Press the :button now](/help)`. Waiting for the package update:
     // https://github.com/hilookas/markdown-it-directive/issues/16
     registerInlineDirective(md, 'button', (state, {content, dests, attrs}) => {
-        if (!content) return false;
         const token = state.push(buttonTokenName, 'a', 0);
-        token.content = md.utils.unescapeMd(content.raw).trim();
+        token.content = md.utils.unescapeMd(content?.raw ?? '').trim();
         token.attrs = Object.entries(
             buttonAttrs({...attrs, href: normalizeLinkUrl(md, dests?.link), title: dests?.string}),
         );
