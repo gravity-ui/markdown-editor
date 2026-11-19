@@ -33,7 +33,8 @@ import {afterEach, describe, expect, it} from 'vitest';
 import {insertHeader as insertHeaderMarkup} from '../../../markup/commands/insertHeader';
 
 import {HeaderSpecs, headerNodeName} from './HeaderSpecs';
-import {copyHeader, insertHeader, removeHeader, setHeaderDimension} from './commands';
+import {insertHeader, removeHeader, setHeaderDimension} from './commands';
+import {headerMarkup} from './utils';
 
 import {Header} from '.';
 
@@ -164,13 +165,11 @@ describe('Header extension', () => {
         },
     );
 
-    it('should preserve child blocks when changing dimensions and copying', () => {
+    it('should preserve child blocks when changing dimensions', () => {
         const editor = createView(':::header\nKeep **text**\n:::');
         const content = editor.state.doc.child(0).content;
         expect(run(editor, setHeaderDimension(0, 'height', 'l'))).toBe(true);
         expect(editor.state.doc.child(0).content.eq(content)).toBe(true);
-        expect(run(editor, copyHeader(0))).toBe(true);
-        expect(editor.state.doc.child(1).eq(editor.state.doc.child(0))).toBe(true);
         const container = document.createElement('div');
         container.append(
             DOMSerializer.fromSchema(schema).serializeFragment(editor.state.doc.content),
@@ -189,15 +188,36 @@ describe('Header extension', () => {
         expect(doc.firstChild?.attrs).toEqual({height: 'l', width: 'full'});
     });
 
-    it('should copy and remove a header', () => {
-        const editor = createView(':::header{height="m" width="s"}\n:::');
-        expect(run(editor, copyHeader(0))).toBe(true);
-        expect(serializer.serialize(editor.state.doc)).toBe(
-            ':::header{height="m" width="s"}\n\n:::\n\n:::header{height="m" width="s"}\n\n:::',
-        );
+    it.each([
+        {
+            name: 'an empty banner',
+            markup: ':::header{height="m" width="s"}\n:::',
+            copied: ':::header{height="m" width="s"}\n\n:::',
+        },
+        {
+            name: 'a banner with formatted blocks',
+            markup: 'Before\n\n:::header{height="l" width="full"}\nKeep **text**\n\n> quote\n:::\n\nAfter',
+            copied: ':::header{height="l" width="full"}\n\nKeep **text**\n\n> quote\n\n:::',
+        },
+    ])('should give the Markdown of $name for copying', ({markup, copied}) => {
+        const editor = createView(markup);
+        const {doc} = editor.state;
+        const pos = doc.child(0).type.name === headerNodeName ? 0 : doc.child(0).nodeSize;
+        expect(headerMarkup(serializer, editor.state, pos)).toBe(copied);
+        const banner = doc.nodeAt(pos);
+        expect(banner && markupParser.parse(copied).firstChild?.eq(banner)).toBe(true);
+    });
+
+    it('should give no Markdown outside a banner', () => {
+        const editor = createView('Text\n\n:::header\n:::');
+        expect(headerMarkup(serializer, editor.state, 0)).toBeNull();
+    });
+
+    it('should remove a header', () => {
+        const editor = createView(':::header{height="m" width="s"}\n:::\n\n:::header\n:::');
         expect(run(editor, removeHeader(0))).toBe(true);
         expect(serializer.serialize(editor.state.doc)).toBe(
-            ':::header{height="m" width="s"}\n\n:::',
+            ':::header{height="s" width="m"}\n\n:::',
         );
         expect(run(editor, removeHeader(1))).toBe(false);
     });

@@ -1,11 +1,18 @@
-import {Copy, Gear, TrashBin} from '@gravity-ui/icons';
-import {Toolbar, type ToolbarData, ToolbarDataType, cn} from '@gravity-ui/markdown-editor';
+import {Gear, TrashBin} from '@gravity-ui/icons';
+import {
+    Toolbar,
+    type ToolbarBaseProps,
+    type ToolbarData,
+    ToolbarDataType,
+    cn,
+} from '@gravity-ui/markdown-editor';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {headerDimensions} from '@gravity-ui/markdown-plugin-header';
+import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
-import {copyHeader, removeHeader, setHeaderDimension} from '../../commands';
+import {removeHeader, setHeaderDimension} from '../../commands';
 
 import {HeaderSettings} from './Settings/HeaderSettings';
 
@@ -19,14 +26,24 @@ export const headerToolbars = new WeakMap<EditorView, HTMLElement>();
 const isActive = () => false;
 const isEnable = () => true;
 
+const COPY_BUTTON_WIDTH = 28;
+
+type HeaderCopyButtonProps = ToolbarBaseProps<EditorView> & {markup?: () => string};
+
+function HeaderCopyButton({markup = () => ''}: HeaderCopyButtonProps) {
+    return <ClipboardButton qa="header-copy" text={markup} />;
+}
+
 type HeaderToolbarProps = {
     view: EditorView;
     node: Node;
     pos: number;
     block: HTMLElement | null;
+    /** The Markdown of the banner, read when it is copied. */
+    markup: () => string;
 };
 
-export function HeaderToolbar({view, node, pos, block}: HeaderToolbarProps) {
+export function HeaderToolbar({view, node, pos, block, markup}: HeaderToolbarProps) {
     const data: ToolbarData<EditorView> = [
         [
             {
@@ -51,12 +68,11 @@ export function HeaderToolbar({view, node, pos, block}: HeaderToolbarProps) {
             },
             {
                 id: 'header-copy',
-                type: ToolbarDataType.SingleButton,
-                icon: {data: Copy},
-                title: i18n('copy'),
-                isActive,
-                isEnable,
-                exec: (editor) => copyHeader(pos)(editor.state, editor.dispatch),
+                type: ToolbarDataType.ReactComponent,
+                width: COPY_BUTTON_WIDTH,
+                component: HeaderCopyButton,
+                props: {markup} satisfies Partial<HeaderCopyButtonProps>,
+                noRerenderOnUpdate: true,
             },
         ],
         [

@@ -1,18 +1,17 @@
 import {useMemo, useRef} from 'react';
 
 import {limitShift, shift, size} from '@floating-ui/react';
-import {Xmark} from '@gravity-ui/icons';
 import {
     type HeaderDimensions,
     headerHeights,
     headerWidths,
 } from '@gravity-ui/markdown-plugin-header';
-import {Button, Icon, Popup, type PopupAnchorElement, Text, useUniqId} from '@gravity-ui/uikit';
+import type {PopupAnchorElement} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
+import {SettingsDialog, cnHeaderSettings} from '../../../../settings';
 
 import {DimensionSelect} from './DimensionSelect';
-import {cnHeaderSettings} from './HeaderSettings.classname';
 import {SettingsFields} from './SettingsFields';
 
 import './HeaderSettings.scss';
@@ -21,7 +20,6 @@ const PANEL_INSET = 16;
 // The title and both dimension selects stay visible.
 const PANEL_MIN_HEIGHT = 160;
 const PANEL_MAX_HEIGHT = 720;
-const CLOSE_ICON_SIZE = 16;
 
 // `limitShift` keeps the panel over the anchor, so the anchor spans the block width.
 const insideTopEdge = (block: HTMLElement): PopupAnchorElement => ({
@@ -62,66 +60,38 @@ export function HeaderSettings({
     onChange,
     onClose,
 }: HeaderSettingsProps) {
-    const titleId = useUniqId();
     const anchorElement = useMemo(() => block && insideTopEdge(block), [block]);
     const heightRef = useRef<HTMLButtonElement>(null);
     return (
-        <Popup
-            open
+        <SettingsDialog
+            title={i18n('title')}
+            className={cnHeaderSettings()}
+            qa="header-settings"
+            closeSize="l"
+            closeAnchor={button}
+            onClose={onClose}
             anchorElement={anchorElement}
             placement="bottom-end"
             floatingMiddlewares={middlewares}
-            // Focus set before the panel is positioned skips `returnFocus`.
             initialFocus={heightRef}
             returnFocus={{current: button}}
-            onOpenChange={(open, event, reason) => {
-                // The settings button toggles the panel on its own click.
-                const onButton =
-                    reason === 'outside-press' &&
-                    event?.target instanceof Node &&
-                    button?.contains(event.target);
-                if (!open && !onButton) onClose();
-            }}
         >
-            <section
-                className={cnHeaderSettings()}
-                role="dialog"
-                aria-labelledby={titleId}
-                data-qa="header-settings"
-            >
-                <div className={cnHeaderSettings('title')}>
-                    <Text variant="subheader-3" id={titleId}>
-                        {i18n('title')}
-                    </Text>
-                    <Button
-                        className={cnHeaderSettings('close')}
-                        view="flat"
-                        size="l"
-                        aria-label={i18n('close')}
-                        onClick={onClose}
-                    >
-                        <Icon data={Xmark} size={CLOSE_ICON_SIZE} />
-                    </Button>
-                </div>
-                <DimensionSelect
-                    controlRef={heightRef}
-                    label={i18n('height')}
-                    value={dimensions.height}
-                    values={headerHeights}
-                    format={(value) => value.toUpperCase()}
-                    onUpdate={(value) => onChange('height', value)}
-                />
-                <DimensionSelect
-                    label={i18n('width')}
-                    value={dimensions.width}
-                    values={headerWidths}
-                    format={(value) =>
-                        value === 'full' ? i18n('full-width') : value.toUpperCase()
-                    }
-                    onUpdate={(value) => onChange('width', value)}
-                />
-                <SettingsFields />
-            </section>
-        </Popup>
+            <DimensionSelect
+                controlRef={heightRef}
+                label={i18n('height')}
+                value={dimensions.height}
+                values={headerHeights}
+                format={(value) => value.toUpperCase()}
+                onUpdate={(value) => onChange('height', value)}
+            />
+            <DimensionSelect
+                label={i18n('width')}
+                value={dimensions.width}
+                values={headerWidths}
+                format={(value) => (value === 'full' ? i18n('full-width') : value.toUpperCase())}
+                onUpdate={(value) => onChange('width', value)}
+            />
+            <SettingsFields />
+        </SettingsDialog>
     );
 }
