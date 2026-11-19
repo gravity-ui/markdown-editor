@@ -1,5 +1,5 @@
 import {type Parser, type Serializer, trackTransactionMetrics} from '#core';
-import {Fragment, type Node, type ResolvedPos, type Schema, Slice} from '#pm/model';
+import {Fragment, type Node, type ResolvedPos, Slice} from '#pm/model';
 import {type EditorState, Plugin, type Selection} from '#pm/state';
 import type {EditorView} from '#pm/view';
 import {type Logger2, globalLogger} from 'src/logger';
@@ -9,7 +9,6 @@ import {isNodeSelection, isTextSelection, isWholeSelection} from 'src/utils/sele
 
 import {BaseNode, pType} from '../../base/BaseSchema';
 
-import {isInsideCode} from './code';
 import {getSelectionContent} from './selection-content';
 import {trimTextSelection} from './trim-selection';
 import {DataTransferType, extractTextContentFromHtml, isIosSafariShare, trimContent} from './utils';
@@ -32,173 +31,70 @@ export const clipboard = ({
     return new Plugin({
         props: {
             handleDOMEvents: {
-                copy(view, e) {
-                    if (!e.clipboardData) return false;
-                    const result = serializeSelected(view, serializer);
-                    if (result) {
-                        e.preventDefault();
-                        setClipboardData(e.clipboardData, result);
-                        return true;
-                    }
-                    return false;
-                },
-                cut(view, e) {
-                    if (!e.clipboardData) return false;
-                    const result = serializeSelected(view, serializer);
-                    if (result) {
-                        e.preventDefault();
-                        setClipboardData(e.clipboardData, result);
-                        view.dispatch(
-                            view.state.tr
-                                .deleteSelection()
-                                .scrollIntoView()
-                                .setMeta('uiEvent', 'cut'),
-                        );
-                        return true;
-                    }
-                    return false;
-                },
+                copy: (view, event) => copyOrCutSelection(view, event, serializer),
+                cut: (view, event) => copyOrCutSelection(view, event, serializer),
                 paste(view, e) {
-                    if (!e.clipboardData) return false;
+                    const data = e.clipboardData;
+                    if (!data) return false;
 
                     const pasteLogger = logger.nested({
                         domEvent: 'paste',
-                        dataTypes: e.clipboardData.types,
+                        dataTypes: data.types,
                     });
 
-                    let data: string;
-                    let isPasteHandled = false;
-
-                    if (
-                        isIosSafariShare(e.clipboardData) &&
-                        (data = e.clipboardData.getData(DataTransferType.UriList))
-                    ) {
-                        const schema: Schema = view.state.schema;
+                    const uri = isIosSafariShare(data) && data.getData(DataTransferType.UriList);
+                    if (uri) {
+                        const {schema} = view.state;
+                        const paragraph = pType(schema).create(null, schema.text(uri));
                         view.dispatch(
                             trackTransactionMetrics(
                                 view.state.tr.replaceSelection(
-                                    // paste link inline
-                                    new Slice(
-                                        Fragment.from(
-                                            pType(schema).create(null, schema.text(data)),
-                                        ),
-                                        1,
-                                        1,
-                                    ),
+                                    new Slice(Fragment.from(paragraph), 1, 1),
                                 ),
                                 'paste',
                                 {clipboardDataFormat: DataTransferType.UriList},
                             ),
                         );
-                        pasteLogger.event({
-                            event: 'paste-uri-list',
-                        });
-                        isPasteHandled = true;
+                        pasteLogger.event({event: 'paste-uri-list'});
                         e.preventDefault();
                         return true;
                     }
 
-                    if (
-                        !e.clipboardData.types.includes(DataTransferType.Yfm) &&
-                        (data = e.clipboardData.getData(DataTransferType.Html))
-                    ) {
-                        const textFromHtml = extractTextContentFromHtml(data);
-                        if (textFromHtml) {
-                            const res = tryCatch(() => textParser.parse(textFromHtml));
-                            if (res.success) {
-                                const docNode = res.result;
-                                const slice = getSliceFromMarkupFragment(docNode.content);
-                                view.dispatch(
-                                    trackTransactionMetrics(
-                                        view.state.tr.replaceSelection(slice),
-                                        'paste',
-                                        {clipboardDataFormat: DataTransferType.Html},
-                                    ),
-                                );
-                                pasteLogger.event({
-                                    event: 'paste-parsed-html',
-                                });
-                                isPasteHandled = true;
-                            } else {
-                                globalLogger.error(res.error);
-                                pasteLogger.error(res.error, {
-                                    event: 'parse-html',
-                                });
-                                console.error(res.error);
-                            }
-                        } else return false; // default html pasting
+                    let isPasteHandled = false;
+                    const hasMarkup = data.types.includes(DataTransferType.Yfm);
+                    const html = !hasMarkup && data.getData(DataTransferType.Html);
+                    if (html) {
+                        const text = extractTextContentFromHtml(html);
+                        if (!text) return false; // Let ProseMirror parse rich HTML.
+                        isPasteHandled = pasteParsedText(
+                            view,
+                            text,
+                            textParser,
+                            DataTransferType.Html,
+                            pasteLogger,
+                        );
                     }
 
-                    if (
-                        !isPasteHandled &&
-                        ((data = e.clipboardData.getData(DataTransferType.Yfm)) ||
-                            (data = e.clipboardData.getData(DataTransferType.Text)))
-                    ) {
-                        let parser: Parser;
-                        let dataFormat: string;
-                        if (e.clipboardData.types.includes(DataTransferType.Yfm)) {
-                            parser = mdParser;
-                            dataFormat = DataTransferType.Yfm;
-                        } else {
-                            parser = textParser;
-                            dataFormat = DataTransferType.Text;
-                        }
-                        const codeType = isInsideCode(view.state);
-                        if (codeType) {
-                            const schema: Schema = view.state.schema;
-                            const insideCodeData = e.clipboardData.getData(DataTransferType.Text);
-
-                            pasteLogger.event({
-                                event: 'paste-text-to-code',
-                                codeType,
-                            });
-                            view.dispatch(
-                                trackTransactionMetrics(
-                                    view.state.tr.replaceSelectionWith(
-                                        schema.text(
-                                            codeType === 'inline'
-                                                ? insideCodeData.trim()
-                                                : insideCodeData,
-                                        ),
-                                    ),
-                                    'paste',
-                                    {clipboardDataFormat: DataTransferType.Text, code: codeType},
-                                ),
+                    if (!isPasteHandled) {
+                        const text =
+                            data.getData(DataTransferType.Yfm) ||
+                            data.getData(DataTransferType.Text);
+                        if (text) {
+                            isPasteHandled = pasteParsedText(
+                                view,
+                                text,
+                                hasMarkup ? mdParser : textParser,
+                                hasMarkup ? DataTransferType.Yfm : DataTransferType.Text,
+                                pasteLogger,
                             );
-                            isPasteHandled = true;
-                        } else {
-                            const res = tryCatch(() => parser.parse(data));
-                            if (res.success) {
-                                const docNode = res.result;
-                                const slice = getSliceFromMarkupFragment(docNode.content);
-                                pasteLogger.event({
-                                    event: 'paste-parsed-content',
-                                    dataFormat,
-                                });
-                                view.dispatch(
-                                    trackTransactionMetrics(
-                                        view.state.tr.replaceSelection(slice),
-                                        'paste',
-                                        {clipboardDataFormat: dataFormat},
-                                    ),
-                                );
-                                isPasteHandled = true;
-                            } else {
-                                globalLogger.error(res.error);
-                                pasteLogger.error(res.error, {
-                                    event: 'paste',
-                                    dataFormat,
-                                });
-                                console.error(res.error);
-                            }
                         }
                     }
 
-                    if (e.clipboardData.files.length && pasteFileHandler) {
+                    if (data.files.length && pasteFileHandler) {
                         pasteLogger.event({
                             event: 'paste-files',
                         });
-                        for (const file of Array.from(e.clipboardData.files)) {
+                        for (const file of Array.from(data.files)) {
                             pasteFileHandler(file);
                         }
                         isPasteHandled = true;
@@ -215,6 +111,52 @@ export const clipboard = ({
         },
     });
 };
+
+function copyOrCutSelection(
+    view: EditorView,
+    event: ClipboardEvent,
+    serializer: Serializer,
+): boolean {
+    const cut = event.type === 'cut';
+    if (cut && !view.editable) {
+        event.preventDefault();
+        return true;
+    }
+    if (!event.clipboardData) return false;
+    const result = serializeSelected(view, serializer);
+    if (!result) return false;
+    event.preventDefault();
+    setClipboardData(event.clipboardData, result);
+    if (cut)
+        view.dispatch(view.state.tr.deleteSelection().scrollIntoView().setMeta('uiEvent', 'cut'));
+    return true;
+}
+
+function pasteParsedText(
+    view: EditorView,
+    text: string,
+    parser: Parser,
+    dataFormat: DataTransferType,
+    logger: Logger2.ILogger,
+): boolean {
+    const parsed = tryCatch(() => parser.parse(text));
+    const html = dataFormat === DataTransferType.Html;
+    if (!parsed.success) {
+        globalLogger.error(parsed.error);
+        logger.error(parsed.error, html ? {event: 'parse-html'} : {event: 'paste', dataFormat});
+        console.error(parsed.error);
+        return false;
+    }
+    const slice = getSliceFromMarkupFragment(parsed.result.content);
+    if (!html) logger.event({event: 'paste-parsed-content', dataFormat});
+    view.dispatch(
+        trackTransactionMetrics(view.state.tr.replaceSelection(slice), 'paste', {
+            clipboardDataFormat: dataFormat,
+        }),
+    );
+    if (html) logger.event({event: 'paste-parsed-html'});
+    return true;
+}
 
 function getSliceFromMarkupFragment(fragment: Fragment) {
     let start = 0;
