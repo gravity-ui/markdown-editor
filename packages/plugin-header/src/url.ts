@@ -9,3 +9,14 @@ export function normalizeLinkUrl(
     const href = md.normalizeLink(value.trim());
     return md.validateLink(href) ? href : '';
 }
+
+const hasControlChars = (value: string) =>
+    [...value].some((char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127);
+
+/** The address of an image: `http:`, `https:`, `blob:` or relative; an unsafe address is `null`. */
+export function safeImageUrl(raw: string): string | null {
+    const value = raw.trim();
+    if (!value || hasControlChars(value)) return null;
+    if (/^[a-z][a-z\d+.-]*:/i.test(value) && !/^(https?|blob):/i.test(value)) return null;
+    return value;
+}

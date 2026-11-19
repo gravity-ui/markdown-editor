@@ -31,10 +31,8 @@ export const settle = async (until: () => unknown = () => true) => {
     }
 };
 
-export function createEditorWithRenderer(extra?: ExtensionAuto) {
-    const storage = new ReactRenderStorage();
-    const editor = createTestEditor(headerExtensions(extra, storage));
-    let place: HTMLElement;
+/** A React root mounted for each test, with the uikit theme. */
+export function createReactRoot() {
     let container: HTMLElement;
     let root: Root | undefined;
 
@@ -48,17 +46,19 @@ export function createEditorWithRenderer(extra?: ExtensionAuto) {
                 disconnect() {}
             },
         );
-        place = document.createElement('div');
         container = document.createElement('div');
-        document.body.append(place, container);
+        document.body.append(container);
         root = createRoot(container);
     });
 
-    afterEach(async () => {
+    const unmount = async () => {
         const mounted = root;
-        if (mounted) await act(async () => mounted.unmount());
         root = undefined;
-        place.remove();
+        if (mounted) await act(async () => mounted.unmount());
+    };
+
+    afterEach(async () => {
+        await unmount();
         container.remove();
         vi.unstubAllGlobals();
     });
@@ -67,6 +67,24 @@ export function createEditorWithRenderer(extra?: ExtensionAuto) {
         act(async () => {
             root?.render(<ThemeProvider theme="light">{element}</ThemeProvider>);
         });
+
+    return {render, unmount};
+}
+
+export function createEditorWithRenderer(extra?: ExtensionAuto) {
+    const storage = new ReactRenderStorage();
+    const editor = createTestEditor(headerExtensions(extra, storage));
+    const {render} = createReactRoot();
+    let place: HTMLElement;
+
+    beforeEach(() => {
+        place = document.createElement('div');
+        document.body.append(place);
+    });
+
+    afterEach(() => {
+        place.remove();
+    });
 
     const start = async (source: string) => {
         const view = editor.createView(source, place);

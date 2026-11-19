@@ -24,4 +24,4 @@ export {
     buttonTokenName,
     buttonViewColors,
 } from './button/model';
-export {normalizeLinkUrl} from './url';
+export {normalizeLinkUrl, safeImageUrl} from './url';
