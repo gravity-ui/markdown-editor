@@ -27,7 +27,11 @@ import {
     ListsSpecs,
     boldMarkName,
 } from '@gravity-ui/markdown-editor/specs';
-import {type HeaderDimensions, headerDefaults} from '@gravity-ui/markdown-plugin-header';
+import {
+    type HeaderDimensions,
+    headerBackgroundDefaults,
+    headerDefaults,
+} from '@gravity-ui/markdown-plugin-header';
 import {afterEach, describe, expect, it} from 'vitest';
 
 import {insertHeader as insertHeaderMarkup} from '../../../markup/commands/insertHeader';
@@ -79,7 +83,7 @@ function createNodeView(markup: string) {
             builder
                 .use(BaseSchemaSpecs, {})
                 .use(ReactRendererExtension, new ReactRenderStorage())
-                .use(Header),
+                .use(Header, {}),
     }).build();
     view = new EditorView(document.createElement('div'), {
         state: EditorState.create({
@@ -100,7 +104,7 @@ describe('Header extension', () => {
     ])('should round trip %j', ({height, width}) => {
         const source = `:::header{height="${height}" width="${width}"}\n\n:::`;
         const doc = markupParser.parse(source);
-        expect(doc.firstChild?.attrs).toEqual({height, width});
+        expect(doc.firstChild?.attrs).toEqual({height, width, ...headerBackgroundDefaults});
         expect(serializer.serialize(doc)).toBe(source);
         const container = document.createElement('div');
         container.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
@@ -121,8 +125,9 @@ describe('Header extension', () => {
     });
 
     it('should use the same defaults in the schema and parser', () => {
-        expect(schema.nodes.header.create().attrs).toEqual(headerDefaults);
-        expect(markupParser.parse(':::header\n:::').firstChild?.attrs).toEqual(headerDefaults);
+        const defaults = {...headerDefaults, ...headerBackgroundDefaults};
+        expect(schema.nodes.header.create().attrs).toEqual(defaults);
+        expect(markupParser.parse(':::header\n:::').firstChild?.attrs).toEqual(defaults);
     });
 
     it('should insert the same dimensions in both editor modes', () => {
@@ -185,7 +190,11 @@ describe('Header extension', () => {
             '</div>';
         const doc = DOMParser.fromSchema(schema).parse(container);
         expect(doc.firstChild?.type.name).toBe('header');
-        expect(doc.firstChild?.attrs).toEqual({height: 'l', width: 'full'});
+        expect(doc.firstChild?.attrs).toEqual({
+            height: 'l',
+            width: 'full',
+            ...headerBackgroundDefaults,
+        });
     });
 
     it.each([
