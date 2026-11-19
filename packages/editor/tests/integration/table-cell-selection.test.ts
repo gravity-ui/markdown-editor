@@ -305,6 +305,47 @@ describe('TableCellSelection with table extensions', () => {
         expect(copied.textContent).toBe('ab');
     });
 
+    it.each([0, 1])(
+        'should copy only the selected outer cell with nested content (cell=%s)',
+        (index) => {
+            const cells = [
+                schema.node(YfmTableNode.Cell, {'data-bg': 'red'}, [
+                    paragraph('before'),
+                    markdownTable(),
+                ]),
+                schema.node(YfmTableNode.Cell, null, [markdownTable(), paragraph('after')]),
+            ];
+            const table = yfmTable(yfmRow(...cells));
+            const doc = schema.node(BaseNode.Doc, null, table);
+            const geometry = getTableGeometry(table)!;
+            const selection = TableCellSelection.create(doc, geometry.cellAt(0, index)!.offset);
+
+            expect(selection.content().content.firstChild!.eq(yfmTable(yfmRow(cells[index])))).toBe(
+                true,
+            );
+        },
+    );
+
+    it('should copy cells from a nested table without outer wrappers', () => {
+        const inner = markdownTable();
+        const outer = yfmTable(
+            yfmRow(schema.node(YfmTableNode.Cell, null, [paragraph('before'), inner])),
+        );
+        const doc = schema.node(BaseNode.Doc, null, outer);
+        let innerPos = 0;
+        doc.descendants((node, pos) => {
+            if (node === inner) innerPos = pos;
+        });
+        const geometry = getTableGeometry(inner)!;
+        const selection = TableCellSelection.create(
+            doc,
+            innerPos + geometry.cellAt(0, 0)!.offset,
+            innerPos + geometry.cellAt(1, 1)!.offset,
+        );
+
+        expect(selection.content().content.firstChild!.eq(inner)).toBe(true);
+    });
+
     it('should copy each merged cell once and preserve its spans', () => {
         const table = yfmTable(
             yfmRow(yfmCell('a', {rowspan: 2, colspan: 2}), yfmCell('b')),

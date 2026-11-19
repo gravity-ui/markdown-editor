@@ -1,7 +1,7 @@
 import {Plugin} from 'prosemirror-state';
 
 import {getLoggerFromState} from '#core';
-import {Fragment} from '#pm/model';
+import {Fragment, Slice} from '#pm/model';
 
 import {MathNode} from './const';
 import {getLatexData, parseLatexFormulas} from './utils';
@@ -41,12 +41,12 @@ export const latexPastePlugin = () =>
                                 mathBlockType.create(null, schema.text(formula)),
                             );
                             const fragment = Fragment.from(nodes);
-                            tr.replaceWith(tr.selection.from, tr.selection.to, fragment);
+                            tr.replaceSelection(new Slice(fragment, 0, 0));
                         } else {
-                            tr.replaceWith(tr.selection.from, tr.selection.to, Fragment.empty);
+                            tr.deleteSelection();
                         }
                     } else {
-                        tr.replaceWith(tr.selection.from, tr.selection.to, Fragment.empty);
+                        tr.deleteSelection();
                     }
 
                     view.dispatch(tr.scrollIntoView());

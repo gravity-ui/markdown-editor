@@ -7,7 +7,6 @@ import {
     Plugin,
     PluginKey,
     type Selection,
-    type SelectionBookmark,
     TextSelection,
     type Transaction,
 } from 'prosemirror-state';
@@ -409,7 +408,11 @@ export function tableCellSelectionTextKeymap(): Plugin {
 
 type InputState = {
     drag: DragState | null;
-    composition: {head: number; cells: number[]; bookmark: SelectionBookmark} | null;
+    composition: {
+        head: number;
+        cells: number[];
+        bookmark: ReturnType<TableCellSelection['getBookmark']>;
+    } | null;
 };
 type InputMeta = Partial<InputState> & {finishComposition?: boolean};
 type DragState = {anchor: number; tablePos: number};
@@ -627,17 +630,17 @@ function setCellSelection(view: EditorView, anchor: number, head = anchor) {
     if (!selection.eq(view.state.selection)) view.dispatch(view.state.tr.setSelection(selection));
 }
 
-// Project-specific IME selection and bookmarks. Not copied from prosemirror-tables.
+// Project-specific IME selection. Not copied from prosemirror-tables.
 class CompositionTextSelection extends TextSelection {
-    private readonly bookmark: SelectionBookmark;
+    private readonly bookmark: ReturnType<TableCellSelection['getBookmark']>;
 
-    constructor(selection: TextSelection, bookmark: SelectionBookmark) {
+    constructor(selection: TextSelection, bookmark: ReturnType<TableCellSelection['getBookmark']>) {
         super(selection.$anchor, selection.$head);
         this.bookmark = bookmark;
     }
 
-    override getBookmark(): CompositionBookmark {
-        return new CompositionBookmark(this.anchor, this.head, this.bookmark);
+    override getBookmark(): ReturnType<TableCellSelection['getBookmark']> {
+        return this.bookmark;
     }
 
     override map(doc: Node, mapping: Mappable): Selection {
@@ -645,30 +648,6 @@ class CompositionTextSelection extends TextSelection {
         return mapped instanceof TextSelection
             ? new CompositionTextSelection(mapped, this.bookmark.map(mapping))
             : mapped;
-    }
-}
-
-class CompositionBookmark implements SelectionBookmark {
-    readonly anchor: number;
-    readonly head: number;
-    private readonly bookmark: SelectionBookmark;
-
-    constructor(anchor: number, head: number, bookmark: SelectionBookmark) {
-        this.anchor = anchor;
-        this.head = head;
-        this.bookmark = bookmark;
-    }
-
-    map(mapping: Mappable): CompositionBookmark {
-        return new CompositionBookmark(
-            mapping.map(this.anchor),
-            mapping.map(this.head),
-            this.bookmark.map(mapping),
-        );
-    }
-
-    resolve(doc: Node): Selection {
-        return this.bookmark.resolve(doc);
     }
 }
 
