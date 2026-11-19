@@ -1,0 +1,1 @@
+export {headerTitleGuardPlugin} from './plugin';

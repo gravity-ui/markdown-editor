@@ -10,7 +10,6 @@ export const Header: StoryObj<typeof HeaderExample> = {};
 
 export const Title: StoryObj<typeof HeaderExample> = {
     args: {
-        mode: 'markup',
         initial: [
             ':::header{height="s" width="m"}',
             '::header-title[Team portal]',
