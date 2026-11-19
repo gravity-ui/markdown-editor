@@ -20,7 +20,7 @@ export interface YfmMermaidProps {
     options?: YfmMermaidOptions;
     /** Nonce for SVG styles. No nonce is set by default. */
     nonce?: string;
-    /** Handle active render errors. Defaults to `console.error`. */
+    /** Handle runtime loading and rendering failures. Diplodoc handles diagram syntax errors. Defaults to `console.error`. */
     onError?: (error: unknown) => void;
 }
 

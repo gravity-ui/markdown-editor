@@ -52,7 +52,9 @@ stylesheets to your application's CSS entry point:
 | `theme`    | Mermaid theme name or `{light, dark}` map. Defaults to `{light: 'forest', dark: 'dark'}`. |
 | `options`  | Mermaid settings, including `zoom`, excluding `theme` and `startOnLoad`.                  |
 | `nonce`    | Nonce for SVG styles. Not set by default.                                                 |
-| `onError`  | Error handler. Defaults to `console.error`.                                               |
+| `onError`  | Handles runtime loading and rendering failures. Defaults to `console.error`.              |
+
+Diplodoc handles diagram syntax errors internally, so they do not trigger `onError`.
 
 The package also exports `YfmMermaidProps`, `YfmMermaidRuntime`,
 `YfmMermaidTheme`, and `YfmMermaidOptions` for TypeScript users.
@@ -67,4 +69,6 @@ being rendered and leaves completed diagrams in place. Diplodoc manages their
 zoom handlers.
 
 Mermaid shares its configuration across viewers. `YfmMermaid` renders one viewer
-at a time. Direct calls to Mermaid run outside this queue.
+at a time. Direct calls to Mermaid run outside this queue. Use the same `zoom`
+setting for viewers on the same page. Rendering with zoom disabled also disables
+zoom for diagrams in the other viewers.
