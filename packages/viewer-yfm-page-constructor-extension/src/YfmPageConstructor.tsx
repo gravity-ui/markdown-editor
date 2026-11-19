@@ -14,14 +14,15 @@ export interface YfmPageConstructorProps {
     runtime?: YfmPageConstructorRuntime;
     /** Block selector inside the viewer. Defaults to `.yfm-page-constructor`. */
     selector?: string;
-    /** Page Constructor theme. Defaults to the current UIKit theme. */
+    /** Defaults to the light or dark variant of the current UIKit theme. */
     theme?: Theme;
     /** Handle block loading and rendering errors. Defaults to `console.error`. */
     onError?: (error: Error) => void;
 }
 
+// TODO: Use single quotes once gulp-utils keeps webpackChunkName on local imports.
 const PageConstructorContent = lazy(() =>
-    import(/* webpackChunkName: "viewer-page-constructor" */ './YfmPageConstructorContent.js').then(
+    import(/* webpackChunkName: "viewer-page-constructor" */ `./YfmPageConstructorContent.js`).then(
         (module) => ({default: module.YfmPageConstructorContent}),
     ),
 );

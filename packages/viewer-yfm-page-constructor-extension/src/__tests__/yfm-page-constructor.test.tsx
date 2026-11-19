@@ -95,29 +95,40 @@ describe('YfmPageConstructor', () => {
         expect(container.querySelector('[data-other]')).toBe(foreign);
     });
 
-    it('should show a payload error and keep other blocks visible', async () => {
-        const onError = vi.fn();
-        vi.spyOn(console, 'error').mockImplementation(() => {});
+    it.each(['onError', 'console.error'])(
+        'should report a payload error to %s and keep other blocks visible',
+        async (handler) => {
+            const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+            const onError = handler === 'onError' ? vi.fn() : undefined;
 
-        await render(
-            <MarkdownViewer
-                html={html + '<div class="yfm-page-constructor" data-content-encoded="%"></div>'}
-            >
-                <YfmPageConstructor meta={meta} onError={onError} />
-            </MarkdownViewer>,
-        );
+            await render(
+                <MarkdownViewer
+                    html={
+                        html + '<div class="yfm-page-constructor" data-content-encoded="%"></div>'
+                    }
+                >
+                    <YfmPageConstructor meta={meta} onError={onError} />
+                </MarkdownViewer>,
+            );
 
-        expect(container.querySelector('h1')?.textContent).toBe('Title');
-        expect(container.textContent).toContain('URI malformed');
-        expect(onError).toHaveBeenCalledWith(expect.any(URIError));
-    });
+            expect(container.querySelector('h1')?.textContent).toBe('Title');
+            expect(container.textContent).toContain('URI malformed');
+            expect(onError ?? consoleError).toHaveBeenCalledWith(expect.any(URIError));
+        },
+    );
 
-    it('should use a custom runtime, selector and theme', async () => {
+    it.each([
+        {form: 'script name', runtime: 'extension:page-constructor'},
+        {
+            form: 'asset pair',
+            runtime: {script: 'extension:page-constructor', style: 'custom:styles'},
+        },
+    ])('should use a custom runtime ($form), selector and theme', async ({runtime}) => {
         await render(
             <MarkdownViewer html={html.replace('yfm-page-constructor', 'custom-block')}>
                 <YfmPageConstructor
-                    meta={{script: ['custom:page-constructor']}}
-                    runtime={{script: 'custom:page-constructor', style: 'custom:styles'}}
+                    meta={{script: ['extension:page-constructor']}}
+                    runtime={runtime}
                     selector=".custom-block"
                     theme={Theme.Dark}
                 />
