@@ -5,10 +5,21 @@ import {test as base} from './header';
 const selector = '.g-md-header-content-plugin';
 
 export class HeaderContentBlock {
+    readonly blocks: Locator;
     readonly previews: Locator;
+    readonly paragraphs: Locator;
+    readonly placeholders: Locator;
 
-    constructor(_page: Page, preview: Locator) {
+    constructor(page: Page, preview: Locator) {
+        this.blocks = page.locator(`.ProseMirror ${selector}`);
         this.previews = preview.locator(selector);
+        this.paragraphs = this.blocks.first().locator(':scope > p');
+        this.placeholders = this.blocks.locator('.g-md-placeholder');
+    }
+
+    /** The descriptions that are child blocks of the given banners. */
+    inHeaders(headers: Locator) {
+        return headers.locator(`:scope > ${selector}`);
     }
 
     getValues(blocks = this.previews) {

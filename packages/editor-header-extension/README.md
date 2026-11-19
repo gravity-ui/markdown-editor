@@ -22,7 +22,7 @@ const editor = useMarkdownEditor({
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
 | `@gravity-ui/markdown-editor-header-extension`               | `Header`, `Button`, the Markdown command `insertHeader`, and the toolbar button `toolbarHeaderItem` for both modes |
 | `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header`, `Button`, and `toolbarHeaderItem` for the visual editor                                                  |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName`, `headerTitleNodeName`, `ButtonSpecs`, and `buttonNodeName`                        |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName`, `headerTitleNodeName`, `headerContentNodeName`, `ButtonSpecs`, and `buttonNodeName` |
 | `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader` and `toolbarHeaderItem` for the Markdown editor                                                     |
 
 `toolbarHeaderItem` inserts the block.
@@ -82,6 +82,18 @@ Escape closes an open menu; Escape on a button hides the toolbar and returns foc
 The title is the `title` part of the banner. The Title switch of the settings panel inserts a title with the default text after the image; a banner that holds only one paragraph of plain text without formatting turns it into the title.
 Turning the switch off removes the title; turning it on again restores the removed title with its text, size and color, also after the panel is closed.
 A banner holds one title: a second title in the Markdown of a banner stays a paragraph of text, and an edit that adds a second title to a banner is rejected.
+
+## Banner description
+
+`Header` includes the description of the banner: the container `:::header-content` with paragraphs, marks, links, and other blocks.
+`HeaderSpecs` adds its schema, Markdown parsing, and serialization; its syntax and styles are in `@gravity-ui/markdown-plugin-header`, and the preview needs `headerContentPlugin`.
+The description has no attributes: an attribute written on `:::header-content` in Markdown, such as `size`, is dropped.
+A banner holds one description as its child block. A description outside a banner, inside another block, or after the first one in a banner becomes its blocks, without the container: when Markdown is parsed, and when such a description is pasted, dropped, or left outside a banner by an edit.
+The description is edited in place as rich text with the marks and links of the editor and its selection toolbar.
+An empty description shows a placeholder. Change its text with the editor `placeholder` option: `{placeholder: {header_content: 'Text'}}`.
+Enter starts a paragraph inside the description and does nothing in an empty paragraph, so the text never leaves the block.
+Backspace at its start and Delete at its end keep it and do not join it with the blocks around it; an empty paragraph next to it is removed instead.
+Deleting all the selected text of the description leaves an empty paragraph in it; a selection that runs from the description to the start of the next block stays inside the description.
 
 ## Button
 

@@ -19,6 +19,7 @@
   "title-color-blue": "Синий",
   "title-color-violet": "Фиолетовый",
   "description": "Описание",
+  "content-placeholder": "Короткий текст: например, о чём эта страница и кому она пригодится",
   "alignment": "Выравнивание",
   "vertical-alignment": "По вертикали",
   "horizontal-alignment": "По горизонтали",
