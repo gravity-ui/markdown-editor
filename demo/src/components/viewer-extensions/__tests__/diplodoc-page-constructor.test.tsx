@@ -4,7 +4,7 @@ import {MarkdownViewer, ViewerTargets} from '@gravity-ui/markdown-viewer';
 import {ThemeProvider} from '@gravity-ui/uikit';
 import {type Root, createRoot} from 'react-dom/client';
 import {act} from 'react-dom/test-utils';
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {DiplodocPageConstructor} from '../DiplodocPageConstructor';
 import type {TransformMeta} from '../types';
@@ -12,19 +12,33 @@ import type {TransformMeta} from '../types';
 const meta = {script: ['_assets/page-constructor.js']};
 const html = createHtml('Title');
 
+/** A cold import of Page Constructor takes seconds on a busy CI runner. */
+const PRELOAD_TIMEOUT = 30_000;
+
+function stubMatchMedia() {
+    vi.stubGlobal('matchMedia', (media: string) => ({
+        media,
+        matches: false,
+        addListener() {},
+        removeListener() {},
+        addEventListener() {},
+        removeEventListener() {},
+    }));
+}
+
 describe('DiplodocPageConstructor', () => {
     let container: HTMLDivElement;
     let root: Root;
 
+    // The first render loads Page Constructor lazily; load it here so the tests do not wait for it.
+    beforeAll(async () => {
+        stubMatchMedia();
+        await import('../DiplodocPageConstructor/DiplodocPageConstructorContent');
+        vi.unstubAllGlobals();
+    }, PRELOAD_TIMEOUT);
+
     beforeEach(() => {
-        vi.stubGlobal('matchMedia', (media: string) => ({
-            media,
-            matches: false,
-            addListener() {},
-            removeListener() {},
-            addEventListener() {},
-            removeEventListener() {},
-        }));
+        stubMatchMedia();
         container = document.createElement('div');
         document.body.append(container);
         root = createRoot(container);

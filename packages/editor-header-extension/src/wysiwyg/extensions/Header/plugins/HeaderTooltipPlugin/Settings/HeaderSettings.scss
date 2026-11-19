@@ -1,5 +1,4 @@
 $panel-width: 320px;
-$label-width: 120px;
 $viewport-inset: var(--g-spacing-4);
 
 .g-md-header-settings {
@@ -26,32 +25,6 @@ $viewport-inset: var(--g-spacing-4);
 
         &_hidden {
             display: none;
-        }
-    }
-
-    &__title {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        height: var(--g-spacing-7);
-    }
-
-    // The 36 px button extends 4 px beyond the 28 px title row.
-    &__close {
-        margin-right: calc(-1 * var(--g-spacing-1));
-    }
-
-    &__row {
-        display: grid;
-        align-items: center;
-        grid-template-columns: minmax(0, $label-width) minmax(0, 1fr);
-        gap: var(--g-spacing-2);
-
-        min-height: var(--g-spacing-7);
-
-        > * {
-            min-width: 0;
         }
     }
 
