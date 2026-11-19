@@ -1,3 +1,4 @@
+import {escapeQuoted} from '@gravity-ui/markdown-editor/_/markdown-utils/index.js';
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {
     headerBackground,
@@ -9,8 +10,6 @@ import {
 
 import {headerNodeName} from './const';
 
-const escape = (value: string) => value.replace(/&/g, '&amp;').replace(/[\\"]/g, '\\$&');
-
 export const HeaderSerializerSpecs: ExtensionAuto = (builder) => {
     builder.addNodeSerializerSpec(headerNodeName, () => (state, node) => {
         const attrs = {
@@ -18,7 +17,9 @@ export const HeaderSerializerSpecs: ExtensionAuto = (builder) => {
             ...headerLayoutValues(headerLayout(node.attrs)),
             ...headerBackgroundValues(headerBackground(node.attrs)),
         };
-        const markup = Object.entries(attrs).map(([name, value]) => `${name}="${escape(value)}"`);
+        const markup = Object.entries(attrs).map(
+            ([name, value]) => `${name}="${escapeQuoted(value)}"`,
+        );
         state.write(`:::header{${markup.join(' ')}}`);
         state.ensureNewLine();
         state.closeBlock(node);

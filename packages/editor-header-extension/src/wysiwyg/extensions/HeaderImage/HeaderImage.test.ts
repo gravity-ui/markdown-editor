@@ -110,6 +110,10 @@ describe('Header image specs', () => {
         ['::header-image{src="  /a.png  " unknown="x" .custom}', '::header-image{src="/a.png"}'],
         [`::header-image{src="${scriptUrl}" alt="A"}`, '::header-image{alt="A"}'],
         ['::header-image{src="data:image/png;base64,AAAA"}', emptyImage],
+        [
+            '::header-image{src="/a?x=1&amp;y=2" alt="Q&amp;A"}',
+            '::header-image{src="/a?x=1&y=2" alt="Q&A"}',
+        ],
         ['::header-image{}', emptyImage],
     ])('should write %j in the normal form', (source, normal) => {
         expect(roundTrip(header(source))).toBe(header(normal));
@@ -117,7 +121,7 @@ describe('Header image specs', () => {
     });
 
     it.each([
-        '::header-image{src="/a?x=1&amp;y=2" alt="Q&amp;A &amp;copy;"}',
+        '::header-image{src="/a?x=1&y=2" alt="Q&A &amp;copy;"}',
         '::header-image{src="/a\\"b\\\\c.png" alt="A \\"quote\\" and a \\\\ backslash"}',
         '::header-image{src="./.files/photo 1 (final).jpg" title="<b>bold</b> **bold** {braces} [brackets]"}',
         '::header-image{src="/a.png" alt="Команда проекта 🚀"}',
