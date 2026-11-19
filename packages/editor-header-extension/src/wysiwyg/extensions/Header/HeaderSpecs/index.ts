@@ -1,6 +1,7 @@
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 
 import {HeaderContentSpecs} from '../../HeaderContent/HeaderContentSpecs';
+import {HeaderImageSpecs} from '../../HeaderImage/HeaderImageSpecs';
 import {HeaderTitleSpecs} from '../../HeaderTitle/HeaderTitleSpecs';
 
 import {HeaderParserSpecs} from './parser';
@@ -15,5 +16,6 @@ export const HeaderSpecs: ExtensionAuto = (builder) => {
         .use(HeaderParserSpecs)
         .use(HeaderSerializerSpecs)
         .use(HeaderTitleSpecs)
-        .use(HeaderContentSpecs);
+        .use(HeaderContentSpecs)
+        .use(HeaderImageSpecs);
 };

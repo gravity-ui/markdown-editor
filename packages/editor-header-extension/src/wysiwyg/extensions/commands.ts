@@ -1,4 +1,5 @@
 import {get$Cursor, pType} from '@gravity-ui/markdown-editor';
+import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
 import type {
     Attrs,
     Node,
@@ -17,14 +18,18 @@ import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 export const runCommand = (view: EditorView, command: Command) =>
     command(view.state, view.dispatch, view);
 
-/**
- * A command factory that sets attributes of the node of `nodeType` at `pos`;
- * `normalize` replaces unsupported values, and only the changed attributes are written.
- */
+type SetNodeAttrsOptions<T> = {accept?: (attrs: Partial<T>) => boolean; history?: boolean};
+
+/** Writes the normalized attributes of the node at `pos`; `history` makes each change one undo step. */
 export const setNodeAttrs =
-    <T extends object>(nodeType: (schema: Schema) => NodeType, normalize: (attrs: Attrs) => T) =>
+    <T extends object>(
+        nodeType: (schema: Schema) => NodeType,
+        normalize: (attrs: Attrs) => T,
+        {accept = () => true, history = false}: SetNodeAttrsOptions<T> = {},
+    ) =>
     (pos: number, attrs: Partial<T>): Command =>
     (state, dispatch) => {
+        if (!accept(attrs)) return false;
         const node = state.doc.nodeAt(pos);
         if (node?.type !== nodeType(state.schema)) return false;
         if (dispatch) {
@@ -32,7 +37,7 @@ export const setNodeAttrs =
             for (const [name, value] of Object.entries(normalize({...node.attrs, ...attrs}))) {
                 if (node.attrs[name] !== value) tr.setNodeAttribute(pos, name, value);
             }
-            if (tr.docChanged) dispatch(tr);
+            if (tr.docChanged) dispatch(history ? closeHistory(tr) : tr);
         }
         return true;
     };
@@ -58,6 +63,21 @@ export const siblingBlock: NodeNear = ($cursor, dir) => {
     const node = $cursor.node(-1).maybeChild($cursor.index(-1) + dir);
     return node && {node, pos: dir < 0 ? $cursor.before() - node.nodeSize : $cursor.after()};
 };
+
+/** Selects the node of `nodeType` that `find` returns next to the cursor. */
+export const selectNodeNear =
+    (nodeType: (schema: Schema) => NodeType, find: NodeNear) =>
+    (dir: -1 | 1): Command =>
+    (state, dispatch) => {
+        const $cursor = get$Cursor(state.selection);
+        const found = $cursor && find($cursor, dir);
+        if (!found || found.node.type !== nodeType(state.schema)) return false;
+        if (dispatch) {
+            const selection = NodeSelection.create(state.doc, found.pos);
+            dispatch(state.tr.setSelection(selection).scrollIntoView());
+        }
+        return true;
+    };
 
 /** The block of `nodeType` at the near edge of `sibling`: the sibling itself or its first or last descendant. */
 const edgeDescendant = (
