@@ -40,6 +40,11 @@ export function Document({html}: {html: string}) {
 
 `cnYFM(mods?, mix?)` returns the `yfm` class, modifier classes, and extra classes from `mix`. The package also exports the `YFMMods` type.
 
+Custom modifiers are unrestricted by default; use `cnYFM<CustomMods>(mods)` and `YFMMods<CustomMods>` to check their names and values while keeping built-in modifiers. You can reuse the typed function without a wrapper: `const customCn = cnYFM<CustomMods>`.
+
+For viewer extensions, `cn` builds class names with the viewer prefix. For example, `cn('diagram')('caption')` returns `g-md-v-diagram__caption`.
+Use the exported `NAMESPACE` prefix for i18n keysets, for example `const keyset = NAMESPACE + 'diagram';`.
+
 | Modifier          | Effect                               |
 | ----------------- | ------------------------------------ |
 | `no-list-reset`   | Keep list counters from being reset. |
