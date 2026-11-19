@@ -7,7 +7,7 @@ import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {act} from '../../../tests/utils/act';
-import {FilesGallery} from '../../extensions';
+import {FILES_GALLERY_EXCLUDE_ATTRIBUTE, FilesGallery} from '../../extensions';
 import {MarkdownViewer, ViewerTargets} from '../../index';
 
 describe('FilesGallery', () => {
@@ -433,6 +433,46 @@ describe('FilesGallery', () => {
         expect(dialog?.textContent).toContain('Content');
         expect(dialog?.textContent).not.toContain('1 / 2');
     });
+
+    it('should skip resources in an opted-out subtree', async () => {
+        await render(
+            <MarkdownViewer
+                html={
+                    `<div ${FILES_GALLERY_EXCLUDE_ATTRIBUTE}="true"><img src="/banner.png" alt="Banner"><a href="/poster.png">Poster</a></div>` +
+                    `<img ${FILES_GALLERY_EXCLUDE_ATTRIBUTE}="true" src="/side.png" alt="Side">` +
+                    '<img src="/content.png" alt="Content">'
+                }
+            >
+                <FilesGallery />
+            </MarkdownViewer>,
+        );
+
+        await click('img[alt="Content"]');
+
+        const dialog = document.querySelector('[role="dialog"]');
+        expect(dialog?.textContent).toContain('Content');
+        expect(dialog?.textContent).not.toMatch(/\d+ \/ \d+/);
+    });
+
+    it.each(['img[alt="Banner"]', 'a', 'span', 'img[alt="Side"]'])(
+        'should keep the native click on %s in an opted-out subtree',
+        async (selector) => {
+            await render(
+                <MarkdownViewer
+                    html={
+                        `<div ${FILES_GALLERY_EXCLUDE_ATTRIBUTE}="true"><img src="/banner.png" alt="Banner"><a href="/poster.png" target="_blank"><span>Poster</span></a></div>` +
+                        `<img ${FILES_GALLERY_EXCLUDE_ATTRIBUTE}="true" src="/side.png" alt="Side">` +
+                        '<img src="/content.png" alt="Content">'
+                    }
+                >
+                    <FilesGallery />
+                </MarkdownViewer>,
+            );
+
+            expect((await click(selector)).defaultPrevented).toBe(false);
+            expect(document.querySelector('[role="dialog"]')).toBeNull();
+        },
+    );
 
     it('should open a nested viewer gallery inside an outer React slot', async () => {
         await render(

@@ -28,6 +28,7 @@ import sub from '@gravity-ui/markdown-editor/markdown-it/sub';
 import {
     buttonPlugin,
     headerContentPlugin,
+    headerImagePlugin,
     headerPlugin,
     headerTitlePlugin,
 } from '@gravity-ui/markdown-plugin-header';
@@ -91,6 +92,7 @@ export function getPlugins({
         headerPlugin,
         headerTitlePlugin,
         headerContentPlugin,
+        headerImagePlugin,
         buttonPlugin,
         (md) => md.use(emoji, {defs: emojiDefs}),
         checkbox,
