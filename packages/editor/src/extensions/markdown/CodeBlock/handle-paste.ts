@@ -5,6 +5,7 @@ import dd from 'ts-dedent';
 import {getLoggerFromState} from '#core';
 import type {EditorProps} from '#pm/view';
 import {DataTransferType, isJetBrains, isVSCode, tryParseVSCodeData} from 'src/utils/clipboard';
+import {isCodeBlock} from 'src/utils/nodes';
 
 import {codeBlockType} from './const';
 
@@ -35,25 +36,26 @@ export const handlePaste: NonNullable<EditorProps['handlePaste']> = (view, e) =>
     const {tr, schema, selection} = state;
     const $from = selection.$from;
     const inCodeBlock = Boolean($from.parent.type.spec.code);
+    const value = isCodeBlock($from.parent) ? data.getData(DataTransferType.Text) : code.value;
 
     getLoggerFromState(state).event({
         domEvent: 'paste',
         event: 'paste-from-code-editor',
         editor: code.editor,
         editorMode: code.mode,
-        empty: !code.value,
+        empty: !value,
         inline: code.inline,
         dataTypes: Array.from(data.types),
     });
 
-    if (!code.value) {
+    if (!value) {
         return false;
     }
 
     insertCode({
         tr,
         schema,
-        code,
+        code: {...code, value},
         from: selection.from,
         to: selection.to,
         inCodeBlock,
