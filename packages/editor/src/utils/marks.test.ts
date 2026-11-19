@@ -143,7 +143,7 @@ describe('selection ranges', () => {
             schema.node('paragraph', null, schema.text('b,')),
         ]);
         const state = createRangesState(doc, [
-            [1, 2],
+            [1, 1],
             [5, 6],
         ]);
 
