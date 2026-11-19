@@ -1,6 +1,6 @@
 # Header and Button Markdown plugins
 
-markdown-it plugins for Header containers, their titles and descriptions, and inline buttons.
+markdown-it plugins for Header containers, their images, titles and descriptions, and inline buttons.
 
 ## Header
 
@@ -207,6 +207,49 @@ A link differs from the text by its color and has no underline. With `--g-md-hea
 | `--g-md-header-content-plugin-link-focus-outline-color`        | `var(--g-color-line-focus)`               |
 | `--g-md-header-content-plugin-code-color`                      | `var(--yfm-color-inline-code)`            |
 | `--g-md-header-content-plugin-code-background`                 | `var(--yfm-color-inline-code-background)` |
+
+## Header image
+
+Register `headerImagePlugin` together with `headerPlugin`:
+
+```ts
+import MarkdownIt from 'markdown-it';
+import {headerImagePlugin, headerPlugin} from '@gravity-ui/markdown-plugin-header';
+import '@gravity-ui/markdown-plugin-header/styles.css';
+
+const md = new MarkdownIt().use(headerPlugin).use(headerImagePlugin);
+```
+
+```markdown
+:::header{height="s" width="m"}
+
+::header-image{src="./.files/team.png" alt="Team" title="Project team"}
+
+Everything the team needs in one place.
+
+:::
+```
+
+| Attribute | Values                                            | Default |
+| --------- | ------------------------------------------------- | ------- |
+| `src`     | an `http:`, `https:`, `blob:` or relative address | none    |
+| `alt`     | alternative text                                  | empty   |
+| `title`   | tooltip text                                      | none    |
+
+The image is a leaf block directive without a label or a body, rendered as `img.g-md-header-image-plugin`.
+It is a child block of the banner and keeps its place among the other blocks of the source.
+A banner has one image: a second image among the child blocks of the same banner stays text.
+An address with another scheme, such as `javascript:` or `data:`, or with control characters, is skipped; an image without an address renders nothing.
+Unknown attributes and an empty title are skipped.
+
+The image is a block in the flow of the banner, no wider than the banner; it keeps its aspect ratio.
+The image carries the `data-files-gallery-exclude` attribute, so the files galleries of the editor and of the viewer skip it.
+
+| Property                                   | Default                           |
+| ------------------------------------------ | --------------------------------- |
+| `--g-md-header-image-plugin-border-radius` | `var(--g-border-radius-xl)`       |
+| `--g-md-header-image-plugin-background`    | `var(--g-color-base-float-hover)` |
+| `--g-md-header-image-plugin-margin-block`  | `0 var(--g-spacing-4)`            |
 
 ## Button
 
