@@ -41,6 +41,7 @@ These run visual tests outside Docker and produce unreliable results.
 
 - A screenshot of editor content includes the toolbar.
 - The viewport width and height fit the content, without empty space around it.
+- A story fills the width of the page. A test that takes a screenshot passes the story the width of its content.
 - A popup is captured in the real editor, in the test that opens it. A popup component mounted on its own misses changes in how the editor renders it.
 - Each mode gets its own `test()`, without `for` loops. The test name carries the tag of the mode it checks, `@wysiwyg` or `@markup`; a test that switches modes carries both. The tag is part of the screenshot file name, so renaming a test renames its screenshots.
 - Locators and actions for a block live in its class, not in the test file. A block of `packages/editor` has its class in `demo/tests/playwright/core/editor.ts`; a block of an extension package has its class and fixture in `demo/tests/playwright/core/extensions/<block>.ts`.
@@ -50,3 +51,4 @@ These run visual tests outside Docker and produce unreliable results.
 
 - An editor story renders the editor inside `PlaygroundLayout`.
 - Usage examples live in `demo/src/stories/examples/`.
+- An extension story builds its toolbars from the `commonmark` preset with empty hidden toolbars and adds the extension button as the last group of the main toolbars.

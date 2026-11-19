@@ -11,12 +11,12 @@ const editor = useMarkdownEditor({
 });
 ```
 
-| Entry point                                                  | Exports                                                                                                  |
-| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| `@gravity-ui/markdown-editor-header-extension`               | `Header`, the Markdown command `insertHeader`, and the toolbar button `toolbarHeaderItem` for both modes |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header` and `toolbarHeaderItem` for the visual editor                                                   |
-| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName` and `headerContentNodeName`                                              |
-| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader` and `toolbarHeaderItem` for the Markdown editor                                           |
+| Entry point                                                  | Exports                                                                                                            |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `@gravity-ui/markdown-editor-header-extension`               | `Header`, `Button`, the Markdown command `insertHeader`, and the toolbar button `toolbarHeaderItem` for both modes |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg`       | `Header`, `Button`, and `toolbarHeaderItem` for the visual editor                                                  |
+| `@gravity-ui/markdown-editor-header-extension/wysiwyg/specs` | `HeaderSpecs`, `headerNodeName`, `headerContentNodeName`, `ButtonSpecs`, and `buttonNodeName`                      |
+| `@gravity-ui/markdown-editor-header-extension/markup`        | `insertHeader` and `toolbarHeaderItem` for the Markdown editor                                                     |
 
 `toolbarHeaderItem` inserts the block.
 In the visual editor, the button is disabled inside another header.
@@ -51,3 +51,29 @@ The Description switch of the banner settings removes the description or adds it
 A removed description is kept until the page reloads, and the switch inserts it back with its text.
 Without a removed description, the switch turns the only paragraph of the banner into the description or adds a description with a sample text.
 Each switch change is a separate undo step.
+
+## Button
+
+`Button` is a separate extension from the same package:
+
+```ts
+import {Button, Header} from '@gravity-ui/markdown-editor-header-extension';
+
+const editor = useMarkdownEditor({
+  wysiwygConfig: {extensions: (builder) => builder.use(Header).use(Button)},
+});
+```
+
+Register `buttonPlugin` from `@gravity-ui/markdown-plugin-header` in the Markdown preview.
+
+A button is an inline node: `:button[Read more](/page){view="action" color="blue"}`.
+The button is an atom: a click on it, or Enter while it is selected, opens the settings window under it.
+The window holds the label field, the style list with a preview of the style under the pointer, the link field, and the "Open in a new tab" switch.
+The label is plain text without formatting. Each change is a separate undo step.
+The link field shows an error for an address that the Markdown parser of the editor rejects, such as `javascript:`, and keeps the previous address.
+Closing the window saves the label and the link. Escape, Enter, Tab after the last field, and Shift+Tab before the first field return focus to the editor. Clicking the button does not follow the link.
+Backspace after a button and Delete before it select the button; the next press removes it.
+
+The editor always writes `view` and `color`, and `target` when it differs from `_self`. The address and the title are written in parentheses when the address is set.
+
+An empty button shows the text "Button" in the visual editor and saves it as the label. Change the text with the editor `placeholder` option: `{placeholder: {button: 'Open'}}`.

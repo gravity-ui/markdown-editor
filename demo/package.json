@@ -39,10 +39,13 @@
     "@gravity-ui/markdown-editor-page-constructor-extension": "workspace:*",
     "@gravity-ui/markdown-plugin-header": "workspace:*",
     "@gravity-ui/markdown-viewer": "workspace:*",
+    "@gravity-ui/markdown-viewer-yfm-html-extension": "workspace:*",
+    "@gravity-ui/markdown-viewer-yfm-latex-extension": "workspace:*",
+    "@gravity-ui/markdown-viewer-yfm-mermaid-extension": "workspace:*",
+    "@gravity-ui/markdown-viewer-yfm-page-constructor-extension": "workspace:*",
     "@gravity-ui/page-constructor": "catalog:peer-gravity",
     "@gravity-ui/uikit": "catalog:peer-gravity",
-    "markdown-it": "catalog:peers",
-    "react-error-boundary": "catalog:"
+    "markdown-it": "catalog:peers"
   },
   "devDependencies": {
     "@babel/preset-env": "7.29.7",

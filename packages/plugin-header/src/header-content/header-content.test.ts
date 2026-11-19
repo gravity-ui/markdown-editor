@@ -2,7 +2,7 @@ import MarkdownIt from 'markdown-it';
 import ins from 'markdown-it-ins';
 import {describe, expect, it} from 'vitest';
 
-import {headerPlugin} from '../directive';
+import {headerPlugin} from '../header/plugin';
 
 import {headerContentPlugin} from './index';
 
