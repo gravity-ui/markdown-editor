@@ -615,10 +615,6 @@ export class MarkdownEditorPage {
         await this.locators.toolbars.commandMenu.waitFor({state: 'visible'});
     }
 
-    getCommandMenu(): Locator {
-        return this.locators.toolbars.commandMenu;
-    }
-
     /**
      * Finds an element in the command menu by its text
      */
@@ -884,7 +880,7 @@ export class MarkdownEditorPage {
             const clipboardData = new DataTransfer();
 
             for (const [key, value] of Object.entries(data)) {
-                clipboardData.setData(key, value);
+                if (value !== undefined) clipboardData.setData(key, value);
             }
 
             element.focus();
@@ -1001,6 +997,11 @@ class TableCellSelection {
 
     getBodyCells(table: Locator) {
         return table.locator(':scope > tbody > tr > td');
+    }
+
+    async selectCells(from: Locator, to: Locator) {
+        await from.click();
+        await to.click({modifiers: ['Shift']});
     }
 
     async clickCell(cell: Locator) {

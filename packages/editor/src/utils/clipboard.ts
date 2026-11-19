@@ -3,6 +3,7 @@ export enum DataTransferType {
     Text = 'text/plain',
     Html = 'text/html',
     Yfm = 'text/yfm', // self
+    TableMatrix = 'application/x-g-md-editor+json',
     Rtf = 'text/rtf', // Safari, WebStorm/Intelij
     UriList = 'text/uri-list',
     VSCodeData = 'vscode-editor-data',

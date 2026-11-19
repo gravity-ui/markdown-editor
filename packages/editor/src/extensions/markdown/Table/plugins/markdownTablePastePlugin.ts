@@ -43,7 +43,7 @@ function shouldHandlePaste(view: EditorView, clipboardData: DataTransfer): boole
     return !clipboardData.types.includes(DataTransferType.Yfm) && !isInsideCode(view.state);
 }
 
-function parsePipedMarkdownTable(text: string, parser: Parser): Slice | null {
+export function parsePipedMarkdownTable(text: string, parser: Parser): Slice | null {
     if (!isPipeTableCandidate(text)) return null;
 
     try {

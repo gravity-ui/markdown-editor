@@ -16,6 +16,15 @@ import {
 } from 'src/table-utils/cell-selection/plugin';
 import {TableCellSelection, findTableCell} from 'src/table-utils/cell-selection/selection';
 
+const {markupParser} = new ExtensionsManager({
+    extensions: (builder) =>
+        builder
+            .use(BaseSchemaSpecs, {})
+            .use(ImageSpecs)
+            .use(Table)
+            .use(YfmTable, {controls: false}),
+}).buildDeps();
+
 const views: EditorView[] = [];
 afterEach(() => {
     views.splice(0).forEach((view) => view.destroy());
@@ -916,43 +925,13 @@ describe('cell selection drag scope', () => {
 });
 
 function setup(kind: 'markdown' | 'yfm', emptyHead = false) {
-    const {schema} = new ExtensionsManager({
-        extensions: (builder) =>
-            builder
-                .use(BaseSchemaSpecs, {})
-                .use(ImageSpecs)
-                .use(Table)
-                .use(YfmTable, {controls: false}),
-    }).buildDeps();
-    const cell = (text: string, header = false) =>
+    const head = emptyHead ? '' : 'D';
+    const doc = markupParser.parse(
         kind === 'markdown'
-            ? schema.node(header ? 'th' : 'td', null, text ? schema.text(text) : undefined)
-            : schema.node(
-                  'yfm_td',
-                  null,
-                  schema.node('paragraph', null, text ? schema.text(text) : undefined),
-              );
-    const row = (header: boolean, first: string, second: string) =>
-        schema.node(kind === 'markdown' ? 'tr' : 'yfm_tr', null, [
-            cell(first, header),
-            cell(second, header),
-        ]);
-    const table =
-        kind === 'markdown'
-            ? schema.node('table', null, [
-                  schema.node('thead', null, row(true, 'A', 'B')),
-                  schema.node('tbody', null, row(false, 'C', emptyHead ? '' : 'D')),
-              ])
-            : schema.node(
-                  'yfm_table',
-                  null,
-                  schema.node('yfm_tbody', null, [
-                      row(false, 'A', 'B'),
-                      row(false, 'C', emptyHead ? '' : 'D'),
-                  ]),
-              );
-    const doc = schema.node('doc', null, table);
-    const geometry = getTableGeometry(table)!;
+            ? `| A | B |\n| --- | --- |\n| C | ${head} |`
+            : `#|\n|| A | B ||\n|| C | ${head} ||\n|#`,
+    );
+    const geometry = getTableGeometry(doc.firstChild!)!;
     const positions = geometry
         .cellsInRect({top: 0, left: 0, bottom: 2, right: 2})
         .map((mappedCell) => mappedCell.offset);

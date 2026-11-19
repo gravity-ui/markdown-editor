@@ -8,17 +8,24 @@ import {moveToNextRowCommand} from './commands';
 import {TableNode} from './const';
 import {createMarkdownTableGeometry} from './geometry';
 import * as TableHelpers from './helpers';
+import {markdownTableMatrix} from './matrix';
 import {tableCellContextPlugin} from './plugins/TableCellContextPlugin';
-import {markdownTablePastePlugin} from './plugins/markdownTablePastePlugin';
+import {markdownTableHtmlPastePlugin} from './plugins/markdownTableHtmlPastePlugin';
+import {
+    markdownTablePastePlugin,
+    parsePipedMarkdownTable,
+} from './plugins/markdownTablePastePlugin';
 
 export {TableHelpers, TableActions};
 export {TableNode, TableAttrs, CellAlign as TableCellAlign} from './const';
 
 export const Table: ExtensionAuto = (builder) => {
     builder.use(TableSpecs);
+    builder.context.set('parseClipboardTableText', parsePipedMarkdownTable);
     builder.overrideNodeSpec(TableNode.Table, (spec) => ({
         ...spec,
         tableGeometry: createMarkdownTableGeometry,
+        tableMatrix: markdownTableMatrix,
     }));
 
     builder.addKeymap(() => ({
@@ -32,6 +39,16 @@ export const Table: ExtensionAuto = (builder) => {
     builder.addAction('deleteTable', () => deleteTableAction);
     builder.addPlugin(tableCellContextPlugin);
     builder.addPlugin(markdownTablePastePlugin, builder.Priority.High);
+    builder.addPlugin(
+        ({schema}) =>
+            builder.context.get('tableCellSelection') &&
+            !Object.values(schema.nodes).some(
+                (type) => type.spec.tableMatrix?.handlesHtmlTablePaste,
+            )
+                ? markdownTableHtmlPastePlugin()
+                : [],
+        builder.Priority.Lowest,
+    );
 };
 
 declare global {

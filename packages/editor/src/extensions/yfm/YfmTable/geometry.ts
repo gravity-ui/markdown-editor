@@ -7,14 +7,13 @@ import {
 } from 'src/table-utils/cell-selection/geometry';
 import {TableDesc} from 'src/table-utils/table-desc';
 
-const cache = new WeakMap<TableDesc, TableGeometry>();
+const cache = new WeakMap<Node, TableGeometry>();
 
 export function createYfmTableGeometry(table: Node): TableGeometry | null {
+    const cached = cache.get(table);
+    if (cached) return cached;
     const desc = TableDesc.create(table);
     if (!desc) return null;
-
-    const cached = cache.get(desc);
-    if (cached) return cached;
 
     const cells: MappedCell[] = [];
     desc.rowsDesc.forEach((row, top) => {
@@ -36,7 +35,7 @@ export function createYfmTableGeometry(table: Node): TableGeometry | null {
     });
 
     const geometry = createTableGeometry(table, desc.cols, desc.rows, cells);
-    cache.set(desc, geometry);
+    cache.set(table, geometry);
 
     return geometry;
 }
