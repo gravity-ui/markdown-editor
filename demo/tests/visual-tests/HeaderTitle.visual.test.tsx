@@ -265,3 +265,106 @@ test.describe('Header title editing', () => {
         await expectScreenshot({component: header.blocks});
     });
 });
+
+const SIZE_NAMES = headerTitleSizes.map((size) => `Heading ${size}`);
+const COLOR_NAMES = ['Default', 'Gray', 'Yellow', 'Orange', 'Red', 'Green', 'Blue', 'Violet'];
+const toolbarMarkup = `${inHeader('::header-title[Team portal]', 'Portal description.')}\n\nAfter`;
+
+test.describe('Header title toolbar', () => {
+    test('should change the size and the color with the mouse @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        headerTitle,
+        wait,
+        expectScreenshot,
+    }) => {
+        await mount(<HeaderStories.Title width={760} initial={toolbarMarkup} />);
+        await headerTitle.blocks.click();
+        await expect(headerTitle.toolbar).toBeVisible();
+        const [main, toolbar] = await Promise.all([
+            editor.locators.toolbars.main.boundingBox(),
+            headerTitle.toolbar.boundingBox(),
+        ]);
+        expect(toolbar?.y).toBeGreaterThanOrEqual((main?.y ?? 0) + (main?.height ?? 0));
+        await expect(headerTitle.toolbar.getByRole('button')).toHaveCount(2);
+        await expect(headerTitle.sizeButton).toHaveAccessibleName('Title size: Heading 2');
+        await expect(headerTitle.colorButton).toHaveAccessibleName('Title color: Default');
+
+        await headerTitle.sizeButton.click();
+        await expect(headerTitle.menuItems).toHaveText(SIZE_NAMES);
+        await expectScreenshot({nameSuffix: 'size list'});
+        await headerTitle.menuItem('Heading 1').click();
+        await expect(headerTitle.menu).toBeHidden();
+        await expect(headerTitle.blocks).toHaveAttribute('data-size', '1');
+        await expect(headerTitle.sizeButton).toHaveAccessibleName('Title size: Heading 1');
+
+        await headerTitle.colorButton.click();
+        await expect(headerTitle.menuItems).toHaveText(COLOR_NAMES);
+        await wait.markupPreview('::header-title[Team portal]{size="1"}');
+        await wait.tooltipsHidden();
+        await expectScreenshot({nameSuffix: 'color list'});
+        await headerTitle.menuItem('Red').click();
+        await expect(headerTitle.menu).toBeHidden();
+        await expect(headerTitle.blocks).toHaveAttribute('data-color', 'red');
+        await expect(headerTitle.colorButton).toHaveAccessibleName('Title color: Red');
+        await expect
+            .poll(() => headerTitle.getMarkup())
+            .toContain('::header-title[Team portal]{size="1" color="red"}');
+        await wait.markupPreview('::header-title[Team portal]{size="1" color="red"}');
+        await page.mouse.move(0, 0);
+        await wait.tooltipsHidden();
+        await expectScreenshot();
+    });
+
+    test('should change the size and the color with the keyboard @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        headerTitle,
+    }) => {
+        await mount(<HeaderStories.Title width={760} initial={toolbarMarkup} />);
+        await headerTitle.blocks.click();
+        await editor.press('End');
+        await expect(headerTitle.toolbar).toBeVisible();
+        await editor.press('Tab');
+        await expect(headerTitle.sizeButton).toBeFocused();
+        await page.keyboard.press('ArrowRight');
+        await expect(headerTitle.colorButton).toBeFocused();
+        await page.keyboard.press('ArrowLeft');
+        await expect(headerTitle.sizeButton).toBeFocused();
+
+        await page.keyboard.press('Enter');
+        await expect(headerTitle.menuItems).toHaveText(SIZE_NAMES);
+        await page.keyboard.press('Tab');
+        await expect(headerTitle.menuItem('Heading 1')).toBeFocused();
+        await page.keyboard.press('ArrowDown');
+        await page.keyboard.press('ArrowDown');
+        await expect(headerTitle.menuItem('Heading 3')).toBeFocused();
+        await page.keyboard.press('Enter');
+        await expect(headerTitle.menu).toBeHidden();
+        await expect(headerTitle.blocks).toHaveAttribute('data-size', '3');
+        await expect(editor.locators.contenteditable).toBeFocused();
+        await page.keyboard.type('!');
+        await expect(headerTitle.blocks).toHaveText('Team portal!');
+
+        await editor.press('Tab');
+        await page.keyboard.press('ArrowRight');
+        await expect(headerTitle.colorButton).toBeFocused();
+        await page.keyboard.press('Enter');
+        await expect(headerTitle.menuItems).toHaveText(COLOR_NAMES);
+        await page.keyboard.press('Tab');
+        await page.keyboard.press('ArrowUp');
+        await expect(headerTitle.menuItem('Violet')).toBeFocused();
+        await page.keyboard.press('Escape');
+        await expect(headerTitle.menu).toBeHidden();
+        await expect(headerTitle.toolbar).toBeVisible();
+        await expect(headerTitle.colorButton).toBeFocused();
+        await page.keyboard.press('Escape');
+        await expect(headerTitle.toolbar).toBeHidden();
+        await expect(editor.locators.contenteditable).toBeFocused();
+        await expect
+            .poll(() => headerTitle.getMarkup())
+            .toContain('::header-title[Team portal!]{size="3"}');
+    });
+});

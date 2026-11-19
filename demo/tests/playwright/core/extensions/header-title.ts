@@ -8,6 +8,11 @@ export class HeaderTitleBlock {
     readonly blocks: Locator;
     readonly previews: Locator;
     readonly placeholders: Locator;
+    readonly toolbar: Locator;
+    readonly sizeButton: Locator;
+    readonly colorButton: Locator;
+    readonly menu: Locator;
+    readonly menuItems: Locator;
     protected readonly page: Page;
 
     constructor(page: Page, preview: Locator) {
@@ -15,6 +20,15 @@ export class HeaderTitleBlock {
         this.blocks = page.locator(`.ProseMirror ${SELECTOR}`);
         this.previews = preview.locator(SELECTOR);
         this.placeholders = this.blocks.locator('.g-md-placeholder');
+        this.toolbar = page.getByTestId('g-md-toolbar-header-title');
+        this.sizeButton = this.toolbar.getByRole('button', {name: /^Title size: /});
+        this.colorButton = this.toolbar.getByRole('button', {name: /^Title color: /});
+        this.menu = page.getByTestId('g-md-toolbar-menu');
+        this.menuItems = this.menu.getByRole('menuitem');
+    }
+
+    menuItem(name: string) {
+        return this.menu.getByRole('menuitem', {name, exact: true});
     }
 
     getValues(blocks = this.previews) {

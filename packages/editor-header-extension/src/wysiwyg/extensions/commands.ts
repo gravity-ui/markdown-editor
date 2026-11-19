@@ -1,5 +1,11 @@
 import {get$Cursor, pType} from '@gravity-ui/markdown-editor';
-import type {Node, NodeType, ResolvedPos, Schema} from '@gravity-ui/markdown-editor/pm/model';
+import type {
+    Attrs,
+    Node,
+    NodeType,
+    ResolvedPos,
+    Schema,
+} from '@gravity-ui/markdown-editor/pm/model';
 import {
     type Command,
     NodeSelection,
@@ -8,8 +14,31 @@ import {
 } from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 
+import {changedAttrs} from './attrs';
+
 export const runCommand = (view: EditorView, command: Command) =>
     command(view.state, view.dispatch, view);
+
+/**
+ * A command factory that sets attributes of the node of `nodeType` at `pos`;
+ * `normalize` replaces unsupported values, and only the changed attributes are written.
+ */
+export const setNodeAttrs =
+    <T extends object>(nodeType: (schema: Schema) => NodeType, normalize: (attrs: Attrs) => T) =>
+    (pos: number, attrs: Partial<T>): Command =>
+    (state, dispatch) => {
+        const node = state.doc.nodeAt(pos);
+        if (node?.type !== nodeType(state.schema)) return false;
+        if (dispatch) {
+            const tr = state.tr;
+            const next = normalize({...node.attrs, ...attrs});
+            for (const [name, value] of changedAttrs(node.attrs, next)) {
+                tr.setNodeAttribute(pos, name, value);
+            }
+            if (tr.docChanged) dispatch(tr);
+        }
+        return true;
+    };
 
 /** Removes a child block; the last one is replaced with an empty paragraph to keep the parent valid. */
 export function removeChild(tr: Transaction, parent: Node, {node, pos}: {node: Node; pos: number}) {

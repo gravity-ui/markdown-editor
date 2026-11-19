@@ -12,10 +12,13 @@ import {
 } from './commands';
 import {headerTitleGuardPlugin} from './plugins/HeaderTitleGuardPlugin';
 import {headerTitlePastePlugin, headerTitleTextPastePlugin} from './plugins/HeaderTitlePastePlugin';
+import {headerTitleTooltip} from './plugins/HeaderTitleTooltipPlugin';
 
 /** The editing of the banner title; `Header` uses it, and `HeaderSpecs` holds its schema. */
 export const HeaderTitle: ExtensionAuto = (builder) => {
+    const tooltip = headerTitleTooltip();
     builder
+        .addPlugin(tooltip.plugin)
         .addPlugin(() => selectionInsidePlugin(headerTitleNodeType))
         .addPlugin(headerTitleGuardPlugin, builder.Priority.High)
         .addPlugin(headerTitlePastePlugin, builder.Priority.High)
@@ -27,5 +30,7 @@ export const HeaderTitle: ExtensionAuto = (builder) => {
                 Delete: chainCommands(deleteHeaderTitleText, stopAtHeaderTitleEnd),
             }),
             builder.Priority.High,
-        );
+        )
+        // With the cursor in the title, Tab focuses the title toolbar before the banner toolbar.
+        .addKeymap(() => ({Tab: tooltip.focus}), builder.Priority.VeryHigh);
 };

@@ -168,7 +168,7 @@ export function ToolbarListButton<E>({
                                                     <Icon data={icon.data} size={icon.size ?? 16} />
                                                 }
                                                 extraProps={{
-                                                    ...props,
+                                                    ...(hideHintWhenDisabled ? {} : props),
                                                     'aria-label': titleText,
                                                 }}
                                             >
