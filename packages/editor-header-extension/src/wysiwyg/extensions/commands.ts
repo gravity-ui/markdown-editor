@@ -46,16 +46,20 @@ export function removeChild(tr: Transaction, parent: Node, {node, pos}: {node: N
     }
 }
 
-const atTextblockEdge = ($cursor: ResolvedPos, dir: -1 | 1) =>
+type NodeNear = ($cursor: ResolvedPos, dir: -1 | 1) => {node: Node; pos: number} | null;
+
+/** The cursor is at the start (`-1`) or at the end (`1`) of its textblock. */
+export const atTextblockEdge = ($cursor: ResolvedPos, dir: -1 | 1) =>
     $cursor.parentOffset === (dir < 0 ? 0 : $cursor.parent.content.size);
 
-/** The block next to the textblock of the cursor in the direction `dir`, when the cursor is at that edge. */
-export const siblingBlock = ($cursor: ResolvedPos, dir: -1 | 1) => {
+/** The block before (`-1`) or after (`1`) the textblock of the cursor at its edge. */
+export const siblingBlock: NodeNear = ($cursor, dir) => {
     if (!atTextblockEdge($cursor, dir)) return null;
     const node = $cursor.node(-1).maybeChild($cursor.index(-1) + dir);
     return node && {node, pos: dir < 0 ? $cursor.before() - node.nodeSize : $cursor.after()};
 };
 
+/** The block of `nodeType` at the near edge of `sibling`: the sibling itself or its first or last descendant. */
 const edgeDescendant = (
     nodeType: NodeType,
     sibling: {node: Node; pos: number} | null,
@@ -73,12 +77,17 @@ const edgeDescendant = (
     return found?.node.type === nodeType ? found : null;
 };
 
+type BlockEdgeOptions = {
+    /** Leaves the key to the editor when the found block can take the cursor itself. */
+    pass?: (node: Node, dir: -1 | 1) => boolean;
+};
+
 /**
- * Backspace (`dir = -1`) or Delete (`dir = 1`) at the edge of a textblock next to a block of `nodeType`:
- * the blocks are not joined; an empty textblock is removed and the cursor moves into the block.
+ * Backspace (`-1`) or Delete (`1`) at the edge of a textblock next to a block of `nodeType`
+ * does not join them: an empty textblock is removed, and the cursor goes into the block.
  */
 export const stopAtBlockEdge =
-    (nodeType: (schema: Schema) => NodeType) =>
+    (nodeType: (schema: Schema) => NodeType, {pass}: BlockEdgeOptions = {}) =>
     (dir: -1 | 1): Command =>
     (state, dispatch) => {
         const $cursor = get$Cursor(state.selection);
@@ -89,6 +98,7 @@ export const stopAtBlockEdge =
         if ($cursor.parent.content.size || !$cursor.node(-1).canReplace(index, index + 1)) {
             return true;
         }
+        if (pass?.(found.node, dir)) return false;
         if (dispatch) {
             const tr = state.tr.delete($cursor.before(), $cursor.after());
             const pos = tr.mapping.map(found.pos);
