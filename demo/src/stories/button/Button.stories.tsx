@@ -42,16 +42,6 @@ ${viewsAndColors}
 ## With and without a link
 
 :button[With a link](https://example.com){view="action" color="blue"} :button[In a new tab](https://example.com){view="normal" color="blue" target="_blank"} :button[Without a link]{view="outline" color="blue"}
-
-## In a header
-
-:::header{height="s" width="m"}
-
-### Buttons in a header
-
-:button[Primary](https://example.com){view="action" color="blue"} :button[Secondary](https://example.com){view="normal" color="gray"} :button[Tertiary]{view="flat" color="standard"}
-
-:::
 `.trim(),
     },
 };
