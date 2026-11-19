@@ -34,9 +34,23 @@ export const getSchemaSpecs = (
                 priority: 200,
                 getAttrs(dom) {
                     const attr = dom.getAttribute(YfmTableAttr.HeaderRows);
-                    const fromDataAttr = attr ? Math.max(0, parseInt(attr, 10) || 0) : 0;
-                    const theadRows = (dom as HTMLTableElement).tHead?.rows.length ?? 0;
-                    return {[YfmTableAttr.HeaderRows]: fromDataAttr || theadRows};
+                    const rows = Array.from((dom as HTMLTableElement).rows);
+                    let headers = 0;
+                    for (const row of rows) {
+                        if (
+                            row.parentElement?.tagName !== 'THEAD' &&
+                            (!row.cells.length ||
+                                Array.from(row.cells).some((cell) => cell.tagName !== 'TH'))
+                        )
+                            break;
+                        headers++;
+                    }
+                    return {
+                        [YfmTableAttr.HeaderRows]:
+                            attr === null
+                                ? headers
+                                : Math.min(rows.length, Math.max(0, parseInt(attr, 10) || 0)),
+                    };
                 },
             },
         ],
@@ -60,13 +74,14 @@ export const getSchemaSpecs = (
         parseDOM: [
             // The schema wraps rows in one body. Keep all direct HTML row groups in that body.
             {
-                tag: 'table > thead, table > tbody',
+                tag: 'table > thead, table > tbody, table > tfoot',
                 context: `${YfmTableNode.Table}/|${YfmTableNode.Table}/${YfmTableNode.Body}/`,
                 priority: 201,
                 skip: true,
             },
             {tag: 'tbody', priority: 200},
             {tag: 'thead', priority: 200},
+            {tag: 'tfoot', priority: 200},
         ],
         toDOM() {
             return ['tbody', 0];
@@ -104,8 +119,8 @@ export const getSchemaSpecs = (
             [YfmTableAttr.CellBg]: {default: null},
         },
         parseDOM: [
-            {tag: 'td', priority: 200},
-            {tag: 'th', priority: 200},
+            {tag: 'td', priority: 200, getAttrs: getCellAttrs},
+            {tag: 'th', priority: 200, getAttrs: getCellAttrs},
         ],
         toDOM(node) {
             return ['td', node.attrs, 0];
@@ -134,3 +149,26 @@ export const YfmTableSchemaSpecs: ExtensionAuto<YfmTableSchemaOptions> = (builde
         .addNodeSpec(YfmTableNode.Row, () => schemaSpecs[YfmTableNode.Row])
         .addNodeSpec(YfmTableNode.Cell, () => schemaSpecs[YfmTableNode.Cell]);
 };
+
+function getCellAttrs(dom: HTMLElement) {
+    const align =
+        dom.getAttribute('align') ||
+        dom.style.textAlign ||
+        // Older HTML may carry the alignment only in this attribute.
+        dom.getAttribute('cell-align') ||
+        null;
+    return {
+        [YfmTableAttr.Colspan]: dom.getAttribute(YfmTableAttr.Colspan),
+        [YfmTableAttr.Rowspan]: dom.getAttribute(YfmTableAttr.Rowspan),
+        [YfmTableAttr.CellAlign]:
+            dom.getAttribute(YfmTableAttr.CellAlign) ??
+            (align && !align.startsWith('cell-align-')
+                ? `cell-align-${dom.style.verticalAlign || 'top'}-${align}`
+                : align),
+        [YfmTableAttr.CellBg]:
+            dom.getAttribute(YfmTableAttr.CellBg) ||
+            dom.getAttribute('bgcolor') ||
+            dom.style.backgroundColor ||
+            null,
+    };
+}

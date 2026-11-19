@@ -149,6 +149,86 @@ nested table
         );
     });
 
+    it.each([
+        ['align="right" bgcolor="red"', 'cell-align-top-right', 'red'],
+        [
+            'style="text-align:center;vertical-align:bottom;background-color:red"',
+            'cell-align-bottom-center',
+            'red',
+        ],
+        [
+            'cell-align="cell-align-bottom-right" data-bg="blue-100"',
+            'cell-align-bottom-right',
+            'blue-100',
+        ],
+    ])('should parse external HTML cell attributes %s', (attrs, align, background) => {
+        parseDOM(
+            schema,
+            `<table><tr><td ${attrs}>A</td></tr></table>`,
+            doc(
+                table(
+                    tbody(
+                        tr(
+                            td(
+                                {
+                                    [YfmTableAttr.CellAlign]: align,
+                                    [YfmTableAttr.CellBg]: background,
+                                },
+                                p('A'),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        );
+    });
+
+    it('should infer leading header rows and include each HTML row group', () => {
+        parseDOM(
+            schema,
+            '<table><tbody><tr><th>A</th></tr></tbody><tbody><tr><td>B</td></tr></tbody><tfoot><tr><th>C</th></tr></tfoot></table>',
+            doc(
+                table(
+                    {[YfmTableAttr.HeaderRows]: 1},
+                    tbody(tr(td(p('A'))), tr(td(p('B'))), tr(td(p('C')))),
+                ),
+            ),
+        );
+    });
+
+    it.each([
+        ['0', 0],
+        ['9', 2],
+    ] as const)(
+        'should apply the explicit header count %s within the table height',
+        (value, expected) => {
+            parseDOM(
+                schema,
+                `<table data-header-rows="${value}"><thead><tr><td>A</td></tr></thead><tbody><tr><td>B</td></tr></tbody></table>`,
+                doc(
+                    table(
+                        {[YfmTableAttr.HeaderRows]: expected},
+                        tbody(tr(td(p('A'))), tr(td(p('B')))),
+                    ),
+                ),
+            );
+        },
+    );
+
+    it('should preserve spans and native cell attributes in a nested HTML table', () => {
+        const attrs = {
+            [YfmTableAttr.Colspan]: '2',
+            [YfmTableAttr.Rowspan]: '2',
+            [YfmTableAttr.CellBg]: 'red',
+            [YfmTableAttr.CellAlign]: 'cell-align-bottom-right',
+        };
+        parseDOM(
+            schema,
+            '<table><tr><td><table><tr><td colspan="2" rowspan="2" data-bg="red" data-cell-align="cell-align-bottom-right">A</td></tr><tr></tr></table></td></tr></table>',
+            doc(table(tbody(tr(td(table(tbody(tr(td(attrs, p('A'))), tr()))))))),
+        );
+    });
+
     it('should keep pasted header and body rows in their respective tables', () => {
         const view = new EditorView(null, {
             state: EditorState.create({schema}),
