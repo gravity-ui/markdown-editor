@@ -1,9 +1,12 @@
 import type {DependencyList} from 'react';
 
 import {ViewPlugin} from '@codemirror/view';
+import {TextSelection} from 'prosemirror-state';
 import {type Root, createRoot} from 'react-dom/client';
 import {act} from 'react-dom/test-utils';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+
+import {TableCellSelection, getTableGeometry} from 'src/table-utils/cell-selection';
 
 import type {MarkdownEditorInstance, MarkdownEditorOptions} from './types';
 import {useMarkdownEditor} from './useMarkdownEditor';
@@ -61,6 +64,41 @@ describe('useMarkdownEditor', () => {
             value: editor.getValue(),
             empty: editor.isEmpty(),
         }).toEqual({mode: 'wysiwyg', toolbar: true, preview: false, value: '', empty: true});
+    });
+
+    describe.each([
+        ['Markdown', '| one | two |\n| --- | --- |\n| a | b |'],
+        ['YFM', '#|\n|| one | two ||\n|#'],
+    ])('%s table navigation', (_kind, markup) => {
+        it.each([undefined, false, true])(
+            'should enable cell navigation only with wysiwygConfig.tableCellSelection=true (value: %s)',
+            (tableCellSelection) => {
+                render({
+                    initial: {markup},
+                    wysiwygConfig: tableCellSelection === undefined ? {} : {tableCellSelection},
+                });
+                editor.getValue();
+                const view = editor._wysiwygView!;
+                const doc = view.state.doc;
+                const cell = getTableGeometry(doc.firstChild!)!.cellAt(0, 0)!;
+                view.dispatch(
+                    view.state.tr.setSelection(TextSelection.near(doc.resolve(cell.offset + 1))),
+                );
+
+                expect(
+                    view.someProp('handleKeyDown', (handler) =>
+                        handler(view, new KeyboardEvent('keydown', {key: 'Tab'})),
+                    ),
+                ).toBe(true);
+                expect(view.state.selection).toBeInstanceOf(
+                    tableCellSelection ? TableCellSelection : TextSelection,
+                );
+                expect(doc.textBetween(view.state.selection.from, view.state.selection.to)).toBe(
+                    'two',
+                );
+                expect(view.state.doc.eq(doc)).toBe(true);
+            },
+        );
     });
 
     it.each(['markup', 'wysiwyg'] as const)(

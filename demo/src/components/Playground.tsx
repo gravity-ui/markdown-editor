@@ -48,6 +48,7 @@ const fileUploadHandler: FileUploadHandler = async (file) => {
 
 export type PlaygroundProps = {
     mobile?: boolean;
+    tableCellSelection?: boolean;
     initial?: MarkupString;
     syncMarkupToUrl?: boolean;
     allowHTML?: boolean;
@@ -98,6 +99,7 @@ logger.setLogger({
 export const Playground = memo<PlaygroundProps>((props) => {
     const {
         mobile,
+        tableCellSelection,
         initial,
         syncMarkupToUrl = true,
         initialEditor,
@@ -181,6 +183,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             mobile,
             preset: 'full',
             wysiwygConfig: {
+                tableCellSelection: wysiwygConfig?.tableCellSelection ?? tableCellSelection,
                 placeholderOptions,
                 disableMarkdownAttrs: disableMarkdownItAttrs,
                 extensions: (builder) => {
@@ -296,6 +299,8 @@ export const Playground = memo<PlaygroundProps>((props) => {
         },
         [
             mobile,
+            tableCellSelection,
+            wysiwygConfig?.tableCellSelection,
             allowHTML,
             linkify,
             linkifyTlds,

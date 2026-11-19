@@ -38,3 +38,13 @@ export const findSelectedNodeOfType = (nodeType: NodeType) => {
         return null;
     };
 };
+
+export function isDefaultOrEmptySelection(selection: Selection): boolean {
+    return selection.empty || isDefaultSelection(selection);
+}
+
+export function isDefaultSelection(
+    selection: Selection,
+): selection is TextSelection | NodeSelection | AllSelection {
+    return isTextSelection(selection) || isNodeSelection(selection) || isWholeSelection(selection);
+}
