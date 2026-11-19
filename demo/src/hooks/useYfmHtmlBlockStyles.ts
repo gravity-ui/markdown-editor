@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
 
 import type {IHTMLIFrameElementConfig} from '@diplodoc/html-extension/runtime';
-import {getYfmHtmlBlockCssVariables} from '@gravity-ui/markdown-editor/view/hocs/withYfmHtml/utils.js';
+import {toIframeCssVariables} from '@gravity-ui/markdown-viewer-yfm-html-extension';
 import {useThemeValue} from '@gravity-ui/uikit';
 
 const variablesMapping = {
@@ -28,7 +28,7 @@ export const useYfmHtmlBlockStyles = () => {
         );
 
         setConfig({
-            styles: getYfmHtmlBlockCssVariables(styles),
+            styles: toIframeCssVariables(styles),
             classNames: [theme],
         });
     }, [theme]);
