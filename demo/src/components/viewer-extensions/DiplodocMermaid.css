@@ -1,5 +1,0 @@
-@import '@diplodoc/mermaid-extension/styles/zoom.css';
-
-.diplodoc-mermaid {
-    --mermaid-zoom-control-color: var(--g-color-text-primary);
-}

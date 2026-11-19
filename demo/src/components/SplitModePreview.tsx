@@ -2,7 +2,6 @@ import {useMemo, useState} from 'react';
 
 import '@diplodoc/cut-extension/runtime';
 import '@diplodoc/folding-headings-extension/runtime';
-import type {HTMLRuntimeConfig} from '@diplodoc/html-extension';
 import {buildYfmHtmlBlockOptions} from '@diplodoc/html-extension';
 import '@diplodoc/tabs-extension/runtime';
 import transform from '@diplodoc/transform';
@@ -15,7 +14,13 @@ import {
     HeadingEditButtons,
     YfmCodeBlockActions,
 } from '@gravity-ui/markdown-viewer/extensions';
+import {
+    YfmHtmlBlock,
+    type YfmHtmlRuntimeConfig,
+} from '@gravity-ui/markdown-viewer-yfm-html-extension';
 import {YfmLatex} from '@gravity-ui/markdown-viewer-yfm-latex-extension';
+import {YfmMermaid} from '@gravity-ui/markdown-viewer-yfm-mermaid-extension';
+import {YfmPageConstructor} from '@gravity-ui/markdown-viewer-yfm-page-constructor-extension';
 import type MarkdownIt from 'markdown-it';
 import {useDebounce} from 'react-use';
 
@@ -29,11 +34,6 @@ import {
 } from '../defaults/md-plugins';
 import useYfmHtmlBlockStyles from '../hooks/useYfmHtmlBlockStyles';
 import {lineNumbersPlugin} from '../utils/line-numbers';
-
-import {DiplodocHtml} from './viewer-extensions/DiplodocHtml';
-import {DiplodocMermaid} from './viewer-extensions/DiplodocMermaid';
-import {DiplodocPageConstructor} from './viewer-extensions/DiplodocPageConstructor';
-import type {TransformMeta} from './viewer-extensions/types';
 
 import '@diplodoc/cut-extension/runtime/styles.css';
 import '@diplodoc/folding-headings-extension/runtime/styles.css';
@@ -55,7 +55,7 @@ export type SplitModePreviewProps = {
     linkify?: boolean;
     linkifyTlds?: string | string[];
     needToSanitizeHtml?: boolean;
-    htmlRuntimeConfig?: HTMLRuntimeConfig;
+    htmlRuntimeConfig?: YfmHtmlRuntimeConfig;
     disableMarkdownItAttrs?: boolean;
     onHeadingEdit?: (line: number, source: MarkupString) => void;
 };
@@ -94,7 +94,7 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
     );
     const [result, setResult] = useState<{
         html: string;
-        meta?: TransformMeta;
+        meta?: {script?: string[]; style?: string[]};
         source: MarkupString;
     }>({html: '', source: ''});
 
@@ -146,9 +146,9 @@ export const SplitModePreview: React.FC<SplitModePreviewProps> = (props) => {
                 <YfmCodeBlockActions />
                 <FilesGallery getCopyUrl={getGalleryUrl} getDownloadUrl={getGalleryUrl} />
                 <YfmLatex meta={result.meta} runtime={LATEX_RUNTIME} />
-                <DiplodocPageConstructor meta={result.meta} runtime={PAGE_CONSTRUCTOR_RUNTIME} />
-                <DiplodocMermaid meta={result.meta} runtime={MERMAID_RUNTIME} />
-                <DiplodocHtml
+                <YfmPageConstructor meta={result.meta} runtime={PAGE_CONSTRUCTOR_RUNTIME} />
+                <YfmMermaid meta={result.meta} runtime={MERMAID_RUNTIME} />
+                <YfmHtmlBlock
                     meta={result.meta}
                     runtime={YFM_HTML_BLOCK_RUNTIME}
                     config={yfmHtmlBlockConfig}

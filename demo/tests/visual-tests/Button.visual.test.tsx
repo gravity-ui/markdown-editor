@@ -9,7 +9,7 @@ const withSpace = `${singleButton}${'\n\nТекст'.repeat(12)}`;
 
 const scriptUrl = ['javascript', 'alert(1)'].join(':');
 
-const EXAMPLES_COUNT = 37;
+const EXAMPLES_COUNT = 34;
 
 const stateStyles = [
     ['action', 'standard'],
@@ -42,7 +42,7 @@ test.describe('Button', () => {
         button,
         expectScreenshot,
     }) => {
-        await mount(<ButtonStories.Button width={660} />);
+        await mount(<ButtonStories.Button width={500} />);
         await editor.assertMode('wysiwyg');
         await expect(button.blocks).toHaveCount(EXAMPLES_COUNT);
         expect(await button.getFilledBackgrounds()).not.toContain('rgba(0, 0, 0, 0)');
@@ -57,7 +57,7 @@ test.describe('Button', () => {
         wait,
         expectScreenshot,
     }) => {
-        await mount(<ButtonStories.Button width={660} />);
+        await mount(<ButtonStories.Button width={560} />);
         await expect(button.blocks).toHaveCount(EXAMPLES_COUNT);
         const before = await button.getValues();
         await editor.switchMode('markup');
@@ -152,7 +152,7 @@ test.describe('Button', () => {
         button,
         expectScreenshot,
     }) => {
-        await mount(<ButtonStories.Button initial={withSpace} width={660} />);
+        await mount(<ButtonStories.Button initial={withSpace} width={600} />);
         await button.openSettings();
         await button.styleSelect.click();
         await expect(button.option(/, Green$/)).toHaveCount(4);
@@ -209,7 +209,7 @@ test.describe('Button', () => {
         await mount(
             <ButtonStories.Button
                 initial={`:button[Кнопка]{view="action" color="standard"} и текст${'\n\nТекст'.repeat(12)}`}
-                width={660}
+                width={440}
             />,
         );
         await expect(button.blocks).toHaveCount(1);
