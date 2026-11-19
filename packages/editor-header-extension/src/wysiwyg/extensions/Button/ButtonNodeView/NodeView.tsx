@@ -84,6 +84,8 @@ export class WButtonNodeView implements NodeView {
     }
 
     destroy() {
+        this.dom.removeEventListener('mousedown', this.handleMouseDown);
+        this.dom.removeEventListener('click', this.handleClick);
         this.settings?.remove();
     }
 
