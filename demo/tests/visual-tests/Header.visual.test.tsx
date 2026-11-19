@@ -241,9 +241,15 @@ test.describe('Header', () => {
         await mount(
             <HeaderStories.Header
                 width={660}
-                initial={
-                    ':::header{height="s" width="m"}\n\n::header-title[Team portal]\n\n:::\n\nAfter'
-                }
+                initial={[
+                    ':::header{height="s" width="m"}',
+                    '::header-title[Team portal]',
+                    ':::header-content',
+                    'Portal description.',
+                    ':::',
+                    ':::',
+                    'After',
+                ].join('\n\n')}
             />,
         );
         await editor.focus();
@@ -276,18 +282,21 @@ test.describe('Header', () => {
         expectScreenshot,
     }) => {
         await page.setViewportSize({width: 740, height: 980});
-        await mount(<HeaderStories.Header width={660} />);
+        await mount(<HeaderStories.Description width={660} />);
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await header.openSettings();
+        // The Description switch changes the document; the other switches are local.
+        await header.clickToggle('Description');
+        await expect(header.toggle('Description')).not.toBeChecked();
         const initial = await page.evaluate(() => window.mdEditor?.getValue());
         const messages: string[] = [];
         page.on('console', (message) => {
             if (message.type() === 'log') messages.push(message.text());
         });
 
-        // The Title switch inserts and removes the title; it is checked in the tests of the title.
-        for (const name of ['Description', 'Button 1', 'Button 2', 'Button 3', 'Image']) {
+        // The Title and Description switches change the document; they are checked in their own tests.
+        for (const name of ['Button 1', 'Button 2', 'Button 3', 'Image']) {
             const toggle = header.toggle(name);
             const checked = await toggle.isChecked();
             await header.clickToggle(name);
@@ -325,7 +334,7 @@ test.describe('Header', () => {
         ).toHaveLength(2);
 
         await header.select(header.height, 'M');
-        await expect(header.blocks).toHaveClass(/g-md-header-plugin_height_m/);
+        await expect(header.blocks.first()).toHaveClass(/g-md-header-plugin_height_m/);
         await expect(header.toggle('Title')).not.toBeChecked();
         await header.toggle('Title').press('Space');
         await expect(header.toggle('Title')).toBeChecked();
@@ -338,7 +347,7 @@ test.describe('Header', () => {
 
         await header.closeButton.click();
         await header.openSettings();
-        await expect(header.toggle('Description')).toBeChecked();
+        await expect(header.toggle('Description')).not.toBeChecked();
         await expect(header.toggle('Button 1')).toBeChecked();
         await expect(header.toggle('Button 2')).not.toBeChecked();
         await expect(header.toggle('Button 3')).not.toBeChecked();

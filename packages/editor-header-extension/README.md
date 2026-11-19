@@ -95,6 +95,10 @@ Enter starts a paragraph inside the description and does nothing in an empty par
 Backspace at its start and Delete at its end keep it and do not join it with the blocks around it; an empty paragraph next to it is removed instead.
 Deleting all the selected text of the description leaves an empty paragraph in it; a selection that runs from the description to the start of the next block stays inside the description.
 
+The description is the `content` part of the banner, and the Description switch of the settings panel is connected to it.
+Switching it on adds a description with a sample text after the image and the title, or turns the only non-empty paragraph of the banner into the description with its marks and links.
+Switching it off removes the description; switching it on again restores the removed description with its text and formatting until the page reloads. Each switch is one undo step.
+
 ## Button
 
 `Button` is a separate extension from the same package:

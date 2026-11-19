@@ -235,15 +235,14 @@ describe('Header parts', () => {
 });
 
 describe('Header parts without node types', () => {
-    // `Header` holds the title; the image and the description have no node types here.
+    // `Header` holds the title and the description; the image has no node type here.
     const editor = createTestEditor(headerExtensions());
 
     it('should switch only the parts that have a node type', () => {
         const view = editor.createView(':::header\nText\n:::');
-        expect(Object.keys(headerPartTypes(editor.schema))).toEqual(['title']);
+        expect(Object.keys(headerPartTypes(editor.schema)).sort()).toEqual(['content', 'title']);
         expect(headerPartTypes(editor.schema).title?.name).toBe(headerTitleNodeName);
         expect(runCommand(view, setHeaderPart(0, 'image', true))).toBe(false);
-        expect(runCommand(view, setHeaderPart(0, 'content', true))).toBe(false);
         expect(runCommand(view, setHeaderPart(0, 'title', true))).toBe(true);
     });
 });
