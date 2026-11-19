@@ -18,7 +18,7 @@ import {
 } from '../../src';
 
 export function shouldAcceptViewerProps() {
-    const mods: YFMMods = {'no-list-reset': true};
+    const mods: YFMMods = {'no-list-reset': true, custom: 'value', level: 2};
     return createElement(MarkdownViewer, {
         html: '<p>Text</p>',
         ref: createRef<HTMLDivElement>(),
@@ -32,6 +32,31 @@ export function shouldAcceptViewerProps() {
             children: (target) => createElement('button', null, target.id),
         }),
     });
+}
+
+export function shouldAcceptCustomYfmMods() {
+    interface CustomMods {
+        gallery?: boolean;
+    }
+    const mods: YFMMods<CustomMods> = {'no-list-reset': true, gallery: true};
+    const customCn = cnYFM<CustomMods>;
+    const result: string = customCn(mods, 'extra');
+    // @ts-expect-error Custom modifier names are checked.
+    customCn({galery: true});
+    // @ts-expect-error Custom modifier values are checked.
+    customCn({gallery: 'yes'});
+    // @ts-expect-error Built-in modifiers keep their boolean types.
+    customCn({'no-list-reset': 'yes'});
+    return result;
+}
+
+export function shouldRejectInvalidYfmMods() {
+    // @ts-expect-error Built-in modifiers stay boolean in open calls.
+    cnYFM({'no-list-reset': 'yes'});
+    // @ts-expect-error Open modifiers do not accept objects.
+    cnYFM({custom: {enabled: true}});
+    // @ts-expect-error Custom modifier types must use BEM modifier values.
+    cnYFM<{custom?: {enabled: boolean}}>();
 }
 
 export function shouldAcceptSynchronousSetup() {
