@@ -6,7 +6,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {YfmHtmlBlock, type YfmHtmlBlockProps} from '../index';
 
 const {controller, useController, setupRuntimeConfig} = vi.hoisted(() => {
-    const sharedController = {initialize: vi.fn(async () => [])};
+    const sharedController = {initialize: vi.fn(async () => []), disposeChildren: vi.fn()};
     return {
         controller: sharedController,
         useController: vi.fn<() => typeof sharedController | null>(() => sharedController),
@@ -61,12 +61,21 @@ describe('YfmHtmlBlock', () => {
 
     it('should pass iframe settings and runtime policy to Diplodoc', async () => {
         const runtimeConfig: NonNullable<YfmHtmlBlockProps['runtimeConfig']> = {
-            disabledModes: ['shadow', 'isolated'],
+            disabledModes: ['isolated'],
         };
         const config = {classNames: ['light'], styles: {'--color': 'white'}};
         await renderBlock({config, runtimeConfig});
         expect(controller.initialize).toHaveBeenCalledExactlyOnceWith(config);
-        expect(setupRuntimeConfig).toHaveBeenCalledWith(runtimeConfig);
+        expect(setupRuntimeConfig).toHaveBeenCalledWith({disabledModes: ['isolated']});
+    });
+
+    it('should keep shared controller children when the viewer unmounts', async () => {
+        await renderBlock();
+        expect(controller.initialize).toHaveBeenCalledOnce();
+
+        await act(async () => root.unmount());
+
+        expect(controller.disposeChildren).not.toHaveBeenCalled();
     });
 
     it('should initialize updated HTML', async () => {
