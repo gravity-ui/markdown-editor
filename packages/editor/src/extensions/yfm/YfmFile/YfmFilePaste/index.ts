@@ -13,7 +13,7 @@ import {fileType} from '../YfmFileSpecs';
 
 import {YfmFilesUploadProcessBase} from './upload';
 
-const {isFilesOnly, isFilesFromHtml, isImageFile} = clipboardUtils;
+const {isFilesWithoutText, isImageFile} = clipboardUtils;
 
 export type YfmFilePasteOptions = {
     fileUploadHandler: FileUploadHandler;
@@ -94,7 +94,7 @@ export const YfmFilePaste: ExtensionAuto<YfmFilePasteOptions> = (builder, opts) 
 
 function getPastedFiles(data: DataTransfer | null): File[] | null {
     if (!data) return null;
-    if (!isFilesOnly(data) && !isFilesFromHtml(data)) return null;
+    if (!isFilesWithoutText(data)) return null;
     return Array.from(data.files);
 }
 

@@ -24,7 +24,7 @@ import {
 
 import {ImagesUploadProcess} from './upload';
 
-const {isFilesFromHtml, isFilesOnly, isImageFile} = clipboardUtils;
+const {isFilesWithoutText, isImageFile} = clipboardUtils;
 
 export type ImagePasteOptions = Pick<
     CreateImageNodeOptions,
@@ -238,8 +238,7 @@ export const ImagePaste: ExtensionAuto<ImagePasteOptions> = (builder, opts) => {
 };
 
 function getPastedImages(data: DataTransfer | null): File[] | null {
-    if (!data || data.files.length === 0) return null;
-    if (!isFilesOnly(data) && !isFilesFromHtml(data)) return null;
+    if (!data?.files.length || !isFilesWithoutText(data)) return null;
     const files = Array.from(data.files);
     return files.every(isImageFile) ? files : null;
 }
