@@ -18,6 +18,9 @@
     "packages/viewer": {
       "initial-version": "0.1.0"
     },
+    "packages/viewer-yfm-html-extension": {
+      "initial-version": "0.1.0"
+    },
     "packages/viewer-yfm-latex-extension": {
       "initial-version": "0.1.0"
     },
