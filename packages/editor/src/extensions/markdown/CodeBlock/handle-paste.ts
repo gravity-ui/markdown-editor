@@ -36,7 +36,7 @@ export const handlePaste: NonNullable<EditorProps['handlePaste']> = (view, e) =>
     const {tr, schema, selection} = state;
     const $from = selection.$from;
     const inCodeBlock = Boolean($from.parent.type.spec.code);
-    const value = isCodeBlock($from.parent) ? data.getData(DataTransferType.Text) : code.value;
+    const value = isCodeBlock($from.parent) ? code.value : dd(code.value);
 
     getLoggerFromState(state).event({
         domEvent: 'paste',
@@ -109,7 +109,7 @@ function processVSCodePaste(data: DataTransfer, text: string): CodePasteData {
     const vsCodeData = tryParseVSCodeData(data);
     return {
         editor: 'vscode',
-        value: dd(text),
+        value: text,
         inline: isInlineCode(text),
         mode: vsCodeData?.mode,
     };
@@ -118,7 +118,7 @@ function processVSCodePaste(data: DataTransfer, text: string): CodePasteData {
 function processJetBrainsPaste(text: string): CodePasteData {
     return {
         editor: 'jetbrains',
-        value: dd(text),
+        value: text,
         inline: isInlineCode(text),
     };
 }

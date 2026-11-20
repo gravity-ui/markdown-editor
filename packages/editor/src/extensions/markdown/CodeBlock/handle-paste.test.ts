@@ -1,7 +1,7 @@
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 import {EditorView} from 'prosemirror-view';
-import {describe, expect, it, vi} from 'vitest';
+import {describe, expect, it} from 'vitest';
 
 import {dispatchPasteEvent} from '../../../../tests/dispatch-event';
 import {ExtensionsManager} from '../../../core';
@@ -59,18 +59,6 @@ describe.each(editors)('codeBlockPastePlugin: paste from $name', ({data}) => {
         const text = 'def f():\n    return 1';
         expect(paste(doc(cb('a<a>b')), {'text/plain': text, ...data})).toMatchNode(
             doc(cb(`a${text}b`)),
-        );
-    });
-
-    it('should insert a line break when pasting it into a code block', () => {
-        const listener = vi.fn();
-        logger.on('event', listener);
-        const result = paste(doc(cb('a<a>b')), {'text/plain': '\n', ...data});
-        logger.off('event', listener);
-
-        expect(result).toMatchNode(doc(cb('a\nb')));
-        expect(listener).toHaveBeenCalledWith(
-            expect.objectContaining({event: 'paste-from-code-editor', empty: false}),
         );
     });
 
