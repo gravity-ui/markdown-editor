@@ -9,12 +9,18 @@ export function SettingsSwitch({
     label,
     action,
     defaultChecked = false,
+    checked: value,
+    onUpdate,
 }: {
     label: string;
     action: string;
     defaultChecked?: boolean;
+    /** With `checked`, the switch shows the value and reports changes to `onUpdate`. */
+    checked?: boolean;
+    onUpdate?: (checked: boolean) => void;
 }) {
-    const [checked, setChecked] = useState(defaultChecked);
+    const [state, setState] = useState(defaultChecked);
+    const checked = value ?? state;
     const controlId = useUniqId();
     return (
         <div className={cnHeaderSettings('row')}>
@@ -25,8 +31,12 @@ export function SettingsSwitch({
                 id={controlId}
                 size="m"
                 checked={checked}
-                onUpdate={(value) => {
-                    setChecked(value);
+                onUpdate={(next) => {
+                    if (onUpdate) {
+                        onUpdate(next);
+                        return;
+                    }
+                    setState(next);
                     logClick(`${action} toggle`);
                 }}
             />

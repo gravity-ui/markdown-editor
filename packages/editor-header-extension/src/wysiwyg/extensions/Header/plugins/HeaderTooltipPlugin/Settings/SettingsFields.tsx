@@ -10,6 +10,7 @@ import {
 import {Button, Divider, Icon, Text, useUniqId} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
+import type {HeaderPart, HeaderParts} from '../../../utils';
 
 import {AlignmentSelect} from './AlignmentSelect';
 import {cnHeaderSettings} from './HeaderSettings.classname';
@@ -17,7 +18,13 @@ import {SettingsSection} from './SettingsSection';
 import {SettingsSwitch} from './SettingsSwitch';
 import {logClick} from './utils';
 
-export function SettingsFields() {
+export type ContentControls = {
+    parts: HeaderParts;
+    onPartChange: (part: HeaderPart, enabled: boolean) => void;
+};
+
+export function SettingsFields({content}: {content: ContentControls}) {
+    const {parts, onPartChange} = content;
     const backgroundLabelId = useUniqId();
     const backgroundValueId = useUniqId();
     return (
@@ -25,7 +32,12 @@ export function SettingsFields() {
             <Divider />
             <SettingsSection title={i18n('text')} action="Text">
                 <SettingsSwitch label={i18n('heading')} action="Title" defaultChecked />
-                <SettingsSwitch label={i18n('description')} action="Description" defaultChecked />
+                <SettingsSwitch
+                    label={i18n('description')}
+                    action="Description"
+                    checked={parts.content}
+                    onUpdate={(enabled) => onPartChange('content', enabled)}
+                />
                 <Text variant="subheader-1">{i18n('alignment')}</Text>
                 <AlignmentSelect
                     label={i18n('vertical-alignment')}

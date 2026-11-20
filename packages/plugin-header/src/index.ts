@@ -10,6 +10,7 @@ export {
     headerWidths,
 } from './header/model';
 export {headerPlugin} from './header/plugin';
+export * from './header-content';
 export {buttonPlugin} from './button/plugin';
 export {buttonAttrs, buttonFromAttrs} from './button/attrs';
 export {

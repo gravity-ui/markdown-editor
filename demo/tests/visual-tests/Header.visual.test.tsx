@@ -234,7 +234,7 @@ test.describe('Header', () => {
         expectScreenshot,
     }) => {
         await page.setViewportSize({width: 740, height: 980});
-        await mount(<HeaderStories.Header width={660} />);
+        await mount(<HeaderStories.Description width={660} />);
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await header.openSettings();
@@ -265,7 +265,7 @@ test.describe('Header', () => {
         expectScreenshot,
     }) => {
         await page.setViewportSize({width: 740, height: 980});
-        await mount(<HeaderStories.Header width={660} />);
+        await mount(<HeaderStories.Description width={660} />);
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await header.openSettings();
@@ -275,7 +275,7 @@ test.describe('Header', () => {
             if (message.type() === 'log') messages.push(message.text());
         });
 
-        for (const name of ['Title', 'Description', 'Button 1', 'Button 2', 'Button 3', 'Image']) {
+        for (const name of ['Title', 'Button 1', 'Button 2', 'Button 3', 'Image']) {
             const toggle = header.toggle(name);
             const checked = await toggle.isChecked();
             await header.clickToggle(name);
@@ -309,7 +309,7 @@ test.describe('Header', () => {
         ).toHaveLength(2);
 
         await header.select(header.height, 'M');
-        await expect(header.blocks).toHaveClass(/g-md-header-plugin_height_m/);
+        await expect(header.blocks.first()).toHaveClass(/g-md-header-plugin_height_m/);
         await expect(header.toggle('Title')).not.toBeChecked();
         await header.toggle('Title').press('Space');
         await expect(header.toggle('Title')).toBeChecked();

@@ -1,5 +1,7 @@
 import type {Action, ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 
+import {HeaderContent} from '../HeaderContent';
+
 import {WHeaderNodeView} from './HeaderNodeView';
 import {HeaderSpecs, headerNodeName} from './HeaderSpecs';
 import {insertHeader} from './commands';
@@ -11,6 +13,7 @@ import '@gravity-ui/markdown-plugin-header/styles.css';
 export const Header: ExtensionAuto = (builder) => {
     builder
         .use(HeaderSpecs)
+        .use(HeaderContent)
         .addNodeView(headerNodeName, () => (node) => new WHeaderNodeView(node))
         .addPlugin(headerTooltipPlugin)
         .addAction(insertHeaderAction, () => ({isEnable: insertHeader, run: insertHeader}))

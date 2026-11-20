@@ -7,6 +7,8 @@
   "text": "Text",
   "heading": "Title",
   "description": "Description",
+  "content-placeholder": "Short text: for example, what this page is about and who it is for",
+  "preview-description": "Here you will find the main rules and recommendations for working in our services",
   "alignment": "Alignment",
   "vertical-alignment": "Vertically",
   "horizontal-alignment": "Horizontally",

@@ -13,7 +13,7 @@ import {i18n} from '../../../../../../i18n';
 
 import {DimensionSelect} from './DimensionSelect';
 import {cnHeaderSettings} from './HeaderSettings.classname';
-import {SettingsFields} from './SettingsFields';
+import {type ContentControls, SettingsFields} from './SettingsFields';
 
 import './HeaderSettings.scss';
 
@@ -52,6 +52,7 @@ type HeaderSettingsProps = {
     button: HTMLElement | null;
     dimensions: HeaderDimensions;
     onChange: <K extends keyof HeaderDimensions>(name: K, value: HeaderDimensions[K]) => void;
+    content: ContentControls;
     onClose: () => void;
 };
 
@@ -60,6 +61,7 @@ export function HeaderSettings({
     button,
     dimensions,
     onChange,
+    content,
     onClose,
 }: HeaderSettingsProps) {
     const titleId = useUniqId();
@@ -120,7 +122,7 @@ export function HeaderSettings({
                     }
                     onUpdate={(value) => onChange('width', value)}
                 />
-                <SettingsFields />
+                <SettingsFields content={content} />
             </section>
         </Popup>
     );
