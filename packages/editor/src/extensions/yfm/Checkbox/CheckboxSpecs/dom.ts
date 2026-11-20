@@ -5,11 +5,12 @@ import {CheckboxAttr, b, checkboxInputType, checkboxLabelType} from './const';
 export function getCheckboxContent(node: Node, schema: Schema): Fragment {
     if (!(node instanceof HTMLElement)) return Fragment.empty;
 
-    const editorInput = node.firstElementChild;
-    const editorLabel = editorInput?.nextElementSibling;
-    if (editorInput?.matches('div[type=checkbox]') && editorLabel?.matches(`span.${b('label')}`)) {
+    const firstChild = node.firstElementChild;
+    const editorInput = firstChild?.matches('div[type=checkbox]') ? firstChild : null;
+    const editorLabel = editorInput ? editorInput.nextElementSibling : firstChild;
+    if (editorLabel?.matches(`span.${b('label')}`)) {
         const input = checkboxInputType(schema).create({
-            [CheckboxAttr.Checked]: editorInput.getAttribute(CheckboxAttr.Checked),
+            [CheckboxAttr.Checked]: editorInput?.getAttribute(CheckboxAttr.Checked) ?? null,
         });
         const label = DOMParser.fromSchema(schema).parse(editorLabel, {
             topNode: checkboxLabelType(schema).create(),
