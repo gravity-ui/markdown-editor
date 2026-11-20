@@ -6,6 +6,7 @@ import {
     type HeaderBackground,
     headerBackgroundDefaults,
     headerDefaults,
+    headerLayoutDefaults,
 } from '@gravity-ui/markdown-plugin-header';
 import {describe, expect, it, vi} from 'vitest';
 
@@ -38,6 +39,7 @@ describe('Header background', () => {
         expect(doc.firstChild?.attrs).toEqual({
             height: 's',
             width: 'm',
+            ...headerLayoutDefaults,
             'bg-color': 'blue-light',
             'bg-image': './.files/a "b" \\.jpg',
             'bg-image-theme': 'dark',
@@ -57,7 +59,11 @@ describe('Header background', () => {
         ':::header{bg-image="data:text/html,<b>"}\n:::',
     ])('should not write default or unsupported background values from %j', (markup) => {
         const doc = markupParser.parse(markup);
-        expect(doc.firstChild?.attrs).toEqual({...headerDefaults, ...headerBackgroundDefaults});
+        expect(doc.firstChild?.attrs).toEqual({
+            ...headerDefaults,
+            ...headerLayoutDefaults,
+            ...headerBackgroundDefaults,
+        });
         expect(serializer.serialize(doc)).toBe(':::header{height="s" width="m"}\n\n:::');
     });
 
@@ -91,6 +97,7 @@ describe('Header background', () => {
         expect(undo(editor.state, editor.dispatch)).toBe(true);
         expect(editor.state.doc.firstChild?.attrs).toEqual({
             ...headerDefaults,
+            ...headerLayoutDefaults,
             ...headerBackgroundDefaults,
         });
         expect(run(editor, setHeaderBackground(2, {'bg-color': 'red-heavy'}))).toBe(false);

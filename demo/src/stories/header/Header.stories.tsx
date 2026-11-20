@@ -45,3 +45,32 @@ export const Image: StoryObj<typeof HeaderExample> = {
         ].join('\n\n'),
     },
 };
+
+const layoutBanner = (attrs: string, ...blocks: string[]) =>
+    [`:::header{height="s" width="full"${attrs}}`, ...blocks, ':::'].join('\n\n');
+
+const layoutImage = '::header-image{src="assets/header-image-landscape.svg" alt="Team"}';
+const layoutTitle = '::header-title[Team portal]';
+const layoutDescription = [
+    ':::header-content',
+    'Everything the team needs in one place: the handbook and the release calendar.',
+    ':::',
+].join('\n\n');
+
+export const Layout: StoryObj<typeof HeaderExample> = {
+    args: {
+        initial: [
+            layoutBanner('', layoutImage, layoutTitle, layoutDescription),
+            layoutBanner(' align="center" vertical="top"', layoutTitle, layoutDescription),
+            layoutBanner(
+                ' align="right" vertical="bottom"',
+                layoutImage,
+                layoutTitle,
+                layoutDescription,
+            ),
+            layoutBanner(' align="right"', layoutDescription, layoutTitle, layoutImage),
+            layoutBanner('', layoutImage),
+            'After',
+        ].join('\n\n'),
+    },
+};

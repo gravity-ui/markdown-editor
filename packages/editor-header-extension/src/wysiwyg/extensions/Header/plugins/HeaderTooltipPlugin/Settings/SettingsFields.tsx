@@ -6,14 +6,15 @@ import {
     ObjectsAlignRight,
     ObjectsAlignTop,
 } from '@gravity-ui/icons';
+import type {HeaderLayout} from '@gravity-ui/markdown-plugin-header';
 import {Divider, Text} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
 import {SettingsSwitch} from '../../../../settings';
 import type {HeaderPart, HeaderParts} from '../../../parts';
 
-import {AlignmentSelect} from './AlignmentSelect';
 import {type BackgroundControls, BackgroundField} from './BackgroundField';
+import {SegmentedSelect} from './SegmentedSelect';
 import {SettingsSection} from './SettingsSection';
 import {logClick} from './utils';
 
@@ -45,9 +46,18 @@ function PartSwitch({part, label, action, content}: PartSwitchProps) {
     );
 }
 
-type SettingsFieldsProps = {content: ContentControls; background: BackgroundControls};
+export type LayoutControls = {
+    value: HeaderLayout;
+    onChange: <K extends keyof HeaderLayout>(name: K, value: HeaderLayout[K]) => void;
+};
 
-export function SettingsFields({content, background}: SettingsFieldsProps) {
+type SettingsFieldsProps = {
+    content: ContentControls;
+    layout: LayoutControls;
+    background: BackgroundControls;
+};
+
+export function SettingsFields({content, layout, background}: SettingsFieldsProps) {
     return (
         <>
             <Divider />
@@ -60,53 +70,29 @@ export function SettingsFields({content, background}: SettingsFieldsProps) {
                     content={content}
                 />
                 <Text variant="subheader-1">{i18n('alignment')}</Text>
-                <AlignmentSelect
+                <SegmentedSelect
                     label={i18n('vertical-alignment')}
-                    defaultValue="top"
+                    value={layout.value.vertical}
                     options={[
-                        {
-                            value: 'top',
-                            label: i18n('top'),
-                            icon: ObjectsAlignTop,
-                            action: 'Align top',
-                        },
-                        {
-                            value: 'center',
-                            label: i18n('center'),
-                            icon: ObjectsAlignCenterVertical,
-                            action: 'Align vertically center',
-                        },
-                        {
-                            value: 'bottom',
-                            label: i18n('bottom'),
-                            icon: ObjectsAlignBottom,
-                            action: 'Align bottom',
-                        },
+                        {value: 'top', label: i18n('top'), icon: ObjectsAlignTop},
+                        {value: 'center', label: i18n('center'), icon: ObjectsAlignCenterVertical},
+                        {value: 'bottom', label: i18n('bottom'), icon: ObjectsAlignBottom},
                     ]}
+                    onUpdate={(value) => layout.onChange('vertical', value)}
                 />
-                <AlignmentSelect
+                <SegmentedSelect
                     label={i18n('horizontal-alignment')}
-                    defaultValue="center"
+                    value={layout.value.align}
                     options={[
-                        {
-                            value: 'left',
-                            label: i18n('left'),
-                            icon: ObjectsAlignLeft,
-                            action: 'Align left',
-                        },
+                        {value: 'left', label: i18n('left'), icon: ObjectsAlignLeft},
                         {
                             value: 'center',
                             label: i18n('center'),
                             icon: ObjectsAlignCenterHorizontal,
-                            action: 'Align horizontally center',
                         },
-                        {
-                            value: 'right',
-                            label: i18n('right'),
-                            icon: ObjectsAlignRight,
-                            action: 'Align right',
-                        },
+                        {value: 'right', label: i18n('right'), icon: ObjectsAlignRight},
                     ]}
+                    onUpdate={(value) => layout.onChange('align', value)}
                 />
             </SettingsSection>
             <Divider />

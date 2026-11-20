@@ -2,12 +2,18 @@ import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
 import {
+    headerAligns,
     headerAttrs,
     headerBgColors,
     headerHeights,
+    headerLayout,
+    headerLayoutDefaults,
+    headerLayoutFromAttrs,
+    headerLayoutValues,
     headerPlugin,
     headerRender,
     headerTokenName,
+    headerVerticals,
     headerWidths,
     toCssUrl,
 } from '../index';
@@ -220,5 +226,62 @@ describe('Header background', () => {
         const output = md.render(':::header{bg-image="a\\".png"}\n:::');
         expect(output).toContain('data-bg-image="a&quot;.png"');
         expect(output).toContain('style="background-image:url(&quot;a%22.png&quot;)"');
+    });
+});
+
+describe('Header layout', () => {
+    const block = (modifiers: string, attrs: string) =>
+        `<div class="g-md-header-plugin g-md-header-plugin_height_s g-md-header-plugin_width_m${modifiers}" data-height="s" data-width="m"${attrs}></div>\n`;
+
+    it.each([
+        {
+            markup: 'align="center"',
+            modifiers: ' g-md-header-plugin_align_center',
+            attrs: ' data-align="center"',
+        },
+        {
+            markup: 'align="right"',
+            modifiers: ' g-md-header-plugin_align_right',
+            attrs: ' data-align="right"',
+        },
+        {
+            markup: 'vertical="top"',
+            modifiers: ' g-md-header-plugin_vertical_top',
+            attrs: ' data-vertical="top"',
+        },
+        {
+            markup: 'vertical="bottom"',
+            modifiers: ' g-md-header-plugin_vertical_bottom',
+            attrs: ' data-vertical="bottom"',
+        },
+        {
+            markup: 'align="right" vertical="top"',
+            modifiers: ' g-md-header-plugin_align_right g-md-header-plugin_vertical_top',
+            attrs: ' data-align="right" data-vertical="top"',
+        },
+    ])('should render $markup', ({markup, modifiers, attrs}) => {
+        expect(md.render(`:::header{${markup}}\n:::`)).toBe(block(modifiers, attrs));
+    });
+
+    it.each([
+        'align="left"',
+        'vertical="center"',
+        'align="left" vertical="center"',
+        'align="justify"',
+        'vertical="middle"',
+        'align=""',
+    ])('should render the default layout for %s', (markup) => {
+        expect(md.render(`:::header{${markup}}\n:::`)).toBe(html('s', 'm'));
+    });
+
+    it.each(
+        headerAligns.flatMap((align) => headerVerticals.map((vertical) => ({align, vertical}))),
+    )('should read $align and $vertical back from the element', ({align, vertical}) => {
+        const attrs = headerAttrs({align, vertical});
+        expect(headerLayoutFromAttrs((name) => attrs[name])).toEqual({align, vertical});
+        expect(headerLayoutValues(headerLayout({align, vertical}))).toEqual({
+            ...(align === headerLayoutDefaults.align ? {} : {align}),
+            ...(vertical === headerLayoutDefaults.vertical ? {} : {vertical}),
+        });
     });
 });

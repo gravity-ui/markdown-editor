@@ -13,7 +13,7 @@ import {SettingsDialog, cnHeaderSettings} from '../../../../settings';
 
 import type {BackgroundControls} from './BackgroundField';
 import {DimensionSelect} from './DimensionSelect';
-import {type ContentControls, SettingsFields} from './SettingsFields';
+import {type ContentControls, type LayoutControls, SettingsFields} from './SettingsFields';
 
 import './HeaderSettings.scss';
 
@@ -52,6 +52,7 @@ type HeaderSettingsProps = {
     dimensions: HeaderDimensions;
     onChange: <K extends keyof HeaderDimensions>(name: K, value: HeaderDimensions[K]) => void;
     content: ContentControls;
+    layout: LayoutControls;
     background: BackgroundControls;
     onClose: () => void;
 };
@@ -62,6 +63,7 @@ export function HeaderSettings({
     dimensions,
     onChange,
     content,
+    layout,
     background,
     onClose,
 }: HeaderSettingsProps) {
@@ -96,7 +98,7 @@ export function HeaderSettings({
                 format={(value) => (value === 'full' ? i18n('full-width') : value.toUpperCase())}
                 onUpdate={(value) => onChange('width', value)}
             />
-            <SettingsFields content={content} background={background} />
+            <SettingsFields content={content} layout={layout} background={background} />
         </SettingsDialog>
     );
 }
