@@ -20,8 +20,10 @@ test.describe('Colorify', () => {
             await editor.colorify.assertMainToolbarColorButtonDefault();
 
             await editor.focus();
-            await editor.press('ArrowDown');
+            await editor.press('ControlOrMeta+End');
+            await editor.waitForTextCursorAtEnd();
             await editor.press('Enter');
+            await expect(editor.getBySelectorInContenteditable('p')).toHaveText(['some text', '']);
 
             await editor.clickMainToolbarButton('Text color', 'Yellow');
             await wait.timeout();
@@ -150,6 +152,7 @@ test.describe('Colorify', () => {
 
             await editor.focus();
             await editor.press('ControlOrMeta+End');
+            await editor.waitForTextCursorAtEnd();
             await editor.press('Enter');
 
             await editor.clickMainToolbarButton('Text color', 'Yellow');

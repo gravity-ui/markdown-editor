@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.latex1.json",
+  "include": ["package/*.types.ts"]
+}

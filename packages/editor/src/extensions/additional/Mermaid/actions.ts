@@ -10,6 +10,8 @@ export const addMermaid: ActionSpec = {
         return state.selection.empty;
     },
     run(state, dispatch, _view) {
+        if (!state.selection.empty) return;
+
         const newEntityId = generateEntityId(MermaidConsts.NodeName);
         const sharedKey = SharedStateKey.define<MermaidEntitySharedState>({name: newEntityId});
 

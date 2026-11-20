@@ -782,6 +782,20 @@ export class MarkdownEditorPage {
         await this.locators.contenteditable.focus();
     }
 
+    async waitForTextCursorAtEnd() {
+        await this.expect
+            .poll(() =>
+                this.page.evaluate(() => {
+                    // @ts-expect-error Internal view is available in the demo.
+                    const state = window.mdEditor?._wysiwygView?.state;
+                    return (
+                        state?.selection.empty && state.selection.to === state.doc.content.size - 1
+                    );
+                }),
+            )
+            .toBe(true);
+    }
+
     /**
      * Presses a key within the contenteditable area
      */

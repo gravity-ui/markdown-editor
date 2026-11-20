@@ -1,13 +1,11 @@
 import type {NodeSpec} from 'prosemirror-model';
 
 import type {ExtensionAuto} from '#core';
+import {TableRole} from 'src/table-utils';
+import type {PlaceholderOptions} from 'src/utils/placeholder';
 
-import {TableRole} from '../../../../table-utils';
-import type {PlaceholderOptions} from '../../../../utils/placeholder';
-
-import {YfmTableAttr, YfmTableNode} from './const';
-
-const DEFAULT_CELL_PLACEHOLDER = 'Table cell';
+import {DEFAULT_CELL_PLACEHOLDER, YfmTableAttr, YfmTableNode} from './const';
+import {getCellAttrs, getTableAttrs} from './dom';
 
 export type YfmTableSchemaOptions = {
     /**
@@ -32,12 +30,7 @@ export const getSchemaSpecs = (
             {
                 tag: 'table',
                 priority: 200,
-                getAttrs(dom) {
-                    const attr = dom.getAttribute(YfmTableAttr.HeaderRows);
-                    const fromDataAttr = attr ? Math.max(0, parseInt(attr, 10) || 0) : 0;
-                    const theadRows = (dom as HTMLTableElement).tHead?.rows.length ?? 0;
-                    return {[YfmTableAttr.HeaderRows]: fromDataAttr || theadRows};
-                },
+                getAttrs: getTableAttrs,
             },
         ],
         toDOM(node) {
@@ -60,13 +53,14 @@ export const getSchemaSpecs = (
         parseDOM: [
             // The schema wraps rows in one body. Keep all direct HTML row groups in that body.
             {
-                tag: 'table > thead, table > tbody',
+                tag: 'table > thead, table > tbody, table > tfoot',
                 context: `${YfmTableNode.Table}/|${YfmTableNode.Table}/${YfmTableNode.Body}/`,
                 priority: 201,
                 skip: true,
             },
             {tag: 'tbody', priority: 200},
             {tag: 'thead', priority: 200},
+            {tag: 'tfoot', priority: 200},
         ],
         toDOM() {
             return ['tbody', 0];
@@ -104,8 +98,8 @@ export const getSchemaSpecs = (
             [YfmTableAttr.CellBg]: {default: null},
         },
         parseDOM: [
-            {tag: 'td', priority: 200},
-            {tag: 'th', priority: 200},
+            {tag: 'td', priority: 200, getAttrs: getCellAttrs},
+            {tag: 'th', priority: 200, getAttrs: getCellAttrs},
         ],
         toDOM(node) {
             return ['td', node.attrs, 0];
