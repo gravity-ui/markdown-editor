@@ -5,6 +5,7 @@ import {Fragment} from '#pm/model';
 import {Plugin} from '#pm/state';
 import {DataTransferType, isFilesOnly, isIosSafariShare} from 'src/utils/clipboard';
 import {isInsideCode} from 'src/utils/code';
+import {isCodeBlock} from 'src/utils/nodes';
 
 export {isInsideCode, isInsideBlockCode, isInsideInlineCode} from 'src/utils/code';
 
@@ -37,7 +38,8 @@ export const handlePasteIntoCodePlugin = () => {
                             .join(' ');
                     } else {
                         dataFormat = DataTransferType.Text;
-                        text = dd(clipboardData.getData(DataTransferType.Text));
+                        text = clipboardData.getData(DataTransferType.Text);
+                        if (!isCodeBlock(view.state.selection.$from.parent)) text = dd(text);
                     }
 
                     if (codeType === 'inline') {

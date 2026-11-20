@@ -5,6 +5,7 @@ import dd from 'ts-dedent';
 import {getLoggerFromState} from '#core';
 import type {EditorProps} from '#pm/view';
 import {DataTransferType, isJetBrains, isVSCode, tryParseVSCodeData} from 'src/utils/clipboard';
+import {isCodeBlock} from 'src/utils/nodes';
 
 import {codeBlockType} from './const';
 
@@ -28,32 +29,33 @@ export const handlePaste: NonNullable<EditorProps['handlePaste']> = (view, e) =>
     const data = e.clipboardData;
     if (!data) return false;
 
-    const code = getCodeData(data);
+    const code = getCodeData(data, isCodeBlock(view.state.selection.$from.parent));
     if (!code) return false;
 
     const {state} = view;
     const {tr, schema, selection} = state;
     const $from = selection.$from;
     const inCodeBlock = Boolean($from.parent.type.spec.code);
+    const {value} = code;
 
     getLoggerFromState(state).event({
         domEvent: 'paste',
         event: 'paste-from-code-editor',
         editor: code.editor,
         editorMode: code.mode,
-        empty: !code.value,
+        empty: !value,
         inline: code.inline,
         dataTypes: Array.from(data.types),
     });
 
-    if (!code.value) {
+    if (!value) {
         return false;
     }
 
     insertCode({
         tr,
         schema,
-        code,
+        code: {...code, value},
         from: selection.from,
         to: selection.to,
         inCodeBlock,
@@ -88,26 +90,26 @@ function insertCodeBlock(tr: Transaction, schema: Schema, value: string): void {
     tr.replaceSelectionWith(codeBlockNode);
 }
 
-export function getCodeData(data: DataTransfer): CodePasteData | null {
+export function getCodeData(data: DataTransfer, preserveIndentation = false): CodePasteData | null {
     const text = data.getData(DataTransferType.Text);
     if (!text) return null;
 
+    let code: CodePasteData | null = null;
     if (isVSCode(data)) {
-        return processVSCodePaste(data, text);
+        code = processVSCodePaste(data, text);
+    } else if (isJetBrains(data)) {
+        code = processJetBrainsPaste(text);
     }
 
-    if (isJetBrains(data)) {
-        return processJetBrainsPaste(text);
-    }
-
-    return null;
+    if (code && !preserveIndentation) code.value = dd(code.value);
+    return code;
 }
 
 function processVSCodePaste(data: DataTransfer, text: string): CodePasteData {
     const vsCodeData = tryParseVSCodeData(data);
     return {
         editor: 'vscode',
-        value: dd(text),
+        value: text,
         inline: isInlineCode(text),
         mode: vsCodeData?.mode,
     };
@@ -116,7 +118,7 @@ function processVSCodePaste(data: DataTransfer, text: string): CodePasteData {
 function processJetBrainsPaste(text: string): CodePasteData {
     return {
         editor: 'jetbrains',
-        value: dd(text),
+        value: text,
         inline: isInlineCode(text),
     };
 }

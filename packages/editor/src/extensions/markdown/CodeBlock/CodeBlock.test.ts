@@ -127,7 +127,7 @@ describe('CodeBlock paste handling', () => {
 
     it('should detect VSCode paste as block for multiline', () => {
         const data = createMockDataTransfer({
-            [DataTransferType.Text]: 'const x = 1\nconst y = 2',
+            [DataTransferType.Text]: 'const x = 1\n    const y = 2\n',
             [DataTransferType.VSCodeData]: '{"version":1}',
         });
         const result = getCodeData(data);
@@ -156,7 +156,7 @@ describe('CodeBlock paste handling', () => {
 
     it('should detect JetBrains paste as block for multiline', () => {
         const data = createMockDataTransfer({
-            [DataTransferType.Text]: 'const x = 1\nconst y = 2',
+            [DataTransferType.Text]: 'const x = 1\n    const y = 2\n',
             [DataTransferType.Html]: '<pre>const x = 1\nconst y = 2</pre>',
             [DataTransferType.Rtf]: '{\\rtf1\\fmodern JetBrains Mono}',
         });
