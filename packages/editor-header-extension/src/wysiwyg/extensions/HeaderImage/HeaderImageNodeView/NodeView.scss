@@ -1,0 +1,24 @@
+.g-md-header-image-nodeview {
+    --_--placeholder-height: var(--g-md-header-image-nodeview-placeholder-height, 160px);
+    --_--placeholder-color: var(--g-color-text-hint);
+
+    cursor: pointer;
+
+    &_empty.g-md-header-image-plugin {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        box-sizing: border-box;
+        height: var(--_--placeholder-height);
+        padding: var(--g-spacing-4, 16px);
+    }
+
+    &__icon {
+        flex-shrink: 1;
+
+        min-height: 0;
+
+        color: var(--_--placeholder-color);
+    }
+}

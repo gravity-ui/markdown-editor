@@ -8,7 +8,6 @@ import {describe, expect, it} from 'vitest';
 
 import {createTestEditor, headerExtensions} from '../../../../tests/editor';
 import {TestParts, testContent, testImage, testTitle} from '../../../../tests/parts';
-import {headerTitleNodeName} from '../HeaderTitle/HeaderTitleSpecs';
 import {runCommand} from '../commands';
 
 import {type RemovedParts, setHeaderPart, toggleHeaderPart} from './commands';
@@ -234,15 +233,16 @@ describe('Header parts', () => {
     });
 });
 
-describe('Header parts without node types', () => {
-    // `Header` holds the title and the description; the image has no node type here.
+describe('Header parts of the extension', () => {
     const editor = createTestEditor(headerExtensions());
 
-    it('should switch only the parts that have a node type', () => {
+    it('should hold every part of the banner', () => {
         const view = editor.createView(':::header\nText\n:::');
-        expect(Object.keys(headerPartTypes(editor.schema)).sort()).toEqual(['content', 'title']);
-        expect(headerPartTypes(editor.schema).title?.name).toBe(headerTitleNodeName);
-        expect(runCommand(view, setHeaderPart(0, 'image', true))).toBe(false);
+        expect(Object.keys(headerPartTypes(editor.schema)).sort()).toEqual([
+            'content',
+            'image',
+            'title',
+        ]);
         expect(runCommand(view, setHeaderPart(0, 'title', true))).toBe(true);
     });
 });

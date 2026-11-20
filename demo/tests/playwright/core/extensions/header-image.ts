@@ -3,11 +3,20 @@ import type {Locator, Page} from '@playwright/test';
 import {test as base} from './header';
 
 export class HeaderImageBlock {
+    readonly images: Locator;
+    readonly emptyBlocks: Locator;
+    readonly placeholders: Locator;
+    readonly selectedBlocks: Locator;
     readonly previews: Locator;
     protected readonly page: Page;
 
     constructor(page: Page, preview: Locator) {
         this.page = page;
+        const content = page.locator('.ProseMirror');
+        this.images = content.locator('img.g-md-header-image-plugin');
+        this.emptyBlocks = content.locator('.g-md-header-image-nodeview_empty');
+        this.placeholders = content.getByRole('button', {name: 'Add image', exact: true});
+        this.selectedBlocks = content.locator('.g-md-header-image-plugin.ProseMirror-selectednode');
         this.previews = preview.locator('.g-md-header-image-plugin');
     }
 
@@ -22,19 +31,21 @@ export class HeaderImageBlock {
         );
     }
 
-    /** The box of each image relative to its banner and the position of the first text block. */
+    /** The box of each image inside the border of its banner and the gap to the next text block. */
     getPlacement(blocks = this.previews) {
         return blocks.evaluateAll((elements) =>
             elements.map((element) => {
-                const banner = element.parentElement?.getBoundingClientRect();
+                const banner = element.parentElement;
                 const image = element.getBoundingClientRect();
-                const text = element.parentElement
-                    ?.querySelector(':scope > p')
-                    ?.getBoundingClientRect();
+                const text = banner?.querySelector(':scope > p')?.getBoundingClientRect();
                 return {
-                    left: banner && Math.round(image.left - banner.left),
+                    left:
+                        banner &&
+                        Math.round(
+                            image.left - banner.getBoundingClientRect().left - banner.clientLeft,
+                        ),
                     width: Math.round(image.width),
-                    bannerWidth: banner && Math.round(banner.width),
+                    bannerWidth: banner?.clientWidth,
                     textBelow: text && Math.round(text.top - image.bottom),
                     radius: getComputedStyle(element).borderTopLeftRadius,
                 };
