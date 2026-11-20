@@ -61,7 +61,7 @@ function readExtension(index, dir, expectedName = basename(dir)) {
     for (const file of filesInDirectory(index, dir)) {
         const names = exportedExtensions(index, file);
         const exportName = preferred.find((name) => names.includes(name));
-        if (exportName) return {name: exportName, exportName, file};
+        if (exportName) return {name: exportName, exportName, file, dir};
         for (const name of names) {
             if (!candidates.has(name)) candidates.set(name, file);
         }
@@ -69,7 +69,7 @@ function readExtension(index, dir, expectedName = basename(dir)) {
 
     if (candidates.size !== 1) return null;
     const [[exportName, file]] = candidates;
-    return {name: expectedName, exportName, file};
+    return {name: expectedName, exportName, file, dir};
 }
 
 /** Lists extensions declared in a category `index.ts`. */
@@ -111,7 +111,10 @@ function packageExtensions(index, descriptor) {
         .filter((extension) => extension && !exclude.has(extension.name));
 }
 
-/** Finds one public extension for each extension directory of every package. */
+/**
+ * Finds one public extension for each extension directory of every package.
+ * An extension declared in a category `index.ts` has no `dir`.
+ */
 export function discoverExtensions(index, packages) {
     return packages
         .flatMap((descriptor) =>
