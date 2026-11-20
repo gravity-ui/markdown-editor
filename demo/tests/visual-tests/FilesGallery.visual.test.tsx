@@ -61,7 +61,7 @@ test.describe('MarkdownViewer files gallery resources', () => {
         await page.addStyleTag({content: '[data-markdown-viewer-slot] { cursor: help; }'});
 
         const viewer = page.getByTestId('demo-markdown-viewer');
-        await expect(viewer.getByRole('img', {name: 'Content', exact: true})).toHaveCSS(
+        await expect(viewer.getByRole('button', {name: 'Content', exact: true})).toHaveCSS(
             'cursor',
             'pointer',
         );
@@ -86,7 +86,9 @@ test.describe('MarkdownViewer files gallery resources', () => {
                 ]}
             />,
         );
-        const image = page.getByTestId('demo-markdown-viewer').getByRole('img');
+        const image = page
+            .getByTestId('demo-markdown-viewer')
+            .getByRole('button', {name: 'Responsive', exact: true});
 
         for (const [width, file] of [
             [900, 'large'],
