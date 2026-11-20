@@ -1,10 +1,10 @@
 import {Plugin} from 'prosemirror-state';
 
+import {DataTransferType} from 'src/utils/clipboard';
 import {InputState} from 'src/utils/input-state';
 
 import type {ExtensionAuto} from '../../../../core';
 import type {ParseInsertedUrlAsImage} from '../../../../utils/upload';
-import {DataTransferType} from '../../../behavior/Clipboard/utils';
 import {imageType} from '../ImageSpecs';
 
 export type ImageUrlPasteOptions = {

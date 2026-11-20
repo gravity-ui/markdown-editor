@@ -1,1 +1,1 @@
-export * from './YfmTableSpecs/const';
+export {YfmTableAttr, YfmTableNode} from './YfmTableSpecs/const';
