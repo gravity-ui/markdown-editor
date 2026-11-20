@@ -9,6 +9,7 @@ import {
 } from '@gravity-ui/markdown-editor/pm/state';
 import type {HeaderDimensions} from '@gravity-ui/markdown-plugin-header';
 
+import {changedAttrs} from '../attrs';
 import {removeChild} from '../commands';
 
 import {headerNodeType} from './HeaderSpecs';
@@ -48,8 +49,11 @@ export const insertHeader: Command = (state, dispatch) => {
 export const setHeaderDimension =
     <K extends keyof HeaderDimensions>(pos: number, name: K, value: HeaderDimensions[K]): Command =>
     (state, dispatch) => {
-        if (!headerAt(state, pos)) return false;
-        dispatch?.(state.tr.setNodeAttribute(pos, name, value));
+        const node = headerAt(state, pos);
+        if (!node) return false;
+        if (dispatch && changedAttrs(node.attrs, {[name]: value}).length) {
+            dispatch(state.tr.setNodeAttribute(pos, name, value));
+        }
         return true;
     };
 
