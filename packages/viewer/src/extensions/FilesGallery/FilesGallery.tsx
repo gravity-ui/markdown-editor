@@ -25,6 +25,12 @@ export function FilesGallery({
 }: FilesGalleryProps) {
     const {openGallery} = useGallery();
     const {t} = i18n.useTranslation();
+    const fallbackLabel = t('open_image');
+
+    useViewerEffect(
+        ({root, signal}) => registerImageControls(root, signal, fallbackLabel),
+        [fallbackLabel],
+    );
 
     useViewerEffect(
         ({root, signal}) => {
@@ -70,12 +76,7 @@ export function FilesGallery({
             }
 
             root.addEventListener('click', handleClick, {signal});
-            const releaseImageControls = registerImageControls(root, signal);
-            const releaseGalleryClass = retainGalleryClass(root.parentElement);
-            return () => {
-                releaseImageControls();
-                releaseGalleryClass?.();
-            };
+            return retainGalleryClass(root.parentElement);
         },
         [
             additionalItems,

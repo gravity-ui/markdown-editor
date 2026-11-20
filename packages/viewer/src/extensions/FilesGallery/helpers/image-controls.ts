@@ -2,10 +2,16 @@ import {getDomConstructor} from '../../../utils/dom-constructor';
 import {createElementRegistration} from '../../../utils/dom-ownership';
 import {inspectViewerNode} from '../../../utils/inspect-viewer-node';
 
-const attributes = ['role', 'tabindex', 'aria-label'] as const;
+const attributes = ['role', 'tabindex'] as const;
 const imageControls = createElementRegistration(setImageAttributes);
+const imageLabels = createElementRegistration(retainImageLabel);
 
-export function registerImageControls(root: HTMLElement, signal: AbortSignal) {
+export function registerImageControls(
+    root: HTMLElement,
+    signal: AbortSignal,
+    fallbackLabel: string,
+) {
+    const releases = new Map<HTMLImageElement, () => void>();
     root.addEventListener(
         'keydown',
         (event) => {
@@ -26,13 +32,27 @@ export function registerImageControls(root: HTMLElement, signal: AbortSignal) {
         {signal},
     );
 
-    const releases = Array.from(root.querySelectorAll('img'))
-        .filter((image) => isStandaloneImage(root, image))
-        .map((image) => imageControls.register(image));
+    root.addEventListener('load', ({target}) => registerImage(target), {capture: true, signal});
+    for (const image of Array.from(root.querySelectorAll('img'))) registerImage(image);
 
     return () => {
-        for (const release of releases) release?.();
+        for (const release of releases.values()) release();
     };
+
+    function registerImage(target: EventTarget | null) {
+        if (!isStandaloneImage(root, target) || releases.has(target)) return;
+
+        const releaseControls = imageControls.register(target);
+        const releaseLabel = imageLabels.register(target, (isOwner) => {
+            if (isOwner) {
+                target.setAttribute('aria-label', target.alt || target.title || fallbackLabel);
+            }
+        });
+        releases.set(target, () => {
+            releaseLabel?.();
+            releaseControls?.();
+        });
+    }
 }
 
 export function isStandaloneImage(
@@ -55,17 +75,16 @@ function setImageAttributes(image: HTMLImageElement) {
     image.setAttribute('role', 'button');
     image.setAttribute('tabindex', '0');
 
-    if (!image.hasAttribute('aria-label') && !image.hasAttribute('aria-labelledby')) {
-        image.setAttribute(
-            'aria-label',
-            image.alt || image.title || image.currentSrc || image.getAttribute('src') || '',
-        );
-    }
-
     return () => {
         for (const [name, value] of originalAttributes) {
             if (value === null) image.removeAttribute(name);
             else image.setAttribute(name, value);
         }
     };
+}
+
+function retainImageLabel(image: HTMLImageElement) {
+    if (image.hasAttribute('aria-label') || image.hasAttribute('aria-labelledby')) return undefined;
+
+    return () => image.removeAttribute('aria-label');
 }
