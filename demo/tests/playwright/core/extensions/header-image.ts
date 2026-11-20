@@ -1,6 +1,7 @@
-import type {Locator, Page} from '@playwright/test';
+import type {FileChooser, Locator, Page} from '@playwright/test';
 
 import {test as base} from './header';
+import {ImageSourceLocators} from './image-source';
 
 export class HeaderImageBlock {
     readonly images: Locator;
@@ -8,6 +9,10 @@ export class HeaderImageBlock {
     readonly placeholders: Locator;
     readonly selectedBlocks: Locator;
     readonly previews: Locator;
+    readonly popup: Locator;
+    readonly closeButton: Locator;
+    readonly resetButton: Locator;
+    readonly source: ImageSourceLocators;
     protected readonly page: Page;
 
     constructor(page: Page, preview: Locator) {
@@ -18,6 +23,16 @@ export class HeaderImageBlock {
         this.placeholders = content.getByRole('button', {name: 'Add image', exact: true});
         this.selectedBlocks = content.locator('.g-md-header-image-plugin.ProseMirror-selectednode');
         this.previews = preview.locator('.g-md-header-image-plugin');
+        this.popup = page.getByRole('dialog', {name: 'Image', exact: true});
+        this.closeButton = this.popup.getByRole('button', {name: 'Close', exact: true});
+        this.resetButton = this.popup.getByRole('button', {name: 'Reset', exact: true});
+        this.source = new ImageSourceLocators(this.popup);
+    }
+
+    async chooseFile(trigger: Locator, files: Parameters<FileChooser['setFiles']>[0]) {
+        const fileChooser = this.page.waitForEvent('filechooser');
+        await trigger.click();
+        await (await fileChooser).setFiles(files);
     }
 
     getValues(blocks = this.previews) {

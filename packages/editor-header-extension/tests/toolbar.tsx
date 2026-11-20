@@ -7,6 +7,8 @@ import {type Root, createRoot} from 'react-dom/client';
 import {act} from 'react-dom/test-utils';
 import {afterEach, beforeEach, vi} from 'vitest';
 
+import type {HeaderOptions} from '../src/wysiwyg/extensions/Header';
+
 import {createTestEditor, headerExtensions} from './editor';
 
 const SETTLE_TIMEOUT = 2000;
@@ -71,9 +73,9 @@ export function createReactRoot() {
     return {render, unmount};
 }
 
-export function createEditorWithRenderer(extra?: ExtensionAuto) {
+export function createEditorWithRenderer(extra?: ExtensionAuto, options?: HeaderOptions) {
     const storage = new ReactRenderStorage();
-    const editor = createTestEditor(headerExtensions(extra, storage));
+    const editor = createTestEditor(headerExtensions(extra, storage, options));
     const {render} = createReactRoot();
     let place: HTMLElement;
 
