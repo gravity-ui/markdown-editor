@@ -7,6 +7,7 @@ import {createClassRegistration} from '../../utils/dom-ownership';
 import {inspectViewerNode} from '../../utils/inspect-viewer-node';
 
 import {collectGallery} from './helpers/collect-gallery';
+import {isStandaloneImage, registerImageControls} from './helpers/image-controls';
 import {i18n} from './i18n';
 import type {FilesGalleryProps} from './types';
 
@@ -47,7 +48,7 @@ export function FilesGallery({
 
                 const target = clickedElement.closest('img,a');
                 if (!target || inspectViewerNode(root, target).kind !== 'content') return;
-                if (target.tagName === 'IMG' && target.closest('a')) return;
+                if (target.tagName === 'IMG' && !isStandaloneImage(root, target)) return;
 
                 const gallery = collectGallery(
                     root,
@@ -69,7 +70,12 @@ export function FilesGallery({
             }
 
             root.addEventListener('click', handleClick, {signal});
-            return retainGalleryClass(root.parentElement);
+            const releaseImageControls = registerImageControls(root, signal);
+            const releaseGalleryClass = retainGalleryClass(root.parentElement);
+            return () => {
+                releaseImageControls();
+                releaseGalleryClass?.();
+            };
         },
         [
             additionalItems,

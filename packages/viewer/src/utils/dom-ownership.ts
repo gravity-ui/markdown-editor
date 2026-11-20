@@ -1,39 +1,51 @@
+export function createClassRegistration(className: string) {
+    return createElementRegistration((element) => {
+        if (element.classList.contains(className)) return undefined;
+
+        element.classList.add(className);
+        return () => element.classList.remove(className);
+    }).register;
+}
+
 type OwnerChange = (isOwner: boolean) => void;
 
-export function createClassRegistration(className: string) {
-    const queues = new WeakMap<Element, OwnerChange[]>();
+export function createElementRegistration<T extends Element>(
+    setup: (element: T) => (() => void) | undefined,
+) {
+    const registrations = new WeakMap<T, {owners: OwnerChange[]; cleanup: () => void}>();
 
-    return function register(element: Element | null, onOwnerChange?: OwnerChange) {
+    return {register, has: (element: T) => registrations.has(element)};
+
+    function register(element: T | null, onOwnerChange?: OwnerChange) {
         if (!element) return undefined;
 
-        const queue = queues.get(element) ?? [];
-        const isFirst = queue.length === 0;
-        if (isFirst) {
-            if (element.classList.contains(className)) {
+        let registration = registrations.get(element);
+        if (!registration) {
+            const cleanup = setup(element);
+            if (!cleanup) {
                 onOwnerChange?.(false);
                 return undefined;
             }
-            element.classList.add(className);
-            queues.set(element, queue);
+            registration = {owners: [], cleanup};
+            registrations.set(element, registration);
         }
 
+        const {owners, cleanup} = registration;
         const notifyOwner = (isOwner: boolean) => onOwnerChange?.(isOwner);
-        queue.push(notifyOwner);
-        notifyOwner(isFirst);
+        owners.push(notifyOwner);
+        notifyOwner(owners.length === 1);
 
         return () => {
-            const index = queue.indexOf(notifyOwner);
+            const index = owners.indexOf(notifyOwner);
             if (index < 0) return;
-            queue.splice(index, 1);
-            if (index > 0) return;
+            owners.splice(index, 1);
 
-            const [nextOwner] = queue;
-            if (nextOwner) {
-                nextOwner(true);
-            } else {
-                queues.delete(element);
-                element.classList.remove(className);
+            if (owners.length === 0) {
+                registrations.delete(element);
+                cleanup();
+            } else if (index === 0) {
+                owners[0](true);
             }
         };
-    };
+    }
 }
