@@ -1,10 +1,14 @@
 import type {Command} from 'prosemirror-state';
 
+import {isDefaultOrEmptySelection} from 'src/utils/selection';
+
 import {pType} from '../../base/BaseSchema';
 
 import {yfmTableBodyType, yfmTableCellType, yfmTableRowType, yfmTableType} from './utils';
 
 export const createYfmTableCommand: Command = (state, dispatch) => {
+    if (!isDefaultOrEmptySelection(state.selection)) return false;
+
     if (dispatch) {
         const {schema} = state;
 
