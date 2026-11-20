@@ -3,13 +3,14 @@ import type {ExtensionDeps} from '@gravity-ui/markdown-editor/core';
 import {Plugin} from '@gravity-ui/markdown-editor/pm/state';
 
 import {headerNodeType} from '../../HeaderSpecs';
+import type {HeaderOptions} from '../../index';
 import {headerMarkup} from '../../utils';
 
 import {HeaderToolbar} from './HeaderToolbar';
 
 export {headerKeymap} from './keymap';
 
-export const headerTooltipPlugin = ({serializer}: ExtensionDeps) =>
+export const headerTooltipPlugin = ({serializer}: ExtensionDeps, options: HeaderOptions = {}) =>
     new Plugin({
         view: (view) =>
             new BaseTooltipPlugin.BaseTooltipPluginView(view, {
@@ -23,6 +24,7 @@ export const headerTooltipPlugin = ({serializer}: ExtensionDeps) =>
                         pos={pos}
                         block={dom}
                         markup={() => headerMarkup(serializer, editorView.state, pos) ?? ''}
+                        {...options}
                     />
                 ),
             }),

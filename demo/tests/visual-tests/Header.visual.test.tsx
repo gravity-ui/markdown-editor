@@ -3,7 +3,8 @@ import type {CSSProperties} from 'react';
 import {expect} from 'playwright/core';
 import {test} from 'playwright/core/extensions/header';
 
-import {HeaderStories} from './Header.helpers';
+import {TEST_IMAGE} from './Header.const';
+import {HeaderStories, HeaderUploadExample} from './Header.helpers';
 
 const headerMarkup = (height: string, width: string) =>
     `:::header{height="${height}" width="${width}"}\n:::`;
@@ -20,6 +21,9 @@ const smallSizes = {
 
 const SETTINGS_INSET = 16;
 const SETTINGS_MIN_HEIGHT = 160;
+
+const TEST_IMAGE_FILE = `tests/visual-tests/public${TEST_IMAGE}`;
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
 
 const dimensions = [
     ['s', 'm'],
@@ -294,7 +298,11 @@ test.describe('Header', () => {
 
         await expect(header.background).toHaveAccessibleName('Background No background');
         await header.background.click();
-        expect(messages).toContain('Background button clicked');
+        // Until the popup takes focus, the settings panel handles Escape.
+        await expect(header.backgroundTab('Fill')).toBeFocused();
+        await page.keyboard.press('Escape');
+        await expect(header.backgroundPopup).toBeHidden();
+        await expect(header.settings).toBeVisible();
         expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(initial);
 
         await header.section('Text').click();
@@ -335,6 +343,334 @@ test.describe('Header', () => {
             'true',
         );
         await expect(header.height).toHaveText('M');
+    });
+
+    test('should render backgrounds @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+        expectScreenshot,
+    }) => {
+        const backgrounds = [
+            'bg-color="blue-medium"',
+            `bg-image="${TEST_IMAGE}"`,
+            `bg-image="${TEST_IMAGE}" bg-image-blur="true"`,
+            `bg-image="${TEST_IMAGE}" bg-image-theme="dark"`,
+        ];
+        await mount(
+            <div style={smallSizes}>
+                <HeaderStories.Header
+                    width={300}
+                    initial={backgrounds
+                        .map(
+                            (attrs) =>
+                                `:::header{height="l" width="l" ${attrs}}\nText [link](#)\n:::`,
+                        )
+                        .join('\n\n')}
+                />
+            </div>,
+        );
+        await expect(header.blocks).toHaveCount(4);
+        await expect(header.blocks.nth(0)).toHaveClass(/g-md-header-plugin_bg-color_blue-medium/);
+        await expect(header.blocks.nth(1)).toHaveAttribute(
+            'style',
+            `background-image:url("${TEST_IMAGE}")`,
+        );
+        await expect(header.blocks.nth(2)).toHaveClass(/g-md-header-plugin_bg-image-blur/);
+        await expect(header.blocks.nth(3)).toHaveClass(/\bg-root g-root_theme_dark\b/);
+        await header.hideToolbar();
+
+        const fixedLink = header.blocks.nth(3).locator('a');
+        const linkColor = () => fixedLink.evaluate((link) => getComputedStyle(link).color);
+        await page.emulateMedia({colorScheme: 'light'});
+        await expect(page.locator('body')).toHaveClass(/g-root_theme_light/);
+        const lightPageColor = await linkColor();
+        await page.emulateMedia({colorScheme: 'dark'});
+        await expect(page.locator('body')).toHaveClass(/g-root_theme_dark/);
+        expect(await linkColor()).toBe(lightPageColor);
+
+        await header.waitForImage(TEST_IMAGE);
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should fill the background from the palette @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+        expectScreenshot,
+        wait,
+    }) => {
+        await page.setViewportSize({width: 740, height: 640});
+        await mount(
+            <HeaderStories.Header width={660} initial={`${headerMarkup('s', 's')}\n\nAfter`} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await header.openSettings();
+        await header.openBackground();
+        await expect(header.backgroundTab('Fill')).toHaveAttribute('aria-selected', 'true');
+        await expect(header.backgroundPopup.getByRole('tabpanel').getByRole('radio')).toHaveCount(
+            18,
+        );
+
+        await header.swatch('Blue 20%').click();
+        await expect(header.swatch('Blue 20%')).toHaveAttribute('aria-checked', 'true');
+        await expect(header.blocks).toHaveClass(/g-md-header-plugin_bg-color_blue-light/);
+        await expect(header.background).toHaveAccessibleName('Background Blue 20%');
+        expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(
+            ':::header{height="s" width="s" bg-color="blue-light"}\n\n:::\n\nAfter',
+        );
+        await wait.markupPreview('bg-color="blue-light"');
+        await page.mouse.move(0, 0);
+        await expectScreenshot({fullPage: true});
+    });
+
+    test('should navigate the palette with one tab stop @wysiwyg', async ({
+        mount,
+        editor,
+        header,
+        page,
+    }) => {
+        await mount(
+            <HeaderStories.Header width={660} initial={`${headerMarkup('s', 's')}\n\nAfter`} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await header.openSettings();
+        await header.openBackground();
+        await expect(header.backgroundTab('Fill')).toBeFocused();
+        const palette = header.backgroundPopup.getByRole('radiogroup', {name: 'Fill', exact: true});
+        await expect(palette.locator('[tabindex="0"]')).toHaveCount(1);
+        const gray = header.swatch('Gray 20%');
+        await gray.focus();
+        await gray.press('ArrowRight');
+        await expect(header.swatch('Green 20%')).toBeFocused();
+        await header.swatch('Green 20%').press('ArrowDown');
+        await expect(header.swatch('Green 50%')).toBeFocused();
+        await header.swatch('Green 50%').press('End');
+        await expect(header.swatch('Violet 100%')).toBeFocused();
+        await header.swatch('Violet 100%').press('Home');
+        await expect(gray).toBeFocused();
+        await gray.press('Space');
+        await expect(gray).toBeChecked();
+        await palette.evaluate((element) => element.setAttribute('dir', 'rtl'));
+        await page.keyboard.press('ArrowLeft');
+        await expect(header.swatch('Green 20%')).toBeFocused();
+        await page.keyboard.press('Tab');
+        await expect(header.backgroundPopup).toBeHidden();
+    });
+
+    test('should discard a background upload after closing its popup @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+        expectScreenshot,
+    }) => {
+        let finish: (() => Promise<void>) | undefined;
+        await page.route('**/header-background-upload', (route) => {
+            finish = () => route.fulfill({status: 200, body: 'ok'});
+        });
+        await mount(<HeaderUploadExample />);
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        const initial = await page.evaluate(() => window.mdEditor?.getValue());
+        await header.openSettings();
+        await header.openBackground();
+        await header.backgroundTab('Image').click();
+        await header.chooseFile(header.uploadButton, TEST_IMAGE_FILE);
+        await expect.poll(() => Boolean(finish)).toBe(true);
+        await expect(header.uploadButton).toBeDisabled();
+        await expectScreenshot({fullPage: true});
+        await header.backgroundPopup.getByRole('button', {name: 'Close', exact: true}).click();
+        await expect(header.backgroundPopup).toBeHidden();
+        const response = page.waitForResponse('**/header-background-upload');
+        await finish?.();
+        await response;
+        await header.background.click();
+        await header.backgroundTab('Image').click();
+        await expect(header.uploadButton).toBeEnabled();
+        expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(initial);
+    });
+
+    test('should restore focus after an upload fails and replacement is cancelled @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+    }) => {
+        await page.route('**/header-background-upload', (route) => route.fulfill({status: 500}));
+        await mount(<HeaderUploadExample />);
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await header.openSettings();
+        await header.openBackground();
+        await header.backgroundTab('Image').click();
+        await header.chooseFile(header.uploadButton, TEST_IMAGE_FILE);
+        await expect(header.backgroundPopup.getByRole('alert')).toContainText(
+            'Failed to upload the file',
+        );
+        await expect(header.uploadButton).toBeFocused();
+        await header.backgroundTab('Add by link').click();
+        await header.linkInput.fill(TEST_IMAGE);
+        await header.submitLinkButton.click();
+        await expect(header.replaceFileButton).toBeFocused();
+        await header.replaceFileButton.click();
+        await expect(
+            header.backgroundPopup.getByRole('tab', {name: 'Upload from device', exact: true}),
+        ).toBeFocused();
+        await header.backgroundPopup.getByRole('button', {name: 'Cancel', exact: true}).click();
+        await expect(header.replaceFileButton).toBeFocused();
+    });
+
+    test('should upload a background image @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+        expectScreenshot,
+    }) => {
+        await mount(
+            <HeaderStories.Header width={660} initial={`${headerMarkup('s', 's')}\n\nAfter`} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await header.openSettings();
+        await header.openBackground();
+        await header.backgroundTab('Image').click();
+        await expect(header.backgroundPopup).toContainText('JPEG, GIF or PNG, up to 2 MB');
+        await header.chooseFile(header.uploadButton, TEST_IMAGE_FILE);
+
+        await expect(header.textColor).toHaveText('Depends on the theme');
+        await expect(header.blocks).toHaveClass(/g-md-header-plugin_bg-image/);
+        await expect(header.blur).not.toBeChecked();
+        await expect
+            .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
+            .toBe(`:::header{height="s" width="s" bg-image="${TEST_IMAGE}"}\n\n:::\n\nAfter`);
+        await expect(header.background).toHaveAccessibleName('Background header-background.jpg');
+
+        const darkPage = await page
+            .locator('body')
+            .evaluate((body) => body.classList.contains('g-root_theme_dark'));
+        await expect(header.bannerPreview).toHaveClass(
+            darkPage ? /\bg-root_theme_dark\b/ : /\bg-root_theme_light\b/,
+        );
+        await header.previewTheme('Dark theme').click();
+        await expect(header.bannerPreview).toHaveClass(/\bg-root_theme_dark\b/);
+        await header.previewTheme('Light theme').click();
+        await expect(header.bannerPreview).toHaveClass(/\bg-root_theme_light\b/);
+
+        await header.waitForImage(TEST_IMAGE);
+        await page.mouse.move(0, 0);
+        await expectScreenshot({component: header.backgroundPopup});
+    });
+
+    test('should change and clear the background @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+    }) => {
+        const markup = () => page.evaluate(() => window.mdEditor?.getValue());
+        await mount(
+            <HeaderStories.Header width={660} initial={`${headerMarkup('s', 's')}\n\nAfter`} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await header.openSettings();
+        await header.openBackground();
+
+        await header.swatch('Green 50%').click();
+        await header.backgroundTab('Image').click();
+        await header.chooseFile(header.uploadButton, TEST_IMAGE_FILE);
+        await expect
+            .poll(markup)
+            .toBe(
+                `:::header{height="s" width="s" bg-color="green-medium" bg-image="${TEST_IMAGE}"}\n\n:::\n\nAfter`,
+            );
+
+        await header.select(header.textColor, 'Always light');
+        await expect(header.blocks).toHaveClass(/\bg-root g-root_theme_dark\b/);
+        expect(await markup()).toMatch(/ bg-image-theme="dark"\}/);
+        await header.select(header.textColor, 'Always dark');
+        await expect(header.blocks).toHaveClass(/\bg-root_theme_light\b/);
+        await header.select(header.textColor, 'Depends on the theme');
+        await expect(header.blocks).not.toHaveClass(/\bg-root\b/);
+        expect(await markup()).not.toContain('bg-image-theme');
+
+        await page.keyboard.press('Escape');
+        await expect(header.backgroundPopup).toBeHidden();
+        await header.clickToggle('Blur background');
+        await expect(header.blocks).toHaveClass(/g-md-header-plugin_bg-image-blur/);
+        expect(await markup()).toMatch(/ bg-image-blur="true"\}/);
+
+        await header.background.click();
+        await header.select(header.textColor, 'Always light');
+        await header.backgroundTab('Fill').click();
+        await header.swatch('Red 100%').click();
+        expect(await markup()).toBe(
+            ':::header{height="s" width="s" bg-color="red-heavy"}\n\n:::\n\nAfter',
+        );
+        await expect(header.blur).toBeHidden();
+
+        await header.backgroundTab('Image').click();
+        await header.chooseFile(header.uploadButton, TEST_IMAGE_FILE);
+        await expect.poll(markup).toContain(`bg-image="${TEST_IMAGE}"`);
+        await header.resetBackgroundButton.click();
+        expect(await markup()).toBe(':::header{height="s" width="s"}\n\n:::\n\nAfter');
+        await expect(header.background).toHaveAccessibleName('Background No background');
+
+        await header.backgroundTab('Add by link').click();
+        await header.linkInput.fill(TEST_IMAGE);
+        await header.submitLinkButton.click();
+        expect(await markup()).toBe(
+            `:::header{height="s" width="s" bg-image="${TEST_IMAGE}"}\n\n:::\n\nAfter`,
+        );
+        await header.replaceFileButton.click();
+        await expect(header.uploadButton).toBeVisible();
+        await header.backgroundPopup.getByRole('button', {name: 'Cancel', exact: true}).click();
+        await expect(header.textColor).toBeVisible();
+
+        await header.backgroundTab('Fill').click();
+        await header.swatch('Gray 20%').click();
+        await page.keyboard.press('Escape');
+        await header.clearBackgroundButton.click();
+        expect(await markup()).toBe(':::header{height="s" width="s"}\n\n:::\n\nAfter');
+        await expect(header.clearBackgroundButton).toBeHidden();
+    });
+
+    test('should reject a file of another type or a larger size @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+    }) => {
+        await mount(
+            <HeaderStories.Header width={660} initial={`${headerMarkup('s', 's')}\n\nAfter`} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        const initial = await page.evaluate(() => window.mdEditor?.getValue());
+        await header.openSettings();
+        await header.openBackground();
+        await header.backgroundTab('Image').click();
+
+        await header.chooseFile(header.uploadButton, {
+            name: 'large.png',
+            mimeType: 'image/png',
+            buffer: Buffer.alloc(MAX_IMAGE_SIZE + 1),
+        });
+        await expect(header.backgroundPopup).toContainText('The file is larger than 2 MB');
+        await header.chooseFile(header.uploadButton, {
+            name: 'notes.txt',
+            mimeType: 'text/plain',
+            buffer: Buffer.from('text'),
+        });
+        await expect(header.backgroundPopup).toContainText('Unsupported file format');
+        expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(initial);
+        await expect(header.blocks).not.toHaveClass(/g-md-header-plugin_bg-image/);
     });
 
     test('should select the settings text with the mouse @wysiwyg', async ({

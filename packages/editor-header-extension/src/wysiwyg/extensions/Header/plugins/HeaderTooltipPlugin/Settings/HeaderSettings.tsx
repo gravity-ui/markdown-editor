@@ -11,6 +11,7 @@ import type {PopupAnchorElement} from '@gravity-ui/uikit';
 import {i18n} from '../../../../../../i18n';
 import {SettingsDialog, cnHeaderSettings} from '../../../../settings';
 
+import type {BackgroundControls} from './BackgroundField';
 import {DimensionSelect} from './DimensionSelect';
 import {type ContentControls, SettingsFields} from './SettingsFields';
 
@@ -51,6 +52,7 @@ type HeaderSettingsProps = {
     dimensions: HeaderDimensions;
     onChange: <K extends keyof HeaderDimensions>(name: K, value: HeaderDimensions[K]) => void;
     content: ContentControls;
+    background: BackgroundControls;
     onClose: () => void;
 };
 
@@ -60,6 +62,7 @@ export function HeaderSettings({
     dimensions,
     onChange,
     content,
+    background,
     onClose,
 }: HeaderSettingsProps) {
     const anchorElement = useMemo(() => block && insideTopEdge(block), [block]);
@@ -93,7 +96,7 @@ export function HeaderSettings({
                 format={(value) => (value === 'full' ? i18n('full-width') : value.toUpperCase())}
                 onUpdate={(value) => onChange('width', value)}
             />
-            <SettingsFields content={content} />
+            <SettingsFields content={content} background={background} />
         </SettingsDialog>
     );
 }
