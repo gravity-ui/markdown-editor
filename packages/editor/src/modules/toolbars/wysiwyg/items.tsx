@@ -74,15 +74,6 @@ export const quoteItemWysiwyg: ToolbarItemWysiwyg = {
     isEnable: (e) => e.actions.quote.isEnable(),
 };
 
-export const quoteLinkItemWysiwyg: ToolbarItemWysiwyg = {
-    exec: (e) => {
-        e.actions.quoteLink.run();
-        e.actions.addLinkToQuoteLink.run();
-    },
-    isActive: (e) => e.actions.quoteLink.isActive(),
-    isEnable: (e) => e.actions.quoteLink.isEnable(),
-};
-
 export const cutItemWysiwyg: ToolbarItemWysiwyg = {
     exec: (e) => e.actions.toYfmCut.run(),
     isActive: (e) => e.actions.toYfmCut.isActive(),

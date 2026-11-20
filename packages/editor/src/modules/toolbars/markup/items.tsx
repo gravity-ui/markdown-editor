@@ -3,7 +3,6 @@ import {MToolbarFilePopup} from 'src/bundle/toolbar/markup/MToolbarFilePopup';
 import {MToolbarImagePopup} from 'src/bundle/toolbar/markup/MToolbarImagePopup';
 import {showMarkupGpt} from 'src/extensions/additional/GPT/MarkupGpt/commands';
 import {
-    insertBlockquoteLink,
     insertHRule,
     insertLink,
     insertMermaidDiagram,
@@ -112,12 +111,6 @@ export const linkItemMarkup: ToolbarItemMarkup = {
 
 export const quoteItemMarkup: ToolbarItemMarkup = {
     exec: (e) => wrapToBlockquote(e.cm),
-    isActive: inactive,
-    isEnable: enable,
-};
-
-export const quoteLinkItemMarkup: ToolbarItemMarkup = {
-    exec: (e) => insertBlockquoteLink(e.cm),
     isActive: inactive,
     isEnable: enable,
 };

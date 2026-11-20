@@ -1,22 +1,16 @@
 import '@diplodoc/quote-link-extension/runtime';
-import type {NodeType} from 'prosemirror-model';
-// @ts-ignore // TODO: fix cjs build
-import {hasParentNodeOfType} from 'prosemirror-utils';
-
-import type {Action, ExtensionAuto} from '#core';
-import {linkType} from 'src/extensions';
-import {isMarkActive} from 'src/utils';
-import {wrappingInputRule} from 'src/utils/rulebuilders';
+import {isMarkActive, linkType} from '@gravity-ui/markdown-editor';
+import {wrappingInputRule} from '@gravity-ui/markdown-editor/_/utils/rulebuilders.js';
+import type {Action, ExtensionAuto} from '@gravity-ui/markdown-editor/core';
+import type {NodeType} from '@gravity-ui/markdown-editor/pm/model';
+import {hasParentNodeOfType} from '@gravity-ui/markdown-editor/pm/utils';
 
 import {QuoteLinkSpecs, quoteLinkType} from './QuoteLinkSpecs';
 import {addQuoteLink, toggleQuote} from './commands';
+import {addLinkToQuoteLinkAction, quoteLinkAction} from './const';
 
-import './index.scss';
+import './QuoteLink.scss';
 import '@diplodoc/quote-link-extension/runtime/styles.css';
-
-const quoteLinkAction = 'quoteLink';
-
-const addLinkToQuoteLinkAction = 'addLinkToQuoteLink';
 
 export const QuoteLink: ExtensionAuto = (builder) => {
     builder.use(QuoteLinkSpecs);

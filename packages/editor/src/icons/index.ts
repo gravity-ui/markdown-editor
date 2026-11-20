@@ -61,5 +61,4 @@ export {
     LogoMermaid as MermaidIcon,
     FolderCode as HtmlBlockIcon,
     ArrowChevronRight as FoldingHeadingIcon,
-    CircleLink as QuoteLinkIcon,
 } from '@gravity-ui/icons';

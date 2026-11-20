@@ -1,6 +1,5 @@
-import type {Command} from 'prosemirror-state';
-
-import type {ExtensionDeps} from '#core';
+import type {ExtensionDeps} from '@gravity-ui/markdown-editor/core';
+import type {Command} from '@gravity-ui/markdown-editor/pm/state';
 
 import {addPlaceholder} from './descriptor';
 

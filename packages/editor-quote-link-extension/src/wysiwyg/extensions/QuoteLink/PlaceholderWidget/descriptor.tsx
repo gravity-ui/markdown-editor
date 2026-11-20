@@ -1,20 +1,26 @@
 import type React from 'react';
 
-import type {Fragment, Node} from 'prosemirror-model';
-import type {Transaction} from 'prosemirror-state';
-import {TextSelection} from 'prosemirror-state';
-// @ts-ignore // TODO: fix cjs build
-import {findParentNodeOfType, findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
-import type {EditorView} from 'prosemirror-view';
-
-import type {ExtensionDeps} from '#core';
-import {ReactWidgetDescriptor, normalizeUrlFactory, pType, removeDecoration} from 'src/extensions';
-import {QuoteLinkAttr, quoteLinkType} from 'src/extensions/additional/QuoteLink/QuoteLinkSpecs';
+import {
+    ReactWidgetDescriptor,
+    isTextSelection,
+    normalizeUrlFactory,
+    pType,
+    removeDecoration,
+} from '@gravity-ui/markdown-editor';
 import {
     LinkPlaceholderWidget,
     type LinkPlaceholderWidgetProps,
-} from 'src/extensions/markdown/Link/PlaceholderWidget/widget';
-import {isTextSelection} from 'src/utils';
+} from '@gravity-ui/markdown-editor/_/extensions/markdown/Link/PlaceholderWidget/widget.js';
+import type {ExtensionDeps} from '@gravity-ui/markdown-editor/core';
+import type {Fragment, Node} from '@gravity-ui/markdown-editor/pm/model';
+import {TextSelection, type Transaction} from '@gravity-ui/markdown-editor/pm/state';
+import {
+    findParentNodeOfType,
+    findParentNodeOfTypeClosestToPos,
+} from '@gravity-ui/markdown-editor/pm/utils';
+import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
+
+import {QuoteLinkAttr, quoteLinkType} from '../QuoteLinkSpecs';
 
 export class QuoteLinkWidgetDescriptor extends ReactWidgetDescriptor {
     #domElem;

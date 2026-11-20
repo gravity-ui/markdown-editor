@@ -42,7 +42,6 @@ const names = [
     'orderedList',
     'paragraph',
     'quote',
-    'quoteLink',
     'redo',
     'sinkListItem',
     'strike',

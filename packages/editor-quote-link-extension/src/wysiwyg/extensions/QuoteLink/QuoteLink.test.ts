@@ -1,14 +1,15 @@
-import {builders} from 'prosemirror-test-builder';
+// @vitest-environment jsdom
+import {ExtensionsManager} from '@gravity-ui/markdown-editor/core';
+import {DOMParser, type Node} from '@gravity-ui/markdown-editor/pm/model';
+import {builders} from '@gravity-ui/markdown-editor/pm/test-builder';
+import {
+    BaseNode,
+    BaseSchemaSpecs,
+    BlockquoteSpecs,
+    YfmConfigsSpecs,
+} from '@gravity-ui/markdown-editor/specs';
 import dd from 'ts-dedent';
-import {describe, it} from 'vitest';
-
-import {ExtensionsManager} from '#core';
-import {BlockquoteSpecs} from 'src/extensions/markdown/Blockquote/BlockquoteSpecs';
-import {YfmConfigsSpecs} from 'src/extensions/yfm/YfmConfigs/YfmConfigsSpecs';
-
-import {parseDOM} from '../../../../tests/parse-dom';
-import {createMarkupChecker} from '../../../../tests/sameMarkup';
-import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
+import {describe, expect, it} from 'vitest';
 
 import {QuoteLinkAttr, QuoteLinkSpecs, quoteLinkNodeName} from './QuoteLinkSpecs';
 
@@ -35,7 +36,16 @@ const {doc, p, quoteLink} = builders<'doc' | 'p' | 'quoteLink'>(schema, {
     },
 });
 
-const {same} = createMarkupChecker({parser, serializer});
+function same(text: string, node: Node) {
+    expect(parser.parse(text).toJSON()).toEqual(node.toJSON());
+    expect(serializer.serialize(node)).toBe(text);
+}
+
+function parseDOM(html: string, node: Node) {
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    expect(DOMParser.fromSchema(schema).parse(container).toJSON()).toEqual(node.toJSON());
+}
 
 describe('QuoteLink extension', () => {
     it('should parse a quote link', () =>
@@ -50,7 +60,6 @@ describe('QuoteLink extension', () => {
 
     it('should parse html - blockquote tag with quote link class', () => {
         parseDOM(
-            schema,
             dd`<div>
                     <blockquote class="yfm-quote-link" cite="https://ya.ru" data-content="Quote link">
                         <p>quote link text</p>
