@@ -2,6 +2,8 @@ $label-width: 120px;
 $viewport-inset: var(--g-spacing-4);
 $popup-width: 325px;
 $popup-field-width: 190px;
+$form-label-width: 100px;
+$preview-size: 16px;
 
 .g-md-header-settings {
     &[role='dialog']:focus,
@@ -44,6 +46,16 @@ $popup-field-width: 190px;
         padding-block: calc((var(--g-spacing-7) - var(--g-text-body-1-line-height)) / 2);
     }
 
+    &__preview {
+        display: block;
+
+        width: $preview-size;
+        height: $preview-size;
+
+        border-radius: var(--g-border-radius-xs);
+        object-fit: cover;
+    }
+
     &__popup {
         display: flex;
         flex-direction: column;
@@ -59,5 +71,50 @@ $popup-field-width: 190px;
 
     &__popup &__row {
         grid-template-columns: minmax(0, 1fr) minmax(0, $popup-field-width);
+    }
+
+    &__image-form {
+        padding: 0;
+
+        .g-md-form-row__label {
+            flex-basis: $form-label-width;
+
+            min-width: 0;
+        }
+
+        .g-md-form-row__control {
+            min-width: 0;
+        }
+
+        .g-md-form-row:has(.g-md-image-form__input_type_name),
+        .g-md-form-row:has(.g-md-image-form__input_type_alt),
+        .g-md-form-row:has(.g-md-image-form__size-controls) {
+            display: none;
+        }
+    }
+
+    &__image {
+        display: flex;
+        flex-direction: column;
+        gap: var(--g-spacing-4);
+    }
+
+    &__file {
+        display: flex;
+        align-items: center;
+        gap: var(--g-spacing-2);
+
+        box-sizing: border-box;
+        height: var(--g-spacing-7);
+        padding-inline: var(--g-spacing-2) var(--g-spacing-half);
+
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-xl);
+    }
+
+    &__file-name {
+        flex: 1;
+
+        min-width: 0;
     }
 }
