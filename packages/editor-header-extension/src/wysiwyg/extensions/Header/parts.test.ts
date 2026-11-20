@@ -8,6 +8,7 @@ import {describe, expect, it} from 'vitest';
 
 import {createTestEditor, headerExtensions} from '../../../../tests/editor';
 import {TestParts, testContent, testImage, testTitle} from '../../../../tests/parts';
+import {headerTitleNodeName} from '../HeaderTitle/HeaderTitleSpecs';
 import {runCommand} from '../commands';
 
 import {type RemovedParts, setHeaderPart, toggleHeaderPart} from './commands';
@@ -234,11 +235,13 @@ describe('Header parts', () => {
 });
 
 describe('Header parts without node types', () => {
-    const editor = createTestEditor(headerExtensions(TestParts([testTitle])));
+    // `Header` holds the title; the image and the description have no node types here.
+    const editor = createTestEditor(headerExtensions());
 
     it('should switch only the parts that have a node type', () => {
         const view = editor.createView(':::header\nText\n:::');
         expect(Object.keys(headerPartTypes(editor.schema))).toEqual(['title']);
+        expect(headerPartTypes(editor.schema).title?.name).toBe(headerTitleNodeName);
         expect(runCommand(view, setHeaderPart(0, 'image', true))).toBe(false);
         expect(runCommand(view, setHeaderPart(0, 'content', true))).toBe(false);
         expect(runCommand(view, setHeaderPart(0, 'title', true))).toBe(true);

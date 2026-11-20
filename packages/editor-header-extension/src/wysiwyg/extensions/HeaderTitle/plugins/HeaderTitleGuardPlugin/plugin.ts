@@ -1,0 +1,54 @@
+import {Mark, type Node} from '@gravity-ui/markdown-editor/pm/model';
+import {Plugin, type Transaction} from '@gravity-ui/markdown-editor/pm/state';
+
+import {changedRange} from '../../../changedRange';
+import {joinTextLines} from '../../../joinTextLines';
+import {oneChildPerHeader} from '../../../oneChildPerHeader';
+import {plainTextInput} from '../../../plainTextInput';
+import {headerTitleNodeType} from '../../HeaderTitleSpecs';
+
+function keepsTitle(tr: Transaction, title: Node, pos: number) {
+    const start = tr.mapping.mapResult(pos + 1, 1);
+    if (start.deletedAcross) return true;
+    const $start = tr.doc.resolve(start.pos);
+    const $end = tr.doc.resolve(tr.mapping.map(pos + title.nodeSize - 1, -1));
+    return (
+        $start.parent.type === title.type &&
+        $end.start() === $start.start() &&
+        $start.node(-1).type === tr.before.resolve(pos).parent.type
+    );
+}
+
+function keepsTitles(tr: Transaction) {
+    if (!tr.docChanged || tr.getMeta('history$')) return true;
+    const range = changedRange(tr, 'before');
+    if (!range) return true;
+    const type = headerTitleNodeType(tr.doc.type.schema);
+    let kept = true;
+    tr.before.nodesBetween(range.from, range.to, (node, pos) => {
+        if (node.type === type) kept &&= keepsTitle(tr, node, pos);
+        return kept && !node.isTextblock;
+    });
+    return kept;
+}
+
+/** A header keeps one title. A header that already has several, as loaded, stays editable. */
+const oneTitlePerHeader = oneChildPerHeader(headerTitleNodeType);
+
+export const headerTitleGuardPlugin = () =>
+    new Plugin({
+        filterTransaction: (tr) => keepsTitles(tr) && oneTitlePerHeader(tr),
+        appendTransaction: (trs, _oldState, state) =>
+            joinTextLines(
+                trs,
+                state,
+                (_text, parent) => parent.type === headerTitleNodeType(state.schema),
+            ),
+        props: {
+            handleTextInput: plainTextInput((state, from) =>
+                state.doc.resolve(from).parent.type === headerTitleNodeType(state.schema)
+                    ? Mark.none
+                    : null,
+            ),
+        },
+    });

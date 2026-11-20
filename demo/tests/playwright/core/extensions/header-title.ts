@@ -5,12 +5,16 @@ import {test as base} from './header';
 const SELECTOR = '.g-md-header-title-plugin';
 
 export class HeaderTitleBlock {
+    readonly blocks: Locator;
     readonly previews: Locator;
+    readonly placeholders: Locator;
     protected readonly page: Page;
 
     constructor(page: Page, preview: Locator) {
         this.page = page;
+        this.blocks = page.locator(`.ProseMirror ${SELECTOR}`);
         this.previews = preview.locator(SELECTOR);
+        this.placeholders = this.blocks.locator('.g-md-placeholder');
     }
 
     getValues(blocks = this.previews) {

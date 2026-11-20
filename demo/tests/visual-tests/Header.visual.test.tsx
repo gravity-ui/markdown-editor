@@ -238,7 +238,14 @@ test.describe('Header', () => {
         expectScreenshot,
     }) => {
         await page.setViewportSize({width: 740, height: 980});
-        await mount(<HeaderStories.Header width={660} />);
+        await mount(
+            <HeaderStories.Header
+                width={660}
+                initial={
+                    ':::header{height="s" width="m"}\n\n::header-title[Team portal]\n\n:::\n\nAfter'
+                }
+            />,
+        );
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await header.openSettings();
@@ -279,7 +286,8 @@ test.describe('Header', () => {
             if (message.type() === 'log') messages.push(message.text());
         });
 
-        for (const name of ['Title', 'Description', 'Button 1', 'Button 2', 'Button 3', 'Image']) {
+        // The Title switch inserts and removes the title; it is checked in the tests of the title.
+        for (const name of ['Description', 'Button 1', 'Button 2', 'Button 3', 'Image']) {
             const toggle = header.toggle(name);
             const checked = await toggle.isChecked();
             await header.clickToggle(name);

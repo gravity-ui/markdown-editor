@@ -2,6 +2,7 @@ import type {FileUploadHandler} from '@gravity-ui/markdown-editor';
 import type {Action, ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 
 import {type HeaderUploadLimits, headerUploadPlugin} from '../../plugins/HeaderUploadPlugin';
+import {HeaderTitle} from '../HeaderTitle';
 
 import {WHeaderNodeView} from './HeaderNodeView';
 import {HeaderSpecs, headerNodeName} from './HeaderSpecs';
@@ -19,6 +20,7 @@ export type HeaderOptions = HeaderUploadLimits & {
 export const Header: ExtensionAuto<HeaderOptions> = (builder, options) => {
     builder
         .use(HeaderSpecs)
+        .use(HeaderTitle)
         .addNodeView(headerNodeName, () => (node) => new WHeaderNodeView(node))
         .addPlugin((deps) => headerTooltipPlugin(deps, options))
         .addPlugin(headerUploadPlugin)
