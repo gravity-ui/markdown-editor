@@ -8,7 +8,7 @@ import {
     headerDefaults,
     headerLayoutDefaults,
 } from '@gravity-ui/markdown-plugin-header';
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
 
 import {createTestEditor} from '../../../../tests/editor';
 import {deferred, file} from '../../../../tests/upload';
@@ -101,6 +101,17 @@ describe('Header background', () => {
             ...headerBackgroundDefaults,
         });
         expect(run(editor, setHeaderBackground(2, {'bg-color': 'red-heavy'}))).toBe(false);
+    });
+
+    it('should not dispatch a transaction for the current values other than the source', () => {
+        const editor = createView(':::header{bg-image="/a.png" bg-image-theme="dark"}\nText\n:::');
+        const dispatch = vi.fn();
+        const {state} = editor;
+        const same = {'bg-image-theme': 'dark', 'bg-image-blur': false} as const;
+        expect(setHeaderBackground(0, same)(state, dispatch, editor)).toBe(true);
+        expect(dispatch).not.toHaveBeenCalled();
+        expect(setHeaderBackground(0, {'bg-image-blur': true})(state, dispatch, editor)).toBe(true);
+        expect(dispatch).toHaveBeenCalledTimes(1);
     });
 
     it('should reset the theme and the blur with the image', () => {

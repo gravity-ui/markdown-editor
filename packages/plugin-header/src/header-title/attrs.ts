@@ -1,5 +1,7 @@
 import {cn} from '@bem-react/classname';
 
+import type {AttrGetter} from '../utils';
+
 import {
     type HeaderTitleModel,
     headerTitleClassName,
@@ -26,8 +28,6 @@ export function headerTitleAttrs(attrs: {size?: unknown; color?: unknown}): Reco
     return result;
 }
 
-export function headerTitleFromAttrs(
-    getAttr: (name: string) => string | null | undefined,
-): HeaderTitleModel {
+export function headerTitleFromAttrs(getAttr: AttrGetter): HeaderTitleModel {
     return headerTitleModel({size: getAttr('data-size'), color: getAttr('data-color')});
 }

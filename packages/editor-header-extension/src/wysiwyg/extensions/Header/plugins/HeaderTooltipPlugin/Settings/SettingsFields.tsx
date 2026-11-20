@@ -13,8 +13,8 @@ import {i18n} from '../../../../../../i18n';
 import {SettingsSwitch} from '../../../../settings';
 import type {HeaderPart, HeaderParts} from '../../../parts';
 
-import {AlignmentSelect} from './AlignmentSelect';
 import {type BackgroundControls, BackgroundField} from './BackgroundField';
+import {SegmentedSelect} from './SegmentedSelect';
 import {SettingsSection} from './SettingsSection';
 import {logClick} from './utils';
 
@@ -70,7 +70,7 @@ export function SettingsFields({content, layout, background}: SettingsFieldsProp
                     content={content}
                 />
                 <Text variant="subheader-1">{i18n('alignment')}</Text>
-                <AlignmentSelect
+                <SegmentedSelect
                     label={i18n('vertical-alignment')}
                     value={layout.value.vertical}
                     options={[
@@ -80,7 +80,7 @@ export function SettingsFields({content, layout, background}: SettingsFieldsProp
                     ]}
                     onUpdate={(value) => layout.onChange('vertical', value)}
                 />
-                <AlignmentSelect
+                <SegmentedSelect
                     label={i18n('horizontal-alignment')}
                     value={layout.value.align}
                     options={[

@@ -1,4 +1,4 @@
-import {includes} from '../utils';
+import {includes, valuesOtherThan} from '../utils';
 
 export const headerAligns = ['left', 'center', 'right'] as const;
 export const headerVerticals = ['top', 'center', 'bottom'] as const;
@@ -23,8 +23,5 @@ export function headerLayout(attrs: {align?: unknown; vertical?: unknown}): Head
 export function headerLayoutValues(
     layout: HeaderLayout,
 ): Partial<Record<keyof HeaderLayout, string>> {
-    const values: Partial<Record<keyof HeaderLayout, string>> = {};
-    if (layout.align !== headerLayoutDefaults.align) values.align = layout.align;
-    if (layout.vertical !== headerLayoutDefaults.vertical) values.vertical = layout.vertical;
-    return values;
+    return valuesOtherThan(layout, headerLayoutDefaults);
 }

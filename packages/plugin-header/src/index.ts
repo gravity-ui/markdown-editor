@@ -14,10 +14,12 @@ export {
     toCssUrl,
 } from './header/background';
 export {
+    type HeaderRender,
     headerAttrs,
     headerBackgroundFromAttrs,
     headerDimensionsFromAttrs,
     headerLayoutFromAttrs,
+    headerRender,
 } from './header/attrs';
 export {
     type HeaderAlign,

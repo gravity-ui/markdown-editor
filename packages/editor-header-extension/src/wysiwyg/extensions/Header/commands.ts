@@ -15,6 +15,7 @@ import {
 } from '@gravity-ui/markdown-plugin-header';
 
 import {dropHeaderUploads} from '../../plugins/HeaderUploadPlugin';
+import {changedAttrs} from '../attrs';
 import {removeChild} from '../commands';
 
 import {headerNodeType} from './HeaderSpecs';
@@ -54,8 +55,11 @@ export const insertHeader: Command = (state, dispatch) => {
 export const setHeaderDimension =
     <K extends keyof HeaderDimensions>(pos: number, name: K, value: HeaderDimensions[K]): Command =>
     (state, dispatch) => {
-        if (!headerAt(state, pos)) return false;
-        dispatch?.(state.tr.setNodeAttribute(pos, name, value));
+        const node = headerAt(state, pos);
+        if (!node) return false;
+        if (dispatch && changedAttrs(node.attrs, {[name]: value}).length) {
+            dispatch(state.tr.setNodeAttribute(pos, name, value));
+        }
         return true;
     };
 
@@ -65,7 +69,7 @@ export const setHeaderLayout =
     (state, dispatch) => {
         const node = headerAt(state, pos);
         if (!node) return false;
-        if (dispatch && node.attrs[name] !== value) {
+        if (dispatch && changedAttrs(node.attrs, {[name]: value}).length) {
             dispatch(closeHistory(state.tr.setNodeAttribute(pos, name, value)));
         }
         return true;
@@ -83,8 +87,8 @@ export const setHeaderBackground =
         if (dispatch) {
             const next = headerBackground({...headerBackground(node.attrs), ...background});
             const tr = state.tr;
-            for (const [name, value] of Object.entries(next)) {
-                if (node.attrs[name] !== value) tr.setNodeAttribute(pos, name, value);
+            for (const [name, value] of changedAttrs(node.attrs, next)) {
+                tr.setNodeAttribute(pos, name, value);
             }
             const changesSource = 'bg-image' in background || 'bg-color' in background;
             if (changesSource) dropHeaderUploads(tr, pos);

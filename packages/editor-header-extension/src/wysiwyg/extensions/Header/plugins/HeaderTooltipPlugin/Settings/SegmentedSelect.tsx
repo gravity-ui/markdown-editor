@@ -2,23 +2,27 @@ import {Icon, type IconData, SegmentedRadioGroup} from '@gravity-ui/uikit';
 
 import {SettingsRow} from '../../../../settings';
 
-type AlignmentSelectProps<T extends string> = {
+type SegmentedSelectProps<T extends string> = {
     label: string;
     value: T;
     options: readonly {value: T; label: string; icon: IconData}[];
     onUpdate: (value: T) => void;
+    className?: string;
 };
 
-export function AlignmentSelect<T extends string>({
+/** A settings row with a segmented choice of icons; each icon is named by its label. */
+export function SegmentedSelect<T extends string>({
     label,
     value,
     options,
     onUpdate,
-}: AlignmentSelectProps<T>) {
+    className,
+}: SegmentedSelectProps<T>) {
     return (
         <SettingsRow label={label}>
             {(labelId) => (
                 <SegmentedRadioGroup
+                    className={className}
                     size="m"
                     aria-labelledby={labelId}
                     value={value}

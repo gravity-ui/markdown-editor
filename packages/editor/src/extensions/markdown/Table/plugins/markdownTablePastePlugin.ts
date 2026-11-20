@@ -2,9 +2,9 @@ import {type ExtensionDeps, type Parser, trackTransactionMetrics} from '#core';
 import {Slice} from '#pm/model';
 import {Plugin} from '#pm/state';
 import type {EditorView} from '#pm/view';
+import {DataTransferType} from 'src/utils/clipboard';
+import {isInsideCode} from 'src/utils/code';
 
-import {isInsideCode} from '../../../behavior/Clipboard/code';
-import {DataTransferType} from '../../../behavior/Clipboard/utils';
 import {TableNode} from '../const';
 
 export const markdownTablePastePlugin = ({textParser}: ExtensionDeps) =>

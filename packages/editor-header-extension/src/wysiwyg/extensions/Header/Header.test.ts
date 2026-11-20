@@ -33,7 +33,7 @@ import {
     headerDefaults,
     headerLayoutDefaults,
 } from '@gravity-ui/markdown-plugin-header';
-import {afterEach, describe, expect, it} from 'vitest';
+import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {insertHeader as insertHeaderMarkup} from '../../../markup/commands/insertHeader';
 
@@ -251,6 +251,17 @@ describe('Header extension', () => {
         expect(dimensions(editor)).toEqual({height: 'l', width: 'm'});
     });
 
+    it('should not dispatch a transaction for the current dimension', () => {
+        const editor = createView(':::header{height="l"}\n:::');
+        const dispatch = vi.fn();
+        const {state} = editor;
+        expect(setHeaderDimension(0, 'height', 'l')(state, dispatch, editor)).toBe(true);
+        expect(setHeaderDimension(0, 'width', 'm')(state, dispatch, editor)).toBe(true);
+        expect(dispatch).not.toHaveBeenCalled();
+        expect(setHeaderDimension(0, 'height', 's')(state, dispatch, editor)).toBe(true);
+        expect(dispatch).toHaveBeenCalledTimes(1);
+    });
+
     it('should insert an empty header and undo the insertion', () => {
         const editor = createView('');
         editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 1)));
@@ -343,6 +354,17 @@ describe('Header extension', () => {
             (editor.nodeDOM(pos) as HTMLElement).classList.contains('ProseMirror-selectednode'),
         ).toBe(true);
         expect(editor.state.selection).toBeInstanceOf(NodeSelection);
+    });
+
+    it('should write only the changed attributes and classes of the node view', () => {
+        const editor = createNodeView(':::header\n:::');
+        const dom = editor.nodeDOM(0) as HTMLElement;
+        const setAttribute = vi.spyOn(dom, 'setAttribute');
+        expect(run(editor, setHeaderDimension(0, 'height', 'l'))).toBe(true);
+        expect(setAttribute.mock.calls).toEqual([['data-height', 'l']]);
+        expect(dom.classList.contains('g-md-header-plugin_height_s')).toBe(false);
+        expect(dom.classList.contains('g-md-header-plugin_height_l')).toBe(true);
+        expect(dom.classList.contains('g-md-header-plugin_width_m')).toBe(true);
     });
 
     it('should apply content DOM edits to the document', async () => {

@@ -1,4 +1,3 @@
-import {escapeQuoted} from '@gravity-ui/markdown-editor/_/markdown-utils/index.js';
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {
     headerBackground,
@@ -7,6 +6,8 @@ import {
     headerLayout,
     headerLayoutValues,
 } from '@gravity-ui/markdown-plugin-header';
+
+import {directiveAttrs} from '../../directive';
 
 import {headerNodeName} from './const';
 
@@ -17,10 +18,7 @@ export const HeaderSerializerSpecs: ExtensionAuto = (builder) => {
             ...headerLayoutValues(headerLayout(node.attrs)),
             ...headerBackgroundValues(headerBackground(node.attrs)),
         };
-        const markup = Object.entries(attrs).map(
-            ([name, value]) => `${name}="${escapeQuoted(value)}"`,
-        );
-        state.write(`:::header{${markup.join(' ')}}`);
+        state.write(`:::header${directiveAttrs(attrs)}`);
         state.ensureNewLine();
         state.closeBlock(node);
         state.renderContent(node);

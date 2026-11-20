@@ -1,5 +1,5 @@
 import {safeImageUrl} from '../url';
-import {includes} from '../utils';
+import {includes, valuesOtherThan} from '../utils';
 
 export const headerBgColorFamilies = ['gray', 'green', 'yellow', 'blue', 'red', 'violet'] as const;
 export const headerBgColorSaturations = ['light', 'medium', 'heavy'] as const;
@@ -21,13 +21,6 @@ export type HeaderBackground = {
     'bg-image-theme': HeaderBgImageTheme;
     'bg-image-blur': boolean;
 };
-
-const headerBackgroundNames = [
-    'bg-color',
-    'bg-image',
-    'bg-image-theme',
-    'bg-image-blur',
-] as const satisfies readonly (keyof HeaderBackground)[];
 
 export const headerBackgroundDefaults: Readonly<HeaderBackground> = {
     'bg-color': null,
@@ -69,11 +62,5 @@ export function headerBackground(
 
 /** Values other than the defaults, as attribute strings. */
 export function headerBackgroundValues(background: HeaderBackground): Record<string, string> {
-    const values: Record<string, string> = {};
-    for (const name of headerBackgroundNames) {
-        if (background[name] !== headerBackgroundDefaults[name]) {
-            values[name] = String(background[name]);
-        }
-    }
-    return values;
+    return valuesOtherThan(background, headerBackgroundDefaults);
 }

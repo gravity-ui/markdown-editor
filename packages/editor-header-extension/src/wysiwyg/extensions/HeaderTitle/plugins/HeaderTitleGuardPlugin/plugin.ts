@@ -1,9 +1,9 @@
-import {Mark, type Node, type NodeType} from '@gravity-ui/markdown-editor/pm/model';
+import {Mark, type Node} from '@gravity-ui/markdown-editor/pm/model';
 import {Plugin, type Transaction} from '@gravity-ui/markdown-editor/pm/state';
 
-import {headerNodeType} from '../../../Header/HeaderSpecs/const';
 import {changedRange} from '../../../changedRange';
 import {joinTextLines} from '../../../joinTextLines';
+import {oneChildPerHeader} from '../../../oneChildPerHeader';
 import {plainTextInput} from '../../../plainTextInput';
 import {headerTitleNodeType} from '../../HeaderTitleSpecs';
 
@@ -32,34 +32,8 @@ function keepsTitles(tr: Transaction) {
     return kept;
 }
 
-function titlesOf(node: Node | null | undefined, type: NodeType) {
-    let titles = 0;
-    node?.forEach((child) => {
-        if (child.type === type) titles++;
-    });
-    return titles;
-}
-
 /** A header keeps one title. A header that already has several, as loaded, stays editable. */
-function oneTitlePerHeader(tr: Transaction) {
-    const range = tr.docChanged && changedRange(tr, 'after');
-    if (!range) return true;
-    const {schema} = tr.doc.type;
-    const header = headerNodeType(schema);
-    const title = headerTitleNodeType(schema);
-    const back = tr.mapping.invert();
-    let single = true;
-    tr.doc.nodesBetween(range.from, range.to, (node, pos) => {
-        if (node.type !== header) return !node.isTextblock;
-        const titles = titlesOf(node, title);
-        if (titles > 1) {
-            const before = tr.before.nodeAt(back.map(pos, 1));
-            single &&= before?.type === header && titlesOf(before, title) >= titles;
-        }
-        return single;
-    });
-    return single;
-}
+const oneTitlePerHeader = oneChildPerHeader(headerTitleNodeType);
 
 export const headerTitleGuardPlugin = () =>
     new Plugin({

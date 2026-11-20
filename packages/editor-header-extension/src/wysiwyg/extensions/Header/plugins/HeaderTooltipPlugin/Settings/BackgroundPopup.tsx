@@ -4,15 +4,12 @@ import {Moon, Sun} from '@gravity-ui/icons';
 import {
     type HeaderBackground,
     type HeaderBgImageTheme,
-    headerAttrs,
     headerBackgroundDefaults,
     headerBgColors,
-    toCssUrl,
+    headerRender,
 } from '@gravity-ui/markdown-plugin-header';
 import {
     Button,
-    Icon,
-    SegmentedRadioGroup,
     Tab,
     TabList,
     TabPanel,
@@ -23,10 +20,11 @@ import {
 } from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
-import {ImageSource, SettingsDialog, SettingsRow, cnHeaderSettings} from '../../../../settings';
+import {ImageSource, SettingsDialog, cnHeaderSettings} from '../../../../settings';
 
 import type {BackgroundControls} from './BackgroundField';
 import {DimensionSelect} from './DimensionSelect';
+import {SegmentedSelect} from './SegmentedSelect';
 import {bgColorLabel, bgColorStyle} from './utils';
 
 const textColors: readonly HeaderBgImageTheme[] = ['system', 'dark', 'light'];
@@ -108,38 +106,26 @@ function FillPalette({value, onChange}: BackgroundControls) {
 function BannerPreview({value}: {value: HeaderBackground}) {
     const pageTheme = useThemeType();
     const [theme, setTheme] = useState<ThemeType>(pageTheme);
-    const image = value['bg-image'] && toCssUrl(value['bg-image']);
+    const {className, backgroundImage} = headerRender(value);
     return (
         <div className={cnHeaderSettings('banner-preview')}>
-            <SettingsRow label={i18n('preview')}>
-                {(labelId) => (
-                    <SegmentedRadioGroup
-                        className={cnHeaderSettings('preview-theme')}
-                        size="m"
-                        aria-labelledby={labelId}
-                        value={theme}
-                        onUpdate={setTheme}
-                    >
-                        {previewThemes.map(({value: option, icon, label}) => (
-                            <SegmentedRadioGroup.Option
-                                key={option}
-                                value={option}
-                                title={i18n(label)}
-                                controlProps={{'aria-label': i18n(label)}}
-                            >
-                                <Icon data={icon} size={16} />
-                            </SegmentedRadioGroup.Option>
-                        ))}
-                    </SegmentedRadioGroup>
-                )}
-            </SettingsRow>
+            <SegmentedSelect
+                className={cnHeaderSettings('preview-theme')}
+                label={i18n('preview')}
+                value={theme}
+                options={previewThemes.map(({label, ...option}) => ({
+                    ...option,
+                    label: i18n(label),
+                }))}
+                onUpdate={setTheme}
+            />
             <div
                 className={cnHeaderSettings('thumbnail', ['g-root', `g-root_theme_${theme}`])}
                 aria-hidden
             >
                 <div
-                    className={`${headerAttrs(value).class} ${cnHeaderSettings('banner')}`}
-                    style={{backgroundImage: image ?? undefined}}
+                    className={`${className} ${cnHeaderSettings('banner')}`}
+                    style={{backgroundImage: backgroundImage ?? undefined}}
                 >
                     <Text variant="header-1" as="div">
                         {i18n('preview-title')}

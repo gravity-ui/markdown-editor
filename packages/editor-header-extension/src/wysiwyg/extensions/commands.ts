@@ -15,6 +15,8 @@ import {
 } from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 
+import {changedAttrs} from './attrs';
+
 export const runCommand = (view: EditorView, command: Command) =>
     command(view.state, view.dispatch, view);
 
@@ -34,8 +36,9 @@ export const setNodeAttrs =
         if (node?.type !== nodeType(state.schema)) return false;
         if (dispatch) {
             const tr = state.tr;
-            for (const [name, value] of Object.entries(normalize({...node.attrs, ...attrs}))) {
-                if (node.attrs[name] !== value) tr.setNodeAttribute(pos, name, value);
+            const next = normalize({...node.attrs, ...attrs});
+            for (const [name, value] of changedAttrs(node.attrs, next)) {
+                tr.setNodeAttribute(pos, name, value);
             }
             if (tr.docChanged) dispatch(history ? closeHistory(tr) : tr);
         }
@@ -53,15 +56,10 @@ export function removeChild(tr: Transaction, parent: Node, {node, pos}: {node: N
 
 type NodeNear = ($cursor: ResolvedPos, dir: -1 | 1) => {node: Node; pos: number} | null;
 
-/** The cursor is at the start (`-1`) or at the end (`1`) of its textblock. */
-export const atTextblockEdge = ($cursor: ResolvedPos, dir: -1 | 1) =>
-    $cursor.parentOffset === (dir < 0 ? 0 : $cursor.parent.content.size);
-
-/** The block before (`-1`) or after (`1`) the textblock of the cursor at its edge. */
-export const siblingBlock: NodeNear = ($cursor, dir) => {
-    if (!atTextblockEdge($cursor, dir)) return null;
-    const node = $cursor.node(-1).maybeChild($cursor.index(-1) + dir);
-    return node && {node, pos: dir < 0 ? $cursor.before() - node.nodeSize : $cursor.after()};
+/** The inline node right before (`-1`) or after (`1`) the cursor. */
+export const nodeBeside: NodeNear = ($cursor, dir) => {
+    const node = dir < 0 ? $cursor.nodeBefore : $cursor.nodeAfter;
+    return node && {node, pos: dir < 0 ? $cursor.pos - node.nodeSize : $cursor.pos};
 };
 
 /** Selects the node of `nodeType` that `find` returns next to the cursor. */
@@ -78,6 +76,17 @@ export const selectNodeNear =
         }
         return true;
     };
+
+/** The cursor is at the start (`-1`) or at the end (`1`) of its textblock. */
+export const atTextblockEdge = ($cursor: ResolvedPos, dir: -1 | 1) =>
+    $cursor.parentOffset === (dir < 0 ? 0 : $cursor.parent.content.size);
+
+/** The block before (`-1`) or after (`1`) the textblock of the cursor at its edge. */
+export const siblingBlock: NodeNear = ($cursor, dir) => {
+    if (!atTextblockEdge($cursor, dir)) return null;
+    const node = $cursor.node(-1).maybeChild($cursor.index(-1) + dir);
+    return node && {node, pos: dir < 0 ? $cursor.before() - node.nodeSize : $cursor.after()};
+};
 
 /** The block of `nodeType` at the near edge of `sibling`: the sibling itself or its first or last descendant. */
 const edgeDescendant = (

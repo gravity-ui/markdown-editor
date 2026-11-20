@@ -11,6 +11,7 @@ import {
     headerLayoutFromAttrs,
     headerLayoutValues,
     headerPlugin,
+    headerRender,
     headerTokenName,
     headerVerticals,
     headerWidths,
@@ -204,6 +205,21 @@ describe('Header background', () => {
         expect(toCssUrl(url)).toBe(
             'url("a.png%22%29%20;background:url%28javascript:alert%281%29%29%20/%2A%27%5C")',
         );
+    });
+
+    it.each([
+        {'bg-image': './a (1).png', 'bg-image-theme': 'dark', 'bg-image-blur': true},
+        {'bg-color': 'blue-light', 'bg-image': scriptUrl},
+        {},
+    ])('should give the classes and the image of the attributes of %j', (attrs) => {
+        const {className, backgroundImage, data} = headerRender(attrs);
+        const image = typeof attrs['bg-image'] === 'string' ? toCssUrl(attrs['bg-image']) : null;
+        expect(backgroundImage).toBe(image);
+        expect(headerAttrs(attrs)).toEqual({
+            class: className,
+            ...data,
+            ...(image ? {style: `background-image:${image}`} : {}),
+        });
     });
 
     it('should escape quotes of the image address in HTML', () => {

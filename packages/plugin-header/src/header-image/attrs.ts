@@ -1,3 +1,5 @@
+import type {AttrGetter} from '../utils';
+
 import {type HeaderImage, headerImage, headerImageClassName} from './model';
 
 /** The files gallery of the editor and of the viewer skips an element with this attribute. */
@@ -17,8 +19,6 @@ export function headerImageAttrs(
     };
 }
 
-export function headerImageFromAttrs(
-    getAttr: (name: string) => string | null | undefined,
-): HeaderImage {
+export function headerImageFromAttrs(getAttr: AttrGetter): HeaderImage {
     return headerImage({src: getAttr('src'), alt: getAttr('alt'), title: getAttr('title')});
 }

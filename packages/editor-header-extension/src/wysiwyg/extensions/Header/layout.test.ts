@@ -6,7 +6,7 @@ import {
     headerVerticals,
 } from '@gravity-ui/markdown-plugin-header';
 import {act} from 'react-dom/test-utils';
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
 
 import {createTestEditor, setCursor} from '../../../../tests/editor';
 import {byQa, createEditorWithRenderer, settle} from '../../../../tests/toolbar';
@@ -60,6 +60,17 @@ describe('Header layout', () => {
     ])('should keep the source order $name in both modes', ({blocks}) => {
         const source = banner(' align="right"', ...blocks);
         expect(markup(createView(source))).toBe(source);
+    });
+
+    it('should not dispatch a transaction for the current layout', () => {
+        const editor = createView(banner(' align="center"', title));
+        const dispatch = vi.fn();
+        const {state} = editor;
+        expect(setHeaderLayout(0, 'align', 'center')(state, dispatch, editor)).toBe(true);
+        expect(setHeaderLayout(0, 'vertical', 'center')(state, dispatch, editor)).toBe(true);
+        expect(dispatch).not.toHaveBeenCalled();
+        expect(setHeaderLayout(0, 'vertical', 'top')(state, dispatch, editor)).toBe(true);
+        expect(dispatch).toHaveBeenCalledTimes(1);
     });
 
     it('should change the layout in separate undo steps and copy it with the banner', () => {

@@ -1,4 +1,5 @@
 import {safeImageUrl} from '../url';
+import {valuesOtherThan} from '../utils';
 
 export const headerImageTokenName = 'g_md_header_image';
 export const headerImageClassName = 'g-md-header-image-plugin';
@@ -19,10 +20,5 @@ export function headerImage(attrs: Partial<Record<keyof HeaderImage, unknown>>):
 
 /** Values other than the defaults, as attribute strings. */
 export function headerImageValues(image: HeaderImage): Record<string, string> {
-    const values: Record<string, string> = {};
-    for (const name of Object.keys(headerImageDefaults) as (keyof HeaderImage)[]) {
-        const value = image[name];
-        if (value !== null && value !== headerImageDefaults[name]) values[name] = value;
-    }
-    return values;
+    return valuesOtherThan(image, headerImageDefaults);
 }

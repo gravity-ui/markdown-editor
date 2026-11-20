@@ -1,3 +1,5 @@
+import {valuesOtherThan} from '../utils';
+
 export const headerTitleTokenName = 'g_md_header_title';
 export const headerTitleClassName = 'g-md-header-title-plugin';
 
@@ -33,9 +35,5 @@ export function headerTitleModel(attrs: {size?: unknown; color?: unknown}): Head
 
 /** The attributes other than the defaults, as they are written in Markdown. */
 export function headerTitleValues(title: HeaderTitleModel): Record<string, string> {
-    const result: Record<string, string> = {};
-    for (const name of ['size', 'color'] as const) {
-        if (title[name] !== headerTitleDefaults[name]) result[name] = String(title[name]);
-    }
-    return result;
+    return valuesOtherThan(title, headerTitleDefaults);
 }
