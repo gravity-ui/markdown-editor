@@ -10,11 +10,10 @@ import {
 import {Button, Divider, Icon, Text, useUniqId} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
+import {SettingsSwitch, cnHeaderSettings} from '../../../../settings';
 
 import {AlignmentSelect} from './AlignmentSelect';
-import {cnHeaderSettings} from './HeaderSettings.classname';
 import {SettingsSection} from './SettingsSection';
-import {SettingsSwitch} from './SettingsSwitch';
 import {logClick} from './utils';
 
 export function SettingsFields() {
@@ -24,8 +23,16 @@ export function SettingsFields() {
         <>
             <Divider />
             <SettingsSection title={i18n('text')} action="Text">
-                <SettingsSwitch label={i18n('heading')} action="Title" defaultChecked />
-                <SettingsSwitch label={i18n('description')} action="Description" defaultChecked />
+                <SettingsSwitch
+                    label={i18n('heading')}
+                    defaultChecked
+                    onUpdate={() => logClick('Title toggle')}
+                />
+                <SettingsSwitch
+                    label={i18n('description')}
+                    defaultChecked
+                    onUpdate={() => logClick('Description toggle')}
+                />
                 <Text variant="subheader-1">{i18n('alignment')}</Text>
                 <AlignmentSelect
                     label={i18n('vertical-alignment')}
@@ -78,13 +85,27 @@ export function SettingsFields() {
             </SettingsSection>
             <Divider />
             <SettingsSection title={i18n('buttons')} action="Buttons">
-                <SettingsSwitch label={i18n('button-1')} action="Button 1" defaultChecked />
-                <SettingsSwitch label={i18n('button-2')} action="Button 2" />
-                <SettingsSwitch label={i18n('button-3')} action="Button 3" />
+                <SettingsSwitch
+                    label={i18n('button-1')}
+                    defaultChecked
+                    onUpdate={() => logClick('Button 1 toggle')}
+                />
+                <SettingsSwitch
+                    label={i18n('button-2')}
+                    onUpdate={() => logClick('Button 2 toggle')}
+                />
+                <SettingsSwitch
+                    label={i18n('button-3')}
+                    onUpdate={() => logClick('Button 3 toggle')}
+                />
             </SettingsSection>
             <Divider />
             <SettingsSection title={i18n('image-and-background')} action="Image and background">
-                <SettingsSwitch label={i18n('image')} action="Image" defaultChecked />
+                <SettingsSwitch
+                    label={i18n('image')}
+                    defaultChecked
+                    onUpdate={() => logClick('Image toggle')}
+                />
                 <div className={cnHeaderSettings('row')}>
                     <Text variant="body-1" id={backgroundLabelId}>
                         {i18n('background')}

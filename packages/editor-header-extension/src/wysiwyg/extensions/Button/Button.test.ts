@@ -14,7 +14,8 @@ import {
 import {describe, expect, it} from 'vitest';
 
 import {HeaderSpecs} from '../Header/HeaderSpecs';
-import {copyHeader, setHeaderDimension} from '../Header/commands';
+import {setHeaderDimension} from '../Header/commands';
+import {headerMarkup} from '../Header/utils';
 
 import {Button} from './Button';
 import {WButtonNodeView} from './ButtonNodeView';
@@ -145,9 +146,9 @@ describe('Button extension', () => {
         expect(setHeaderDimension(0, 'height', 'l')(state(), dispatch)).toBe(true);
         expect(undo(state(), dispatch)).toBe(true);
         expect(state().doc.eq(original)).toBe(true);
-        expect(copyHeader(0)(state(), dispatch)).toBe(true);
-        expect(state().doc.child(0).eq(state().doc.child(1))).toBe(true);
-        expect(markupParser.parse(serializer.serialize(state().doc)).eq(state().doc)).toBe(true);
+        const copied = headerMarkup(serializer, state(), 0);
+        expect(copied).toBe(serializer.serialize(state().doc));
+        expect(markupParser.parse(copied ?? '').eq(state().doc)).toBe(true);
     });
     it('should change attributes in separate undo steps and keep the label', () => {
         const {state, dispatch} = createState(button);
