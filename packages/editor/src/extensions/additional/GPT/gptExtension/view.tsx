@@ -1,7 +1,5 @@
 import {useCallback} from 'react';
 
-import {Popup} from '@gravity-ui/uikit';
-import type {PopupProps} from '@gravity-ui/uikit';
 import {Slice} from 'prosemirror-model';
 import type {EditorState, PluginView} from 'prosemirror-state';
 import {TextSelection} from 'prosemirror-state';
@@ -10,6 +8,7 @@ import {useMount} from 'react-use';
 
 import {cn} from '../../../../classname';
 import type {Parser, Serializer} from '../../../../core';
+import {EditorPopup} from '../../../../plugins/BaseTooltip/EditorPopup';
 import {getReactRendererFromState} from '../../../behavior/ReactRenderer';
 import type {CommonAnswer} from '../ErrorScreen/types';
 import {GptDialog} from '../GptDialog/GptDialog';
@@ -111,6 +110,7 @@ export class GptWidgetDecoView<
         return (
             <Widget
                 markup={markup}
+                editorElement={this._view.dom}
                 anchorElement={this._decoElem}
                 answerRender={this._params.answerRender}
                 promptPresets={this._params.promptPresets}
@@ -227,7 +227,9 @@ export class GptWidgetDecoView<
 type WidgetProps<
     AnswerData extends CommonAnswer = CommonAnswer,
     PromptData extends unknown = unknown,
-> = Pick<PopupProps, 'anchorElement'> & {
+> = {
+    editorElement: HTMLElement;
+    anchorElement: Element | null;
     markup: string;
     onClose: () => void;
     confirmOpen: boolean;
@@ -240,6 +242,7 @@ function Widget<
     PromptData extends unknown = unknown,
 >({
     markup,
+    editorElement,
     anchorElement,
     answerRender,
     promptPresets,
@@ -274,9 +277,9 @@ function Widget<
 
     return (
         <>
-            <Popup
+            <EditorPopup
                 className={cnGptPopup()}
-                open
+                editorElement={editorElement}
                 anchorElement={anchorElement}
                 placement={gptPopupPlacement}
                 onOpenChange={(open) => {
@@ -303,7 +306,7 @@ function Widget<
                         gptAlertProps={gptAlertProps}
                     />
                 </div>
-            </Popup>
+            </EditorPopup>
         </>
     );
 }
