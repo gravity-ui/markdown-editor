@@ -10,6 +10,7 @@ import {
 import {Button, Icon, Popup, type PopupAnchorElement, Text, useUniqId} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
+import type {HeaderPart, HeaderParts} from '../../../utils';
 
 import {DimensionSelect} from './DimensionSelect';
 import {cnHeaderSettings} from './HeaderSettings.classname';
@@ -51,7 +52,9 @@ type HeaderSettingsProps = {
     /** Receives focus when the panel closes. */
     button: HTMLElement | null;
     dimensions: HeaderDimensions;
+    parts: HeaderParts;
     onChange: <K extends keyof HeaderDimensions>(name: K, value: HeaderDimensions[K]) => void;
+    onPartChange: (part: HeaderPart, enabled: boolean) => void;
     onClose: () => void;
 };
 
@@ -59,7 +62,9 @@ export function HeaderSettings({
     block,
     button,
     dimensions,
+    parts,
     onChange,
+    onPartChange,
     onClose,
 }: HeaderSettingsProps) {
     const titleId = useUniqId();
@@ -120,7 +125,7 @@ export function HeaderSettings({
                     }
                     onUpdate={(value) => onChange('width', value)}
                 />
-                <SettingsFields />
+                <SettingsFields parts={parts} onPartChange={onPartChange} />
             </section>
         </Popup>
     );

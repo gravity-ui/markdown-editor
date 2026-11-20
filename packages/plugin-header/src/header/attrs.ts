@@ -1,6 +1,6 @@
 import {cn} from '@bem-react/classname';
 
-import {headerClassName, headerDimensions} from './model';
+import {filesGalleryExcludeAttrs, headerClassName, headerDimensions} from './model';
 
 const b = cn(headerClassName);
 
@@ -13,6 +13,7 @@ export function headerAttrs(attrs: {height?: unknown; width?: unknown}) {
     const dimensions = headerDimensions(attrs);
     return {
         class: b(dimensions),
+        ...filesGalleryExcludeAttrs,
         'data-height': dimensions.height,
         'data-width': dimensions.width,
     };

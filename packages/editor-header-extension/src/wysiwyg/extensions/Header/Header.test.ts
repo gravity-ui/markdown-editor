@@ -78,7 +78,7 @@ function createNodeView(markup: string) {
             builder
                 .use(BaseSchemaSpecs, {})
                 .use(ReactRendererExtension, new ReactRenderStorage())
-                .use(Header),
+                .use(Header, {}),
     }).build();
     view = new EditorView(document.createElement('div'), {
         state: EditorState.create({

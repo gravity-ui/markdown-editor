@@ -6,12 +6,14 @@ import {
     headerDimensionsFromAttrs,
 } from '@gravity-ui/markdown-plugin-header';
 
+import {headerImageNodeName} from '../../HeaderImage/HeaderImageSpecs/const';
+
 import {headerNodeName} from './const';
 
 export const HeaderSchemaSpecs: ExtensionAuto = (builder) => {
     builder.addNodeSpec(headerNodeName, () => ({
         group: 'block',
-        content: 'block+',
+        content: `${headerImageNodeName}? block+`,
         defining: true,
         allowSelection: true,
         selectAll: 'node',

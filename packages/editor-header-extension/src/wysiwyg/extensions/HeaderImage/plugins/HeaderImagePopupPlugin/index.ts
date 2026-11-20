@@ -1,0 +1,1 @@
+export {headerImagePopup} from './plugin';

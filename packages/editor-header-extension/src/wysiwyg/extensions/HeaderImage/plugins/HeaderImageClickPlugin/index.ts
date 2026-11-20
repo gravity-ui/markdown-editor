@@ -1,0 +1,1 @@
+export {headerImageClickPlugin} from './plugin';

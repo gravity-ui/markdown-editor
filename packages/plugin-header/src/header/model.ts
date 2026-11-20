@@ -1,6 +1,10 @@
 export const headerClassName = 'g-md-header-plugin';
 export const headerTokenName = 'g_md_header';
 
+export const filesGalleryExcludeAttrs: Readonly<Record<string, string>> = {
+    'data-files-gallery-exclude': 'true',
+};
+
 export const headerHeights = ['s', 'm', 'l'] as const;
 export const headerWidths = ['s', 'm', 'l', 'full'] as const;
 export type HeaderHeight = (typeof headerHeights)[number];

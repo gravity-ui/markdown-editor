@@ -1,12 +1,55 @@
 import {get$Cursor, pType, removeNode} from '@gravity-ui/markdown-editor';
-import {type Command, type EditorState, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
+import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
+import type {Node, Schema} from '@gravity-ui/markdown-editor/pm/model';
+import {
+    type Command,
+    type EditorState,
+    NodeSelection,
+    TextSelection,
+    type Transaction,
+} from '@gravity-ui/markdown-editor/pm/state';
 import type {HeaderDimensions} from '@gravity-ui/markdown-plugin-header';
 
+import {headerImageNodeType} from '../HeaderImage/HeaderImageSpecs';
+import {removeChild} from '../commands';
+
 import {headerNodeType} from './HeaderSpecs';
+import {type FoundParts, type HeaderPart, findParts} from './utils';
 
 function headerAt(state: EditorState, pos: number) {
     const node = state.doc.nodeAt(pos);
     return node?.type === headerNodeType(state.schema) ? node : null;
+}
+
+type HeaderEdit = (edit: {
+    state: EditorState;
+    tr: Transaction;
+    header: Node;
+    parts: FoundParts;
+}) => boolean;
+
+const headerCommand =
+    (pos: number, edit: HeaderEdit): Command =>
+    (state, dispatch) => {
+        const header = headerAt(state, pos);
+        if (!header) return false;
+        const tr = state.tr;
+        if (!edit({state, tr, header, parts: findParts(header, pos)})) return false;
+        dispatch?.(keepSelection(tr, pos));
+        return true;
+    };
+
+const partNodes: Record<HeaderPart, (schema: Schema) => Node | undefined> = {
+    image: (schema) => headerImageNodeType(schema)?.create(),
+};
+
+function keepSelection(tr: Transaction, pos: number) {
+    const header = tr.doc.nodeAt(pos);
+    const {from, to} = tr.selection;
+    if (header && (from <= pos || to >= pos + header.nodeSize)) {
+        tr.setSelection(NodeSelection.create(tr.doc, pos));
+    }
+    return closeHistory(tr);
 }
 
 export const insertHeader: Command = (state, dispatch) => {
@@ -54,5 +97,40 @@ export const removeHeader =
         const node = headerAt(state, pos);
         if (!node) return false;
         if (dispatch) removeNode({node, pos, tr: state.tr, dispatch});
+        return true;
+    };
+
+/** `restored` is the removed block of the part; it is inserted instead of a new one. */
+export const setHeaderPart = (
+    pos: number,
+    part: HeaderPart,
+    enabled: boolean,
+    restored?: Node,
+): Command =>
+    headerCommand(pos, ({state, tr, header, parts}) => {
+        const found = parts[part];
+        if (Boolean(found) === enabled) return false;
+        if (found) {
+            removeChild(tr, header, found);
+            return true;
+        }
+        const node = restored ?? partNodes[part](state.schema);
+        if (!node) return false;
+        tr.insert(pos + 1, node);
+        return true;
+    });
+
+export type RemovedParts = Map<HeaderPart, Node>;
+
+/** Keeps a removed part in `removed` and inserts it back when the part is enabled again. */
+export const toggleHeaderPart =
+    (pos: number, part: HeaderPart, enabled: boolean, removed: RemovedParts): Command =>
+    (state, dispatch, view) => {
+        const header = headerAt(state, pos);
+        if (!header) return false;
+        const found = findParts(header, pos)[part];
+        if (!setHeaderPart(pos, part, enabled, removed.get(part))(state, dispatch, view))
+            return false;
+        if (dispatch && found) removed.set(part, found.node);
         return true;
     };

@@ -5,16 +5,22 @@ import {Switch, Text, useUniqId} from '@gravity-ui/uikit';
 import {cnHeaderSettings} from './HeaderSettings.classname';
 import {logClick} from './utils';
 
+/** Without `checked`, the switch keeps its state locally. */
 export function SettingsSwitch({
     label,
     action,
     defaultChecked = false,
+    checked: controlled,
+    onUpdate,
 }: {
     label: string;
     action: string;
     defaultChecked?: boolean;
+    checked?: boolean;
+    onUpdate?: (checked: boolean) => void;
 }) {
-    const [checked, setChecked] = useState(defaultChecked);
+    const [local, setLocal] = useState(defaultChecked);
+    const checked = controlled ?? local;
     const controlId = useUniqId();
     return (
         <div className={cnHeaderSettings('row')}>
@@ -26,7 +32,11 @@ export function SettingsSwitch({
                 size="m"
                 checked={checked}
                 onUpdate={(value) => {
-                    setChecked(value);
+                    if (onUpdate) {
+                        onUpdate(value);
+                        return;
+                    }
+                    setLocal(value);
                     logClick(`${action} toggle`);
                 }}
             />

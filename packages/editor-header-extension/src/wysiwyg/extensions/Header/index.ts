@@ -1,4 +1,8 @@
+import type {FileUploadHandler} from '@gravity-ui/markdown-editor';
 import type {Action, ExtensionAuto} from '@gravity-ui/markdown-editor/core';
+
+import {type HeaderUploadLimits, headerUploadPlugin} from '../../plugins/HeaderUploadPlugin';
+import {HeaderImage} from '../HeaderImage';
 
 import {WHeaderNodeView} from './HeaderNodeView';
 import {HeaderSpecs, headerNodeName} from './HeaderSpecs';
@@ -8,11 +12,18 @@ import {headerKeymap, headerTooltipPlugin} from './plugins/HeaderTooltipPlugin';
 
 import '@gravity-ui/markdown-plugin-header/styles.css';
 
-export const Header: ExtensionAuto = (builder) => {
+export type HeaderOptions = HeaderUploadLimits & {
+    /** Uploads the image file; without it, the image is set only by a link. */
+    fileUploadHandler?: FileUploadHandler;
+};
+
+export const Header: ExtensionAuto<HeaderOptions> = (builder, options = {}) => {
     builder
         .use(HeaderSpecs)
+        .use(HeaderImage, options)
         .addNodeView(headerNodeName, () => (node) => new WHeaderNodeView(node))
         .addPlugin(headerTooltipPlugin)
+        .addPlugin(headerUploadPlugin)
         .addAction(insertHeaderAction, () => ({isEnable: insertHeader, run: insertHeader}))
         // Blocks inside the header handle Tab first.
         .addKeymap(headerKeymap, builder.Priority.Low);

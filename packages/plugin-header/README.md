@@ -1,15 +1,15 @@
 # Header and Button Markdown plugins
 
-markdown-it plugins for Header containers and inline buttons.
+markdown-it plugins for Header containers, their images, and inline buttons.
 
 ## Header
 
 ```ts
 import MarkdownIt from 'markdown-it';
-import {headerPlugin} from '@gravity-ui/markdown-plugin-header';
+import {headerImagePlugin, headerPlugin} from '@gravity-ui/markdown-plugin-header';
 import '@gravity-ui/markdown-plugin-header/styles.css';
 
-const md = new MarkdownIt().use(headerPlugin);
+const md = new MarkdownIt().use(headerPlugin).use(headerImagePlugin);
 ```
 
 ```markdown
@@ -36,6 +36,34 @@ The block is a container directive of [`@diplodoc/directive`](https://github.com
 An unknown attribute is skipped, and an unsupported value is replaced with the default: `:::header{height="xl" color="red"}` is an `s` × `m` block.
 The container parses its child blocks in the same Markdown token stream.
 Inline titles and destinations in the opening directive are not supported and remain ordinary Markdown.
+
+## Image
+
+```markdown
+:::header{height="s" width="m"}
+
+::header-image{src="/team.png" alt="Team" title="Project team"}
+
+Text beside the image.
+
+:::
+```
+
+| Attribute | Values                                                                 | Default |
+| --------- | ---------------------------------------------------------------------- | ------- |
+| `src`     | an `http:`, `https:`, `blob:` or relative address; others are rejected | none    |
+| `alt`     | alternative text                                                       | empty   |
+| `title`   | tooltip text                                                           | none    |
+
+The image is a leaf block directive without a label or a body, rendered as `img.g-md-header-image-plugin`.
+The address is decoded and checked like a link address (`md.normalizeLink`, `md.validateLink`).
+An image without a supported address renders nothing.
+The image is only the first block of a header; elsewhere the directive stays text.
+Inside a header, the image takes the right half of the block, 8 px (`--g-spacing-2`) from its edges, and the other blocks stay in the left half.
+A header narrower than 600 px puts the image above the other blocks.
+The image width is set by `--g-md-header-plugin-image-width` (`50%`), its inset by `--g-md-header-plugin-image-padding`.
+
+The header and the image carry the `data-files-gallery-exclude` attribute, so the files gallery of the editor skips them.
 
 ## Button
 
