@@ -7,6 +7,7 @@ import {dispatchPasteEvent} from '../../../../tests/dispatch-event';
 import {ExtensionsManager} from '../../../core';
 import {LoggerFacet} from '../../../core/utils/logger';
 import {Logger2} from '../../../logger';
+import {MathNode, MathSpecs} from '../../additional/Math/MathSpecs';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 
 import {CodeBlockSpecs, codeBlockNodeName} from './CodeBlockSpecs';
@@ -15,17 +16,18 @@ import {codeBlockPastePlugin} from './plugins/codeBlockPastePlugin';
 const logger = new Logger2();
 const {schema, plugins} = new ExtensionsManager({
     extensions: (builder) => {
-        builder.use(BaseSchemaSpecs, {}).use(CodeBlockSpecs, {});
+        builder.use(BaseSchemaSpecs, {}).use(CodeBlockSpecs, {}).use(MathSpecs);
         builder.addPlugin(codeBlockPastePlugin, builder.Priority.High);
     },
     logger,
 }).build();
 plugins.unshift(LoggerFacet.of(logger));
 
-const {doc, p, cb} = builders<'doc' | 'p' | 'cb'>(schema, {
+const {doc, p, cb, mathI} = builders<'doc' | 'p' | 'cb' | 'mathI'>(schema, {
     doc: {nodeType: BaseNode.Doc},
     p: {nodeType: BaseNode.Paragraph},
     cb: {nodeType: codeBlockNodeName},
+    mathI: {nodeType: MathNode.Inline},
 });
 
 const editors: {name: string; data: Record<string, string>}[] = [
@@ -55,6 +57,12 @@ function paste(startDoc: ReturnType<typeof doc>, data: Record<string, string>) {
 }
 
 describe.each(editors)('codeBlockPastePlugin: paste from $name', ({data}) => {
+    it('should remove indentation when pasting into inline math', () => {
+        expect(
+            paste(doc(p(mathI('a<a>b'))), {'text/plain': 'foo\n    bar\n', ...data}),
+        ).toMatchNode(doc(p(mathI('afoo\nbarb'))));
+    });
+
     it('should keep indentation when pasting into a code block', () => {
         const text = 'def f():\n    return 1';
         expect(paste(doc(cb('a<a>b')), {'text/plain': text, ...data})).toMatchNode(
