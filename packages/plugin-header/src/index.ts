@@ -52,6 +52,16 @@ export {
     headerContentDirectiveName,
     headerContentTokenName,
 } from './header-content/model';
+export {headerImagePlugin} from './header-image/plugin';
+export {headerImageAttrs, headerImageFromAttrs} from './header-image/attrs';
+export {
+    type HeaderImage,
+    headerImage,
+    headerImageClassName,
+    headerImageDefaults,
+    headerImageTokenName,
+    headerImageValues,
+} from './header-image/model';
 export {buttonPlugin} from './button/plugin';
 export {buttonAttrs, buttonFromAttrs} from './button/attrs';
 export {
