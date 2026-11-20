@@ -1,9 +1,9 @@
 import {useGallery} from '@gravity-ui/components';
 
 import {useViewerEffect} from '../../hooks/use-viewer-effect';
-import {createClassRegistration} from '../../utils/class-registration';
 import {cn} from '../../utils/classname';
 import {getDomConstructor} from '../../utils/dom-constructor';
+import {createClassRegistration} from '../../utils/dom-ownership';
 import {inspectViewerNode} from '../../utils/inspect-viewer-node';
 
 import {collectGallery} from './helpers/collect-gallery';

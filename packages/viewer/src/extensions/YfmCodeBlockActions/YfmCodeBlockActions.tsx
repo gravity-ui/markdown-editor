@@ -3,8 +3,8 @@ import {type ReactElement, useState} from 'react';
 import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {ViewerTargets} from '../../components/ViewerTargets/ViewerTargets';
-import {createClassRegistration} from '../../utils/class-registration';
 import {cn} from '../../utils/classname';
+import {createClassRegistration} from '../../utils/dom-ownership';
 import {useClientLayoutEffect} from '../../utils/use-client-layout-effect';
 
 import {CodeTextWrappingToggleButton} from './TextWrappingButton';
