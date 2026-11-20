@@ -1,6 +1,7 @@
 import type {Node} from 'prosemirror-model';
 
 import type {SerializerNodeToken} from '#core';
+import {escapeQuoted} from 'src/markdown-utils';
 
 import {ImageAttr} from './const';
 
@@ -21,7 +22,7 @@ export function imageToMarkdown({renderExtra}: ImageToMarkdownParams = {}): Seri
         if (attrs[ImageAttr.Src]) result += attrs[ImageAttr.Src].replace(/[\\()<]/g, '\\$&');
 
         if (attrs[ImageAttr.Title]) {
-            result += ` "${attrs[ImageAttr.Title].replace(/[\\"]/g, '\\$&')}"`;
+            result += ` "${escapeQuoted(attrs[ImageAttr.Title])}"`;
         }
 
         if (renderExtra) result += renderExtra(state, node);
