@@ -29,14 +29,14 @@ export const handlePaste: NonNullable<EditorProps['handlePaste']> = (view, e) =>
     const data = e.clipboardData;
     if (!data) return false;
 
-    const code = getCodeData(data);
+    const code = getCodeData(data, isCodeBlock(view.state.selection.$from.parent));
     if (!code) return false;
 
     const {state} = view;
     const {tr, schema, selection} = state;
     const $from = selection.$from;
     const inCodeBlock = Boolean($from.parent.type.spec.code);
-    const value = isCodeBlock($from.parent) ? code.value : dd(code.value);
+    const {value} = code;
 
     getLoggerFromState(state).event({
         domEvent: 'paste',
@@ -90,19 +90,19 @@ function insertCodeBlock(tr: Transaction, schema: Schema, value: string): void {
     tr.replaceSelectionWith(codeBlockNode);
 }
 
-export function getCodeData(data: DataTransfer): CodePasteData | null {
+export function getCodeData(data: DataTransfer, preserveIndentation = false): CodePasteData | null {
     const text = data.getData(DataTransferType.Text);
     if (!text) return null;
 
+    let code: CodePasteData | null = null;
     if (isVSCode(data)) {
-        return processVSCodePaste(data, text);
+        code = processVSCodePaste(data, text);
+    } else if (isJetBrains(data)) {
+        code = processJetBrainsPaste(text);
     }
 
-    if (isJetBrains(data)) {
-        return processJetBrainsPaste(text);
-    }
-
-    return null;
+    if (code && !preserveIndentation) code.value = dd(code.value);
+    return code;
 }
 
 function processVSCodePaste(data: DataTransfer, text: string): CodePasteData {
