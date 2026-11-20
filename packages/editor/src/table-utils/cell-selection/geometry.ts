@@ -1,5 +1,9 @@
 import type {Node} from 'prosemirror-model';
 
+import {type CellRect, intersects, union} from './rect';
+
+export type {CellRect} from './rect';
+
 // Project-specific geometry API and grid. This is not a copy of TableMap.
 export function getTableGeometry(table: Node): TableGeometry | null {
     return table.type.spec.tableGeometry?.(table) ?? null;
@@ -81,7 +85,6 @@ export function createTableGeometry(
     return geometry;
 }
 
-export type CellRect = Readonly<{top: number; left: number; bottom: number; right: number}>;
 export type MappedCell = Readonly<{offset: number; node: Node; rect: CellRect}>;
 export type CellDirection = 'left' | 'right' | 'up' | 'down';
 
@@ -102,17 +105,4 @@ declare module 'prosemirror-model' {
     interface NodeSpec {
         tableGeometry?: TableGeometryFactory;
     }
-}
-
-function intersects(a: CellRect, b: CellRect): boolean {
-    return a.top < b.bottom && a.bottom > b.top && a.left < b.right && a.right > b.left;
-}
-
-function union(a: CellRect, b: CellRect): CellRect {
-    return {
-        top: Math.min(a.top, b.top),
-        left: Math.min(a.left, b.left),
-        bottom: Math.max(a.bottom, b.bottom),
-        right: Math.max(a.right, b.right),
-    };
 }

@@ -6,6 +6,7 @@ import {createYfmTable} from './actions';
 import {backspaceCommand} from './commands/backspace';
 import {goToNextRow} from './commands/goToNextRow';
 import {createYfmTableGeometry} from './geometry';
+import {yfmTableMatrix} from './matrix';
 import {yfmTableControlsPlugins} from './plugins/YfmTableControls';
 import {yfmTableTransformPastedPlugin} from './plugins/yfmTableTransformPastedPlugin';
 
@@ -57,6 +58,7 @@ export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options
     builder.overrideNodeSpec(YfmTableNode.Table, (spec) => ({
         ...spec,
         tableGeometry: createYfmTableGeometry,
+        tableMatrix: yfmTableMatrix,
     }));
 
     builder.addKeymap(() => ({
@@ -67,7 +69,12 @@ export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options
         Backspace: backspaceCommand,
     }));
     builder.addAction(action, () => createYfmTable);
-    builder.addPlugin(yfmTableTransformPastedPlugin);
+    builder.addPlugin((deps) =>
+        yfmTableTransformPastedPlugin({
+            ...deps,
+            matrixEnabled: builder.context.get('tableCellSelection') === true,
+        }),
+    );
 
     if (options.controls !== false) {
         builder.addPlugin(

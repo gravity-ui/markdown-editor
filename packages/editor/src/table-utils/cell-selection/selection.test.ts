@@ -1,4 +1,4 @@
-import {history, undo} from 'prosemirror-history';
+import {history, redo, redoDepth, undo, undoDepth} from 'prosemirror-history';
 import {Fragment, Schema, Slice} from 'prosemirror-model';
 import {EditorState, Selection, TextSelection} from 'prosemirror-state';
 import {describe, expect, it} from 'vitest';
@@ -99,6 +99,32 @@ describe('TableCellSelection', () => {
             });
             expect(state.doc.eq(doc)).toBe(true);
             expect(state.selection).toBeInstanceOf(TableCellSelection);
+        },
+    );
+
+    it.each([false, true])(
+        'should keep redo history when clearing empty cells (blocks=%s)',
+        (blocks) => {
+            const {doc, cells} = fixture(blocks, '');
+            const selection = TableCellSelection.create(doc, cells[0], cells[3]);
+            let state = EditorState.create({doc, selection, plugins: [history()]});
+            state = state.apply(state.tr.insertText('typed'));
+            undo(state, (tr) => {
+                state = state.apply(tr);
+            });
+
+            clearSelectedCells(state, (tr) => {
+                state = state.apply(tr);
+            });
+
+            expect(state.doc.eq(doc)).toBe(true);
+            expect(state.selection.eq(selection)).toBe(true);
+            expect(undoDepth(state)).toBe(0);
+            expect(redoDepth(state)).toBe(1);
+            redo(state, (tr) => {
+                state = state.apply(tr);
+            });
+            expect(state.doc.textContent).toBe('typed');
         },
     );
 

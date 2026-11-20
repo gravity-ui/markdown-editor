@@ -1,6 +1,7 @@
 import {Fragment, type Node, type ResolvedPos, Slice} from 'prosemirror-model';
 import {
     type Command,
+    type EditorState,
     Selection,
     type SelectionBookmark,
     SelectionRange,
@@ -97,7 +98,7 @@ export class TableCellSelection extends Selection {
         return this.getBookmark().map(mapping).resolve(doc);
     }
 
-    override getBookmark(): SelectionBookmark {
+    override getBookmark(): TableCellBookmark {
         return new TableCellBookmark(
             this.$anchorCell.pos,
             this.$headCell.pos,
@@ -110,7 +111,7 @@ export class TableCellSelection extends Selection {
     // https://github.com/ProseMirror/prosemirror-tables/blob/eb522f25959a1e4515a4ff5ce7e3a939f19c55e9/src/cellselection.ts#L106-L181
     override content(): Slice {
         const offsets = new Set(this.geometry.cellsInRect(this.rect).map((cell) => cell.offset));
-        const table = copySelected(this.geometry.table, 0, offsets);
+        const table = copySelected(this.geometry.table, 0, offsets, this.geometry);
         return table ? new Slice(Fragment.from(table), 0, 0) : Slice.empty;
     }
 
@@ -185,24 +186,29 @@ export function isTableCellSelection(selection: Selection): selection is TableCe
 // https://github.com/ProseMirror/prosemirror-tables/blob/eb522f25959a1e4515a4ff5ce7e3a939f19c55e9/src/commands.ts#L867-L889
 export const clearSelectedCells: Command = (state, dispatch) => {
     if (!(state.selection instanceof TableCellSelection)) return false;
-    const selection = state.selection;
-    const cells = selection.geometry.cellsInRect(selection.rect);
-    const replacements = cells.map(
-        (cell) => cell.node.type.createAndFill(cell.node.attrs)?.content,
-    );
-    if (replacements.some((content) => !content)) return false;
-    if (dispatch) {
-        const tr = state.tr;
-        for (let index = cells.length - 1; index >= 0; index--) {
-            const cell = cells[index];
-            const pos = selection.tablePos + cell.offset + 1;
-            tr.replaceWith(pos, pos + cell.node.content.size, replacements[index]!);
-        }
-        tr.setSelection(selection.map(tr.doc, tr.mapping));
-        dispatch(tr);
-    }
+    const tr = prepareCellClear(state, state.selection);
+    if (!tr) return false;
+    if (tr.docChanged) dispatch?.(tr);
     return true;
 };
+
+export function prepareCellClear(
+    state: EditorState,
+    selection: TableCellSelection,
+): Transaction | null {
+    const cells = selection.geometry.cellsInRect(selection.rect);
+    const tr = state.tr;
+    for (let index = cells.length - 1; index >= 0; index--) {
+        const cell = cells[index];
+        const replacement = cell.node.type.createAndFill(cell.node.attrs)?.content;
+        if (!replacement) return null;
+        if (cell.node.content.eq(replacement)) continue;
+        const pos = selection.tablePos + cell.offset + 1;
+        tr.replaceWith(pos, pos + cell.node.content.size, replacement);
+    }
+    tr.setSelection(selection.map(tr.doc, tr.mapping));
+    return tr;
+}
 
 // Project-specific lookup: uses schema geometry and supports nested tables.
 export function findTableCell(
@@ -328,11 +334,17 @@ function normalizeContent(cell: Node, slice: Slice): Fragment | null {
         : null;
 }
 
-function copySelected(node: Node, offset: number, offsets: ReadonlySet<number>): Node | null {
+function copySelected(
+    node: Node,
+    offset: number,
+    offsets: ReadonlySet<number>,
+    geometry: TableGeometry,
+): Node | null {
     if (offsets.has(offset)) return node;
+    if (geometry.cellAtOffset(offset)) return null;
     const children: Node[] = [];
     node.forEach((child, childOffset) => {
-        const selected = copySelected(child, offset + childOffset + 1, offsets);
+        const selected = copySelected(child, offset + childOffset + 1, offsets, geometry);
         if (selected) children.push(selected);
     });
     return children.length ? node.copy(Fragment.from(children)) : null;
