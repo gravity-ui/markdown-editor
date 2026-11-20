@@ -1,11 +1,12 @@
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {
     headerAttrs,
+    headerBackgroundDefaults,
     headerClassName,
     headerDefaults,
-    headerDimensionsFromAttrs,
 } from '@gravity-ui/markdown-plugin-header';
 
+import {headerNodeAttrs} from './attrs';
 import {headerNodeName} from './const';
 
 export const HeaderSchemaSpecs: ExtensionAuto = (builder) => {
@@ -18,11 +19,15 @@ export const HeaderSchemaSpecs: ExtensionAuto = (builder) => {
         attrs: {
             height: {default: headerDefaults.height},
             width: {default: headerDefaults.width},
+            'bg-color': {default: headerBackgroundDefaults['bg-color']},
+            'bg-image': {default: headerBackgroundDefaults['bg-image']},
+            'bg-image-theme': {default: headerBackgroundDefaults['bg-image-theme']},
+            'bg-image-blur': {default: headerBackgroundDefaults['bg-image-blur']},
         },
         parseDOM: [
             {
                 tag: `div.${headerClassName}`,
-                getAttrs: (dom) => headerDimensionsFromAttrs((name) => dom.getAttribute(name)),
+                getAttrs: (dom) => headerNodeAttrs((name) => dom.getAttribute(name)),
             },
         ],
         toDOM: (node) => ['div', headerAttrs(node.attrs), 0],
