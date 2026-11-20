@@ -27,7 +27,9 @@ import WysiwygModeIcon from '../../icons/WysiwygMode';
 import {noop} from '../../lodash';
 import {useTargetZIndex} from '../../react-utils';
 import {useBooleanState} from '../../react-utils/hooks';
+import {getToggleTabFocusModeShortcut} from '../../shortcuts';
 import {ToolbarTooltipDelay} from '../../toolbar';
+import type {TabFocusMode} from '../../utils/tab-focus-mode';
 import {VERSION} from '../../version';
 import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
 
@@ -116,7 +118,7 @@ export const EditorSettings = memo<EditorSettingsProps>(function EditorSettings(
     );
 });
 
-export type SettingItems = 'mode' | 'toolbar' | 'split';
+export type SettingItems = 'mode' | 'toolbar' | 'split' | 'tab-focus';
 
 type SettingsContentProps = ClassNameProps &
     QAProps & {
@@ -128,6 +130,8 @@ type SettingsContentProps = ClassNameProps &
         toolbarVisibility: boolean;
         settingsVisible?: SettingItems[] | boolean;
         onToolbarVisibilityChange: (val: boolean) => void;
+        tabFocusMode: TabFocusMode;
+        onTabFocusModeChange: (mode: TabFocusMode) => void;
         splitMode?: MarkdownEditorSplitMode;
         splitModeEnabled?: boolean;
         onSplitModeChange?: (splitModeEnabled: boolean) => void;
@@ -143,6 +147,8 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
     onModeChange,
     toolbarVisibility,
     onToolbarVisibilityChange,
+    tabFocusMode,
+    onTabFocusModeChange,
     onSplitModeChange,
     splitMode = false,
     splitModeEnabled,
@@ -157,6 +163,8 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
     const showModeSetting = isSettingsArray ? settingsVisible?.includes('mode') : true;
     const showToolbarSetting = isSettingsArray ? settingsVisible?.includes('toolbar') : true;
     const showSplitModeSetting = isSettingsArray ? settingsVisible?.includes('split') : true;
+    const showTabFocusSetting = isSettingsArray ? settingsVisible?.includes('tab-focus') : true;
+    const tabFocusShortcut = getToggleTabFocusModeShortcut();
 
     return (
         <div className={bContent(null, [className])} data-qa={qa}>
@@ -206,9 +214,10 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                     </Menu.Item>
                 </Menu>
             )}
-            {showModeSetting && (showSplitModeSetting || showToolbarSetting) && (
-                <div className={bContent('separator')} />
-            )}
+            {showModeSetting &&
+                (showSplitModeSetting || showToolbarSetting || showTabFocusSetting) && (
+                    <div className={bContent('separator')} />
+                )}
             {showToolbarSetting && !showPreview && (
                 <CheckboxWithHint
                     checked={toolbarVisibility}
@@ -226,6 +235,15 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                     onUpdate={onSplitModeChange ?? noop}
                     title={i18n('settings_split-mode')}
                     hint={i18n('settings_split-mode-hint')}
+                />
+            )}
+            {showTabFocusSetting && (
+                <CheckboxWithHint
+                    checked={tabFocusMode === 'focus'}
+                    className={bContent('tab-focus')}
+                    onUpdate={(checked) => onTabFocusModeChange(checked ? 'focus' : 'indent')}
+                    title={i18n('settings_tab-focus')}
+                    hint={i18n('settings_tab-focus-hint', {shortcut: tabFocusShortcut})}
                 />
             )}
             <Text variant="code-inline-1" className={bContent('version')}>

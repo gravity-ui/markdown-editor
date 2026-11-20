@@ -6,6 +6,7 @@ formatter
 
     .set(A.Cancel, [K.Esc])
     .set(A.Submit, [MK.Mod, K.Enter])
+    .set(A.ToggleTabFocusMode, {pc: [MK.Ctrl, 'm'], mac: [MK.Ctrl, MK.Shift, 'm']})
 
     .set(A.Undo, [MK.Mod, 'z'])
     .set(A.Redo, [MK.Mod, MK.Shift, 'z'])
@@ -30,8 +31,8 @@ formatter
     .set(A.BulletList, [MK.Mod, MK.Shift, 'l'])
     .set(A.OrderedList, [MK.Mod, MK.Shift, 'm'])
 
-    .set(A.SinkListItem, [MK.Tab])
-    .set(A.LiftListItem, [MK.Shift, MK.Tab])
+    .set(A.SinkListItem, [MK.Mod, ']'])
+    .set(A.LiftListItem, [MK.Mod, '['])
 
     .set(A.Quote, [MK.Mod, MK.Shift, '.'])
     .set(A.CodeBlock, {pc: [MK.Ctrl, MK.Shift, 'e'], mac: [MK.Cmd, MK.Option, 'e']})

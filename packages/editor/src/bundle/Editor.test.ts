@@ -6,6 +6,7 @@ import {Logger2, globalLogger} from 'src/logger';
 import {ReactRenderStorage} from 'src/modules/react-renderer';
 import {DirectiveSyntaxContext} from 'src/utils/directive';
 import {SafeEventEmitter} from 'src/utils/event-emitter';
+import {TabFocusModeState} from 'src/utils/tab-focus-mode';
 
 import {EditorImpl, type EditorOptions} from './Editor';
 import {MarkupCore} from './markup/MarkupCore';
@@ -172,6 +173,7 @@ function createEditor(overrides: Partial<ConstructorParameters<typeof EditorImpl
         renderStorage: new ReactRenderStorage(),
         preset: 'full',
         directiveSyntax: new DirectiveSyntaxContext(undefined),
+        tabFocusMode: new TabFocusModeState(overrides.initial?.tabFocusMode),
         ...overrides,
     };
     const events = new SafeEventEmitter<EditorEventMap>({

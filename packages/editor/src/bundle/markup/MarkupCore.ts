@@ -4,6 +4,7 @@ import type {MarkupString} from 'src/common';
 import {i18n} from 'src/i18n/bundle';
 import {createCodemirror} from 'src/markup';
 import {getAutocompleteConfig} from 'src/markup/codemirror/autocomplete';
+import {createMarkupTabFocusMode} from 'src/markup/codemirror/tab-focus-mode';
 import {Editor} from 'src/markup/editor';
 
 import {emojiDefs} from '../emoji';
@@ -51,7 +52,9 @@ export class MarkupCore implements ModeCore<Editor> {
                 logger,
                 renderStorage,
                 directiveSyntax,
+                tabFocusMode,
             } = this.#options;
+            const markupTabFocus = createMarkupTabFocusMode(tabFocusMode);
             const events = this.#events;
             const preserveEmptyRows = experimental.preserveEmptyRows || false;
             const uploadFile = handlers.uploadFile;
@@ -76,7 +79,7 @@ export class MarkupCore implements ModeCore<Editor> {
                     needImageDimensions,
                     parseHtmlOnPaste: markupConfig.parseHtmlOnPaste,
                     enableNewImageSizeCalculation,
-                    extensions: markupConfig.extensions,
+                    extensions: [markupTabFocus.extension, ...(markupConfig.extensions ?? [])],
                     disabledExtensions: markupConfig.disabledExtensions,
                     keymaps: markupConfig.keymaps,
                     preserveEmptyRows,
@@ -93,6 +96,7 @@ export class MarkupCore implements ModeCore<Editor> {
                     searchPanel: markupConfig.searchPanel,
                 }),
             );
+            markupTabFocus.initialize(this.#editor.cm);
         }
         return this.#editor;
     }

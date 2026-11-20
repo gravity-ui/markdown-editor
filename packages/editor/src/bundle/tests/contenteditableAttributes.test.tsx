@@ -13,6 +13,7 @@ import {Logger2, globalLogger} from '../../logger';
 import {ZeroPreset} from '../../presets/zero';
 import {DirectiveSyntaxContext} from '../../utils/directive';
 import {SafeEventEmitter} from '../../utils/event-emitter';
+import {TabFocusModeState} from '../../utils/tab-focus-mode';
 import {EditorImpl, type EditorOptions} from '../Editor';
 import {MarkdownEditorView, type MarkdownEditorViewProps} from '../MarkdownEditorView';
 import {MarkupCore} from '../markup/MarkupCore';
@@ -58,6 +59,7 @@ describe('contenteditableAttributes', () => {
             renderStorage: new ReactRenderStorage(),
             preset: 'zero',
             directiveSyntax: new DirectiveSyntaxContext(undefined),
+            tabFocusMode: new TabFocusModeState(),
             initial: {mode, markup: 'Initial content', toolbarVisible: false},
             wysiwygConfig: {
                 extensions: (builder) => builder.use(ZeroPreset, {baseStyles: {attributes}}),

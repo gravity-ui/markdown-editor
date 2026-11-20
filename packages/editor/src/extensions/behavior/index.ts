@@ -29,6 +29,7 @@ export * from './ReactRenderer';
 export * from './Selection';
 export * from './SelectionContext';
 export * from './SharedState';
+export * from './TabFocusMode';
 export * from './WidgetDecoration';
 
 export type BehaviorPresetOptions = {

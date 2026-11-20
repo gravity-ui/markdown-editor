@@ -19,6 +19,7 @@ export enum Action {
 
     Cancel = 'cancel',
     Submit = 'submit',
+    ToggleTabFocusMode = 'toggle-tab-focus-mode',
 
     Undo = 'undo',
     Redo = 'redo',

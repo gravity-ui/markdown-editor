@@ -12,13 +12,14 @@ import {type QAProps, useToaster} from '@gravity-ui/uikit';
 import {ErrorBoundary} from 'react-error-boundary';
 import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 
-import type {ClassNameProps} from '../classname';
+import {type ClassNameProps, cn} from '../classname';
 import {contextualToolbarsKey} from '../extensions/behavior/ContextualToolbars';
 import {i18n} from '../i18n/bundle';
 import {globalLogger} from '../logger';
 import type {ToolbarsPreset} from '../modules/toolbars/types';
 import {useSticky} from '../react-utils';
 import {isMac} from '../utils';
+import type {TabFocusMode} from '../utils/tab-focus-mode';
 
 import type {EditorInt} from './Editor';
 import {HorizontalDrag} from './HorizontalDrag';
@@ -39,6 +40,7 @@ import '../styles/styles.scss';
 import './MarkdownEditorView.scss'; // eslint-disable-line import/order
 
 const b = cnEditorComponent;
+const visuallyHiddenCn = cn('visually-hidden');
 
 interface EditorWrapperProps extends QAProps, ToolbarConfigs, Omit<ViewProps, 'editor'> {
     editor: EditorInt;
@@ -132,6 +134,12 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             },
             [editor],
         );
+        const onTabFocusModeChange = useCallback(
+            (mode: TabFocusMode) => {
+                editor.setTabFocusMode(mode);
+            },
+            [editor],
+        );
         const onSplitModeChange = useCallback(
             (splitModeEnabled: boolean) => {
                 editor.changeSplitModeEnabled({splitModeEnabled});
@@ -177,12 +185,14 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
             onShowPreviewChange,
             onSplitModeChange,
             onToolbarVisibilityChange,
+            onTabFocusModeChange,
             renderPreviewButton: canRenderPreview,
             showPreview,
             splitMode: editor.splitMode,
             splitModeEnabled: editor.splitModeEnabled,
             stickyToolbar,
             toolbarVisibility: editor.toolbarVisible && !showPreview,
+            tabFocusMode: editor.tabFocusMode,
             disableMark: editor.mobile,
         };
 
@@ -422,11 +432,42 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
                         </>
                     )}
                 </div>
+                <TabFocusModeAnnouncer editor={editor} />
             </ErrorBoundary>
         );
     },
 );
 MarkdownEditorView.displayName = 'MarkdownEditorView';
+
+function TabFocusModeAnnouncer({editor}: {editor: MarkdownEditorInstance}) {
+    const [announcement, setAnnouncement] = useState('');
+    const initialMode = useMemo(() => editor.tabFocusMode, [editor]);
+
+    useEffect(() => {
+        setAnnouncement('');
+        const onModeChange = ({mode}: {mode: TabFocusMode}) => {
+            setAnnouncement(
+                i18n(mode === 'focus' ? 'tab-focus-mode_focus' : 'tab-focus-mode_indent'),
+            );
+        };
+        editor.on('change-tab-focus-mode', onModeChange);
+
+        const currentMode = editor.tabFocusMode;
+        if (currentMode !== initialMode) {
+            onModeChange({mode: currentMode});
+        }
+
+        return () => {
+            editor.off('change-tab-focus-mode', onModeChange);
+        };
+    }, [editor, initialMode]);
+
+    return (
+        <span className={visuallyHiddenCn()} role="status" aria-live="polite">
+            {announcement}
+        </span>
+    );
+}
 
 interface MarkupSearchAnchorProps extends Pick<EditorSettingsProps, 'mode'> {}
 

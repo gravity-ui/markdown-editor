@@ -9,6 +9,7 @@ import type {CreateCodemirrorParams, YfmLangOptions} from '../markup';
 import type {MarkupContenteditableAttributes} from '../markup/codemirror/input-attributes';
 import type {FileUploadHandler} from '../utils';
 import type {DirectiveSyntaxContext, DirectiveSyntaxOption} from '../utils/directive';
+import type {TabFocusMode} from '../utils/tab-focus-mode';
 import type {ParseInsertedUrlAsImage} from '../utils/upload';
 
 import type {ChangeEditorModeOptions} from './editor-public-types';
@@ -61,6 +62,8 @@ export type MarkdownEditorInitialOptions = {
     mode?: MarkdownEditorMode;
     /** Default – true */
     toolbarVisible?: boolean;
+    /** Default – indent */
+    tabFocusMode?: TabFocusMode;
     /**
      * Default – false
      *

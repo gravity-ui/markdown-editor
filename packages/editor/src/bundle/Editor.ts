@@ -9,6 +9,7 @@ import type {CodeEditor, Editor as MarkupEditor} from 'src/markup/editor';
 import type {ReactRenderStorage, RenderStorage} from 'src/modules/react-renderer';
 import type {DirectiveSyntaxContext} from 'src/utils/directive';
 import type {Emitter, Listener, Receiver, SafeEventEmitter} from 'src/utils/event-emitter';
+import type {TabFocusMode, TabFocusModeState} from 'src/utils/tab-focus-mode';
 import type {FileUploadHandler} from 'src/utils/upload';
 
 import type {ChangeEditorModeOptions, MarkdownEditorInstance} from './editor-public-types';
@@ -34,6 +35,7 @@ export interface EditorInt
     readonly logger: Logger2.ILogger;
     readonly currentMode: EditorMode;
     readonly toolbarVisible: boolean;
+    readonly tabFocusMode: TabFocusMode;
     readonly splitModeEnabled: boolean;
     readonly splitMode: SplitMode;
     readonly preset: EditorPreset;
@@ -58,6 +60,8 @@ export interface EditorInt
     changeEditorMode(opts: ChangeEditorModeOptions): void;
 
     setEditorMode(mode: EditorMode, opts?: SetEditorModeOptions): void;
+
+    setTabFocusMode(mode: TabFocusMode): void;
 
     moveCursor(position: 'start' | 'end' | {line: number}): void;
 
@@ -95,6 +99,7 @@ export class EditorImpl implements EditorInt {
     readonly #markupState: EditorMarkupState;
     #editorMode: EditorMode;
     #toolbarVisible: boolean;
+    readonly #tabFocusMode: TabFocusModeState;
     #splitModeEnabled: boolean;
     #splitMode: SplitMode;
     #previewVisible: boolean;
@@ -189,6 +194,10 @@ export class EditorImpl implements EditorInt {
         return this.#toolbarVisible;
     }
 
+    get tabFocusMode(): TabFocusMode {
+        return this.#tabFocusMode.getMode();
+    }
+
     get splitModeEnabled(): boolean {
         return this.#splitModeEnabled;
     }
@@ -272,6 +281,7 @@ export class EditorImpl implements EditorInt {
         this.#logger = logger;
         this.#editorMode = initial.mode ?? 'wysiwyg';
         this.#toolbarVisible = initial.toolbarVisible ?? true;
+        this.#tabFocusMode = opts.tabFocusMode;
         this.#splitMode = (markupConfig.renderPreview && markupConfig.splitMode) ?? false;
         this.#splitModeEnabled = (this.#splitMode && initial.splitModeEnabled) ?? false;
         this.#previewVisible = false;
@@ -337,6 +347,10 @@ export class EditorImpl implements EditorInt {
 
     setEditorMode(mode: EditorMode, opts?: SetEditorModeOptions): void {
         this.changeEditorMode({mode, reason: 'manually', emit: opts?.emit});
+    }
+
+    setTabFocusMode(mode: TabFocusMode): void {
+        this.#tabFocusMode.setMode(mode);
     }
 
     changeEditorMode({emit = true, ...opts}: ChangeEditorModeOptions): void {
