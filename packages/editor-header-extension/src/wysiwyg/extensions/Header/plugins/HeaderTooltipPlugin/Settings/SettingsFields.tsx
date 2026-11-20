@@ -10,9 +10,9 @@ import {
 import {Button, Divider, Icon, Text, useUniqId} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
+import {cnHeaderSettings} from '../../../../settings';
 
 import {AlignmentSelect} from './AlignmentSelect';
-import {cnHeaderSettings} from './HeaderSettings.classname';
 import {SettingsSection} from './SettingsSection';
 import {SettingsSwitch} from './SettingsSwitch';
 import {logClick} from './utils';

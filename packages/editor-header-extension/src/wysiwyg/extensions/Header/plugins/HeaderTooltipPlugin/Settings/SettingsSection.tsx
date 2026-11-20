@@ -3,7 +3,8 @@ import {type ReactNode, useState} from 'react';
 import {ChevronDown, ChevronUp} from '@gravity-ui/icons';
 import {Button, Icon, Text, useUniqId} from '@gravity-ui/uikit';
 
-import {cnHeaderSettings} from './HeaderSettings.classname';
+import {cnHeaderSettings} from '../../../../settings';
+
 import {logClick} from './utils';
 
 export function SettingsSection({
