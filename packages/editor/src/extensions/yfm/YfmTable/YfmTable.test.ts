@@ -149,6 +149,124 @@ nested table
         );
     });
 
+    it.each([
+        ['align="right" bgcolor="red"', 'cell-align-top-right', 'red'],
+        ['style="text-align:center;vertical-align:bottom;background-color:red"', null, 'red'],
+        [
+            'cell-align="cell-align-bottom-right" data-bg="blue-100"',
+            'cell-align-bottom-right',
+            null,
+        ],
+    ])('should parse external HTML cell attributes %s', (attrs, align, background) => {
+        expectPastedCell(attrs, {
+            [YfmTableAttr.CellAlign]: align,
+            [YfmTableAttr.CellBg]: background,
+        });
+    });
+
+    it.each([
+        ['data-bg="red-light" style="background-color:blue"', 'red-light'],
+        ['data-bg="unknown" bgcolor="blue" style="background-color:#f00"', 'red'],
+        ['bgcolor="#008000"', 'green'],
+        ['style="background-color:rgb(128, 128, 128)"', 'grey'],
+        ['bgcolor="gray"', 'grey'],
+        ['bgcolor="red" style="background-color:orange"', null],
+        ['style="background-color:rgba(255, 0, 0, 0.5)"', null],
+    ])('should import the supported cell background for %s', (attrs, background) => {
+        expectPastedCell(attrs, {[YfmTableAttr.CellBg]: background});
+    });
+
+    it('should infer leading header rows and include each HTML row group', () => {
+        parseDOM(
+            schema,
+            '<table><tbody><tr><th>A</th></tr></tbody><tbody><tr><td>B</td></tr></tbody><tfoot><tr><th>C</th></tr></tfoot></table>',
+            doc(
+                table(
+                    {[YfmTableAttr.HeaderRows]: 1},
+                    tbody(tr(td(p('A'))), tr(td(p('B'))), tr(td(p('C')))),
+                ),
+            ),
+        );
+    });
+
+    it.each([
+        ['valign="bottom"', 'cell-align-bottom-left'],
+        ['style="vertical-align: middle"', 'cell-align-center'],
+        ['align="center" valign="middle"', 'cell-align-center'],
+        ['align="right" valign="middle"', null],
+        ['align="justify"', null],
+        ['data-cell-align="two classes"', null],
+        [
+            'align="left" valign="bottom" style="text-align: right; vertical-align: top"',
+            'cell-align-top-right',
+        ],
+        ['data-cell-align="cell-align-center" style="text-align: right"', 'cell-align-center'],
+    ])('should map HTML alignment %s to a supported YFM value', (attrs, align) => {
+        expectPastedCell(attrs, {[YfmTableAttr.CellAlign]: align});
+    });
+
+    it.each([
+        ['0', 0],
+        ['9', 2],
+    ] as const)(
+        'should apply the explicit header count %s within the table height',
+        (value, expected) => {
+            parseDOM(
+                schema,
+                `<table data-header-rows="${value}"><thead><tr><td>A</td></tr></thead><tbody><tr><td>B</td></tr></tbody></table>`,
+                doc(
+                    table(
+                        {[YfmTableAttr.HeaderRows]: expected},
+                        tbody(tr(td(p('A'))), tr(td(p('B')))),
+                    ),
+                ),
+            );
+        },
+    );
+
+    it.each([
+        ['1001', '1000'],
+        ['0', '1'],
+    ])('should normalize HTML colspan="%s" to %s', (value, expected) => {
+        expectPastedCell(`colspan="${value}"`, {[YfmTableAttr.Colspan]: expected});
+    });
+
+    it.each(['0', '5'])('should limit rowspan="%s" to the remaining header rows', (span) => {
+        parseDOM(
+            schema,
+            `<table><thead>
+                <tr><th>X</th><th>Y</th></tr>
+                <tr><th rowspan="${span}">A</th><th>B</th></tr>
+                <tr><th>C</th></tr>
+            </thead><tbody><tr><td>D</td><td>E</td></tr></tbody></table>`,
+            doc(
+                table(
+                    {[YfmTableAttr.HeaderRows]: 3},
+                    tbody(
+                        tr(td(p('X')), td(p('Y'))),
+                        tr(td({[YfmTableAttr.Rowspan]: '2'}, p('A')), td(p('B'))),
+                        tr(td(p('C'))),
+                        tr(td(p('D')), td(p('E'))),
+                    ),
+                ),
+            ),
+        );
+    });
+
+    it('should preserve spans and native cell attributes in a nested HTML table', () => {
+        const attrs = {
+            [YfmTableAttr.Colspan]: '2',
+            [YfmTableAttr.Rowspan]: '2',
+            [YfmTableAttr.CellBg]: 'red',
+            [YfmTableAttr.CellAlign]: 'cell-align-bottom-right',
+        };
+        parseDOM(
+            schema,
+            '<table><tr><td><table><tr><td colspan="2" rowspan="2" data-bg="red" data-cell-align="cell-align-bottom-right">A</td></tr><tr></tr></table></td></tr></table>',
+            doc(table(tbody(tr(td(table(tbody(tr(td(attrs, p('A'))), tr()))))))),
+        );
+    });
+
     it('should keep pasted header and body rows in their respective tables', () => {
         const view = new EditorView(null, {
             state: EditorState.create({schema}),
@@ -1168,3 +1286,14 @@ cell11
         });
     });
 });
+
+function expectPastedCell(
+    htmlAttrs: string,
+    expectedAttrs: Partial<Record<YfmTableAttr, string | null>>,
+) {
+    parseDOM(
+        schema,
+        `<table><tr><td ${htmlAttrs}>A</td></tr></table>`,
+        doc(table(tbody(tr(td(expectedAttrs, p('A')))))),
+    );
+}

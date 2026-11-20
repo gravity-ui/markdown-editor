@@ -19,7 +19,7 @@ export type ToolbarColorsProps = Omit<ToolbarBaseProps<never>, 'editor'> &
     Pick<ToolbarButtonWithPopupMenuProps, 'disablePortal'> & {
         active?: boolean;
         enable?: boolean;
-        currentColor?: string;
+        currentColor?: string | null;
         withDefault?: boolean;
         exec(color: string): void;
     };
@@ -86,9 +86,9 @@ export const ToolbarColors: React.FC<ToolbarColorsProps> = (props) => {
             menuItems={items}
             icon={textColorIcon}
             _selectionType="light"
-            iconClassName={b('menu-icon', {color: currentColor})}
-            chevronIconClassName={b('chevron-icon', {color: currentColor})}
-            data-selected-color={currentColor ?? 'default'}
+            iconClassName={b('menu-icon', {color: currentColor ?? undefined})}
+            chevronIconClassName={b('chevron-icon', {color: currentColor ?? undefined})}
+            data-selected-color={currentColor === null ? 'mixed' : (currentColor ?? 'default')}
         />
     );
 };

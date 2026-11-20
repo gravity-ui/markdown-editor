@@ -15,6 +15,8 @@ export const addImage = (schema: Schema): ActionSpec => {
     return {
         isEnable: (state) => state.selection.empty,
         run(state, dispatch, _view, attrs) {
+            if (!state.selection.empty) return;
+
             const params = attrs as AddImageAttrs | undefined;
 
             if (params?.src) {

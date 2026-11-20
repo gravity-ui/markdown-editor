@@ -1,6 +1,10 @@
+import type {CellBackground} from '../../../../YfmTableSpecs/const';
+
 export const NO_COLOR_VALUE = '';
 
-export const CELL_BG_SWATCHES = [
+export type CellBgValue = CellBackground | typeof NO_COLOR_VALUE;
+
+export const CELL_BG_SWATCHES: readonly {value: CellBgValue; i18nKey: string}[] = [
     {value: NO_COLOR_VALUE, i18nKey: 'cells.bg.none'},
     {value: 'yellow-light', i18nKey: 'cells.bg.yellow-light'},
     {value: 'red-light', i18nKey: 'cells.bg.red-light'},
@@ -13,6 +17,4 @@ export const CELL_BG_SWATCHES = [
     {value: 'purple', i18nKey: 'cells.bg.purple'},
     {value: 'blue', i18nKey: 'cells.bg.blue'},
     {value: 'green', i18nKey: 'cells.bg.green'},
-] as const;
-
-export type CellBgValue = (typeof CELL_BG_SWATCHES)[number]['value'];
+];

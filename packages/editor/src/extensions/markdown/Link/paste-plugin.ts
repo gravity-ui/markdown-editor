@@ -1,8 +1,9 @@
 import {Plugin, TextSelection, type Transaction} from 'prosemirror-state';
 
+import {DataTransferType, isIosSafariShare} from 'src/utils/clipboard';
+
 import {type ExtensionDeps, type Parser, getLoggerFromState} from '../../../core';
 import {isNodeSelection, isTextSelection} from '../../../utils/selection';
-import {DataTransferType, isIosSafariShare} from '../../behavior/Clipboard/utils';
 import {imageType} from '../Image';
 
 import {LinkAttr, linkType} from './LinkSpecs';

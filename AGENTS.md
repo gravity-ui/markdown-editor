@@ -33,7 +33,8 @@ It covers `*.{js,jsx,mjs,ts,tsx,css,scss}` across the whole repository. Its outp
 - Never format code by hand, and never reformat lines you did not change.
 - Read `git status` after a fix run and commit only the files your change belongs to.
 - An `eslint-disable` comment that no longer suppresses anything is an error. Remove it instead of keeping it for safety.
-- Write code the way the linter wants it from the start: `T[]` instead of `Array<T>`, object shorthand (`{foo}` instead of `{foo: foo}`), inline type imports (`import {type Foo} from './foo'`).
+- Use `T[]` for arrays and object shorthand (`{foo}`).
+- Use `import type {Foo, Bar} from './foo'` when importing only types. When importing values and types together, mark each type inline (`import {createFoo, type Foo} from './foo'`).
 - Where the linter is silent, follow the file you are editing.
 - Shared rules live in `infra/linters/`; per-package overrides are in the root `eslint.config.mjs`.
 
