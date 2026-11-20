@@ -8,6 +8,8 @@ import {HeaderStories} from './Header.helpers';
 const PARAGRAPH_GAP = 8;
 const REGULAR_TYPOGRAPHY = ['15px', '20px', '400'];
 const PLACEHOLDER = 'Short text: for example, what this page is about and who it is for';
+const SAMPLE_DESCRIPTION =
+    'Here you will find the main rules and recommendations for working in our services';
 
 const values = [
     {
@@ -132,5 +134,57 @@ test.describe('Header content', () => {
         await editor.press('Backspace');
         await expect(headerContent.blocks).toHaveCount(2);
         await expect(headerContent.paragraphs).toHaveCount(2);
+    });
+
+    test('should remove the description and restore its text with the settings switch @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+        headerContent,
+        wait,
+        expectScreenshot,
+    }) => {
+        await page.setViewportSize({width: 740, height: 980});
+        await mount(<HeaderStories.Description width={660} />);
+        await headerContent.paragraphs.first().click();
+        await editor.press('End');
+        await editor.pressSequentially(' Edited.');
+        const edited = await page.evaluate(() => window.mdEditor?.getValue());
+        await header.openSettings();
+        await expect(header.toggle('Description')).toBeChecked();
+        await header.clickToggle('Description');
+        await expect(header.toggle('Description')).not.toBeChecked();
+        await expect(headerContent.blocks).toHaveCount(1);
+        await header.setExpandedSections('Text');
+        const removed = await page.evaluate(() => window.mdEditor?.getValue());
+        await wait.markupPreview(removed ?? '');
+        await expectScreenshot();
+        await header.clickToggle('Description');
+        await expect(header.toggle('Description')).toBeChecked();
+        await expect(headerContent.paragraphs.first()).toHaveText('Portal description. Edited.');
+        expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(edited);
+    });
+
+    test('should add a description with a sample text to an empty banner @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        header,
+        headerContent,
+    }) => {
+        await mount(<HeaderStories.Header />);
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await header.openSettings();
+        await expect(header.toggle('Description')).not.toBeChecked();
+        await header.clickToggle('Description');
+        await expect(header.toggle('Description')).toBeChecked();
+        await expect(headerContent.paragraphs).toHaveText([SAMPLE_DESCRIPTION]);
+        await header.clickToggle('Description');
+        await expect(headerContent.blocks).toHaveCount(0);
+        expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(
+            ':::header{height="s" width="m"}\n\n:::\n\nAfter',
+        );
     });
 });
