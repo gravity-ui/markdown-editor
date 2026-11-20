@@ -1,6 +1,6 @@
 import {
     MobileProvider,
-    ThemeProvider,
+    Provider as ThemeProvider,
     Toaster,
     ToasterComponent,
     ToasterProvider,

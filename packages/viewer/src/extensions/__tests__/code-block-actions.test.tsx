@@ -1,6 +1,6 @@
 import {Fragment, type ReactNode, StrictMode} from 'react';
 
-import {ThemeProvider} from '@gravity-ui/uikit';
+import {Provider} from '@gravity-ui/uikit';
 import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 
@@ -207,16 +207,16 @@ describe('YfmCodeBlockActions', () => {
     it('should isolate actions and use the language of each viewer', async () => {
         render(
             <>
-                <ThemeProvider lang="en">
+                <Provider lang="en">
                     <MarkdownViewer html='<div class="yfm-clipboard"><pre><code>English</code></pre></div>'>
                         <YfmCodeBlockActions />
                     </MarkdownViewer>
-                </ThemeProvider>
-                <ThemeProvider lang="ru">
+                </Provider>
+                <Provider lang="ru">
                     <MarkdownViewer html='<div class="yfm-clipboard"><pre><code>Русский</code></pre></div>'>
                         <YfmCodeBlockActions />
                     </MarkdownViewer>
-                </ThemeProvider>
+                </Provider>
             </>,
         );
         const wrap = getButton('Перенос текста');

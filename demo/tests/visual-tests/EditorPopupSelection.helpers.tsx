@@ -3,7 +3,12 @@ import {useLayoutEffect, useRef, useState} from 'react';
 import {MarkdownEditorView, useMarkdownEditor} from '@gravity-ui/markdown-editor';
 import {NodeSelection, Plugin, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {MobileProvider, ThemeProvider, Toaster, ToasterProvider} from '@gravity-ui/uikit';
+import {
+    MobileProvider,
+    Provider as ThemeProvider,
+    Toaster,
+    ToasterProvider,
+} from '@gravity-ui/uikit';
 import * as ReactDOM from 'react-dom';
 
 type Selection = {type: string; from: number; to: number};

@@ -62,7 +62,7 @@ export const ImageForm: React.FC<{
         setOpen(Boolean(anchorElement));
     }, [anchorElement]);
 
-    const inputEnterKeyHandler: TextInputProps['onKeyPress'] = enterKeyHandler(handleSubmit);
+    const inputEnterKeyHandler: TextInputProps['onKeyDown'] = enterKeyHandler(handleSubmit);
 
     return (
         <Popup
@@ -91,7 +91,7 @@ export const ImageForm: React.FC<{
                                     value={linkHref}
                                     onUpdate={setLinkHref}
                                     className={b('input', {type: 'link'})}
-                                    onKeyPress={inputEnterKeyHandler}
+                                    onKeyDown={inputEnterKeyHandler}
                                 />
                             }
                         />
@@ -106,7 +106,7 @@ export const ImageForm: React.FC<{
                                 value={name}
                                 onUpdate={setName}
                                 className={b('input', {type: 'name'})}
-                                onKeyPress={inputEnterKeyHandler}
+                                onKeyDown={inputEnterKeyHandler}
                             />
                         }
                     />
@@ -120,7 +120,7 @@ export const ImageForm: React.FC<{
                                 value={alt}
                                 onUpdate={setAlt}
                                 className={b('input', {type: 'alt'})}
-                                onKeyPress={inputEnterKeyHandler}
+                                onKeyDown={inputEnterKeyHandler}
                             />
                         }
                     />
@@ -136,7 +136,7 @@ export const ImageForm: React.FC<{
                                     onUpdate={setWidth}
                                     placeholder={i18n('image_size_width')}
                                     className={b('input', {type: 'width'})}
-                                    onKeyPress={inputEnterKeyHandler}
+                                    onKeyDown={inputEnterKeyHandler}
                                 />
                                 x
                                 <NumberInput
@@ -147,7 +147,7 @@ export const ImageForm: React.FC<{
                                     onUpdate={setHeight}
                                     placeholder={i18n('image_size_height')}
                                     className={b('input', {type: 'height'})}
-                                    onKeyPress={inputEnterKeyHandler}
+                                    onKeyDown={inputEnterKeyHandler}
                                 />
                             </div>
                         }

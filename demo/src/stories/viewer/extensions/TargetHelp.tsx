@@ -1,7 +1,7 @@
 import {useState} from 'react';
 
 import {ViewerTargets} from '@gravity-ui/markdown-viewer';
-import {HelpMark, sp} from '@gravity-ui/uikit';
+import {Box, HelpMark} from '@gravity-ui/uikit';
 import {useMap} from 'react-use';
 
 export function TargetHelp() {
@@ -32,21 +32,22 @@ function TargetHelpMark({
     const [open, setOpen] = useState(false);
 
     return (
-        <HelpMark
-            className={sp({ml: 2})}
-            aria-label={`Show ID ${id}`}
-            popoverProps={{
-                open,
-                onOpenChange: (nextOpen) => {
-                    if (nextOpen && !open) onOpen();
-                    setOpen(nextOpen);
-                },
-            }}
-        >
-            <div>
-                ID: <code>{id}</code>
-            </div>
-            <div>Opened: {openCount}</div>
-        </HelpMark>
+        <Box as="span" marginInlineStart="spacing-2">
+            <HelpMark
+                aria-label={`Show ID ${id}`}
+                popoverProps={{
+                    open,
+                    onOpenChange: (nextOpen) => {
+                        if (nextOpen && !open) onOpen();
+                        setOpen(nextOpen);
+                    },
+                }}
+            >
+                <div>
+                    ID: <code>{id}</code>
+                </div>
+                <div>Opened: {openCount}</div>
+            </HelpMark>
+        </Box>
     );
 }

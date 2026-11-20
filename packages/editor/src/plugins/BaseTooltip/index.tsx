@@ -200,7 +200,7 @@ export class BaseTooltipPluginView implements PluginView {
         this.renderItem.rerender();
     }
 
-    protected onOutsideClick: PopupProps['onOutsideClick'] = () => {
+    protected onOutsideClick = () => {
         this.hidePopupManual();
     };
 

@@ -11,13 +11,14 @@ import {
     type CheckboxProps,
     HelpMark,
     Icon,
-    Menu,
     Popup,
     type PopupPlacement,
     type QAProps,
     Text,
     sp,
 } from '@gravity-ui/uikit';
+// TODO: migrate to Menu from '@gravity-ui/uikit'
+import {Menu} from '@gravity-ui/uikit/legacy';
 
 import {LAYOUT} from 'src/common/layout';
 
@@ -253,7 +254,12 @@ function CheckboxWithHint({
     className,
 }: CheckboxWithHintProps) {
     return (
-        <Box spacing={{px: 4, pt: 2, pb: 3}} className={bContent('check-box', className)}>
+        <Box
+            paddingInline="spacing-4"
+            paddingBlockStart="spacing-2"
+            paddingBlockEnd="spacing-3"
+            className={bContent('check-box', className)}
+        >
             <Checkbox size="m" disabled={disabled} checked={checked} onUpdate={onUpdate}>
                 {title}
             </Checkbox>

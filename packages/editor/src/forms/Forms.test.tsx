@@ -1,4 +1,4 @@
-import {ThemeProvider} from '@gravity-ui/uikit';
+import {Provider as ThemeProvider} from '@gravity-ui/uikit';
 import {type Root, createRoot} from 'react-dom/client';
 import {Simulate, act} from 'react-dom/test-utils';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';

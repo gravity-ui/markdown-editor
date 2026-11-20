@@ -11,7 +11,9 @@ import {
     Xmark as RemoveRowOrColumnIcon,
     TrashBin as RemoveTableIcon,
 } from '@gravity-ui/icons';
-import {DropdownMenu, Flex, Icon, Menu, Switch} from '@gravity-ui/uikit';
+import {Flex, Icon, Switch} from '@gravity-ui/uikit';
+// TODO: migrate to Menu from '@gravity-ui/uikit'
+import {DropdownMenu, Menu} from '@gravity-ui/uikit/legacy';
 
 import {i18n} from 'src/i18n/yfm-table';
 
@@ -67,7 +69,7 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
                                 iconStart={<Icon data={HeaderRowIcon} />}
                                 text={
                                     <Flex
-                                        gap={4}
+                                        gap="spacing-4"
                                         alignItems="center"
                                         justifyContent="space-between"
                                     >

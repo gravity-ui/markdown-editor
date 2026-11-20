@@ -1,3 +1,4 @@
+import {Provider} from '@gravity-ui/uikit';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {describe, expect, it, vi} from 'vitest';
 
@@ -11,17 +12,21 @@ describe('upload hints', () => {
         onAttach: () => {},
     };
 
-    it('ImageForm should display custom upload hint', () => {
+    it('should display a custom image upload hint', () => {
         const html = renderToStaticMarkup(
-            <ImageForm {...commonImageProps} uploadHint="custom image hint" />,
+            <Provider>
+                <ImageForm {...commonImageProps} uploadHint="custom image hint" />
+            </Provider>,
         );
 
         expect(html).toContain('custom image hint');
     });
 
-    it('FileForm should display custom upload hint', () => {
+    it('should display a custom file upload hint', () => {
         const html = renderToStaticMarkup(
-            <FileForm {...commonImageProps} uploadHint="custom file hint" />,
+            <Provider>
+                <FileForm {...commonImageProps} uploadHint="custom file hint" />
+            </Provider>,
         );
 
         expect(html).toContain('custom file hint');

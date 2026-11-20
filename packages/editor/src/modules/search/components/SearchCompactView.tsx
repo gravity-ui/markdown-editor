@@ -50,7 +50,7 @@ export const SeachCompactView: React.FC<SearchCompactProps> = function SearchCom
     className,
 }) {
     return (
-        <Card spacing={{pr: 1}} data-qa={qa} style={style} className={b(null, className)}>
+        <Card data-qa={qa} style={style} className={b(null, [className, sp({pr: 1})])}>
             <SearchTextInput
                 controlRef={inputRef}
                 counter={counter}

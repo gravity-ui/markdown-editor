@@ -41,12 +41,12 @@ export function RevealYfmElementDemo() {
     );
 
     return (
-        <Flex className={cn(null, sp({p: 6}))} direction="column" gap={3}>
+        <Flex className={cn(null, sp({p: 6}))} direction="column" gap="spacing-3">
             <Text>
                 Choose a target to reveal it. Close its section and repeat. Updating HTML resets the
                 sections without another reveal or scroll.
             </Text>
-            <Flex gap={3} wrap="wrap" alignItems="center">
+            <Flex gap="spacing-3" wrap="wrap" alignItems="center">
                 <SegmentedRadioGroup
                     aria-label="Reveal target"
                     value={targetId}

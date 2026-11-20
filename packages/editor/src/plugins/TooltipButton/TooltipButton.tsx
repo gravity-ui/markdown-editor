@@ -1,12 +1,13 @@
 import {useLayoutEffect, useState} from 'react';
 
 import {Ellipsis} from '@gravity-ui/icons';
-import {Button, Icon, Popup, type PopupPlacement, type PopupProps} from '@gravity-ui/uikit';
+import {Button, Icon, Popup, type PopupPlacement} from '@gravity-ui/uikit';
 
 import {useBooleanState, useElementState} from '../../react-utils';
 
 /** @deprecated */
-type TooltipButtonProps = Pick<PopupProps, 'onOutsideClick'> & {
+type TooltipButtonProps = {
+    onOutsideClick?: () => void;
     domElem: HTMLElement | null;
     children?: React.ReactNode;
 };
@@ -36,12 +37,21 @@ export const TooltipButton: React.FC<TooltipButtonProps> = ({
             anchorElement={domElem}
             placement={'right-start'}
             offset={{crossAxis: 3, mainAxis: -(width + 3)}}
-            onOutsideClick={onOutsideClick}
+            onOpenChange={(open, _event, reason) => {
+                if (!open && reason === 'outside-press') onOutsideClick?.();
+            }}
         >
             <Button onClick={toggleOpen} ref={setAnchor} size="s" view={open ? 'normal' : 'raised'}>
                 <Icon data={Ellipsis} />
             </Button>
-            <Popup open={open} anchorElement={anchor} onClose={hide} placement={placement}>
+            <Popup
+                open={open}
+                anchorElement={anchor}
+                onOpenChange={(open) => {
+                    if (!open) hide();
+                }}
+                placement={placement}
+            >
                 {children}
             </Popup>
         </Popup>

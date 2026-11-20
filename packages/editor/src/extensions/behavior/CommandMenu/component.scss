@@ -4,10 +4,10 @@ $itemHeight: 28px;
 $listWidth: 312px;
 
 .g-md-command-menu {
-    &__list.g-list {
+    &__list.g-list-legacy {
         width: $listWidth;
 
-        .g-list__empty-placeholder {
+        .g-list-legacy__empty-placeholder {
             height: $itemHeight;
             padding-right: 12px;
             padding-left: 12px;

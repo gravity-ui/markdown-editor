@@ -12,7 +12,9 @@ import {
 import {TextAreaFixed as TextArea} from '@gravity-ui/markdown-editor/_/forms/TextInput.js';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {Button, Flex, Icon, Loader, Menu, Popup, type PopupPlacement} from '@gravity-ui/uikit';
+import {Button, Flex, Icon, Loader, Popup, type PopupPlacement} from '@gravity-ui/uikit';
+// TODO: migrate to Menu from '@gravity-ui/uikit'
+import {Menu} from '@gravity-ui/uikit/legacy';
 
 import {i18n} from '../../i18n';
 import {YfmPageConstructorConsts} from '../YfmPageConstructorSpecs/const';
@@ -75,7 +77,11 @@ const PageConstructorEditMode: React.FC<{
                     onUpdate={handleChange}
                     autoFocus
                 />
-                <Flex justifyContent="flex-end" spacing={{mt: 2}} className={b('controls')}>
+                <Flex
+                    justifyContent="flex-end"
+                    marginBlockStart="spacing-2"
+                    className={b('controls')}
+                >
                     <Button onClick={onCancel} view="flat">
                         <span className={STOP_EVENT_CLASSNAME}>
                             {isAutoSaveEnabled ? i18n('close') : i18n('cancel')}
@@ -160,15 +166,15 @@ export const YfmPageConstructorView: React.FC<{
                         onClick={toggleMenuOpen}
                         ref={setAnchorElement}
                         className={`${STOP_EVENT_CLASSNAME}`}
-                        extraProps={{
-                            onDoubleClick: (e: React.MouseEvent) => e.stopPropagation(),
-                        }}
+                        onDoubleClick={(e) => e.stopPropagation()}
                     >
                         <Icon data={DotsIcon} className={STOP_EVENT_CLASSNAME} />
                     </Button>
                     <Popup
                         open={menuOpen}
-                        onClose={closeMenu}
+                        onOpenChange={(open) => {
+                            if (!open) closeMenu();
+                        }}
                         placement={popupPlacement}
                         anchorElement={anchorElement}
                     >

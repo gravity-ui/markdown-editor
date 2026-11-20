@@ -1,4 +1,7 @@
-import type {SelectOption, SelectOptionGroup} from '@gravity-ui/uikit';
+import type {
+    SelectOptionProps as SelectOption,
+    SelectOptionGroupProps as SelectOptionGroup,
+} from '@gravity-ui/uikit';
 import type {Node} from 'prosemirror-model';
 import type {EditorView} from 'prosemirror-view';
 

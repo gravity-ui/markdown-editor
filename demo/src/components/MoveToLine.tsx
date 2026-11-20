@@ -15,7 +15,7 @@ export const MoveToLine: React.FC<MoveToLineProps> = function MoveToLine({
     const [line, setLine] = useState<number | undefined>(0);
 
     return (
-        <Flex gap="1" style={style} className={className}>
+        <Flex gap="spacing-1" style={style} className={className}>
             <NumberInput size="s" value={line} onUpdate={setLine} min={0} style={{width: '56px'}} />
             <Button size="s" onClick={() => onClick(line)}>
                 Move to line
