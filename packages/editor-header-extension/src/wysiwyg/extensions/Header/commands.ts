@@ -1,8 +1,21 @@
 import {get$Cursor, pType, removeNode} from '@gravity-ui/markdown-editor';
-import {type Command, type EditorState, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
+import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
+import type {Node, Schema} from '@gravity-ui/markdown-editor/pm/model';
+import {
+    type Command,
+    type EditorState,
+    NodeSelection,
+    TextSelection,
+    type Transaction,
+} from '@gravity-ui/markdown-editor/pm/state';
 import type {HeaderDimensions} from '@gravity-ui/markdown-plugin-header';
 
+import {i18n} from '../../../i18n';
+import {headerTitleNodeType} from '../HeaderTitle/HeaderTitleSpecs';
+import {removeChild} from '../commands';
+
 import {headerNodeType} from './HeaderSpecs';
+import {type FoundNode, type HeaderPart, findParts, headerPartOrder, lastPartBefore} from './utils';
 
 function headerAt(state: EditorState, pos: number) {
     const node = state.doc.nodeAt(pos);
@@ -54,5 +67,90 @@ export const removeHeader =
         const node = headerAt(state, pos);
         if (!node) return false;
         if (dispatch) removeNode({node, pos, tr: state.tr, dispatch});
+        return true;
+    };
+
+const partNodes: Record<HeaderPart, (schema: Schema) => Node | undefined> = {
+    title: (schema) =>
+        headerTitleNodeType(schema)?.create(null, schema.text(i18n('preview-title'))),
+};
+
+function partFromParagraph(part: HeaderPart, paragraph: Node): Node | undefined {
+    const {schema} = paragraph.type;
+    if (!paragraph.childCount) return undefined;
+    let plain = part === 'title';
+    paragraph.forEach((child) => {
+        plain &&= child.isText && !child.marks.length;
+    });
+    return plain
+        ? headerTitleNodeType(schema)?.create(null, schema.text(paragraph.textContent))
+        : undefined;
+}
+
+const endOf = ({node, pos}: FoundNode) => pos + node.nodeSize;
+
+function onlyParagraph(header: Node) {
+    const only = header.childCount === 1 ? header.firstChild : null;
+    return only?.type === pType(header.type.schema) ? only : null;
+}
+
+function insertChild(tr: Transaction, header: Node, pos: number, at: number, node: Node) {
+    const only = onlyParagraph(header);
+    if (only?.childCount === 0) {
+        tr.replaceWith(pos + 1, pos + 1 + only.nodeSize, node);
+    } else {
+        tr.insert(at, node);
+    }
+}
+
+function keepSelection(tr: Transaction, pos: number) {
+    const header = tr.doc.nodeAt(pos);
+    const {from, to} = tr.selection;
+    if (header && (from <= pos || to >= pos + header.nodeSize)) {
+        tr.setSelection(NodeSelection.create(tr.doc, pos));
+    }
+    return closeHistory(tr);
+}
+
+export const setHeaderPart =
+    (pos: number, part: HeaderPart, enabled: boolean, restored?: Node): Command =>
+    (state, dispatch) => {
+        const header = headerAt(state, pos);
+        if (!header) return false;
+        const parts = findParts(header, pos);
+        const found = parts[part];
+        if (Boolean(found) === enabled) return false;
+        const tr = state.tr;
+        if (found) {
+            removeChild(tr, header, found);
+        } else {
+            const only = restored ? null : onlyParagraph(header);
+            const adopted = only && partFromParagraph(part, only);
+            const node = restored ?? partNodes[part](state.schema);
+            if (adopted) {
+                tr.replaceWith(pos + 1, pos + header.nodeSize - 1, adopted);
+            } else if (node) {
+                const before = lastPartBefore(parts, headerPartOrder.indexOf(part));
+                insertChild(tr, header, pos, before ? endOf(before) : pos + 1, node);
+            } else {
+                return false;
+            }
+        }
+        dispatch?.(keepSelection(tr, pos));
+        return true;
+    };
+
+export type RemovedParts = Map<HeaderPart, Node>;
+
+/** Keeps a removed part in `removed` and inserts it back when the part is enabled again. */
+export const toggleHeaderPart =
+    (pos: number, part: HeaderPart, enabled: boolean, removed: RemovedParts): Command =>
+    (state, dispatch, view) => {
+        const header = headerAt(state, pos);
+        if (!header) return false;
+        const found = findParts(header, pos)[part];
+        if (!setHeaderPart(pos, part, enabled, removed.get(part))(state, dispatch, view))
+            return false;
+        if (dispatch && found) removed.set(part, found.node);
         return true;
     };

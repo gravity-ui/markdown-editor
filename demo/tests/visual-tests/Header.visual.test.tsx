@@ -238,7 +238,7 @@ test.describe('Header', () => {
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await header.openSettings();
-        await expect(header.toggle('Title')).toBeChecked();
+        await expect(header.toggle('Title')).not.toBeChecked();
         await expect(header.toggle('Description')).toBeChecked();
         await expect(header.toggle('Button 1')).toBeChecked();
         await expect(header.toggle('Button 2')).not.toBeChecked();
@@ -275,7 +275,7 @@ test.describe('Header', () => {
             if (message.type() === 'log') messages.push(message.text());
         });
 
-        for (const name of ['Title', 'Description', 'Button 1', 'Button 2', 'Button 3', 'Image']) {
+        for (const name of ['Description', 'Button 1', 'Button 2', 'Button 3', 'Image']) {
             const toggle = header.toggle(name);
             const checked = await toggle.isChecked();
             await header.clickToggle(name);

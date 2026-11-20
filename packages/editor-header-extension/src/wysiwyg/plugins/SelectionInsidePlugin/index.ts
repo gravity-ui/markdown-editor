@@ -1,0 +1,1 @@
+export {selectionInsidePlugin} from './plugin';
