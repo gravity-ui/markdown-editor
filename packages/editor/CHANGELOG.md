@@ -1,5 +1,31 @@
 # Changelog
 
+## [15.51.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.50.0...markdown-editor-v15.51.0) (2026-11-20)
+
+
+### Features
+
+* support reactive contenteditable attributes ([#1398](https://github.com/gravity-ui/markdown-editor/issues/1398)) ([3eb83f8](https://github.com/gravity-ui/markdown-editor/commit/3eb83f866d8ab013d81825a71c996355f08a6c3e))
+
+
+### Bug Fixes
+
+* **Checkbox:** preserve checked state and label formatting on HTML paste ([#1513](https://github.com/gravity-ui/markdown-editor/issues/1513)) ([df414b2](https://github.com/gravity-ui/markdown-editor/commit/df414b2a586af109ae305125aae06178a0e94240))
+* **Clipboard:** preserve the document and clipboard on read-only cut ([#1501](https://github.com/gravity-ui/markdown-editor/issues/1501)) ([e1ef489](https://github.com/gravity-ui/markdown-editor/commit/e1ef489e99de88b685d3aa19ed758da3bf67d389))
+* **Color:** report mixed colors in text selections ([#1503](https://github.com/gravity-ui/markdown-editor/issues/1503)) ([6e6e6a9](https://github.com/gravity-ui/markdown-editor/commit/6e6e6a93c8ec4127b71e2c0c7905708a9c75ef14))
+* keep all rows and cell styles when importing HTML into YFM tables ([#1499](https://github.com/gravity-ui/markdown-editor/issues/1499)) ([70fae6b](https://github.com/gravity-ui/markdown-editor/commit/70fae6b6f31884a46a85ae1ae2b8e36fdb6e663f))
+* **marks:** inspect every range in the selection ([#1504](https://github.com/gravity-ui/markdown-editor/issues/1504)) ([eecfdba](https://github.com/gravity-ui/markdown-editor/commit/eecfdba1e1d3f26334ae7ca2549805c0a9851d59))
+* skip cursor-only insertion actions when content is selected ([#1502](https://github.com/gravity-ui/markdown-editor/issues/1502)) ([5bff922](https://github.com/gravity-ui/markdown-editor/commit/5bff922e3d019b0e66f9f7d5ceb203437acb9c4f))
+* **tables:** reject invalid cell spans and overlapping cells ([#1500](https://github.com/gravity-ui/markdown-editor/issues/1500)) ([b9b7bb3](https://github.com/gravity-ui/markdown-editor/commit/b9b7bb302273c3ea40989ccccee880946b1de11e))
+* **YfmTable:** keep pasted YFM header and body rows in one table ([#1428](https://github.com/gravity-ui/markdown-editor/issues/1428)) ([d6965bf](https://github.com/gravity-ui/markdown-editor/commit/d6965bf0ea1e1db30a23ee079f9a5a9f449d931c))
+* **YfmTable:** navigate merged cells by logical column ([#1458](https://github.com/gravity-ui/markdown-editor/issues/1458)) ([a30417d](https://github.com/gravity-ui/markdown-editor/commit/a30417d2a7f0f18c7be327ae4ae48620f1d249e8))
+* **YfmTable:** preserve rows fully covered by rowspan ([#1456](https://github.com/gravity-ui/markdown-editor/issues/1456)) ([25f2b5f](https://github.com/gravity-ui/markdown-editor/commit/25f2b5f04f8e6b9fda6f5d7cf0706a847512b742))
+
+
+### Refactoring
+
+* **SelectionContext:** resolve toolbar visibility before opening ([#1425](https://github.com/gravity-ui/markdown-editor/issues/1425)) ([2e9578f](https://github.com/gravity-ui/markdown-editor/commit/2e9578fe4b0c0ff1a8dec0ff688634153633a651))
+
 ## [15.50.0](https://github.com/gravity-ui/markdown-editor/compare/markdown-editor-v15.49.0...markdown-editor-v15.50.0) (2026-11-10)
 
 
