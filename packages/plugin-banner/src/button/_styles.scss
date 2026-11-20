@@ -20,6 +20,13 @@
     --_--background-hover: initial;
     --_--color-hover: initial;
 
+    // Hosts color links with these tokens through selectors more specific than the button,
+    // for example `.g-root .yfm a:visited`.
+    --g-color-text-link: var(--_--color);
+    --g-color-text-link-hover: var(--_--color-hover, var(--_--color));
+    --g-color-text-link-visited: var(--_--color);
+    --g-color-text-link-visited-hover: var(--_--color-hover, var(--_--color));
+
     position: relative;
 
     display: inline-flex;
