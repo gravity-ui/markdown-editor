@@ -97,3 +97,26 @@ export function createEditorWithRenderer(extra?: ExtensionAuto) {
 }
 
 export const byQa = (qa: string) => document.querySelector<HTMLElement>(`[data-qa="${qa}"]`);
+
+/** Focuses the target and dispatches a keydown on it; returns the event. */
+export const pressKey = async (
+    target: HTMLElement | null | undefined,
+    key: string,
+    init: KeyboardEventInit = {},
+) => {
+    const event = new KeyboardEvent('keydown', {...init, key, bubbles: true, cancelable: true});
+    await act(async () => {
+        target?.focus();
+        target?.dispatchEvent(event);
+    });
+    return event;
+};
+
+/** A toolbar button by the start of its accessible name, such as `Title size`. */
+export const toolbarButton = (name: string) =>
+    Array.from(document.querySelectorAll('button')).find((element) =>
+        element.getAttribute('aria-label')?.startsWith(`${name}:`),
+    );
+
+export const menuItems = () =>
+    Array.from(document.querySelectorAll<HTMLElement>('[role="menuitem"]'));
