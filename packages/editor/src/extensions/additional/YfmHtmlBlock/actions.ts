@@ -10,6 +10,8 @@ export const addYfmHtmlBlock: ActionSpec = {
         return state.selection.empty;
     },
     run(state, dispatch, _view) {
+        if (!state.selection.empty) return;
+
         const entityId = generateEntityId(YfmHtmlBlockConsts.NodeName);
         const sharedKey = SharedStateKey.define<YfmHtmlBlockEntitySharedState>({name: entityId});
 

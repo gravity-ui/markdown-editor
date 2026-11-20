@@ -2,9 +2,10 @@ import {Fragment, type Node, type Schema, Slice} from 'prosemirror-model';
 import {Plugin} from 'prosemirror-state';
 import {dropPoint} from 'prosemirror-transform';
 
+import {isFilesOnly} from 'src/utils/clipboard';
+
 import {type ExtensionAuto, getLoggerFromState} from '../../../core';
 import {pType} from '../../../extensions/base';
-import {isFilesOnly} from '../Clipboard/utils';
 
 // Custom handler of pasted (or dropped) files to prevent insert a file preview in base64-format into editor's content (or open file in browser)
 export const FilePaste: ExtensionAuto = (builder) => {

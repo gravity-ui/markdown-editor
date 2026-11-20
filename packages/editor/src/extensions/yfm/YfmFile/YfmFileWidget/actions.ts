@@ -9,6 +9,8 @@ export const addFileWidget: (deps: ExtensionDeps, uploadFiles?: FileUploadHandle
 ) => ({
     isEnable: (state) => state.selection.empty,
     run(state, dispatch) {
+        if (!state.selection.empty) return;
+
         dispatch(addWidget(state.tr, deps, uploadFiles));
     },
 });
