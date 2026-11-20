@@ -65,6 +65,75 @@ describe('FilesGallery', () => {
         expect(dialog?.textContent).toContain('2 / 2');
     });
 
+    it.each([
+        {attributes: '', expected: 'Open image'},
+        {attributes: 'alt="Description" title="Title"', expected: 'Description'},
+        {attributes: 'aria-labelledby="label"', expected: null},
+    ])(
+        'should name an image without reading its URL: $attributes',
+        async ({attributes, expected}) => {
+            await render(
+                <MarkdownViewer
+                    html={`<span id="label">Label</span><img src="data:image/png;base64,AAAA" ${attributes}>`}
+                >
+                    <FilesGallery />
+                </MarkdownViewer>,
+            );
+            expect(container.querySelector('img')?.getAttribute('aria-label')).toBe(expected);
+        },
+    );
+
+    it('should update the fallback name with the language and restore attributes on cleanup', async () => {
+        const html = '<img src="/image.png">';
+        await render(
+            <MarkdownViewer html={html}>
+                <FilesGallery />
+            </MarkdownViewer>,
+        );
+        const image = container.querySelector('img');
+        assert(image);
+        expect(image.getAttribute('aria-label')).toBe('Open image');
+        await render(
+            <MarkdownViewer html={html}>
+                <FilesGallery />
+            </MarkdownViewer>,
+            {lang: 'ru'},
+        );
+        expect(image.getAttribute('aria-label')).toBe('Открыть изображение');
+        await render(<MarkdownViewer html={html} />, {lang: 'ru'});
+        expect(image.outerHTML).toBe(html);
+    });
+
+    it('should register a late image once and stop handling pending images on cleanup', async () => {
+        const imageHtml = '<img srcset="/image.png 1x" alt="Late image">';
+        const pendingHtml = '<img srcset="/pending.png 1x" alt="Pending image">';
+        const html = imageHtml + pendingHtml;
+        await render(
+            <MarkdownViewer html={html}>
+                <FilesGallery />
+            </MarkdownViewer>,
+        );
+        const [image, pendingImage] = Array.from(container.querySelectorAll('img'));
+        assert(image);
+        assert(pendingImage);
+        expect(image.hasAttribute('tabindex')).toBe(false);
+        Object.defineProperty(image, 'currentSrc', {value: 'https://example.com/image.png'});
+        await act(async () => {
+            image.dispatchEvent(new Event('load'));
+            image.dispatchEvent(new Event('load'));
+        });
+        expect(image.tabIndex).toBe(0);
+        expect(image.getAttribute('aria-label')).toBe('Late image');
+
+        await render(<MarkdownViewer html={html} />);
+        expect(image.outerHTML).toBe(imageHtml);
+        Object.defineProperty(pendingImage, 'currentSrc', {
+            value: 'https://example.com/pending.png',
+        });
+        await act(async () => pendingImage.dispatchEvent(new Event('load')));
+        expect(pendingImage.outerHTML).toBe(pendingHtml);
+    });
+
     it('should show a mobile gallery without a stray zero when there are no actions', async () => {
         await render(
             <MarkdownViewer html='<img src="/image.png" alt="Photo">'>
@@ -330,7 +399,7 @@ describe('FilesGallery', () => {
         await closeGallery();
         const image = container.querySelector('img');
         assert(image);
-        expect(image.getAttribute('aria-label')).toBe('/third.png');
+        expect(image.getAttribute('aria-label')).toBe('Open image');
         expect((await keydown(image, ' ')).defaultPrevented).toBe(true);
         expect(document.querySelector('[role="dialog"] img')?.getAttribute('src')).toBe(
             '/third.png',
@@ -561,30 +630,38 @@ describe('FilesGallery', () => {
         expect(container.querySelector('.g-md-v-files-gallery')).toBe(wrapper);
     });
 
-    it('should restore styles and image attributes after the last instance unmounts', async () => {
-        const html = '<img src="/image.png" role="img" tabindex="-1" aria-label="Custom">';
-        const first = <FilesGallery key="first" />;
-        const second = <FilesGallery key="second" />;
-        const update = (...extensions: ReactNode[]) =>
-            render(<MarkdownViewer html={html}>{extensions}</MarkdownViewer>);
+    it.each([
+        {
+            html: '<img src="/image.png" role="img" tabindex="-1" aria-label="Custom">',
+            label: 'Custom',
+        },
+        {html: '<img src="/image.png">', label: 'Open image'},
+    ])(
+        'should restore styles and image attributes after the last instance unmounts: $label',
+        async ({html, label}) => {
+            const first = <FilesGallery key="first" />;
+            const second = <FilesGallery key="second" />;
+            const update = (...extensions: ReactNode[]) =>
+                render(<MarkdownViewer html={html}>{extensions}</MarkdownViewer>);
 
-        await update(first, second);
-        const wrapper = container.querySelector('.g-md-v-files-gallery');
-        assert(wrapper);
-        const image = container.querySelector('img');
-        assert(image);
-        expect(image.getAttribute('aria-label')).toBe('Custom');
+            await update(first, second);
+            const wrapper = container.querySelector('.g-md-v-files-gallery');
+            assert(wrapper);
+            const image = container.querySelector('img');
+            assert(image);
+            expect(image.getAttribute('aria-label')).toBe(label);
 
-        await update(second);
-        expect(wrapper.classList.contains('g-md-v-files-gallery')).toBe(true);
-        expect(image.getAttribute('role')).toBe('button');
+            await update(second);
+            expect(wrapper.classList.contains('g-md-v-files-gallery')).toBe(true);
+            expect(image.getAttribute('role')).toBe('button');
 
-        await update();
-        expect(wrapper.classList.contains('g-md-v-files-gallery')).toBe(false);
-        expect(image.outerHTML).toBe(html);
-        expect((await keydown(image, 'Enter')).defaultPrevented).toBe(false);
-        expect(document.querySelector('[role="dialog"]')).toBeNull();
-    });
+            await update();
+            expect(wrapper.classList.contains('g-md-v-files-gallery')).toBe(false);
+            expect(image.outerHTML).toBe(html);
+            expect((await keydown(image, 'Enter')).defaultPrevented).toBe(false);
+            expect(document.querySelector('[role="dialog"]')).toBeNull();
+        },
+    );
 
     it('should remove its listener and styles without closing the open gallery', async () => {
         const html = '<img src="/image.png" alt="Image">';
@@ -602,10 +679,10 @@ describe('FilesGallery', () => {
         expect(document.querySelector('[role="dialog"]')).toBeNull();
     });
 
-    async function render(children: ReactNode, {mobile = false} = {}) {
+    async function render(children: ReactNode, {mobile = false, lang = 'en'} = {}) {
         await act(async () => {
             root.render(
-                <ThemeProvider lang="en">
+                <ThemeProvider lang={lang}>
                     <MobileProvider mobile={mobile}>
                         <GalleryProvider>{children}</GalleryProvider>
                     </MobileProvider>

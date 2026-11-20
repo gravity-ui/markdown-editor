@@ -13,6 +13,29 @@ test.describe('MarkdownViewer files gallery', () => {
         await mount(<ViewerStories.FilesGallery />, {width: 700});
     });
 
+    test('should open an image with Enter and Space and restore focus after Escape', async ({
+        page,
+    }) => {
+        const viewer = page.getByTestId('demo-markdown-viewer');
+        const first = viewer.getByRole('button', {name: 'Minion', exact: true});
+        const second = viewer.getByRole('button', {name: 'Stormtroopocat', exact: true});
+        const gallery = page.getByRole('dialog');
+
+        for (const key of ['Enter', 'Space']) {
+            await first.focus();
+            await page.keyboard.press('Tab');
+            await expect(second).toBeFocused();
+            await page.keyboard.press(key);
+            await expect(gallery).toBeVisible();
+            await expect
+                .poll(() => gallery.evaluate((element) => element.contains(document.activeElement)))
+                .toBe(true);
+            await page.keyboard.press('Escape');
+            await expect(gallery).toBeHidden();
+            await expect(second).toBeFocused();
+        }
+    });
+
     test('should open a file with Enter and restore focus after Escape', async ({page}) => {
         const file = page
             .getByTestId('demo-markdown-viewer')
@@ -69,6 +92,48 @@ test.describe('MarkdownViewer files gallery resources', () => {
             'cursor',
             'help',
         );
+    });
+
+    test('should make a srcset image without src keyboard accessible after loading', async ({
+        mount,
+        page,
+    }) => {
+        let releaseImage = () => {};
+        const pendingImage = new Promise<void>((resolve) => {
+            releaseImage = resolve;
+        });
+        await page.route('**/gallery-srcset.svg', async (route) => {
+            await pendingImage;
+            await route.fallback();
+        });
+
+        try {
+            await mount(
+                <ViewerStories.FilesGallery
+                    documents={[
+                        {
+                            label: 'No fallback source',
+                            source: '<img srcset="/gallery-srcset.svg 1x" alt="Responsive">',
+                        },
+                    ]}
+                />,
+            );
+            const image = page.getByTestId('demo-markdown-viewer').locator('img[alt="Responsive"]');
+            await expect
+                .poll(() => image.evaluate((element: HTMLImageElement) => element.currentSrc))
+                .toBe('');
+            releaseImage();
+            await expect
+                .poll(() => image.evaluate((element: HTMLImageElement) => element.currentSrc))
+                .toContain('/gallery-srcset.svg');
+            await expect(image).toHaveAttribute('role', 'button');
+            await expect(image).toHaveAttribute('tabindex', '0');
+            await image.focus();
+            await page.keyboard.press('Enter');
+            await expect(page.getByRole('dialog')).toBeVisible();
+        } finally {
+            releaseImage();
+        }
     });
 
     test('should open the current picture and srcset resource after resizing', async ({
