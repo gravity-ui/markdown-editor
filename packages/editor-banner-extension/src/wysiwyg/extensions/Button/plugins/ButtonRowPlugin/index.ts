@@ -1,0 +1,1 @@
+export {buttonRowPlugin} from './plugin';

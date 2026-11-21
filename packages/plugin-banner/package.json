@@ -2,7 +2,7 @@
   "name": "@gravity-ui/markdown-plugin-banner",
   "version": "0.0.0",
   "private": true,
-  "description": "markdown-it plugin for the banner block markup",
+  "description": "markdown-it plugins for the Banner markup: banner, title, content, image and button",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -37,7 +37,12 @@
         "default": "./build/cjs/index.js"
       }
     },
-    "./styles.css": "./build/styles.css"
+    "./styles.css": "./build/styles.css",
+    "./banner/styles.css": "./build/esm/banner/index.css",
+    "./banner-title/styles.css": "./build/esm/banner-title/index.css",
+    "./banner-content/styles.css": "./build/esm/banner-content/index.css",
+    "./banner-image/styles.css": "./build/esm/banner-image/index.css",
+    "./button/styles.css": "./build/esm/button/index.css"
   },
   "main": "build/cjs/index.js",
   "module": "build/esm/index.js",

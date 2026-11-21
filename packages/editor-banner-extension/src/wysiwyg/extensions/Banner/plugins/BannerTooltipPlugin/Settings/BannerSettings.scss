@@ -1,6 +1,12 @@
+@use 'sass:list';
+@use 'sass:math';
+
 $panel-width: 320px;
-$label-width: 120px;
-$viewport-inset: var(--g-spacing-4);
+$swatch-size: 28px;
+$palette-columns: 6;
+$swatch-ring-width: 2px;
+$thumbnail-scale: 3;
+$thumbnail-aspect-ratio: list.slash(293, 77);
 
 .g-md-banner-settings {
     display: flex;
@@ -9,11 +15,10 @@ $viewport-inset: var(--g-spacing-4);
     gap: var(--g-spacing-4);
 
     box-sizing: border-box;
-    width: min($panel-width, calc(100vw - 2 * #{$viewport-inset}));
+    width: $panel-width;
     max-height: var(--g-md-banner-settings-max-height);
     padding: var(--g-spacing-4);
 
-    // A scrolling flex column shrinks the 1 px divider to zero.
     > * {
         flex-shrink: 0;
     }
@@ -23,40 +28,107 @@ $viewport-inset: var(--g-spacing-4);
         display: flex;
         flex-direction: column;
         gap: var(--g-spacing-4);
-
-        &_hidden {
-            display: none;
-        }
     }
 
-    &__title {
+    &__background {
+        display: flex;
+        flex-direction: column;
+        gap: var(--g-spacing-3);
+    }
+
+    &__background-field {
+        position: relative;
+    }
+
+    &__background-button {
+        --g-button-padding: var(--g-spacing-2);
+        justify-content: flex-start;
+    }
+
+    &__background-field_clearable &__background-button {
+        padding-inline-end: var(--g-spacing-7);
+    }
+
+    &__background-field &__background-clear {
+        position: absolute;
+        inset-block: 0;
+        inset-inline-end: var(--g-spacing-half);
+
+        margin-block: auto;
+    }
+
+    &__tabs {
         display: flex;
         justify-content: space-between;
         align-items: center;
 
-        height: var(--g-spacing-7);
+        margin-block-end: var(--g-spacing-4);
+
+        box-shadow: inset 0 -1px 0 var(--g-color-line-generic);
     }
 
-    // The 36 px button extends 4 px beyond the 28 px title row.
-    &__close {
-        margin-right: calc(-1 * var(--g-spacing-1));
-    }
-
-    &__row {
+    &__palette {
         display: grid;
-        align-items: center;
-        grid-template-columns: minmax(0, $label-width) minmax(0, 1fr);
-        gap: var(--g-spacing-2);
+        justify-content: space-between;
+        grid-template-columns: repeat($palette-columns, $swatch-size);
+        gap: var(--g-spacing-3) var(--g-spacing-4);
+    }
 
-        min-height: var(--g-spacing-7);
+    &__swatch {
+        width: $swatch-size;
+        height: $swatch-size;
+        padding: 0;
 
-        > * {
-            min-width: 0;
+        cursor: pointer;
+
+        border: 0;
+        border-radius: var(--g-border-radius-xl);
+
+        &_selected {
+            outline: $swatch-ring-width solid var(--g-color-line-generic-solid);
+            outline-offset: var(--g-spacing-half);
+        }
+
+        &:focus-visible {
+            outline: $swatch-ring-width solid var(--g-color-line-focus);
+            outline-offset: var(--g-spacing-half);
         }
     }
 
-    &__background {
-        --g-button-padding: var(--g-spacing-2);
-        justify-content: flex-start;
+    &__preview-theme {
+        justify-self: end;
+    }
+
+    &__thumbnail {
+        position: relative;
+
+        overflow: hidden;
+
+        aspect-ratio: $thumbnail-aspect-ratio;
+
+        border-radius: var(--g-border-radius-l);
+
+        &.g-root {
+            background: linear-gradient(var(--g-color-base-generic), var(--g-color-base-generic))
+                var(--g-color-base-background);
+        }
+    }
+
+    &__banner.g-md-banner-plugin {
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        box-sizing: border-box;
+        width: $thumbnail-scale * 100%;
+        max-width: none;
+        height: $thumbnail-scale * 100%;
+        min-height: 0;
+        margin: 0;
+
+        border-radius: 0;
+
+        transform: scale(math.div(1, $thumbnail-scale));
+        transform-origin: 0 0;
     }
 }

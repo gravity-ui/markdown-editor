@@ -1,8 +1,8 @@
 import type {Ref} from 'react';
 
-import {Select, Text, useUniqId} from '@gravity-ui/uikit';
+import {Select} from '@gravity-ui/uikit';
 
-import {cnBannerSettings} from './BannerSettings.classname';
+import {SettingsRow} from '../../../../settings';
 
 type DimensionSelectProps<T extends string> = {
     label: string;
@@ -21,24 +21,24 @@ export function DimensionSelect<T extends string>({
     onUpdate,
     controlRef,
 }: DimensionSelectProps<T>) {
-    const labelId = useUniqId();
+    const options = values.map((option) => ({value: option, content: format(option)}));
+    const handleUpdate = ([next]: string[]) => {
+        const selected = values.find((option) => option === next);
+        if (selected) onUpdate(selected);
+    };
     return (
-        <div className={cnBannerSettings('row')}>
-            <Text variant="body-1" id={labelId}>
-                {label}
-            </Text>
-            <Select
-                ref={controlRef}
-                size="m"
-                width="max"
-                aria-labelledby={labelId}
-                value={[value]}
-                options={values.map((option) => ({value: option, content: format(option)}))}
-                onUpdate={([next]) => {
-                    const selected = values.find((option) => option === next);
-                    if (selected) onUpdate(selected);
-                }}
-            />
-        </div>
+        <SettingsRow label={label}>
+            {(labelId) => (
+                <Select
+                    ref={controlRef}
+                    size="m"
+                    width="max"
+                    aria-labelledby={labelId}
+                    value={[value]}
+                    options={options}
+                    onUpdate={handleUpdate}
+                />
+            )}
+        </SettingsRow>
     );
 }

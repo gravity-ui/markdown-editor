@@ -1,0 +1,51 @@
+@use 'sass:math';
+@use '~@gravity-ui/markdown-plugin-banner/build/styles/variables';
+
+$half-gap: math.div(variables.$button-gap, 2);
+
+.ProseMirror .g-md-button-plugin-row {
+    display: flow-root;
+
+    text-align: start;
+
+    &::before,
+    &::after {
+        display: block;
+
+        content: '';
+    }
+
+    &::before {
+        margin-block-end: -$half-gap;
+    }
+
+    &::after {
+        margin-block-start: -$half-gap;
+    }
+
+    & > .g-md-button-plugin {
+        margin-block: $half-gap;
+    }
+
+    & > .g-md-button-plugin-row__space {
+        font-size: 0;
+        white-space: pre-wrap;
+        word-spacing: var(--_--gap);
+    }
+}
+
+.ProseMirror .g-md-banner-plugin > .g-md-button-plugin-row {
+    text-align: inherit;
+}
+
+@container g-md-banner-plugin (width < #{variables.$narrow-width}) {
+    .ProseMirror .g-md-banner-plugin > .g-md-button-plugin-row {
+        & > .g-md-button-plugin {
+            width: 100%;
+        }
+
+        & > .g-md-button-plugin-row__space {
+            word-spacing: 0;
+        }
+    }
+}

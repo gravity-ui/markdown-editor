@@ -1,0 +1,1 @@
+export {focusSelectionPlugin} from './plugin';

@@ -1,5 +1,22 @@
 .g-md-banner-nodeview {
-    box-sizing: border-box;
+    --_--frame-width: 2px;
 
-    border: 2px dashed var(--g-color-line-generic);
+    &:not([data-bg-color], [data-bg-image])::after {
+        position: absolute;
+        inset: 0;
+
+        content: '';
+        pointer-events: none;
+
+        border: var(--_--frame-width) dashed var(--g-color-line-generic);
+        border-radius: inherit;
+    }
+
+    &[data-bg-image],
+    &[data-bg-color$='-medium'],
+    &[data-bg-color$='-heavy'] {
+        .g-md-placeholder {
+            color: var(--g-color-text-complementary);
+        }
+    }
 }

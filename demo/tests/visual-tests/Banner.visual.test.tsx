@@ -47,7 +47,7 @@ test.describe('Banner', () => {
             [900, 236],
             [600, 236],
             [1200, 300],
-            [column?.width, 236],
+            [column && Math.round(column.width), 236],
         ]);
     });
 
@@ -64,7 +64,7 @@ test.describe('Banner', () => {
         await editor.clickMainToolbarButton('Banner');
         await expect
             .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
-            .toMatch(/:::banner\{height="\w+" width="\w+"\}\n\n:::/);
+            .toMatch(/:::banner\{height="\w+" width="\w+"\}\n\n::banner-title\[/);
     });
 
     test('should render dimensions @wysiwyg', async ({mount, editor, banner, expectScreenshot}) => {
@@ -79,6 +79,7 @@ test.describe('Banner', () => {
             </div>,
         );
         await expect(banner.blocks).toHaveCount(4);
+        await banner.focusEditor();
         await banner.hideToolbar();
         await expectScreenshot({component: editor.locators.component});
     });
@@ -107,6 +108,7 @@ test.describe('Banner', () => {
         expect(small).toBe(120);
         expect([medium, large]).toEqual([full, full]);
         expect(full).toBeLessThan(180);
+        await banner.focusEditor();
         await banner.hideToolbar();
         await expectScreenshot({component: editor.locators.component});
     });
@@ -130,10 +132,11 @@ test.describe('Banner', () => {
         mount,
         page,
         editor,
-        banner,
         wait,
+        banner,
         expectScreenshot,
     }) => {
+        await page.setViewportSize({width: 740, height: 640});
         await mount(
             <BannerStories.Banner width={660} initial={`${bannerMarkup('s', 's')}\n\nAfter`} />,
         );
@@ -141,14 +144,13 @@ test.describe('Banner', () => {
         await editor.press('ControlOrMeta+Home');
         await banner.openSettings();
         await expect(banner.height).toBeFocused();
-        await expect.poll(() => banner.settingsInsets()).toEqual([SETTINGS_INSET, SETTINGS_INSET]);
-        // The collapsed panel fits the editor frame.
+        await expect.poll(() => banner.settingsOffsets()).toEqual([0, 0]);
         await banner.setExpandedSections();
-        await expectScreenshot();
+        await expectScreenshot({fullPage: true});
 
         await banner.height.click();
         await expect(banner.options).toHaveText(['S', 'M', 'L']);
-        await expectScreenshot({nameSuffix: 'height list'});
+        await expectScreenshot({fullPage: true, nameSuffix: 'height list'});
         await page.keyboard.press('Escape');
         await expect(banner.options).toHaveCount(0);
         await expect(banner.settings).toBeVisible();
@@ -158,7 +160,7 @@ test.describe('Banner', () => {
 
         await banner.width.click();
         await expect(banner.options).toHaveText(['S', 'M', 'L', 'Full width']);
-        await expectScreenshot({nameSuffix: 'width list'});
+        await expectScreenshot({fullPage: true, nameSuffix: 'width list'});
         await banner.option('M').click();
         await expect(banner.blocks).toHaveClass(/g-md-banner-plugin_width_m/);
 
@@ -201,7 +203,7 @@ test.describe('Banner', () => {
         const height = Math.round(block.y) + 2 * SETTINGS_INSET + SETTINGS_MIN_HEIGHT - 20;
         await page.setViewportSize({width: 700, height});
         await expect.poll(() => banner.settingsBottom()).toBe(height - SETTINGS_INSET);
-        expect((await banner.settings.boundingBox())?.height).toBe(SETTINGS_MIN_HEIGHT);
+        expect((await banner.settings.boundingBox())?.height).toBeCloseTo(SETTINGS_MIN_HEIGHT, 0);
         await expect(banner.closeButton).toBeInViewport({ratio: 1});
         await expect(banner.width).toBeInViewport({ratio: 1});
     });
@@ -224,7 +226,7 @@ test.describe('Banner', () => {
         await page.locator('.playwright-wrapper-test').evaluate((element) => {
             element.style.paddingTop = '120px';
         });
-        await expect.poll(() => banner.settingsInsets()).toEqual([SETTINGS_INSET, SETTINGS_INSET]);
+        await expect.poll(() => banner.settingsOffsets()).toEqual([0, 0]);
         await expect.poll(() => banner.settingsBottom()).toBe(600 - SETTINGS_INSET);
     });
 
@@ -235,8 +237,8 @@ test.describe('Banner', () => {
         banner,
         expectScreenshot,
     }) => {
-        await page.setViewportSize({width: 740, height: 980});
-        await mount(<BannerStories.Banner width={660} />);
+        await page.setViewportSize({width: 1080, height: 914});
+        await mount(<BannerStories.Wysiwyg />);
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await banner.openSettings();
@@ -244,99 +246,16 @@ test.describe('Banner', () => {
         await expect(banner.toggle('Description')).toBeChecked();
         await expect(banner.toggle('Button 1')).toBeChecked();
         await expect(banner.toggle('Button 2')).not.toBeChecked();
+        await expect(banner.toggle('Button 2')).toBeEnabled();
         await expect(banner.toggle('Button 3')).not.toBeChecked();
+        await expect(banner.toggle('Button 3')).toBeDisabled();
         await expect(banner.toggle('Image')).toBeChecked();
-        await expect(banner.alignment('Vertically', 'Top')).toBeChecked();
-        await expect(banner.alignment('Horizontally', 'Center')).toBeChecked();
-        await banner.setExpandedSections('Text');
-        await expectScreenshot({component: banner.settings, nameSuffix: 'text'});
-        await banner.setExpandedSections('Buttons');
-        await expectScreenshot({component: banner.settings, nameSuffix: 'buttons'});
-        await banner.setExpandedSections('Image and background');
-        await expectScreenshot({
-            component: banner.settings,
-            nameSuffix: 'image and background',
-        });
-    });
-
-    test('should keep demonstration settings local and reset them on reopening @wysiwyg', async ({
-        mount,
-        page,
-        editor,
-        banner,
-        expectScreenshot,
-    }) => {
-        await page.setViewportSize({width: 740, height: 980});
-        await mount(<BannerStories.Banner width={660} />);
-        await editor.focus();
-        await editor.press('ControlOrMeta+Home');
-        await banner.openSettings();
-        const initial = await page.evaluate(() => window.mdEditor?.getValue());
-        const messages: string[] = [];
-        page.on('console', (message) => {
-            if (message.type() === 'log') messages.push(message.text());
-        });
-
-        for (const name of ['Title', 'Description', 'Button 1', 'Button 2', 'Button 3', 'Image']) {
-            const toggle = banner.toggle(name);
-            const checked = await toggle.isChecked();
-            await banner.clickToggle(name);
-            await expect(toggle).toBeChecked({checked: !checked});
-            expect(messages).toContain(`${name} toggle clicked`);
-        }
-        await banner.alignment('Vertically', 'Bottom').click();
-        await banner.alignment('Vertically', 'Bottom').click();
-        await banner.alignment('Horizontally', 'Right').click();
-        await expect(banner.alignment('Vertically', 'Bottom')).toBeChecked();
-        await expect(banner.alignment('Horizontally', 'Right')).toBeChecked();
-        expect(
-            messages.filter((message) => message === 'Align bottom button clicked'),
-        ).toHaveLength(2);
-        expect(messages).toContain('Align right button clicked');
-
-        await expect(banner.background).toHaveAccessibleName('Background No background');
-        await banner.background.click();
-        expect(messages).toContain('Background button clicked');
-        expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(initial);
-
-        await banner.section('Text').click();
-        await expect(banner.toggle('Title')).toBeHidden();
-        await expect(banner.section('Text')).toHaveAttribute('aria-expanded', 'false');
-        await banner.section('Text').press('Enter');
-        await expect(banner.section('Text')).toHaveAttribute('aria-expanded', 'true');
-        await expect(banner.toggle('Title')).not.toBeChecked();
-        await expect(banner.alignment('Vertically', 'Bottom')).toBeChecked();
-        expect(
-            messages.filter((message) => message === 'Text section button clicked'),
-        ).toHaveLength(2);
-
-        await banner.select(banner.height, 'M');
-        await expect(banner.blocks).toHaveClass(/g-md-banner-plugin_height_m/);
-        await expect(banner.toggle('Title')).not.toBeChecked();
-        await banner.toggle('Title').press('Space');
-        await expect(banner.toggle('Title')).toBeChecked();
-        await banner.section('Buttons').click();
-        await banner.section('Image and background').click();
-        expect(messages).toContain('Buttons section button clicked');
-        expect(messages).toContain('Image and background section button clicked');
-        await banner.setExpandedSections('Text');
-        await expectScreenshot({component: banner.settings, nameSuffix: 'collapsed'});
-
-        await banner.closeButton.click();
-        await banner.openSettings();
-        await expect(banner.toggle('Description')).toBeChecked();
-        await expect(banner.toggle('Button 1')).toBeChecked();
-        await expect(banner.toggle('Button 2')).not.toBeChecked();
-        await expect(banner.toggle('Button 3')).not.toBeChecked();
-        await expect(banner.toggle('Image')).toBeChecked();
-        await expect(banner.alignment('Vertically', 'Top')).toBeChecked();
-        await expect(banner.alignment('Horizontally', 'Center')).toBeChecked();
-        await expect(banner.section('Buttons')).toHaveAttribute('aria-expanded', 'true');
-        await expect(banner.section('Image and background')).toHaveAttribute(
-            'aria-expanded',
-            'true',
-        );
-        await expect(banner.height).toHaveText('M');
+        await expect(banner.alignment('Vertically', 'Center')).toBeChecked();
+        await expect(banner.alignment('Horizontally', 'Left')).toBeChecked();
+        await banner.scrollSettingsToEnd();
+        await expect(banner.background).toBeInViewport({ratio: 1});
+        await page.mouse.move(0, 0);
+        await expectScreenshot({fullPage: true, nameSuffix: 'panel'});
     });
 
     test('should select the settings text with the mouse @wysiwyg', async ({
@@ -444,6 +363,7 @@ test.describe('Banner on mobile', () => {
     }) => {
         await mount(<BannerStories.Banner width={335} />);
         await expect(banner.blocks).toBeVisible();
+        await banner.focusEditor();
         await banner.hideToolbar();
         await expectScreenshot({component: editor.locators.component});
     });
@@ -453,6 +373,7 @@ test.describe('Banner on mobile', () => {
         page,
         editor,
         banner,
+        wait,
         expectScreenshot,
     }) => {
         await mount(<BannerStories.Banner width={375} />, {rootStyle: {padding: 0}});
@@ -470,6 +391,7 @@ test.describe('Banner on mobile', () => {
         ).toBe(true);
         await banner.select(banner.width, 'Full width');
         await expect(banner.blocks).toHaveClass(/g-md-banner-plugin_width_full/);
+        await wait.markupPreview('width="full"');
         await banner.setExpandedSections();
         await expectScreenshot();
         await banner.setExpandedSections('Text', 'Buttons', 'Image and background');

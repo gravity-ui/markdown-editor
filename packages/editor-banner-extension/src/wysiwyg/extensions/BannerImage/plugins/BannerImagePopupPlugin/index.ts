@@ -1,0 +1,1 @@
+export {bannerImagePopup} from './plugin';

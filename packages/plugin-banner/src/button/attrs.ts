@@ -1,29 +1,29 @@
 import {cn} from '@bem-react/classname';
 
-import {ButtonAttr, type ButtonModel, buttonClassName, buttonModel} from './model';
+import type {GetAttr} from '../utils';
+
+import {type ButtonModel, buttonClassName} from './const';
+import {buttonModel} from './utils';
 
 const b = cn(buttonClassName);
 
-/** Modifiers style the button; data attributes carry its view and color for parsing. */
 export function buttonAttrs(attrs: Partial<Record<keyof ButtonModel, unknown>>) {
-    const {view, color, target, href, title} = buttonModel(attrs);
+    const {view, color, target, href} = buttonModel(attrs);
     return {
         class: b({view, color}),
-        ...(href ? {[ButtonAttr.Href]: href} : {}),
-        ...(title ? {[ButtonAttr.Title]: title} : {}),
-        ...(target === '_self' ? {} : {[ButtonAttr.Target]: target}),
+        ...(href ? {href} : {}),
+        ...(target === '_self' ? {} : {target}),
         ...(target === '_blank' ? {rel: 'noopener noreferrer'} : {}),
         'data-view': view,
         'data-color': color,
     };
 }
 
-export function buttonFromAttrs(getAttr: (name: string) => string | null | undefined): ButtonModel {
+export function buttonFromAttrs(getAttr: GetAttr): ButtonModel {
     return buttonModel({
         view: getAttr('data-view'),
         color: getAttr('data-color'),
-        target: getAttr(ButtonAttr.Target),
-        href: getAttr(ButtonAttr.Href),
-        title: getAttr(ButtonAttr.Title),
+        target: getAttr('target'),
+        href: getAttr('href'),
     });
 }

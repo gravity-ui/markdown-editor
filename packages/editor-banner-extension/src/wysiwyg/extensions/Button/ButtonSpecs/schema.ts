@@ -7,37 +7,36 @@ import {
 } from '@gravity-ui/markdown-plugin-banner';
 
 import {i18n} from '../../../../i18n';
+import {singleLine} from '../../directive';
+import {attrSpecs, placeholderSpec} from '../../schema';
 
-import {ButtonNodeAttr, buttonNodeName} from './const';
+import {ButtonAttr, buttonNodeName} from './const';
 import {buttonLabel} from './utils';
 
 export const ButtonSchemaSpecs: ExtensionAuto = (builder) => {
-    const placeholder = builder.context.get('placeholder')?.[buttonNodeName];
     builder.addNodeSpec(buttonNodeName, () => ({
         group: 'inline',
         inline: true,
         atom: true,
         selectable: true,
-        attrs: {
-            [ButtonNodeAttr.Href]: {default: buttonDefaults.href},
-            [ButtonNodeAttr.Title]: {default: buttonDefaults.title},
-            [ButtonNodeAttr.View]: {default: buttonDefaults.view},
-            [ButtonNodeAttr.Color]: {default: buttonDefaults.color},
-            [ButtonNodeAttr.Target]: {default: buttonDefaults.target},
-            [ButtonNodeAttr.Label]: {default: ''},
-        },
-        placeholder: {content: placeholder ?? (() => i18n('button-placeholder'))},
+        attrs: attrSpecs({...buttonDefaults, [ButtonAttr.Label]: ''}),
+        placeholder: placeholderSpec(
+            builder,
+            buttonNodeName,
+            () => i18n('button-placeholder'),
+            false,
+        ),
         parseDOM: [
             {
                 tag: `a.${buttonClassName}`,
                 priority: 60,
                 getAttrs: (dom) => ({
                     ...buttonFromAttrs((name) => dom.getAttribute(name)),
-                    [ButtonNodeAttr.Label]: dom.textContent?.trim() ?? '',
+                    [ButtonAttr.Label]: singleLine(dom.textContent ?? '').trim(),
                 }),
             },
         ],
         leafText: buttonLabel,
-        toDOM: (node) => ['a', buttonAttrs(node.attrs), node.attrs[ButtonNodeAttr.Label]],
+        toDOM: (node) => ['a', buttonAttrs(node.attrs), node.attrs[ButtonAttr.Label]],
     }));
 };

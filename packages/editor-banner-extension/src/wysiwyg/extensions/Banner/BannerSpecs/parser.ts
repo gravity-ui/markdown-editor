@@ -1,6 +1,6 @@
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {
-    bannerDimensionsFromAttrs,
+    bannerModelFromAttrs,
     bannerPlugin,
     bannerTokenName,
 } from '@gravity-ui/markdown-plugin-banner';
@@ -13,6 +13,6 @@ export const BannerParserSpecs: ExtensionAuto = (builder) => {
         .addMarkdownTokenParserSpec(bannerTokenName, () => ({
             name: bannerNodeName,
             type: 'block',
-            getAttrs: (token) => bannerDimensionsFromAttrs((name) => token.attrGet(name)),
+            getAttrs: (token) => bannerModelFromAttrs((name) => token.attrGet(name)),
         }));
 };

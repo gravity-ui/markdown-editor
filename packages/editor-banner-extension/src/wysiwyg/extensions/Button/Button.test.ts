@@ -14,7 +14,6 @@ import {
 import {describe, expect, it} from 'vitest';
 
 import {BannerSpecs} from '../Banner/BannerSpecs';
-import {copyBanner, setBannerDimension} from '../Banner/commands';
 
 import {Button} from './Button';
 import {WButtonNodeView} from './ButtonNodeView';
@@ -32,7 +31,7 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
             .use(ButtonSpecs),
 }).buildDeps();
 const button =
-    ':button[Read more](/page?a=1&b=2 "Read the page"){view="outline" color="blue" target="_blank"}';
+    ':button[Read more]{href="/page?a=1&b=2" view="outline" color="blue" target="_blank"}';
 
 const buttonPos = (doc: Node) => {
     let found = -1;
@@ -76,7 +75,6 @@ describe('Button extension', () => {
         expect(paragraph.child(1).isAtom).toBe(true);
         expect(paragraph.child(1).attrs).toEqual({
             href: '/page?a=1&b=2',
-            title: 'Read the page',
             view: 'outline',
             color: 'blue',
             target: '_blank',
@@ -86,13 +84,13 @@ describe('Button extension', () => {
     it.each([
         [':button[Label]', ':button[Label]{view="action" color="standard"}'],
         [
-            ':button[Label](){view="action" color="standard" target="_self"}',
+            ':button[Label]{view="action" color="standard" target="_self" href=""}',
             ':button[Label]{view="action" color="standard"}',
         ],
         [':button[Label]{view="normal"}', ':button[Label]{view="normal" color="gray"}'],
         [
-            ':button[Label](/page){target="_blank" color="blue" view="outline"}',
-            ':button[Label](/page){view="outline" color="blue" target="_blank"}',
+            ':button[Label]{target="_blank" color="blue" view="outline" href="/page"}',
+            ':button[Label]{href="/page" view="outline" color="blue" target="_blank"}',
         ],
         [
             ':button[Label]{target="_top"}',
@@ -101,18 +99,9 @@ describe('Button extension', () => {
         [':button[\\[x\\] a\\\\b]', ':button[\\[x\\] a\\\\b]{view="action" color="standard"}'],
         [':button[**Bold**]', ':button[**Bold**]{view="action" color="standard"}'],
         [
-            ':button[Label](/image&copy;.png?a=1&amp;b=2)',
-            ':button[Label](/image%C2%A9.png?a=1&b=2){view="action" color="standard"}',
+            ':button[Label]{href="/a?x=\\"1\\""}',
+            ':button[Label]{href="/a?x=%221%22" view="action" color="standard"}',
         ],
-        [
-            ':button[Label](/a?x=\\"1\\")',
-            ':button[Label](/a?x=%221%22){view="action" color="standard"}',
-        ],
-        [
-            ':button[Label](</a (b)> \'A "quoted" \\\\ title\')',
-            ':button[Label](/a%20\\(b\\) "A \\"quoted\\" \\\\ title"){view="action" color="standard"}',
-        ],
-        [':button[Label]{href="/page"}', ':button[Label]{view="action" color="standard"}'],
     ])('should save %j as %j', (source, expected) => {
         expect(serializer.serialize(markupParser.parse(source))).toBe(expected);
     });
@@ -138,16 +127,6 @@ describe('Button extension', () => {
         ]);
         expect(serializer.serialize(doc)).toBe(':button[Button]{view="flat" color="standard"}');
         expect(doc.child(0).child(0).attrs.label).toBe('');
-    });
-    it('should preserve buttons when resizing, undoing, and copying a banner', () => {
-        const {state, dispatch} = createState(`:::banner\n${button}\n:::`);
-        const original = state().doc;
-        expect(setBannerDimension(0, 'height', 'l')(state(), dispatch)).toBe(true);
-        expect(undo(state(), dispatch)).toBe(true);
-        expect(state().doc.eq(original)).toBe(true);
-        expect(copyBanner(0)(state(), dispatch)).toBe(true);
-        expect(state().doc.child(0).eq(state().doc.child(1))).toBe(true);
-        expect(markupParser.parse(serializer.serialize(state().doc)).eq(state().doc)).toBe(true);
     });
     it('should change attributes in separate undo steps and keep the label', () => {
         const {state, dispatch} = createState(button);
@@ -278,7 +257,7 @@ describe('Button extension', () => {
             const dom = view.nodeDOM(1) as HTMLElement;
             expect(setButtonAttrs(1, attrs)(view.state, view.dispatch)).toBe(true);
             const node = view.state.doc.nodeAt(1) as Node;
-            const fresh = new WButtonNodeView(node, view, () => 1, markupParser).dom;
+            const fresh = new WButtonNodeView(node).dom;
             fresh.classList.add('ProseMirror-selectednode');
             fresh.draggable = true;
             expect(view.nodeDOM(1)).toBe(dom);

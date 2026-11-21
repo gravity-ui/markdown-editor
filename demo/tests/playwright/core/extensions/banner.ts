@@ -1,6 +1,10 @@
 import type {Expect, Locator, Page} from '@playwright/test';
 
+import type {MarkdownEditorPage} from '../editor';
 import {test as base, expect} from '../index';
+
+const SETTINGS_OFFSET = 4;
+const SETTINGS_INSET = 16;
 
 export class BannerBlock {
     readonly blocks: Locator;
@@ -14,10 +18,12 @@ export class BannerBlock {
     readonly options: Locator;
     protected readonly page: Page;
     protected readonly expect: Expect;
+    protected readonly editor: MarkdownEditorPage;
 
-    constructor(page: Page, expect: Expect) {
+    constructor(page: Page, expect: Expect, editor: MarkdownEditorPage) {
         this.page = page;
         this.expect = expect;
+        this.editor = editor;
         this.blocks = page.locator('.ProseMirror .g-md-banner-plugin');
         this.toolbar = page.getByTestId('g-md-toolbar-banner');
         this.settingsButton = this.toolbar.getByRole('button', {name: 'Settings', exact: true});
@@ -37,10 +43,6 @@ export class BannerBlock {
         return this.settings.getByRole('switch', {name, exact: true});
     }
 
-    async clickToggle(name: string) {
-        await this.settings.getByText(name, {exact: true}).click();
-    }
-
     section(name: string) {
         return this.settings.getByRole('button', {name, exact: true});
     }
@@ -52,7 +54,7 @@ export class BannerBlock {
     }
 
     get background() {
-        return this.settings.getByRole('button', {name: 'Background No background', exact: true});
+        return this.settings.getByRole('button', {name: /^Background /});
     }
 
     /** Collapses every section except the given ones. */
@@ -66,19 +68,22 @@ export class BannerBlock {
         await this.page.mouse.move(0, 0);
     }
 
-    /** Distances from the top and right edges of the block to the panel. */
-    async settingsInsets() {
+    async settingsOffsets() {
         const [block, settings] = await Promise.all([
             this.blocks.boundingBox(),
             this.settings.boundingBox(),
         ]);
-        return (
-            block &&
-            settings && [
-                Math.round(settings.y - block.y),
-                Math.round(block.x + block.width - settings.x - settings.width),
-            ]
+        const viewport = this.page.viewportSize();
+        if (!block || !settings || !viewport) return null;
+        const right = Math.min(
+            block.x + block.width + SETTINGS_OFFSET + settings.width,
+            viewport.width - SETTINGS_INSET,
         );
+        return [Math.round(settings.y - block.y), Math.round(settings.x + settings.width - right)];
+    }
+
+    async scrollSettingsToEnd() {
+        await this.settings.evaluate((element) => element.scrollTo({top: element.scrollHeight}));
     }
 
     async settingsBottom() {
@@ -86,7 +91,11 @@ export class BannerBlock {
         return settings && Math.round(settings.y + settings.height);
     }
 
-    /** The editor opens with the cursor in the first block, which shows its toolbar. */
+    async focusEditor() {
+        await this.editor.focus();
+        await this.editor.press('ControlOrMeta+Home');
+    }
+
     async hideToolbar() {
         await this.expect(this.toolbar).toBeVisible();
         await this.page.keyboard.press('Escape');
@@ -108,7 +117,7 @@ type BannerFixtures = {banner: BannerBlock};
 type Test = ReturnType<typeof base.extend<BannerFixtures>>;
 
 export const test: Test = base.extend<BannerFixtures>({
-    banner: async ({page}, use) => {
-        await use(new BannerBlock(page, expect));
+    banner: async ({page, editor}, use) => {
+        await use(new BannerBlock(page, expect, editor));
     },
 });

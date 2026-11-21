@@ -1,0 +1,334 @@
+@use 'sass:string';
+@use '../variables';
+
+$bg-colors: (
+    'gray-light': var(--g-color-base-neutral-light),
+    'gray-medium': var(--g-color-base-neutral-medium),
+    'gray-heavy': var(--g-color-base-neutral-heavy-hover),
+    'green-light': var(--g-color-base-positive-light),
+    'green-medium': var(--g-color-base-positive-medium),
+    'green-heavy': var(--g-color-base-positive-heavy),
+    'yellow-light': var(--g-color-base-warning-light),
+    'yellow-medium': var(--g-color-base-warning-medium),
+    'yellow-heavy': var(--g-color-base-warning-heavy),
+    'blue-light': var(--g-color-base-info-light),
+    'blue-medium': var(--g-color-base-info-medium),
+    'blue-heavy': var(--g-color-base-info-heavy),
+    'red-light': var(--g-color-base-danger-light),
+    'red-medium': var(--g-color-base-danger-medium),
+    'red-heavy': var(--g-color-base-danger-heavy),
+    'violet-light': var(--g-color-base-utility-light),
+    'violet-medium': var(--g-color-base-utility-medium),
+    'violet-heavy': var(--g-color-base-utility-heavy),
+);
+
+.g-root {
+    @each $name, $color in $bg-colors {
+        --g-md-banner-plugin-bg-color-#{$name}: #{$color};
+    }
+}
+
+$max-content-width: 10000px;
+$heights: (
+    's': 236px,
+    'm': 300px,
+    'l': 360px,
+);
+$widths: (
+    's': 600px,
+    'm': 900px,
+    'l': 1200px,
+);
+$image: '.g-md-banner-image-plugin';
+$button: '.g-md-button-plugin';
+
+@mixin on-fill {
+    --g-md-banner-content-plugin-link-color: var(--_--link-color);
+    --g-md-banner-content-plugin-link-hover-color: var(--_--link-hover-color);
+    --g-md-banner-content-plugin-link-decoration-line: var(--_--link-decoration-line);
+}
+
+@mixin on-background {
+    --g-md-button-plugin-focus-outline-color: var(--_--button-focus-outline-color);
+    --g-md-banner-content-plugin-link-focus-outline-color: var(--_--link-focus-outline-color);
+    --g-md-banner-content-plugin-code-color: var(--_--code-color);
+    --g-md-banner-content-plugin-code-background: var(--_--code-background);
+    @include on-fill;
+}
+
+.g-md-banner-plugin {
+    --_--border-radius: var(--g-md-banner-plugin-border-radius, var(--g-border-radius-2xl, 16px));
+    --_--padding: var(--g-md-banner-plugin-padding, var(--g-spacing-8, 32px));
+    --_--text-gap: var(--g-md-banner-plugin-text-gap, var(--g-spacing-4, 16px));
+    --_--buttons-gap: var(--g-md-banner-plugin-buttons-gap, var(--g-spacing-8, 32px));
+    --_--image-width: var(--g-md-banner-plugin-image-width, 50%);
+    --_--image-padding: var(--g-md-banner-plugin-image-padding, var(--g-spacing-2, 8px));
+    --_--image-frame-radius: var(--_--border-radius);
+    --_--button-focus-outline-color: var(
+        --g-md-banner-plugin-button-focus-outline-color,
+        var(--g-color-text-primary)
+    );
+    --_--link-focus-outline-color: var(
+        --g-md-banner-plugin-link-focus-outline-color,
+        var(--_--button-focus-outline-color)
+    );
+    --_--link-color: var(--g-md-banner-plugin-link-color, currentColor);
+    --_--link-hover-color: var(--g-md-banner-plugin-link-hover-color, currentColor);
+    --_--link-decoration-line: var(--g-md-banner-plugin-link-decoration-line, underline);
+    --_--code-color: var(--g-md-banner-plugin-code-color, currentColor);
+    --_--code-background: var(--g-md-banner-plugin-code-background, var(--g-color-base-generic));
+    --_--blur: var(--g-md-banner-plugin-blur, 12px);
+    --_--blur-inset: var(--g-md-banner-plugin-blur-inset, 24px);
+    --_--narrow-padding: var(--g-md-banner-plugin-narrow-padding, var(--g-spacing-4, 16px));
+    --_--narrow-image-aspect-ratio: var(--g-md-banner-plugin-narrow-image-aspect-ratio, 16 / 10);
+    --_--narrow-button-height: var(--g-md-banner-plugin-narrow-button-height, 44px);
+    --_--narrow-button-padding-block: var(--g-md-banner-plugin-narrow-button-padding-block, 12px);
+    --_--narrow-button-padding: var(
+        --g-md-banner-plugin-narrow-button-padding,
+        var(--g-spacing-6, 24px)
+    );
+    --_--narrow-button-font-size: var(
+        --g-md-banner-plugin-narrow-button-font-size,
+        var(--g-text-body-2-font-size, 15px)
+    );
+    --_--narrow-button-line-height: var(
+        --g-md-banner-plugin-narrow-button-line-height,
+        var(--g-text-body-2-line-height, 20px)
+    );
+    --_--narrow-button-border-radius: var(
+        --g-md-banner-plugin-narrow-button-border-radius,
+        var(--g-border-radius-xl, 10px)
+    );
+
+    --_--content-padding: var(--_--padding);
+    --_--content-column: 1 / -1;
+    --_--image-inset-start: auto;
+    --_--image-inset-end: 0;
+
+    --_--bg-color: initial;
+
+    position: relative;
+
+    display: grid;
+    align-content: center;
+    grid-template-columns: minmax(0, $max-content-width);
+
+    max-width: var(--_--width);
+    min-height: var(--_--height);
+    margin-block: var(--g-md-banner-plugin-margin-block, 0 var(--g-spacing-5, 20px));
+    margin-inline: var(--g-md-banner-plugin-margin-inline, 0);
+
+    text-align: start;
+
+    border-radius: var(--_--border-radius);
+    background-color: var(--_--bg-color, transparent);
+    container: g-md-banner-plugin / inline-size;
+    overflow-wrap: anywhere;
+
+    @each $name, $_ in $bg-colors {
+        &_bg-color_#{$name} {
+            --_--bg-color: var(--g-md-banner-plugin-bg-color-#{$name});
+
+            @if string.index($name, '-medium') or string.index($name, '-heavy') {
+                @include on-background;
+            } @else {
+                @include on-fill;
+            }
+        }
+    }
+
+    @each $name, $value in $heights {
+        &_height_#{$name} {
+            --_--height: var(--g-md-banner-plugin-height-#{$name}, #{$value});
+        }
+    }
+
+    @each $name, $value in $widths {
+        &_width_#{$name} {
+            --_--width: var(--g-md-banner-plugin-width-#{$name}, #{$value});
+        }
+    }
+
+    &_bg-image {
+        @include on-background;
+    }
+
+    &_width_full {
+        --_--width: none;
+    }
+
+    &_align_center {
+        text-align: center;
+    }
+
+    &_align_right {
+        text-align: end;
+    }
+
+    &_vertical_top {
+        align-content: start;
+    }
+
+    &_vertical_bottom {
+        align-content: end;
+    }
+
+    &#{&} > * {
+        grid-column: var(--_--content-column);
+
+        min-width: 0;
+        margin-block: 0;
+        margin-inline: var(--_--content-padding);
+    }
+
+    &#{&} > * + * {
+        margin-block-start: var(--_--text-gap);
+    }
+
+    &#{&} > * + #{$button}-row {
+        margin-block-start: var(--_--buttons-gap);
+    }
+
+    &#{&} > :nth-child(1 of :not(#{$image})) {
+        margin-block-start: var(--_--content-padding);
+    }
+
+    &#{&} > :nth-last-child(1 of :not(#{$image})) {
+        margin-block-end: var(--_--content-padding);
+    }
+
+    &_align_center > #{$button}-row {
+        justify-content: center;
+    }
+
+    &_align_right > #{$button}-row {
+        justify-content: flex-end;
+    }
+
+    &:has(> #{$image}) {
+        --_--content-column: 1;
+
+        grid-template-columns: repeat(2, minmax(0, $max-content-width * 0.5));
+    }
+
+    &:has(> #{$image}:only-child) {
+        align-content: stretch;
+    }
+
+    &_align_right:has(> #{$image}) {
+        --_--content-column: 2;
+        --_--image-inset-start: 0;
+        --_--image-inset-end: auto;
+    }
+
+    &#{&} > #{$image} {
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline: var(--_--image-inset-start) var(--_--image-inset-end);
+
+        grid-column: auto;
+
+        box-sizing: border-box;
+        width: var(--_--image-width);
+        max-width: 50%;
+        height: 100%;
+        max-height: none;
+        margin: 0;
+        padding: var(--_--image-padding);
+
+        border-radius: var(--_--image-frame-radius);
+        background-clip: content-box;
+    }
+
+    &#{&}_bg-image {
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+    }
+
+    &_bg-image-blur {
+        isolation: isolate;
+
+        overflow: clip;
+
+        &::before {
+            position: absolute;
+            z-index: -1;
+            inset-block-start: 50%;
+            inset-inline-start: 50%;
+
+            box-sizing: content-box;
+            width: 100%;
+            height: 100%;
+            padding: var(--_--blur-inset);
+
+            translate: -50% -50%;
+
+            content: '';
+            pointer-events: none;
+
+            background: inherit;
+            filter: blur(var(--_--blur));
+        }
+    }
+
+    &.g-root {
+        --yfm-color-text: var(--g-color-text-primary);
+        --yfm-color-link: var(--g-color-text-link);
+        --yfm-color-link-hover: var(--g-color-text-link-hover);
+        --yfm-color-inline-code: var(--g-color-text-misc);
+        --yfm-color-inline-code-background: var(--g-color-base-misc-light);
+
+        font: inherit;
+
+        background-color: var(--_--bg-color, var(--g-color-base-background));
+    }
+}
+
+@media print {
+    .g-md-banner-plugin {
+        break-inside: avoid;
+        print-color-adjust: exact;
+    }
+}
+
+@container g-md-banner-plugin (width < #{variables.$narrow-width}) {
+    .g-md-banner-plugin {
+        &#{&} > * {
+            --_--content-padding: var(--_--narrow-padding);
+            --_--content-column: 1 / -1;
+        }
+
+        &#{&} > #{$image} {
+            position: static;
+
+            grid-column: 1 / -1;
+            grid-row: 1;
+            justify-self: stretch;
+
+            box-sizing: content-box;
+            width: auto;
+            max-width: none;
+            height: auto;
+            aspect-ratio: var(--_--narrow-image-aspect-ratio);
+        }
+
+        &#{&} > #{$image}:only-child {
+            align-self: stretch;
+        }
+
+        & > #{$button}-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        #{$button} {
+            --g-md-button-plugin-height: var(--_--narrow-button-height);
+            --g-md-button-plugin-padding-block: var(--_--narrow-button-padding-block);
+            --g-md-button-plugin-border-radius: var(--_--narrow-button-border-radius);
+            --g-md-button-plugin-padding: var(--_--narrow-button-padding);
+            --g-md-button-plugin-font-size: var(--_--narrow-button-font-size);
+            --g-md-button-plugin-line-height: var(--_--narrow-button-line-height);
+        }
+    }
+}

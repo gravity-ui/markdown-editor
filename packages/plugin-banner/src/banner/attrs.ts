@@ -1,23 +1,43 @@
 import {cn} from '@bem-react/classname';
 
-import {bannerClassName, bannerDimensions} from './model';
+import {filesGalleryExcludeAttrs} from '../const';
+import {toCssUrl} from '../url';
+import {type GetAttr, dataAttrs, fromDataAttrs, nonDefaultValues} from '../utils';
+
+import {
+    type BannerLayout,
+    type BannerModel,
+    bannerClassName,
+    bannerLayoutDefaults,
+    bannerModelDefaults,
+} from './const';
+import {bannerModel, bannerModelValues} from './utils';
 
 const b = cn(bannerClassName);
 
-export function bannerClassNames(attrs: {height?: unknown; width?: unknown}) {
-    return b(bannerDimensions(attrs));
-}
+type BannerAttrsInput = Partial<Record<keyof BannerModel, unknown>>;
 
-/** Modifiers style the block; data attributes carry its dimensions for parsing. */
-export function bannerAttrs(attrs: {height?: unknown; width?: unknown}) {
-    const dimensions = bannerDimensions(attrs);
+export function bannerAttrs(attrs: BannerAttrsInput): Record<string, string> {
+    const model = bannerModel(attrs);
+    const image = model['bg-image'] && toCssUrl(model['bg-image']);
+    const theme = model['bg-image-theme'];
     return {
-        class: b(dimensions),
-        'data-height': dimensions.height,
-        'data-width': dimensions.width,
+        class: b(
+            {
+                height: model.height,
+                width: model.width,
+                ...nonDefaultValues<BannerLayout>(model, bannerLayoutDefaults),
+                'bg-color': model['bg-color'] ?? undefined,
+                'bg-image': Boolean(image),
+                'bg-image-blur': model['bg-image-blur'],
+            },
+            theme === 'system' ? undefined : ['g-root', `g-root_theme_${theme}`],
+        ),
+        ...filesGalleryExcludeAttrs,
+        ...dataAttrs(bannerModelValues(model)),
+        ...(image ? {style: `background-image:${image}`} : undefined),
     };
 }
 
-export function bannerDimensionsFromAttrs(getAttr: (name: string) => string | null | undefined) {
-    return bannerDimensions({height: getAttr('data-height'), width: getAttr('data-width')});
-}
+export const bannerModelFromAttrs = (getAttr: GetAttr): BannerModel =>
+    bannerModel(fromDataAttrs(getAttr, bannerModelDefaults));
