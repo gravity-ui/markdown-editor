@@ -47,6 +47,21 @@ export const gapCursor = () =>
                 }
                 return false;
             },
+            createSelectionBetween(view, $anchor, $head) {
+                const {selection} = view.state;
+                // prosemirror re-reads the dom selection on any foreign mutation inside
+                // contenteditable (react portals in nodeviews, floating-ui focus guards, …)
+                // and would replace the gap cursor with the nearest text selection
+                if (
+                    isGapCursorSelection(selection) &&
+                    $anchor.pos === $head.pos &&
+                    selection.pos === $head.pos
+                ) {
+                    return selection;
+                }
+
+                return null;
+            },
             decorations: ({doc, selection}: EditorState) => {
                 if (isGapCursorSelection(selection)) {
                     const position = selection.head;
