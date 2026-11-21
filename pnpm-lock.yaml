@@ -208,18 +208,18 @@ importers:
       '@gravity-ui/markdown-editor':
         specifier: workspace:*
         version: link:../packages/editor
-      '@gravity-ui/markdown-editor-header-extension':
+      '@gravity-ui/markdown-editor-banner-extension':
         specifier: workspace:*
-        version: link:../packages/editor-header-extension
+        version: link:../packages/editor-banner-extension
       '@gravity-ui/markdown-editor-latex-extension':
         specifier: workspace:*
         version: link:../packages/latex-extension
       '@gravity-ui/markdown-editor-page-constructor-extension':
         specifier: workspace:*
         version: link:../packages/page-constructor-extension
-      '@gravity-ui/markdown-plugin-header':
+      '@gravity-ui/markdown-plugin-banner':
         specifier: workspace:*
-        version: link:../packages/plugin-header
+        version: link:../packages/plugin-banner
       '@gravity-ui/markdown-viewer-yfm-html-extension':
         specifier: workspace:*
         version: link:../packages/viewer-yfm-html-extension
@@ -767,7 +767,7 @@ importers:
         specifier: catalog:testing
         version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.106.1)(terser@5.51.2)(yaml@2.9.1))
 
-  packages/editor-header-extension:
+  packages/editor-banner-extension:
     dependencies:
       '@floating-ui/react':
         specifier: ^0.27.16
@@ -775,9 +775,9 @@ importers:
       '@gravity-ui/icons':
         specifier: ^2.12.0
         version: 2.23.0(react@18.2.0)
-      '@gravity-ui/markdown-plugin-header':
+      '@gravity-ui/markdown-plugin-banner':
         specifier: workspace:^*
-        version: link:../plugin-header
+        version: link:../plugin-banner
       tslib:
         specifier: catalog:ts
         version: 2.8.1
@@ -935,7 +935,7 @@ importers:
         specifier: catalog:testing
         version: 5.0.1(@types/node@25.2.1)(@vitest/coverage-v8@5.0.1)(jsdom@25.0.1)(vite@8.3.1(@types/node@25.2.1)(esbuild@0.28.2)(jiti@2.6.1)(sass@1.106.1)(terser@5.51.2)(yaml@2.9.1))
 
-  packages/plugin-header:
+  packages/plugin-banner:
     dependencies:
       '@bem-react/classname':
         specifier: ^1.6.0

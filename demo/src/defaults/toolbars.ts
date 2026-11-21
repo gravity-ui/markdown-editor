@@ -8,6 +8,7 @@ import {
     yfmHtmlBlockItemView,
     yfmHtmlBlockItemWysiwyg,
 } from '@gravity-ui/markdown-editor/toolbars';
+import {toolbarBannerItem, toolbarButtonItem} from '@gravity-ui/markdown-editor-banner-extension';
 import {
     latexBlockItemView,
     latexBlockItemWysiwyg,
@@ -20,6 +21,8 @@ import {
 } from '@gravity-ui/markdown-editor-page-constructor-extension/configs';
 
 const pageConstructor = 'pageConstructor';
+const button = 'button';
+const banner = 'banner';
 
 export const playgroundToolbarsPreset: ToolbarsPreset = {
     items: {
@@ -29,9 +32,13 @@ export const playgroundToolbarsPreset: ToolbarsPreset = {
         [Action.mermaid]: {view: mermaidItemView, wysiwyg: mermaidItemWysiwyg},
         [pageConstructor]: {view: pageConstructorItemView, wysiwyg: pageConstructorItemWysiwyg},
         [Action.htmlBlock]: {view: yfmHtmlBlockItemView, wysiwyg: yfmHtmlBlockItemWysiwyg},
+        [banner]: toolbarBannerItem,
+        [button]: toolbarButtonItem,
     },
     orders: {
         ...full.orders,
+        [Toolbar.wysiwygHidden]: [...full.orders[Toolbar.wysiwygHidden], [banner, button]],
+        [Toolbar.markupHidden]: [...full.orders[Toolbar.markupHidden], [banner, button]],
         [Toolbar.wysiwygSlash]: [
             [
                 ...full.orders[Toolbar.wysiwygSlash].flat(),
@@ -39,6 +46,8 @@ export const playgroundToolbarsPreset: ToolbarsPreset = {
                 Action.mathBlock,
                 Action.mermaid,
                 pageConstructor,
+                banner,
+                button,
                 Action.htmlBlock,
             ],
         ],

@@ -1,0 +1,53 @@
+@use '~@gravity-ui/markdown-plugin-banner/build/styles/layout';
+
+.ProseMirror .g-md-button-plugin-row {
+    --_--half-gap: calc(var(--_--gap) / 2);
+
+    display: flow-root;
+
+    margin-inline-start: calc(-1 * var(--_--gap));
+
+    text-align: start;
+
+    &::before,
+    &::after {
+        display: block;
+
+        content: '';
+    }
+
+    &::before {
+        margin-block-end: calc(-1 * var(--_--half-gap));
+    }
+
+    &::after {
+        margin-block-start: calc(-1 * var(--_--half-gap));
+    }
+
+    & > .g-md-button-plugin {
+        max-width: calc(100% - var(--_--gap));
+        margin-block: var(--_--half-gap);
+        margin-inline-start: var(--_--gap);
+    }
+
+    & > .g-md-button-plugin-row__space {
+        display: inline-block;
+
+        width: 0;
+
+        vertical-align: middle;
+        white-space: pre;
+    }
+}
+
+.ProseMirror .g-md-banner-plugin > .g-md-button-plugin-row {
+    margin-inline-start: calc(var(--_--content-padding) - var(--_--gap));
+
+    text-align: inherit;
+}
+
+@container g-md-banner-plugin (width < #{layout.$narrow-width}) {
+    .ProseMirror .g-md-banner-plugin > .g-md-button-plugin-row > .g-md-button-plugin {
+        width: calc(100% - var(--_--gap));
+    }
+}

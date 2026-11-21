@@ -33,6 +33,9 @@ It covers `*.{js,jsx,mjs,ts,tsx,css,scss}` across the whole repository. Its outp
 - Never format code by hand, and never reformat lines you did not change.
 - Read `git status` after a fix run and commit only the files your change belongs to.
 - An `eslint-disable` comment that no longer suppresses anything is an error. Remove it instead of keeping it for safety.
+- A linter warning that a change introduces is fixed like an error, in the code itself; an `eslint-disable` comment does not fix it. Warnings already in `main` stay as they are, even when CI / Verify Files shows them in the pull request diff. For example:
+  - `@typescript-eslint/no-shadow`: the inner variable gets its own name;
+  - `no-param-reassign`: the function builds and returns a new object instead of assigning to the properties of its parameter.
 - Use `T[]` for arrays and object shorthand (`{foo}`).
 - Use `import type {Foo, Bar} from './foo'` when importing only types. When importing values and types together, mark each type inline (`import {createFoo, type Foo} from './foo'`).
 - Where the linter is silent, follow the file you are editing.
@@ -89,7 +92,7 @@ Published `@gravity-ui/*` packages live directly in `packages/`. The npm name st
 | markdown-it plugin | `@gravity-ui/markdown-plugin-<name>` | `packages/plugin-<name>` |
 
 - The directory name is the npm name without the `@gravity-ui/markdown-` prefix.
-- Examples: `packages/editor-header-extension` and `packages/plugin-header`.
+- Examples: `packages/editor-banner-extension` and `packages/plugin-banner`.
 
 ## Package structure
 
