@@ -1,4 +1,4 @@
-import {buttonViewColors} from '@gravity-ui/markdown-plugin-header';
+import {buttonViewColors} from '@gravity-ui/markdown-plugin-banner';
 import type {Meta, StoryObj} from '@storybook/react';
 
 import {ButtonExample} from './Button';
