@@ -17,14 +17,21 @@ export interface YfmHtmlBlockOptions extends Omit<
         enabled: boolean;
         delay?: number; // по умолчанию 1000ms
     };
+    /** Properties panel by default; source modes open on double-click at the clicked text position. */
+    elementEditingMode?: 'properties' | 'inline-source' | 'overlay-source';
+    /** Opens HTML source editing on double-click. Disabled by default. */
+    openCodeOnDoubleClick?: boolean;
 }
 
-export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (
-    builder,
-    {useConfig: _, ...options},
-) => {
+export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (builder, options) => {
+    const {
+        useConfig: _,
+        openCodeOnDoubleClick: __,
+        elementEditingMode: ___,
+        ...specOptions
+    } = options;
     builder
-        .use(YfmHtmlBlockSpecs, options)
+        .use(YfmHtmlBlockSpecs, specOptions)
         .addNodeView(yfmHtmlBlockNodeName, YfmHtmlBlockNodeViewFactory(options));
 
     builder.addAction(YfmHtmlBlockAction, () => addYfmHtmlBlock);
