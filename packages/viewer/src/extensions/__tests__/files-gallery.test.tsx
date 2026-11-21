@@ -7,7 +7,7 @@ import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {act} from '../../../tests/utils/act';
-import {FilesGallery} from '../../extensions';
+import {FILES_GALLERY_EXCLUDE_ATTRIBUTE, FilesGallery} from '../../extensions';
 import {MarkdownViewer, ViewerTargets} from '../../index';
 
 describe('FilesGallery', () => {
@@ -427,6 +427,23 @@ describe('FilesGallery', () => {
             </MarkdownViewer>,
         );
         expect((await click('img[alt="React"]')).defaultPrevented).toBe(false);
+        expect(document.querySelector('[role="dialog"]')).toBeNull();
+        await click('img[alt="Content"]');
+        const dialog = document.querySelector('[role="dialog"]');
+        expect(dialog?.textContent).toContain('Content');
+        expect(dialog?.textContent).not.toContain('1 / 2');
+    });
+
+    it('should skip resources inside an excluded element', async () => {
+        await render(
+            <MarkdownViewer
+                html={`<div ${FILES_GALLERY_EXCLUDE_ATTRIBUTE}="true"><img src="/banner.png" alt="Banner"><a href="/file.pdf">File</a></div><img src="/content.png" alt="Content">`}
+            >
+                <FilesGallery />
+            </MarkdownViewer>,
+        );
+        expect((await click('img[alt="Banner"]')).defaultPrevented).toBe(false);
+        expect((await click('a')).defaultPrevented).toBe(false);
         expect(document.querySelector('[role="dialog"]')).toBeNull();
         await click('img[alt="Content"]');
         const dialog = document.querySelector('[role="dialog"]');
