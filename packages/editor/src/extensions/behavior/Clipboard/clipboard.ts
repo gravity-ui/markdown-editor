@@ -174,6 +174,7 @@ type SerializeResult = {
     text: string;
     html?: string;
     markup?: string;
+    codeLineStart?: boolean;
 };
 function serializeSelected(view: EditorView, serializer: Serializer): SerializeResult | null {
     const sel = view.state.selection;
@@ -183,7 +184,11 @@ function serializeSelected(view: EditorView, serializer: Serializer): SerializeR
     // handle selection in codeblocks
     if (getSharedDepthNode(sel).type.spec.code) {
         const fragment = sel.content().content;
-        return {text: fragment.textBetween(0, fragment.size)};
+        const {nodeBefore} = sel.$from;
+        return {
+            text: fragment.textBetween(0, fragment.size),
+            codeLineStart: !nodeBefore?.text || nodeBefore.text.endsWith('\n'),
+        };
     }
 
     // FIXME: Verify and use Node instead of Fragment
@@ -196,6 +201,7 @@ function setClipboardData(data: DataTransfer, result: SerializeResult) {
     data.clearData();
     if (typeof result.markup === 'string') data.setData(DataTransferType.Yfm, result.markup);
     if (typeof result.html === 'string') data.setData(DataTransferType.Html, result.html);
+    if (result.codeLineStart) data.setData(DataTransferType.CodeLineStart, 'true');
     data.setData(DataTransferType.Text, result.text);
 }
 
