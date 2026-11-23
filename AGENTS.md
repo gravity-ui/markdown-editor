@@ -162,6 +162,7 @@ Project docs live in `docs/`. Read the relevant file before working on the corre
 | Adding preview | [`docs/how-to-add-preview.md`](docs/how-to-add-preview.md) |
 | GPT / AI extensions | [`docs/how-to-connect-gpt-extensions.md`](docs/how-to-connect-gpt-extensions.md) |
 | Contributing guidelines | [`docs/guidelines-contributions.md`](docs/guidelines-contributions.md) |
+| Specifications of extension syntax | [`infra/docs-gen/skills/markup-spec/SKILL.md`](infra/docs-gen/skills/markup-spec/SKILL.md) |
 
 ## Stack
 
