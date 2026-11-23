@@ -26,6 +26,20 @@ export {
 } from './banner/const';
 export {bannerBackground, bannerBackgroundValues, bannerDimensions} from './banner/utils';
 export {bannerPlugin} from './banner/plugin';
+export {bannerTitlePlugin} from './banner-title/plugin';
+export {bannerTitleAttrs, bannerTitleFromAttrs} from './banner-title/attrs';
+export {
+    type BannerTitleColor,
+    type BannerTitleModel,
+    type BannerTitleSize,
+    bannerTitleClassName,
+    bannerTitleColors,
+    bannerTitleDefaults,
+    bannerTitleModel,
+    bannerTitleSizes,
+    bannerTitleTokenName,
+    bannerTitleValues,
+} from './banner-title/model';
 export {buttonPlugin} from './button/plugin';
 export {buttonAttrs, buttonFromAttrs} from './button/attrs';
 export {
