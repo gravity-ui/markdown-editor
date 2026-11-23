@@ -20,6 +20,10 @@
     --_--background-hover: initial;
     --_--color-hover: initial;
 
+    --yfm-color-link: var(--_--color);
+    --yfm-color-link-hover: var(--_--color-hover, var(--_--color));
+
+    // TODO: remove the --g-color-text-link* overrides in the future.
     --g-color-text-link: var(--_--color);
     --g-color-text-link-hover: var(--_--color-hover, var(--_--color));
     --g-color-text-link-visited: var(--_--color);
