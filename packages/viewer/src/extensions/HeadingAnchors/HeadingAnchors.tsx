@@ -3,8 +3,8 @@ import {type MouseEvent, useState} from 'react';
 import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {ViewerTargets} from '../../components/ViewerTargets';
-import {createClassRegistration} from '../../utils/class-registration';
 import {cn} from '../../utils/classname';
+import {createClassRegistration} from '../../utils/dom-ownership';
 import {useClientLayoutEffect} from '../../utils/use-client-layout-effect';
 
 import {i18n} from './i18n';
