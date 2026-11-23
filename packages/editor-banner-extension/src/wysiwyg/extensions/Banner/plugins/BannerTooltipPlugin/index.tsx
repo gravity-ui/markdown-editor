@@ -15,19 +15,21 @@ export const bannerTooltipPlugin = ({serializer}: ExtensionDeps) =>
                 idPrefix: 'banner-tooltip',
                 nodeType: bannerNodeType(view.state.schema),
                 popupPlacement: ['bottom', 'top'],
-                content: (editorView, {node, pos, dom}) => (
-                    <BannerToolbar
-                        view={editorView}
-                        node={node}
-                        pos={pos}
-                        block={dom}
-                        markup={() => {
-                            const {doc} = editorView.state;
-                            return serializer.serialize(
-                                doc.type.create(null, doc.nodeAt(pos) ?? node),
-                            );
-                        }}
-                    />
-                ),
+                content: (editorView, {node, pos, dom}) => {
+                    const markup = () => {
+                        const {doc} = editorView.state;
+                        return serializer.serialize(doc.type.create(null, doc.nodeAt(pos) ?? node));
+                    };
+
+                    return (
+                        <BannerToolbar
+                            view={editorView}
+                            node={node}
+                            pos={pos}
+                            block={dom}
+                            markup={markup}
+                        />
+                    );
+                },
             }),
     });
