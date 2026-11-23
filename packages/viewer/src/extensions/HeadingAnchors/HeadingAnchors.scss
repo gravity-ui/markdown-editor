@@ -37,4 +37,19 @@
 
 .#{v.$ns}viewer__content .#{v.$ns}heading-anchor > :is(.yfm-anchor, .yfm-clipboard-anchor) {
     display: none;
+
+    &:is([id], [name]) {
+        // Keep legacy aliases available for fragment scrolling.
+        position: absolute;
+        inset: 0;
+
+        display: block;
+        visibility: hidden;
+        overflow: hidden;
+
+        width: 0;
+        height: 0;
+        margin: 0;
+        padding: 0;
+    }
 }

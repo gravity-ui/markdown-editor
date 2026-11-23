@@ -2,9 +2,41 @@ import type {Page} from '@playwright/test';
 
 import {expect, test} from 'playwright/core';
 
-import {ViewerStories} from './MarkdownViewer.helpers';
+import {HeadingAliasViewer, ViewerStories} from './MarkdownViewer.helpers';
 
 test.describe('MarkdownViewer heading anchors', () => {
+    for (const attribute of ['id', 'name'] as const) {
+        test(`should scroll to a legacy ${attribute} alias while hiding its old control`, async ({
+            mount,
+            page,
+        }) => {
+            await mount(<HeadingAliasViewer attribute={attribute} />, {width: 700});
+            const heading = page.locator('h2#heading');
+            await expect(heading).not.toBeInViewport();
+
+            await page.getByRole('link', {name: 'Go to alias'}).click();
+
+            await expect(heading).toBeInViewport();
+            const alias = heading.locator('.yfm-anchor');
+            await expect(alias).toBeHidden();
+
+            const layout = await measureAliasLayout(page);
+            expect(
+                await alias.evaluate((element) => element.getBoundingClientRect().toJSON()),
+            ).toMatchObject({
+                x: layout.heading?.x,
+                y: layout.heading?.y,
+                width: 0,
+                height: 0,
+            });
+
+            await alias.evaluate((element) => {
+                element.style.setProperty('display', 'none');
+            });
+            expect(await measureAliasLayout(page)).toEqual(layout);
+        });
+    }
+
     test('should cover list markers beside every heading level', async ({
         mount,
         page,
@@ -118,6 +150,14 @@ test.describe('MarkdownViewer heading anchors', () => {
         await expect(copy.locator('..')).toHaveCSS('opacity', '1');
     });
 });
+
+async function measureAliasLayout(page: Page) {
+    return page.evaluate(() => ({
+        heading: document.querySelector('h2#heading')?.getBoundingClientRect().toJSON(),
+        width: document.documentElement.scrollWidth,
+        height: document.documentElement.scrollHeight,
+    }));
+}
 
 async function hoverHeadings(page: Page) {
     const devtools = await page.context().newCDPSession(page);
