@@ -3,12 +3,13 @@ import type {ExtensionDeps} from '@gravity-ui/markdown-editor/core';
 import {Plugin} from '@gravity-ui/markdown-editor/pm/state';
 
 import {bannerNodeType} from '../../BannerSpecs';
+import type {BannerOptions} from '../../index';
 
 import {BannerToolbar} from './BannerToolbar';
 
 export {bannerKeymap} from './keymap';
 
-export const bannerTooltipPlugin = ({serializer}: ExtensionDeps) =>
+export const bannerTooltipPlugin = ({serializer}: ExtensionDeps, options: BannerOptions = {}) =>
     new Plugin({
         view: (view) =>
             new BaseTooltipPlugin.BaseTooltipPluginView(view, {
@@ -28,6 +29,7 @@ export const bannerTooltipPlugin = ({serializer}: ExtensionDeps) =>
                             pos={pos}
                             block={dom}
                             markup={markup}
+                            {...options}
                         />
                     );
                 },

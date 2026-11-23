@@ -12,6 +12,7 @@ export class BannerBlock {
     readonly width: Locator;
     readonly closeButton: Locator;
     readonly options: Locator;
+    readonly backgroundPopup: Locator;
     protected readonly page: Page;
     protected readonly expect: Expect;
 
@@ -27,6 +28,7 @@ export class BannerBlock {
         this.width = this.settings.getByRole('combobox', {name: 'Width', exact: true});
         this.closeButton = this.settings.getByRole('button', {name: 'Close', exact: true});
         this.options = page.getByRole('option');
+        this.backgroundPopup = page.getByRole('dialog', {name: 'Background', exact: true});
     }
 
     option(name: string) {
@@ -53,6 +55,10 @@ export class BannerBlock {
 
     get background() {
         return this.settings.getByRole('button', {name: 'Background No background', exact: true});
+    }
+
+    backgroundTab(name: string) {
+        return this.backgroundPopup.getByRole('tab', {name, exact: true});
     }
 
     /** Collapses every section except the given ones. */

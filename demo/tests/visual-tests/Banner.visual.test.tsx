@@ -296,7 +296,11 @@ test.describe('Banner', () => {
 
         await expect(banner.background).toHaveAccessibleName('Background No background');
         await banner.background.click();
-        expect(messages).toContain('Background button clicked');
+        // Until the popup takes focus, the settings panel handles Escape.
+        await expect(banner.backgroundTab('Fill')).toBeFocused();
+        await page.keyboard.press('Escape');
+        await expect(banner.backgroundPopup).toBeHidden();
+        await expect(banner.settings).toBeVisible();
         expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(initial);
 
         await banner.section('Text').click();
