@@ -1,12 +1,18 @@
-import {Copy, Gear, TrashBin} from '@gravity-ui/icons';
-import {Toolbar, type ToolbarData, ToolbarDataType, cn} from '@gravity-ui/markdown-editor';
-import type {Serializer} from '@gravity-ui/markdown-editor/core';
+import {Gear, TrashBin} from '@gravity-ui/icons';
+import {
+    Toolbar,
+    type ToolbarBaseProps,
+    type ToolbarData,
+    ToolbarDataType,
+    cn,
+} from '@gravity-ui/markdown-editor';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {bannerDimensions} from '@gravity-ui/markdown-plugin-banner';
+import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
-import {copyBanner, removeBanner, setBannerDimension} from '../../commands';
+import {removeBanner, setBannerDimension} from '../../commands';
 
 import {BannerSettings} from './Settings/BannerSettings';
 
@@ -20,15 +26,23 @@ export const bannerToolbars = new WeakMap<EditorView, HTMLElement>();
 const isActive = () => false;
 const isEnable = () => true;
 
+const COPY_BUTTON_WIDTH = 28;
+
+type BannerCopyButtonProps = ToolbarBaseProps<EditorView> & {markup?: () => string};
+
+function BannerCopyButton({markup = () => ''}: BannerCopyButtonProps) {
+    return <ClipboardButton qa="banner-copy" text={markup} />;
+}
+
 type BannerToolbarProps = {
     view: EditorView;
     node: Node;
     pos: number;
     block: HTMLElement | null;
-    serializer: Serializer;
+    markup: () => string;
 };
 
-export function BannerToolbar({view, node, pos, block, serializer}: BannerToolbarProps) {
+export function BannerToolbar({view, node, pos, block, markup}: BannerToolbarProps) {
     const data: ToolbarData<EditorView> = [
         [
             {
@@ -53,12 +67,11 @@ export function BannerToolbar({view, node, pos, block, serializer}: BannerToolba
             },
             {
                 id: 'banner-copy',
-                type: ToolbarDataType.SingleButton,
-                icon: {data: Copy},
-                title: i18n('copy'),
-                isActive,
-                isEnable,
-                exec: (editor) => copyBanner(editor, pos, serializer),
+                type: ToolbarDataType.ReactComponent,
+                width: COPY_BUTTON_WIDTH,
+                component: BannerCopyButton,
+                props: {markup} satisfies Partial<BannerCopyButtonProps>,
+                noRerenderOnUpdate: true,
             },
         ],
         [

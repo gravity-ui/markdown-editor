@@ -21,7 +21,12 @@ export const bannerTooltipPlugin = ({serializer}: ExtensionDeps) =>
                         node={node}
                         pos={pos}
                         block={dom}
-                        serializer={serializer}
+                        markup={() => {
+                            const {doc} = editorView.state;
+                            return serializer.serialize(
+                                doc.type.create(null, doc.nodeAt(pos) ?? node),
+                            );
+                        }}
                     />
                 ),
             }),

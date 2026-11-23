@@ -21,7 +21,7 @@ const editor = useMarkdownEditor({
 `toolbarBannerItem` inserts the block.
 In the visual editor, the button is disabled inside another banner.
 A cursor in the block opens a toolbar with settings, copy, and delete.
-Copy writes the block to the clipboard as Markdown, HTML, and plain text, like copying a selected block.
+The copy button is the `ClipboardButton` of `@gravity-ui/uikit`: it writes the Markdown of the banner to the clipboard as plain text and leaves the document unchanged, so pasting it into either mode adds the same banner.
 With the block selected or the cursor inside or next to it, Tab and Shift+Tab focus its controls; lists, tables, and code blocks inside the block handle these keys first.
 The settings panel opens inside the block, 16 px from its top and right edges, and stays within the viewport.
 Opening the panel focuses the height select; Escape or the close button closes it and returns focus to the settings button.
