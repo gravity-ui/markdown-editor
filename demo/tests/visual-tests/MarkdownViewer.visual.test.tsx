@@ -2,6 +2,21 @@ import {expect, test} from 'playwright/core';
 
 import {ViewerStories} from './MarkdownViewer.helpers';
 
+test.describe('MarkdownViewer gallery keyboard', () => {
+    test('should move focus between gallery images with Tab', async ({mount, page}) => {
+        await mount(<ViewerStories.FilesGallery />, {width: 700});
+        const viewer = page.getByTestId('demo-markdown-viewer');
+        const first = viewer.getByRole('button', {name: 'Minion', exact: true});
+        const second = viewer.getByRole('button', {name: 'Stormtroopocat', exact: true});
+
+        await first.focus();
+        await page.keyboard.press('Tab');
+        await expect(second).toBeFocused();
+        await page.keyboard.press('Shift+Tab');
+        await expect(first).toBeFocused();
+    });
+});
+
 test.describe('MarkdownViewer code block actions', () => {
     test.beforeEach(async ({mount, page}) => {
         await mount(<ViewerStories.CodeBlockActions />, {width: 700});
