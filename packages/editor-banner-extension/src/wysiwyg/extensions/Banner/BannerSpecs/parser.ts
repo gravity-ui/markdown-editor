@@ -1,0 +1,15 @@
+import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
+import {bannerPlugin, bannerTokenName} from '@gravity-ui/markdown-plugin-banner';
+
+import {bannerNodeAttrs} from './attrs';
+import {bannerNodeName} from './const';
+
+export const BannerParserSpecs: ExtensionAuto = (builder) => {
+    builder
+        .configureMd((md) => md.use(bannerPlugin))
+        .addMarkdownTokenParserSpec(bannerTokenName, () => ({
+            name: bannerNodeName,
+            type: 'block',
+            getAttrs: (token) => bannerNodeAttrs((name) => token.attrGet(name)),
+        }));
+};

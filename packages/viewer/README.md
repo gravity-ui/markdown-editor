@@ -184,7 +184,11 @@ For each HTML item, a standard item or `resolveCustomItem` result gets copy/down
 
 The clicked item is built first; if skipped, collection stops. Callbacks run once per discovered item on opening. Do not change the HTML from callbacks or keep DOM elements in returned items or actions.
 
+`transformItem` is not called when keyboard attributes are added. An image excluded by returning `null` can still receive Tab focus, but it will not open the gallery.
+
 An open gallery keeps its items when HTML changes or `FilesGallery` unmounts. The next opening reads the current HTML. Items with the same URL stay separate; the clicked element sets the initial item.
+
+Standalone images become buttons and open with Enter or Space. An existing `tabindex` is kept; otherwise it is set to `0`. Existing `aria-label` and `aria-labelledby` are kept; otherwise the name uses `alt`, `title`, or the localized “Open image” label. Images with `role="presentation"` or `role="none"` keep their attributes and open only by click. Images inside links, buttons, or React slots, or with other explicit roles except `img`, are skipped. Canceled, repeated, or modified key presses do not open the gallery. Removing the extension or replacing HTML restores the original attributes.
 
 To cancel gallery opening, call `preventDefault()` in `onClickCapture`. A regular React `onClick` runs after the gallery's native listener. This also cancels native link navigation:
 

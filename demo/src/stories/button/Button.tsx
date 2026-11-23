@@ -6,11 +6,11 @@ import {
     type RenderPreview,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
-import {Button, Header} from '@gravity-ui/markdown-editor-header-extension';
+import {Banner, Button} from '@gravity-ui/markdown-editor-banner-extension';
 
 import {PlaygroundLayout} from '../../components/PlaygroundLayout';
 import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
-import {toolbars} from '../header/Header';
+import {toolbars} from '../banner/Banner';
 
 export function ButtonExample({
     initial = ':button[Кнопка](https://example.com){view="action" color="standard"}',
@@ -27,7 +27,7 @@ export function ButtonExample({
     );
     const editor = useMarkdownEditor({
         initial: {markup: initial, mode, toolbarVisible: true},
-        wysiwygConfig: {extensions: (builder) => builder.use(Header, {}).use(Button)},
+        wysiwygConfig: {extensions: (builder) => builder.use(Banner, {}).use(Button)},
         markupConfig: {renderPreview},
     });
 

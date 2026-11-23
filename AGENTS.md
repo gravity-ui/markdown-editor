@@ -4,6 +4,14 @@
 
 Where this file says nothing, copy the closest existing example in the repository: folder structure, file names, names of variables, functions, types and constants, class structure, React components and hooks, styles and CSS class names, i18n keys, exports, tests, demo stories. Add a new kind of file only if the repository already has one like it.
 
+## API and module boundaries
+
+- Add public API only for a supported consumer use case. Check re-exports and inherited members; keep implementation-only helpers internal.
+- Preserve public API compatibility, including types and runtime behavior, unless the task explicitly includes a breaking change. Missing repository callers do not prove that a public API is unused.
+- Reuse existing extension and lifecycle mechanisms. Add wrappers or dependencies between modules only when needed for the task; keep unrelated refactoring out of the diff.
+- Keep subscription setup and cleanup in the same lifecycle owner. Update state before emitting events that report its change; account for listeners that change it again.
+- Implement library features, including accessibility support, in the library. Demo code configures and demonstrates them.
+
 ## Testing
 
 **Always run visual (Playwright) tests in Docker. Never run them locally.** Their setup, commands and screenshot rules are in [`demo/AGENTS.md`](demo/AGENTS.md); read it before writing or running a visual test.
@@ -11,6 +19,10 @@ Where this file says nothing, copy the closest existing example in the repositor
 Unit tests use Vitest and run with `pnpm test` from the root. Import `describe`, `it`, `expect`, hooks, and `vi` explicitly from `vitest`; globals are disabled.
 
 Test names (`it`, `test`, and parameterized cases) must start with `should `, followed by a base-form verb.
+
+Check for regressions against the base revision in the areas affected by the change: behavior, public API, data, UI/accessibility, performance/resources, package compatibility, and security/privacy. Include disabled paths when a feature flag exists. Distinguish intended changes from regressions.
+
+Keep tests small and focused on observable behavior, with minimal mocks and no duplicate cases. Prefer the least costly tests that reliably verify the behavior being changed. Use more expensive tests, such as visual tests, only when cheaper tests cannot provide the required coverage.
 
 Type contract tests follow the same rules in every package:
 
@@ -33,8 +45,10 @@ It covers `*.{js,jsx,mjs,ts,tsx,css,scss}` across the whole repository. Its outp
 - Never format code by hand, and never reformat lines you did not change.
 - Read `git status` after a fix run and commit only the files your change belongs to.
 - An `eslint-disable` comment that no longer suppresses anything is an error. Remove it instead of keeping it for safety.
+- A linter warning that a change introduces is fixed like an error, in the code itself; an `eslint-disable` comment does not fix it. Warnings already in `main` stay as they are, even when CI / Verify Files shows them in the pull request diff.
 - Use `T[]` for arrays and object shorthand (`{foo}`).
 - Use `import type {Foo, Bar} from './foo'` when importing only types. When importing values and types together, mark each type inline (`import {createFoo, type Foo} from './foo'`).
+- In new code, place the main class or function above helper function declarations. Declare types, interfaces, and constants (including arrow functions) before use. Keep declarations needed during module initialization in execution order.
 - Where the linter is silent, follow the file you are editing.
 - Shared rules live in `infra/linters/`; per-package overrides are in the root `eslint.config.mjs`.
 
@@ -89,7 +103,7 @@ Published `@gravity-ui/*` packages live directly in `packages/`. The npm name st
 | markdown-it plugin | `@gravity-ui/markdown-plugin-<name>` | `packages/plugin-<name>` |
 
 - The directory name is the npm name without the `@gravity-ui/markdown-` prefix.
-- Examples: `packages/editor-header-extension` and `packages/plugin-header`.
+- Examples: `packages/editor-banner-extension` and `packages/plugin-banner`.
 
 ## Package structure
 
@@ -174,7 +188,7 @@ Project docs live in `docs/`. Read the relevant file before working on the corre
 
 - Base commit messages on the staged diff (amend: the full resulting diff against the original commit's parent), and PR titles/descriptions on the full merge-base-to-head diff against the actual target branch.
 - Write commit subjects and PR titles in concise English (B1), using Conventional Commits: `type: result`. Keep body/footer for essential context. Reuse the main commit's subject as the PR title if it describes the whole result.
-- Omit scope by default in commits and PR titles. Use it only for a functional area within a package or shared across changed packages; omit it for whole-package changes. Never use a package name, its abbreviation or its directory as scope.
+- Use a scope in commit subjects and PR titles when it identifies one area of responsibility shared by all changes. Omit it for changes across independent areas or when no precise name fits. Choose scopes by meaning, not file names. Use an extension name only for changes limited to one of several extensions in a package; for a single-extension package, name a narrower area or omit the scope. Never use a package name, its abbreviation or its directory as scope.
 - Explain breaking changes; prefer `feat!:` for breaking features. A `BREAKING CHANGE:` body/footer is allowed with or without `!`. Label PRs with breaking changes `breaking change`, and create or comment on an issue with the same label.
 - Publish new PRs as drafts.
 - Write PR descriptions in plain English (A2–B1): problem, resulting behavior, limitations, and what tests protect. Reference related issues; use `Fixes #123` only when resolving them. Follow a PR template if provided; keep small PR descriptions to a few sentences. Omit successful checks covered by CI or required by AGENTS.md; report failures. Keep accurate titles/descriptions unchanged.
