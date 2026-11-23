@@ -40,6 +40,13 @@ export {
     bannerTitleTokenName,
     bannerTitleValues,
 } from './banner-title/model';
+export {bannerContentPlugin} from './banner-content/plugin';
+export {bannerContentAttrs} from './banner-content/attrs';
+export {
+    bannerContentClassName,
+    bannerContentDirectiveName,
+    bannerContentTokenName,
+} from './banner-content/model';
 export {buttonPlugin} from './button/plugin';
 export {buttonAttrs, buttonFromAttrs} from './button/attrs';
 export {
