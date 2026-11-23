@@ -22,7 +22,7 @@ const editor = useMarkdownEditor({
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
 | `@gravity-ui/markdown-editor-banner-extension`               | `Banner`, `Button`, the Markdown command `insertBanner`, and the toolbar button `toolbarBannerItem` for both modes |
 | `@gravity-ui/markdown-editor-banner-extension/wysiwyg`       | `Banner`, `Button`, and `toolbarBannerItem` for the visual editor                                                  |
-| `@gravity-ui/markdown-editor-banner-extension/wysiwyg/specs` | `BannerSpecs`, `bannerNodeName`, `ButtonSpecs`, and `buttonNodeName`                                               |
+| `@gravity-ui/markdown-editor-banner-extension/wysiwyg/specs` | `BannerSpecs`, `bannerNodeName`, `bannerTitleNodeName`, `ButtonSpecs`, and `buttonNodeName`                        |
 | `@gravity-ui/markdown-editor-banner-extension/markup`        | `insertBanner` and `toolbarBannerItem` for the Markdown editor                                                     |
 
 `toolbarBannerItem` inserts the block.
@@ -58,8 +58,25 @@ The Title, Description, and Image switches of the settings panel show whether th
 A switched-on part goes after the parts before it in the order image → title → description; the parts of a document keep their order. A part replaces the only empty paragraph of the banner.
 Switching a part back on restores the block removed by the switch, with its content and attributes, while the same banner block stays in the editor.
 
-`BannerSpecs` adds only the schema, Markdown parsing, and serialization, and runs in Node.js.
+`BannerSpecs` adds only the schema, Markdown parsing, and serialization of the banner and its title, and runs in Node.js.
 `Banner` also needs the editor's React renderer, which the standard presets include.
+
+## Banner title
+
+`Banner` includes the banner title: `BannerSpecs` adds its schema, Markdown parsing, and serialization, and `Banner` adds its editing.
+
+Register `bannerTitlePlugin` from `@gravity-ui/markdown-plugin-banner` in the Markdown preview, next to `bannerPlugin`.
+
+The title `::banner-title[Text]{size="1" color="blue"}` is a block of plain text with its size and color, so it survives switching modes; the editor writes `size` and `color` other than the defaults.
+The title looks like its preview and is edited in place as plain text: marks and line breaks are not allowed, and pasted or dropped content becomes one line of text without formatting.
+An empty title shows a placeholder. Change its text with the editor `placeholder` option: `{placeholder: {banner_title: 'Title'}}`.
+Deleting a selection that starts at the title start and goes past its end empties the title and keeps the block; a selection dragged from the title stays inside it.
+Enter in the title never splits it. In a title outside a banner, such as one written in Markdown inside a quote, a list item or a table cell, Enter at its end starts an empty paragraph after it.
+The title never turns into another block: block shortcuts do nothing there, and typed text such as `# ` stays text. Backspace and Delete at its edges do not join it with the blocks next to it.
+
+The title is the `title` part of the banner. The Title switch of the settings panel inserts a title with the default text after the image; a banner that holds only one paragraph of plain text without formatting turns it into the title.
+Turning the switch off removes the title; turning it on again restores the removed title with its text, size and color, also after the panel is closed.
+A banner holds one title: a second title in the Markdown of a banner stays a paragraph of text, and an edit that adds a second title to a banner is rejected.
 
 ## Button
 

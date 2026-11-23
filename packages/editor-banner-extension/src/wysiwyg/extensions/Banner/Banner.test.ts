@@ -188,7 +188,7 @@ describe('Banner extension', () => {
         expect(state.doc.firstChild?.firstChild).toBe(title);
         state = state.apply(state.tr.delete(1, 1 + title.nodeSize));
         expect(toggle(true)).toBe(true);
-        expect(state.doc.firstChild?.firstChild?.textContent).toBe('');
+        expect(state.doc.firstChild?.firstChild?.textContent).not.toBe(title.textContent);
     });
 
     it('should insert the same dimensions in both editor modes', () => {

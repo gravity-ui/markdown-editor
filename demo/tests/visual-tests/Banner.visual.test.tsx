@@ -236,7 +236,14 @@ test.describe('Banner', () => {
         expectScreenshot,
     }) => {
         await page.setViewportSize({width: 740, height: 980});
-        await mount(<BannerStories.Banner width={660} />);
+        await mount(
+            <BannerStories.Banner
+                width={660}
+                initial={
+                    ':::banner{height="s" width="m"}\n\n::banner-title[Team portal]\n\n:::\n\nAfter'
+                }
+            />,
+        );
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await banner.openSettings();
@@ -277,7 +284,8 @@ test.describe('Banner', () => {
             if (message.type() === 'log') messages.push(message.text());
         });
 
-        for (const name of ['Title', 'Description', 'Button 1', 'Button 2', 'Button 3', 'Image']) {
+        // The Title switch inserts and removes the title in the document.
+        for (const name of ['Description', 'Button 1', 'Button 2', 'Button 3', 'Image']) {
             const toggle = banner.toggle(name);
             const checked = await toggle.isChecked();
             await banner.clickToggle(name);
