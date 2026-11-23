@@ -2,6 +2,8 @@
 
 Rules for this package. The root [`AGENTS.md`](../../AGENTS.md) applies as well.
 
+The banner follows the [Banner Spec](https://htmlpreview.github.io/?https://gist.githubusercontent.com/makhnatkin/917908a474c40ab30e4cdbd0cac44b13/raw/banner-spec.html).
+
 ## ESLint
 
 `eslint-disable` comments are forbidden, including `eslint-disable-next-line`. Write the code so that it passes the linter without them. Linter warnings follow [the root rule](../../AGENTS.md#code-style).

@@ -14,6 +14,7 @@ import {
 import {describe, expect, it} from 'vitest';
 
 import {BannerSpecs} from '../Banner/BannerSpecs';
+import {setBannerAttrs} from '../Banner/commands';
 
 import {Button} from './Button';
 import {WButtonNodeView} from './ButtonNodeView';
@@ -127,6 +128,14 @@ describe('Button extension', () => {
         ]);
         expect(serializer.serialize(doc)).toBe(':button[Button]{view="flat" color="standard"}');
         expect(doc.child(0).child(0).attrs.label).toBe('');
+    });
+    it('should preserve buttons when resizing and undoing a banner', () => {
+        const {state, dispatch} = createState(`:::banner\n${button}\n:::`);
+        const original = state().doc;
+        expect(setBannerAttrs(0, {height: 'l'})(state(), dispatch)).toBe(true);
+        expect(undo(state(), dispatch)).toBe(true);
+        expect(state().doc.eq(original)).toBe(true);
+        expect(markupParser.parse(serializer.serialize(state().doc)).eq(state().doc)).toBe(true);
     });
     it('should change attributes in separate undo steps and keep the label', () => {
         const {state, dispatch} = createState(button);

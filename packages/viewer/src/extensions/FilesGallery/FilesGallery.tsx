@@ -1,12 +1,13 @@
 import {useGallery} from '@gravity-ui/components';
 
 import {useViewerEffect} from '../../hooks/use-viewer-effect';
-import {createClassRegistration} from '../../utils/class-registration';
 import {cn} from '../../utils/classname';
 import {getDomConstructor} from '../../utils/dom-constructor';
+import {createClassRegistration} from '../../utils/dom-ownership';
 import {inspectViewerNode} from '../../utils/inspect-viewer-node';
 
 import {collectGallery, isExcludedFromGallery} from './helpers/collect-gallery';
+import {isStandaloneImage, registerImageControls} from './helpers/image-controls';
 import {i18n} from './i18n';
 import type {FilesGalleryProps} from './types';
 
@@ -24,6 +25,12 @@ export function FilesGallery({
 }: FilesGalleryProps) {
     const {openGallery} = useGallery();
     const {t} = i18n.useTranslation();
+    const fallbackLabel = t('open_image');
+
+    useViewerEffect(
+        ({root, signal}) => registerImageControls(root, signal, fallbackLabel),
+        [fallbackLabel],
+    );
 
     useViewerEffect(
         ({root, signal}) => {
@@ -48,7 +55,7 @@ export function FilesGallery({
 
                 const target = clickedElement.closest('img,a');
                 if (!target || inspectViewerNode(root, target).kind !== 'content') return;
-                if (target.tagName === 'IMG' && target.closest('a')) return;
+                if (target.tagName === 'IMG' && !isStandaloneImage(root, target)) return;
 
                 const gallery = collectGallery(
                     root,
