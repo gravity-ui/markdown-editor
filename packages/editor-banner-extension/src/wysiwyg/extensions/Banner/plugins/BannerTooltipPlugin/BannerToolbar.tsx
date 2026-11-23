@@ -1,11 +1,5 @@
 import {Gear, TrashBin} from '@gravity-ui/icons';
-import {
-    Toolbar,
-    type ToolbarBaseProps,
-    type ToolbarData,
-    ToolbarDataType,
-    cn,
-} from '@gravity-ui/markdown-editor';
+import {Toolbar, type ToolbarData, ToolbarDataType, cn} from '@gravity-ui/markdown-editor';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {bannerDimensions} from '@gravity-ui/markdown-plugin-banner';
@@ -25,14 +19,6 @@ export const bannerToolbars = new WeakMap<EditorView, HTMLElement>();
 
 const isActive = () => false;
 const isEnable = () => true;
-
-const COPY_BUTTON_WIDTH = 28;
-
-type BannerCopyButtonProps = ToolbarBaseProps<EditorView> & {markup?: () => string};
-
-function BannerCopyButton({markup = () => ''}: BannerCopyButtonProps) {
-    return <ClipboardButton qa="banner-copy" text={markup} />;
-}
 
 type BannerToolbarProps = {
     view: EditorView;
@@ -68,9 +54,8 @@ export function BannerToolbar({view, node, pos, block, markup}: BannerToolbarPro
             {
                 id: 'banner-copy',
                 type: ToolbarDataType.ReactComponent,
-                width: COPY_BUTTON_WIDTH,
-                component: BannerCopyButton,
-                props: {markup} satisfies Partial<BannerCopyButtonProps>,
+                width: 28,
+                component: () => <ClipboardButton text={markup} />,
                 noRerenderOnUpdate: true,
             },
         ],
