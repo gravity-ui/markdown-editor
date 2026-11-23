@@ -37,6 +37,7 @@
     "@gravity-ui/markdown-editor-banner-extension": "workspace:*",
     "@gravity-ui/markdown-editor-latex-extension": "workspace:*",
     "@gravity-ui/markdown-editor-page-constructor-extension": "workspace:*",
+    "@gravity-ui/markdown-editor-yfm-term-extension": "workspace:*",
     "@gravity-ui/markdown-plugin-banner": "workspace:*",
     "@gravity-ui/markdown-viewer": "workspace:*",
     "@gravity-ui/markdown-viewer-yfm-html-extension": "workspace:*",
