@@ -17,7 +17,7 @@ import {
 
 import {dropBannerUploads, hasBannerUploads} from '../../plugins/BannerUploadPlugin';
 import {changedAttrs} from '../attrs';
-import {removeChild} from '../commands';
+import {removeChild, stopAtBlockEdge} from '../commands';
 
 import {bannerNodeType} from './BannerSpecs';
 import {
@@ -182,3 +182,8 @@ export const toggleBannerPart =
         }
         return true;
     };
+
+const stopAtBannerEdge = stopAtBlockEdge(bannerNodeType);
+
+export const stopAtBannerStart = stopAtBannerEdge(-1);
+export const stopAtBannerEnd = stopAtBannerEdge(1);

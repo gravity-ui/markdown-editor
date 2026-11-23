@@ -19,6 +19,7 @@
   "title-color-blue": "Blue",
   "title-color-violet": "Violet",
   "description": "Description",
+  "content-placeholder": "Short text: for example, what this page is about and who it is for",
   "alignment": "Alignment",
   "vertical-alignment": "Vertically",
   "horizontal-alignment": "Horizontally",
