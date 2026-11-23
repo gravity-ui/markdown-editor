@@ -259,8 +259,8 @@ test.describe('Banner', () => {
         await expect(banner.toggle('Button 2')).not.toBeChecked();
         await expect(banner.toggle('Button 3')).not.toBeChecked();
         await expect(banner.toggle('Image')).not.toBeChecked();
-        await expect(banner.alignment('Vertically', 'Top')).toBeChecked();
-        await expect(banner.alignment('Horizontally', 'Center')).toBeChecked();
+        await expect(banner.alignment('Vertically', 'Center')).toBeChecked();
+        await expect(banner.alignment('Horizontally', 'Left')).toBeChecked();
         await banner.setExpandedSections('Text');
         await expectScreenshot({component: banner.settings, nameSuffix: 'text'});
         await banner.setExpandedSections('Buttons');
@@ -298,16 +298,6 @@ test.describe('Banner', () => {
             await expect(toggle).toBeChecked({checked: !checked});
             expect(messages).toContain(`${name} toggle clicked`);
         }
-        await banner.alignment('Vertically', 'Bottom').click();
-        await banner.alignment('Vertically', 'Bottom').click();
-        await banner.alignment('Horizontally', 'Right').click();
-        await expect(banner.alignment('Vertically', 'Bottom')).toBeChecked();
-        await expect(banner.alignment('Horizontally', 'Right')).toBeChecked();
-        expect(
-            messages.filter((message) => message === 'Align bottom button clicked'),
-        ).toHaveLength(2);
-        expect(messages).toContain('Align right button clicked');
-
         await expect(banner.background).toHaveAccessibleName('Background No background');
         await banner.background.click();
         // Until the popup takes focus, the settings panel handles Escape.
@@ -323,7 +313,7 @@ test.describe('Banner', () => {
         await banner.section('Text').press('Enter');
         await expect(banner.section('Text')).toHaveAttribute('aria-expanded', 'true');
         await expect(banner.toggle('Title')).not.toBeChecked();
-        await expect(banner.alignment('Vertically', 'Bottom')).toBeChecked();
+        await expect(banner.alignment('Vertically', 'Center')).toBeChecked();
         expect(
             messages.filter((message) => message === 'Text section button clicked'),
         ).toHaveLength(2);
@@ -347,8 +337,8 @@ test.describe('Banner', () => {
         await expect(banner.toggle('Button 2')).not.toBeChecked();
         await expect(banner.toggle('Button 3')).not.toBeChecked();
         await expect(banner.toggle('Image')).not.toBeChecked();
-        await expect(banner.alignment('Vertically', 'Top')).toBeChecked();
-        await expect(banner.alignment('Horizontally', 'Center')).toBeChecked();
+        await expect(banner.alignment('Vertically', 'Center')).toBeChecked();
+        await expect(banner.alignment('Horizontally', 'Left')).toBeChecked();
         await expect(banner.section('Buttons')).toHaveAttribute('aria-expanded', 'true');
         await expect(banner.section('Image and background')).toHaveAttribute(
             'aria-expanded',

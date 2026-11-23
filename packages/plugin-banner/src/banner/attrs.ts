@@ -3,12 +3,25 @@ import {cn} from '@bem-react/classname';
 import {toCssUrl} from '../url';
 import type {AttrGetter} from '../utils';
 
-import {type BannerBackground, type BannerDimensions, bannerClassName} from './const';
-import {bannerBackground, bannerBackgroundValues, bannerDimensions} from './utils';
+import {
+    type BannerBackground,
+    type BannerDimensions,
+    type BannerLayout,
+    bannerClassName,
+} from './const';
+import {
+    bannerBackground,
+    bannerBackgroundValues,
+    bannerDimensions,
+    bannerLayout,
+    bannerLayoutValues,
+} from './utils';
 
 const b = cn(bannerClassName);
 
-type BannerAttrsInput = Partial<Record<keyof BannerDimensions | keyof BannerBackground, unknown>>;
+type BannerAttrsInput = Partial<
+    Record<keyof BannerDimensions | keyof BannerLayout | keyof BannerBackground, unknown>
+>;
 
 export type BannerRender = {
     className: string;
@@ -22,6 +35,7 @@ export function bannerClassNames(attrs: {height?: unknown; width?: unknown}) {
 
 export function bannerRender(attrs: BannerAttrsInput): BannerRender {
     const dimensions = bannerDimensions(attrs);
+    const layout = bannerLayoutValues(bannerLayout(attrs));
     const background = bannerBackground(attrs);
     const backgroundImage = background['bg-image'] && toCssUrl(background['bg-image']);
     const theme = background['bg-theme'];
@@ -29,6 +43,7 @@ export function bannerRender(attrs: BannerAttrsInput): BannerRender {
         'data-height': dimensions.height,
         'data-width': dimensions.width,
     };
+    for (const [name, value] of Object.entries(layout)) data[`data-${name}`] = value;
     for (const [name, value] of Object.entries(bannerBackgroundValues(background))) {
         data[`data-${name}`] = value;
     }
@@ -36,6 +51,7 @@ export function bannerRender(attrs: BannerAttrsInput): BannerRender {
         className: b(
             {
                 ...dimensions,
+                ...layout,
                 'bg-color': background['bg-color'] ?? undefined,
                 'bg-image': Boolean(backgroundImage),
                 'bg-image-blur': background['bg-image-blur'],
@@ -60,6 +76,10 @@ export function bannerAttrs(attrs: BannerAttrsInput): Record<string, string> {
 
 export function bannerDimensionsFromAttrs(getAttr: AttrGetter) {
     return bannerDimensions({height: getAttr('data-height'), width: getAttr('data-width')});
+}
+
+export function bannerLayoutFromAttrs(getAttr: AttrGetter) {
+    return bannerLayout({align: getAttr('data-align'), vertical: getAttr('data-vertical')});
 }
 
 export function bannerBackgroundFromAttrs(getAttr: AttrGetter) {

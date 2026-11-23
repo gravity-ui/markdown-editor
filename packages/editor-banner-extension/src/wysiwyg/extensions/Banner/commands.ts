@@ -12,6 +12,7 @@ import type {NodeWithPos} from '@gravity-ui/markdown-editor/pm/utils';
 import {
     type BannerBackground,
     type BannerDimensions,
+    type BannerLayout,
     bannerBackground,
 } from '@gravity-ui/markdown-plugin-banner';
 
@@ -63,6 +64,18 @@ export const setBannerDimension =
         if (!node) return false;
         if (dispatch && changedAttrs(node.attrs, {[name]: value}).length) {
             dispatch(state.tr.setNodeAttribute(pos, name, value));
+        }
+        return true;
+    };
+
+/** Changes the alignment or the vertical position of the content; each change is one undo step. */
+export const setBannerLayout =
+    <K extends keyof BannerLayout>(pos: number, name: K, value: BannerLayout[K]): Command =>
+    (state, dispatch) => {
+        const node = bannerAt(state, pos);
+        if (!node) return false;
+        if (dispatch && changedAttrs(node.attrs, {[name]: value}).length) {
+            dispatch(closeHistory(state.tr.setNodeAttribute(pos, name, value)));
         }
         return true;
     };

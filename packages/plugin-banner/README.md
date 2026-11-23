@@ -13,7 +13,7 @@ const md = new MarkdownIt().use(bannerPlugin);
 ```
 
 ```markdown
-:::banner{height="s" width="m" bg-color="blue-light" bg-image="./.files/photo.jpg" bg-theme="dark" bg-image-blur="true"}
+:::banner{height="s" width="m" align="center" vertical="top" bg-color="blue-light" bg-image="./.files/photo.jpg" bg-theme="dark" bg-image-blur="true"}
 
 :::
 ```
@@ -22,6 +22,8 @@ const md = new MarkdownIt().use(bannerPlugin);
 | --------------- | ---------------------------------------------------------------------------------------------------------- | -------- |
 | `height`        | `s` 236 px, `m` 300 px, `l` 360 px (minimum height)                                                        | `s`      |
 | `width`         | `s` 600 px, `m` 900 px, `l` 1200 px, `full` (container width)                                              | `m`      |
+| `align`         | the horizontal alignment of the text: `left`, `center`, `right`                                            | `left`   |
+| `vertical`      | the vertical position of the content: `top`, `center`, `bottom`                                            | `center` |
 | `bg-color`      | `<family>-<saturation>`: `gray`, `green`, `yellow`, `blue`, `red`, `violet` and `light`, `medium`, `heavy` | none     |
 | `bg-image`      | an `http:`, `https:`, `blob:` or relative address                                                          | none     |
 | `bg-theme`      | the theme of the content over the image: `system` as the page, `dark` light text, `light` dark text        | `system` |
@@ -33,6 +35,18 @@ The block is left-aligned; the width is a `max-width`, so the block never exceed
 Sizes are set by `--g-md-banner-plugin-height-{s,m,l}` and `--g-md-banner-plugin-width-{s,m,l}`.
 Margins are set by `--g-md-banner-plugin-margin-block` (`0 var(--g-spacing-5)` by default) and `--g-md-banner-plugin-margin-inline` (`0` by default).
 The corner radius uses `--g-border-radius-2xl` (16 px by default).
+
+### Layout
+
+The banner is a CSS grid, the same in the preview and in the visual editor; its child blocks keep the order of the source.
+`align` adds the `_align_{center,right}` modifier and sets `text-align` of the content; `vertical` adds the `_vertical_{top,bottom}` modifier and places the content at the top or the bottom of the minimum height.
+Layout attributes with default values are not rendered; the others are copied to the `data-align` and `data-vertical` attributes of the element and of the opening token.
+The content stands `--g-md-banner-plugin-padding` (`var(--g-spacing-8)`, 32 px) from the edges of the banner.
+
+With an image, a banner 600 px wide or wider has two columns: the text and the image, which fills its column over the full height of the banner, `--g-md-banner-plugin-image-padding` (`var(--g-spacing-2)`, 8 px) from its edges.
+The image column is on the right, and on the left with `align="right"`; its width is `--g-md-banner-plugin-image-width` (50 % by default). An image without text fills the banner.
+A banner narrower than 600 px shows the image above the text in one column, wherever the image is in the source, with the aspect ratio `--g-md-banner-plugin-narrow-image-aspect-ratio` (`16 / 10`) and the padding `--g-md-banner-plugin-narrow-padding` (`var(--g-spacing-4)`, 16 px).
+The width is the width of the banner itself, not of the page: the banner is a size container named `g-md-banner-plugin`.
 
 ### Background
 
@@ -242,7 +256,7 @@ A banner has one image: a second image among the child blocks of the same banner
 An address with another scheme, such as `javascript:` or `data:`, or with control characters, is skipped; an image without an address renders nothing.
 Unknown attributes and an empty title are skipped.
 
-The image is a block in the flow of the banner, no wider than the banner; it keeps its aspect ratio.
+The banner places the image beside its text or above it, see the layout of the banner; the image covers its area and keeps its aspect ratio.
 The image carries the `data-files-gallery-exclude` attribute, so the files galleries of the editor and of the viewer skip it.
 
 | Property                                   | Default                           |

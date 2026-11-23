@@ -9,6 +9,14 @@ export type BannerDimensions = {height: BannerHeight; width: BannerWidth};
 
 export const bannerDefaults: Readonly<BannerDimensions> = {height: 's', width: 'm'};
 
+export const bannerAligns = ['left', 'center', 'right'] as const;
+export const bannerVerticals = ['top', 'center', 'bottom'] as const;
+export type BannerAlign = (typeof bannerAligns)[number];
+export type BannerVertical = (typeof bannerVerticals)[number];
+export type BannerLayout = {align: BannerAlign; vertical: BannerVertical};
+
+export const bannerLayoutDefaults: Readonly<BannerLayout> = {align: 'left', vertical: 'center'};
+
 export const bannerBgColorFamilies = ['gray', 'green', 'yellow', 'blue', 'red', 'violet'] as const;
 export const bannerBgColorSaturations = ['light', 'medium', 'heavy'] as const;
 export type BannerBgColorFamily = (typeof bannerBgColorFamilies)[number];

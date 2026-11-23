@@ -30,6 +30,8 @@ In the visual editor, the button is disabled inside another banner.
 A cursor in the block opens a toolbar with settings, copy, and delete.
 With the block selected or the cursor inside or next to it, Tab and Shift+Tab focus its controls; lists, tables, and code blocks inside the block handle these keys first.
 The settings panel opens inside the block, 16 px from its top and right edges, and stays within the viewport.
+Its alignment controls show and change `vertical` and `align` of the banner; each change is a separate undo step, and default values are not written.
+The banner has the layout of its preview, including the narrow layout below 600 px; the dashed frame of a banner without a background is an outline, so it takes no space.
 Opening the panel focuses the height select; Escape or the close button closes it and returns focus to the settings button.
 Each height or width change is a separate undo step.
 The Background field of the panel opens the Background popup with the Fill and Image tabs and the Reset button.

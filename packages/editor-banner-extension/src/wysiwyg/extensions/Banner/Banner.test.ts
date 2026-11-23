@@ -31,6 +31,7 @@ import {
     type BannerDimensions,
     bannerBackgroundDefaults,
     bannerDefaults,
+    bannerLayoutDefaults,
 } from '@gravity-ui/markdown-plugin-banner';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
@@ -112,7 +113,12 @@ describe('Banner extension', () => {
     ])('should round trip %j', ({height, width}) => {
         const source = `:::banner{height="${height}" width="${width}"}\n\n:::`;
         const doc = markupParser.parse(source);
-        expect(doc.firstChild?.attrs).toEqual({height, width, ...bannerBackgroundDefaults});
+        expect(doc.firstChild?.attrs).toEqual({
+            height,
+            width,
+            ...bannerLayoutDefaults,
+            ...bannerBackgroundDefaults,
+        });
         expect(serializer.serialize(doc)).toBe(source);
         const container = document.createElement('div');
         container.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
@@ -133,7 +139,7 @@ describe('Banner extension', () => {
     });
 
     it('should use the same defaults in the schema and parser', () => {
-        const defaults = {...bannerDefaults, ...bannerBackgroundDefaults};
+        const defaults = {...bannerDefaults, ...bannerLayoutDefaults, ...bannerBackgroundDefaults};
         expect(schema.nodes.banner.create().attrs).toEqual(defaults);
         expect(markupParser.parse(':::banner\n:::').firstChild?.attrs).toEqual(defaults);
     });
@@ -254,6 +260,7 @@ describe('Banner extension', () => {
         expect(doc.firstChild?.attrs).toEqual({
             height: 'l',
             width: 'full',
+            ...bannerLayoutDefaults,
             ...bannerBackgroundDefaults,
         });
     });

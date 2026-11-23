@@ -4,6 +4,7 @@ import {
     bannerBackgroundDefaults,
     bannerClassName,
     bannerDefaults,
+    bannerLayoutDefaults,
 } from '@gravity-ui/markdown-plugin-banner';
 
 import {bannerNodeAttrs} from './attrs';
@@ -19,6 +20,8 @@ export const BannerSchemaSpecs: ExtensionAuto = (builder) => {
         attrs: {
             height: {default: bannerDefaults.height},
             width: {default: bannerDefaults.width},
+            align: {default: bannerLayoutDefaults.align},
+            vertical: {default: bannerLayoutDefaults.vertical},
             'bg-color': {default: bannerBackgroundDefaults['bg-color']},
             'bg-image': {default: bannerBackgroundDefaults['bg-image']},
             'bg-theme': {default: bannerBackgroundDefaults['bg-theme']},
