@@ -142,7 +142,7 @@ function BannerPreview({value}: {value: BannerBackground}) {
                     className={`${bannerAttrs(value).class} ${cnBannerSettings('banner')}`}
                     style={{backgroundImage: image ?? undefined}}
                 >
-                    <Text variant="banner-1" as="div">
+                    <Text variant="header-1" as="div">
                         {i18n('preview-title')}
                     </Text>
                     <Text variant="body-2" as="div">
