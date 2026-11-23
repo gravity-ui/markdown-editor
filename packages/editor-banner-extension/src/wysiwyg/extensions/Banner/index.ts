@@ -1,5 +1,7 @@
 import type {Action, ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 
+import {bannerUploadPlugin} from '../../plugins/BannerUploadPlugin';
+
 import {WBannerNodeView} from './BannerNodeView';
 import {BannerSpecs, bannerNodeName} from './BannerSpecs';
 import {insertBanner} from './commands';
@@ -13,6 +15,7 @@ export const Banner: ExtensionAuto = (builder) => {
         .use(BannerSpecs)
         .addNodeView(bannerNodeName, () => (node) => new WBannerNodeView(node))
         .addPlugin(bannerTooltipPlugin)
+        .addPlugin(bannerUploadPlugin)
         .addAction(insertBannerAction, () => ({isEnable: insertBanner, run: insertBanner}))
         // Blocks inside the banner handle Tab first.
         .addKeymap(bannerKeymap, builder.Priority.Low);
