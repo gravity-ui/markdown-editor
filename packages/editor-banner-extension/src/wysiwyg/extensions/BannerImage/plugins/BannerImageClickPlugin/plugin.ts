@@ -3,6 +3,7 @@ import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {bannerImageClassName} from '@gravity-ui/markdown-plugin-banner';
 
 import {bannerImageNodeType} from '../../BannerImageSpecs';
+import {setBannerImagePopupOpen} from '../BannerImagePopupPlugin';
 
 /** The position of the image whose element holds `target`. */
 function imagePos(view: EditorView, target: EventTarget | null) {
@@ -13,7 +14,7 @@ function imagePos(view: EditorView, target: EventTarget | null) {
 }
 
 /**
- * A press on the image or on its placeholder selects the image node.
+ * A press on the image or on its placeholder selects the image node and opens the image window.
  * The default action of the press would move the selection of the page next to the image,
  * and the editor would read it back as a cursor after the press when the image is already selected.
  */
@@ -29,7 +30,8 @@ export const bannerImageClickPlugin = () =>
                     event.preventDefault();
                     view.focus();
                     const {state} = view;
-                    view.dispatch(state.tr.setSelection(NodeSelection.create(state.doc, pos)));
+                    const tr = state.tr.setSelection(NodeSelection.create(state.doc, pos));
+                    view.dispatch(setBannerImagePopupOpen(tr, true));
                     return true;
                 },
             },

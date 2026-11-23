@@ -1,6 +1,8 @@
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {chainCommands} from '@gravity-ui/markdown-editor/pm/commands';
 
+import type {BannerOptions} from '../Banner';
+
 import {WBannerImageNodeView} from './BannerImageNodeView';
 import {bannerImageNodeName} from './BannerImageSpecs';
 import {
@@ -10,9 +12,10 @@ import {
 } from './commands';
 import {bannerImageClickPlugin} from './plugins/BannerImageClickPlugin';
 import {bannerImageGuardPlugin} from './plugins/BannerImageGuardPlugin';
+import {bannerImagePopupPlugin} from './plugins/BannerImagePopupPlugin';
 
-/** The view of the banner image; its specs come with `BannerSpecs`. */
-export const BannerImage: ExtensionAuto = (builder) => {
+/** The view and the window of the banner image; its specs come with `BannerSpecs`. */
+export const BannerImage: ExtensionAuto<BannerOptions> = (builder, options) => {
     builder
         .addNodeView(
             bannerImageNodeName,
@@ -20,6 +23,7 @@ export const BannerImage: ExtensionAuto = (builder) => {
         )
         .addPlugin(bannerImageClickPlugin)
         .addPlugin(bannerImageGuardPlugin)
+        .addPlugin(() => bannerImagePopupPlugin(options))
         .addKeymap(
             () => ({
                 Backspace: chainCommands(removeSelectedBannerImage, selectBannerImageBefore),
