@@ -1,4 +1,5 @@
 import type {ExtensionAuto, SerializerState} from '#core';
+import {escapeQuoted} from 'src/markdown-utils';
 
 import {LinkAttr, linkMarkName} from './const';
 import {
@@ -82,7 +83,7 @@ export const LinkSpecs: ExtensionAuto = (builder) => {
                     '](' +
                     escapeParenthesesInUrl(mark.attrs[LinkAttr.Href]) +
                     (mark.attrs[LinkAttr.Title]
-                        ? ` "${mark.attrs[LinkAttr.Title].replace(/[\\"]/g, '\\$&')}"`
+                        ? ` "${escapeQuoted(mark.attrs[LinkAttr.Title])}"`
                         : '') +
                     ')'
                 );
