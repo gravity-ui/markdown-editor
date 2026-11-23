@@ -1,6 +1,6 @@
 import {type ReactNode, StrictMode} from 'react';
 
-import {GalleryProvider} from '@gravity-ui/components';
+import {type GalleryItemProps, GalleryProvider} from '@gravity-ui/components';
 import {MobileProvider, ThemeProvider} from '@gravity-ui/uikit';
 import {createPortal} from 'react-dom';
 import {type Root, createRoot} from 'react-dom/client';
@@ -43,19 +43,116 @@ describe('FilesGallery', () => {
         Reflect.deleteProperty(navigator, 'clipboard');
     });
 
-    it('should open the selected image from the current document', async () => {
+    it.each(['click', 'Enter', ' '])('should open the selected image with %s', async (action) => {
         await render(
             <MarkdownViewer html='<img src="/first.png" alt="First"><img src="/second.png" alt="Second">'>
                 <FilesGallery />
             </MarkdownViewer>,
         );
 
-        const event = await click('img[alt="Second"]');
+        const image = container.querySelector('img[alt="Second"]');
+        assert(image instanceof HTMLImageElement);
+        expect(image.getAttribute('role')).toBe('button');
+        expect(image.tabIndex).toBe(0);
+        expect(image.getAttribute('aria-label')).toBe('Second');
+        image.focus();
+        const event =
+            action === 'click' ? await click('img[alt="Second"]') : await keydown(image, action);
 
         expect(event.defaultPrevented).toBe(true);
         const dialog = document.querySelector('[role="dialog"]');
         expect(dialog?.textContent).toContain('Second');
         expect(dialog?.textContent).toContain('2 / 2');
+    });
+
+    it.each([-1, 0, 2])('should keep an explicit tabindex of %s', async (tabIndex) => {
+        const html = `<img src="/image.png" tabindex="${tabIndex}">`;
+        await render(
+            <MarkdownViewer html={html}>
+                <FilesGallery />
+            </MarkdownViewer>,
+        );
+        const image = container.querySelector('img');
+        assert(image);
+        expect(image.tabIndex).toBe(tabIndex);
+        expect(image.getAttribute('role')).toBe('button');
+        image.focus();
+        expect(document.activeElement).toBe(image);
+        await keydown(image, 'Enter');
+        expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+        await closeGallery();
+
+        await render(<MarkdownViewer html={html} />);
+        expect(image.outerHTML).toBe(html);
+    });
+
+    it.each([
+        {attributes: '', expected: 'Open image'},
+        {attributes: 'alt="Description" title="Title"', expected: 'Description'},
+        {attributes: 'aria-labelledby="label"', expected: null},
+    ])(
+        'should name an image without reading its URL: $attributes',
+        async ({attributes, expected}) => {
+            await render(
+                <MarkdownViewer
+                    html={`<span id="label">Label</span><img src="data:image/png;base64,AAAA" ${attributes}>`}
+                >
+                    <FilesGallery />
+                </MarkdownViewer>,
+            );
+            expect(container.querySelector('img')?.getAttribute('aria-label')).toBe(expected);
+        },
+    );
+
+    it('should update the fallback name with the language and restore attributes on cleanup', async () => {
+        const html = '<img src="/image.png">';
+        await render(
+            <MarkdownViewer html={html}>
+                <FilesGallery />
+            </MarkdownViewer>,
+        );
+        const image = container.querySelector('img');
+        assert(image);
+        expect(image.getAttribute('aria-label')).toBe('Open image');
+        await render(
+            <MarkdownViewer html={html}>
+                <FilesGallery />
+            </MarkdownViewer>,
+            {lang: 'ru'},
+        );
+        expect(image.getAttribute('aria-label')).toBe('Открыть изображение');
+        await render(<MarkdownViewer html={html} />, {lang: 'ru'});
+        expect(image.outerHTML).toBe(html);
+    });
+
+    it('should register a late image once and stop handling pending images on cleanup', async () => {
+        const imageHtml = '<img srcset="/image.png 1x" alt="Late image">';
+        const pendingHtml = '<img srcset="/pending.png 1x" alt="Pending image">';
+        const html = imageHtml + pendingHtml;
+        await render(
+            <MarkdownViewer html={html}>
+                <FilesGallery />
+            </MarkdownViewer>,
+        );
+        const [image, pendingImage] = Array.from(container.querySelectorAll('img'));
+        assert(image);
+        assert(pendingImage);
+        expect(image.hasAttribute('tabindex')).toBe(false);
+        Object.defineProperty(image, 'currentSrc', {value: 'https://example.com/image.png'});
+        await act(async () => {
+            image.dispatchEvent(new Event('load'));
+            image.dispatchEvent(new Event('load'));
+        });
+        expect(image.tabIndex).toBe(0);
+        expect(image.getAttribute('aria-label')).toBe('Late image');
+
+        await render(<MarkdownViewer html={html} />);
+        expect(image.outerHTML).toBe(imageHtml);
+        Object.defineProperty(pendingImage, 'currentSrc', {
+            value: 'https://example.com/pending.png',
+        });
+        await act(async () => pendingImage.dispatchEvent(new Event('load')));
+        expect(pendingImage.outerHTML).toBe(pendingHtml);
     });
 
     it('should show a mobile gallery without a stray zero when there are no actions', async () => {
@@ -71,6 +168,69 @@ describe('FilesGallery', () => {
         const dialog = document.querySelector('[role="dialog"]');
         expect(dialog?.textContent).toContain('Photo');
         expect(dialog?.textContent).not.toContain('0');
+    });
+
+    it('should ignore repeated, modified and canceled keyboard activation', async () => {
+        await render(
+            <MarkdownViewer html='<img src="/image.png">'>
+                <FilesGallery />
+            </MarkdownViewer>,
+        );
+        const image = container.querySelector('img');
+        assert(image);
+        await keydown(image, 'Enter', {repeat: true});
+        for (const modifier of ['ctrlKey', 'metaKey', 'shiftKey', 'altKey']) {
+            expect((await keydown(image, ' ', {[modifier]: true})).defaultPrevented).toBe(false);
+        }
+        image.addEventListener('keydown', (event) => event.preventDefault(), {once: true});
+        await keydown(image, 'Enter');
+        expect(document.querySelector('[role="dialog"]')).toBeNull();
+    });
+
+    it.each(['presentation', 'none'])(
+        'should open a %s image by click without adding keyboard controls',
+        async (role) => {
+            const html = `<img src="/image.png" alt="" role="${role}">`;
+            await render(
+                <MarkdownViewer html={html}>
+                    <FilesGallery />
+                </MarkdownViewer>,
+            );
+            const image = container.querySelector('img');
+            assert(image);
+            expect(image.outerHTML).toBe(html);
+            for (const key of ['Enter', ' ']) {
+                expect((await keydown(image, key)).defaultPrevented).toBe(false);
+            }
+            expect(document.querySelector('[role="dialog"]')).toBeNull();
+
+            expect((await click('img')).defaultPrevented).toBe(true);
+            expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+            expect(image.outerHTML).toBe(html);
+        },
+    );
+
+    it.each([
+        '<button><img src="/image.png" alt="Control"></button>',
+        '<button><img src="/image.png" role="presentation"></button>',
+        '<span role="button"><img src="/image.png" role="none"></span>',
+        '<span role="button" tabindex="0"><img src="/image.png" alt="Control"></span>',
+        '<img src="/image.png" alt="Control" role="button" tabindex="-1">',
+        '<img src="/image.png" alt="Control" role="link" tabindex="0">',
+    ])('should preserve an image with its own interactive behavior: %s', async (html) => {
+        await render(
+            <MarkdownViewer html={html}>
+                <FilesGallery />
+            </MarkdownViewer>,
+        );
+        const image = container.querySelector('img');
+        assert(image);
+        const original = document.createElement('div');
+        original.innerHTML = html;
+        expect(image.outerHTML).toBe(original.querySelector('img')?.outerHTML);
+        expect((await click('img')).defaultPrevented).toBe(false);
+        expect((await keydown(image, 'Enter')).defaultPrevented).toBe(false);
+        expect(document.querySelector('[role="dialog"]')).toBeNull();
     });
 
     it('should open images in an iframe and remove the click listener on unmount', async () => {
@@ -101,8 +261,13 @@ describe('FilesGallery', () => {
             expect(document.querySelector('[role="dialog"]')?.textContent).toContain('Frame image');
             await closeGallery();
 
+            expect((await keydown(image, 'Enter')).defaultPrevented).toBe(true);
+            expect(document.querySelector('[role="dialog"]')?.textContent).toContain('Frame image');
+            await closeGallery();
+
             await update(false);
             expect(await clickImage()).toBe(false);
+            expect(image.hasAttribute('tabindex')).toBe(false);
         } finally {
             await render(null);
             iframe.remove();
@@ -205,12 +370,40 @@ describe('FilesGallery', () => {
             </MarkdownViewer>,
         );
 
+        const image = container.querySelector('img[alt="Skip"]');
+        assert(image instanceof HTMLImageElement);
+        expect(image.tabIndex).toBe(0);
+        await keydown(image, 'Enter');
+        expect(document.querySelector('[role="dialog"]')).toBeNull();
         expect((await click('img[alt="Skip"]')).defaultPrevented).toBe(false);
         expect(document.querySelector('[role="dialog"]')).toBeNull();
         await click('img[alt="Keep"]');
         const dialog = document.querySelector('[role="dialog"]');
         expect(dialog?.textContent).toContain('Keep');
         expect(dialog?.textContent).not.toContain('1 / 2');
+    });
+
+    it('should call item callbacks only when opening the gallery', async () => {
+        const transformItem = vi.fn((item: Readonly<GalleryItemProps>) => item);
+        const getCopyUrl = vi.fn(() => '/copy');
+        const getDownloadUrl = vi.fn(() => '/download');
+        await render(
+            <MarkdownViewer html='<img src="/image.png">'>
+                <FilesGallery
+                    transformItem={transformItem}
+                    getCopyUrl={getCopyUrl}
+                    getDownloadUrl={getDownloadUrl}
+                />
+            </MarkdownViewer>,
+        );
+
+        expect(transformItem).not.toHaveBeenCalled();
+        expect(getCopyUrl).not.toHaveBeenCalled();
+        expect(getDownloadUrl).not.toHaveBeenCalled();
+        await click('img');
+        expect(transformItem).toHaveBeenCalledTimes(1);
+        expect(getCopyUrl).toHaveBeenCalledTimes(1);
+        expect(getDownloadUrl).toHaveBeenCalledTimes(1);
     });
 
     it('should copy the URL from the application', async () => {
@@ -266,16 +459,25 @@ describe('FilesGallery', () => {
                     </MarkdownViewer>
                 </StrictMode>,
             );
-        await update('<img src="/first.png" alt="First"><img src="/second.png" alt="Second">');
+        await update('<img src="/first.png" alt="First"><img src="/second.png" title="Second">');
+        const oldImage = container.querySelector('img[title="Second"]');
+        assert(oldImage);
+        expect(oldImage.getAttribute('aria-label')).toBe('Second');
         await click('img');
-        await update('<img src="/third.png" alt="Third">');
+        await update('<img src="/third.png">');
+        expect(oldImage.outerHTML).toBe('<img src="/second.png" title="Second">');
 
         const dialog = document.querySelector('[role="dialog"]');
         expect(dialog?.textContent).toContain('First');
         expect(dialog?.textContent).toContain('1 / 2');
         await closeGallery();
-        await click('img');
-        expect(document.querySelector('[role="dialog"]')?.textContent).toContain('Third');
+        const image = container.querySelector('img');
+        assert(image);
+        expect(image.getAttribute('aria-label')).toBe('Open image');
+        expect((await keydown(image, ' ')).defaultPrevented).toBe(true);
+        expect(document.querySelector('[role="dialog"] img')?.getAttribute('src')).toBe(
+            '/third.png',
+        );
         expect(document.querySelector('[role="dialog"]')?.textContent).not.toContain('1 / 2');
     });
 
@@ -324,17 +526,25 @@ describe('FilesGallery', () => {
         );
 
         expect((await click('img')).defaultPrevented).toBe(true);
+        const image = container.querySelector('img');
+        assert(image);
+        await keydown(image, 'Enter');
         expect(document.querySelector('[role="dialog"]')).toBeNull();
     });
 
     it('should keep native navigation for linked images and ordinary links', async () => {
         await render(
-            <MarkdownViewer html='<a href="#image"><img src="/image.png"></a><a href="#section">Section</a>'>
+            <MarkdownViewer html='<a href="#image"><img src="/image.png"></a><a href="#section">Section</a><button><img src="/button.png"></button><span role="button"><img src="/role.png"></span>'>
                 <FilesGallery />
             </MarkdownViewer>,
         );
         expect((await click('img')).defaultPrevented).toBe(false);
         expect((await click('a[href="#section"]')).defaultPrevented).toBe(false);
+        for (const image of Array.from(container.querySelectorAll('img'))) {
+            expect(image.hasAttribute('tabindex')).toBe(false);
+            expect(image.hasAttribute('role')).toBe(false);
+            expect((await keydown(image, ' ')).defaultPrevented).toBe(false);
+        }
         expect(document.querySelector('[role="dialog"]')).toBeNull();
     });
 
@@ -427,6 +637,10 @@ describe('FilesGallery', () => {
             </MarkdownViewer>,
         );
         expect((await click('img[alt="React"]')).defaultPrevented).toBe(false);
+        const slotImage = container.querySelector('img[alt="React"]');
+        assert(slotImage);
+        expect(slotImage.hasAttribute('tabindex')).toBe(false);
+        expect((await keydown(slotImage, 'Enter')).defaultPrevented).toBe(false);
         expect(document.querySelector('[role="dialog"]')).toBeNull();
         await click('img[alt="Content"]');
         const dialog = document.querySelector('[role="dialog"]');
@@ -448,7 +662,12 @@ describe('FilesGallery', () => {
             </MarkdownViewer>,
         );
 
-        expect((await click('img[alt="Inner"]')).defaultPrevented).toBe(true);
+        const image = container.querySelector('img[alt="Inner"]');
+        assert(image);
+        const onClick = vi.fn();
+        image.addEventListener('click', onClick);
+        expect((await keydown(image, 'Enter')).defaultPrevented).toBe(true);
+        expect(onClick).toHaveBeenCalledTimes(1);
         const dialog = document.querySelector('[role="dialog"]');
         expect(dialog?.textContent).toContain('Inner');
         expect(dialog?.textContent).not.toContain('1 / 2');
@@ -485,23 +704,38 @@ describe('FilesGallery', () => {
         expect(container.querySelector('.g-md-v-files-gallery')).toBe(wrapper);
     });
 
-    it('should keep gallery styles until the last instance unmounts', async () => {
-        const html = '<img src="/image.png">';
-        const first = <FilesGallery key="first" />;
-        const second = <FilesGallery key="second" />;
-        const update = (...extensions: ReactNode[]) =>
-            render(<MarkdownViewer html={html}>{extensions}</MarkdownViewer>);
+    it.each([
+        {
+            html: '<img src="/image.png" role="img" tabindex="-1" aria-label="Custom">',
+            label: 'Custom',
+        },
+        {html: '<img src="/image.png">', label: 'Open image'},
+    ])(
+        'should restore styles and image attributes after the last instance unmounts: $label',
+        async ({html, label}) => {
+            const first = <FilesGallery key="first" />;
+            const second = <FilesGallery key="second" />;
+            const update = (...extensions: ReactNode[]) =>
+                render(<MarkdownViewer html={html}>{extensions}</MarkdownViewer>);
 
-        await update(first, second);
-        const wrapper = container.querySelector('.g-md-v-files-gallery');
-        assert(wrapper);
+            await update(first, second);
+            const wrapper = container.querySelector('.g-md-v-files-gallery');
+            assert(wrapper);
+            const image = container.querySelector('img');
+            assert(image);
+            expect(image.getAttribute('aria-label')).toBe(label);
 
-        await update(second);
-        expect(wrapper.classList.contains('g-md-v-files-gallery')).toBe(true);
+            await update(second);
+            expect(wrapper.classList.contains('g-md-v-files-gallery')).toBe(true);
+            expect(image.getAttribute('role')).toBe('button');
 
-        await update();
-        expect(wrapper.classList.contains('g-md-v-files-gallery')).toBe(false);
-    });
+            await update();
+            expect(wrapper.classList.contains('g-md-v-files-gallery')).toBe(false);
+            expect(image.outerHTML).toBe(html);
+            expect((await keydown(image, 'Enter')).defaultPrevented).toBe(false);
+            expect(document.querySelector('[role="dialog"]')).toBeNull();
+        },
+    );
 
     it('should remove its listener and styles without closing the open gallery', async () => {
         const html = '<img src="/image.png" alt="Image">';
@@ -519,10 +753,10 @@ describe('FilesGallery', () => {
         expect(document.querySelector('[role="dialog"]')).toBeNull();
     });
 
-    async function render(children: ReactNode, {mobile = false} = {}) {
+    async function render(children: ReactNode, {mobile = false, lang = 'en'} = {}) {
         await act(async () => {
             root.render(
-                <ThemeProvider lang="en">
+                <ThemeProvider lang={lang}>
                     <MobileProvider mobile={mobile}>
                         <GalleryProvider>{children}</GalleryProvider>
                     </MobileProvider>
@@ -535,6 +769,19 @@ describe('FilesGallery', () => {
         const element = container.querySelector(selector);
         assert(element);
         const event = new MouseEvent('click', {bubbles: true, cancelable: true, ...options});
+        await act(async () => element.dispatchEvent(event));
+        return event;
+    }
+
+    async function keydown(element: Element, key: string, options?: KeyboardEventInit) {
+        const frame = element.ownerDocument.defaultView;
+        assert(frame);
+        const event = new frame.KeyboardEvent('keydown', {
+            key,
+            bubbles: true,
+            cancelable: true,
+            ...options,
+        });
         await act(async () => element.dispatchEvent(event));
         return event;
     }
