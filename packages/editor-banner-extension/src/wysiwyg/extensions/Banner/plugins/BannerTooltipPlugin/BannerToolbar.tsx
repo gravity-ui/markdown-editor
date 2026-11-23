@@ -1,11 +1,12 @@
-import {Copy, Gear, TrashBin} from '@gravity-ui/icons';
+import {Gear, TrashBin} from '@gravity-ui/icons';
 import {Toolbar, type ToolbarData, ToolbarDataType, cn} from '@gravity-ui/markdown-editor';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {bannerDimensions} from '@gravity-ui/markdown-plugin-banner';
+import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
-import {copyBanner, removeBanner, setBannerDimension} from '../../commands';
+import {removeBanner, setBannerDimension} from '../../commands';
 
 import {BannerSettings} from './Settings/BannerSettings';
 
@@ -24,9 +25,10 @@ type BannerToolbarProps = {
     node: Node;
     pos: number;
     block: HTMLElement | null;
+    markup: () => string;
 };
 
-export function BannerToolbar({view, node, pos, block}: BannerToolbarProps) {
+export function BannerToolbar({view, node, pos, block, markup}: BannerToolbarProps) {
     const data: ToolbarData<EditorView> = [
         [
             {
@@ -51,12 +53,10 @@ export function BannerToolbar({view, node, pos, block}: BannerToolbarProps) {
             },
             {
                 id: 'banner-copy',
-                type: ToolbarDataType.SingleButton,
-                icon: {data: Copy},
-                title: i18n('copy'),
-                isActive,
-                isEnable,
-                exec: (editor) => copyBanner(pos)(editor.state, editor.dispatch),
+                type: ToolbarDataType.ReactComponent,
+                width: 28,
+                component: () => <ClipboardButton text={markup} />,
+                noRerenderOnUpdate: true,
             },
         ],
         [
