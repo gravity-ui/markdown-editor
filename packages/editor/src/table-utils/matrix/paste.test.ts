@@ -1,4 +1,4 @@
-import {type Node, Schema} from 'prosemirror-model';
+import {Fragment, type Node, Schema} from 'prosemirror-model';
 import {EditorState, TextSelection} from 'prosemirror-state';
 import {describe, expect, it} from 'vitest';
 
@@ -19,6 +19,55 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
 }).buildDeps();
 
 describe('matrix paste', () => {
+    it.each(['table', 'standalone'] as const)(
+        'should reject invalid content for a %s target',
+        (kind) => {
+            const invalid = schema.nodes.paragraph.create(null, schema.nodes.paragraph.create());
+            const original = readSource('#|\n|| X ||\n|#');
+            const source = {
+                ...original,
+                cells: [{...original.cells[0], content: Fragment.from(invalid)}],
+            };
+            const state = matrixState(markupParser.parse('#|\n|| A | B ||\n|#'));
+            const target = kind === 'table' ? resolveMatrixTarget(state.selection) : {kind};
+
+            expect(prepareMatrixPaste(state, source, target)).toBeNull();
+        },
+    );
+
+    it('should insert a standalone table when an unrelated node is invalid', () => {
+        const invalid = schema.nodes.paragraph.create(null, schema.nodes.paragraph.create());
+        const doc = schema.node('doc', null, [schema.nodes.paragraph.create(), invalid]);
+        const state = EditorState.create({doc, selection: TextSelection.create(doc, 1)});
+
+        const tr = prepareMatrixPaste(state, readSource('#|\n|| X ||\n|#'), {
+            kind: 'standalone',
+        })!;
+
+        expect(tr).not.toBeNull();
+        expect(tr.doc.firstChild).toMatchNode(markupParser.parse('#|\n|| X ||\n|#').firstChild!);
+        expect(tr.doc.lastChild).toBe(invalid);
+    });
+
+    it('should paste into a table when an unrelated node is invalid', () => {
+        const table = markupParser.parse('#|\n|| A | B ||\n|#').firstChild!;
+        const invalid = schema.nodes.paragraph.create(null, schema.nodes.paragraph.create());
+        const doc = schema.node('doc', null, [table, invalid]);
+        const state = matrixState(doc);
+
+        const tr = prepareMatrixPaste(
+            state,
+            readSource('#|\n|| X ||\n|#'),
+            resolveMatrixTarget(state.selection),
+        )!;
+
+        expect(tr).not.toBeNull();
+        expect(tr.doc.firstChild).toMatchNode(
+            markupParser.parse('#|\n|| X | B ||\n|#').firstChild!,
+        );
+        expect(tr.doc.lastChild).toBe(invalid);
+    });
+
     it('should insert a smaller source once and preserve the rest of the selection', () => {
         const doc = markupParser.parse('| A | B |\n| --- | --- |\n| C | D |');
         const state = matrixState(doc, [1, 1], [0, 0]);

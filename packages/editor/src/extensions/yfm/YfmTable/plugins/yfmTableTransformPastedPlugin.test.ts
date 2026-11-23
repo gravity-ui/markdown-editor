@@ -58,15 +58,18 @@ describe('YFM table paste transforms', () => {
         expect(slice.openEnd).toBe(0);
     });
 
-    it.each([false, true])('should keep ordinary paste unwrapping when enabled=%s', (enabled) => {
-        const view = createView(enabled);
-        view.pasteHTML('<table><tr><td>A</td></tr></table>', new ClipboardEventMock('paste'));
-        expect(
-            view.state.doc.eq(
-                schema.node('doc', null, schema.node('paragraph', null, schema.text('A'))),
-            ),
-        ).toBe(true);
-    });
+    it.each([false, true])(
+        'should unwrap ordinary paste without the matrix clipboard handler when enabled=%s',
+        (enabled) => {
+            const view = createView(enabled);
+            view.pasteHTML('<table><tr><td>A</td></tr></table>', new ClipboardEventMock('paste'));
+            expect(
+                view.state.doc.eq(
+                    schema.node('doc', null, schema.node('paragraph', null, schema.text('A'))),
+                ),
+            ).toBe(true);
+        },
+    );
 });
 
 function createView(matrixEnabled: boolean): EditorView {

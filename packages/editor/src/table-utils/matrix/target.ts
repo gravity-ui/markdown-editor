@@ -11,7 +11,10 @@ import './types';
 
 export function getMatrixPasteTarget(state: EditorState) {
     const target = resolveMatrixTarget(state.selection);
-    if (target.kind === 'ordinary' || (target.kind === 'standalone' && isInsideCode(state))) {
+    if (
+        target.kind === 'ordinary' ||
+        (!(state.selection instanceof TableCellSelection) && isInsideCode(state))
+    ) {
         return null;
     }
     return target;

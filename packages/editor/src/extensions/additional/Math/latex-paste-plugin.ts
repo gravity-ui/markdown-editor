@@ -2,6 +2,7 @@ import {Plugin} from 'prosemirror-state';
 
 import {getLoggerFromState} from '#core';
 import {Fragment, Slice} from '#pm/model';
+import {TableCellSelection} from 'src/table-utils/cell-selection/selection';
 
 import {MathNode} from './const';
 import {getLatexData, parseLatexFormulas} from './utils';
@@ -33,6 +34,7 @@ export const latexPastePlugin = () =>
 
                     if (!mathBlockType) return false;
 
+                    let fragment = Fragment.empty;
                     if (latexData.value) {
                         const formulas = parseLatexFormulas(latexData.value);
 
@@ -40,13 +42,14 @@ export const latexPastePlugin = () =>
                             const nodes = formulas.map((formula) =>
                                 mathBlockType.create(null, schema.text(formula)),
                             );
-                            const fragment = Fragment.from(nodes);
-                            tr.replaceSelection(new Slice(fragment, 0, 0));
-                        } else {
-                            tr.deleteSelection();
+                            fragment = Fragment.from(nodes);
                         }
+                    }
+
+                    if (tr.selection instanceof TableCellSelection) {
+                        tr.replaceSelection(new Slice(fragment, 0, 0));
                     } else {
-                        tr.deleteSelection();
+                        tr.replaceWith(tr.selection.from, tr.selection.to, fragment);
                     }
 
                     view.dispatch(tr.scrollIntoView());

@@ -77,7 +77,7 @@ function pasteIntoTable(
     const selection = selectMatrixResult(tr.doc, tablePos, result, cells, start);
     if (!selection) return null;
     tr.setSelection(selection);
-    tr.doc.check();
+    result.table.check();
     return tr;
 }
 
@@ -190,7 +190,7 @@ function insertStandaloneTable(
         const selection = selectMatrixResult(tr.doc, tablePos, geometry, cells, cells[0]);
         if (!selection) continue;
         tr.setSelection(selection);
-        tr.doc.check();
+        table.check();
         return tr;
     }
     return null;

@@ -36,7 +36,7 @@ function cutTable(state: EditorState, selection: TableCellSelection): Transactio
     const removeRows = selection.isRowSelection();
     if (!removeRows && !selection.isColSelection()) {
         const tr = prepareCellClear(state, selection);
-        tr?.doc.check();
+        tr?.doc.nodeAt(tablePos)!.check();
         return tr;
     }
     const height = geometry.height - (removeRows ? rect.bottom - rect.top : 0);
@@ -77,6 +77,6 @@ function cutTable(state: EditorState, selection: TableCellSelection): Transactio
     const nextSelection = selectCellContent(tr.doc, tablePos + cell.offset, false);
     if (!nextSelection) return null;
     tr.setSelection(nextSelection);
-    tr.doc.check();
+    result.table.check();
     return tr;
 }

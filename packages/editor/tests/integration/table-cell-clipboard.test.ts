@@ -59,7 +59,7 @@ describe('matrix clipboard integration', () => {
         },
     );
 
-    it.each(['html', 'json'] as const)(
+    it.each(['html', 'json', 'markup'] as const)(
         'should use the final transformed %s slice exactly once',
         (format) => {
             const transform = vi.fn(
@@ -74,6 +74,8 @@ describe('matrix clipboard integration', () => {
             const data = new DataTransferMock();
             if (format === 'json') {
                 editor.view.dispatchEvent(new ClipboardEventMock('copy', {clipboardData: data}));
+            } else if (format === 'markup') {
+                data.setData(DataTransferType.Yfm, '#|\n|| A ||\n|#');
             } else {
                 data.setData(DataTransferType.Html, '<table><tr><td>A</td></tr></table>');
             }
@@ -118,6 +120,26 @@ describe('matrix clipboard integration', () => {
         expect(editor.doc.textContent).toBe('beforecellafter');
     });
 
+    it.each([false, true])(
+        'should paste a markup table into cells only when enabled=%s',
+        (enabled) => {
+            const pasteFileHandler = vi.fn();
+            const editor = createEditor({enabled, pasteFileHandler});
+            selectCells(editor, 0, 3);
+            const data = new DataTransferMock();
+            data.setData(DataTransferType.Yfm, '#|\n|| X ||\n|#');
+            const file = new File(['image'], 'example.png', {type: 'image/png'});
+            Object.defineProperty(data, 'files', {value: [file]});
+
+            editor.view.dispatchEvent(new ClipboardEventMock('paste', {clipboardData: data}));
+
+            expect(cellTexts(editor)).toEqual(enabled ? ['X', 'B', 'C', 'D'] : ['', '', '', 'X']);
+            expect(pasteFileHandler).toHaveBeenCalledExactlyOnceWith(file);
+            expect(editor.view.state.selection instanceof TableCellSelection).toBe(enabled);
+            editor.doc.check();
+        },
+    );
+
     it('should expand HTML spans in Markdown when a block table only parses its own tags', () => {
         const editor = createEditor({
             initialContent: '| H1 | H2 | H3 |\n| --- | --- | --- |\n| x | y | z |',
@@ -139,6 +161,27 @@ describe('matrix clipboard integration', () => {
         editor.view.pasteHTML('<table><tr><td colspan="2">A</td><td>B</td></tr></table>');
 
         expect(cellTexts(editor)).toEqual(['H1', 'H2', 'H3', 'A', '', 'B']);
+    });
+
+    it('should keep all HTML cells and use first-row alignment in a new Markdown table', () => {
+        const editor = createEditor({initialContent: '', withYfm: false});
+
+        editor.view.pasteHTML(
+            '<table><tr><th align="right">A</th><th align="left">B</th></tr>' +
+                '<tr><td align="left">C</td><td align="right">D</td></tr></table>',
+        );
+
+        expect(cellTexts(editor)).toEqual(['A', 'B', 'C', 'D']);
+        const geometry = getTableGeometry(editor.doc.firstChild!)!;
+        const cells = geometry.cellsInRect({top: 0, left: 0, bottom: 2, right: 2});
+        expect(cells.map((cell) => cell.node.attrs['cell-align'])).toEqual([
+            'right',
+            'left',
+            'right',
+            'left',
+        ]);
+        expect(editor.view.state.selection).toBeInstanceOf(TableCellSelection);
+        editor.doc.check();
     });
 
     it('should paste a table section from an extension without a matrix adapter', () => {
@@ -221,6 +264,25 @@ describe('matrix clipboard integration', () => {
 
         expect(cellTexts(editor)).toEqual(['', '', '', 'X']);
     });
+
+    it.each([false, true])(
+        'should preserve a standalone one-cell table only when matrix paste is enabled=%s',
+        (enabled) => {
+            const editor = createEditor({initialContent: '', enabled});
+
+            editor.view.pasteHTML('<table><tr><td>A</td></tr></table>');
+
+            expect(editor.doc.childCount).toBe(1);
+            expect(editor.doc.firstChild!.type.name).toBe(enabled ? 'yfm_table' : 'paragraph');
+            expect(editor.doc.textContent).toBe('A');
+            if (enabled) {
+                expect(editor.view.state.selection).toBeInstanceOf(TableCellSelection);
+                expect(editor.view.state.selection.ranges).toHaveLength(1);
+            } else {
+                expect(editor.view.state.selection).toBeInstanceOf(TextSelection);
+            }
+        },
+    );
 
     it('should separate paste from input on both sides and send two change notifications', () => {
         const onChange = vi.fn();
@@ -541,24 +603,74 @@ describe('matrix clipboard integration', () => {
         expect(cellTexts(editor)).toEqual(['X', 'B', 'Y', 'D']);
     });
 
-    it('should handle a matrix before code and LaTeX paste handlers', () => {
+    it.each(['| `A` | B |\n| --- | --- |\n| C | `D` |', '#|\n|| `A` | B ||\n|| C | `D` ||\n|#'])(
+        'should handle a matrix before code and LaTeX paste handlers: %s',
+        (initialContent) => {
+            const editor = createEditor({
+                initialContent,
+                extra: (builder) =>
+                    builder
+                        .use(Code, {})
+                        .use(MathSpecs)
+                        .addPlugin(latexPastePlugin, builder.Priority.VeryHigh),
+            });
+            selectCells(editor, 0, 3);
+
+            dispatchPasteEvent(editor.view, {
+                [DataTransferType.Html]: '<table><tr><td>X</td></tr></table>',
+                [DataTransferType.Text]: 'x^2',
+                [DataTransferType.VSCodeData]: JSON.stringify({mode: 'latex'}),
+            });
+
+            expect(cellTexts(editor)).toEqual(['X', 'B', 'C', 'D']);
+        },
+    );
+
+    it.each([
+        '| `old` | keep |\n| --- | --- |\n| C | D |',
+        '#|\n|| `old` | keep ||\n|| C | D ||\n|#',
+    ])(
+        'should paste text inside inline code without replacing table cells: %s',
+        (initialContent) => {
+            const editor = createEditor({
+                initialContent,
+                extra: (builder) => builder.use(Code, {}),
+            });
+            const cell = getTableGeometry(editor.doc.firstChild!)!.cellAt(0, 0)!;
+            const from = cell.offset + (cell.node.inlineContent ? 2 : 3);
+            editor.view.dispatch(
+                editor.view.state.tr.setSelection(TextSelection.create(editor.doc, from)),
+            );
+
+            dispatchPasteEvent(editor.view, {
+                [DataTransferType.Html]: '<table><tr><td>X</td><td>Y</td></tr></table>',
+                [DataTransferType.Text]: '| X | Y |\n| --- | --- |',
+            });
+
+            expect(cellTexts(editor)).toEqual(['o| X | Y |↵| --- | --- |ld', 'keep', 'C', 'D']);
+            expect(editor.view.state.selection).toBeInstanceOf(TextSelection);
+            expect(
+                editor.view.state.selection.$from.marks().some((mark) => mark.type.spec.code),
+            ).toBe(true);
+        },
+    );
+
+    it('should paste a markup matrix before the code handler for selected cells', () => {
         const editor = createEditor({
-            initialContent: '#|\n|| `A` | B ||\n|| C | `D` ||\n|#',
-            extra: (builder) =>
-                builder
-                    .use(Code, {})
-                    .use(MathSpecs)
-                    .addPlugin(latexPastePlugin, builder.Priority.VeryHigh),
+            initialContent: '| `A` | `B` |\n| --- | --- |\n| C | D |',
+            extra: (builder) => builder.use(Code, {}),
         });
-        selectCells(editor, 0, 3);
+        selectCells(editor, 0, 1);
+        const markup = '#|\n|| X | Y ||\n|#';
 
         dispatchPasteEvent(editor.view, {
-            [DataTransferType.Html]: '<table><tr><td>X</td></tr></table>',
-            [DataTransferType.Text]: 'x^2',
-            [DataTransferType.VSCodeData]: JSON.stringify({mode: 'latex'}),
+            [DataTransferType.Yfm]: markup,
+            [DataTransferType.Text]: markup,
         });
 
-        expect(cellTexts(editor)).toEqual(['X', 'B', 'C', 'D']);
+        expect(cellTexts(editor)).toEqual(['X', 'Y', 'C', 'D']);
+        expect(editor.view.state.selection).toBeInstanceOf(TableCellSelection);
+        editor.doc.check();
     });
 
     it.each(['```text\nold\n```', '`old`'])(
@@ -582,7 +694,10 @@ describe('matrix clipboard integration', () => {
         },
     );
 
-    it('should clear all selected cells before inserting ordinary LaTeX into the head', () => {
+    it.each([
+        {text: 'x^2', expected: 'x^2'},
+        {text: '\n  \n', expected: ''},
+    ])('should replace all selected cells with ordinary LaTeX: $text', ({text, expected}) => {
         const editor = createEditor({
             extra: (builder) =>
                 builder.use(MathSpecs).addPlugin(latexPastePlugin, builder.Priority.VeryHigh),
@@ -590,11 +705,13 @@ describe('matrix clipboard integration', () => {
         selectCells(editor, 0, 3);
 
         dispatchPasteEvent(editor.view, {
-            [DataTransferType.Text]: 'x^2',
+            [DataTransferType.Text]: text,
             [DataTransferType.VSCodeData]: JSON.stringify({mode: 'latex'}),
         });
 
-        expect(cellTexts(editor)).toEqual(['', '', '', 'x^2']);
+        expect(cellTexts(editor)).toEqual(['', '', '', expected]);
+        const headCell = getTableGeometry(editor.doc.firstChild!)!.cellAt(1, 1)!.node;
+        expect(headCell.firstChild!.type.name).toBe(expected ? 'math_display' : 'paragraph');
         editor.doc.check();
     });
 

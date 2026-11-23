@@ -11,12 +11,57 @@ import {TableCellSelection} from 'src/table-utils/cell-selection/selection';
 
 import {prepareMatrixCut} from './cut';
 
-const {markupParser, serializer} = new ExtensionsManager({
+const {schema, markupParser, serializer} = new ExtensionsManager({
     extensions: (builder) =>
         builder.use(BaseSchemaSpecs, {}).use(Table).use(YfmTable, {controls: false}),
 }).buildDeps();
 
 describe('matrix cut', () => {
+    it.each([
+        {name: 'clearing cells', endColumn: 0},
+        {name: 'removing a row', endColumn: 1},
+    ])('should reject $name when the remaining table content is invalid', ({endColumn}) => {
+        const original = markupParser.parse('#|\n|| A | B ||\n|| C | D ||\n|#');
+        const cell = getTableGeometry(original.firstChild!)!.cellAt(1, 1)!;
+        const invalid = schema.nodes.paragraph.create(null, schema.nodes.paragraph.create());
+        const doc = EditorState.create({doc: original}).tr.replaceWith(
+            cell.offset + 1,
+            cell.offset + 1 + cell.node.content.size,
+            invalid,
+        ).doc;
+        const geometry = getTableGeometry(doc.firstChild!)!;
+        const selection = TableCellSelection.create(
+            doc,
+            geometry.cellAt(0, 0)!.offset,
+            geometry.cellAt(0, endColumn)!.offset,
+        );
+        const state = EditorState.create({doc, selection});
+
+        expect(prepareMatrixCut(state, selection)).toBeNull();
+    });
+
+    it.each([
+        {name: 'clear cells', endColumn: 0, expected: '#|\n|| | B ||\n|| C | D ||\n|#'},
+        {name: 'remove a row', endColumn: 1, expected: '#|\n|| C | D ||\n|#'},
+    ])('should $name when an unrelated node is invalid', ({endColumn, expected}) => {
+        const table = markupParser.parse('#|\n|| A | B ||\n|| C | D ||\n|#').firstChild!;
+        const invalid = schema.nodes.paragraph.create(null, schema.nodes.paragraph.create());
+        const doc = schema.node('doc', null, [table, invalid]);
+        const geometry = getTableGeometry(table)!;
+        const selection = TableCellSelection.create(
+            doc,
+            geometry.cellAt(0, 0)!.offset,
+            geometry.cellAt(0, endColumn)!.offset,
+        );
+        const state = EditorState.create({doc, selection});
+
+        const tr = prepareMatrixCut(state, selection)!;
+
+        expect(tr).not.toBeNull();
+        expect(tr.doc.firstChild).toMatchNode(markupParser.parse(expected).firstChild!);
+        expect(tr.doc.lastChild).toBe(invalid);
+    });
+
     it('should remove a whole one-cell table without leaving a table skeleton', () => {
         const tr = cut('#|\n|| only ||\n|#', [0, 0], [0, 0])!;
 

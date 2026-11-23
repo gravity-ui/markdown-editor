@@ -34,24 +34,53 @@ describe('Markdown table matrix adapter', () => {
         expect(result.table.lastChild!.textContent).toBe('A');
     });
 
-    it('should refuse different alignments within a standalone Markdown column', () => {
-        const first = contribution(Fragment.from(schema.node('paragraph', null, schema.text('A'))));
-        first.attrs.align = 'right';
-        const second = {
-            ...first,
-            rect: {top: 1, left: 0, bottom: 2, right: 1},
-            attrs: {align: 'left', background: null},
-        };
-        expect(
-            createMatrixTable(schema, markdownTableMatrix, {
+    it.each([0, 1])(
+        'should use the first source row alignment for each new Markdown column with %s header rows',
+        (headerRows) => {
+            const cells = [
+                {text: 'A', align: 'right'},
+                {text: 'B', align: 'center'},
+                {text: 'C', align: 'left'},
+                {text: 'D', align: 'right'},
+            ].map(({text, align}, index) => ({
+                ...contribution(markupParser.parse(`**${text}**`).content),
+                rect: {
+                    top: Math.floor(index / 2),
+                    left: index % 2,
+                    bottom: Math.floor(index / 2) + 1,
+                    right: (index % 2) + 1,
+                },
+                attrs: {align, background: null},
+            }));
+            const sourceJSON = JSON.stringify(cells);
+            const result = createMatrixTable(schema, markdownTableMatrix, {
                 kind: 'block',
-                width: 1,
+                width: 2,
                 height: 2,
-                headerRows: 0,
-                cells: [first, second],
-            }),
-        ).toBeNull();
-    });
+                headerRows,
+                cells,
+            });
+
+            expect(result).not.toBeNull();
+            const geometry = getTableGeometry(result!.table)!;
+            const sourceTop = headerRows ? 0 : 1;
+            expect(result!.rect).toEqual({
+                top: sourceTop,
+                left: 0,
+                bottom: sourceTop + 2,
+                right: 2,
+            });
+            for (let row = 0; row < geometry.height; row++) {
+                expect(geometry.cellAt(row, 0)!.node.attrs['cell-align']).toBe('right');
+                expect(geometry.cellAt(row, 1)!.node.attrs['cell-align']).toBe('center');
+            }
+            expect(
+                geometry.cellsInRect(result!.rect).map(({node}) => node.content.toJSON()),
+            ).toEqual(cells.map(({content}) => content.firstChild!.content.toJSON()));
+            expect(JSON.stringify(cells)).toBe(sourceJSON);
+            result!.table.check();
+        },
+    );
 
     it('should keep copying supported cells when an unselected cell has an unsupported attribute', () => {
         const custom = new ExtensionsManager({

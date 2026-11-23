@@ -95,24 +95,22 @@ function buildTable(
     const rowNodes: Node[] = [];
     for (const [index, cells] of rows.entries()) {
         if (cells.length !== width) return null;
-        if (
-            !original &&
-            cells.some(
-                (cell, column) =>
-                    cell.attrs[TableAttrs.CellAlign] !==
-                    rows[0][column].attrs[TableAttrs.CellAlign],
-            )
-        )
-            return null;
         const cellType =
             types[index < effectiveHeaderRows ? TableNode.HeaderCell : TableNode.DataCell];
         if (cells.some((cell) => !cellType.validContent(cell.content))) return null;
         rowNodes.push(
             types[TableNode.Row].create(
                 null,
-                cells.map((cell) =>
-                    cell.type === cellType ? cell : cellType.create(cell.attrs, cell.content),
-                ),
+                cells.map((cell, column) => {
+                    const align = (original ? cell : rows[0][column]).attrs[TableAttrs.CellAlign];
+                    return cell.type === cellType && cell.attrs[TableAttrs.CellAlign] === align
+                        ? cell
+                        : cellType.create(
+                              {...cell.attrs, [TableAttrs.CellAlign]: align},
+                              cell.content,
+                              cell.marks,
+                          );
+                }),
             ),
         );
     }
