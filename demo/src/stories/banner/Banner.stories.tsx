@@ -29,3 +29,19 @@ export const Title: StoryObj<typeof BannerExample> = {
 export const Description: StoryObj<typeof BannerExample> = {
     args: {initial: bannerDescriptionMarkup},
 };
+
+export const Image: StoryObj<typeof BannerExample> = {
+    args: {
+        initial: [
+            ':::banner{height="s" width="s"}',
+            '::banner-image{src="assets/banner-image-landscape.svg" alt="Team"}',
+            'Everything the team needs in one place: the handbook and the release calendar.',
+            ':::',
+            ':::banner{height="s" width="s"}',
+            '::banner-image',
+            'A placeholder of an image without an address.',
+            ':::',
+            'After',
+        ].join('\n\n'),
+    },
+};
