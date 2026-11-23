@@ -22,7 +22,8 @@ export function registerImageControls(
                 event.metaKey ||
                 event.shiftKey ||
                 event.altKey ||
-                !isStandaloneImage(root, event.target)
+                !isStandaloneImage(root, event.target) ||
+                isPresentationalImage(event.target)
             )
                 return;
 
@@ -40,7 +41,12 @@ export function registerImageControls(
     };
 
     function registerImage(target: EventTarget | null) {
-        if (!isStandaloneImage(root, target) || releases.has(target)) return;
+        if (
+            !isStandaloneImage(root, target) ||
+            isPresentationalImage(target) ||
+            releases.has(target)
+        )
+            return;
 
         const releaseControls = imageControls.register(target);
         const releaseLabel = imageLabels.register(target, (isOwner) => {
@@ -64,16 +70,22 @@ export function isStandaloneImage(
         Boolean(target.currentSrc || target.getAttribute('src')) &&
         (!target.hasAttribute('role') ||
             target.getAttribute('role') === 'img' ||
+            isPresentationalImage(target) ||
             imageControls.has(target)) &&
         !target.parentElement?.closest('a, button, [role="button"]') &&
         inspectViewerNode(root, target).kind === 'content'
     );
 }
 
+function isPresentationalImage(image: HTMLImageElement) {
+    const role = image.getAttribute('role');
+    return role === 'presentation' || role === 'none';
+}
+
 function setImageAttributes(image: HTMLImageElement) {
     const originalAttributes = attributes.map((name) => [name, image.getAttribute(name)] as const);
     image.setAttribute('role', 'button');
-    image.setAttribute('tabindex', '0');
+    if (!image.hasAttribute('tabindex')) image.setAttribute('tabindex', '0');
 
     return () => {
         for (const [name, value] of originalAttributes) {

@@ -1,6 +1,6 @@
 import {type ReactNode, StrictMode} from 'react';
 
-import {GalleryProvider} from '@gravity-ui/components';
+import {type GalleryItemProps, GalleryProvider} from '@gravity-ui/components';
 import {MobileProvider, ThemeProvider} from '@gravity-ui/uikit';
 import {createPortal} from 'react-dom';
 import {type Root, createRoot} from 'react-dom/client';
@@ -63,6 +63,27 @@ describe('FilesGallery', () => {
         const dialog = document.querySelector('[role="dialog"]');
         expect(dialog?.textContent).toContain('Second');
         expect(dialog?.textContent).toContain('2 / 2');
+    });
+
+    it.each([-1, 0, 2])('should keep an explicit tabindex of %s', async (tabIndex) => {
+        const html = `<img src="/image.png" tabindex="${tabIndex}">`;
+        await render(
+            <MarkdownViewer html={html}>
+                <FilesGallery />
+            </MarkdownViewer>,
+        );
+        const image = container.querySelector('img');
+        assert(image);
+        expect(image.tabIndex).toBe(tabIndex);
+        expect(image.getAttribute('role')).toBe('button');
+        image.focus();
+        expect(document.activeElement).toBe(image);
+        await keydown(image, 'Enter');
+        expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+        await closeGallery();
+
+        await render(<MarkdownViewer html={html} />);
+        expect(image.outerHTML).toBe(html);
     });
 
     it.each([
@@ -166,8 +187,33 @@ describe('FilesGallery', () => {
         expect(document.querySelector('[role="dialog"]')).toBeNull();
     });
 
+    it.each(['presentation', 'none'])(
+        'should open a %s image by click without adding keyboard controls',
+        async (role) => {
+            const html = `<img src="/image.png" alt="" role="${role}">`;
+            await render(
+                <MarkdownViewer html={html}>
+                    <FilesGallery />
+                </MarkdownViewer>,
+            );
+            const image = container.querySelector('img');
+            assert(image);
+            expect(image.outerHTML).toBe(html);
+            for (const key of ['Enter', ' ']) {
+                expect((await keydown(image, key)).defaultPrevented).toBe(false);
+            }
+            expect(document.querySelector('[role="dialog"]')).toBeNull();
+
+            expect((await click('img')).defaultPrevented).toBe(true);
+            expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+            expect(image.outerHTML).toBe(html);
+        },
+    );
+
     it.each([
         '<button><img src="/image.png" alt="Control"></button>',
+        '<button><img src="/image.png" role="presentation"></button>',
+        '<span role="button"><img src="/image.png" role="none"></span>',
         '<span role="button" tabindex="0"><img src="/image.png" alt="Control"></span>',
         '<img src="/image.png" alt="Control" role="button" tabindex="-1">',
         '<img src="/image.png" alt="Control" role="link" tabindex="0">',
@@ -324,12 +370,40 @@ describe('FilesGallery', () => {
             </MarkdownViewer>,
         );
 
+        const image = container.querySelector('img[alt="Skip"]');
+        assert(image instanceof HTMLImageElement);
+        expect(image.tabIndex).toBe(0);
+        await keydown(image, 'Enter');
+        expect(document.querySelector('[role="dialog"]')).toBeNull();
         expect((await click('img[alt="Skip"]')).defaultPrevented).toBe(false);
         expect(document.querySelector('[role="dialog"]')).toBeNull();
         await click('img[alt="Keep"]');
         const dialog = document.querySelector('[role="dialog"]');
         expect(dialog?.textContent).toContain('Keep');
         expect(dialog?.textContent).not.toContain('1 / 2');
+    });
+
+    it('should call item callbacks only when opening the gallery', async () => {
+        const transformItem = vi.fn((item: Readonly<GalleryItemProps>) => item);
+        const getCopyUrl = vi.fn(() => '/copy');
+        const getDownloadUrl = vi.fn(() => '/download');
+        await render(
+            <MarkdownViewer html='<img src="/image.png">'>
+                <FilesGallery
+                    transformItem={transformItem}
+                    getCopyUrl={getCopyUrl}
+                    getDownloadUrl={getDownloadUrl}
+                />
+            </MarkdownViewer>,
+        );
+
+        expect(transformItem).not.toHaveBeenCalled();
+        expect(getCopyUrl).not.toHaveBeenCalled();
+        expect(getDownloadUrl).not.toHaveBeenCalled();
+        await click('img');
+        expect(transformItem).toHaveBeenCalledTimes(1);
+        expect(getCopyUrl).toHaveBeenCalledTimes(1);
+        expect(getDownloadUrl).toHaveBeenCalledTimes(1);
     });
 
     it('should copy the URL from the application', async () => {
