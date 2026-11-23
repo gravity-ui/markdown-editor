@@ -108,10 +108,10 @@ export default defineConfig(
         },
     },
     {
-        files: ['./packages/editor-header-extension/**/*'],
+        files: ['./packages/editor-banner-extension/**/*'],
         languageOptions: {
             parserOptions: {
-                project: './packages/editor-header-extension/tsconfig.json',
+                project: './packages/editor-banner-extension/tsconfig.json',
                 tsconfigRootDir: import.meta.dirname,
             },
         },
@@ -119,16 +119,16 @@ export default defineConfig(
             'import/resolver': {
                 typescript: {
                     alwaysTryTypes: true,
-                    project: './packages/editor-header-extension/tsconfig.json',
+                    project: './packages/editor-banner-extension/tsconfig.json',
                 },
             },
         },
     },
     {
-        files: ['./packages/plugin-header/**/*'],
+        files: ['./packages/plugin-banner/**/*'],
         languageOptions: {
             parserOptions: {
-                project: './packages/plugin-header/tsconfig.json',
+                project: './packages/plugin-banner/tsconfig.json',
                 tsconfigRootDir: import.meta.dirname,
             },
         },
@@ -136,7 +136,7 @@ export default defineConfig(
             'import/resolver': {
                 typescript: {
                     alwaysTryTypes: true,
-                    project: './packages/plugin-header/tsconfig.json',
+                    project: './packages/plugin-banner/tsconfig.json',
                 },
             },
         },
