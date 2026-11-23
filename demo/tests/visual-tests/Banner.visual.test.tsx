@@ -258,7 +258,7 @@ test.describe('Banner', () => {
         await expect(banner.toggle('Button 1')).toBeChecked();
         await expect(banner.toggle('Button 2')).not.toBeChecked();
         await expect(banner.toggle('Button 3')).not.toBeChecked();
-        await expect(banner.toggle('Image')).toBeChecked();
+        await expect(banner.toggle('Image')).not.toBeChecked();
         await expect(banner.alignment('Vertically', 'Top')).toBeChecked();
         await expect(banner.alignment('Horizontally', 'Center')).toBeChecked();
         await banner.setExpandedSections('Text');
@@ -290,8 +290,8 @@ test.describe('Banner', () => {
             if (message.type() === 'log') messages.push(message.text());
         });
 
-        // The Title and Description switches insert and remove their blocks in the document.
-        for (const name of ['Button 1', 'Button 2', 'Button 3', 'Image']) {
+        // The Title, Description and Image switches insert and remove their blocks in the document.
+        for (const name of ['Button 1', 'Button 2', 'Button 3']) {
             const toggle = banner.toggle(name);
             const checked = await toggle.isChecked();
             await banner.clickToggle(name);
@@ -346,7 +346,7 @@ test.describe('Banner', () => {
         await expect(banner.toggle('Button 1')).toBeChecked();
         await expect(banner.toggle('Button 2')).not.toBeChecked();
         await expect(banner.toggle('Button 3')).not.toBeChecked();
-        await expect(banner.toggle('Image')).toBeChecked();
+        await expect(banner.toggle('Image')).not.toBeChecked();
         await expect(banner.alignment('Vertically', 'Top')).toBeChecked();
         await expect(banner.alignment('Horizontally', 'Center')).toBeChecked();
         await expect(banner.section('Buttons')).toHaveAttribute('aria-expanded', 'true');

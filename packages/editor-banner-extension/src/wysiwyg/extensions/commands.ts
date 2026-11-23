@@ -1,4 +1,5 @@
 import {get$Cursor, pType} from '@gravity-ui/markdown-editor';
+import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
 import type {
     Attrs,
     Node,
@@ -20,14 +21,18 @@ import {changedAttrs} from './attrs';
 export const runCommand = (view: EditorView, command: Command) =>
     command(view.state, view.dispatch, view);
 
-/**
- * A command factory that sets attributes of the node of `nodeType` at `pos`;
- * `normalize` replaces unsupported values, and only the changed attributes are written.
- */
+type SetNodeAttrsOptions<T> = {accept?: (attrs: Partial<T>) => boolean; history?: boolean};
+
+/** Writes the normalized attributes of the node at `pos`; `history` makes each change one undo step. */
 export const setNodeAttrs =
-    <T extends object>(nodeType: (schema: Schema) => NodeType, normalize: (attrs: Attrs) => T) =>
+    <T extends object>(
+        nodeType: (schema: Schema) => NodeType,
+        normalize: (attrs: Attrs) => T,
+        {accept = () => true, history = false}: SetNodeAttrsOptions<T> = {},
+    ) =>
     (pos: number, attrs: Partial<T>): Command =>
     (state, dispatch) => {
+        if (!accept(attrs)) return false;
         const node = state.doc.nodeAt(pos);
         if (node?.type !== nodeType(state.schema)) return false;
         if (dispatch) {
@@ -36,7 +41,7 @@ export const setNodeAttrs =
             for (const [name, value] of changedAttrs(node.attrs, next)) {
                 tr.setNodeAttribute(pos, name, value);
             }
-            if (tr.docChanged) dispatch(tr);
+            if (tr.docChanged) dispatch(history ? closeHistory(tr) : tr);
         }
         return true;
     };
@@ -83,6 +88,18 @@ export const siblingBlock: NodeNear = ($cursor, dir) => {
     const node = $cursor.node(-1).maybeChild($cursor.index(-1) + dir);
     return node && {node, pos: dir < 0 ? $cursor.before() - node.nodeSize : $cursor.after()};
 };
+
+/** `siblingBlock`, or at the edge of a `wrapper` block the block next to the wrapper. */
+export const siblingBlockAcross =
+    (wrapper: (schema: Schema) => NodeType): NodeNear =>
+    ($cursor, dir) => {
+        const sibling = siblingBlock($cursor, dir);
+        if (sibling || !atTextblockEdge($cursor, dir)) return sibling;
+        if ($cursor.node(-1).type !== wrapper($cursor.doc.type.schema)) return null;
+        const node = $cursor.node(-2).maybeChild($cursor.index(-2) + dir);
+        if (!node) return null;
+        return {node, pos: dir < 0 ? $cursor.before(-1) - node.nodeSize : $cursor.after(-1)};
+    };
 
 /** The block of `nodeType` at the near edge of `sibling`: the sibling itself or its first or last descendant. */
 const edgeDescendant = (
