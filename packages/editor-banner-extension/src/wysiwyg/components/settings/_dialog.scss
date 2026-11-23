@@ -1,0 +1,12 @@
+@mixin reset {
+    position: static;
+
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+
+    color: inherit;
+    border: none;
+    background: none;
+}

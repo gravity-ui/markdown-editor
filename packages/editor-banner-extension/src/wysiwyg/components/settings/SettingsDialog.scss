@@ -1,0 +1,69 @@
+@use './dialog';
+
+$label-width: 120px;
+$viewport-inset: var(--g-spacing-4);
+$popup-width: 325px;
+$popup-field-width: 190px;
+
+:where(.g-md-banner-settings__dialog) {
+    // Zero specificity leaves the size and padding to the window styles.
+    @include dialog.reset;
+
+    &:focus {
+        outline: none;
+    }
+}
+
+.g-md-banner-settings {
+    &__heading {
+        margin: 0;
+    }
+
+    &__title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        height: var(--g-spacing-7);
+    }
+
+    &__close_size_l {
+        margin-inline-end: calc(-1 * var(--g-spacing-1));
+    }
+
+    &__row {
+        display: grid;
+        align-items: center;
+        grid-template-columns: minmax(0, $label-width) minmax(0, 1fr);
+        gap: var(--g-spacing-2);
+
+        min-height: var(--g-spacing-7);
+
+        > * {
+            min-width: 0;
+        }
+    }
+
+    &__label {
+        align-self: start;
+
+        padding-block: calc((var(--g-spacing-7) - var(--g-text-body-1-line-height)) / 2);
+    }
+
+    &__popup {
+        display: flex;
+        flex-direction: column;
+
+        box-sizing: border-box;
+        width: min($popup-width, calc(100vw - 2 * #{$viewport-inset}));
+        padding: var(--g-spacing-3) var(--g-spacing-4) var(--g-spacing-4);
+    }
+
+    &__popup &__title {
+        margin-block-end: var(--g-spacing-2);
+    }
+
+    &__popup &__row {
+        grid-template-columns: minmax(0, 1fr) minmax(0, $popup-field-width);
+    }
+}
