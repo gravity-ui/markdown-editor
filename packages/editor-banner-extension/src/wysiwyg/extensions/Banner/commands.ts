@@ -11,6 +11,7 @@ import {
 import type {NodeWithPos} from '@gravity-ui/markdown-editor/pm/utils';
 import type {BannerDimensions} from '@gravity-ui/markdown-plugin-banner';
 
+import {changedAttrs} from '../attrs';
 import {removeChild} from '../commands';
 
 import {bannerNodeType} from './BannerSpecs';
@@ -53,8 +54,11 @@ export const insertBanner: Command = (state, dispatch) => {
 export const setBannerDimension =
     <K extends keyof BannerDimensions>(pos: number, name: K, value: BannerDimensions[K]): Command =>
     (state, dispatch) => {
-        if (!bannerAt(state, pos)) return false;
-        dispatch?.(state.tr.setNodeAttribute(pos, name, value));
+        const node = bannerAt(state, pos);
+        if (!node) return false;
+        if (dispatch && changedAttrs(node.attrs, {[name]: value}).length) {
+            dispatch(state.tr.setNodeAttribute(pos, name, value));
+        }
         return true;
     };
 
