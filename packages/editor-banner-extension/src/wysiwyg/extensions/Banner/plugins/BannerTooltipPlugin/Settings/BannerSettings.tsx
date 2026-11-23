@@ -12,7 +12,7 @@ import {i18n} from '../../../../../../i18n';
 import {SettingsDialog, cnBannerSettings} from '../../../../../components/settings';
 
 import {DimensionSelect} from './DimensionSelect';
-import {SettingsFields} from './SettingsFields';
+import {type ContentControls, SettingsFields} from './SettingsFields';
 
 import './BannerSettings.scss';
 
@@ -50,6 +50,7 @@ type BannerSettingsProps = {
     button: HTMLElement | null;
     dimensions: BannerDimensions;
     onChange: <K extends keyof BannerDimensions>(name: K, value: BannerDimensions[K]) => void;
+    content: ContentControls;
     onClose: () => void;
 };
 
@@ -58,6 +59,7 @@ export function BannerSettings({
     button,
     dimensions,
     onChange,
+    content,
     onClose,
 }: BannerSettingsProps) {
     const anchorElement = useMemo(() => block && insideTopEdge(block), [block]);
@@ -91,7 +93,7 @@ export function BannerSettings({
                 format={(value) => (value === 'full' ? i18n('full-width') : value.toUpperCase())}
                 onUpdate={(value) => onChange('width', value)}
             />
-            <SettingsFields />
+            <SettingsFields content={content} />
         </SettingsDialog>
     );
 }

@@ -11,27 +11,53 @@ import {Button, Divider, Icon, Text, useUniqId} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
 import {SettingsSwitch, cnBannerSettings} from '../../../../../components/settings';
+import type {BannerPart, BannerParts} from '../../../parts';
 
 import {AlignmentSelect} from './AlignmentSelect';
 import {SettingsSection} from './SettingsSection';
 import {logClick} from './utils';
 
-export function SettingsFields() {
+export type ContentControls = {
+    parts: BannerParts;
+    /** The parts that have a node type in the editor schema. */
+    available: Partial<Record<BannerPart, unknown>>;
+    onPartChange: (part: BannerPart, enabled: boolean) => void;
+};
+
+type PartSwitchProps = {part: BannerPart; label: string; action: string; content: ContentControls};
+
+function PartSwitch({part, label, action, content}: PartSwitchProps) {
+    if (!content.available[part]) {
+        return (
+            <SettingsSwitch
+                label={label}
+                defaultChecked
+                onUpdate={() => logClick(`${action} toggle`)}
+            />
+        );
+    }
+    return (
+        <SettingsSwitch
+            label={label}
+            checked={content.parts[part]}
+            onUpdate={(enabled) => content.onPartChange(part, enabled)}
+        />
+    );
+}
+
+export function SettingsFields({content}: {content: ContentControls}) {
     const backgroundLabelId = useUniqId();
     const backgroundValueId = useUniqId();
     return (
         <>
             <Divider />
             <SettingsSection title={i18n('text')} action="Text">
-                <SettingsSwitch
-                    label={i18n('heading')}
-                    defaultChecked
-                    onUpdate={() => logClick('Title toggle')}
-                />
-                <SettingsSwitch
+                <PartSwitch part="title" label={i18n('heading')} action="Title" content={content} />
+                <PartSwitch
+                    part="content"
                     label={i18n('description')}
-                    defaultChecked
-                    onUpdate={() => logClick('Description toggle')}
+                    action="Description"
+                    content={content}
                 />
                 <Text variant="subheader-1">{i18n('alignment')}</Text>
                 <AlignmentSelect
@@ -101,11 +127,7 @@ export function SettingsFields() {
             </SettingsSection>
             <Divider />
             <SettingsSection title={i18n('image-and-background')} action="Image and background">
-                <SettingsSwitch
-                    label={i18n('image')}
-                    defaultChecked
-                    onUpdate={() => logClick('Image toggle')}
-                />
+                <PartSwitch part="image" label={i18n('image')} action="Image" content={content} />
                 <div className={cnBannerSettings('row')}>
                     <Text variant="body-1" id={backgroundLabelId}>
                         {i18n('background')}

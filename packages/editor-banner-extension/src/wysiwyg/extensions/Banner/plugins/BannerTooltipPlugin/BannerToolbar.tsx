@@ -6,9 +6,17 @@ import {bannerDimensions} from '@gravity-ui/markdown-plugin-banner';
 import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
-import {removeBanner, setBannerDimension} from '../../commands';
+import {runCommand} from '../../../commands';
+import {
+    type RemovedParts,
+    removeBanner,
+    setBannerDimension,
+    toggleBannerPart,
+} from '../../commands';
+import {bannerPartTypes, bannerParts} from '../../parts';
 
 import {BannerSettings} from './Settings/BannerSettings';
+import type {ContentControls} from './Settings/SettingsFields';
 
 import './BannerToolbar.scss';
 
@@ -16,6 +24,16 @@ const b = cn('banner-toolbar');
 
 /** The open toolbar of each editor, for the keymap to move focus into it. */
 export const bannerToolbars = new WeakMap<EditorView, HTMLElement>();
+
+/** The blocks removed with the settings switches, by banner, until the page reloads. */
+const removedParts = new WeakMap<HTMLElement, RemovedParts>();
+
+function removedPartsOf(block: HTMLElement | null): RemovedParts {
+    if (!block) return new Map();
+    const removed = removedParts.get(block) ?? new Map();
+    removedParts.set(block, removed);
+    return removed;
+}
 
 const isActive = () => false;
 const isEnable = () => true;
@@ -29,6 +47,12 @@ type BannerToolbarProps = {
 };
 
 export function BannerToolbar({view, node, pos, block, markup}: BannerToolbarProps) {
+    const content: ContentControls = {
+        parts: bannerParts(node),
+        available: bannerPartTypes(view.state.schema),
+        onPartChange: (part, enabled) =>
+            runCommand(view, toggleBannerPart(pos, part, enabled, removedPartsOf(block))),
+    };
     const data: ToolbarData<EditorView> = [
         [
             {
@@ -45,8 +69,9 @@ export function BannerToolbar({view, node, pos, block, markup}: BannerToolbarPro
                         button={anchorElement}
                         dimensions={bannerDimensions(node.attrs)}
                         onChange={(name, value) =>
-                            setBannerDimension(pos, name, value)(view.state, view.dispatch)
+                            runCommand(view, setBannerDimension(pos, name, value))
                         }
+                        content={content}
                         onClose={hide}
                     />
                 ),
@@ -68,7 +93,7 @@ export function BannerToolbar({view, node, pos, block, markup}: BannerToolbarPro
                 title: i18n('remove'),
                 isActive,
                 isEnable,
-                exec: (editor) => removeBanner(pos)(editor.state, editor.dispatch),
+                exec: (editor) => runCommand(editor, removeBanner(pos)),
             },
         ],
     ];

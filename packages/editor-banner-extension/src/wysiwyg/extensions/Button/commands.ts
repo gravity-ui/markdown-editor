@@ -1,6 +1,8 @@
 import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
-import {type Command, NodeSelection, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
+import type {Command} from '@gravity-ui/markdown-editor/pm/state';
 import type {ButtonModel} from '@gravity-ui/markdown-plugin-banner';
+
+import {nodeBeside, selectNodeNear} from '../commands';
 
 import {buttonNodeType} from './ButtonSpecs';
 
@@ -21,18 +23,7 @@ export const setButtonAttrs =
     };
 
 /** The first press selects the button next to the cursor; the editor removes a selected node. */
-const selectButtonNear =
-    (dir: -1 | 1): Command =>
-    (state, dispatch) => {
-        const $cursor = state.selection instanceof TextSelection ? state.selection.$cursor : null;
-        const node = dir < 0 ? $cursor?.nodeBefore : $cursor?.nodeAfter;
-        if (!$cursor || node?.type !== buttonNodeType(state.schema)) return false;
-        if (dispatch) {
-            const pos = dir < 0 ? $cursor.pos - node.nodeSize : $cursor.pos;
-            dispatch(state.tr.setSelection(NodeSelection.create(state.doc, pos)).scrollIntoView());
-        }
-        return true;
-    };
+const selectButtonNear = selectNodeNear(buttonNodeType, nodeBeside);
 
 export const selectButtonBefore = selectButtonNear(-1);
 export const selectButtonAfter = selectButtonNear(1);
