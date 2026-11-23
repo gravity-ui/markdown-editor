@@ -4,6 +4,7 @@ import {EditorView} from 'prosemirror-view';
 import {describe, expect, it} from 'vitest';
 
 import {dispatchPasteEvent} from '../../../../tests/dispatch-event';
+import {ClipboardEventMock, DataTransferMock} from '../../../../tests/event-mock';
 import {ExtensionsManager} from '../../../core';
 import {LoggerFacet} from '../../../core/utils/logger';
 import {Logger2} from '../../../logger';
@@ -39,14 +40,16 @@ const {doc, p, cb, code, mathB} = builders<'doc' | 'p' | 'cb' | 'code' | 'mathB'
     mathB: {nodeType: MathNode.Block},
 });
 
-function paste(startDoc: ReturnType<typeof doc>, data: Record<string, string>) {
-    const state = EditorState.create({
-        schema,
-        doc: startDoc,
-        selection: TextSelection.create(startDoc, startDoc.tag.a),
-        plugins,
+function createView(startDoc: ReturnType<typeof doc>) {
+    const {a, b = a} = startDoc.tag;
+    const selection = TextSelection.create(startDoc, a, b);
+    return new EditorView(null, {
+        state: EditorState.create({schema, doc: startDoc, selection, plugins}),
     });
-    const view = new EditorView(null, {state});
+}
+
+function paste(startDoc: ReturnType<typeof doc>, data: Record<string, string>) {
+    const view = createView(startDoc);
     dispatchPasteEvent(view, data);
     const result = view.state.doc;
     view.destroy();
@@ -61,6 +64,16 @@ describe('handlePasteIntoCodePlugin', () => {
         expect(paste(doc(cb('a<a>b')), {'text/plain': text, ...fromLineStart})).toMatchNode(
             doc(cb(`a${text}b`)),
         );
+    });
+
+    it('should keep code copied from the line start of the same block', () => {
+        const startDoc = doc(cb('<a>foo\n\tbar\n\t\tbaz<b>'));
+        const view = createView(startDoc);
+        const clipboardData = new DataTransferMock();
+        view.dispatchEvent(new ClipboardEventMock('copy', {clipboardData}));
+        view.dispatchEvent(new ClipboardEventMock('paste', {clipboardData}));
+        expect(view.state.doc).toMatchNode(startDoc);
+        view.destroy();
     });
 
     it('should keep code whose first line is indented', () => {

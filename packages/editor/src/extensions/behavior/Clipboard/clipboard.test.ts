@@ -92,12 +92,4 @@ describe('code block clipboard', () => {
         expect(copy(view).types).not.toContain(DataTransferType.CodeLineStart);
         view.destroy();
     });
-
-    it('should keep indentation when pasting code copied from the same block', () => {
-        const view = createView(1);
-        const clipboardData = copy(view);
-        view.dispatchEvent(new ClipboardEventMock('paste', {clipboardData}));
-        expect(view.state.doc.textContent).toBe(code);
-        view.destroy();
-    });
 });
