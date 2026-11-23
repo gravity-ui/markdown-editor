@@ -74,6 +74,12 @@ Deleting a selection that starts at the title start and goes past its end emptie
 Enter in the title never splits it. In a title outside a banner, such as one written in Markdown inside a quote, a list item or a table cell, Enter at its end starts an empty paragraph after it.
 The title never turns into another block: block shortcuts do nothing there, and typed text such as `# ` stays text. Backspace and Delete at its edges do not join it with the blocks next to it.
 
+A cursor in the title opens a toolbar under its start with two menus: the size (Heading 1–6, `size`) and the color (`color`: default, gray, yellow, orange, red, green, blue, violet).
+The size button shows the icon of the current size, the color menu and its button show the colors of the title, and each button names its current value, for example "Title size: Heading 3".
+Each choice is a separate undo step and keeps the text and the cursor; default values are not written.
+With the cursor in the title, Tab focuses the size button. Left and Right arrows move between the buttons, Enter opens a menu, Tab moves focus into the open menu, and Enter on an item chooses it and returns focus to the title.
+Escape closes an open menu; Escape on a button hides the toolbar and returns focus to the title. Tab after the last button and Shift+Tab before the first one return focus to the title.
+
 The title is the `title` part of the banner. The Title switch of the settings panel inserts a title with the default text after the image; a banner that holds only one paragraph of plain text without formatting turns it into the title.
 Turning the switch off removes the title; turning it on again restores the removed title with its text, size and color, also after the panel is closed.
 A banner holds one title: a second title in the Markdown of a banner stays a paragraph of text, and an edit that adds a second title to a banner is rejected.
