@@ -1,5 +1,8 @@
-import {get$Cursor, pType, removeNode} from '@gravity-ui/markdown-editor';
+import {DataTransferType, get$Cursor, pType, removeNode} from '@gravity-ui/markdown-editor';
+import type {Serializer} from '@gravity-ui/markdown-editor/core';
+import {Fragment, Slice} from '@gravity-ui/markdown-editor/pm/model';
 import {type Command, type EditorState, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
+import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import type {BannerDimensions} from '@gravity-ui/markdown-plugin-banner';
 
 import {bannerNodeType} from './BannerSpecs';
@@ -39,14 +42,31 @@ export const setBannerDimension =
         return true;
     };
 
-export const copyBanner =
-    (pos: number): Command =>
-    (state, dispatch) => {
-        const node = bannerAt(state, pos);
-        if (!node) return false;
-        dispatch?.(state.tr.insert(pos + node.nodeSize, node));
-        return true;
+/** Clipboard formats match a copied selection: `text/yfm`, HTML, and plain text. */
+export function copyBanner(view: EditorView, pos: number, serializer: Serializer): boolean {
+    const node = bannerAt(view.state, pos);
+    if (!node) return false;
+    const markup = serializer.serialize(view.state.schema.topNodeType.create(null, node));
+    const {dom, text} = view.serializeForClipboard(new Slice(Fragment.from(node), 0, 0));
+    const onCopy = (event: ClipboardEvent) => {
+        const data = event.clipboardData;
+        if (!data) return;
+        // The editor handler and the default action copy the selection instead.
+        event.stopPropagation();
+        event.preventDefault();
+        data.setData(DataTransferType.Yfm, markup);
+        data.setData(DataTransferType.Html, dom.innerHTML);
+        data.setData(DataTransferType.Text, text);
     };
+    const {ownerDocument} = view.dom;
+    ownerDocument.addEventListener('copy', onCopy, true);
+    try {
+        // `navigator.clipboard.write` rejects the `text/yfm` type.
+        return ownerDocument.execCommand('copy');
+    } finally {
+        ownerDocument.removeEventListener('copy', onCopy, true);
+    }
+}
 
 export const removeBanner =
     (pos: number): Command =>

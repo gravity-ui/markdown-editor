@@ -1,5 +1,6 @@
 import {Copy, Gear, TrashBin} from '@gravity-ui/icons';
 import {Toolbar, type ToolbarData, ToolbarDataType, cn} from '@gravity-ui/markdown-editor';
+import type {Serializer} from '@gravity-ui/markdown-editor/core';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {bannerDimensions} from '@gravity-ui/markdown-plugin-banner';
@@ -24,9 +25,10 @@ type BannerToolbarProps = {
     node: Node;
     pos: number;
     block: HTMLElement | null;
+    serializer: Serializer;
 };
 
-export function BannerToolbar({view, node, pos, block}: BannerToolbarProps) {
+export function BannerToolbar({view, node, pos, block, serializer}: BannerToolbarProps) {
     const data: ToolbarData<EditorView> = [
         [
             {
@@ -56,7 +58,7 @@ export function BannerToolbar({view, node, pos, block}: BannerToolbarProps) {
                 title: i18n('copy'),
                 isActive,
                 isEnable,
-                exec: (editor) => copyBanner(pos)(editor.state, editor.dispatch),
+                exec: (editor) => copyBanner(editor, pos, serializer),
             },
         ],
         [
