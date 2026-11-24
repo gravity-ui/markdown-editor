@@ -3,7 +3,8 @@ import type {CSSProperties} from 'react';
 import {expect} from 'playwright/core';
 import {test} from 'playwright/core/extensions/banner';
 
-import {BannerStories} from './Banner.helpers';
+import {TEST_IMAGE} from './Banner.const';
+import {BannerStories, BannerUploadExample} from './Banner.helpers';
 
 const bannerMarkup = (height: string, width: string) =>
     `:::banner{height="${height}" width="${width}"}\n:::`;
@@ -20,6 +21,9 @@ const smallSizes = {
 
 const SETTINGS_INSET = 16;
 const SETTINGS_MIN_HEIGHT = 160;
+
+const TEST_IMAGE_FILE = `tests/visual-tests/public${TEST_IMAGE}`;
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
 
 const dimensions = [
     ['s', 'm'],
@@ -340,6 +344,334 @@ test.describe('Banner', () => {
             'true',
         );
         await expect(banner.height).toHaveText('M');
+    });
+
+    test('should render backgrounds @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        expectScreenshot,
+    }) => {
+        const backgrounds = [
+            'bg-color="blue-medium"',
+            `bg-image="${TEST_IMAGE}"`,
+            `bg-image="${TEST_IMAGE}" bg-image-blur="true"`,
+            `bg-image="${TEST_IMAGE}" bg-image-theme="dark"`,
+        ];
+        await mount(
+            <div style={smallSizes}>
+                <BannerStories.Banner
+                    width={300}
+                    initial={backgrounds
+                        .map(
+                            (attrs) =>
+                                `:::banner{height="l" width="l" ${attrs}}\nText [link](#)\n:::`,
+                        )
+                        .join('\n\n')}
+                />
+            </div>,
+        );
+        await expect(banner.blocks).toHaveCount(4);
+        await expect(banner.blocks.nth(0)).toHaveClass(/g-md-banner-plugin_bg-color_blue-medium/);
+        await expect(banner.blocks.nth(1)).toHaveAttribute(
+            'style',
+            `background-image:url("${TEST_IMAGE}")`,
+        );
+        await expect(banner.blocks.nth(2)).toHaveClass(/g-md-banner-plugin_bg-image-blur/);
+        await expect(banner.blocks.nth(3)).toHaveClass(/\bg-root g-root_theme_dark\b/);
+        await banner.hideToolbar();
+
+        const fixedLink = banner.blocks.nth(3).locator('a');
+        const linkColor = () => fixedLink.evaluate((link) => getComputedStyle(link).color);
+        await page.emulateMedia({colorScheme: 'light'});
+        await expect(page.locator('body')).toHaveClass(/g-root_theme_light/);
+        const lightPageColor = await linkColor();
+        await page.emulateMedia({colorScheme: 'dark'});
+        await expect(page.locator('body')).toHaveClass(/g-root_theme_dark/);
+        expect(await linkColor()).toBe(lightPageColor);
+
+        await banner.waitForImage(TEST_IMAGE);
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should fill the background from the palette @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        expectScreenshot,
+        wait,
+    }) => {
+        await page.setViewportSize({width: 740, height: 640});
+        await mount(
+            <BannerStories.Banner width={660} initial={`${bannerMarkup('s', 's')}\n\nAfter`} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await banner.openSettings();
+        await banner.openBackground();
+        await expect(banner.backgroundTab('Fill')).toHaveAttribute('aria-selected', 'true');
+        await expect(banner.backgroundPopup.getByRole('tabpanel').getByRole('radio')).toHaveCount(
+            18,
+        );
+
+        await banner.swatch('Blue 20%').click();
+        await expect(banner.swatch('Blue 20%')).toHaveAttribute('aria-checked', 'true');
+        await expect(banner.blocks).toHaveClass(/g-md-banner-plugin_bg-color_blue-light/);
+        await expect(banner.background).toHaveAccessibleName('Background Blue 20%');
+        expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(
+            ':::banner{height="s" width="s" bg-color="blue-light"}\n\n:::\n\nAfter',
+        );
+        await wait.markupPreview('bg-color="blue-light"');
+        await page.mouse.move(0, 0);
+        await expectScreenshot({fullPage: true});
+    });
+
+    test('should navigate the palette with one tab stop @wysiwyg', async ({
+        mount,
+        editor,
+        banner,
+        page,
+    }) => {
+        await mount(
+            <BannerStories.Banner width={660} initial={`${bannerMarkup('s', 's')}\n\nAfter`} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await banner.openSettings();
+        await banner.openBackground();
+        await expect(banner.backgroundTab('Fill')).toBeFocused();
+        const palette = banner.backgroundPopup.getByRole('radiogroup', {name: 'Fill', exact: true});
+        await expect(palette.locator('[tabindex="0"]')).toHaveCount(1);
+        const gray = banner.swatch('Gray 20%');
+        await gray.focus();
+        await gray.press('ArrowRight');
+        await expect(banner.swatch('Green 20%')).toBeFocused();
+        await banner.swatch('Green 20%').press('ArrowDown');
+        await expect(banner.swatch('Green 50%')).toBeFocused();
+        await banner.swatch('Green 50%').press('End');
+        await expect(banner.swatch('Violet 100%')).toBeFocused();
+        await banner.swatch('Violet 100%').press('Home');
+        await expect(gray).toBeFocused();
+        await gray.press('Space');
+        await expect(gray).toBeChecked();
+        await palette.evaluate((element) => element.setAttribute('dir', 'rtl'));
+        await page.keyboard.press('ArrowLeft');
+        await expect(banner.swatch('Green 20%')).toBeFocused();
+        await page.keyboard.press('Tab');
+        await expect(banner.backgroundPopup).toBeHidden();
+    });
+
+    test('should discard a background upload after closing its popup @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        expectScreenshot,
+    }) => {
+        let finish: (() => Promise<void>) | undefined;
+        await page.route('**/banner-background-upload', (route) => {
+            finish = () => route.fulfill({status: 200, body: 'ok'});
+        });
+        await mount(<BannerUploadExample />);
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        const initial = await page.evaluate(() => window.mdEditor?.getValue());
+        await banner.openSettings();
+        await banner.openBackground();
+        await banner.backgroundTab('Image').click();
+        await banner.chooseFile(banner.uploadButton, TEST_IMAGE_FILE);
+        await expect.poll(() => Boolean(finish)).toBe(true);
+        await expect(banner.uploadButton).toBeDisabled();
+        await expectScreenshot({fullPage: true});
+        await banner.backgroundPopup.getByRole('button', {name: 'Close', exact: true}).click();
+        await expect(banner.backgroundPopup).toBeHidden();
+        const response = page.waitForResponse('**/banner-background-upload');
+        await finish?.();
+        await response;
+        await banner.background.click();
+        await banner.backgroundTab('Image').click();
+        await expect(banner.uploadButton).toBeEnabled();
+        expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(initial);
+    });
+
+    test('should restore focus after an upload fails and replacement is cancelled @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+    }) => {
+        await page.route('**/banner-background-upload', (route) => route.fulfill({status: 500}));
+        await mount(<BannerUploadExample />);
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await banner.openSettings();
+        await banner.openBackground();
+        await banner.backgroundTab('Image').click();
+        await banner.chooseFile(banner.uploadButton, TEST_IMAGE_FILE);
+        await expect(banner.backgroundPopup.getByRole('alert')).toContainText(
+            'Failed to upload the file',
+        );
+        await expect(banner.uploadButton).toBeFocused();
+        await banner.backgroundTab('Add by link').click();
+        await banner.linkInput.fill(TEST_IMAGE);
+        await banner.submitLinkButton.click();
+        await expect(banner.replaceFileButton).toBeFocused();
+        await banner.replaceFileButton.click();
+        await expect(
+            banner.backgroundPopup.getByRole('tab', {name: 'Upload from device', exact: true}),
+        ).toBeFocused();
+        await banner.backgroundPopup.getByRole('button', {name: 'Cancel', exact: true}).click();
+        await expect(banner.replaceFileButton).toBeFocused();
+    });
+
+    test('should upload a background image @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        expectScreenshot,
+    }) => {
+        await mount(
+            <BannerStories.Banner width={660} initial={`${bannerMarkup('s', 's')}\n\nAfter`} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await banner.openSettings();
+        await banner.openBackground();
+        await banner.backgroundTab('Image').click();
+        await expect(banner.backgroundPopup).toContainText('JPEG, GIF or PNG, up to 2 MB');
+        await banner.chooseFile(banner.uploadButton, TEST_IMAGE_FILE);
+
+        await expect(banner.textColor).toHaveText('Depends on the theme');
+        await expect(banner.blocks).toHaveClass(/g-md-banner-plugin_bg-image/);
+        await expect(banner.blur).not.toBeChecked();
+        await expect
+            .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
+            .toBe(`:::banner{height="s" width="s" bg-image="${TEST_IMAGE}"}\n\n:::\n\nAfter`);
+        await expect(banner.background).toHaveAccessibleName('Background banner-background.jpg');
+
+        const darkPage = await page
+            .locator('body')
+            .evaluate((body) => body.classList.contains('g-root_theme_dark'));
+        await expect(banner.bannerPreview).toHaveClass(
+            darkPage ? /\bg-root_theme_dark\b/ : /\bg-root_theme_light\b/,
+        );
+        await banner.previewTheme('Dark theme').click();
+        await expect(banner.bannerPreview).toHaveClass(/\bg-root_theme_dark\b/);
+        await banner.previewTheme('Light theme').click();
+        await expect(banner.bannerPreview).toHaveClass(/\bg-root_theme_light\b/);
+
+        await banner.waitForImage(TEST_IMAGE);
+        await page.mouse.move(0, 0);
+        await expectScreenshot({component: banner.backgroundPopup});
+    });
+
+    test('should change and clear the background @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+    }) => {
+        const markup = () => page.evaluate(() => window.mdEditor?.getValue());
+        await mount(
+            <BannerStories.Banner width={660} initial={`${bannerMarkup('s', 's')}\n\nAfter`} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await banner.openSettings();
+        await banner.openBackground();
+
+        await banner.swatch('Green 50%').click();
+        await banner.backgroundTab('Image').click();
+        await banner.chooseFile(banner.uploadButton, TEST_IMAGE_FILE);
+        await expect
+            .poll(markup)
+            .toBe(
+                `:::banner{height="s" width="s" bg-color="green-medium" bg-image="${TEST_IMAGE}"}\n\n:::\n\nAfter`,
+            );
+
+        await banner.select(banner.textColor, 'Always light');
+        await expect(banner.blocks).toHaveClass(/\bg-root g-root_theme_dark\b/);
+        expect(await markup()).toMatch(/ bg-image-theme="dark"\}/);
+        await banner.select(banner.textColor, 'Always dark');
+        await expect(banner.blocks).toHaveClass(/\bg-root_theme_light\b/);
+        await banner.select(banner.textColor, 'Depends on the theme');
+        await expect(banner.blocks).not.toHaveClass(/\bg-root\b/);
+        expect(await markup()).not.toContain('bg-image-theme');
+
+        await page.keyboard.press('Escape');
+        await expect(banner.backgroundPopup).toBeHidden();
+        await banner.clickToggle('Blur background');
+        await expect(banner.blocks).toHaveClass(/g-md-banner-plugin_bg-image-blur/);
+        expect(await markup()).toMatch(/ bg-image-blur="true"\}/);
+
+        await banner.background.click();
+        await banner.select(banner.textColor, 'Always light');
+        await banner.backgroundTab('Fill').click();
+        await banner.swatch('Red 100%').click();
+        expect(await markup()).toBe(
+            ':::banner{height="s" width="s" bg-color="red-heavy"}\n\n:::\n\nAfter',
+        );
+        await expect(banner.blur).toBeHidden();
+
+        await banner.backgroundTab('Image').click();
+        await banner.chooseFile(banner.uploadButton, TEST_IMAGE_FILE);
+        await expect.poll(markup).toContain(`bg-image="${TEST_IMAGE}"`);
+        await banner.resetBackgroundButton.click();
+        expect(await markup()).toBe(':::banner{height="s" width="s"}\n\n:::\n\nAfter');
+        await expect(banner.background).toHaveAccessibleName('Background No background');
+
+        await banner.backgroundTab('Add by link').click();
+        await banner.linkInput.fill(TEST_IMAGE);
+        await banner.submitLinkButton.click();
+        expect(await markup()).toBe(
+            `:::banner{height="s" width="s" bg-image="${TEST_IMAGE}"}\n\n:::\n\nAfter`,
+        );
+        await banner.replaceFileButton.click();
+        await expect(banner.uploadButton).toBeVisible();
+        await banner.backgroundPopup.getByRole('button', {name: 'Cancel', exact: true}).click();
+        await expect(banner.textColor).toBeVisible();
+
+        await banner.backgroundTab('Fill').click();
+        await banner.swatch('Gray 20%').click();
+        await page.keyboard.press('Escape');
+        await banner.clearBackgroundButton.click();
+        expect(await markup()).toBe(':::banner{height="s" width="s"}\n\n:::\n\nAfter');
+        await expect(banner.clearBackgroundButton).toBeHidden();
+    });
+
+    test('should reject a file of another type or a larger size @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+    }) => {
+        await mount(
+            <BannerStories.Banner width={660} initial={`${bannerMarkup('s', 's')}\n\nAfter`} />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        const initial = await page.evaluate(() => window.mdEditor?.getValue());
+        await banner.openSettings();
+        await banner.openBackground();
+        await banner.backgroundTab('Image').click();
+
+        await banner.chooseFile(banner.uploadButton, {
+            name: 'large.png',
+            mimeType: 'image/png',
+            buffer: Buffer.alloc(MAX_IMAGE_SIZE + 1),
+        });
+        await expect(banner.backgroundPopup).toContainText('The file is larger than 2 MB');
+        await banner.chooseFile(banner.uploadButton, {
+            name: 'notes.txt',
+            mimeType: 'text/plain',
+            buffer: Buffer.from('text'),
+        });
+        await expect(banner.backgroundPopup).toContainText('Unsupported file format');
+        expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(initial);
+        await expect(banner.blocks).not.toHaveClass(/g-md-banner-plugin_bg-image/);
     });
 
     test('should select the settings text with the mouse @wysiwyg', async ({
