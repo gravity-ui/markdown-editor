@@ -8,7 +8,7 @@ $panel-width: 320px;
 
     box-sizing: border-box;
     width: $panel-width;
-    max-width: var(--g-md-banner-settings-max-width);
+    max-width: 100%;
     max-height: var(--g-md-banner-settings-max-height);
     padding: var(--g-spacing-4);
 

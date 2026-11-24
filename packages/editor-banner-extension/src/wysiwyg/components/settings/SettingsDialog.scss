@@ -61,6 +61,7 @@ $popup-field-width: 190px;
 
         box-sizing: border-box;
         width: $popup-width;
+        max-width: 100%;
         padding: var(--g-spacing-3) var(--g-spacing-4) var(--g-spacing-4);
     }
 

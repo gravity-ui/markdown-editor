@@ -1,4 +1,4 @@
-import type {ReactNode} from 'react';
+import type {CSSProperties, ReactNode} from 'react';
 
 import {Xmark} from '@gravity-ui/icons';
 import {Button, Icon, Popup, type PopupProps, Text, useUniqId} from '@gravity-ui/uikit';
@@ -11,6 +11,8 @@ import {cnBannerSettings} from './classname';
 import './SettingsDialog.scss';
 
 const CLOSE_ICON_SIZE = 16;
+// With `left: 0` from Popup, `right` caps the window at the viewport width minus 32 px.
+const FLOATING_STYLES: CSSProperties = {width: 'fit-content', right: 'var(--g-spacing-8)'};
 
 type SettingsDialogProps = Pick<
     PopupProps,
@@ -43,6 +45,7 @@ export function SettingsDialog({
             open
             {...popupProps}
             className={popupClassName}
+            floatingStyles={FLOATING_STYLES}
             onOpenChange={closeUnlessAnchor(closeAnchor, onClose)}
         >
             <dialog
