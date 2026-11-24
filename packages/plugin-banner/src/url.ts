@@ -20,3 +20,9 @@ export function safeImageUrl(raw: string): string | null {
     if (/^[a-z][a-z\d+.-]*:/i.test(value) && !/^(https?|blob):/i.test(value)) return null;
     return value;
 }
+
+export function toCssUrl(value: string): string {
+    // CSS escapes preserve the URL and hide parentheses and comment delimiters from the style sanitizer.
+    const escaped = value.replace(/["'()*\\]/g, (char) => `\\${char.charCodeAt(0).toString(16)} `);
+    return `url("${escaped}")`;
+}
