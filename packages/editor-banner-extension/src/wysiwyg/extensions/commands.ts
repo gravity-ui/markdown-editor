@@ -1,13 +1,14 @@
 import {get$Cursor, pType} from '@gravity-ui/markdown-editor';
 import type {Node, NodeType, ResolvedPos, Schema} from '@gravity-ui/markdown-editor/pm/model';
 import {type Command, NodeSelection, type Transaction} from '@gravity-ui/markdown-editor/pm/state';
+import type {NodeWithPos} from '@gravity-ui/markdown-editor/pm/utils';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 
 export const runCommand = (view: EditorView, command: Command) =>
     command(view.state, view.dispatch, view);
 
 /** Removes a child block; the last one is replaced with an empty paragraph to keep the parent valid. */
-export function removeChild(tr: Transaction, parent: Node, {node, pos}: {node: Node; pos: number}) {
+export function removeChild(tr: Transaction, parent: Node, {node, pos}: NodeWithPos) {
     if (parent.childCount === 1) {
         tr.replaceWith(pos, pos + node.nodeSize, pType(tr.doc.type.schema).create());
     } else {
@@ -15,7 +16,7 @@ export function removeChild(tr: Transaction, parent: Node, {node, pos}: {node: N
     }
 }
 
-type NodeNear = ($cursor: ResolvedPos, dir: -1 | 1) => {node: Node; pos: number} | null;
+type NodeNear = ($cursor: ResolvedPos, dir: -1 | 1) => NodeWithPos | null;
 
 /** The inline node right before (`-1`) or after (`1`) the cursor. */
 export const nodeBeside: NodeNear = ($cursor, dir) => {

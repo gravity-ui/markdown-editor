@@ -1,4 +1,4 @@
-@use './dialog';
+@use '../../mixins';
 
 $label-width: 120px;
 $popup-width: 325px;
@@ -6,7 +6,7 @@ $popup-field-width: 190px;
 
 :where(.g-md-banner-settings__dialog) {
     // Zero specificity leaves the size and padding to the window styles.
-    @include dialog.reset;
+    @include mixins.reset-dialog;
 
     &:focus {
         outline: none;

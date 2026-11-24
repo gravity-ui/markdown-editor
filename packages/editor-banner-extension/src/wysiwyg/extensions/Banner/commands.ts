@@ -8,6 +8,7 @@ import {
     TextSelection,
     type Transaction,
 } from '@gravity-ui/markdown-editor/pm/state';
+import type {NodeWithPos} from '@gravity-ui/markdown-editor/pm/utils';
 import type {BannerDimensions} from '@gravity-ui/markdown-plugin-banner';
 
 import {removeChild} from '../commands';
@@ -15,7 +16,6 @@ import {removeChild} from '../commands';
 import {bannerNodeType} from './BannerSpecs';
 import {
     type BannerPart,
-    type FoundNode,
     bannerPartOrder,
     bannerPartSpec,
     bannerPartTypes,
@@ -67,7 +67,7 @@ export const removeBanner =
         return true;
     };
 
-const endOf = ({node, pos}: FoundNode) => pos + node.nodeSize;
+const endOf = ({node, pos}: NodeWithPos) => pos + node.nodeSize;
 
 function onlyParagraph(banner: Node) {
     const only = banner.childCount === 1 ? banner.firstChild : null;
@@ -140,6 +140,9 @@ export const toggleBannerPart =
         if (!setBannerPart(pos, part, enabled, removed.get(part))(state, dispatch, view)) {
             return false;
         }
-        if (dispatch && found) removed.set(part, found.node);
+        if (dispatch) {
+            if (found) removed.set(part, found.node);
+            else removed.delete(part);
+        }
         return true;
     };
