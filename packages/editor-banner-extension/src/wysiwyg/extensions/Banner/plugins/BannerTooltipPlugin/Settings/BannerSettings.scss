@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 $panel-width: 320px;
 $swatch-size: var(--g-spacing-7);
 $thumbnail-scale: 3;
@@ -146,7 +148,7 @@ $thumbnail-scale: 3;
 
         border-radius: 0;
 
-        transform: scale(calc(1 / #{$thumbnail-scale}));
+        transform: scale(math.div(1, $thumbnail-scale));
         transform-origin: 0 0;
     }
 }
