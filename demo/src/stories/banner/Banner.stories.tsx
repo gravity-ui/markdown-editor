@@ -10,7 +10,6 @@ export const Banner: StoryObj<typeof BannerExample> = {};
 
 export const Title: StoryObj<typeof BannerExample> = {
     args: {
-        mode: 'markup',
         initial: [
             ':::banner{height="s" width="m"}',
             '::banner-title[Team portal]',
