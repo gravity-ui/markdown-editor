@@ -1,0 +1,15 @@
+{
+  "insert": "Section",
+  "settings": "Section settings",
+  "columns": "Columns",
+  "padding": "Inner padding",
+  "gap": "Column gap",
+  "column-background": "Column {{number}} background",
+  "none": "None",
+  "gray": "Gray",
+  "blue": "Blue",
+  "green": "Green",
+  "yellow": "Yellow",
+  "red": "Red",
+  "violet": "Violet"
+}

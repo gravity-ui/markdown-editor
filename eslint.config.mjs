@@ -125,6 +125,23 @@ export default defineConfig(
         },
     },
     {
+        files: ['./packages/editor-section-extension/**/*'],
+        languageOptions: {
+            parserOptions: {
+                project: './packages/editor-section-extension/tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: './packages/editor-section-extension/tsconfig.json',
+                },
+            },
+        },
+    },
+    {
         files: ['./packages/plugin-banner/**/*'],
         languageOptions: {
             parserOptions: {
@@ -137,6 +154,23 @@ export default defineConfig(
                 typescript: {
                     alwaysTryTypes: true,
                     project: './packages/plugin-banner/tsconfig.json',
+                },
+            },
+        },
+    },
+    {
+        files: ['./packages/plugin-section/**/*'],
+        languageOptions: {
+            parserOptions: {
+                project: './packages/plugin-section/tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        settings: {
+            'import/resolver': {
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: './packages/plugin-section/tsconfig.json',
                 },
             },
         },

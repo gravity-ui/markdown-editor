@@ -1,0 +1,75 @@
+$section-grid-size: 12;
+$section-narrow-width: 640px;
+$section-colors: (
+    'gray': neutral,
+    'blue': info,
+    'green': positive,
+    'yellow': warning,
+    'red': danger,
+    'violet': utility,
+);
+
+.g-md-section-plugin {
+    display: grid;
+    grid-template-columns: repeat($section-grid-size, minmax(0, 1fr));
+    // Cap the gaps when the editor is narrower than the window, for example in split mode.
+    gap: min(var(--g-md-section-gap), 8%);
+
+    @for $gap from 0 through 10 {
+        &_gap_#{$gap} {
+            --g-md-section-gap: var(--g-spacing-#{$gap}, #{$gap * 4px});
+        }
+    }
+
+    &_gap_half {
+        --g-md-section-gap: var(--g-spacing-half, 2px);
+    }
+
+    &_padded > .g-md-section-column-plugin > .g-md-section-column-plugin__content {
+        padding: var(--g-spacing-2, 8px);
+    }
+
+    @media (width < $section-narrow-width) {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--g-md-section-gap);
+    }
+}
+
+.g-md-section-column-plugin {
+    --g-md-section-preview-size: var(--g-md-section-column-size);
+
+    grid-column: span var(--g-md-section-preview-size);
+
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: var(--g-spacing-6, 24px);
+    overflow-wrap: anywhere;
+
+    @for $size from 1 through $section-grid-size {
+        &_size_#{$size} {
+            --g-md-section-column-size: #{$size};
+        }
+    }
+
+    @each $color, $token in $section-colors {
+        &_background_#{$color} {
+            background-color: var(--g-color-base-#{$token}-light);
+        }
+    }
+
+    &__content {
+        min-width: 0;
+
+        > :first-child {
+            margin-block-start: 0;
+        }
+
+        > :last-child {
+            margin-block-end: 0;
+        }
+    }
+
+    @media (width < $section-narrow-width) {
+        grid-column: 1;
+    }
+}

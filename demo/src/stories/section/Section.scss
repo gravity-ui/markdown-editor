@@ -1,0 +1,14 @@
+.demo-section-editor {
+    .g-md-editor-component__editor-wrapper:has(> .g-md-editor-component__preview-wrapper) {
+        flex-direction: column-reverse;
+    }
+
+    .g-md-editor-component__preview-wrapper {
+        box-sizing: border-box;
+        padding-inline: var(--g-spacing-1);
+
+        & + * {
+            align-self: flex-end;
+        }
+    }
+}
