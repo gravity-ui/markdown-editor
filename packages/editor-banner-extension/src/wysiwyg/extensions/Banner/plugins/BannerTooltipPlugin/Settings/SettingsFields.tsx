@@ -10,34 +10,47 @@ import {Divider, Text} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
 import {SettingsSwitch} from '../../../../../components/settings';
+import type {BannerPart, BannerParts} from '../../../parts';
 
 import {AlignmentSelect} from './AlignmentSelect';
 import {type BackgroundControls, BackgroundField} from './BackgroundField';
 import {SettingsSection} from './SettingsSection';
 import {logClick} from './utils';
 
-type SettingsFieldsProps = {background: BackgroundControls};
+export type ContentControls = {
+    parts: BannerParts;
+    /** The parts that have a node type in the editor schema. */
+    available: Partial<Record<BannerPart, unknown>>;
+    onPartChange: (part: BannerPart, enabled: boolean) => void;
+};
 
-export function SettingsFields({background}: SettingsFieldsProps) {
-    const handleTitleToggle = () => logClick('Title toggle');
-    const handleDescriptionToggle = () => logClick('Description toggle');
+type PartSwitchProps = {part: BannerPart; label: string; action: string; content: ContentControls};
+
+function PartSwitch({part, label, action, content}: PartSwitchProps) {
+    const handleDemoUpdate = () => logClick(`${action} toggle`);
+    const handleUpdate = (enabled: boolean) => content.onPartChange(part, enabled);
+    if (!content.available[part]) {
+        return <SettingsSwitch label={label} defaultChecked onUpdate={handleDemoUpdate} />;
+    }
+    return <SettingsSwitch label={label} checked={content.parts[part]} onUpdate={handleUpdate} />;
+}
+
+type SettingsFieldsProps = {content: ContentControls; background: BackgroundControls};
+
+export function SettingsFields({content, background}: SettingsFieldsProps) {
     const handleButton1Toggle = () => logClick('Button 1 toggle');
     const handleButton2Toggle = () => logClick('Button 2 toggle');
     const handleButton3Toggle = () => logClick('Button 3 toggle');
-    const handleImageToggle = () => logClick('Image toggle');
     return (
         <>
             <Divider />
             <SettingsSection title={i18n('text')} action="Text">
-                <SettingsSwitch
-                    label={i18n('heading')}
-                    defaultChecked
-                    onUpdate={handleTitleToggle}
-                />
-                <SettingsSwitch
+                <PartSwitch part="title" label={i18n('heading')} action="Title" content={content} />
+                <PartSwitch
+                    part="content"
                     label={i18n('description')}
-                    defaultChecked
-                    onUpdate={handleDescriptionToggle}
+                    action="Description"
+                    content={content}
                 />
                 <Text variant="subheader-1">{i18n('alignment')}</Text>
                 <AlignmentSelect
@@ -101,7 +114,7 @@ export function SettingsFields({background}: SettingsFieldsProps) {
             </SettingsSection>
             <Divider />
             <SettingsSection title={i18n('image-and-background')} action="Image and background">
-                <SettingsSwitch label={i18n('image')} defaultChecked onUpdate={handleImageToggle} />
+                <PartSwitch part="image" label={i18n('image')} action="Image" content={content} />
                 <BackgroundField background={background} />
             </SettingsSection>
         </>

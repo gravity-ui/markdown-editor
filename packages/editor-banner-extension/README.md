@@ -50,6 +50,13 @@ Syntax, sizes, and shared styles for WYSIWYG and previews are in `@gravity-ui/ma
 Child blocks remain editable and are preserved when changing dimensions, copying, or switching modes.
 A new or empty block holds an empty paragraph, and insertion puts the cursor into it.
 
+### Banner parts
+
+The image, the title, and the description of the banner are parts.
+The Title, Description, and Image switches of the settings panel show whether the banner holds the part and insert or remove its block in one undo step. A switch of a part without a node type in the schema is not connected to the document.
+A switched-on part goes after the parts before it in the order image → title → description; the parts of a document keep their order. A part replaces the only empty paragraph of the banner.
+Switching a part back on restores the block removed by the switch, with its content and attributes, while the same banner block stays in the editor.
+
 `BannerSpecs` adds only the schema, Markdown parsing, and serialization, and runs in Node.js.
 `Banner` also needs the editor's React renderer, which the standard presets include.
 

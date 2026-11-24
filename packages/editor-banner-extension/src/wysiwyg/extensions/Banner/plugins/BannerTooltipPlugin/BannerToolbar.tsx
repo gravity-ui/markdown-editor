@@ -18,16 +18,21 @@ import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
 import {uploadNodeFile} from '../../../../plugins/NodeUploadPlugin';
+import {runCommand} from '../../../commands';
 import {
+    type RemovedParts,
     bannerBackgroundSources,
     removeBanner,
     setBannerBackground,
     setBannerDimension,
+    toggleBannerPart,
 } from '../../commands';
 import type {BannerOptions} from '../../index';
+import {bannerPartTypes, bannerParts} from '../../parts';
 
 import type {BackgroundControls} from './Settings/BackgroundField';
 import {BannerSettings} from './Settings/BannerSettings';
+import type {ContentControls} from './Settings/SettingsFields';
 
 import './BannerToolbar.scss';
 
@@ -35,6 +40,16 @@ const b = cn('banner-toolbar');
 
 /** The open toolbar of each editor, for the keymap to move focus into it. */
 export const bannerToolbars = new WeakMap<EditorView, HTMLElement>();
+
+/** The blocks removed with the settings switches, by banner, while its node view exists. */
+const removedParts = new WeakMap<HTMLElement, RemovedParts>();
+
+function removedPartsOf(block: HTMLElement | null): RemovedParts {
+    if (!block) return new Map();
+    const removed = removedParts.get(block) ?? new Map();
+    removedParts.set(block, removed);
+    return removed;
+}
 
 const isActive = () => false;
 const isEnable = () => true;
@@ -69,12 +84,18 @@ export function BannerToolbar({
             if (!image) throw new Error(`Unsupported image address: ${url}`);
             return image;
         });
+    const content: ContentControls = {
+        parts: bannerParts(node),
+        available: bannerPartTypes(view.state.schema),
+        onPartChange: (part, enabled) =>
+            runCommand(view, toggleBannerPart(pos, part, enabled, removedPartsOf(block))),
+    };
     const background: BackgroundControls = {
         value: bannerBackground(node.attrs),
         parser,
         imageTypes,
         maxImageSize,
-        onChange: (value) => setBannerBackground(pos, value)(view.state, view.dispatch),
+        onChange: (value) => runCommand(view, setBannerBackground(pos, value)),
         upload:
             uploadImage &&
             ((file, signal) =>
@@ -103,8 +124,9 @@ export function BannerToolbar({
                         button={anchorElement}
                         dimensions={bannerDimensions(node.attrs)}
                         onChange={(name, value) =>
-                            setBannerDimension(pos, name, value)(view.state, view.dispatch)
+                            runCommand(view, setBannerDimension(pos, name, value))
                         }
+                        content={content}
                         background={background}
                         onClose={hide}
                     />
@@ -127,7 +149,7 @@ export function BannerToolbar({
                 title: i18n('remove'),
                 isActive,
                 isEnable,
-                exec: (editor) => removeBanner(pos)(editor.state, editor.dispatch),
+                exec: (editor) => runCommand(editor, removeBanner(pos)),
             },
         ],
     ];
