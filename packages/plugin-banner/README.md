@@ -1,6 +1,6 @@
 # Banner and Button Markdown plugins
 
-markdown-it plugins for Banner containers, their titles and inline buttons.
+markdown-it plugins for Banner containers, their titles and descriptions, and inline buttons.
 
 ## Banner
 
@@ -136,6 +136,77 @@ Use colored titles at sizes `1`–`3`, or set `--yfm-colorify-<color>` to the co
 | ----------------------------------------- | ------------------------------------- |
 | `--g-md-banner-title-plugin-font-weight`  | the weight of the size, see the table |
 | `--g-md-banner-title-plugin-margin-block` | `0 var(--g-spacing-4, 16px)`          |
+
+## Banner content
+
+The description of a banner. Register `bannerContentPlugin` together with `bannerPlugin`:
+
+```ts
+import MarkdownIt from 'markdown-it';
+import {bannerContentPlugin, bannerPlugin} from '@gravity-ui/markdown-plugin-banner';
+import '@gravity-ui/markdown-plugin-banner/styles.css';
+
+const md = new MarkdownIt().use(bannerPlugin).use(bannerContentPlugin);
+```
+
+```markdown
+:::banner
+
+:::banner-content
+Portal description with **bold**, _italic_, ++underlined++, ~~strikethrough~~ and `monospace` text and a [link](/page).
+
+Second paragraph.
+:::
+
+:::
+```
+
+```html
+<div class="g-md-banner-plugin …">
+  <div class="g-md-banner-content-plugin">
+    <p>
+      Portal description with <strong>bold</strong>, <em>italic</em>, <ins>underlined</ins>,
+      <s>strikethrough</s> and <code>monospace</code> text and a <a href="/page">link</a>.
+    </p>
+    <p>Second paragraph.</p>
+  </div>
+</div>
+```
+
+The block is a `div.g-md-banner-content-plugin`.
+The description is a container directive: the opening line, the blocks and the closing line `:::`.
+Its content is ordinary Markdown of the same parser, so the marks and the links are the ones the parser has: `++underlined++` needs a plugin for it, such as `markdown-it-ins`, which YFM and the editor include.
+A description without a text, `:::banner-content` right before `:::`, keeps its tokens and renders nothing, so it takes no space.
+The block has no attributes, and an attribute in the markup is skipped: `:::banner-content{size="1" color="red"}` is the same description.
+Inline titles and destinations in the opening directive are not supported and remain ordinary Markdown.
+
+A banner holds one description: the first one among its child blocks.
+Another description in the same banner, also one inside another block of the banner, is not a description: its container is dropped, and its blocks stay in place.
+A description outside a banner is rendered as a description.
+
+### Content styles
+
+The font size and the line height are `--yfm-font-size` and `--yfm-font-line-height`, then the Gravity UI typography `body-2` (15 px / 20 px). The weight is `--g-text-body-font-weight`, and the color is the color of the text around the block.
+
+The blocks of the description, such as paragraphs and lists, stand 8 px (`--g-spacing-2`) apart. Inline code has the YFM colors, `--yfm-color-inline-code` and `--yfm-color-inline-code-background`.
+The links have the YFM link colors, `--yfm-color-link` and `--yfm-color-link-hover`, then `--g-color-text-link` and `--g-color-text-link-hover`, and on keyboard focus the 2 px `--g-color-line-focus` ring.
+A link differs from the text by its color and has no underline. With `--g-md-banner-content-plugin-link-decoration-line: underline`, the underline is 2 px thick and 0.2 em below the text and thickens to 3 px on hover, so a link differs from `++underlined++` text. Buttons inside a description keep their own styles.
+
+| Property                                                       | Default                                   |
+| -------------------------------------------------------------- | ----------------------------------------- |
+| `--g-md-banner-content-plugin-font-weight`                     | `var(--g-text-body-font-weight)`          |
+| `--g-md-banner-content-plugin-paragraph-gap`                   | `var(--g-spacing-2)`                      |
+| `--g-md-banner-content-plugin-margin-block`                    | `0 var(--g-spacing-4)`                    |
+| `--g-md-banner-content-plugin-link-color`                      | `var(--yfm-color-link)`                   |
+| `--g-md-banner-content-plugin-link-hover-color`                | `var(--yfm-color-link-hover)`             |
+| `--g-md-banner-content-plugin-link-decoration-line`            | `none`                                    |
+| `--g-md-banner-content-plugin-link-decoration-thickness`       | `2px`                                     |
+| `--g-md-banner-content-plugin-link-hover-decoration-thickness` | `3px`                                     |
+| `--g-md-banner-content-plugin-link-underline-offset`           | `0.2em`                                   |
+| `--g-md-banner-content-plugin-link-focus-outline-width`        | `2px`                                     |
+| `--g-md-banner-content-plugin-link-focus-outline-color`        | `var(--g-color-line-focus)`               |
+| `--g-md-banner-content-plugin-code-color`                      | `var(--yfm-color-inline-code)`            |
+| `--g-md-banner-content-plugin-code-background`                 | `var(--yfm-color-inline-code-background)` |
 
 ## Button
 

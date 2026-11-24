@@ -25,7 +25,12 @@ import {bare as emoji} from '@gravity-ui/markdown-editor/markdown-it/emoji';
 import ins from '@gravity-ui/markdown-editor/markdown-it/ins';
 import mark from '@gravity-ui/markdown-editor/markdown-it/mark';
 import sub from '@gravity-ui/markdown-editor/markdown-it/sub';
-import {bannerPlugin, bannerTitlePlugin, buttonPlugin} from '@gravity-ui/markdown-plugin-banner';
+import {
+    bannerContentPlugin,
+    bannerPlugin,
+    bannerTitlePlugin,
+    buttonPlugin,
+} from '@gravity-ui/markdown-plugin-banner';
 import type {PluginWithParams} from 'markdown-it/lib';
 
 export const LATEX_RUNTIME = 'extension:latex';
@@ -85,6 +90,7 @@ export function getPlugins({
     const extendedPlugins = defaultPlugins.concat(
         bannerPlugin,
         bannerTitlePlugin,
+        bannerContentPlugin,
         buttonPlugin,
         (md) => md.use(emoji, {defs: emojiDefs}),
         checkbox,
