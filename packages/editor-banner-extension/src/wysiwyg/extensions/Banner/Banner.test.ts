@@ -28,9 +28,10 @@ import {
     boldMarkName,
 } from '@gravity-ui/markdown-editor/specs';
 import {type BannerDimensions, bannerDefaults} from '@gravity-ui/markdown-plugin-banner';
-import {afterEach, describe, expect, it} from 'vitest';
+import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {insertBanner as insertBannerMarkup} from '../../../markup/commands/insertBanner';
+import {nodeUploadPlugin, uploadNodeFile} from '../../plugins/NodeUploadPlugin';
 
 import {BannerSpecs, bannerNodeName} from './BannerSpecs';
 import {insertBanner, removeBanner, setBannerDimension} from './commands';
@@ -306,6 +307,29 @@ describe('Banner extension', () => {
             (editor.nodeDOM(pos) as HTMLElement).classList.contains('ProseMirror-selectednode'),
         ).toBe(true);
         expect(editor.state.selection).toBeInstanceOf(NodeSelection);
+    });
+
+    it('should settle pending uploads as soon as the editor is destroyed', async () => {
+        const editor = createView();
+        editor.updateState(editor.state.reconfigure({plugins: [nodeUploadPlugin()]}));
+        const setImage = vi.fn();
+        let finish!: (url: string) => void;
+        const response = new Promise<string>((resolve) => {
+            finish = resolve;
+        });
+        const result = uploadNodeFile(
+            editor,
+            0,
+            new File([], 'banner.png'),
+            () => response,
+            setImage,
+        );
+
+        editor.destroy();
+        await expect(result).resolves.toBe(false);
+        finish('https://example.com/banner.png');
+        await response;
+        expect(setImage).not.toHaveBeenCalled();
     });
 
     it('should apply content DOM edits to the document', async () => {

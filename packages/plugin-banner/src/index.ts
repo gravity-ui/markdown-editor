@@ -24,4 +24,4 @@ export {
     buttonViewColors,
 } from './button/const';
 export {buttonDefaultColor, buttonModel} from './button/utils';
-export {normalizeLinkUrl} from './url';
+export {type LinkParser, normalizeLinkUrl} from './url';
