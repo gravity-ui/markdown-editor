@@ -383,6 +383,22 @@ describe('FilesGallery', () => {
         expect(dialog?.textContent).not.toContain('1 / 2');
     });
 
+    it('should keep an excluded image out of opening and navigation', async () => {
+        await render(
+            <MarkdownViewer html='<img src="/banner.png" alt="Banner" data-files-gallery-exclude="true"><img src="/keep.png" alt="Keep">'>
+                <FilesGallery />
+            </MarkdownViewer>,
+        );
+
+        expect((await click('img[alt="Banner"]')).defaultPrevented).toBe(false);
+        expect(document.querySelector('[role="dialog"]')).toBeNull();
+        await click('img[alt="Keep"]');
+        const dialog = document.querySelector('[role="dialog"]');
+        expect(dialog?.textContent).toContain('Keep');
+        expect(dialog?.textContent).not.toContain('1 / 2');
+        expect(dialog?.querySelector('img[src="/banner.png"]')).toBeNull();
+    });
+
     it('should call item callbacks only when opening the gallery', async () => {
         const transformItem = vi.fn((item: Readonly<GalleryItemProps>) => item);
         const getCopyUrl = vi.fn(() => '/copy');
