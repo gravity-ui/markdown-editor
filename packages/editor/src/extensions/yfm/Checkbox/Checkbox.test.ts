@@ -1,3 +1,5 @@
+import {DOMParser, DOMSerializer} from 'prosemirror-model';
+import {TextSelection} from 'prosemirror-state';
 import {builders} from 'prosemirror-test-builder';
 import dd from 'ts-dedent';
 import {describe, it} from 'vitest';
@@ -91,6 +93,24 @@ describe('Checkbox extension', () => {
                 ),
             ),
         ));
+
+    it.each(['[X] **done**', '[ ] **todo**'])('should preserve %s through HTML', (markdown) => {
+        const {content} = parser.parse(markdown);
+        const html = DOMSerializer.fromSchema(schema).serializeFragment(content);
+        serialize(DOMParser.fromSchema(schema).parse(html), markdown);
+    });
+
+    it('should preserve a selection that starts inside a checkbox label through HTML', () => {
+        const source = doc(
+            checkbox(cbInput({checked: 'true'}), cbLabel(b('o<from>ne'))),
+            checkbox(cbInput(), cbLabel('two<to>')),
+        );
+        const selection = TextSelection.create(source, source.tag.from, source.tag.to);
+        const html = DOMSerializer.fromSchema(schema).serializeFragment(
+            selection.content().content,
+        );
+        serialize(DOMParser.fromSchema(schema).parse(html), '[ ] **ne**\n\n[ ] two');
+    });
 
     it('should substitute placeholder when label is empty', () => {
         serialize(doc(checkbox(cbInput(), cbLabel())), '[ ] checkbox-placeholder');

@@ -1,0 +1,69 @@
+import {useCallback} from 'react';
+
+import {
+    type MarkdownEditorMode,
+    MarkdownEditorView,
+    type RenderPreview,
+    useMarkdownEditor,
+} from '@gravity-ui/markdown-editor';
+import {ActionName as Action, ToolbarName, full} from '@gravity-ui/markdown-editor/toolbars';
+import {Banner, Button, toolbarBannerItem} from '@gravity-ui/markdown-editor-banner-extension';
+
+import {PlaygroundLayout} from '../../components/PlaygroundLayout';
+import {SplitModePreviewLazy} from '../../components/SplitModePreviewLazy';
+
+const mainToolbar = [
+    [Action.undo, Action.redo],
+    [Action.bold, Action.italic, Action.underline, Action.strike, Action.mono, Action.mark],
+    [Action.link],
+    ['banner'],
+];
+
+export const toolbars = {
+    items: {
+        ...full.items,
+        banner: toolbarBannerItem,
+    },
+    orders: {
+        ...full.orders,
+        [ToolbarName.wysiwygMain]: mainToolbar,
+        [ToolbarName.markupMain]: mainToolbar,
+        [ToolbarName.wysiwygHidden]: [],
+        [ToolbarName.markupHidden]: [],
+    },
+};
+
+export function BannerExample({
+    initial = ':::banner{height="s" width="m"}\n\n:::\n\nAfter',
+    mode = 'wysiwyg',
+    width,
+}: {
+    initial?: string;
+    mode?: MarkdownEditorMode;
+    width?: number;
+}) {
+    const renderPreview = useCallback<RenderPreview>(
+        ({getValue}) => <SplitModePreviewLazy getValue={getValue} needToSanitizeHtml />,
+        [],
+    );
+    const editor = useMarkdownEditor({
+        initial: {markup: initial, mode, toolbarVisible: true},
+        wysiwygConfig: {extensions: (builder) => builder.use(Banner).use(Button)},
+        markupConfig: {renderPreview},
+    });
+    return (
+        <PlaygroundLayout
+            editor={editor}
+            viewWidth={width}
+            view={({className}) => (
+                <MarkdownEditorView
+                    qa="demo-md-editor"
+                    className={className}
+                    editor={editor}
+                    toolbarsPreset={toolbars}
+                    stickyToolbar={false}
+                />
+            )}
+        />
+    );
+}
