@@ -21,7 +21,7 @@ export function bannerAttrs(attrs: BannerAttrsInput): Record<string, string> {
     const dimensions = bannerDimensions(attrs);
     const background = bannerBackground(attrs);
     const image = background['bg-image'] && toCssUrl(background['bg-image']);
-    const theme = background['bg-image-theme'];
+    const theme = background['bg-theme'];
     const result: Record<string, string> = {
         class: b(
             {
@@ -50,7 +50,7 @@ export function bannerBackgroundFromAttrs(getAttr: (name: string) => string | nu
     return bannerBackground({
         'bg-color': getAttr('data-bg-color'),
         'bg-image': getAttr('data-bg-image'),
-        'bg-image-theme': getAttr('data-bg-image-theme'),
+        'bg-theme': getAttr('data-bg-theme'),
         'bg-image-blur': getAttr('data-bg-image-blur'),
     });
 }

@@ -13,19 +13,19 @@ const md = new MarkdownIt().use(bannerPlugin);
 ```
 
 ```markdown
-:::banner{height="s" width="m" bg-color="blue-light" bg-image="./.files/photo.jpg" bg-image-theme="dark" bg-image-blur="true"}
+:::banner{height="s" width="m" bg-color="blue-light" bg-image="./.files/photo.jpg" bg-theme="dark" bg-image-blur="true"}
 
 :::
 ```
 
-| Attribute        | Values                                                                                                     | Default  |
-| ---------------- | ---------------------------------------------------------------------------------------------------------- | -------- |
-| `height`         | `s` 236 px, `m` 300 px, `l` 360 px (minimum height)                                                        | `s`      |
-| `width`          | `s` 600 px, `m` 900 px, `l` 1200 px, `full` (container width)                                              | `m`      |
-| `bg-color`       | `<family>-<saturation>`: `gray`, `green`, `yellow`, `blue`, `red`, `violet` and `light`, `medium`, `heavy` | none     |
-| `bg-image`       | an `http:`, `https:`, `blob:` or relative address                                                          | none     |
-| `bg-image-theme` | the theme of the content over the image: `system` as the page, `dark` light text, `light` dark text        | `system` |
-| `bg-image-blur`  | `true`                                                                                                     | none     |
+| Attribute       | Values                                                                                                     | Default  |
+| --------------- | ---------------------------------------------------------------------------------------------------------- | -------- |
+| `height`        | `s` 236 px, `m` 300 px, `l` 360 px (minimum height)                                                        | `s`      |
+| `width`         | `s` 600 px, `m` 900 px, `l` 1200 px, `full` (container width)                                              | `m`      |
+| `bg-color`      | `<family>-<saturation>`: `gray`, `green`, `yellow`, `blue`, `red`, `violet` and `light`, `medium`, `heavy` | none     |
+| `bg-image`      | an `http:`, `https:`, `blob:` or relative address                                                          | none     |
+| `bg-theme`      | the theme of the content over the image: `system` as the page, `dark` light text, `light` dark text        | `system` |
+| `bg-image-blur` | `true`                                                                                                     | none     |
 
 The block is rendered as `div.g-md-banner-plugin` with the modifiers `_height_{s,m,l}` and `_width_{s,m,l,full}`.
 The `data-height` and `data-width` attributes of the element and of the opening token hold the same dimensions.
@@ -43,7 +43,7 @@ The fill colors are Gravity UI tokens, declared on `.g-root` as `--g-md-banner-p
 The image is the `background-image` of the block: the `_bg-image` modifier centers and scales it to cover the block, and the address is written into the `style` attribute as a percent-encoded `url("…")`.
 In the `style` attribute a relative address resolves against the page; the address passes the scheme check first.
 `bg-image-blur` adds the `_bg-image-blur` modifier: a `::before` layer under the content repeats the background blurred by 12 px and extends 24 px past the clipped edges.
-`bg-image-theme` other than `system` adds `g-root g-root_theme_<theme>` to the block and sets the YFM text and link colors with Gravity UI tokens: text, links, and buttons use the fixed theme, and the image stays the same.
+`bg-theme` other than `system` adds `g-root g-root_theme_<theme>` to the block and sets the YFM text and link colors with Gravity UI tokens: text, links, and buttons use the fixed theme, and the image stays the same.
 Without a fill, the page background of the fixed theme lies under the image.
 The theme and blur belong to the image: without `bg-image` they are parsed as the defaults.
 Background attributes with default values are not rendered; the others are copied to `data-bg-*` attributes of the element and of the opening token.
