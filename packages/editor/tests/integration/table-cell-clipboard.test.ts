@@ -234,15 +234,18 @@ describe('matrix clipboard integration', () => {
         expect(target.view.state.selection.ranges).toHaveLength(2);
     });
 
-    it('should refuse an unknown internal format when no standalone HTML table is available', () => {
+    it.each([
+        {version: 1, tableMatrix: {version: 2}},
+        {version: 1, tableMatrix: {version: 1, slice: null, rect: {}}},
+        {version: 1, other: {version: 1}},
+    ])('should use ordinary paste for unsupported or unrelated metadata: %j', (metadata) => {
         const editor = createEditor();
         selectCells(editor, 0, 3);
-        const before = editor.doc;
         dispatchPasteEvent(editor.view, {
-            [DataTransferType.TableMatrix]: '{"version":2}',
+            [DataTransferType.Metadata]: JSON.stringify(metadata),
             [DataTransferType.Text]: 'ordinary text',
         });
-        expect(editor.doc.eq(before)).toBe(true);
+        expect(cellTexts(editor)).toEqual(['', '', '', 'ordinary text']);
     });
 
     it('should keep pasteText and contentHandler.insert on the ordinary path', () => {
@@ -377,7 +380,7 @@ describe('matrix clipboard integration', () => {
         expect(html.querySelectorAll('tr')).toHaveLength(1);
         expect(html.querySelector('td [data-copy]')?.textContent).toBe('changed');
         expect(data.getData(DataTransferType.Yfm)).toContain('changed');
-        const payload = JSON.parse(data.getData(DataTransferType.TableMatrix));
+        const payload = JSON.parse(data.getData(DataTransferType.Metadata)).tableMatrix;
         expect(Slice.fromJSON(schema, payload.slice).content.firstChild!.textContent).toBe(
             'changed',
         );
@@ -399,7 +402,7 @@ describe('matrix clipboard integration', () => {
 
         editor.view.dispatchEvent(new ClipboardEventMock('copy', {clipboardData: data}));
 
-        const payload = JSON.parse(data.getData(DataTransferType.TableMatrix));
+        const payload = JSON.parse(data.getData(DataTransferType.Metadata)).tableMatrix;
         expect(payload.slice.content[0].type).toBe('table');
         expect(payload.rect).toEqual({top: 1, left: 0, bottom: 2, right: 1});
     });
@@ -507,7 +510,7 @@ describe('matrix clipboard integration', () => {
 
         editor.view.dispatchEvent(new ClipboardEventMock('cut', {clipboardData: data}));
 
-        expect(data.getData(DataTransferType.TableMatrix)).not.toBe('');
+        expect(data.getData(DataTransferType.Metadata)).not.toBe('');
         expect(data.getData(DataTransferType.Html)).toContain('<table');
         expect(editor.doc.eq(before)).toBe(true);
         expect(editor.view.state.selection.eq(selection)).toBe(true);
@@ -552,7 +555,7 @@ describe('matrix clipboard integration', () => {
 
         editor.view.dispatchEvent(new ClipboardEventMock('cut', {clipboardData: data}));
 
-        expect(data.getData(DataTransferType.TableMatrix)).not.toBe('');
+        expect(data.getData(DataTransferType.Metadata)).not.toBe('');
         expect(editor.doc.eq(before)).toBe(true);
         expect(editor.view.state.selection).toBeInstanceOf(TextSelection);
         expect(editor.view.state.selection.$from.parentOffset).toBe(0);
@@ -591,7 +594,7 @@ describe('matrix clipboard integration', () => {
         editor.view.dispatchEvent(new ClipboardEventMock('copy', {clipboardData: data}));
 
         expect(data.getData(DataTransferType.Text)).toBe('A');
-        expect(data.getData(DataTransferType.TableMatrix)).toBe('');
+        expect(data.getData(DataTransferType.Metadata)).toBe('');
     });
 
     it('should route a recognized pipe table before the ordinary Markdown handler', () => {

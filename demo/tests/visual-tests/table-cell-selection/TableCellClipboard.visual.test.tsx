@@ -99,7 +99,10 @@ test.describe('Table matrix clipboard @wysiwyg', () => {
         const data = await editor.dispatchClipboardEvent('copy');
 
         expect(data['text/plain']).toBe('First\tSecond');
-        expect(data['application/x-g-md-editor+json']).toBeTruthy();
+        expect(JSON.parse(data['application/x-markdown-editor-metadata+json'] ?? '')).toMatchObject({
+            version: 1,
+            tableMatrix: {version: 1},
+        });
         await editor.tableCellSelection.clickCell(targetCells.nth(2));
         await editor.paste({'text/html': data['text/html']});
 

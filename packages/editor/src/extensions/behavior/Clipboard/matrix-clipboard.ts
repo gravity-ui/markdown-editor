@@ -13,7 +13,8 @@ import {getMatrixPasteTarget} from 'src/table-utils/matrix/target';
 import {DataTransferType} from 'src/utils/clipboard';
 
 import {type ClipboardPluginOptions, setClipboardData} from './clipboard';
-import {readMatrixPayload, serializeMatrixSelection} from './matrix-codec';
+import {readMatrixPayload, serializeMatrixSelection, tableMatrixSection} from './matrix-codec';
+import {getClipboardMetadata} from './metadata';
 
 type MatrixClipboardOptions = ClipboardPluginOptions & {
     parseTableText?: WysiwygEditor.Context['parseClipboardTableText'];
@@ -61,20 +62,16 @@ function pasteClipboardData(
     data: DataTransfer,
     options: MatrixClipboardOptions,
 ): boolean {
-    const hasPayload = data.types.includes(DataTransferType.TableMatrix);
-    if (hasPayload) {
-        const slice = readMatrixPayload(
-            data.getData(DataTransferType.TableMatrix),
-            view.state.schema,
-            options.logger,
-        );
+    const payload = getClipboardMetadata(data, tableMatrixSection);
+    if (payload) {
+        const slice = readMatrixPayload(payload, view.state.schema, options.logger);
         if (slice) return pastePreparedSlice(view, event, slice);
     }
 
     const html = data.getData(DataTransferType.Html);
     const htmlTable = findHtmlTable(html);
-    if (htmlTable?.standalone) return view.pasteHTML(html, event) || hasPayload;
-    if (hasPayload) return true;
+    if (htmlTable?.standalone) return view.pasteHTML(html, event) || Boolean(payload);
+    if (payload) return true;
     if (htmlTable) {
         // Mixed HTML stays together. Editor markup takes precedence for ordinary paste.
         return !data.types.includes(DataTransferType.Yfm) && view.pasteHTML(html, event);

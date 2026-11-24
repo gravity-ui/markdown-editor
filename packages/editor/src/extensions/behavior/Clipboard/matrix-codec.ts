@@ -14,21 +14,29 @@ import type {TableMatrixSource} from 'src/table-utils/matrix/types';
 import {DataTransferType} from 'src/utils/clipboard';
 
 import type {SerializeResult} from './clipboard';
+import type {ClipboardMetadataSection} from './metadata';
+
+type TableMatrixPayload = {
+    slice: Record<string, unknown>;
+    rect: Record<string, unknown>;
+};
+
+export const tableMatrixSection: ClipboardMetadataSection<TableMatrixPayload> = {
+    name: 'tableMatrix',
+    version: 1,
+    parse({slice, rect}) {
+        return isRecord(slice) && isRecord(rect) ? {slice, rect} : undefined;
+    },
+};
 
 export function readMatrixPayload(
-    json: string,
+    payload: TableMatrixPayload,
     schema: Schema,
     logger: Logger2.ILogger,
 ): Slice | null {
-    let version: number | undefined;
     try {
-        const payload: unknown = JSON.parse(json);
-        if (!isRecord(payload)) throw new RangeError('Invalid payload');
-        if (typeof payload.version === 'number') version = payload.version;
-        if (version !== 1) throw new RangeError('Unsupported version');
         const {slice, rect} = payload;
         if (
-            !isRecord(slice) ||
             (slice.openStart !== undefined && slice.openStart !== 0) ||
             (slice.openEnd !== undefined && slice.openEnd !== 0) ||
             !Array.isArray(slice.content) ||
@@ -36,7 +44,6 @@ export function readMatrixPayload(
             !validateMatrixJSON(slice.content[0], schema)
         )
             throw new RangeError('Invalid slice');
-        if (!isRecord(rect)) throw new RangeError('Invalid rectangle');
         const {top, left, bottom, right} = rect;
         if (
             typeof top !== 'number' ||
@@ -60,10 +67,9 @@ export function readMatrixPayload(
         return result;
     } catch {
         logger.warn('Cannot read table matrix clipboard data', {
-            format: DataTransferType.TableMatrix,
-            version,
-            reason:
-                version !== undefined && version !== 1 ? 'unsupported-version' : 'invalid-payload',
+            format: DataTransferType.Metadata,
+            section: 'tableMatrix',
+            reason: 'invalid-payload',
         });
         return null;
     }
@@ -82,7 +88,9 @@ export function serializeMatrixSelection(
     if (!snapshot) return null;
     const slice = new Slice(Fragment.from(snapshot.table), 0, 0);
     return {
-        matrix: JSON.stringify({version: 1, slice: slice.toJSON(), rect: snapshot.rect}),
+        metadata: [
+            {section: tableMatrixSection, value: {slice: slice.toJSON(), rect: snapshot.rect}},
+        ],
         html: serializeMatrixHtml(source, schema, adapter, view.someProp('clipboardSerializer')),
         text: serializeMatrixText(source),
         markup: serializer.serialize(schema.topNodeType.create(null, snapshot.table)),
