@@ -33,7 +33,7 @@ import {afterEach, describe, expect, it} from 'vitest';
 import {insertBanner as insertBannerMarkup} from '../../../markup/commands/insertBanner';
 
 import {BannerSpecs, bannerNodeName} from './BannerSpecs';
-import {copyBanner, insertBanner, removeBanner, setBannerDimension} from './commands';
+import {insertBanner, removeBanner, setBannerDimension} from './commands';
 
 import {Banner} from '.';
 
@@ -164,13 +164,11 @@ describe('Banner extension', () => {
         },
     );
 
-    it('should preserve child blocks when changing dimensions and copying', () => {
+    it('should preserve child blocks when changing dimensions', () => {
         const editor = createView(':::banner\nKeep **text**\n:::');
         const content = editor.state.doc.child(0).content;
         expect(run(editor, setBannerDimension(0, 'height', 'l'))).toBe(true);
         expect(editor.state.doc.child(0).content.eq(content)).toBe(true);
-        expect(run(editor, copyBanner(0))).toBe(true);
-        expect(editor.state.doc.child(1).eq(editor.state.doc.child(0))).toBe(true);
         const container = document.createElement('div');
         container.append(
             DOMSerializer.fromSchema(schema).serializeFragment(editor.state.doc.content),
@@ -189,17 +187,11 @@ describe('Banner extension', () => {
         expect(doc.firstChild?.attrs).toEqual({height: 'l', width: 'full'});
     });
 
-    it('should copy and remove a banner', () => {
-        const editor = createView(':::banner{height="m" width="s"}\n:::');
-        expect(run(editor, copyBanner(0))).toBe(true);
-        expect(serializer.serialize(editor.state.doc)).toBe(
-            ':::banner{height="m" width="s"}\n\n:::\n\n:::banner{height="m" width="s"}\n\n:::',
-        );
-        expect(run(editor, removeBanner(0))).toBe(true);
-        expect(serializer.serialize(editor.state.doc)).toBe(
-            ':::banner{height="m" width="s"}\n\n:::',
-        );
+    it('should remove a banner', () => {
+        const editor = createView(':::banner{height="m" width="s"}\n:::\n\nAfter');
         expect(run(editor, removeBanner(1))).toBe(false);
+        expect(run(editor, removeBanner(0))).toBe(true);
+        expect(serializer.serialize(editor.state.doc)).toBe('After');
     });
 
     it('should update dimensions independently and undo each change', () => {

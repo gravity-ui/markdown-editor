@@ -39,15 +39,6 @@ export const setBannerDimension =
         return true;
     };
 
-export const copyBanner =
-    (pos: number): Command =>
-    (state, dispatch) => {
-        const node = bannerAt(state, pos);
-        if (!node) return false;
-        dispatch?.(state.tr.insert(pos + node.nodeSize, node));
-        return true;
-    };
-
 export const removeBanner =
     (pos: number): Command =>
     (state, dispatch) => {
