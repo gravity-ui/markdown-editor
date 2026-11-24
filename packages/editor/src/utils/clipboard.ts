@@ -3,6 +3,7 @@ export enum DataTransferType {
     Text = 'text/plain',
     Html = 'text/html',
     Yfm = 'text/yfm', // self
+    Metadata = 'application/x-markdown-editor-metadata+json', // self
     Rtf = 'text/rtf', // Safari, WebStorm/Intelij
     UriList = 'text/uri-list',
     VSCodeData = 'vscode-editor-data',
