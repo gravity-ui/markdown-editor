@@ -29,6 +29,7 @@ type SettingsDialogProps = Pick<
 > & {
     title: string;
     className: string;
+    popupClassName?: string;
     qa: string;
     closeSize: 'm' | 'l';
     closeAnchor: CloseAnchor;
@@ -39,6 +40,7 @@ type SettingsDialogProps = Pick<
 export function SettingsDialog({
     title,
     className,
+    popupClassName,
     qa,
     closeSize,
     closeAnchor,
@@ -52,7 +54,12 @@ export function SettingsDialog({
     const handleCloseClick = () => onClose();
     return (
         <PopupLayer>
-            <Popup open {...popupProps} onOpenChange={closeUnlessAnchor(closeAnchor, onClose)}>
+            <Popup
+                open
+                {...popupProps}
+                className={popupClassName}
+                onOpenChange={closeUnlessAnchor(closeAnchor, onClose)}
+            >
                 <TabOutClose onClose={onClose}>
                     <section
                         className={className}

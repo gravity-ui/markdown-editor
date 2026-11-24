@@ -116,7 +116,7 @@ function BannerPreview({value}: {value: BannerBackground}) {
     const [theme, setTheme] = useState<ThemeType>(pageTheme);
     const image = value['bg-image'] && toCssUrl(value['bg-image']);
     return (
-        <>
+        <div className={cnBannerSettings('banner-preview')}>
             <IconRadioGroup
                 label={i18n('preview')}
                 className={cnBannerSettings('preview-theme')}
@@ -144,7 +144,7 @@ function BannerPreview({value}: {value: BannerBackground}) {
                     </Text>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 
@@ -193,6 +193,7 @@ export function BackgroundPopup({anchor, background, onClose}: BackgroundPopupPr
         <SettingsDialog
             title={i18n('background')}
             className={cnBannerSettings('popup')}
+            popupClassName={cnBannerSettings('background-popup')}
             qa="banner-background"
             closeSize="m"
             closeAnchor={anchor}

@@ -30,6 +30,10 @@ $thumbnail-aspect-ratio: list.slash(293, 77);
         gap: var(--g-spacing-4);
     }
 
+    &__background-popup {
+        --g-popup-border-radius: var(--g-border-radius-xl);
+    }
+
     &__background {
         display: flex;
         flex-direction: column;
@@ -58,6 +62,7 @@ $thumbnail-aspect-ratio: list.slash(293, 77);
     }
 
     &__tabs {
+        --g-tabs-border-width: 0;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -82,10 +87,10 @@ $thumbnail-aspect-ratio: list.slash(293, 77);
         cursor: pointer;
 
         border: 0;
-        border-radius: var(--g-border-radius-xl);
+        border-radius: var(--g-border-radius-m);
 
         &_selected {
-            outline: $swatch-ring-width solid var(--g-color-line-generic-solid);
+            outline: $swatch-ring-width solid var(--g-color-line-brand);
             outline-offset: var(--g-spacing-half);
         }
 
@@ -99,6 +104,12 @@ $thumbnail-aspect-ratio: list.slash(293, 77);
         justify-self: end;
     }
 
+    &__banner-preview {
+        display: flex;
+        flex-direction: column;
+        gap: var(--g-spacing-2);
+    }
+
     &__thumbnail {
         position: relative;
 
@@ -106,7 +117,7 @@ $thumbnail-aspect-ratio: list.slash(293, 77);
 
         aspect-ratio: $thumbnail-aspect-ratio;
 
-        border-radius: var(--g-border-radius-l);
+        border-radius: var(--g-border-radius-s);
 
         &.g-root {
             background: linear-gradient(var(--g-color-base-generic), var(--g-color-base-generic))
