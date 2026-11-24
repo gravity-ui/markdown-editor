@@ -19,6 +19,13 @@ import {logClick} from './utils';
 export function SettingsFields() {
     const backgroundLabelId = useUniqId();
     const backgroundValueId = useUniqId();
+    const handleTitleToggle = () => logClick('Title toggle');
+    const handleDescriptionToggle = () => logClick('Description toggle');
+    const handleButton1Toggle = () => logClick('Button 1 toggle');
+    const handleButton2Toggle = () => logClick('Button 2 toggle');
+    const handleButton3Toggle = () => logClick('Button 3 toggle');
+    const handleImageToggle = () => logClick('Image toggle');
+    const handleBackgroundButton = () => logClick('Background button');
     return (
         <>
             <Divider />
@@ -26,12 +33,12 @@ export function SettingsFields() {
                 <SettingsSwitch
                     label={i18n('heading')}
                     defaultChecked
-                    onUpdate={() => logClick('Title toggle')}
+                    onUpdate={handleTitleToggle}
                 />
                 <SettingsSwitch
                     label={i18n('description')}
                     defaultChecked
-                    onUpdate={() => logClick('Description toggle')}
+                    onUpdate={handleDescriptionToggle}
                 />
                 <Text variant="subheader-1">{i18n('alignment')}</Text>
                 <AlignmentSelect
@@ -88,24 +95,14 @@ export function SettingsFields() {
                 <SettingsSwitch
                     label={i18n('button-1')}
                     defaultChecked
-                    onUpdate={() => logClick('Button 1 toggle')}
+                    onUpdate={handleButton1Toggle}
                 />
-                <SettingsSwitch
-                    label={i18n('button-2')}
-                    onUpdate={() => logClick('Button 2 toggle')}
-                />
-                <SettingsSwitch
-                    label={i18n('button-3')}
-                    onUpdate={() => logClick('Button 3 toggle')}
-                />
+                <SettingsSwitch label={i18n('button-2')} onUpdate={handleButton2Toggle} />
+                <SettingsSwitch label={i18n('button-3')} onUpdate={handleButton3Toggle} />
             </SettingsSection>
             <Divider />
             <SettingsSection title={i18n('image-and-background')} action="Image and background">
-                <SettingsSwitch
-                    label={i18n('image')}
-                    defaultChecked
-                    onUpdate={() => logClick('Image toggle')}
-                />
+                <SettingsSwitch label={i18n('image')} defaultChecked onUpdate={handleImageToggle} />
                 <div className={cnBannerSettings('row')}>
                     <Text variant="body-1" id={backgroundLabelId}>
                         {i18n('background')}
@@ -116,7 +113,7 @@ export function SettingsFields() {
                         size="m"
                         width="max"
                         aria-labelledby={`${backgroundLabelId} ${backgroundValueId}`}
-                        onClick={() => logClick('Background button')}
+                        onClick={handleBackgroundButton}
                     >
                         <Icon data={SquareMinus} size={16} />
                         <span id={backgroundValueId}>{i18n('no-background')}</span>

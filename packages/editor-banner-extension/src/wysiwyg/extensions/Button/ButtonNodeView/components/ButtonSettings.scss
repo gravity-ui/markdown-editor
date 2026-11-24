@@ -1,8 +1,8 @@
-@use '../../../../components/settings/dialog';
+@use '../../../../mixins';
 
 :where(.g-md-button-settings) {
     // Zero specificity leaves the width to the block styles.
-    @include dialog.reset;
+    @include mixins.reset-dialog;
 }
 
 .g-md-button-settings {

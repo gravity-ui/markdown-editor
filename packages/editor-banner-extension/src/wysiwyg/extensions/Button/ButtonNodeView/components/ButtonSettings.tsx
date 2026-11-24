@@ -98,6 +98,8 @@ export function ButtonSettings({view, node, getPos, anchor, parser, onClose}: Bu
     const handleNewTabUpdate = (checked: boolean) => {
         update({target: checked ? '_blank' : '_self'});
     };
+    const handleOpenChange = closeUnlessAnchor(anchor, saveAndClose);
+    const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => closeOnTabOut(event, saveAndClose);
     const labelRef = useRef<HTMLInputElement>(null);
     const anchorElement = useMemo(() => nodeAnchor(anchor), [anchor]);
     return (
@@ -109,14 +111,14 @@ export function ButtonSettings({view, node, getPos, anchor, parser, onClose}: Bu
             placement={['bottom-start', 'top-start']}
             offset={4}
             initialFocus={labelRef}
-            onOpenChange={closeUnlessAnchor(anchor, saveAndClose)}
+            onOpenChange={handleOpenChange}
         >
             <dialog
                 open
                 className={b()}
                 aria-label={i18n('button-settings')}
                 data-qa="button-settings"
-                onKeyDown={(event) => closeOnTabOut(event, saveAndClose)}
+                onKeyDown={handleKeyDown}
             >
                 <div className={b('label')}>
                     <TextInput
