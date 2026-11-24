@@ -3,6 +3,7 @@ export {
     type SectionBackground,
     type SectionGap,
     type SectionSettings,
+    type SectionSize,
     equalColumnSizes,
     sectionBackground,
     sectionBackgrounds,
@@ -16,6 +17,7 @@ export {
     sectionGridSize,
     sectionMaxColumns,
     sectionSettings,
+    sectionSizes,
     sectionTokenName,
 } from './section/model';
 export {sectionPlugin} from './section/plugin';

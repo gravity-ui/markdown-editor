@@ -21,22 +21,26 @@ $section-colors: (
         }
     }
 
+    @each $size, $spacing in (s: 1, m: 2, l: 4) {
+        &_padded_#{$size} > .g-md-section-column-plugin > .g-md-section-column-plugin__content {
+            padding: var(--g-spacing-#{$spacing}, #{$spacing * 4px});
+        }
+    }
+
+    @each $size, $radius in (s: 5px, m: 6px, l: 8px) {
+        &_rounded_#{$size} > .g-md-section-column-plugin {
+            border-radius: var(--g-border-radius-#{$size}, #{$radius});
+
+            > .g-md-section-column-plugin__content {
+                overflow: clip;
+
+                border-radius: inherit;
+            }
+        }
+    }
+
     &_gap_half {
         --g-md-section-gap: var(--g-spacing-half, 2px);
-    }
-
-    &_padded > .g-md-section-column-plugin > .g-md-section-column-plugin__content {
-        padding: var(--g-spacing-2, 8px);
-    }
-
-    &_rounded > .g-md-section-column-plugin {
-        border-radius: var(--g-border-radius-m, 6px);
-
-        > .g-md-section-column-plugin__content {
-            overflow: clip;
-
-            border-radius: inherit;
-        }
     }
 
     @media (width < $section-narrow-width) {

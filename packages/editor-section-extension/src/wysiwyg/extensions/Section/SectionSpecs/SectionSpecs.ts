@@ -89,8 +89,9 @@ export const SectionSpecs: ExtensionAuto = (builder) => {
         }))
         .addNodeSerializerSpec(sectionNodeName, () => (state, node) => {
             const {padding, gap, rounded} = sectionSettings(node.attrs);
-            const roundedAttr = rounded ? ' rounded="true"' : '';
-            state.write(`::::section{padding="${padding}" gap="${gap}"${roundedAttr}}`);
+            const paddingAttr = padding ? `padding="${padding}" ` : '';
+            const roundedAttr = rounded ? ` rounded="${rounded}"` : '';
+            state.write(`::::section{${paddingAttr}gap="${gap}"${roundedAttr}}`);
             state.closeBlock(node);
             state.renderContent(node);
             state.write('::::');

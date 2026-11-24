@@ -6,6 +6,7 @@ export const sectionColumnContentClassName = 'g-md-section-column-plugin__conten
 
 export const sectionGridSize = 12;
 export const sectionMaxColumns = 4;
+export const sectionSizes = ['s', 'm', 'l'] as const;
 export const sectionGaps = ['0', '0.5', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
 export const sectionBackgrounds = [
     'none',
@@ -19,9 +20,14 @@ export const sectionBackgrounds = [
 
 export type SectionGap = (typeof sectionGaps)[number];
 export type SectionBackground = (typeof sectionBackgrounds)[number];
-export type SectionSettings = {padding: boolean; gap: SectionGap; rounded: boolean};
+export type SectionSize = (typeof sectionSizes)[number];
+export type SectionSettings = {
+    padding: SectionSize | null;
+    gap: SectionGap;
+    rounded: SectionSize | null;
+};
 
-export const sectionDefaults: SectionSettings = {padding: false, gap: '5', rounded: false};
+export const sectionDefaults: SectionSettings = {padding: null, gap: '5', rounded: null};
 
 export function sectionSettings(attrs: {
     padding?: unknown;
@@ -29,8 +35,8 @@ export function sectionSettings(attrs: {
     rounded?: unknown;
 }): SectionSettings {
     return {
-        padding: attrs.padding === true || attrs.padding === 'true',
-        rounded: attrs.rounded === true || attrs.rounded === 'true',
+        padding: parseSectionSize(attrs.padding),
+        rounded: parseSectionSize(attrs.rounded),
         gap: sectionGaps.find((gap) => gap === attrs.gap) ?? sectionDefaults.gap,
     };
 }
@@ -56,4 +62,9 @@ export function normalizeColumnSizes(sizes: number[]): number[] {
         return sizes;
     }
     return equalColumnSizes(sizes.length);
+}
+
+function parseSectionSize(value: unknown): SectionSize | null {
+    if (value === true || value === 'true') return 'm';
+    return sectionSizes.find((size) => size === value) ?? null;
 }

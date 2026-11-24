@@ -6,12 +6,14 @@ import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import {TextSelection} from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {
+    type SectionSize,
     sectionBackgrounds,
     sectionGaps,
     sectionMaxColumns,
     sectionSettings,
+    sectionSizes,
 } from '@gravity-ui/markdown-plugin-section';
-import {Button, Icon, Select, Switch} from '@gravity-ui/uikit';
+import {Button, Icon, Select, Text, useUniqId} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
 import {
@@ -55,11 +57,11 @@ export function SectionToolbar({view, node, pos, onMouseEnter, onMouseLeave}: Se
     const changeCount = ([value]: string[]) => {
         setSectionColumns(pos, Number(value))(view.state, view.dispatch);
     };
-    const changePadding = (checked: boolean) => {
-        setSectionSetting(pos, 'padding', checked)(view.state, view.dispatch);
+    const changePadding = (value: SectionSize | null) => {
+        setSectionSetting(pos, 'padding', value)(view.state, view.dispatch);
     };
-    const changeRounded = (checked: boolean) => {
-        setSectionSetting(pos, 'rounded', checked)(view.state, view.dispatch);
+    const changeRounded = (value: SectionSize | null) => {
+        setSectionSetting(pos, 'rounded', value)(view.state, view.dispatch);
     };
     const changeGap = ([value]: string[]) => {
         const next = sectionGaps.find((spacing) => spacing === value);
@@ -114,12 +116,18 @@ export function SectionToolbar({view, node, pos, onMouseEnter, onMouseLeave}: Se
             </div>
             {settingsOpen && (
                 <div className={b('settings')}>
-                    <Switch checked={padding} onUpdate={changePadding} size="m">
-                        {i18n('padding')}
-                    </Switch>
-                    <Switch checked={rounded} onUpdate={changeRounded} size="m">
-                        {i18n('rounded')}
-                    </Switch>
+                    <DimensionSelect
+                        label={i18n('padding')}
+                        placeholder={i18n('no-padding')}
+                        value={padding}
+                        onUpdate={changePadding}
+                    />
+                    <DimensionSelect
+                        label={i18n('rounded')}
+                        placeholder={i18n('no-rounding')}
+                        value={rounded}
+                        onUpdate={changeRounded}
+                    />
                     <div className={b('field')}>
                         <span>{i18n('gap')}</span>
                         <Select
@@ -133,6 +141,40 @@ export function SectionToolbar({view, node, pos, onMouseEnter, onMouseLeave}: Se
                     {node.content.content.map(renderBackgroundField)}
                 </div>
             )}
+        </div>
+    );
+}
+
+const dimensionOptions = sectionSizes.map((value) => ({value, content: value.toUpperCase()}));
+
+type DimensionSelectProps = {
+    label: string;
+    placeholder: string;
+    value: SectionSize | null;
+    onUpdate: (value: SectionSize | null) => void;
+};
+
+function DimensionSelect({label, placeholder, value, onUpdate}: DimensionSelectProps) {
+    const labelId = useUniqId();
+    const handleUpdate = ([next]: string[]) => {
+        onUpdate(sectionSizes.find((size) => size === next) ?? null);
+    };
+
+    return (
+        <div className={b('field')}>
+            <Text variant="body-1" id={labelId}>
+                {label}
+            </Text>
+            <Select
+                size="m"
+                width="max"
+                aria-labelledby={labelId}
+                placeholder={placeholder}
+                hasClear
+                value={value ? [value] : []}
+                options={dimensionOptions}
+                onUpdate={handleUpdate}
+            />
         </div>
     );
 }

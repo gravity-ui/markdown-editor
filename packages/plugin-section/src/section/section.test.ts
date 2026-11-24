@@ -7,7 +7,7 @@ const md = new MarkdownIt().use(sectionPlugin);
 
 describe('Section markup', () => {
     it('should render padding, rounded corners, gap, widths and backgrounds', () => {
-        const html = md.render(`::::section{padding="true" gap="0.5" rounded="true"}
+        const html = md.render(`::::section{padding="s" gap="0.5" rounded="l"}
 
 :::column{size="5" background="blue"}
 One
@@ -18,8 +18,8 @@ One
 :::
 
 ::::`);
-        expect(html).toContain('g-md-section-plugin_padded g-md-section-plugin_gap_half');
-        expect(html).toContain('g-md-section-plugin_rounded');
+        expect(html).toContain('g-md-section-plugin_padded_s g-md-section-plugin_gap_half');
+        expect(html).toContain('g-md-section-plugin_rounded_l');
         expect(html).toContain(
             'g-md-section-column-plugin_size_5 g-md-section-column-plugin_background_blue',
         );

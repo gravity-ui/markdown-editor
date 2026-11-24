@@ -20,7 +20,7 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
 
 describe('Section editor', () => {
     it('should round trip layout options and editable blocks through Markdown', () => {
-        const source = `::::section{padding="true" gap="2" rounded="true"}
+        const source = `::::section{padding="l" gap="2" rounded="s"}
 
 :::column{size="5" background="blue"}
 
@@ -37,7 +37,7 @@ One
 ::::`;
         const doc = markupParser.parse(source);
         const section = doc.child(0);
-        expect(section.attrs).toEqual({padding: true, gap: '2', rounded: true});
+        expect(section.attrs).toEqual({padding: 'l', gap: '2', rounded: 's'});
         expect(section.child(0).attrs).toEqual({size: 5, background: 'blue'});
         expect(section.child(1).attrs).toEqual({size: 7, background: 'green'});
         expect(sizes(section)).toEqual([5, 7]);
@@ -45,12 +45,23 @@ One
         expect(markupParser.parse(serializer.serialize(doc)).eq(doc)).toBe(true);
     });
 
+    it('should preserve the effect of legacy boolean settings', () => {
+        const source = `::::section{padding="true" rounded="false"}
+:::column{size="12"}
+Text
+:::
+::::`;
+        const doc = markupParser.parse(source);
+        expect(doc.child(0).attrs).toEqual({padding: 'm', gap: '5', rounded: null});
+        expect(serializer.serialize(doc)).toContain('::::section{padding="m" gap="5"}');
+    });
+
     it('should insert three columns and resize only the adjacent pair in one undo step', () => {
         const editor = createEditor('');
         expect(editor.run(insertSection)).toBe(true);
         expect(editor.state.selection.$from.index(1)).toBe(0);
         expect(sizes(editor.section)).toEqual([4, 4, 4]);
-        expect(editor.section.attrs.rounded).toBe(false);
+        expect(editor.section.attrs.rounded).toBeNull();
         expect(editor.run(resizeSectionColumns(0, 0, [5, 3], [4, 4]))).toBe(true);
         expect(sizes(editor.section)).toEqual([5, 3, 4]);
         expect(editor.run(undo)).toBe(true);
@@ -62,10 +73,10 @@ One
         editor.run(insertSection);
         editor.run(setSectionSetting(0, 'gap', '3'));
         editor.run(setSectionColumnBackground(0, 1, 'violet'));
-        editor.run(setSectionSetting(0, 'padding', true));
-        editor.run(setSectionSetting(0, 'padding', false));
+        editor.run(setSectionSetting(0, 'padding', 's'));
+        editor.run(setSectionSetting(0, 'padding', null));
 
-        expect(editor.section.attrs).toEqual({padding: false, gap: '3', rounded: false});
+        expect(editor.section.attrs).toEqual({padding: null, gap: '3', rounded: null});
         expect(
             Array.from({length: 3}, (_, index) => editor.section.child(index).attrs.background),
         ).toEqual(['none', 'violet', 'none']);

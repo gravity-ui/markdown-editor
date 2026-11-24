@@ -26,7 +26,7 @@ const toolbars = {
 
 const previewPlugins = [sectionPlugin];
 
-const initialMarkup = `::::section{padding="false" gap="5"}
+const initialMarkup = `::::section{gap="5"}
 
 :::column{size="4" background="blue"}
 

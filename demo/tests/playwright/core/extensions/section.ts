@@ -22,8 +22,8 @@ export class SectionBlock {
         this.editable = page.locator(`.ProseMirror ${gridSelector}`);
         this.preview = page.getByTestId('demo-md-preview').locator(gridSelector);
         this.settingsButton = page.getByRole('button', {name: 'Section settings', exact: true});
-        this.padding = page.getByText('Inner padding', {exact: true});
-        this.rounded = page.getByText('Rounded corners', {exact: true});
+        this.padding = page.getByRole('combobox', {name: 'Inner padding', exact: true});
+        this.rounded = page.getByRole('combobox', {name: 'Rounded corners', exact: true});
         this.firstBoundary = this.editable.locator('.g-md-section-column-nodeview__handle').nth(1);
         this.gap = page.getByRole('combobox', {name: 'Column gap'});
         this.secondBackground = page.getByRole('combobox', {name: 'Column 2 background'});
@@ -39,6 +39,10 @@ export class SectionBlock {
     async select(control: Locator, option: string) {
         await control.click();
         await this.page.getByRole('option', {name: option, exact: true}).click();
+    }
+
+    async clearDimension(control: Locator) {
+        await control.locator('..').getByRole('button', {name: 'Clear', exact: true}).click();
     }
 
     async layout(grid: Locator) {

@@ -14,10 +14,14 @@ const column = cn(sectionColumnClassName);
 export function sectionAttrs(attrs: {padding?: unknown; gap?: unknown; rounded?: unknown}) {
     const {padding, gap, rounded} = sectionSettings(attrs);
     return {
-        class: section({padded: padding, gap: gap === '0.5' ? 'half' : gap, rounded}),
-        'data-padding': String(padding),
+        class: section({
+            padded: padding ?? undefined,
+            gap: gap === '0.5' ? 'half' : gap,
+            rounded: rounded ?? undefined,
+        }),
+        'data-padding': padding ?? '',
         'data-gap': gap,
-        'data-rounded': String(rounded),
+        'data-rounded': rounded ?? '',
     };
 }
 

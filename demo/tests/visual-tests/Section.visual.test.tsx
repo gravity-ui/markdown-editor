@@ -28,21 +28,21 @@ test('should keep section edges and render the edited layout in preview @wysiwyg
     expect((await section.boundaryAppearance()).opacity).toBe('0');
 
     await section.select(section.gap, '2');
-    await section.rounded.click();
-    await section.padding.click();
+    await section.select(section.rounded, 'S');
+    await section.select(section.padding, 'L');
     await section.select(section.secondBackground, 'Violet');
     const changed = await section.layout(section.editable);
     expect(changed).toMatchObject({
         startInset: 0,
         endInset: 0,
         gap: 8,
-        padding: ['8px', '8px', '8px'],
+        padding: ['16px', '16px', '16px'],
     });
     expect(await section.editorInsets()).toEqual([0, 0]);
     expect(changed.colors[1]).not.toBe(original.colors[1]);
-    expect(changed.radii).toEqual(['6px', '6px', '6px']);
+    expect(changed.radii).toEqual(['5px', '5px', '5px']);
 
-    await section.padding.click();
+    await section.clearDimension(section.padding);
     const unpadded = await section.layout(section.editable);
     expect(unpadded).toEqual({...changed, padding: ['0px', '0px', '0px']});
 
@@ -53,8 +53,11 @@ test('should keep section edges and render the edited layout in preview @wysiwyg
     expect(resized.widths[2]).toEqual(unpadded.widths[2]);
 
     await section.openSettings();
-    await section.padding.click();
+    await section.select(section.padding, 'M');
+    await section.select(section.rounded, 'L');
     const expected = await section.layout(section.editable);
+    expect(expected.padding).toEqual(['8px', '8px', '8px']);
+    expect(expected.radii).toEqual(['8px', '8px', '8px']);
     await editor.switchPreview('visible');
     await expect(section.preview).toBeVisible();
     expect(await section.layout(section.preview)).toEqual(expected);
