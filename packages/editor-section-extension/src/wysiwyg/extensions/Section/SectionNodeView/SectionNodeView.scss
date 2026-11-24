@@ -1,74 +1,86 @@
 .g-md-section-nodeview {
+    > .g-md-section-plugin {
+        container-type: inline-size;
+    }
+
     .g-md-section-column-nodeview {
         position: relative;
     }
 
     .g-md-section-column-nodeview__handle {
-        --g-md-section-handle-direction: to right;
+        // Match the grid's gap cap even when the editor is narrower than the viewport.
+        --section-gap: min(var(--g-md-section-gap), 8cqi);
+        --handle-width: max(16px, var(--section-gap));
+        --handle-line: var(--g-color-line-generic-accent);
 
         position: absolute;
         z-index: 1;
         inset-block: 0;
-        inset-inline-start: 0;
+        inset-inline-start: calc((var(--section-gap) + var(--handle-width)) / -2);
 
         display: none;
+        place-items: center;
 
-        width: var(--g-spacing-2);
+        width: var(--handle-width);
 
         cursor: col-resize;
         user-select: none;
 
-        &:dir(rtl) {
-            --g-md-section-handle-direction: to left;
-        }
+        opacity: 0;
+        color: var(--g-color-text-secondary);
+        background:
+            linear-gradient(var(--handle-line), var(--handle-line)) center / 1px 100% no-repeat,
+            linear-gradient(90deg, transparent, var(--g-color-base-background), transparent)
+                center / 12px 100% no-repeat;
 
         &::before {
-            position: absolute;
-            inset-block: 0;
-            inset-inline-start: 0;
-
-            width: var(--g-spacing-6);
+            box-sizing: border-box;
+            width: 14px;
+            height: 22px;
+            padding: 4px 2px;
 
             content: '';
             pointer-events: none;
 
-            opacity: 0;
-            border-inline-start: 1px solid var(--g-color-line-generic);
-            background-image: linear-gradient(
-                var(--g-md-section-handle-direction),
-                var(--g-color-base-background),
-                transparent
-            );
-            filter: drop-shadow(0 1px 3px var(--g-color-sfx-shadow-heavy));
+            border: 1px solid var(--handle-line);
+            border-radius: 7px;
+            background:
+                radial-gradient(circle, currentColor 1px, transparent 1.25px) left top / 4px 4px
+                    repeat,
+                var(--g-color-base-float);
+            background-clip: content-box, border-box;
+            background-origin: content-box, border-box;
+            box-shadow: 0 1px 3px var(--g-color-sfx-shadow);
         }
 
-        &:hover::before,
-        &_dragging::before {
+        &:hover,
+        &_dragging {
             opacity: 1;
         }
 
         &_dragging {
-            z-index: 2;
+            --handle-line: var(--g-color-line-brand);
 
-            &::before {
-                border-inline-start-color: var(--g-color-line-info);
-            }
+            z-index: 2;
 
             &::after {
                 position: absolute;
-                inset-block-start: var(--g-spacing-1);
-                inset-inline-start: var(--g-spacing-6);
+                inset-block-end: 100%;
 
-                padding: var(--g-spacing-half) var(--g-spacing-1);
+                margin-block-end: var(--g-spacing-1);
+                padding: var(--g-spacing-half) var(--g-spacing-2);
 
+                font-size: var(--g-text-caption-2-font-size);
+                line-height: var(--g-text-caption-2-line-height);
                 content: attr(data-sizes);
                 white-space: nowrap;
                 pointer-events: none;
 
                 color: var(--g-color-text-primary);
-                border-radius: var(--g-border-radius-xs);
-                background-color: var(--g-color-base-background);
-                box-shadow: 0 1px 3px var(--g-color-sfx-shadow);
+                border-radius: var(--g-border-radius-l);
+                background-color: var(--g-color-base-float);
+                box-shadow: 0 1px 4px var(--g-color-sfx-shadow);
+                font-variant-numeric: tabular-nums;
             }
         }
     }
@@ -79,7 +91,7 @@
             > .g-md-section-plugin
             > .g-md-section-column-nodeview:not(:first-child)
             > .g-md-section-column-nodeview__handle {
-            display: block;
+            display: grid;
         }
     }
 }

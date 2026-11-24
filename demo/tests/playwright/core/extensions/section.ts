@@ -90,8 +90,20 @@ export class SectionBlock {
 
     async boundaryAppearance() {
         return this.firstBoundary.evaluate((element) => {
-            const {opacity, backgroundImage, filter} = getComputedStyle(element, '::before');
-            return {opacity, backgroundImage, filter};
+            const {opacity} = getComputedStyle(element);
+            const {boxShadow, backgroundImage} = getComputedStyle(element, '::before');
+            const column = element.parentElement;
+            const neighbor = column?.previousElementSibling;
+            if (!neighbor || !column) throw new Error('Expected two neighboring columns');
+            const gutterCenter =
+                (neighbor.getBoundingClientRect().right + column.getBoundingClientRect().left) / 2;
+            const handle = element.getBoundingClientRect();
+            return {
+                opacity,
+                boxShadow,
+                backgroundImage,
+                centerOffset: handle.x + handle.width / 2 - gutterCenter,
+            };
         });
     }
 

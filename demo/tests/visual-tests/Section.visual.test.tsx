@@ -21,11 +21,19 @@ test('should keep section edges and render the edited layout in preview @wysiwyg
     await section.firstBoundary.hover();
     expect(await section.boundaryAppearance()).toMatchObject({
         opacity: '1',
-        backgroundImage: expect.stringContaining('linear-gradient'),
-        filter: expect.stringContaining('drop-shadow'),
+        backgroundImage: expect.stringContaining('radial-gradient'),
+        boxShadow: expect.not.stringMatching(/^none$/),
+        centerOffset: expect.closeTo(0, 1),
     });
     await section.hoverColumnText();
     expect((await section.boundaryAppearance()).opacity).toBe('0');
+
+    await section.select(section.gap, '0');
+    await section.firstBoundary.hover();
+    expect(await section.boundaryAppearance()).toMatchObject({
+        opacity: '1',
+        centerOffset: expect.closeTo(0, 1),
+    });
 
     await section.select(section.gap, '2');
     await section.select(section.rounded, 'S');
