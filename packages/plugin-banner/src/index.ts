@@ -1,8 +1,10 @@
 export {
+    type BannerRender,
     bannerAttrs,
     bannerBackgroundFromAttrs,
     bannerClassNames,
     bannerDimensionsFromAttrs,
+    bannerRender,
 } from './banner/attrs';
 export {
     type BannerBackground,
@@ -14,6 +16,7 @@ export {
     type BannerHeight,
     type BannerWidth,
     bannerBackgroundDefaults,
+    bannerBgColorFamilies,
     bannerBgColors,
     bannerClassName,
     bannerDefaults,

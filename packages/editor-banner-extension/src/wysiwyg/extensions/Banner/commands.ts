@@ -9,8 +9,13 @@ import {
     type Transaction,
 } from '@gravity-ui/markdown-editor/pm/state';
 import type {NodeWithPos} from '@gravity-ui/markdown-editor/pm/utils';
-import type {BannerDimensions} from '@gravity-ui/markdown-plugin-banner';
+import {
+    type BannerBackground,
+    type BannerDimensions,
+    bannerBackground,
+} from '@gravity-ui/markdown-plugin-banner';
 
+import {dropBannerUploads, hasBannerUploads} from '../../plugins/BannerUploadPlugin';
 import {changedAttrs} from '../attrs';
 import {removeChild} from '../commands';
 
@@ -58,6 +63,33 @@ export const setBannerDimension =
         if (!node) return false;
         if (dispatch && changedAttrs(node.attrs, {[name]: value}).length) {
             dispatch(state.tr.setNodeAttribute(pos, name, value));
+        }
+        return true;
+    };
+
+/**
+ * Changes the background attributes in one undo step; the theme and the blur are reset without an image.
+ * A new source of the background drops the uploads into the banner, even when the attributes stay the same.
+ */
+export const setBannerBackground =
+    (pos: number, background: Partial<BannerBackground>): Command =>
+    (state, dispatch) => {
+        const node = bannerAt(state, pos);
+        if (!node) return false;
+        if (dispatch) {
+            const next = bannerBackground({...bannerBackground(node.attrs), ...background});
+            const tr = state.tr;
+            for (const [name, value] of changedAttrs(node.attrs, next)) {
+                tr.setNodeAttribute(pos, name, value);
+            }
+            const changesSource = 'bg-image' in background || 'bg-color' in background;
+            const cancelsUpload = changesSource && hasBannerUploads(state, pos);
+            if (cancelsUpload) dropBannerUploads(tr, pos);
+            if (tr.docChanged) {
+                dispatch(closeHistory(tr));
+            } else if (cancelsUpload) {
+                dispatch(tr);
+            }
         }
         return true;
     };

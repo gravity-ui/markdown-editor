@@ -2,19 +2,23 @@ import {Gear, TrashBin} from '@gravity-ui/icons';
 import {Toolbar, type ToolbarData, ToolbarDataType, cn} from '@gravity-ui/markdown-editor';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {bannerDimensions} from '@gravity-ui/markdown-plugin-banner';
+import {bannerBackground, bannerDimensions} from '@gravity-ui/markdown-plugin-banner';
 import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
+import {cancelBannerUploads, uploadBannerFile} from '../../../../plugins/BannerUploadPlugin';
 import {runCommand} from '../../../commands';
 import {
     type RemovedParts,
     removeBanner,
+    setBannerBackground,
     setBannerDimension,
     toggleBannerPart,
 } from '../../commands';
+import type {BannerOptions} from '../../index';
 import {bannerPartTypes, bannerParts} from '../../parts';
 
+import type {BackgroundControls} from './Settings/BackgroundField';
 import {BannerSettings} from './Settings/BannerSettings';
 import type {ContentControls} from './Settings/SettingsFields';
 
@@ -38,7 +42,7 @@ function removedPartsOf(block: HTMLElement | null): RemovedParts {
 const isActive = () => false;
 const isEnable = () => true;
 
-type BannerToolbarProps = {
+type BannerToolbarProps = BannerOptions & {
     view: EditorView;
     node: Node;
     pos: number;
@@ -46,12 +50,34 @@ type BannerToolbarProps = {
     markup: () => string;
 };
 
-export function BannerToolbar({view, node, pos, block, markup}: BannerToolbarProps) {
+export function BannerToolbar({
+    view,
+    node,
+    pos,
+    block,
+    markup,
+    fileUploadHandler,
+    imageTypes,
+    maxImageSize,
+}: BannerToolbarProps) {
     const content: ContentControls = {
         parts: bannerParts(node),
         available: bannerPartTypes(view.state.schema),
         onPartChange: (part, enabled) =>
             runCommand(view, toggleBannerPart(pos, part, enabled, removedPartsOf(block))),
+    };
+    const background: BackgroundControls = {
+        value: bannerBackground(node.attrs),
+        imageTypes,
+        maxImageSize,
+        onChange: (value) => runCommand(view, setBannerBackground(pos, value)),
+        upload:
+            fileUploadHandler &&
+            ((file) =>
+                uploadBannerFile(view, pos, file, fileUploadHandler, (current, image) =>
+                    setBannerBackground(current, {'bg-image': image}),
+                )),
+        cancelUpload: () => cancelBannerUploads(view, pos),
     };
     const data: ToolbarData<EditorView> = [
         [
@@ -72,6 +98,7 @@ export function BannerToolbar({view, node, pos, block, markup}: BannerToolbarPro
                             runCommand(view, setBannerDimension(pos, name, value))
                         }
                         content={content}
+                        background={background}
                         onClose={hide}
                     />
                 ),

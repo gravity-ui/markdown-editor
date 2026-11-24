@@ -10,8 +10,41 @@ const b = cn(bannerClassName);
 
 type BannerAttrsInput = Partial<Record<keyof BannerDimensions | keyof BannerBackground, unknown>>;
 
+export type BannerRender = {
+    className: string;
+    backgroundImage: string | null;
+    data: Record<string, string>;
+};
+
 export function bannerClassNames(attrs: {height?: unknown; width?: unknown}) {
     return b(bannerDimensions(attrs));
+}
+
+export function bannerRender(attrs: BannerAttrsInput): BannerRender {
+    const dimensions = bannerDimensions(attrs);
+    const background = bannerBackground(attrs);
+    const backgroundImage = background['bg-image'] && toCssUrl(background['bg-image']);
+    const theme = background['bg-theme'];
+    const data: Record<string, string> = {
+        'data-height': dimensions.height,
+        'data-width': dimensions.width,
+    };
+    for (const [name, value] of Object.entries(bannerBackgroundValues(background))) {
+        data[`data-${name}`] = value;
+    }
+    return {
+        className: b(
+            {
+                ...dimensions,
+                'bg-color': background['bg-color'] ?? undefined,
+                'bg-image': Boolean(backgroundImage),
+                'bg-image-blur': background['bg-image-blur'],
+            },
+            theme === 'system' ? undefined : ['g-root', `g-root_theme_${theme}`],
+        ),
+        backgroundImage,
+        data,
+    };
 }
 
 /**
@@ -19,27 +52,9 @@ export function bannerClassNames(attrs: {height?: unknown; width?: unknown}) {
  * and in a custom property used by the stylesheet it resolves against the stylesheet.
  */
 export function bannerAttrs(attrs: BannerAttrsInput): Record<string, string> {
-    const dimensions = bannerDimensions(attrs);
-    const background = bannerBackground(attrs);
-    const image = background['bg-image'] && toCssUrl(background['bg-image']);
-    const theme = background['bg-theme'];
-    const result: Record<string, string> = {
-        class: b(
-            {
-                ...dimensions,
-                'bg-color': background['bg-color'] ?? undefined,
-                'bg-image': Boolean(image),
-                'bg-image-blur': background['bg-image-blur'],
-            },
-            theme === 'system' ? undefined : ['g-root', `g-root_theme_${theme}`],
-        ),
-        'data-height': dimensions.height,
-        'data-width': dimensions.width,
-    };
-    for (const [name, value] of Object.entries(bannerBackgroundValues(background))) {
-        result[`data-${name}`] = value;
-    }
-    if (image) result.style = `background-image:${image}`;
+    const {className, backgroundImage, data} = bannerRender(attrs);
+    const result: Record<string, string> = {class: className, ...data};
+    if (backgroundImage) result.style = `background-image:${backgroundImage}`;
     return result;
 }
 

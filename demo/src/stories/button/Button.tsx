@@ -27,7 +27,7 @@ export function ButtonExample({
     );
     const editor = useMarkdownEditor({
         initial: {markup: initial, mode, toolbarVisible: true},
-        wysiwygConfig: {extensions: (builder) => builder.use(Banner).use(Button)},
+        wysiwygConfig: {extensions: (builder) => builder.use(Banner, {}).use(Button)},
         markupConfig: {renderPreview},
     });
 

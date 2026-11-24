@@ -1,5 +1,11 @@
 import type {FileUploadHandler} from '@gravity-ui/markdown-editor';
-import {type Command, Plugin, PluginKey} from '@gravity-ui/markdown-editor/pm/state';
+import {
+    type Command,
+    type EditorState,
+    Plugin,
+    PluginKey,
+    type Transaction,
+} from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {safeImageUrl} from '@gravity-ui/markdown-plugin-banner';
 
@@ -48,12 +54,19 @@ export const bannerUploadPlugin = () =>
         },
     });
 
+/** Drops the uploads into the node at `pos` with the transaction that sets a new source of the node. */
+export const dropBannerUploads = (tr: Transaction, pos: number) =>
+    tr.setMeta(uploadsKey, {pos} satisfies UploadMeta);
+
+export function hasBannerUploads(state: EditorState, pos: number) {
+    const uploads = uploadsKey.getState(state);
+    return uploads !== undefined && Array.from(uploads.values()).includes(pos);
+}
+
 /** Drops the uploads into the node at `pos`: their results are not written. */
 export function cancelBannerUploads(view: EditorView, pos: number) {
-    if (view.isDestroyed) return;
-    const uploads = uploadsKey.getState(view.state);
-    if (!uploads?.size || !Array.from(uploads.values()).includes(pos)) return;
-    view.dispatch(view.state.tr.setMeta(uploadsKey, {pos} satisfies UploadMeta));
+    if (view.isDestroyed || !hasBannerUploads(view.state, pos)) return;
+    view.dispatch(dropBannerUploads(view.state.tr, pos));
 }
 
 /**
