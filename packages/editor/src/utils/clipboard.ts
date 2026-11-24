@@ -4,6 +4,7 @@ export enum DataTransferType {
     Html = 'text/html',
     Yfm = 'text/yfm', // self
     Metadata = 'application/x-markdown-editor-metadata+json', // self
+    CodeLineStart = 'text/yfm-code-line-start', // self, code copied from the start of a line
     Rtf = 'text/rtf', // Safari, WebStorm/Intelij
     UriList = 'text/uri-list',
     VSCodeData = 'vscode-editor-data',

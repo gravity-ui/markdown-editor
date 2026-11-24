@@ -2,9 +2,10 @@ import dd from 'ts-dedent';
 
 import {getLoggerFromState} from '#core';
 import {Fragment} from '#pm/model';
-import {Plugin} from '#pm/state';
+import {type EditorState, Plugin} from '#pm/state';
 import {DataTransferType, isFilesOnly, isIosSafariShare} from 'src/utils/clipboard';
 import {isInsideCode} from 'src/utils/code';
+import {isCodeBlock} from 'src/utils/nodes';
 
 export {isInsideCode, isInsideBlockCode, isInsideInlineCode} from 'src/utils/code';
 
@@ -37,7 +38,7 @@ export const handlePasteIntoCodePlugin = () => {
                             .join(' ');
                     } else {
                         dataFormat = DataTransferType.Text;
-                        text = dd(clipboardData.getData(DataTransferType.Text));
+                        text = getCodeText(view.state, clipboardData);
                     }
 
                     if (codeType === 'inline') {
@@ -67,3 +68,11 @@ export const handlePasteIntoCodePlugin = () => {
         },
     });
 };
+
+// Code copied from the middle of a line has lost its first-line indentation; `dd` aligns the rest
+function getCodeText(state: EditorState, data: DataTransfer): string {
+    const text = data.getData(DataTransferType.Text);
+    const fromLineStart =
+        data.types.includes(DataTransferType.CodeLineStart) || /^[\t ]/.test(text);
+    return isCodeBlock(state.selection.$from.parent) && fromLineStart ? text : dd(text);
+}
