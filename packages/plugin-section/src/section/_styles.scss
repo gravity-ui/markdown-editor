@@ -29,6 +29,16 @@ $section-colors: (
         padding: var(--g-spacing-2, 8px);
     }
 
+    &_rounded > .g-md-section-column-plugin {
+        border-radius: var(--g-border-radius-m, 6px);
+
+        > .g-md-section-column-plugin__content {
+            overflow: clip;
+
+            border-radius: inherit;
+        }
+    }
+
     @media (width < $section-narrow-width) {
         grid-template-columns: minmax(0, 1fr);
         gap: var(--g-md-section-gap);

@@ -6,8 +6,8 @@ import {sectionPlugin} from './plugin';
 const md = new MarkdownIt().use(sectionPlugin);
 
 describe('Section markup', () => {
-    it('should render a padded section with separate gap, widths and backgrounds', () => {
-        const html = md.render(`::::section{padding="true" gap="0.5"}
+    it('should render padding, rounded corners, gap, widths and backgrounds', () => {
+        const html = md.render(`::::section{padding="true" gap="0.5" rounded="true"}
 
 :::column{size="5" background="blue"}
 One
@@ -19,6 +19,7 @@ One
 
 ::::`);
         expect(html).toContain('g-md-section-plugin_padded g-md-section-plugin_gap_half');
+        expect(html).toContain('g-md-section-plugin_rounded');
         expect(html).toContain(
             'g-md-section-column-plugin_size_5 g-md-section-column-plugin_background_blue',
         );
@@ -41,6 +42,7 @@ Two
 
 ::::`);
         expect(html.match(/g-md-section-column-plugin_size_6/g)).toHaveLength(2);
+        expect(html).not.toContain('g-md-section-plugin_rounded');
         expect(html).toContain('<p>One</p>');
         expect(html).toContain('<p>Two</p>');
     });

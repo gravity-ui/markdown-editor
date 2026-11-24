@@ -29,6 +29,7 @@ export const SectionSpecs: ExtensionAuto = (builder) => {
             isolating: true,
             attrs: {
                 padding: {default: sectionDefaults.padding},
+                rounded: {default: sectionDefaults.rounded},
                 gap: {default: sectionDefaults.gap},
             },
             parseDOM: [
@@ -37,6 +38,7 @@ export const SectionSpecs: ExtensionAuto = (builder) => {
                     getAttrs: (dom) =>
                         sectionSettings({
                             padding: dom.getAttribute('data-padding'),
+                            rounded: dom.getAttribute('data-rounded'),
                             gap: dom.getAttribute('data-gap'),
                         }),
                 },
@@ -73,6 +75,7 @@ export const SectionSpecs: ExtensionAuto = (builder) => {
             getAttrs: (token) =>
                 sectionSettings({
                     padding: token.attrGet('data-padding'),
+                    rounded: token.attrGet('data-rounded'),
                     gap: token.attrGet('data-gap'),
                 }),
         }))
@@ -85,8 +88,9 @@ export const SectionSpecs: ExtensionAuto = (builder) => {
             }),
         }))
         .addNodeSerializerSpec(sectionNodeName, () => (state, node) => {
-            const {padding, gap} = sectionSettings(node.attrs);
-            state.write(`::::section{padding="${padding}" gap="${gap}"}`);
+            const {padding, gap, rounded} = sectionSettings(node.attrs);
+            const roundedAttr = rounded ? ' rounded="true"' : '';
+            state.write(`::::section{padding="${padding}" gap="${gap}"${roundedAttr}}`);
             state.closeBlock(node);
             state.renderContent(node);
             state.write('::::');

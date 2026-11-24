@@ -3,6 +3,7 @@
   "settings": "Section settings",
   "columns": "Columns",
   "padding": "Inner padding",
+  "rounded": "Rounded corners",
   "gap": "Column gap",
   "column-background": "Column {{number}} background",
   "none": "None",

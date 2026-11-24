@@ -36,7 +36,7 @@ type SectionToolbarProps = {
 export function SectionToolbar({view, node, pos, onMouseEnter, onMouseLeave}: SectionToolbarProps) {
     const [settingsOpen, setSettingsOpen] = useState(false);
 
-    const {padding, gap} = sectionSettings(node.attrs);
+    const {padding, gap, rounded} = sectionSettings(node.attrs);
     const columns = Array.from({length: sectionMaxColumns}, (_, index) => {
         const count = index + 1;
         const value = String(count);
@@ -57,6 +57,9 @@ export function SectionToolbar({view, node, pos, onMouseEnter, onMouseLeave}: Se
     };
     const changePadding = (checked: boolean) => {
         setSectionSetting(pos, 'padding', checked)(view.state, view.dispatch);
+    };
+    const changeRounded = (checked: boolean) => {
+        setSectionSetting(pos, 'rounded', checked)(view.state, view.dispatch);
     };
     const changeGap = ([value]: string[]) => {
         const next = sectionGaps.find((spacing) => spacing === value);
@@ -113,6 +116,9 @@ export function SectionToolbar({view, node, pos, onMouseEnter, onMouseLeave}: Se
                 <div className={b('settings')}>
                     <Switch checked={padding} onUpdate={changePadding} size="m">
                         {i18n('padding')}
+                    </Switch>
+                    <Switch checked={rounded} onUpdate={changeRounded} size="m">
+                        {i18n('rounded')}
                     </Switch>
                     <div className={b('field')}>
                         <span>{i18n('gap')}</span>

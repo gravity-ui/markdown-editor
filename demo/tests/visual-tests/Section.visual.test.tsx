@@ -14,8 +14,21 @@ test('should keep section edges and render the edited layout in preview @wysiwyg
     const original = await section.layout(section.editable);
     expect(original.gap).toBe(20);
     expect(original.padding).toEqual(['0px', '0px', '0px']);
+    expect(original.radii).toEqual(['0px', '0px', '0px']);
+
+    await section.hoverColumnText();
+    expect((await section.boundaryAppearance()).opacity).toBe('0');
+    await section.firstBoundary.hover();
+    expect(await section.boundaryAppearance()).toMatchObject({
+        opacity: '1',
+        backgroundImage: expect.stringContaining('linear-gradient'),
+        filter: expect.stringContaining('drop-shadow'),
+    });
+    await section.hoverColumnText();
+    expect((await section.boundaryAppearance()).opacity).toBe('0');
 
     await section.select(section.gap, '2');
+    await section.rounded.click();
     await section.padding.click();
     await section.select(section.secondBackground, 'Violet');
     const changed = await section.layout(section.editable);
@@ -27,6 +40,7 @@ test('should keep section edges and render the edited layout in preview @wysiwyg
     });
     expect(await section.editorInsets()).toEqual([0, 0]);
     expect(changed.colors[1]).not.toBe(original.colors[1]);
+    expect(changed.radii).toEqual(['6px', '6px', '6px']);
 
     await section.padding.click();
     const unpadded = await section.layout(section.editable);

@@ -11,12 +11,13 @@ import {
 const section = cn(sectionClassName);
 const column = cn(sectionColumnClassName);
 
-export function sectionAttrs(attrs: {padding?: unknown; gap?: unknown}) {
-    const {padding, gap} = sectionSettings(attrs);
+export function sectionAttrs(attrs: {padding?: unknown; gap?: unknown; rounded?: unknown}) {
+    const {padding, gap, rounded} = sectionSettings(attrs);
     return {
-        class: section({padded: padding, gap: gap === '0.5' ? 'half' : gap}),
+        class: section({padded: padding, gap: gap === '0.5' ? 'half' : gap, rounded}),
         'data-padding': String(padding),
         'data-gap': gap,
+        'data-rounded': String(rounded),
     };
 }
 

@@ -10,6 +10,8 @@ export class SectionBlock {
     readonly preview: Locator;
     readonly settingsButton: Locator;
     readonly padding: Locator;
+    readonly rounded: Locator;
+    readonly firstBoundary: Locator;
     readonly gap: Locator;
     readonly secondBackground: Locator;
 
@@ -21,6 +23,8 @@ export class SectionBlock {
         this.preview = page.getByTestId('demo-md-preview').locator(gridSelector);
         this.settingsButton = page.getByRole('button', {name: 'Section settings', exact: true});
         this.padding = page.getByText('Inner padding', {exact: true});
+        this.rounded = page.getByText('Rounded corners', {exact: true});
+        this.firstBoundary = this.editable.locator('.g-md-section-column-nodeview__handle').nth(1);
         this.gap = page.getByRole('combobox', {name: 'Column gap'});
         this.secondBackground = page.getByRole('combobox', {name: 'Column 2 background'});
     }
@@ -51,6 +55,7 @@ export class SectionBlock {
                     if (!column.firstElementChild) throw new Error('Expected column content');
                     return getComputedStyle(column.firstElementChild).paddingInlineStart;
                 }),
+                radii: columns.map((column) => getComputedStyle(column).borderRadius),
                 colors: columns.map((column) => getComputedStyle(column).backgroundColor),
             };
         }, columnSelector);
@@ -70,12 +75,20 @@ export class SectionBlock {
         });
     }
 
+    async hoverColumnText() {
+        await this.editable.getByText('First column').hover();
+    }
+
+    async boundaryAppearance() {
+        return this.firstBoundary.evaluate((element) => {
+            const {opacity, backgroundImage, filter} = getComputedStyle(element, '::before');
+            return {opacity, backgroundImage, filter};
+        });
+    }
+
     async resizeFirstBoundary() {
         const grid = await this.editable.boundingBox();
-        const handle = await this.editable
-            .locator('.g-md-section-column-nodeview__handle')
-            .nth(1)
-            .boundingBox();
+        const handle = await this.firstBoundary.boundingBox();
         if (!grid || !handle) throw new Error('Expected a visible section and resize handle');
 
         const {gap} = await this.layout(this.editable);

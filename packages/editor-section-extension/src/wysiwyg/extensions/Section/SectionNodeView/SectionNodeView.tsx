@@ -82,7 +82,6 @@ export class SectionNodeView implements NodeView {
 
     private updateToolbar() {
         const active = this.view.editable && (this.hover || this.selected);
-        this.dom.classList.toggle(b({active: true}).split(' ')[1], active);
         if (!active) {
             this.toolbar?.remove();
             this.toolbar = undefined;

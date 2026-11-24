@@ -20,7 +20,7 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
 
 describe('Section editor', () => {
     it('should round trip layout options and editable blocks through Markdown', () => {
-        const source = `::::section{padding="true" gap="2"}
+        const source = `::::section{padding="true" gap="2" rounded="true"}
 
 :::column{size="5" background="blue"}
 
@@ -37,7 +37,7 @@ One
 ::::`;
         const doc = markupParser.parse(source);
         const section = doc.child(0);
-        expect(section.attrs).toEqual({padding: true, gap: '2'});
+        expect(section.attrs).toEqual({padding: true, gap: '2', rounded: true});
         expect(section.child(0).attrs).toEqual({size: 5, background: 'blue'});
         expect(section.child(1).attrs).toEqual({size: 7, background: 'green'});
         expect(sizes(section)).toEqual([5, 7]);
@@ -50,6 +50,7 @@ One
         expect(editor.run(insertSection)).toBe(true);
         expect(editor.state.selection.$from.index(1)).toBe(0);
         expect(sizes(editor.section)).toEqual([4, 4, 4]);
+        expect(editor.section.attrs.rounded).toBe(false);
         expect(editor.run(resizeSectionColumns(0, 0, [5, 3], [4, 4]))).toBe(true);
         expect(sizes(editor.section)).toEqual([5, 3, 4]);
         expect(editor.run(undo)).toBe(true);
@@ -64,7 +65,7 @@ One
         editor.run(setSectionSetting(0, 'padding', true));
         editor.run(setSectionSetting(0, 'padding', false));
 
-        expect(editor.section.attrs).toEqual({padding: false, gap: '3'});
+        expect(editor.section.attrs).toEqual({padding: false, gap: '3', rounded: false});
         expect(
             Array.from({length: 3}, (_, index) => editor.section.child(index).attrs.background),
         ).toEqual(['none', 'violet', 'none']);

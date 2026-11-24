@@ -19,13 +19,18 @@ export const sectionBackgrounds = [
 
 export type SectionGap = (typeof sectionGaps)[number];
 export type SectionBackground = (typeof sectionBackgrounds)[number];
-export type SectionSettings = {padding: boolean; gap: SectionGap};
+export type SectionSettings = {padding: boolean; gap: SectionGap; rounded: boolean};
 
-export const sectionDefaults: SectionSettings = {padding: false, gap: '5'};
+export const sectionDefaults: SectionSettings = {padding: false, gap: '5', rounded: false};
 
-export function sectionSettings(attrs: {padding?: unknown; gap?: unknown}): SectionSettings {
+export function sectionSettings(attrs: {
+    padding?: unknown;
+    gap?: unknown;
+    rounded?: unknown;
+}): SectionSettings {
     return {
         padding: attrs.padding === true || attrs.padding === 'true',
+        rounded: attrs.rounded === true || attrs.rounded === 'true',
         gap: sectionGaps.find((gap) => gap === attrs.gap) ?? sectionDefaults.gap,
     };
 }

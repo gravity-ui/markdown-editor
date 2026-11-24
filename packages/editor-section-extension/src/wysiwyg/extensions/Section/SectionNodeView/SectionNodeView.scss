@@ -1,13 +1,11 @@
 .g-md-section-nodeview {
     .g-md-section-column-nodeview {
         position: relative;
-
-        &:first-child > .g-md-section-column-nodeview__handle {
-            display: none;
-        }
     }
 
     .g-md-section-column-nodeview__handle {
+        --g-md-section-handle-direction: to right;
+
         position: absolute;
         z-index: 1;
         inset-block: 0;
@@ -20,34 +18,64 @@
         cursor: col-resize;
         user-select: none;
 
-        border-inline-start: 1px solid var(--g-color-line-generic);
-        background-color: var(--g-color-base-background);
+        &:dir(rtl) {
+            --g-md-section-handle-direction: to left;
+        }
+
+        &::before {
+            position: absolute;
+            inset-block: 0;
+            inset-inline-start: 0;
+
+            width: var(--g-spacing-6);
+
+            content: '';
+            pointer-events: none;
+
+            opacity: 0;
+            border-inline-start: 1px solid var(--g-color-line-generic);
+            background-image: linear-gradient(
+                var(--g-md-section-handle-direction),
+                var(--g-color-base-background),
+                transparent
+            );
+            filter: drop-shadow(0 1px 3px var(--g-color-sfx-shadow-heavy));
+        }
+
+        &:hover::before,
+        &_dragging::before {
+            opacity: 1;
+        }
 
         &_dragging {
             z-index: 2;
 
-            border-inline-start-color: var(--g-color-line-info);
-            background-color: var(--g-color-base-info-light);
+            &::before {
+                border-inline-start-color: var(--g-color-line-info);
+            }
 
             &::after {
                 position: absolute;
                 inset-block-start: var(--g-spacing-1);
-                inset-inline-start: 100%;
+                inset-inline-start: var(--g-spacing-6);
 
                 padding: var(--g-spacing-half) var(--g-spacing-1);
 
                 content: attr(data-sizes);
                 white-space: nowrap;
+                pointer-events: none;
 
                 color: var(--g-color-text-primary);
                 border-radius: var(--g-border-radius-xs);
                 background-color: var(--g-color-base-background);
+                box-shadow: 0 1px 3px var(--g-color-sfx-shadow);
             }
         }
     }
 
-    @media (width >= 640px) {
-        &_active
+    @media (width >= 640px) and (any-hover: hover) {
+        .ProseMirror[contenteditable='true']
+            &
             > .g-md-section-plugin
             > .g-md-section-column-nodeview:not(:first-child)
             > .g-md-section-column-nodeview__handle {
