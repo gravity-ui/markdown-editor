@@ -33,7 +33,7 @@ The settings panel opens inside the block, 16 px from its top and right edges, a
 Opening the panel focuses the height select; Escape or the close button closes it and returns focus to the settings button.
 Each height or width change is a separate undo step.
 The Background field of the panel opens the Background popup with the Fill and Image tabs and the Reset button.
-Choosing a color removes `bg-image`, `bg-image-theme`, and `bg-image-blur`; setting an image keeps the color; Reset and the clear button of the field remove all `bg-*` attributes.
+Choosing a color removes `bg-image`, `bg-theme`, and `bg-image-blur`; setting an image keeps the color; Reset and the clear button of the field remove all `bg-*` attributes.
 Each background change is one undo step.
 The popup opens with focus on the active tab; the palette has one Tab stop and supports arrow keys, Home, and End.
 The Image tab holds the image form of the editor: a file goes to `fileUploadHandler`, and a link is written into `bg-image` as is; without `fileUploadHandler`, the form takes a link only.
