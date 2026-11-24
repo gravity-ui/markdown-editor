@@ -194,7 +194,7 @@ The clicked item is built first; if skipped, collection stops. Callbacks run onc
 
 An open gallery keeps its items when HTML changes or `FilesGallery` unmounts. The next opening reads the current HTML. Items with the same URL stay separate; the clicked element sets the initial item.
 
-Standalone images become buttons and open with Enter or Space. An existing `tabindex` is kept; otherwise it is set to `0`. Existing `aria-label` and `aria-labelledby` are kept; otherwise the name uses `alt`, `title`, or the localized “Open image” label. Images with `role="presentation"` or `role="none"` keep their attributes and open only by click. Images inside links, buttons, or React slots, or with other explicit roles except `img`, are skipped. Canceled, repeated, or modified key presses do not open the gallery. Removing the extension or replacing HTML restores the original attributes.
+Standalone images become buttons and open with Enter or Space. An existing `tabindex` is kept; otherwise it is set to `0`. Existing `aria-label` and `aria-labelledby` are kept; otherwise the name uses `alt`, `title`, or the localized “Open image” label. Images with `role="presentation"` or `role="none"` keep their attributes and open only by click. Images inside links, buttons, React slots, or an element with `data-files-gallery-exclude`, or with other explicit roles except `img`, are skipped. Canceled, repeated, or modified key presses do not open the gallery. Removing the extension or replacing HTML restores the original attributes.
 
 To cancel gallery opening, call `preventDefault()` in `onClickCapture`. A regular React `onClick` runs after the gallery's native listener. This also cancels native link navigation:
 

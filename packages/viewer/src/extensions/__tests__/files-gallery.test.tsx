@@ -665,6 +665,21 @@ describe('FilesGallery', () => {
         expect(dialog?.textContent).not.toContain('1 / 2');
     });
 
+    it('should leave an excluded image without button controls', async () => {
+        await render(
+            <MarkdownViewer
+                html={`<img ${FILES_GALLERY_EXCLUDE_ATTRIBUTE}="true" src="/banner.png" alt="Banner">`}
+            >
+                <FilesGallery />
+            </MarkdownViewer>,
+        );
+        const image = container.querySelector('img');
+        assert(image);
+        expect(image.hasAttribute('role')).toBe(false);
+        expect(image.hasAttribute('tabindex')).toBe(false);
+        expect((await keydown(image, 'Enter')).defaultPrevented).toBe(false);
+    });
+
     it('should open a nested viewer gallery inside an outer React slot', async () => {
         await render(
             <MarkdownViewer html='<img src="/outer.png" alt="Outer"><div id="slot"></div>'>
