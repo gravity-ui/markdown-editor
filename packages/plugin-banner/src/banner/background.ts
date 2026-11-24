@@ -11,27 +11,27 @@ export const bannerBgColors: readonly BannerBgColor[] = bannerBgColorSaturations
     (saturation) => bannerBgColorFamilies.map((family) => `${family}-${saturation}` as const),
 );
 
-export const bannerBgImageThemes = ['system', 'light', 'dark'] as const;
-export type BannerBgImageTheme = (typeof bannerBgImageThemes)[number];
+export const bannerBgThemes = ['system', 'light', 'dark'] as const;
+export type BannerBgTheme = (typeof bannerBgThemes)[number];
 
 export type BannerBackground = {
     'bg-color': BannerBgColor | null;
     'bg-image': string | null;
-    'bg-image-theme': BannerBgImageTheme;
+    'bg-theme': BannerBgTheme;
     'bg-image-blur': boolean;
 };
 
 const bannerBackgroundNames = [
     'bg-color',
     'bg-image',
-    'bg-image-theme',
+    'bg-theme',
     'bg-image-blur',
 ] as const satisfies readonly (keyof BannerBackground)[];
 
 export const bannerBackgroundDefaults: Readonly<BannerBackground> = {
     'bg-color': null,
     'bg-image': null,
-    'bg-image-theme': 'system',
+    'bg-theme': 'system',
     'bg-image-blur': false,
 };
 
@@ -57,20 +57,15 @@ export function toCssUrl(raw: string): string | null {
 export function bannerBackground(
     attrs: Partial<Record<keyof BannerBackground, unknown>>,
 ): BannerBackground {
-    const {
-        'bg-color': color,
-        'bg-image': image,
-        'bg-image-theme': theme,
-        'bg-image-blur': blur,
-    } = attrs;
+    const {'bg-color': color, 'bg-image': image, 'bg-theme': theme, 'bg-image-blur': blur} = attrs;
     const safeImage = typeof image === 'string' ? safeImageUrl(image) : null;
     return {
         'bg-color': includes(bannerBgColors, color) ? color : bannerBackgroundDefaults['bg-color'],
         'bg-image': safeImage,
-        'bg-image-theme':
-            safeImage && includes(bannerBgImageThemes, theme)
+        'bg-theme':
+            safeImage && includes(bannerBgThemes, theme)
                 ? theme
-                : bannerBackgroundDefaults['bg-image-theme'],
+                : bannerBackgroundDefaults['bg-theme'],
         'bg-image-blur': Boolean(safeImage) && (blur === true || blur === 'true'),
     };
 }
