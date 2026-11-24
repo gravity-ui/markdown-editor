@@ -18,6 +18,7 @@ export function SegmentedSelect<T extends string>({
     onUpdate,
     className,
 }: SegmentedSelectProps<T>) {
+    const select = (next: string) => onUpdate(next as T);
     return (
         <SettingsRow label={label}>
             {(labelId) => (
@@ -26,7 +27,7 @@ export function SegmentedSelect<T extends string>({
                     size="m"
                     aria-labelledby={labelId}
                     value={value}
-                    onUpdate={(next) => onUpdate(next as T)}
+                    onUpdate={select}
                 >
                     {options.map((option) => (
                         <SegmentedRadioGroup.Option

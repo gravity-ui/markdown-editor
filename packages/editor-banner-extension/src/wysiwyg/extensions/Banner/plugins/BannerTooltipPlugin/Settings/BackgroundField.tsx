@@ -19,20 +19,20 @@ export type BackgroundControls = BannerUploadLimits & {
     cancelUpload?: () => void;
 };
 
-function BackgroundPreview({value}: {value: BannerBackground}) {
-    const {'bg-image': image, 'bg-color': color} = value;
-    if (image) return <img className={cnBannerSettings('preview')} src={image} alt="" />;
-    if (color) return <span className={cnBannerSettings('preview')} style={bgColorStyle(color)} />;
-    return <Icon data={SquareMinus} size={16} />;
-}
-
 export function BackgroundField({background}: {background: BackgroundControls}) {
-    const {value, onChange} = background;
-    const {'bg-image': image, 'bg-color': color} = value;
     const [open, setOpen] = useState(false);
     const buttonRef = useRef<HTMLButtonElement>(null);
-    const valueId = useUniqId();
+    const {value, onChange} = background;
+    const {'bg-image': image, 'bg-color': color} = value;
     const clearable = Boolean(image || color);
+    const toggle = () => setOpen(!open);
+    const close = () => setOpen(false);
+    const clear = () => {
+        onChange(bannerBackgroundDefaults);
+        buttonRef.current?.focus();
+    };
+    const setBlur = (checked: boolean) => onChange({'bg-image-blur': checked});
+    const valueId = useUniqId();
     return (
         <SettingsRow label={i18n('background')}>
             {(labelId) => (
@@ -48,7 +48,7 @@ export function BackgroundField({background}: {background: BackgroundControls}) 
                                 aria-labelledby={`${labelId} ${valueId}`}
                                 aria-haspopup="dialog"
                                 aria-expanded={open}
-                                onClick={() => setOpen(!open)}
+                                onClick={toggle}
                             >
                                 <Button.Icon>
                                     <BackgroundPreview value={value} />
@@ -65,21 +65,14 @@ export function BackgroundField({background}: {background: BackgroundControls}) 
                                     view="flat-secondary"
                                     size="s"
                                     aria-label={i18n('background-remove')}
-                                    onClick={() => {
-                                        onChange(bannerBackgroundDefaults);
-                                        buttonRef.current?.focus();
-                                    }}
+                                    onClick={clear}
                                 >
                                     <Icon data={Xmark} size={14} />
                                 </Button>
                             )}
                         </div>
                         {image && (
-                            <Checkbox
-                                size="l"
-                                checked={value['bg-image-blur']}
-                                onUpdate={(checked) => onChange({'bg-image-blur': checked})}
-                            >
+                            <Checkbox size="l" checked={value['bg-image-blur']} onUpdate={setBlur}>
                                 {i18n('background-blur')}
                             </Checkbox>
                         )}
@@ -88,11 +81,18 @@ export function BackgroundField({background}: {background: BackgroundControls}) 
                         <BackgroundPopup
                             anchor={buttonRef.current}
                             background={background}
-                            onClose={() => setOpen(false)}
+                            onClose={close}
                         />
                     )}
                 </>
             )}
         </SettingsRow>
     );
+}
+
+function BackgroundPreview({value}: {value: BannerBackground}) {
+    const {'bg-image': image, 'bg-color': color} = value;
+    if (image) return <img className={cnBannerSettings('preview')} src={image} alt="" />;
+    if (color) return <span className={cnBannerSettings('preview')} style={bgColorStyle(color)} />;
+    return <Icon data={SquareMinus} size={16} />;
 }

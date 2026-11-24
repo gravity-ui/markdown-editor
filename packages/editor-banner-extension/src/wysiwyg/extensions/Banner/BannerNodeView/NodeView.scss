@@ -8,4 +8,9 @@
         border-color: transparent;
         background-origin: border-box;
     }
+
+    // The blurred image layer is positioned in the padding box; the margin extends it over the frame.
+    &[data-bg-image-blur]::before {
+        margin: -2px;
+    }
 }

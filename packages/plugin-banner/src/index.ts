@@ -16,6 +16,7 @@ export {
     type BannerHeight,
     type BannerWidth,
     bannerBackgroundDefaults,
+    bannerBgColorFamilies,
     bannerBgColors,
     bannerClassName,
     bannerDefaults,
