@@ -463,6 +463,84 @@ test.describe('Banner', () => {
     });
 });
 
+test.describe('Banner layout', () => {
+    // A banner narrower than 600 px shows the image above the text.
+    const narrowSizes = {
+        '--g-md-banner-plugin-height-s': '120px',
+        '--g-md-banner-plugin-width-s': '599px',
+        '--g-md-banner-plugin-width-m': '600px',
+        '--g-md-banner-plugin-width-l': '601px',
+    } as CSSProperties;
+    const image = '::banner-image{src="assets/banner-image-landscape.svg" alt="Team"}';
+    const layoutMarkup = [
+        ...['s', 'm', 'l'].map((width) =>
+            [`:::banner{width="${width}"}`, image, '::banner-title[Team portal]', ':::'].join(
+                '\n\n',
+            ),
+        ),
+        [':::banner{width="m"}', image, ':::'].join('\n\n'),
+    ].join('\n\n');
+
+    type Box = {left: number; top: number; right: number; bottom: number; width: number};
+    type Boxes = {banner: Box | null; image: Box | null; title: Box | null}[];
+
+    function expectLayout([narrow, wide, wider, imageOnly]: Boxes) {
+        expect(narrow.banner?.width).toBe(599);
+        expect(wide.banner?.width).toBe(600);
+        expect(wider.banner?.width).toBe(601);
+        // Narrow: the image is above the text.
+        expect(narrow.image?.bottom).toBeLessThanOrEqual(narrow.title?.top ?? 0);
+        // Wide: the image is in the right column beside the text.
+        for (const {image: picture, title} of [wide, wider]) {
+            expect(picture?.left).toBeGreaterThanOrEqual(title?.right ?? Infinity);
+            expect(picture?.top).toBeLessThan(title?.bottom ?? 0);
+        }
+        // An image without text fills the banner, 8 px from its edges.
+        expect(imageOnly.image?.width).toBe((imageOnly.banner?.width ?? 0) - 16);
+    }
+
+    test('should lay out banners 599, 600 and 601 px wide @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        expectScreenshot,
+    }) => {
+        await mount(
+            <div style={narrowSizes}>
+                <BannerStories.Banner width={660} initial={`${layoutMarkup}\n\nAfter`} />
+            </div>,
+        );
+        await expect(banner.blocks).toHaveCount(4);
+        await expect(page.locator('.ProseMirror img.g-md-banner-image-plugin')).toHaveCount(4);
+        await editor.focus();
+        await editor.press('ControlOrMeta+End');
+        await expect(banner.toolbar).toBeHidden();
+        await expect(page.getByTestId('g-md-toolbar-banner-title')).toBeHidden();
+        expectLayout(await banner.layoutBoxes());
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should lay out banners 599, 600 and 601 px wide in the preview @markup', async ({
+        mount,
+        editor,
+        banner,
+        expectScreenshot,
+    }) => {
+        await mount(
+            <div style={narrowSizes}>
+                <BannerStories.Banner mode="markup" width={670} initial={layoutMarkup} />
+            </div>,
+        );
+        await editor.switchPreview('visible');
+        const blocks = editor.locators.previewContent.locator('.g-md-banner-plugin');
+        await expect(blocks).toHaveCount(4);
+        await expect(editor.locators.previewContent.locator('img')).toHaveCount(4);
+        expectLayout(await banner.layoutBoxes(blocks));
+        await expectScreenshot({component: editor.locators.component});
+    });
+});
+
 test.describe('Banner on mobile', () => {
     test.use({viewport: {width: 375, height: 812}});
 

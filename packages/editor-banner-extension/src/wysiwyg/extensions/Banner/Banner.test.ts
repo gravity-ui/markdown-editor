@@ -29,9 +29,12 @@ import {
 } from '@gravity-ui/markdown-editor/specs';
 import {
     type BannerDimensions,
+    bannerAligns,
     bannerBackgroundDefaults,
     bannerDefaults,
     bannerLayoutDefaults,
+    bannerLayoutValues,
+    bannerVerticals,
 } from '@gravity-ui/markdown-plugin-banner';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
@@ -45,6 +48,8 @@ import {
     removeBanner,
     setBannerBackground,
     setBannerDimension,
+    setBannerLayout,
+    setBannerPart,
     toggleBannerPart,
 } from './commands';
 import type {BannerPartSpec} from './parts';
@@ -458,5 +463,68 @@ describe('Banner extension', () => {
         expect(paragraph).not.toBeNull();
         paragraph?.replaceChildren(document.createTextNode('After'));
         await expect.poll(() => editor.state.doc.firstChild?.textContent).toBe('After');
+    });
+
+    describe('layout', () => {
+        it.each([
+            ...bannerAligns.map((align) => ({align, vertical: bannerLayoutDefaults.vertical})),
+            ...bannerVerticals.map((vertical) => ({align: bannerLayoutDefaults.align, vertical})),
+        ])('should round trip align $align and vertical $vertical', (layout) => {
+            const values = bannerLayoutValues(layout);
+            const attrs = Object.entries(values).map(([name, value]) => ` ${name}="${value}"`);
+            const source = `:::banner{height="s" width="m"${attrs.join('')}}\n\n:::`;
+            const doc = markupParser.parse(source);
+            expect(doc.firstChild?.attrs).toMatchObject(layout);
+            expect(serializer.serialize(doc)).toBe(source);
+            const container = document.createElement('div');
+            container.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
+            expect(DOMParser.fromSchema(schema).parse(container).toJSON()).toEqual(doc.toJSON());
+        });
+
+        it('should keep the source order of the child blocks', () => {
+            const source = [
+                ':::banner{height="s" width="m"}',
+                ':::banner-content\n\nText\n\n:::',
+                '::banner-title[Title]',
+                '::banner-image{src="/a.png"}',
+                ':::',
+            ].join('\n\n');
+            const doc = markupParser.parse(source);
+            const types: string[] = [];
+            doc.firstChild?.forEach((child) => types.push(child.type.name));
+            expect(types).toEqual(['banner_content', 'banner_title', 'banner_image']);
+            expect(serializer.serialize(doc)).toBe(source);
+        });
+
+        it.each([
+            ['image', 'title', 'content'],
+            ['content', 'title', 'image'],
+            ['title', 'content', 'image'],
+            ['content', 'image', 'title'],
+        ] as const)('should insert the parts in their order when switched on as %j', (...order) => {
+            const editor = createView();
+            for (const part of order) {
+                expect(run(editor, setBannerPart(0, part, true))).toBe(true);
+            }
+            const types: string[] = [];
+            editor.state.doc.firstChild?.forEach((child) => types.push(child.type.name));
+            expect(types).toEqual(['banner_image', 'banner_title', 'banner_content']);
+        });
+
+        it('should change the layout in one undo step each', () => {
+            const editor = createView();
+            const layout = () => {
+                const {align, vertical} = editor.state.doc.firstChild?.attrs ?? {};
+                return {align, vertical};
+            };
+            expect(run(editor, setBannerLayout(0, 'align', 'right'))).toBe(true);
+            expect(run(editor, setBannerLayout(0, 'vertical', 'bottom'))).toBe(true);
+            expect(layout()).toEqual({align: 'right', vertical: 'bottom'});
+            expect(undo(editor.state, editor.dispatch)).toBe(true);
+            expect(layout()).toEqual({align: 'right', vertical: 'center'});
+            expect(undo(editor.state, editor.dispatch)).toBe(true);
+            expect(layout()).toEqual(bannerLayoutDefaults);
+            expect(setBannerLayout(1, 'align', 'center')(editor.state)).toBe(false);
+        });
     });
 });
