@@ -27,6 +27,7 @@ import mark from '@gravity-ui/markdown-editor/markdown-it/mark';
 import sub from '@gravity-ui/markdown-editor/markdown-it/sub';
 import {
     bannerContentPlugin,
+    bannerImagePlugin,
     bannerPlugin,
     bannerTitlePlugin,
     buttonPlugin,
@@ -91,6 +92,7 @@ export function getPlugins({
         bannerPlugin,
         bannerTitlePlugin,
         bannerContentPlugin,
+        bannerImagePlugin,
         buttonPlugin,
         (md) => md.use(emoji, {defs: emojiDefs}),
         checkbox,

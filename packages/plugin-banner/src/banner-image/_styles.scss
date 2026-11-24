@@ -1,0 +1,19 @@
+.g-md-banner-image-plugin {
+    --_--border-radius: var(
+        --g-md-banner-image-plugin-border-radius,
+        var(--g-border-radius-xl, 10px)
+    );
+    --_--background: var(--g-md-banner-image-plugin-background, var(--g-color-base-float-hover));
+
+    display: block;
+
+    // Doubled class: the image rules of `.yfm` are more specific than one class.
+    &#{&} {
+        max-width: 100%;
+        margin-block: var(--g-md-banner-image-plugin-margin-block, 0 var(--g-spacing-4, 16px));
+
+        border-radius: var(--_--border-radius);
+        background-color: var(--_--background);
+        object-fit: cover;
+    }
+}
