@@ -6,6 +6,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest';
 import {ExtensionsManager} from '#core';
 import {BaseSchemaSpecs} from 'src/extensions/base/specs';
 import {BlockquoteSpecs} from 'src/extensions/markdown/Blockquote/BlockquoteSpecs';
+import {CodeBlockSpecs} from 'src/extensions/markdown/CodeBlock/CodeBlockSpecs';
 import {Lists} from 'src/extensions/markdown/Lists';
 import {YfmTableSpecs} from 'src/extensions/yfm/YfmTable/YfmTableSpecs';
 import {DataTransferType} from 'src/utils/clipboard';
@@ -20,6 +21,7 @@ const {markupParser, textParser, serializer, plugins, schema} = new ExtensionsMa
         builder
             .use(BaseSchemaSpecs, {})
             .use(BlockquoteSpecs)
+            .use(CodeBlockSpecs, {})
             .use(Lists, {})
             .use(YfmTableSpecs, {})
             .use(Clipboard, {}),
@@ -69,35 +71,10 @@ describe('ordinary clipboard', () => {
     });
 });
 
-function findTextPos(doc: Node, text: string): number {
-    let result = -1;
-    doc.descendants((node, pos) => {
-        if (result === -1 && node.text === text) result = pos;
-    });
-    if (result === -1) throw new Error(`Text "${text}" is not found`);
-    return result;
-}
-
 type SelectionFactory = (doc: Node) => Selection;
 
-function selectText(from: string, fromOffset: number, to: string, toOffset: number) {
-    return (doc: Node) =>
-        TextSelection.create(
-            doc,
-            findTextPos(doc, from) + fromOffset,
-            findTextPos(doc, to) + toOffset,
-        );
-}
-
-function selectWholeText(from: string, to: string) {
-    return selectText(from, 0, to, to.length);
-}
-
-function createView(markup: string, selection?: SelectionFactory) {
-    const doc = markupParser.parse(markup);
-    return new EditorView(null, {
-        state: EditorState.create({doc, selection: selection?.(doc), plugins}),
-    });
+function copy(markup: string, selection: SelectionFactory) {
+    return dispatchClipboardEvent(markup, selection).clipboardData.getData(DataTransferType.Yfm);
 }
 
 function dispatchClipboardEvent(
@@ -113,8 +90,38 @@ function dispatchClipboardEvent(
     return {clipboardData, markupAfter};
 }
 
-function copy(markup: string, selection: SelectionFactory) {
-    return dispatchClipboardEvent(markup, selection).clipboardData.getData(DataTransferType.Yfm);
+function createView(markup: string, selection?: SelectionFactory) {
+    const doc = markupParser.parse(markup);
+    return new EditorView(null, {
+        state: EditorState.create({doc, selection: selection?.(doc), plugins}),
+    });
+}
+
+function selectWholeText(from: string, to: string): SelectionFactory {
+    return selectText(from, 0, to, to.length);
+}
+
+function selectText(
+    from: string,
+    fromOffset: number,
+    to: string,
+    toOffset: number,
+): SelectionFactory {
+    return (doc) =>
+        TextSelection.create(
+            doc,
+            findTextPos(doc, from) + fromOffset,
+            findTextPos(doc, to) + toOffset,
+        );
+}
+
+function findTextPos(doc: Node, text: string): number {
+    let result = -1;
+    doc.descendants((node, pos) => {
+        if (result === -1 && node.text === text) result = pos;
+    });
+    if (result === -1) throw new Error(`Text "${text}" is not found`);
+    return result;
 }
 
 describe('list item with nested items', () => {
@@ -160,6 +167,10 @@ describe('list item with nested items', () => {
         );
     });
 
+    it('should keep the marker when the selection goes from the first to the second paragraph of the item', () => {
+        expect(copy('* A1\n\n  B1', selectWholeText('A1', 'B1'))).toBe('* A1\n\n  B1');
+    });
+
     it('should keep the ordered list', () => {
         expect(copy('1. Parent\n   1. Child', selectWholeText('Parent', 'Child'))).toBe(
             '1. Parent\n   1. Child',
@@ -176,6 +187,12 @@ describe('list item with nested items', () => {
         expect(
             copy('* Level1\n  * Level2\n    * Level3', selectWholeText('Level1', 'Level3')),
         ).toBe('* Level1\n  * Level2\n    * Level3');
+    });
+
+    it('should not copy the unselected outer item', () => {
+        expect(copy('* Outer\n  * Parent\n    * Child', selectWholeText('Parent', 'Child'))).toBe(
+            '* Parent\n  * Child',
+        );
     });
 
     it('should keep the list without the blockquote', () => {
@@ -219,5 +236,13 @@ describe('list item with nested items', () => {
 
         expect(clipboardData.getData(DataTransferType.Yfm)).toBe('* Parent\n  * Child');
         expect(markupAfter).toBe('* Before\n* After');
+    });
+});
+
+describe('whitespace-only code block', () => {
+    it('should keep the code block at the end of the copied content', () => {
+        expect(copy('Text\n\n```\n   \n```', selectWholeText('Text', '   '))).toBe(
+            'Text\n\n```\n   \n```',
+        );
     });
 });
