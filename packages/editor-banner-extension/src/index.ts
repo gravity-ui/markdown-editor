@@ -1,3 +1,3 @@
 export {insertBanner} from './markup';
 export {toolbarBannerItem} from './toolbar/items';
-export {Button, Banner} from './wysiwyg';
+export {Button, Banner, type BannerOptions} from './wysiwyg';

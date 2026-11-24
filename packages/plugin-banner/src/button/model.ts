@@ -1,3 +1,5 @@
+import {includes} from '../utils';
+
 export const buttonTokenName = 'g_md_button';
 export const buttonClassName = 'g-md-button-plugin';
 
@@ -50,11 +52,11 @@ export const buttonDefaults: Readonly<ButtonModel> = {
 export const buttonDefaultColor = (view: ButtonView): ButtonColor => buttonViewColors[view][0];
 
 export function isButtonView(value: unknown): value is ButtonView {
-    return (buttonViews as readonly unknown[]).includes(value);
+    return includes(buttonViews, value);
 }
 
 export function isButtonTarget(value: unknown): value is ButtonTarget {
-    return (buttonTargets as readonly unknown[]).includes(value);
+    return includes(buttonTargets, value);
 }
 
 export function buttonModel(attrs: Partial<Record<keyof ButtonModel, unknown>>): ButtonModel {

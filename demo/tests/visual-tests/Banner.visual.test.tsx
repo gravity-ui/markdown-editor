@@ -296,7 +296,11 @@ test.describe('Banner', () => {
 
         await expect(banner.background).toHaveAccessibleName('Background No background');
         await banner.background.click();
-        expect(messages).toContain('Background button clicked');
+        // Until the popup takes focus, the settings panel handles Escape.
+        await expect(banner.backgroundTab('Fill')).toBeFocused();
+        await page.keyboard.press('Escape');
+        await expect(banner.backgroundPopup).toBeHidden();
+        await expect(banner.settings).toBeVisible();
         expect(await page.evaluate(() => window.mdEditor?.getValue())).toBe(initial);
 
         await banner.section('Text').click();
@@ -337,6 +341,28 @@ test.describe('Banner', () => {
             'true',
         );
         await expect(banner.height).toHaveText('M');
+    });
+
+    test('should select a background fill with arrow keys @wysiwyg', async ({
+        mount,
+        editor,
+        banner,
+    }) => {
+        await mount(<BannerStories.Banner width={660} />);
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await banner.openSettings();
+        await banner.background.click();
+
+        await banner.backgroundSwatch('Gray 20%').press('ArrowRight');
+        await expect(banner.backgroundSwatch('Green 20%')).toBeFocused();
+        await expect(banner.backgroundSwatch('Green 20%')).toBeChecked();
+        await expect(banner.blocks).toHaveAttribute('data-bg-color', 'green-light');
+
+        await banner.backgroundSwatch('Green 20%').press('ArrowDown');
+        await expect(banner.backgroundSwatch('Green 50%')).toBeFocused();
+        await expect(banner.backgroundSwatch('Green 50%')).toBeChecked();
+        await expect(banner.blocks).toHaveAttribute('data-bg-color', 'green-medium');
     });
 
     test('should select the settings text with the mouse @wysiwyg', async ({

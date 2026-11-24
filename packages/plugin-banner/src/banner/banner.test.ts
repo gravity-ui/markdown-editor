@@ -1,7 +1,13 @@
 import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
-import {bannerHeights, bannerPlugin, bannerTokenName, bannerWidths} from '../index';
+import {
+    bannerClassNames,
+    bannerHeights,
+    bannerPlugin,
+    bannerTokenName,
+    bannerWidths,
+} from '../index';
 
 const md = new MarkdownIt().use(bannerPlugin);
 const bannerOpen = `${bannerTokenName}_open`;
@@ -11,6 +17,12 @@ const html = (height: string, width: string) =>
     `<div class="g-md-banner-plugin g-md-banner-plugin_height_${height} g-md-banner-plugin_width_${width}" data-height="${height}" data-width="${width}"></div>\n`;
 
 describe('Banner Markdown', () => {
+    it('should return the dimension classes for public callers', () => {
+        expect(bannerClassNames({height: 'l', width: 'unknown'})).toBe(
+            'g-md-banner-plugin g-md-banner-plugin_height_l g-md-banner-plugin_width_m',
+        );
+    });
+
     for (const height of bannerHeights) {
         for (const width of bannerWidths) {
             it(`should render height ${height} and width ${width}`, () => {

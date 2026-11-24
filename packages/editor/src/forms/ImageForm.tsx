@@ -1,6 +1,6 @@
 import {useLayoutEffect, useState} from 'react';
 
-import {TextInput, type TextInputProps} from '@gravity-ui/uikit';
+import {TextInput, type TextInputProps, useUniqId} from '@gravity-ui/uikit';
 import {Tabs} from '@gravity-ui/uikit/legacy';
 
 import {type ClassNameProps, cn} from '../classname';
@@ -37,6 +37,10 @@ export type ImageFormProps = ClassNameProps & {
     loading?: boolean;
     imageTitle?: string;
     uploadHint?: string;
+    /** Additional link fields to display. All are shown by default. */
+    fields?: readonly ('name' | 'alt' | 'size')[];
+    /** Allow selecting multiple files. Defaults to true. */
+    multiple?: boolean;
 };
 
 export const ImageForm: React.FC<ImageFormProps> = ({
@@ -48,6 +52,8 @@ export const ImageForm: React.FC<ImageFormProps> = ({
     loading,
     imageTitle: providedName,
     uploadHint,
+    fields = ['name', 'alt', 'size'],
+    multiple = true,
 }) => {
     const [tabId, setTabId] = useState<string>(() =>
         isFunction(onAttach) ? ImageTabId.Attach : ImageTabId.Link,
@@ -58,6 +64,7 @@ export const ImageForm: React.FC<ImageFormProps> = ({
     const [width, setWidth] = useState<number | undefined>();
     const [height, setHeight] = useState<number | undefined>();
 
+    const linkLabelId = useUniqId();
     const shouldRenderTabs = isFunction(onAttach);
     useLayoutEffect(() => {
         if (!shouldRenderTabs && tabId === ImageTabId.Attach) {
@@ -75,7 +82,10 @@ export const ImageForm: React.FC<ImageFormProps> = ({
         if (typeof height === 'number' && height >= 0) data.height = height;
         onSubmit(data);
     };
-    const inputEnterKeyHandler: TextInputProps['onKeyDown'] = enterKeyHandler(handleSubmit);
+    const inputEnterKeyHandler: TextInputProps['onKeyDown'] = enterKeyHandler((event) => {
+        event.preventDefault();
+        handleSubmit();
+    });
 
     return (
         <Form.Form className={b(null, [className])}>
@@ -94,7 +104,7 @@ export const ImageForm: React.FC<ImageFormProps> = ({
                     <Form.Layout>{uploadHint ?? i18n('image_upload_help')}</Form.Layout>
                     <Form.Footer onCancel={onCancel}>
                         <ButtonAttach
-                            multiple
+                            multiple={multiple}
                             accept="image/*"
                             onUpdate={onAttach}
                             buttonProps={{size: 's', view: 'action', loading}}
@@ -108,13 +118,14 @@ export const ImageForm: React.FC<ImageFormProps> = ({
                 <>
                     <Form.Layout>
                         <Form.Row
-                            label={i18n('common_link')}
+                            label={<span id={linkLabelId}>{i18n('common_link')}</span>}
                             control={
                                 <TextInputFixed
                                     size="s"
                                     view="normal"
                                     value={url}
                                     onUpdate={setUrl}
+                                    controlProps={{'aria-labelledby': linkLabelId}}
                                     placeholder="https://"
                                     autoFocus={autoFocus}
                                     className={b('input', {type: 'link'})}
@@ -122,61 +133,67 @@ export const ImageForm: React.FC<ImageFormProps> = ({
                                 />
                             }
                         />
-                        <Form.Row
-                            label={i18n('image_name')}
-                            control={
-                                <TextInput
-                                    size="s"
-                                    view="normal"
-                                    value={name}
-                                    onUpdate={setName}
-                                    className={b('input', {type: 'name'})}
-                                    onKeyDown={inputEnterKeyHandler}
-                                />
-                            }
-                        />
-                        <Form.Row
-                            label={i18n('image_alt')}
-                            help={i18n('image_alt_help')}
-                            control={
-                                <TextInput
-                                    size="s"
-                                    view="normal"
-                                    value={alt}
-                                    onUpdate={setAlt}
-                                    className={b('input', {type: 'alt'})}
-                                    onKeyDown={inputEnterKeyHandler}
-                                />
-                            }
-                        />
-                        <Form.Row
-                            label={i18n('common_sizes')}
-                            control={
-                                <div className={b('size-controls')}>
-                                    <NumberInput
-                                        min={0}
+                        {fields.includes('name') && (
+                            <Form.Row
+                                label={i18n('image_name')}
+                                control={
+                                    <TextInput
                                         size="s"
                                         view="normal"
-                                        value={width}
-                                        onUpdate={setWidth}
-                                        placeholder={i18n('image_size_width')}
-                                        className={b('input', {type: 'width'})}
+                                        value={name}
+                                        onUpdate={setName}
+                                        className={b('input', {type: 'name'})}
                                         onKeyDown={inputEnterKeyHandler}
                                     />
-                                    x
-                                    <NumberInput
-                                        min={0}
+                                }
+                            />
+                        )}
+                        {fields.includes('alt') && (
+                            <Form.Row
+                                label={i18n('image_alt')}
+                                help={i18n('image_alt_help')}
+                                control={
+                                    <TextInput
                                         size="s"
                                         view="normal"
-                                        value={height}
-                                        onUpdate={setHeight}
-                                        placeholder={i18n('image_size_height')}
-                                        className={b('input', {type: 'height'})}
+                                        value={alt}
+                                        onUpdate={setAlt}
+                                        className={b('input', {type: 'alt'})}
                                         onKeyDown={inputEnterKeyHandler}
                                     />
-                                </div>
-                            }
-                        />
+                                }
+                            />
+                        )}
+                        {fields.includes('size') && (
+                            <Form.Row
+                                label={i18n('common_sizes')}
+                                control={
+                                    <div className={b('size-controls')}>
+                                        <NumberInput
+                                            min={0}
+                                            size="s"
+                                            view="normal"
+                                            value={width}
+                                            onUpdate={setWidth}
+                                            placeholder={i18n('image_size_width')}
+                                            className={b('input', {type: 'width'})}
+                                            onKeyDown={inputEnterKeyHandler}
+                                        />
+                                        x
+                                        <NumberInput
+                                            min={0}
+                                            size="s"
+                                            view="normal"
+                                            value={height}
+                                            onUpdate={setHeight}
+                                            placeholder={i18n('image_size_height')}
+                                            className={b('input', {type: 'height'})}
+                                            onKeyDown={inputEnterKeyHandler}
+                                        />
+                                    </div>
+                                }
+                            />
+                        )}
                     </Form.Layout>
                     <Form.Footer onCancel={onCancel} onSubmit={handleSubmit} />
                 </>
