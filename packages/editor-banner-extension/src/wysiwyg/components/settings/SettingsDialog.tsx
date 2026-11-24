@@ -62,15 +62,16 @@ export function SettingsDialog({
                     >
                         {title}
                     </Text>
-                    <Button
-                        className={cnBannerSettings('close', {size: closeSize})}
-                        view="flat"
-                        size={closeSize}
-                        aria-label={i18n('close')}
-                        onClick={() => onClose()}
-                    >
-                        <Icon data={Xmark} size={CLOSE_ICON_SIZE} />
-                    </Button>
+                    <span className={cnBannerSettings('close')}>
+                        <Button
+                            view="flat"
+                            size={closeSize}
+                            aria-label={i18n('close')}
+                            onClick={() => onClose()}
+                        >
+                            <Icon data={Xmark} size={CLOSE_ICON_SIZE} />
+                        </Button>
+                    </span>
                 </div>
                 {children}
             </dialog>

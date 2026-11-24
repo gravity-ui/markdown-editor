@@ -31,13 +31,16 @@ const insideTopEdge = (block: HTMLElement): PopupAnchorElement => ({
 });
 
 // Replace the Popup defaults, so the panel stays in the corner instead of flipping.
-// It ends `PANEL_INSET` px above the viewport bottom; at `PANEL_MIN_HEIGHT` it moves up instead.
+// It keeps `PANEL_INSET` px from the viewport edges; at `PANEL_MIN_HEIGHT` it moves up instead.
 const middlewares = [
     size({
         padding: PANEL_INSET,
         apply: ({availableHeight, elements}) => {
+            const {style, ownerDocument} = elements.floating;
+            const width = ownerDocument.documentElement.clientWidth - 2 * PANEL_INSET;
             const height = Math.max(PANEL_MIN_HEIGHT, Math.min(PANEL_MAX_HEIGHT, availableHeight));
-            elements.floating.style.setProperty('--g-md-banner-settings-max-height', `${height}px`);
+            style.setProperty('--g-md-banner-settings-max-width', `${width}px`);
+            style.setProperty('--g-md-banner-settings-max-height', `${height}px`);
         },
     }),
     shift({padding: PANEL_INSET, crossAxis: true, limiter: limitShift()}),

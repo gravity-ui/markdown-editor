@@ -1,7 +1,6 @@
 @use './dialog';
 
 $label-width: 120px;
-$viewport-inset: var(--g-spacing-4);
 $popup-width: 325px;
 $popup-field-width: 190px;
 
@@ -27,8 +26,12 @@ $popup-field-width: 190px;
         height: var(--g-spacing-7);
     }
 
-    &__close_size_l {
-        margin-inline-end: calc(-1 * var(--g-spacing-1));
+    // The 36 px button overflows this 28 px square by 4 px on each side.
+    &__close {
+        display: flex;
+        justify-content: center;
+
+        width: var(--g-spacing-7);
     }
 
     &__row {
@@ -45,9 +48,11 @@ $popup-field-width: 190px;
     }
 
     &__label {
+        display: flex;
+        align-items: center;
         align-self: start;
 
-        padding-block: calc((var(--g-spacing-7) - var(--g-text-body-1-line-height)) / 2);
+        min-height: var(--g-spacing-7);
     }
 
     &__popup {
@@ -55,7 +60,7 @@ $popup-field-width: 190px;
         flex-direction: column;
 
         box-sizing: border-box;
-        width: min($popup-width, calc(100vw - 2 * #{$viewport-inset}));
+        width: $popup-width;
         padding: var(--g-spacing-3) var(--g-spacing-4) var(--g-spacing-4);
     }
 

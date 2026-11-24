@@ -1,5 +1,4 @@
 $panel-width: 320px;
-$viewport-inset: var(--g-spacing-4);
 
 .g-md-banner-settings {
     display: flex;
@@ -8,7 +7,8 @@ $viewport-inset: var(--g-spacing-4);
     gap: var(--g-spacing-4);
 
     box-sizing: border-box;
-    width: min($panel-width, calc(100vw - 2 * #{$viewport-inset}));
+    width: $panel-width;
+    max-width: var(--g-md-banner-settings-max-width);
     max-height: var(--g-md-banner-settings-max-height);
     padding: var(--g-spacing-4);
 
