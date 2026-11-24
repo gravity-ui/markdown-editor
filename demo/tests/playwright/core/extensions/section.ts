@@ -38,7 +38,12 @@ export class SectionBlock {
 
     async select(control: Locator, option: string) {
         await control.click();
-        await this.page.getByRole('option', {name: option, exact: true}).click();
+        const popupId = await control.getAttribute('aria-controls');
+        if (!popupId) throw new Error('Expected the selected control to open a list');
+        await this.page
+            .locator(`[id="${popupId}"]`)
+            .getByRole('option', {name: option, exact: true})
+            .click();
     }
 
     async clearDimension(control: Locator) {
