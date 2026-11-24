@@ -15,7 +15,7 @@ The banner follows the [Banner Spec](https://htmlpreview.github.io/?https://gist
   3. Handlers.
   4. Other hooks.
   5. `return`.
-- Helper functions live in `utils.ts` next to the components, or in a shared `utils.ts` when several folders use them.
+- Helper functions live in `utils.ts` next to the components, or in the shared `utils/` folder when several folders use them.
 
 ## Shared rules
 

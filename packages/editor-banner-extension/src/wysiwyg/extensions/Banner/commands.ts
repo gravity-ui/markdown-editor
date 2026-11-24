@@ -34,8 +34,11 @@ export const insertBanner: Command = (state, dispatch) => {
 export const setBannerDimension =
     <K extends keyof BannerDimensions>(pos: number, name: K, value: BannerDimensions[K]): Command =>
     (state, dispatch) => {
-        if (!bannerAt(state, pos)) return false;
-        dispatch?.(state.tr.setNodeAttribute(pos, name, value));
+        const node = bannerAt(state, pos);
+        if (!node) return false;
+        if (dispatch && node.attrs[name] !== value) {
+            dispatch(state.tr.setNodeAttribute(pos, name, value));
+        }
         return true;
     };
 

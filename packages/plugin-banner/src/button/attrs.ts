@@ -1,6 +1,9 @@
 import {cn} from '@bem-react/classname';
 
-import {ButtonAttr, type ButtonModel, buttonClassName, buttonModel} from './model';
+import type {AttrGetter} from '../utils';
+
+import {ButtonAttr, type ButtonModel, buttonClassName} from './const';
+import {buttonModel} from './utils';
 
 const b = cn(buttonClassName);
 
@@ -18,7 +21,7 @@ export function buttonAttrs(attrs: Partial<Record<keyof ButtonModel, unknown>>) 
     };
 }
 
-export function buttonFromAttrs(getAttr: (name: string) => string | null | undefined): ButtonModel {
+export function buttonFromAttrs(getAttr: AttrGetter): ButtonModel {
     return buttonModel({
         view: getAttr('data-view'),
         color: getAttr('data-color'),
