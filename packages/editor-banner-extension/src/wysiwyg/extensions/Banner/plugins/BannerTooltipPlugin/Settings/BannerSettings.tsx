@@ -11,6 +11,7 @@ import type {PopupAnchorElement} from '@gravity-ui/uikit';
 import {i18n} from '../../../../../../i18n';
 import {SettingsDialog, cnBannerSettings} from '../../../../settings';
 
+import type {BackgroundControls} from './BackgroundField';
 import {DimensionSelect} from './DimensionSelect';
 import {SettingsFields} from './SettingsFields';
 
@@ -50,6 +51,7 @@ type BannerSettingsProps = {
     button: HTMLElement | null;
     dimensions: BannerDimensions;
     onChange: <K extends keyof BannerDimensions>(name: K, value: BannerDimensions[K]) => void;
+    background: BackgroundControls;
     onClose: () => void;
 };
 
@@ -58,6 +60,7 @@ export function BannerSettings({
     button,
     dimensions,
     onChange,
+    background,
     onClose,
 }: BannerSettingsProps) {
     const anchorElement = useMemo(() => block && insideTopEdge(block), [block]);
@@ -91,7 +94,7 @@ export function BannerSettings({
                 format={(value) => (value === 'full' ? i18n('full-width') : value.toUpperCase())}
                 onUpdate={(value) => onChange('width', value)}
             />
-            <SettingsFields />
+            <SettingsFields background={background} />
         </SettingsDialog>
     );
 }

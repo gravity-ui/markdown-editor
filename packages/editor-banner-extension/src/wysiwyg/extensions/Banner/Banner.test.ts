@@ -27,7 +27,11 @@ import {
     ListsSpecs,
     boldMarkName,
 } from '@gravity-ui/markdown-editor/specs';
-import {type BannerDimensions, bannerDefaults} from '@gravity-ui/markdown-plugin-banner';
+import {
+    type BannerDimensions,
+    bannerBackgroundDefaults,
+    bannerDefaults,
+} from '@gravity-ui/markdown-plugin-banner';
 import {afterEach, describe, expect, it} from 'vitest';
 
 import {insertBanner as insertBannerMarkup} from '../../../markup/commands/insertBanner';
@@ -78,7 +82,7 @@ function createNodeView(markup: string) {
             builder
                 .use(BaseSchemaSpecs, {})
                 .use(ReactRendererExtension, new ReactRenderStorage())
-                .use(Banner),
+                .use(Banner, {}),
     }).build();
     view = new EditorView(document.createElement('div'), {
         state: EditorState.create({
@@ -99,7 +103,7 @@ describe('Banner extension', () => {
     ])('should round trip %j', ({height, width}) => {
         const source = `:::banner{height="${height}" width="${width}"}\n\n:::`;
         const doc = markupParser.parse(source);
-        expect(doc.firstChild?.attrs).toEqual({height, width});
+        expect(doc.firstChild?.attrs).toEqual({height, width, ...bannerBackgroundDefaults});
         expect(serializer.serialize(doc)).toBe(source);
         const container = document.createElement('div');
         container.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
@@ -120,8 +124,9 @@ describe('Banner extension', () => {
     });
 
     it('should use the same defaults in the schema and parser', () => {
-        expect(schema.nodes.banner.create().attrs).toEqual(bannerDefaults);
-        expect(markupParser.parse(':::banner\n:::').firstChild?.attrs).toEqual(bannerDefaults);
+        const defaults = {...bannerDefaults, ...bannerBackgroundDefaults};
+        expect(schema.nodes.banner.create().attrs).toEqual(defaults);
+        expect(markupParser.parse(':::banner\n:::').firstChild?.attrs).toEqual(defaults);
     });
 
     it('should insert the same dimensions in both editor modes', () => {
@@ -184,7 +189,11 @@ describe('Banner extension', () => {
             '</div>';
         const doc = DOMParser.fromSchema(schema).parse(container);
         expect(doc.firstChild?.type.name).toBe('banner');
-        expect(doc.firstChild?.attrs).toEqual({height: 'l', width: 'full'});
+        expect(doc.firstChild?.attrs).toEqual({
+            height: 'l',
+            width: 'full',
+            ...bannerBackgroundDefaults,
+        });
     });
 
     it('should remove a banner', () => {
