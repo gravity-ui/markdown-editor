@@ -46,6 +46,16 @@ const preview: Preview = {
                 ],
             },
         },
+        direction: {
+            defaultValue: 'ltr',
+            toolbar: {
+                title: 'Direction',
+                items: [
+                    {value: 'ltr', title: 'Left to right'},
+                    {value: 'rtl', title: 'Right to left'},
+                ],
+            },
+        },
     },
 };
 

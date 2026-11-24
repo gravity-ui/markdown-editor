@@ -25,6 +25,7 @@ export function CodeTextWrappingToggleButton({
             <Button
                 size="m"
                 view="flat"
+                aria-label={i18n('code_wrapping')}
                 selected={hasWrapping}
                 style={style}
                 data-qa={qa}
