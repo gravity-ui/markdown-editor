@@ -357,7 +357,7 @@ test.describe('Banner', () => {
             'bg-color="blue-medium"',
             `bg-image="${TEST_IMAGE}"`,
             `bg-image="${TEST_IMAGE}" bg-image-blur="true"`,
-            `bg-image="${TEST_IMAGE}" bg-image-theme="dark"`,
+            `bg-image="${TEST_IMAGE}" bg-theme="dark"`,
         ];
         await mount(
             <div style={smallSizes}>
@@ -594,12 +594,12 @@ test.describe('Banner', () => {
 
         await banner.select(banner.textColor, 'Always light');
         await expect(banner.blocks).toHaveClass(/\bg-root g-root_theme_dark\b/);
-        expect(await markup()).toMatch(/ bg-image-theme="dark"\}/);
+        expect(await markup()).toMatch(/ bg-theme="dark"\}/);
         await banner.select(banner.textColor, 'Always dark');
         await expect(banner.blocks).toHaveClass(/\bg-root_theme_light\b/);
         await banner.select(banner.textColor, 'Depends on the theme');
         await expect(banner.blocks).not.toHaveClass(/\bg-root\b/);
-        expect(await markup()).not.toContain('bg-image-theme');
+        expect(await markup()).not.toContain('bg-theme');
 
         await page.keyboard.press('Escape');
         await expect(banner.backgroundPopup).toBeHidden();

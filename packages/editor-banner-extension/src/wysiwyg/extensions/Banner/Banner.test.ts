@@ -323,14 +323,14 @@ describe('Banner extension', () => {
 
     it('should round trip background attributes with an escaped address', () => {
         const source =
-            ':::banner{height="s" width="m" bg-color="blue-light" bg-image="./.files/a \\"b\\" \\\\.jpg" bg-image-theme="dark" bg-image-blur="true"}\n\n:::';
+            ':::banner{height="s" width="m" bg-color="blue-light" bg-image="./.files/a \\"b\\" \\\\.jpg" bg-theme="dark" bg-image-blur="true"}\n\n:::';
         const doc = markupParser.parse(source);
         expect(doc.firstChild?.attrs).toEqual({
             height: 's',
             width: 'm',
             'bg-color': 'blue-light',
             'bg-image': './.files/a "b" \\.jpg',
-            'bg-image-theme': 'dark',
+            'bg-theme': 'dark',
             'bg-image-blur': true,
         });
         expect(serializer.serialize(doc)).toBe(source);
@@ -340,9 +340,9 @@ describe('Banner extension', () => {
     });
 
     it.each([
-        ':::banner{bg-image-theme="system" bg-image-blur="false"}\n:::',
-        ':::banner{bg-color="blue" bg-image-theme="sepia"}\n:::',
-        ':::banner{bg-image-theme="dark" bg-image-blur="true"}\n:::',
+        ':::banner{bg-theme="system" bg-image-blur="false"}\n:::',
+        ':::banner{bg-color="blue" bg-theme="sepia"}\n:::',
+        ':::banner{bg-theme="dark" bg-image-blur="true"}\n:::',
         `:::banner{bg-image="${['javascript', 'alert(1)'].join(':')}"}\n:::`,
         ':::banner{bg-image="data:text/html,<b>"}\n:::',
     ])('should not write default or unsupported background values from %j', (markup) => {
@@ -388,7 +388,7 @@ describe('Banner extension', () => {
 
     it('should reset the theme and the blur with the image', () => {
         const editor = createView(
-            ':::banner{bg-image="/a.png" bg-image-theme="dark" bg-image-blur="true"}\n:::',
+            ':::banner{bg-image="/a.png" bg-theme="dark" bg-image-blur="true"}\n:::',
         );
         expect(run(editor, setBannerBackground(0, {'bg-image': null}))).toBe(true);
         expect(serializer.serialize(editor.state.doc)).toBe(
@@ -398,7 +398,7 @@ describe('Banner extension', () => {
 
     it('should replace the image with a color in one undo step', () => {
         const source =
-            ':::banner{height="s" width="m" bg-image="/a.png" bg-image-theme="dark" bg-image-blur="true"}\n\n:::';
+            ':::banner{height="s" width="m" bg-image="/a.png" bg-theme="dark" bg-image-blur="true"}\n\n:::';
         const editor = createView(source);
         const color = {...bannerBackgroundDefaults, 'bg-color': 'blue-light'} as const;
         expect(run(editor, setBannerBackground(0, color))).toBe(true);
@@ -411,7 +411,7 @@ describe('Banner extension', () => {
 
     it('should render background attributes in the node view and remove them', () => {
         const editor = createNodeView(
-            ':::banner{bg-color="green-light" bg-image="/a.png" bg-image-theme="dark" bg-image-blur="true"}\n:::',
+            ':::banner{bg-color="green-light" bg-image="/a.png" bg-theme="dark" bg-image-blur="true"}\n:::',
         );
         const dom = editor.nodeDOM(0) as HTMLElement;
         expect(Array.from(dom.classList)).toEqual(
@@ -508,13 +508,13 @@ describe('Banner extension', () => {
             const upload = uploadBannerImage(editor, 0, file, handler);
             editor.dispatch(editor.state.tr.insertText('New ', 2));
             run(editor, setBannerDimension(0, 'height', 'l'));
-            run(editor, setBannerBackground(0, {'bg-image-theme': 'dark', 'bg-image-blur': true}));
+            run(editor, setBannerBackground(0, {'bg-theme': 'dark', 'bg-image-blur': true}));
             resolve({url: '/new.png'});
             await expect(upload).resolves.toBe(true);
             expect(editor.state.doc.firstChild?.attrs).toMatchObject({
                 height: 'l',
                 'bg-image': '/new.png',
-                'bg-image-theme': 'dark',
+                'bg-theme': 'dark',
                 'bg-image-blur': true,
             });
             expect(editor.state.doc.firstChild?.textContent).toBe('New Text');

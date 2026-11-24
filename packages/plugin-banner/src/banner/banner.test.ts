@@ -150,17 +150,17 @@ describe('Banner background', () => {
 
     it('should apply the theme and blur with an image', () => {
         const markup =
-            ':::banner{bg-color="gray-light" bg-image="https://example.com/a.png" bg-image-theme="dark" bg-image-blur="true"}\n:::';
+            ':::banner{bg-color="gray-light" bg-image="https://example.com/a.png" bg-theme="dark" bg-image-blur="true"}\n:::';
         expect(md.render(markup)).toBe(
             block(
                 ' g-md-banner-plugin_bg-color_gray-light g-md-banner-plugin_bg-image g-md-banner-plugin_bg-image-blur g-root g-root_theme_dark',
-                ' data-bg-color="gray-light" data-bg-image="https://example.com/a.png" data-bg-image-theme="dark" data-bg-image-blur="true" style="background-image:url(&quot;https://example.com/a.png&quot;)"',
+                ' data-bg-color="gray-light" data-bg-image="https://example.com/a.png" data-bg-theme="dark" data-bg-image-blur="true" style="background-image:url(&quot;https://example.com/a.png&quot;)"',
             ),
         );
     });
 
     it('should drop the theme and blur without an image', () => {
-        expect(md.render(':::banner{bg-image-theme="light" bg-image-blur="true"}\n:::')).toBe(
+        expect(md.render(':::banner{bg-theme="light" bg-image-blur="true"}\n:::')).toBe(
             html('s', 'm'),
         );
     });
@@ -170,8 +170,8 @@ describe('Banner background', () => {
         ':::banner{bg-color="blue"}\n:::',
         ':::banner{bg-color="blue-light" bg-color="red-light"}\n:::',
         ':::banner{bg-image=""}\n:::',
-        ':::banner{bg-image-theme="system"}\n:::',
-        ':::banner{bg-image-theme="sepia"}\n:::',
+        ':::banner{bg-theme="system"}\n:::',
+        ':::banner{bg-theme="sepia"}\n:::',
         ':::banner{bg-image-blur="false"}\n:::',
         ':::banner{bg-image-blur="yes"}\n:::',
     ])('should use the default for an unsupported or default value in %j', (markup) => {
@@ -189,9 +189,7 @@ describe('Banner background', () => {
     ])('should reject the image address %j', (url) => {
         expect(safeImageUrl(url)).toBeNull();
         expect(toCssUrl(url)).toBeNull();
-        expect(md.render(`:::banner{bg-image="${url}" bg-image-theme="dark"}\n:::`)).toBe(
-            html('s', 'm'),
-        );
+        expect(md.render(`:::banner{bg-image="${url}" bg-theme="dark"}\n:::`)).toBe(html('s', 'm'));
     });
 
     it.each(['java\tscript:alert(1)', 'https://example.com/\u0000.png', 'a\u007f.png'])(
