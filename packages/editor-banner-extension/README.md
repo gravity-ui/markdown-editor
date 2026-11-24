@@ -12,11 +12,11 @@ const editor = useMarkdownEditor({
 });
 ```
 
-| Option              | Description                                                                                      |
-| ------------------- | ------------------------------------------------------------------------------------------------ |
-| `fileUploadHandler` | Uploads a background image and returns its `url`; without it, the image is set by a link only    |
-| `maxImageSize`      | Maximum background image size in bytes; without it, the size is not checked                      |
-| `imageTypes`        | MIME types of background images, such as `['image/jpeg', 'image/png']`; any `image/*` without it |
+| Option              | Description                                                                                           |
+| ------------------- | ----------------------------------------------------------------------------------------------------- |
+| `fileUploadHandler` | Uploads a background or banner image and returns its `url`; without it, images are set by a link only |
+| `maxImageSize`      | Maximum size of uploaded images in bytes; without it, the size is not checked                         |
+| `imageTypes`        | MIME types of uploaded images, such as `['image/jpeg', 'image/png']`; any `image/*` without it        |
 
 | Entry point                                                  | Exports                                                                                                                                     |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -67,6 +67,13 @@ An image without an address is a placeholder; the Image switch inserts a placeho
 A click on the image selects it, and so do the arrow keys from the next text, Backspace at the start of the block after the image, and Delete at the end of the block before it.
 Backspace or Delete removes the selected image in one undo step; the cursor goes to the nearest text.
 A banner holds one image: a change that would put a second image into a banner is rejected.
+
+A click on the image or Enter on the selected image opens the Image window under it, with focus on its first control.
+The window holds the image form of the editor: a link is written into `src` if it passes the address check, and a file goes to `fileUploadHandler` with the `imageTypes` and `maxImageSize` limits.
+With an image, the window shows its file with a replace button and Reset, which turns the image back into a placeholder.
+Each change of the image is one undo step.
+An uploaded address is written into the image at its current position; it is ignored when the image is removed, when a link or Reset sets another source, and when the window closes during the upload.
+Escape, the close button, and Tab after the last control or Shift+Tab before the first one close the window and return focus to the editor with the image selected.
 
 `BannerSpecs` adds only the schema, Markdown parsing, and serialization of the banner and its parts, and runs in Node.js.
 `Banner` also needs the editor's React renderer, which the standard presets include.

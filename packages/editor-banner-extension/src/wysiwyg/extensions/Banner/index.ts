@@ -15,7 +15,7 @@ import {bannerKeymap, bannerTooltipPlugin} from './plugins/BannerTooltipPlugin';
 import '@gravity-ui/markdown-plugin-banner/styles.css';
 
 export type BannerOptions = BannerUploadLimits & {
-    /** Uploads background images; without it, the background image is set by a link only. */
+    /** Uploads the background image and the banner image; without it, images are set by a link only. */
     fileUploadHandler?: FileUploadHandler;
 };
 
@@ -24,7 +24,7 @@ export const Banner = (builder: ExtensionBuilder, options: BannerOptions = {}) =
         .use(BannerSpecs)
         .use(BannerTitle)
         .use(BannerContent)
-        .use(BannerImage)
+        .use(BannerImage, options)
         .addNodeView(bannerNodeName, () => (node) => new WBannerNodeView(node))
         .addPlugin((deps) => bannerTooltipPlugin(deps, options))
         .addPlugin(bannerUploadPlugin)
