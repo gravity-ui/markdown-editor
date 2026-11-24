@@ -1,7 +1,10 @@
 import {type KeyboardEvent, type ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 
 import {ArrowsRotateRight} from '@gravity-ui/icons';
-import {ImageForm, type ImageFormSubmitParams} from '@gravity-ui/markdown-editor';
+import {
+    ImageForm,
+    type ImageFormSubmitParams,
+} from '@gravity-ui/markdown-editor/_/forms/ImageForm.js';
 import {safeImageUrl} from '@gravity-ui/markdown-plugin-banner';
 import {Button, Icon, Text} from '@gravity-ui/uikit';
 
