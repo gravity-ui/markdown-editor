@@ -239,9 +239,15 @@ test.describe('Banner', () => {
         await mount(
             <BannerStories.Banner
                 width={660}
-                initial={
-                    ':::banner{height="s" width="m"}\n\n::banner-title[Team portal]\n\n:::\n\nAfter'
-                }
+                initial={[
+                    ':::banner{height="s" width="m"}',
+                    '::banner-title[Team portal]',
+                    ':::banner-content',
+                    'Portal description.',
+                    ':::',
+                    ':::',
+                    'After',
+                ].join('\n\n')}
             />,
         );
         await editor.focus();
@@ -284,8 +290,8 @@ test.describe('Banner', () => {
             if (message.type() === 'log') messages.push(message.text());
         });
 
-        // The Title switch inserts and removes the title in the document.
-        for (const name of ['Description', 'Button 1', 'Button 2', 'Button 3', 'Image']) {
+        // The Title and Description switches insert and remove their blocks in the document.
+        for (const name of ['Button 1', 'Button 2', 'Button 3', 'Image']) {
             const toggle = banner.toggle(name);
             const checked = await toggle.isChecked();
             await banner.clickToggle(name);
@@ -336,7 +342,7 @@ test.describe('Banner', () => {
 
         await banner.closeButton.click();
         await banner.openSettings();
-        await expect(banner.toggle('Description')).toBeChecked();
+        await expect(banner.toggle('Description')).not.toBeChecked();
         await expect(banner.toggle('Button 1')).toBeChecked();
         await expect(banner.toggle('Button 2')).not.toBeChecked();
         await expect(banner.toggle('Button 3')).not.toBeChecked();
