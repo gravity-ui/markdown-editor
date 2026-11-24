@@ -11,10 +11,16 @@ import {
 import {YfmTableAttr} from '../../../YfmTableSpecs/const';
 import {yfmTableCellType} from '../../../YfmTableSpecs/utils';
 
+import {getTableResultGeometry, isValidCursor, setTableResultSelection} from './table-result';
+
 export type RemoveRowRangeParams = {
     tablePos: number;
-    rangeIdx: number;
-};
+    /** Sets the cursor across the changed strip. By default, keeps the existing behavior. */
+    cursorCol?: number;
+} & (
+    | {rangeIdx: number; range?: never}
+    | {range: {startIdx: number; endIdx: number}; rangeIdx?: never}
+);
 
 export const removeRowRange = (params: RemoveRowRangeParams): Command => {
     return (state, dispatch) => {
@@ -22,7 +28,7 @@ export const removeRowRange = (params: RemoveRowRangeParams): Command => {
         const tableDesc = table && TableDesc.create(table)?.bind(params.tablePos);
         if (!tableDesc || tableDesc.rows < 2) return false;
 
-        const range = tableDesc.base.getRowRanges()[params.rangeIdx];
+        const range = resolveRange(tableDesc, params);
         if (!range) return false;
 
         if (dispatch) {
@@ -93,12 +99,34 @@ export const removeRowRange = (params: RemoveRowRangeParams): Command => {
                 }
             }
 
+            const geometry = getTableResultGeometry(tr.doc, params.tablePos);
+            if (!geometry) return false;
+
+            const resultIndex = Math.min(range.startIdx, geometry.height - 1);
+            setTableResultSelection(tr, params.tablePos, geometry, resultIndex, params.cursorCol);
+
             dispatch(tr);
         }
 
         return true;
     };
 };
+
+function resolveRange(tableDesc: TableDescBinded, params: RemoveRowRangeParams) {
+    if (!isValidCursor(params.cursorCol, tableDesc.cols)) return null;
+    if (!params.range) return tableDesc.base.getRowRanges()[params.rangeIdx];
+    const {range, rangeIdx} = params;
+    if (
+        rangeIdx !== undefined ||
+        !Number.isInteger(range.startIdx) ||
+        !Number.isInteger(range.endIdx) ||
+        range.startIdx < 0 ||
+        range.startIdx > range.endIdx ||
+        range.endIdx >= tableDesc.rows
+    )
+        return null;
+    return range;
+}
 
 function updateRowspan(
     tr: Transaction,

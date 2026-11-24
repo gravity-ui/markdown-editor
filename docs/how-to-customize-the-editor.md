@@ -43,3 +43,15 @@ Copy plugins can transform the selected rectangle with `transformCopied`. The ed
 Paste plugins receive the entire slice before the editor distributes its cells. A mixed fragment such as a paragraph followed by a table uses ordinary paste priorities, including the editor's own markup when available. With cell selection enabled, dragging a complete one-cell YFM table keeps it as a table.
 
 Try **Examples / Table cell selection / Clipboard** and **Merged and Nested** in Storybook.
+
+## Selected YFM cell controls
+
+With `tableCellSelection: true`, selected YFM cells show a **Cell actions** button when YFM `controls` are enabled. It also works for one selected cell and inside nested tables. Markdown tables keep their existing controls. The button is hidden during a selection drag and in read-only editors.
+
+The menu can clear cells, insert one row or column at the selection boundary, and remove rows, columns or the whole table. Complete row and column selections show only their matching removal action. An inner rectangle offers both. Selecting the entire table offers **Remove table**. Removing rows or columns also removes cells outside the rectangle in those rows or columns.
+
+Set `wysiwygConfig.extensionOptions.yfmTable.cellBackground` to `true` to include the background palette. Mixed backgrounds leave all samples unselected; **No color** is selected only when all selected cells have no background. Clearing cells preserves their attributes, including background and spans.
+
+After clearing cells or choosing a background, focus returns to the editor and cell selection stays. Inserting or removing rows and columns selects content in the resulting cell, or a nearby position if that content cannot be selected. Removing the whole table places the cursor nearby. Each change has its own Undo step; choosing the current color makes no change. Escape closes the menu and returns focus to the editor. Another Escape leaves cell selection.
+
+The button follows the visible selection on scroll and resize, including RTL layouts. Scrolling closes the menu. When the selection leaves the visible area, the button hides; it returns without opening the menu when the selection is visible again. Try **Scroll Container** and **Without Cell Background** in **Examples / Table cell selection**.

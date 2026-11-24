@@ -13,8 +13,7 @@ type YfmTableActionKind =
     | 'add-row-before'
     | 'add-row-after'
     | 'header-toggle'
-    | 'row-cell-bg-open'
-    | 'column-cell-bg-open';
+    | 'cell-bg-open';
 
 type MarkdownEditorToolbarsLocators = Record<
     'main' | 'additional' | 'selection' | 'commandMenu',
@@ -206,8 +205,7 @@ class YfmTable {
             'remove-row': page.getByTestId('g-md-yfm-table-action-remove-row'),
             'remove-table': page.getByTestId('g-md-yfm-table-action-remove-table'),
             'header-toggle': page.getByTestId('g-md-yfm-table-row-header-toggle'),
-            'row-cell-bg-open': page.getByTestId('g-md-yfm-table-row-cell-bg'),
-            'column-cell-bg-open': page.getByTestId('g-md-yfm-table-column-cell-bg'),
+            'cell-bg-open': page.getByTestId('g-md-yfm-table-action-cell-bg'),
         };
         this.cellBgPaletteLocator = page.locator('.g-md-yfm-table-cell-bg-palette');
     }
@@ -300,15 +298,13 @@ class YfmTable {
     async openCellBgPalette(menuType: YfmTableCellMenuType) {
         const menu = this.cellMenus[menuType];
         await menu.waitFor({state: 'visible'});
-        const actionKey: YfmTableActionKind =
-            menuType === 'row' ? 'row-cell-bg-open' : 'column-cell-bg-open';
-        await menu.locator(this.cellMenuActions[actionKey]).hover();
+        await this.getCellActionLocator(menuType, 'cell-bg-open').hover({scroll: 'none'});
         await this.cellBgPaletteLocator.waitFor({state: 'visible'});
     }
 
     async selectCellBg(menuType: YfmTableCellMenuType, swatchLabel: string) {
         await this.openCellBgPalette(menuType);
-        await this.getCellBgSwatchLocator(swatchLabel).click();
+        await this.getCellBgSwatchLocator(swatchLabel).click({scroll: 'none'});
     }
 
     async closeMenu(menuType: YfmTableCellMenuType) {
@@ -957,6 +953,8 @@ class TableCellSelection {
     readonly tableWithoutControls: Locator;
     readonly selectionButton: Locator;
     readonly markdownCellButton: Locator;
+    readonly selectionMenu: Locator;
+    readonly scrollContainer: Locator;
     private readonly page: Page;
     private readonly expect: Expect;
 
@@ -965,8 +963,10 @@ class TableCellSelection {
         this.expect = expect;
         this.editor = page.getByTestId('demo-md-editor');
         this.tableWithoutControls = page.locator('.ProseMirror table:not(:has(> thead))').first();
-        this.selectionButton = page.getByTestId('g-md-yfm-table-selection-btn');
+        this.selectionButton = page.getByTestId('g-md-yfm-table-cell-selection-btn');
         this.markdownCellButton = page.locator('.table-cell-floating-button');
+        this.selectionMenu = page.getByTestId('g-md-yfm-table-cell-selection-menu');
+        this.scrollContainer = page.getByTestId('table-cell-selection-scroll');
     }
 
     getTable(kind: 'markdown' | 'yfm', index = 0) {
@@ -1002,6 +1002,11 @@ class TableCellSelection {
     async selectCells(from: Locator, to: Locator) {
         await from.click();
         await to.click({modifiers: ['Shift']});
+    }
+
+    async selectCell(cell: Locator) {
+        await cell.click({clickCount: 3});
+        await this.expect(cell).toHaveClass(/g-md-table-selected-cell/);
     }
 
     async clickCell(cell: Locator) {
@@ -1047,6 +1052,11 @@ class TableCellSelection {
     }
 
     async drag(from: Locator, to: Locator) {
+        await this.startDrag(from, to);
+        await this.page.mouse.up();
+    }
+
+    async startDrag(from: Locator, to: Locator) {
         await from.scrollIntoViewIfNeeded();
         const first = await from.boundingBox();
         const last = await to.boundingBox();
@@ -1054,7 +1064,46 @@ class TableCellSelection {
         await this.page.mouse.move(first.x + first.width / 2, first.y + first.height / 2);
         await this.page.mouse.down();
         await this.page.mouse.move(last.x + last.width / 2, last.y + last.height / 2, {steps: 6});
-        await this.page.mouse.up();
+    }
+
+    getSelectionAction(action: string) {
+        return this.selectionMenu.getByTestId(`g-md-yfm-table-action-${action}`);
+    }
+
+    getSelectionMenuItems() {
+        return this.selectionMenu.getByRole('menuitem');
+    }
+
+    getBackgroundSwatch(name: string) {
+        return this.page.getByRole('button', {name, exact: true});
+    }
+
+    getSelectedBackgroundSwatches() {
+        return this.page.locator('.g-md-yfm-table-cell-bg-palette button[aria-pressed="true"]');
+    }
+
+    async openSelectionMenu() {
+        await this.selectionButton.click();
+        await this.expect(this.selectionMenu).toBeVisible();
+    }
+
+    async openSelectionPalette() {
+        await this.openSelectionMenu();
+        // Scrolling closes the menu, even when Playwright scrolls during an animation retry.
+        await this.getSelectionAction('cell-bg').click({scroll: 'none'});
+        await this.expect(this.getBackgroundSwatch('No color')).toBeVisible();
+    }
+
+    async clearSelectedCells() {
+        await this.getSelectionAction('clear-cells').click();
+    }
+
+    async scrollBy(top: number) {
+        await this.scrollContainer.evaluate((element, amount) => element.scrollBy(0, amount), top);
+    }
+
+    async scrollTableBy(table: Locator, left: number) {
+        await table.evaluate((element, amount) => element.scrollBy(amount, 0), left);
     }
 
     getSelectedStyles(cell: Locator) {

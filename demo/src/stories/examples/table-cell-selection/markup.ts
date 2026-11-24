@@ -29,7 +29,7 @@ Try selecting text inside one cell, then extending the selection into another ce
 || A6 | B6 | 600 | D6 ||
 |#
 
-Select the yellow cell and clear it: its background should remain. Compare cell selection with the highlight from the row or column menu when controls are enabled.
+Select cells and open Cell actions to change their background, clear content, insert one row or column, or remove selected rows and columns. Select the yellow cell and clear it: its background should remain. Each action has its own Undo step.
 
 ## YFM: multiple blocks in a cell
 

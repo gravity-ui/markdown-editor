@@ -11,10 +11,16 @@ import {
 
 import {yfmTableCellType} from '../../../YfmTableSpecs/utils';
 
+import {getTableResultGeometry, isValidCursor, setTableResultSelection} from './table-result';
+
 export type RemoveColumnRangeParams = {
     tablePos: number;
-    rangeIdx: number;
-};
+    /** Sets the cursor across the changed strip. By default, keeps the existing behavior. */
+    cursorRow?: number;
+} & (
+    | {rangeIdx: number; range?: never}
+    | {range: {startIdx: number; endIdx: number}; rangeIdx?: never}
+);
 
 export const removeColumnRange = (params: RemoveColumnRangeParams): Command => {
     return (state, dispatch) => {
@@ -22,7 +28,7 @@ export const removeColumnRange = (params: RemoveColumnRangeParams): Command => {
         const tableDesc = table && TableDesc.create(table)?.bind(params.tablePos);
         if (!tableDesc || tableDesc.cols < 2) return false;
 
-        const range = tableDesc.base.getColumnRanges()[params.rangeIdx];
+        const range = resolveRange(tableDesc, params);
         if (!range) return false;
 
         if (dispatch) {
@@ -75,12 +81,34 @@ export const removeColumnRange = (params: RemoveColumnRangeParams): Command => {
 
             updateColspan(tr, tableDesc, diffColspan);
 
+            const geometry = getTableResultGeometry(tr.doc, params.tablePos);
+            if (!geometry) return false;
+
+            const resultIndex = Math.min(range.startIdx, geometry.width - 1);
+            setTableResultSelection(tr, params.tablePos, geometry, params.cursorRow, resultIndex);
+
             dispatch(tr);
         }
 
         return true;
     };
 };
+
+function resolveRange(tableDesc: TableDescBinded, params: RemoveColumnRangeParams) {
+    if (!isValidCursor(params.cursorRow, tableDesc.rows)) return null;
+    if (!params.range) return tableDesc.base.getColumnRanges()[params.rangeIdx];
+    const {range, rangeIdx} = params;
+    if (
+        rangeIdx !== undefined ||
+        !Number.isInteger(range.startIdx) ||
+        !Number.isInteger(range.endIdx) ||
+        range.startIdx < 0 ||
+        range.startIdx > range.endIdx ||
+        range.endIdx >= tableDesc.cols
+    )
+        return null;
+    return range;
+}
 
 function getCellPos(pos: CellPos, dir: 'start' | 'end'): number {
     if (pos.type === 'virtual') return pos.closestPos;

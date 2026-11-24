@@ -3,6 +3,7 @@ import {findParentNode, findParentNodeClosestToPos, findSelectedNodeOfType} from
 import {Decoration, DecorationSet, type EditorView} from '#pm/view';
 import {throttle} from 'src/lodash';
 import {isTableCellNode, isTableNode} from 'src/table-utils';
+import {isTableCellSelectionDragging} from 'src/table-utils/cell-selection/plugin';
 import {TableCellSelection} from 'src/table-utils/cell-selection/selection';
 import {TableDesc} from 'src/table-utils/table-desc';
 
@@ -36,16 +37,29 @@ export const yfmTableFocusPlugin = (opts: {
     dndEnabled: boolean;
     headerRowsEnabled: boolean;
     cellBackgroundEnabled: boolean;
+    cellSelectionEnabled: boolean;
 }) => {
     return new Plugin<PluginState>({
         key: pluginKey,
         state: {
             init(_config, state) {
-                return updateAfterChanges(state);
+                return updateAfterChanges(
+                    state,
+                    undefined,
+                    opts.cellSelectionEnabled ? false : undefined,
+                );
             },
-            apply: (tr, prev) => {
-                if (tr.selectionSet || tr.docChanged) {
-                    return updateAfterChanges(tr, prev);
+            apply: (tr, prev, oldState, state) => {
+                // Cell selection state is updated first (VeryHigh priority).
+                const dragging = opts.cellSelectionEnabled
+                    ? isTableCellSelectionDragging(state)
+                    : undefined;
+                if (
+                    tr.selectionSet ||
+                    tr.docChanged ||
+                    (dragging !== undefined && dragging !== isTableCellSelectionDragging(oldState))
+                ) {
+                    return updateAfterChanges(tr, prev, dragging);
                 }
 
                 const meta: Meta = tr.getMeta(pluginKey);
@@ -97,12 +111,12 @@ export const yfmTableFocusPlugin = (opts: {
                     return plState;
                 }
 
-                return {...prev, decorations: prev.decorations.map(tr.mapping, tr.doc)};
+                return prev;
             },
         },
         props: {
             nodeViews: {
-                [YfmTableNode.Table]: yfmTableView,
+                [YfmTableNode.Table]: yfmTableView(opts),
                 [YfmTableNode.Cell]: yfmTableCellView(opts),
             },
             decorations(state) {
@@ -165,11 +179,28 @@ export const yfmTableFocusPlugin = (opts: {
     });
 };
 
-function updateAfterChanges(state: EditorState): PluginState;
-function updateAfterChanges(tr: Transaction, prev: PluginState): PluginState;
-function updateAfterChanges(tr: EditorState | Transaction, prev?: PluginState) {
+function updateAfterChanges(state: EditorState, prev?: undefined, dragging?: boolean): PluginState;
+function updateAfterChanges(tr: Transaction, prev: PluginState, dragging?: boolean): PluginState;
+function updateAfterChanges(
+    tr: EditorState | Transaction,
+    prev?: PluginState,
+    dragging?: boolean,
+): PluginState {
     if (tr.selection instanceof TableCellSelection) {
-        return {hover: null, activeTablePos: null, decorations: DecorationSet.empty};
+        const {selection} = tr;
+        const decorations =
+            dragging !== undefined &&
+            selection.geometry.table.type === yfmTableType(tr.doc.type.schema)
+                ? DecorationSet.create(tr.doc, [
+                      Decoration.node(
+                          selection.tablePos,
+                          selection.tablePos + selection.geometry.table.nodeSize,
+                          {},
+                          {[decoTypeKey]: DecoType.CellSelection, dragging},
+                      ),
+                  ])
+                : DecorationSet.empty;
+        return {hover: null, activeTablePos: null, decorations};
     }
 
     const table =

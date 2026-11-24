@@ -7,17 +7,21 @@ import {yfmTableCellType, yfmTableRowType} from '../../../YfmTableSpecs';
 import {YfmTableAttr} from '../../../YfmTableSpecs/const';
 import {getCellBg} from '../utils';
 
+import {getTableResultGeometry, isValidCursor, setTableResultSelection} from './table-result';
+
 export type InsertEmptyRowParams = {
     tablePos: number;
     rowIndex: number;
     sourceRowIndex?: number;
+    /** Sets the cursor across the changed strip. By default, keeps the existing behavior. */
+    cursorCol?: number;
 };
 
 export const insertEmptyRow = (params: InsertEmptyRowParams): Command => {
     return (state, dispatch) => {
         const table = state.doc.nodeAt(params.tablePos);
         const tableDesc = table && TableDesc.create(table)?.bind(params.tablePos);
-        if (!tableDesc) return false;
+        if (!tableDesc || !isValidCursor(params.cursorCol, tableDesc.cols)) return false;
 
         const rowIdx = Math.min(Math.max(params.rowIndex, 0), tableDesc.rows);
 
@@ -55,7 +59,6 @@ export const insertEmptyRow = (params: InsertEmptyRowParams): Command => {
                 tr.setNodeAttribute(cellPos.from, 'rowspan', cell.rowspan! + 1);
             }
             tr.insert(posToInsert, createSimpleRow(state.schema, newCellBgs));
-            tr.setSelection(TextSelection.near(tr.doc.resolve(posToInsert), 1));
 
             // If the new row is inserted inside the header-rows block, shrink the block
             // so the new row and everything below it stop being header rows.
@@ -63,6 +66,14 @@ export const insertEmptyRow = (params: InsertEmptyRowParams): Command => {
                 tr.setNodeAttribute(params.tablePos, YfmTableAttr.HeaderRows, rowIdx);
             }
 
+            const geometry = getTableResultGeometry(tr.doc, params.tablePos);
+            if (!geometry) return false;
+
+            if (params.cursorCol === undefined) {
+                tr.setSelection(TextSelection.near(tr.doc.resolve(posToInsert), 1));
+            } else {
+                setTableResultSelection(tr, params.tablePos, geometry, rowIdx, params.cursorCol);
+            }
             dispatch(tr.scrollIntoView());
         }
 
@@ -75,7 +86,7 @@ function getBg(base: TableDesc, sourceRowIndex: number | undefined, colIdx: numb
     return getCellBg(base, sourceRowIndex, colIdx);
 }
 
-const createSimpleRow = (schema: Schema, cellBgs: (string | null)[]) => {
+function createSimpleRow(schema: Schema, cellBgs: (string | null)[]) {
     const tr = yfmTableRowType(schema);
     const td = yfmTableCellType(schema);
     return tr.create(
@@ -83,4 +94,4 @@ const createSimpleRow = (schema: Schema, cellBgs: (string | null)[]) => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         cellBgs.map((bg) => td.createAndFill(bg ? {[YfmTableAttr.CellBg]: bg} : undefined)!),
     );
-};
+}

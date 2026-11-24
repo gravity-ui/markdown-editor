@@ -59,7 +59,9 @@ test.describe('Table cell selection @wysiwyg', () => {
 
             await editor.tableCellSelection.selectCells(cells.first(), cells.nth(5));
             await expect(editor.tableCellSelection.getSelectedCells(table)).toHaveCount(4);
-            await expect(editor.tableCellSelection.selectionButton).toHaveCount(0);
+            await expect(editor.tableCellSelection.selectionButton).toHaveCount(
+                kind === 'yfm' ? 1 : 0,
+            );
             await expect(editor.tableCellSelection.markdownCellButton).toBeHidden();
             await expect(editor.locators.toolbars.selection).toBeHidden();
             await expect(editor.yfmTable.buttonPlusRowLocator).toHaveCount(0);
@@ -235,6 +237,7 @@ test.describe('Table cell selection @wysiwyg', () => {
             const cells = editor.tableCellSelection.getCells(table);
             await editor.tableCellSelection.selectCells(cells.first(), cells.nth(5));
             await expect(editor.tableCellSelection.getSelectedCells(table)).toHaveCount(0);
+            await expect(editor.tableCellSelection.selectionButton).toHaveCount(0);
             expect(
                 await page.evaluate(
                     // @ts-expect-error Internal view is available in the demo.

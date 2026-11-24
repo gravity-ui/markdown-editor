@@ -4,7 +4,7 @@ import {type YfmTableParserOptions, YfmTableParserSpecs} from './parser';
 import {type YfmTableSchemaOptions, YfmTableSchemaSpecs} from './schema';
 import {type YfmTableSerializerOptions, YfmTableSerializerSpecs} from './serializer';
 
-export {YfmTableNode} from './const';
+export {YfmTableNode, YfmTableAttr} from './const';
 export {yfmTableType, yfmTableBodyType, yfmTableRowType, yfmTableCellType} from './utils';
 
 export type YfmTableSpecsOptions = YfmTableSchemaOptions &

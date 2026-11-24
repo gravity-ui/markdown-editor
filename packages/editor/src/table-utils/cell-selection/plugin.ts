@@ -406,6 +406,10 @@ export function tableCellSelectionTextKeymap(): Plugin {
     });
 }
 
+export function isTableCellSelectionDragging(state: EditorState): boolean {
+    return Boolean(selectionKey.getState(state)?.drag);
+}
+
 type InputState = {
     drag: DragState | null;
     composition: {

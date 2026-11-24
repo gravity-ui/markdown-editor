@@ -11,17 +11,21 @@ import {yfmTableCellType} from '../../../YfmTableSpecs';
 import {YfmTableAttr} from '../../../YfmTableSpecs/const';
 import {getCellBg} from '../utils';
 
+import {getTableResultGeometry, isValidCursor, setTableResultSelection} from './table-result';
+
 export type InsertEmptyColumnParams = {
     tablePos: number;
     colIndex: number;
     sourceColIndex?: number;
+    /** Sets the cursor across the changed strip. By default, keeps the existing behavior. */
+    cursorRow?: number;
 };
 
 export const insertEmptyColumn = (params: InsertEmptyColumnParams): Command => {
     return (state, dispatch) => {
         const table = state.doc.nodeAt(params.tablePos);
         const tableDesc = table && TableDesc.create(table)?.bind(params.tablePos);
-        if (!tableDesc) return false;
+        if (!tableDesc || !isValidCursor(params.cursorRow, tableDesc.rows)) return false;
 
         const colIdx = Math.min(Math.max(params.colIndex, 0), tableDesc.cols);
 
@@ -81,11 +85,17 @@ export const insertEmptyColumn = (params: InsertEmptyColumnParams): Command => {
                 );
             }
 
-            const firstCell = cellsToInsert[0];
-            if (firstCell) {
-                tr.setSelection(TextSelection.near(tr.doc.resolve(firstCell.pos), 1));
-            }
+            const geometry = getTableResultGeometry(tr.doc, params.tablePos);
+            if (!geometry) return false;
 
+            if (params.cursorRow === undefined) {
+                const firstCell = cellsToInsert[0];
+                if (firstCell) {
+                    tr.setSelection(TextSelection.near(tr.doc.resolve(firstCell.pos), 1));
+                }
+            } else {
+                setTableResultSelection(tr, params.tablePos, geometry, params.cursorRow, colIdx);
+            }
             dispatch(tr.scrollIntoView());
         }
 
