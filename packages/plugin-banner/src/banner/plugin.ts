@@ -2,7 +2,7 @@ import {directiveParser, registerContainerDirective} from '@diplodoc/directive';
 import type {PluginSimple} from 'markdown-it';
 
 import {bannerAttrs} from './attrs';
-import {bannerTokenName} from './model';
+import {bannerTokenName} from './const';
 
 export const bannerPlugin: PluginSimple = (md) => {
     md.use(directiveParser());
