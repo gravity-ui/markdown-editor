@@ -12,10 +12,13 @@ import {
 } from './commands';
 import {bannerTitleGuardPlugin} from './plugins/BannerTitleGuardPlugin';
 import {bannerTitlePastePlugin, bannerTitleTextPastePlugin} from './plugins/BannerTitlePastePlugin';
+import {bannerTitleTooltip} from './plugins/BannerTitleTooltipPlugin';
 
 /** The editing of the banner title; `Banner` uses it, and `BannerSpecs` holds its schema. */
 export const BannerTitle: ExtensionAuto = (builder) => {
+    const tooltip = bannerTitleTooltip();
     builder
+        .addPlugin(tooltip.plugin)
         .addPlugin(() => selectionInsidePlugin(bannerTitleNodeType))
         .addPlugin(bannerTitleGuardPlugin, builder.Priority.High)
         .addPlugin(bannerTitlePastePlugin, builder.Priority.High)
@@ -27,5 +30,7 @@ export const BannerTitle: ExtensionAuto = (builder) => {
                 Delete: chainCommands(deleteBannerTitleText, stopAtBannerTitleEnd),
             }),
             builder.Priority.High,
-        );
+        )
+        // With the cursor in the title, Tab focuses the title toolbar before the banner toolbar.
+        .addKeymap(() => ({Tab: tooltip.focus}), builder.Priority.VeryHigh);
 };
