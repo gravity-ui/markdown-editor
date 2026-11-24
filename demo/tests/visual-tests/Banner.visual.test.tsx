@@ -343,6 +343,28 @@ test.describe('Banner', () => {
         await expect(banner.height).toHaveText('M');
     });
 
+    test('should select a background fill with arrow keys @wysiwyg', async ({
+        mount,
+        editor,
+        banner,
+    }) => {
+        await mount(<BannerStories.Banner width={660} />);
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await banner.openSettings();
+        await banner.background.click();
+
+        await banner.backgroundSwatch('Gray 20%').press('ArrowRight');
+        await expect(banner.backgroundSwatch('Green 20%')).toBeFocused();
+        await expect(banner.backgroundSwatch('Green 20%')).toBeChecked();
+        await expect(banner.blocks).toHaveAttribute('data-bg-color', 'green-light');
+
+        await banner.backgroundSwatch('Green 20%').press('ArrowDown');
+        await expect(banner.backgroundSwatch('Green 50%')).toBeFocused();
+        await expect(banner.backgroundSwatch('Green 50%')).toBeChecked();
+        await expect(banner.blocks).toHaveAttribute('data-bg-color', 'green-medium');
+    });
+
     test('should select the settings text with the mouse @wysiwyg', async ({
         mount,
         page,

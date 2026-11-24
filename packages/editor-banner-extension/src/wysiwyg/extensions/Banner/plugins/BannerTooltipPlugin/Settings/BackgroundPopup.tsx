@@ -1,10 +1,12 @@
-import {type KeyboardEvent, useRef, useState} from 'react';
+import {type CSSProperties, type FocusEvent, type KeyboardEvent, useRef, useState} from 'react';
 
 import {Moon, Sun} from '@gravity-ui/icons';
 import {
     type BannerBackground,
+    type BannerBgColor,
     type BannerBgImageTheme,
     bannerBackgroundDefaults,
+    bannerBgColorColumns,
     bannerBgColors,
     bannerRender,
 } from '@gravity-ui/markdown-plugin-banner';
@@ -40,13 +42,15 @@ const previewThemes = [
     {value: 'dark', icon: Moon, label: 'preview-dark'},
 ] as const;
 
-const PALETTE_COLUMNS = 6;
+const paletteStyle = {
+    '--g-md-banner-settings-palette-columns': bannerBgColorColumns,
+} as CSSProperties;
 
 const paletteSteps: Record<string, (index: number) => number> = {
     ArrowLeft: (index) => index - 1,
     ArrowRight: (index) => index + 1,
-    ArrowUp: (index) => index - PALETTE_COLUMNS,
-    ArrowDown: (index) => index + PALETTE_COLUMNS,
+    ArrowUp: (index) => index - bannerBgColorColumns,
+    ArrowDown: (index) => index + bannerBgColorColumns,
     Home: () => 0,
     End: () => bannerBgColors.length - 1,
 };
@@ -58,26 +62,37 @@ function FillPalette({value, onChange}: BackgroundControls) {
     const [active, setActive] = useState<number>();
     const selected = bannerBgColors.findIndex((color) => color === value['bg-color']);
     const tabStop = active ?? Math.max(selected, 0);
-    const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+
+    const selectColor = (color: BannerBgColor) =>
+        onChange({...bannerBackgroundDefaults, 'bg-color': color});
+    const onBlur = (event: FocusEvent<HTMLDivElement>) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setActive(undefined);
+    };
+    const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
         const rtl = getComputedStyle(event.currentTarget).direction === 'rtl';
         const step = paletteSteps[(rtl && mirroredKeys[event.key]) || event.key];
         if (!step) return;
         event.preventDefault();
         const next = step(tabStop);
-        if (next >= 0 && next < bannerBgColors.length) swatches.current[next]?.focus();
+        const swatch = swatches.current[next];
+        if (swatch) {
+            swatch.focus();
+            selectColor(bannerBgColors[next]);
+        }
     };
     return (
         <div
             className={cnBannerSettings('palette')}
+            style={paletteStyle}
             role="radiogroup"
             aria-label={i18n('background-fill')}
-            onBlur={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget)) setActive(undefined);
-            }}
+            onBlur={onBlur}
         >
             {bannerBgColors.map((color, index) => {
                 const label = bgColorLabel(color);
                 const checked = index === selected;
+                const onFocus = () => setActive(index);
+                const onClick = () => selectColor(color);
                 return (
                     <button
                         key={color}
@@ -92,9 +107,9 @@ function FillPalette({value, onChange}: BackgroundControls) {
                         aria-label={label}
                         aria-checked={checked}
                         tabIndex={index === tabStop ? 0 : -1}
-                        onFocus={() => setActive(index)}
+                        onFocus={onFocus}
                         onKeyDown={onKeyDown}
-                        onClick={() => onChange({...bannerBackgroundDefaults, 'bg-color': color})}
+                        onClick={onClick}
                     />
                 );
             })}

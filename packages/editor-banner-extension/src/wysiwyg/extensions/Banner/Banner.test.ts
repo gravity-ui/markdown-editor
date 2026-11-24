@@ -39,7 +39,13 @@ import {bannerUploadPlugin, uploadBannerFile} from '../../plugins/BannerUploadPl
 import {selectionInside} from '../../plugins/SelectionInsidePlugin/plugin';
 
 import {BannerSpecs, bannerNodeName} from './BannerSpecs';
-import {insertBanner, removeBanner, setBannerDimension, toggleBannerPart} from './commands';
+import {
+    insertBanner,
+    removeBanner,
+    setBannerBackground,
+    setBannerDimension,
+    toggleBannerPart,
+} from './commands';
 import type {BannerPartSpec} from './parts';
 
 import {Banner} from '.';
@@ -65,7 +71,7 @@ afterEach(() => {
 function createView(markup = ':::banner\n:::') {
     const doc = markupParser.parse(markup);
     view = new EditorView(document.createElement('div'), {
-        state: EditorState.create({schema, doc, plugins: [history()]}),
+        state: EditorState.create({schema, doc, plugins: [history(), bannerUploadPlugin()]}),
     });
     return view;
 }
@@ -85,7 +91,7 @@ function createNodeView(markup: string) {
             builder
                 .use(BaseSchemaSpecs, {})
                 .use(ReactRendererExtension, new ReactRenderStorage())
-                .use(Banner, {}),
+                .use(Banner),
     }).build();
     view = new EditorView(document.createElement('div'), {
         state: EditorState.create({
@@ -130,6 +136,12 @@ describe('Banner extension', () => {
         const defaults = {...bannerDefaults, ...bannerBackgroundDefaults};
         expect(schema.nodes.banner.create().attrs).toEqual(defaults);
         expect(markupParser.parse(':::banner\n:::').firstChild?.attrs).toEqual(defaults);
+    });
+
+    it('should preserve query delimiters in background image markup', () => {
+        const source =
+            ':::banner{height="s" width="m" bg-image="https://cdn.example.com/a.png?w=1200&q=80"}\n\n:::';
+        expect(serializer.serialize(markupParser.parse(source))).toBe(source);
     });
 
     it('should clamp only the moving end of a selection that starts inside the banner', () => {
@@ -264,6 +276,36 @@ describe('Banner extension', () => {
         expect(dimensions(editor)).toEqual({height: 's', width: 'm'});
         expect(redo(editor.state, editor.dispatch)).toBe(true);
         expect(dimensions(editor)).toEqual({height: 'l', width: 'm'});
+    });
+
+    it('should skip dispatch when the background is reset to its current value', () => {
+        const editor = createView();
+        const state = editor.state;
+        expect(run(editor, setBannerBackground(0, bannerBackgroundDefaults))).toBe(true);
+        expect(editor.state).toBe(state);
+    });
+
+    it('should cancel an upload without splitting undo history when the background is unchanged', async () => {
+        const editor = createView();
+        const file = new File(['image'], 'image.png', {type: 'image/png'});
+        const {promise, resolve} = Promise.withResolvers<{url: string}>();
+        const upload = uploadBannerFile(
+            editor,
+            0,
+            file,
+            () => promise,
+            (pos, image) => setBannerBackground(pos, {'bg-image': image}),
+        );
+        editor.dispatch(editor.state.tr.insertText('a', 2));
+        expect(run(editor, setBannerBackground(0, bannerBackgroundDefaults))).toBe(true);
+        resolve({url: 'https://cdn.example.com/image.png'});
+        expect(await upload).toBe(false);
+        expect(editor.state.doc.firstChild?.attrs['bg-image']).toBeNull();
+
+        editor.dispatch(editor.state.tr.insertText('b', 3));
+        expect(editor.state.doc.textContent).toBe('ab');
+        expect(run(editor, undo)).toBe(true);
+        expect(editor.state.doc.textContent).toBe('');
     });
 
     it('should insert an empty banner and undo the insertion', () => {

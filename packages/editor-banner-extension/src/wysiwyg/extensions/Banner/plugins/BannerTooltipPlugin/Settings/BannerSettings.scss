@@ -78,7 +78,7 @@ $thumbnail-scale: 3;
     &__palette {
         display: grid;
         justify-content: space-between;
-        grid-template-columns: repeat(6, $swatch-size);
+        grid-template-columns: repeat(var(--g-md-banner-settings-palette-columns), $swatch-size);
         gap: var(--g-spacing-3) var(--g-spacing-4);
     }
 

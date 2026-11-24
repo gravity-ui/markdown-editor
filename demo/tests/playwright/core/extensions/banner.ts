@@ -61,6 +61,10 @@ export class BannerBlock {
         return this.backgroundPopup.getByRole('tab', {name, exact: true});
     }
 
+    backgroundSwatch(name: string) {
+        return this.backgroundPopup.getByRole('radio', {name, exact: true});
+    }
+
     /** Collapses every section except the given ones. */
     async setExpandedSections(...expanded: string[]) {
         for (const name of ['Text', 'Buttons', 'Image and background']) {

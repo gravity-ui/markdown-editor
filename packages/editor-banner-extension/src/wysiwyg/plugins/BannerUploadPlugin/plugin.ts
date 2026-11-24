@@ -1,6 +1,7 @@
 import type {FileUploadHandler} from '@gravity-ui/markdown-editor';
 import {
     type Command,
+    type EditorState,
     Plugin,
     PluginKey,
     type Transaction,
@@ -57,11 +58,14 @@ export const bannerUploadPlugin = () =>
 export const dropBannerUploads = (tr: Transaction, pos: number) =>
     tr.setMeta(uploadsKey, {pos} satisfies UploadMeta);
 
+export function hasBannerUploads(state: EditorState, pos: number) {
+    const uploads = uploadsKey.getState(state);
+    return uploads !== undefined && Array.from(uploads.values()).includes(pos);
+}
+
 /** Drops the uploads into the node at `pos`: their results are not written. */
 export function cancelBannerUploads(view: EditorView, pos: number) {
-    if (view.isDestroyed) return;
-    const uploads = uploadsKey.getState(view.state);
-    if (!uploads?.size || !Array.from(uploads.values()).includes(pos)) return;
+    if (view.isDestroyed || !hasBannerUploads(view.state, pos)) return;
     view.dispatch(dropBannerUploads(view.state.tr, pos));
 }
 

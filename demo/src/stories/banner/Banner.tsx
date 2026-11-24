@@ -55,12 +55,10 @@ export function BannerExample({
     initial = ':::banner{height="s" width="m"}\n\n:::\n\nAfter',
     mode = 'wysiwyg',
     width,
-    uploadFile = fileUploadHandler,
 }: {
     initial?: string;
     mode?: MarkdownEditorMode;
     width?: number;
-    uploadFile?: FileUploadHandler;
 }) {
     const renderPreview = useCallback<RenderPreview>(
         ({getValue}) => <SplitModePreviewLazy getValue={getValue} needToSanitizeHtml />,
@@ -68,10 +66,10 @@ export function BannerExample({
     );
     const editor = useMarkdownEditor({
         initial: {markup: initial, mode, toolbarVisible: true},
-        handlers: {uploadFile},
+        handlers: {uploadFile: fileUploadHandler},
         wysiwygConfig: {
             extensions: (builder) =>
-                builder.use(Banner, {...imageLimits, fileUploadHandler: uploadFile}).use(Button),
+                builder.use(Banner, {...imageLimits, fileUploadHandler}).use(Button),
         },
         markupConfig: {renderPreview},
     });

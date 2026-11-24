@@ -1,5 +1,5 @@
 import type {FileUploadHandler} from '@gravity-ui/markdown-editor';
-import type {Action, ExtensionAuto} from '@gravity-ui/markdown-editor/core';
+import type {Action, ExtensionBuilder} from '@gravity-ui/markdown-editor/core';
 
 import {type BannerUploadLimits, bannerUploadPlugin} from '../../plugins/BannerUploadPlugin';
 
@@ -16,7 +16,7 @@ export type BannerOptions = BannerUploadLimits & {
     fileUploadHandler?: FileUploadHandler;
 };
 
-export const Banner: ExtensionAuto<BannerOptions> = (builder, options) => {
+export const Banner = (builder: ExtensionBuilder, options: BannerOptions = {}) => {
     builder
         .use(BannerSpecs)
         .addNodeView(bannerNodeName, () => (node) => new WBannerNodeView(node))

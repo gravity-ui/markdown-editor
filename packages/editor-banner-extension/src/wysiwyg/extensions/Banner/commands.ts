@@ -15,7 +15,7 @@ import {
     bannerBackground,
 } from '@gravity-ui/markdown-plugin-banner';
 
-import {dropBannerUploads} from '../../plugins/BannerUploadPlugin';
+import {dropBannerUploads, hasBannerUploads} from '../../plugins/BannerUploadPlugin';
 import {changedAttrs} from '../attrs';
 import {removeChild} from '../commands';
 
@@ -83,8 +83,13 @@ export const setBannerBackground =
                 tr.setNodeAttribute(pos, name, value);
             }
             const changesSource = 'bg-image' in background || 'bg-color' in background;
-            if (changesSource) dropBannerUploads(tr, pos);
-            if (tr.docChanged || changesSource) dispatch(closeHistory(tr));
+            const cancelsUpload = changesSource && hasBannerUploads(state, pos);
+            if (cancelsUpload) dropBannerUploads(tr, pos);
+            if (tr.docChanged) {
+                dispatch(closeHistory(tr));
+            } else if (cancelsUpload) {
+                dispatch(tr);
+            }
         }
         return true;
     };
