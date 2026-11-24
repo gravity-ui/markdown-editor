@@ -3,7 +3,7 @@ import {type KeyboardEvent, useRef, useState} from 'react';
 import {Moon, Sun} from '@gravity-ui/icons';
 import {
     type BannerBackground,
-    type BannerBgImageTheme,
+    type BannerBgTheme,
     bannerAttrs,
     bannerBackgroundDefaults,
     bannerBgColors,
@@ -30,7 +30,7 @@ import {DimensionSelect} from './DimensionSelect';
 import {ImageSource} from './ImageSource';
 import {bgColorLabel, bgColorStyle} from './utils';
 
-const textColors: readonly BannerBgImageTheme[] = ['system', 'dark', 'light'];
+const textColors: readonly BannerBgTheme[] = ['system', 'dark', 'light'];
 // Light text is the content in the dark theme.
 const textColorKeys = {
     system: 'text-color-system',
@@ -171,10 +171,10 @@ function ImageTab({background, onClose}: {background: BackgroundControls; onClos
                     {file}
                     <DimensionSelect
                         label={i18n('text-color')}
-                        value={value['bg-image-theme']}
+                        value={value['bg-theme']}
                         values={textColors}
                         format={(theme) => i18n(textColorKeys[theme])}
-                        onUpdate={(theme) => onChange({'bg-image-theme': theme})}
+                        onUpdate={(theme) => onChange({'bg-theme': theme})}
                     />
                 </>
             )}

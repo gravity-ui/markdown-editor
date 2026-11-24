@@ -21,7 +21,7 @@ export const BannerSchemaSpecs: ExtensionAuto = (builder) => {
             width: {default: bannerDefaults.width},
             'bg-color': {default: bannerBackgroundDefaults['bg-color']},
             'bg-image': {default: bannerBackgroundDefaults['bg-image']},
-            'bg-image-theme': {default: bannerBackgroundDefaults['bg-image-theme']},
+            'bg-theme': {default: bannerBackgroundDefaults['bg-theme']},
             'bg-image-blur': {default: bannerBackgroundDefaults['bg-image-blur']},
         },
         parseDOM: [
