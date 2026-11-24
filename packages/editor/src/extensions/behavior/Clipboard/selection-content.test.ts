@@ -117,6 +117,31 @@ describe('getSelectionContent', () => {
         });
     });
 
+    describe('list item with nested list', () => {
+        it('should include bullet_list wrapper when selection starts in the first block of the item', () => {
+            const node = doc(ul(li(p('Parent'), ul(li(p('Child'))))));
+            const from = 3; // start of 'Parent'
+            const to = 18; // end of 'Child'
+            const sel = createSelection(node, from, to);
+            const slice = getSelectionContent(sel);
+
+            expect(slice.content.childCount).toBe(1);
+            expect(slice.content.firstChild).toMatchNode(ul(li(p('Parent'), ul(li(p('Child'))))));
+        });
+
+        it('should not include bullet_list wrapper when selection starts in the second block of the item', () => {
+            const node = doc(ul(li(p('A1'), p('B1'), ul(li(p('Child'))))));
+            const from = 7; // start of 'B1'
+            const to = 18; // end of 'Child'
+            const sel = createSelection(node, from, to);
+            const slice = getSelectionContent(sel);
+
+            expect(slice.content.childCount).toBe(2);
+            expect(slice.content.firstChild).toMatchNode(p('B1'));
+            expect(slice.content.lastChild).toMatchNode(ul(li(p('Child'))));
+        });
+    });
+
     describe('list inside blockquote', () => {
         it('should include bullet_list but NOT blockquote when selecting list items inside blockquote', () => {
             // doc > bquote > ul > li > p > "text"

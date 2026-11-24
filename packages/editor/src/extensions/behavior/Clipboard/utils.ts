@@ -1,7 +1,7 @@
 import {Fragment} from 'prosemirror-model';
 
 import {isListItemNode, isListNode} from 'src/extensions/markdown/Lists/utils';
-import {isEmptyString} from 'src/utils/nodes';
+import {isCodeBlock, isEmptyString} from 'src/utils/nodes';
 
 export {
     DataTransferType,
@@ -51,7 +51,7 @@ export function findNotEmptyContentPosses(fragment: Fragment): ContentBoundaryPo
         }
         lastNodePos = offset + contentNode.nodeSize;
 
-        if (!isEmptyString(contentNode)) {
+        if (isCodeBlock(contentNode) || !isEmptyString(contentNode)) {
             if (isListNode(contentNode) || isListItemNode(contentNode)) {
                 const [start, end] = findNotEmptyContentPosses(contentNode.content);
                 if (firstNotEmptyNodePos === -1 && start !== -1) {

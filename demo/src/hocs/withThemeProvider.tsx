@@ -6,7 +6,7 @@ import '@gravity-ui/markdown-editor/styles/markdown.css'; // eslint-disable-line
 
 export const withThemeProvider: Decorator = (StoryItem, context) => {
     return (
-        <ThemeProvider theme={context.globals.theme}>
+        <ThemeProvider theme={context.globals.theme} direction={context.globals.direction}>
             <StoryItem {...context} />
         </ThemeProvider>
     );

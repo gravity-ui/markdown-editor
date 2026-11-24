@@ -2,6 +2,7 @@ import {type Parser, type Serializer, trackTransactionMetrics} from '#core';
 import {Fragment, type Node, type ResolvedPos, Slice} from '#pm/model';
 import {type EditorState, Plugin, type Selection} from '#pm/state';
 import type {EditorView} from '#pm/view';
+import {isListItemNode} from 'src/extensions/markdown/Lists/utils';
 import {type Logger2, globalLogger} from 'src/logger';
 import 'src/types/spec';
 import {tryCatch} from 'src/utils/helpers';
@@ -220,6 +221,13 @@ function getCopyContent(state: EditorState): Slice {
                 if (complex === 'root') {
                     return new Slice(Fragment.from(node), 1, 1);
                 } else if (complex === 'leaf') {
+                    if (isListItemNode(node)) {
+                        return new Slice(
+                            Fragment.from(sel.$from.parent.copy(Fragment.from(node))),
+                            0,
+                            0,
+                        );
+                    }
                     return new Slice(Fragment.from(node.content), 1, 1);
                 } else {
                     // TODO: handle copy of intermediate complex block node
