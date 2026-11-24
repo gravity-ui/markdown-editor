@@ -32,22 +32,14 @@ test.describe('Editor keyboard accessibility', () => {
         editor,
         page,
     }) => {
-        await mount(
-            <>
-                <button>Before editor</button>
-                <Playground initialEditor="markup" initialSplitModeEnabled={false} />
-            </>,
-        );
+        await mount(<Playground initialEditor="markup" initialSplitModeEnabled={false} />);
 
         await expect(editor.locators.component).not.toHaveRole('button');
+        await expect(editor.locators.component).toHaveJSProperty('tabIndex', -1);
         await expect(editor.locators.previewButton).toHaveRole('button');
         await expect(editor.locators.settingsButton).toHaveRole('button');
         await expect(editor.locators.previewButton).toHaveAccessibleName('Preview');
         await expect(editor.locators.settingsButton).toHaveAccessibleName('Settings');
-
-        await page.getByRole('button', {name: 'Before editor', exact: true}).focus();
-        await page.keyboard.press('Tab');
-        await expect(editor.locators.component).not.toBeFocused();
 
         await editor.locators.settingsButton.focus();
         await page.keyboard.press('Shift+Tab');
