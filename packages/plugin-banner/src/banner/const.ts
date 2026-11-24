@@ -27,20 +27,20 @@ export const bannerBgColors: readonly BannerBgColor[] = bannerBgColorSaturations
     (saturation) => bannerBgColorFamilies.map((family) => `${family}-${saturation}` as const),
 );
 
-export const bannerBgImageThemes = ['system', 'light', 'dark'] as const;
-export type BannerBgImageTheme = (typeof bannerBgImageThemes)[number];
+export const bannerBgThemes = ['system', 'light', 'dark'] as const;
+export type BannerBgTheme = (typeof bannerBgThemes)[number];
 
 export type BannerBackground = {
     'bg-color': BannerBgColor | null;
     'bg-image': string | null;
-    'bg-image-theme': BannerBgImageTheme;
+    'bg-theme': BannerBgTheme;
     'bg-image-blur': boolean;
 };
 
 export const bannerBackgroundDefaults: Readonly<BannerBackground> = {
     'bg-color': null,
     'bg-image': null,
-    'bg-image-theme': 'system',
+    'bg-theme': 'system',
     'bg-image-blur': false,
 };
 

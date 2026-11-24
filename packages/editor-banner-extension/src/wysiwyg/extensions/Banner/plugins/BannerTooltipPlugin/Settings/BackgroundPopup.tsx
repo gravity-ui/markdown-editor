@@ -3,7 +3,7 @@ import {type FocusEvent, type KeyboardEvent, type MouseEvent, useRef, useState} 
 import {Moon, Sun} from '@gravity-ui/icons';
 import {
     type BannerBackground,
-    type BannerBgImageTheme,
+    type BannerBgTheme,
     bannerAttrs,
     bannerBackgroundDefaults,
     bannerBgColors,
@@ -28,13 +28,13 @@ import {DimensionSelect} from './DimensionSelect';
 import {IconRadioGroup} from './IconRadioGroup';
 import {bgColorLabel, bgColorStyle} from './utils';
 
-const textColors: readonly BannerBgImageTheme[] = ['system', 'dark', 'light'];
+const textColors: readonly BannerBgTheme[] = ['system', 'dark', 'light'];
 const textColorKeys = {
     system: 'text-color-system',
     dark: 'text-color-light',
     light: 'text-color-dark',
 } as const;
-const textColorLabel = (theme: BannerBgImageTheme) => i18n(textColorKeys[theme]);
+const textColorLabel = (theme: BannerBgTheme) => i18n(textColorKeys[theme]);
 
 const previewThemes = [
     {value: 'light', icon: Sun, label: 'preview-light'},
@@ -151,7 +151,7 @@ function BannerPreview({value}: {value: BannerBackground}) {
 function ImageTab({background, onClose}: {background: BackgroundControls; onClose: () => void}) {
     const {value, onChange, upload, cancelUpload} = background;
     const handleLink = (address: string) => onChange({'bg-image': address});
-    const handleThemeUpdate = (theme: BannerBgImageTheme) => onChange({'bg-image-theme': theme});
+    const handleThemeUpdate = (theme: BannerBgTheme) => onChange({'bg-theme': theme});
     return (
         <ImageSource
             image={value['bg-image']}
@@ -167,7 +167,7 @@ function ImageTab({background, onClose}: {background: BackgroundControls; onClos
                     {file}
                     <DimensionSelect
                         label={i18n('text-color')}
-                        value={value['bg-image-theme']}
+                        value={value['bg-theme']}
                         values={textColors}
                         format={textColorLabel}
                         onUpdate={handleThemeUpdate}

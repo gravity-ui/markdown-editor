@@ -8,7 +8,7 @@ import {
     bannerAligns,
     bannerBackgroundDefaults,
     bannerBgColors,
-    bannerBgImageThemes,
+    bannerBgThemes,
     bannerHeights,
     bannerLayoutDefaults,
     bannerModelDefaults,
@@ -17,12 +17,7 @@ import {
 } from './const';
 
 export function bannerModel(attrs: Partial<Record<keyof BannerModel, unknown>>): BannerModel {
-    const {
-        'bg-color': color,
-        'bg-image': image,
-        'bg-image-theme': theme,
-        'bg-image-blur': blur,
-    } = attrs;
+    const {'bg-color': color, 'bg-image': image, 'bg-theme': theme, 'bg-image-blur': blur} = attrs;
     const safeImage = typeof image === 'string' ? safeImageUrl(image) : null;
     return {
         height: oneOf(bannerHeights, attrs.height) ?? bannerModelDefaults.height,
@@ -31,9 +26,9 @@ export function bannerModel(attrs: Partial<Record<keyof BannerModel, unknown>>):
         vertical: oneOf(bannerVerticals, attrs.vertical) ?? bannerModelDefaults.vertical,
         'bg-color': oneOf(bannerBgColors, color) ?? bannerModelDefaults['bg-color'],
         'bg-image': safeImage,
-        'bg-image-theme':
-            (safeImage ? oneOf(bannerBgImageThemes, theme) : undefined) ??
-            bannerModelDefaults['bg-image-theme'],
+        'bg-theme':
+            (safeImage ? oneOf(bannerBgThemes, theme) : undefined) ??
+            bannerModelDefaults['bg-theme'],
         'bg-image-blur': Boolean(safeImage) && (blur === true || blur === 'true'),
     };
 }

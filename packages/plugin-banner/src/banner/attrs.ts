@@ -20,7 +20,7 @@ type BannerAttrsInput = Partial<Record<keyof BannerModel, unknown>>;
 export function bannerAttrs(attrs: BannerAttrsInput): Record<string, string> {
     const model = bannerModel(attrs);
     const image = model['bg-image'] && toCssUrl(model['bg-image']);
-    const theme = model['bg-image-theme'];
+    const theme = model['bg-theme'];
     return {
         class: b(
             {

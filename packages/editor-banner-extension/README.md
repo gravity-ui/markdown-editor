@@ -82,7 +82,7 @@ Otherwise, in a banner that holds only one paragraph of text, such as text typed
 The panel shows the first image, title and description of the banner and up to three buttons; the switch of the next button is enabled after the previous one is on.
 Without the `Button` extension, the Buttons section is hidden.
 The Background field of the panel opens the Background popup with the Fill and Image tabs and the Reset button; the popup opens with the focus on the active tab. The arrow keys move the focus between the fills as they appear on the screen, also in a right-to-left layout. Tab from its last control and Shift+Tab from its close button close it and return the focus to the Background field.
-Choosing a color removes `bg-image`, `bg-image-theme`, and `bg-image-blur`; setting an image keeps the color; Reset and the clear button of the field remove all `bg-*` attributes.
+Choosing a color removes `bg-image`, `bg-theme`, and `bg-image-blur`; setting an image keeps the color; Reset and the clear button of the field remove all `bg-*` attributes.
 Each background change is one undo step.
 The Image tab holds the image form of the editor without its size fields: a file goes to `fileUploadHandler`, and a link is written into `bg-image` as is; without `fileUploadHandler`, the form takes a link only.
 A file of `imageTypes` up to `maxImageSize` is uploaded; another file shows an error and leaves the document unchanged.
