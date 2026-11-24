@@ -432,6 +432,26 @@ describe('Banner extension', () => {
         expect(setImage).not.toHaveBeenCalled();
     });
 
+    it('should write only the changed DOM values and remove the missing ones', () => {
+        const editor = createNodeView(':::banner{bg-image="/a.png" bg-theme="dark"}\n:::');
+        const dom = editor.nodeDOM(0) as HTMLElement;
+        dom.classList.add('ProseMirror-selectednode');
+        const setAttribute = vi.spyOn(dom, 'setAttribute');
+
+        expect(run(editor, setBannerBackground(0, {'bg-color': 'blue-light'}))).toBe(true);
+        expect(setAttribute.mock.calls).toEqual([['data-bg-color', 'blue-light']]);
+        expect(dom.classList.contains('g-md-banner-plugin_bg-color_blue-light')).toBe(true);
+
+        expect(run(editor, setBannerBackground(0, {'bg-image': null}))).toBe(true);
+        for (const name of ['style', 'data-bg-image', 'data-bg-theme']) {
+            expect(dom.hasAttribute(name)).toBe(false);
+        }
+        expect(dom.classList.contains('g-md-banner-plugin_bg-image')).toBe(false);
+        expect(dom.classList.contains('g-root_theme_dark')).toBe(false);
+        expect(dom.classList.contains('ProseMirror-selectednode')).toBe(true);
+        expect(dom.getAttribute('data-bg-color')).toBe('blue-light');
+    });
+
     it('should apply content DOM edits to the document', async () => {
         const editor = createNodeView(':::banner\nBefore\n:::');
         const paragraph = (editor.nodeDOM(0) as HTMLElement).querySelector(':scope > p');
