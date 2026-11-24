@@ -107,6 +107,8 @@ $bg-colors: (
         --yfm-color-link: var(--g-color-text-link);
         --yfm-color-link-hover: var(--g-color-text-link-hover);
 
+        font: inherit;
+
         background-color: var(--_--bg-color, var(--g-color-base-background));
     }
 }
