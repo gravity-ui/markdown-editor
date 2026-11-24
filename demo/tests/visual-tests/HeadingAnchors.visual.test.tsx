@@ -10,15 +10,25 @@ test.describe('MarkdownViewer heading anchors', () => {
             mount,
             page,
         }) => {
+            await page.addStyleTag({content: 'h2 { scroll-margin-block-start: 64px; }'});
             await mount(<HeadingAliasViewer attribute={attribute} />, {width: 700});
             const heading = page.locator('h2#heading');
+            await expect(heading).toBeAttached();
             await expect(heading).not.toBeInViewport();
 
+            await page.getByRole('link', {name: 'Go to heading'}).click();
+            await expect.poll(async () => (await heading.boundingBox())?.y).toBeCloseTo(64, 0);
             await page.getByRole('link', {name: 'Go to alias'}).click();
 
-            await expect(heading).toBeInViewport();
-            const alias = heading.locator('.yfm-anchor');
+            await expect.poll(async () => (await heading.boundingBox())?.y).toBeCloseTo(64, 0);
+            const alias = heading.locator(`[${attribute}="legacy-alias"]`);
             await expect(alias).toBeHidden();
+
+            await page.getByRole('link', {name: 'Go to alias'}).focus();
+            await page.keyboard.press('Tab');
+            await expect(
+                heading.getByRole('button', {name: 'Copy link', exact: true}),
+            ).toBeFocused();
 
             const layout = await measureAliasLayout(page);
             expect(
@@ -36,6 +46,18 @@ test.describe('MarkdownViewer heading anchors', () => {
             expect(await measureAliasLayout(page)).toEqual(layout);
         });
     }
+
+    test('should preserve a custom scroll margin on the fragment target', async ({mount, page}) => {
+        await page.addStyleTag({content: ':target { scroll-margin-block-start: 64px; }'});
+        await mount(<HeadingAliasViewer attribute="id" />, {width: 700});
+        const heading = page.locator('h2#heading');
+        await expect(heading).toBeAttached();
+
+        await page.getByRole('link', {name: 'Go to heading'}).click();
+        await expect.poll(async () => (await heading.boundingBox())?.y).toBeCloseTo(64, 0);
+        await page.getByRole('link', {name: 'Go to alias'}).click();
+        await expect.poll(async () => (await heading.boundingBox())?.y).toBeCloseTo(64, 0);
+    });
 
     test('should cover list markers beside every heading level', async ({
         mount,

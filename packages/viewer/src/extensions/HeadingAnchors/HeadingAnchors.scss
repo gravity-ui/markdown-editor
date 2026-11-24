@@ -51,5 +51,10 @@
         height: 0;
         margin: 0;
         padding: 0;
+
+        // Let application styles override the inherited scroll margin.
+        @at-root :where(&) {
+            scroll-margin: inherit;
+        }
     }
 }
