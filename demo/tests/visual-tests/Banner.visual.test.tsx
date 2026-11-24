@@ -1,7 +1,10 @@
 import type {CSSProperties} from 'react';
 
+import type {Locator, Page} from '@playwright/test';
+
 import {expect} from 'playwright/core';
-import {test} from 'playwright/core/extensions/banner';
+import {type BannerBlock, test} from 'playwright/core/extensions/banner';
+import type {Fixtures} from 'playwright/core/types';
 
 import {BannerStories} from './Banner.helpers';
 
@@ -592,5 +595,321 @@ test.describe('Banner on mobile', () => {
             .toBeLessThanOrEqual(480);
         await banner.background.scrollIntoViewIfNeeded();
         await expect(banner.background).toBeInViewport();
+    });
+});
+
+test.describe('Banner mobile layout', () => {
+    // The mobile mockup: a 375 px screen and a 343 px banner, 16 px from the screen edges.
+    test.use({viewport: {width: 375, height: 812}});
+
+    const MOBILE_WIDTH = 343;
+    const MOBILE_PADDING = 16;
+    // The visual editor holds its blocks 4 px from its edges.
+    const EDITOR_INSET = 4;
+    // The preview buttons take a column to the right of the preview.
+    const PREVIEW_BUTTONS_WIDTH = 65;
+    const PREVIEW_VIEWPORT_WIDTH = MOBILE_WIDTH + PREVIEW_BUTTONS_WIDTH + 2 * MOBILE_PADDING;
+
+    const mobileBanner = (attrs: string, ...blocks: string[]) =>
+        [`:::banner{height="s" width="full"${attrs}}`, ...blocks, ':::'].join('\n\n');
+    const title = '::banner-title[Team portal]';
+    const description = [
+        ':::banner-content',
+        'Everything the team needs in one place: the handbook and the release calendar.',
+        ':::',
+    ].join('\n\n');
+    const image = '::banner-image{src="assets/banner-image-landscape.svg" alt="Team"}';
+    const buttons = (...labels: string[]) =>
+        [
+            ':::banner-content',
+            labels
+                .map(
+                    (label) => `:button[${label}](https://example.com){view="action" color="blue"}`,
+                )
+                .join(' '),
+            ':::',
+        ].join('\n\n');
+
+    const textMarkup = mobileBanner('', title, description);
+    // The image positions of a wide banner: the right column, the left column, the whole banner.
+    const imageRightMarkup = mobileBanner('', image, title, description);
+    const imageLeftMarkup = mobileBanner(' align="right"', title, description, image);
+    const imageOnlyMarkup = mobileBanner('', image);
+    const imageMarkup = [imageRightMarkup, imageLeftMarkup, imageOnlyMarkup].join('\n\n');
+    const buttonsMarkup = [
+        mobileBanner('', title, buttons('Open', 'Subscribe')),
+        mobileBanner('', title, buttons('Open the portal')),
+    ].join('\n\n');
+    const backgroundMarkup = mobileBanner(
+        ' bg-image="assets/test-image.jpg" bg-theme="dark"',
+        title,
+        description,
+        buttons('Open'),
+    );
+
+    type MobileFixtures = Pick<Fixtures, 'mount' | 'editor'> & {page: Page; banner: BannerBlock};
+
+    /** The banners are as wide as the mockup, the text stands at its padding, and the image is above the text. */
+    function expectMobileLayout(boxes: Awaited<ReturnType<BannerBlock['layoutBoxes']>>) {
+        for (const box of boxes) {
+            expect(box.banner?.width).toBe(MOBILE_WIDTH);
+            if (box.title) expect(box.title.left - (box.banner?.left ?? 0)).toBe(MOBILE_PADDING);
+            if (box.title && box.image) {
+                expect(box.image.bottom).toBeLessThanOrEqual(box.title.top);
+            }
+        }
+    }
+
+    async function mountWysiwyg({mount, editor, banner}: MobileFixtures, initial: string) {
+        await mount(
+            <BannerStories.Banner
+                width={MOBILE_WIDTH + 2 * EDITOR_INSET}
+                initial={`${initial}\n\nAfter`}
+            />,
+            {rootStyle: {padding: MOBILE_PADDING - EDITOR_INSET}},
+        );
+        await expect(banner.blocks.first()).toBeVisible();
+        await editor.focus();
+        await editor.press('ControlOrMeta+End');
+        await expect(banner.toolbar).toBeHidden();
+        expectMobileLayout(await banner.layoutBoxes());
+    }
+
+    async function mountPreview(
+        {mount, page, editor, banner, wait}: MobileFixtures & Pick<Fixtures, 'wait'>,
+        initial: string,
+    ) {
+        await page.setViewportSize({width: PREVIEW_VIEWPORT_WIDTH, height: 812});
+        await mount(
+            <BannerStories.Banner
+                mode="markup"
+                width={MOBILE_WIDTH + PREVIEW_BUTTONS_WIDTH}
+                initial={initial}
+            />,
+            {rootStyle: {padding: MOBILE_PADDING}},
+        );
+        await editor.switchPreview('visible');
+        await page.mouse.move(0, 0);
+        await wait.tooltipsHidden();
+        const blocks = editor.locators.previewContent.locator('.g-md-banner-plugin');
+        await expect(blocks.first()).toBeVisible();
+        expectMobileLayout(await banner.layoutBoxes(blocks));
+    }
+
+    /** Opens the settings of the banner that holds `target`. */
+    async function openSettings({banner}: MobileFixtures, target: Locator) {
+        await target.click();
+        await expect(banner.toolbar).toBeVisible();
+        await banner.openSettings();
+    }
+
+    /** The settings panel fits the screen width. */
+    async function expectSettingsInViewport({page, banner}: MobileFixtures) {
+        // The panel fits its height to the viewport after the sections change.
+        let previous = '';
+        await expect
+            .poll(
+                async () => {
+                    const current = JSON.stringify(await banner.settings.boundingBox());
+                    const isStable = current === previous;
+                    previous = current;
+                    return isStable;
+                },
+                {intervals: [200]},
+            )
+            .toBe(true);
+        const bounds = await banner.settings.boundingBox();
+        expect(bounds?.x).toBeGreaterThanOrEqual(0);
+        expect((bounds?.x ?? 0) + (bounds?.width ?? Infinity)).toBeLessThanOrEqual(
+            page.viewportSize()?.width ?? 0,
+        );
+    }
+
+    test('should lay out a banner with a title and a description @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        expectScreenshot,
+    }) => {
+        await mountWysiwyg({mount, page, editor, banner}, textMarkup);
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should show the settings of a banner with a title and a description @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        expectScreenshot,
+    }) => {
+        const fixtures = {mount, page, editor, banner};
+        await mountWysiwyg(fixtures, textMarkup);
+        await openSettings(fixtures, banner.titles.first());
+        await banner.setExpandedSections('Text');
+        await expectSettingsInViewport(fixtures);
+        await expectScreenshot({component: banner.settings});
+    });
+
+    test('should lay out a banner with a title and a description in the preview @markup', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        wait,
+        expectScreenshot,
+    }) => {
+        await mountPreview({mount, page, editor, banner, wait}, textMarkup);
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should show the image above the text in each position @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        expectScreenshot,
+    }) => {
+        await mountWysiwyg({mount, page, editor, banner}, imageMarkup);
+        await expect(banner.images).toHaveCount(3);
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should show the settings of a banner with an image on the right @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        expectScreenshot,
+    }) => {
+        const fixtures = {mount, page, editor, banner};
+        await mountWysiwyg(fixtures, imageRightMarkup);
+        await openSettings(fixtures, banner.titles.first());
+        await banner.setExpandedSections('Image and background');
+        await expectSettingsInViewport(fixtures);
+        await expectScreenshot({component: banner.settings});
+    });
+
+    test('should show the settings of a banner with an image on the left @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        expectScreenshot,
+    }) => {
+        const fixtures = {mount, page, editor, banner};
+        await mountWysiwyg(fixtures, imageLeftMarkup);
+        await openSettings(fixtures, banner.titles.first());
+        await banner.setExpandedSections('Text');
+        await expect(banner.alignment('Horizontally', 'Right')).toBeChecked();
+        await expectSettingsInViewport(fixtures);
+        await expectScreenshot({component: banner.settings});
+    });
+
+    test('should show the settings of a banner with only an image @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        expectScreenshot,
+    }) => {
+        const fixtures = {mount, page, editor, banner};
+        await mountWysiwyg(fixtures, imageOnlyMarkup);
+        // A click on the image opens the image popup; the arrow key from the next paragraph selects the image.
+        await page.locator('.ProseMirror > p').last().click();
+        await editor.press('ArrowUp');
+        await expect(banner.toolbar).toBeVisible();
+        await banner.openSettings();
+        await banner.setExpandedSections('Image and background');
+        await expectSettingsInViewport(fixtures);
+        await expectScreenshot({component: banner.settings});
+    });
+
+    test('should show the image above the text in each position in the preview @markup', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        wait,
+        expectScreenshot,
+    }) => {
+        await mountPreview({mount, page, editor, banner, wait}, imageMarkup);
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should lay out banners with buttons @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        expectScreenshot,
+    }) => {
+        await mountWysiwyg({mount, page, editor, banner}, buttonsMarkup);
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should show the settings of a banner with buttons @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        expectScreenshot,
+    }) => {
+        const fixtures = {mount, page, editor, banner};
+        await mountWysiwyg(fixtures, buttonsMarkup);
+        await openSettings(fixtures, banner.titles.first());
+        await banner.setExpandedSections('Buttons');
+        await expectSettingsInViewport(fixtures);
+        await expectScreenshot({component: banner.settings});
+    });
+
+    test('should lay out banners with buttons in the preview @markup', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        wait,
+        expectScreenshot,
+    }) => {
+        await mountPreview({mount, page, editor, banner, wait}, buttonsMarkup);
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should lay out a banner with a background image and a theme @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        expectScreenshot,
+    }) => {
+        await mountWysiwyg({mount, page, editor, banner}, backgroundMarkup);
+        await expectScreenshot({component: editor.locators.component});
+    });
+
+    test('should show the settings of a banner with a background image and a theme @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        expectScreenshot,
+    }) => {
+        const fixtures = {mount, page, editor, banner};
+        await mountWysiwyg(fixtures, backgroundMarkup);
+        await openSettings(fixtures, banner.titles.first());
+        await banner.setExpandedSections('Image and background');
+        await expectSettingsInViewport(fixtures);
+        await expectScreenshot({component: banner.settings});
+    });
+
+    test('should lay out a banner with a background image and a theme in the preview @markup', async ({
+        mount,
+        page,
+        editor,
+        banner,
+        wait,
+        expectScreenshot,
+    }) => {
+        await mountPreview({mount, page, editor, banner, wait}, backgroundMarkup);
+        await expectScreenshot({component: editor.locators.component});
     });
 });

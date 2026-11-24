@@ -4,6 +4,8 @@ import {test as base, expect} from '../index';
 
 export class BannerBlock {
     readonly blocks: Locator;
+    readonly titles: Locator;
+    readonly images: Locator;
     readonly toolbar: Locator;
     readonly settingsButton: Locator;
     readonly removeButton: Locator;
@@ -20,6 +22,8 @@ export class BannerBlock {
         this.page = page;
         this.expect = expect;
         this.blocks = page.locator('.ProseMirror .g-md-banner-plugin');
+        this.titles = this.blocks.locator('.g-md-banner-title-plugin');
+        this.images = this.blocks.locator('img.g-md-banner-image-plugin');
         this.toolbar = page.getByTestId('g-md-toolbar-banner');
         this.settingsButton = this.toolbar.getByRole('button', {name: 'Settings', exact: true});
         this.removeButton = this.toolbar.getByRole('button', {name: 'Delete', exact: true});
