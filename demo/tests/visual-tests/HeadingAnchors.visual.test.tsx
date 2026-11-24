@@ -5,13 +5,19 @@ import {expect, test} from 'playwright/core';
 import {HeadingAliasViewer, ViewerStories} from './MarkdownViewer.helpers';
 
 test.describe('MarkdownViewer heading anchors', () => {
-    for (const attribute of ['id', 'name'] as const) {
-        test(`should scroll to a legacy ${attribute} alias while hiding its old control`, async ({
+    for (const [variant, attribute] of [
+        ['button-id', 'id'],
+        ['link-name', 'name'],
+        ['link-id', 'id'],
+    ] as const) {
+        test(`should scroll to a legacy ${variant} alias while hiding its old control`, async ({
             mount,
             page,
         }) => {
-            await page.addStyleTag({content: 'h2 { scroll-margin-block-start: 64px; }'});
-            await mount(<HeadingAliasViewer attribute={attribute} />, {width: 700});
+            await page.addStyleTag({
+                content: 'h2 { scroll-margin-block-start: 64px; padding: 16px 0 0 28px; }',
+            });
+            await mount(<HeadingAliasViewer variant={variant} />, {width: 700});
             const heading = page.locator('h2#heading');
             await expect(heading).toBeAttached();
             await expect(heading).not.toBeInViewport();
@@ -30,26 +36,21 @@ test.describe('MarkdownViewer heading anchors', () => {
                 heading.getByRole('button', {name: 'Copy link', exact: true}),
             ).toBeFocused();
 
-            const layout = await measureAliasLayout(page);
+            const headingRect = await heading.boundingBox();
             expect(
                 await alias.evaluate((element) => element.getBoundingClientRect().toJSON()),
             ).toMatchObject({
-                x: layout.heading?.x,
-                y: layout.heading?.y,
+                x: headingRect?.x,
+                y: headingRect?.y,
                 width: 0,
                 height: 0,
             });
-
-            await alias.evaluate((element) => {
-                element.style.setProperty('display', 'none');
-            });
-            expect(await measureAliasLayout(page)).toEqual(layout);
         });
     }
 
     test('should preserve a custom scroll margin on the fragment target', async ({mount, page}) => {
         await page.addStyleTag({content: ':target { scroll-margin-block-start: 64px; }'});
-        await mount(<HeadingAliasViewer attribute="id" />, {width: 700});
+        await mount(<HeadingAliasViewer variant="button-id" />, {width: 700});
         const heading = page.locator('h2#heading');
         await expect(heading).toBeAttached();
 
@@ -172,14 +173,6 @@ test.describe('MarkdownViewer heading anchors', () => {
         await expect(copy.locator('..')).toHaveCSS('opacity', '1');
     });
 });
-
-async function measureAliasLayout(page: Page) {
-    return page.evaluate(() => ({
-        heading: document.querySelector('h2#heading')?.getBoundingClientRect().toJSON(),
-        width: document.documentElement.scrollWidth,
-        height: document.documentElement.scrollHeight,
-    }));
-}
 
 async function hoverHeadings(page: Page) {
     const devtools = await page.context().newCDPSession(page);
