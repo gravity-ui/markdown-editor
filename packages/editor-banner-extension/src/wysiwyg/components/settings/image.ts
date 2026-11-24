@@ -1,5 +1,13 @@
+import {getConfig} from '@gravity-ui/markdown-editor/_/configure.js';
+
 import {i18n} from '../../../i18n';
-import type {BannerUploadLimits} from '../../plugins/BannerUploadPlugin';
+
+export type BannerUploadLimits = {
+    /** MIME types of the files the image forms upload; any image type by default. */
+    imageTypes?: readonly string[];
+    /** The largest file size in bytes; no limit by default. */
+    maxImageSize?: number;
+};
 
 export function imageName(url: string) {
     const name = url.split(/[?#]/)[0].split('/').pop() || url;
@@ -13,7 +21,9 @@ export function imageName(url: string) {
 function formatImageSize(bytes: number) {
     if (bytes < 1024) return i18n('file-size-bytes', {size: bytes});
     const kilobytes = bytes < 1024 ** 2;
-    const size = Number((bytes / (kilobytes ? 1024 : 1024 ** 2)).toFixed(1));
+    const size = new Intl.NumberFormat(getConfig().lang ?? 'en', {maximumFractionDigits: 1}).format(
+        bytes / (kilobytes ? 1024 : 1024 ** 2),
+    );
     return i18n(kilobytes ? 'file-size-kb' : 'file-size-mb', {size});
 }
 
@@ -31,7 +41,7 @@ export function uploadHint({imageTypes, maxImageSize}: BannerUploadLimits) {
     if (types && size !== undefined) return i18n('upload-hint', {types, size});
     if (types) return i18n('upload-hint-types', {types});
     if (size !== undefined) return i18n('upload-hint-size', {size});
-    return null;
+    return i18n('upload-hint-image');
 }
 
 export function imageFileError(file: File, {imageTypes, maxImageSize}: BannerUploadLimits) {

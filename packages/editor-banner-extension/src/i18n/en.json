@@ -27,6 +27,7 @@
   "upload-hint-types": "{{types}}",
   "upload-hint-size": "Up to {{size}}",
   "list-or": "{{items}} or {{last}}",
+  "upload-hint-image": "Choose an image to upload",
   "upload-error-type": "Unsupported file format",
   "upload-error-size": "The file is larger than {{size}}",
   "link-error": "Unsupported image address",

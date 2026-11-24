@@ -19,16 +19,16 @@ export const selectionInside =
         const doc = $anchor.doc;
         const schema = doc.type.schema;
         const forward = $anchor.pos <= $head.pos;
-        const [$start, $end] = forward ? [$anchor, $head] : [$head, $anchor];
-        const depth = findDepth($start, nodeType(schema));
-        if (!depth || $end.pos <= $start.end(depth)) return null;
-        const next = Selection.findFrom(doc.resolve($start.after(depth)), 1, true);
-        if (next && $end.pos > next.from) return null;
-        const {last} = textRange(doc, $start, depth);
-        if (!last || last.to < $start.pos) return null;
-        return forward
-            ? TextSelection.create(doc, $start.pos, last.to)
-            : TextSelection.create(doc, last.to, $start.pos);
+        const depth = findDepth($anchor, nodeType(schema));
+        if (!depth) return null;
+        const boundary = forward ? $anchor.end(depth) : $anchor.start(depth);
+        if (forward ? $head.pos <= boundary : $head.pos >= boundary) return null;
+        const outside = forward ? $anchor.after(depth) : $anchor.before(depth);
+        const adjacent = Selection.findFrom(doc.resolve(outside), forward ? 1 : -1, true);
+        if (adjacent && (forward ? $head.pos > adjacent.from : $head.pos < adjacent.to))
+            return null;
+        const edge = Selection.findFrom(doc.resolve(boundary), forward ? -1 : 1, true);
+        return edge && TextSelection.create(doc, $anchor.pos, edge.head);
     };
 
 export const selectionInsidePlugin = (nodeType: (schema: Schema) => NodeType) =>

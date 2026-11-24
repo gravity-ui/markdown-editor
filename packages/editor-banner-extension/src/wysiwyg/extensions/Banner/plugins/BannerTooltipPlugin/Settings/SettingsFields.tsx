@@ -27,27 +27,21 @@ export type ContentControls = {
 type PartSwitchProps = {part: BannerPart; label: string; action: string; content: ContentControls};
 
 function PartSwitch({part, label, action, content}: PartSwitchProps) {
+    const handleDemoUpdate = () => logClick(`${action} toggle`);
+    const handleUpdate = (enabled: boolean) => content.onPartChange(part, enabled);
     if (!content.available[part]) {
-        return (
-            <SettingsSwitch
-                label={label}
-                defaultChecked
-                onUpdate={() => logClick(`${action} toggle`)}
-            />
-        );
+        return <SettingsSwitch label={label} defaultChecked onUpdate={handleDemoUpdate} />;
     }
-    return (
-        <SettingsSwitch
-            label={label}
-            checked={content.parts[part]}
-            onUpdate={(enabled) => content.onPartChange(part, enabled)}
-        />
-    );
+    return <SettingsSwitch label={label} checked={content.parts[part]} onUpdate={handleUpdate} />;
 }
 
 export function SettingsFields({content}: {content: ContentControls}) {
     const backgroundLabelId = useUniqId();
     const backgroundValueId = useUniqId();
+    const handleButton1Toggle = () => logClick('Button 1 toggle');
+    const handleButton2Toggle = () => logClick('Button 2 toggle');
+    const handleButton3Toggle = () => logClick('Button 3 toggle');
+    const handleBackgroundButton = () => logClick('Background button');
     return (
         <>
             <Divider />
@@ -114,16 +108,10 @@ export function SettingsFields({content}: {content: ContentControls}) {
                 <SettingsSwitch
                     label={i18n('button-1')}
                     defaultChecked
-                    onUpdate={() => logClick('Button 1 toggle')}
+                    onUpdate={handleButton1Toggle}
                 />
-                <SettingsSwitch
-                    label={i18n('button-2')}
-                    onUpdate={() => logClick('Button 2 toggle')}
-                />
-                <SettingsSwitch
-                    label={i18n('button-3')}
-                    onUpdate={() => logClick('Button 3 toggle')}
-                />
+                <SettingsSwitch label={i18n('button-2')} onUpdate={handleButton2Toggle} />
+                <SettingsSwitch label={i18n('button-3')} onUpdate={handleButton3Toggle} />
             </SettingsSection>
             <Divider />
             <SettingsSection title={i18n('image-and-background')} action="Image and background">
@@ -138,7 +126,7 @@ export function SettingsFields({content}: {content: ContentControls}) {
                         size="m"
                         width="max"
                         aria-labelledby={`${backgroundLabelId} ${backgroundValueId}`}
-                        onClick={() => logClick('Background button')}
+                        onClick={handleBackgroundButton}
                     >
                         <Icon data={SquareMinus} size={16} />
                         <span id={backgroundValueId}>{i18n('no-background')}</span>

@@ -34,10 +34,10 @@ A new or empty block holds an empty paragraph, and insertion puts the cursor int
 
 ### Banner parts
 
-The image, the title, and the description of the banner are parts. A node type becomes a part with `bannerPart` in its node spec: the part name, `create` for a new block, and optional `adopt` that turns the only paragraph of the banner into the part.
+The image, the title, and the description of the banner are parts.
 The Title, Description, and Image switches of the settings panel show whether the banner holds the part and insert or remove its block in one undo step. A switch of a part without a node type in the schema is not connected to the document.
 A switched-on part goes after the parts before it in the order image → title → description; the parts of a document keep their order. A part replaces the only empty paragraph of the banner.
-Switching a part back on restores the block removed by the switch, with its content and attributes, until the page reloads.
+Switching a part back on restores the block removed by the switch, with its content and attributes, while the same banner block stays in the editor.
 
 `BannerSpecs` adds only the schema, Markdown parsing, and serialization, and runs in Node.js.
 `Banner` also needs the editor's React renderer, which the standard presets include.

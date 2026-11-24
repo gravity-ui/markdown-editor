@@ -3,13 +3,6 @@ import {type Command, Plugin, PluginKey} from '@gravity-ui/markdown-editor/pm/st
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {safeImageUrl} from '@gravity-ui/markdown-plugin-banner';
 
-export type BannerUploadLimits = {
-    /** MIME types of the files the image forms upload; any image type by default. */
-    imageTypes?: readonly string[];
-    /** The largest file size in bytes; no limit by default. */
-    maxImageSize?: number;
-};
-
 type Drop = () => void;
 type Uploads = ReadonlyMap<Drop, number>;
 type UploadMeta = {id?: Drop; pos?: number};
@@ -39,16 +32,20 @@ export const bannerUploadPlugin = () =>
                 return next;
             },
         },
-        view: () => ({
-            update: (view, prevState) => {
-                const prev = uploadsKey.getState(prevState);
-                const next = uploadsKey.getState(view.state);
-                if (!prev?.size || prev === next) return;
-                for (const drop of prev.keys()) {
-                    if (!next?.has(drop)) drop();
-                }
-            },
-        }),
+        view: (editor) => {
+            let active = uploadsKey.getState(editor.state);
+            return {
+                update: (view) => {
+                    const previous = active;
+                    active = uploadsKey.getState(view.state);
+                    if (!previous || previous === active) return;
+                    for (const drop of previous.keys()) {
+                        if (!active?.has(drop)) drop();
+                    }
+                },
+                destroy: () => active?.forEach((_pos, drop) => drop()),
+            };
+        },
     });
 
 /** Drops the uploads into the node at `pos`: their results are not written. */

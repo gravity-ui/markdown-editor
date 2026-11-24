@@ -1,4 +1,5 @@
 import type {Node, NodeType, Schema} from '@gravity-ui/markdown-editor/pm/model';
+import type {NodeWithPos} from '@gravity-ui/markdown-editor/pm/utils';
 
 /** The order of the parts inserted by the settings switches. */
 export const bannerPartOrder = ['image', 'title', 'content'] as const;
@@ -6,8 +7,7 @@ export const bannerPartOrder = ['image', 'title', 'content'] as const;
 export type BannerPart = (typeof bannerPartOrder)[number];
 export type BannerParts = Record<BannerPart, boolean>;
 
-export type FoundNode = {node: Node; pos: number};
-export type FoundParts = Partial<Record<BannerPart, FoundNode>>;
+export type FoundParts = Partial<Record<BannerPart, NodeWithPos>>;
 
 /**
  * Marks a node type as a banner part: `bannerPart` in its node spec.
@@ -50,7 +50,7 @@ export function findParts(banner: Node, pos: number): FoundParts {
 }
 
 /** The last found part that goes before the part with the index `end` in `bannerPartOrder`. */
-export function lastPartBefore(parts: FoundParts, end: number = bannerPartOrder.length) {
+export function lastPartBefore(parts: FoundParts, end: number) {
     const part = bannerPartOrder
         .slice(0, end)
         .reverse()

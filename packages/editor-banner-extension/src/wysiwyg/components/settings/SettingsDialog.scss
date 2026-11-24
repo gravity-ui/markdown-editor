@@ -1,4 +1,4 @@
-@use './dialog';
+@use '../../mixins';
 
 $label-width: 120px;
 $popup-width: 325px;
@@ -8,7 +8,7 @@ $preview-size: 16px;
 
 :where(.g-md-banner-settings__dialog) {
     // Zero specificity leaves the size and padding to the window styles.
-    @include dialog.reset;
+    @include mixins.reset-dialog;
 
     &:focus {
         outline: none;
@@ -96,12 +96,6 @@ $preview-size: 16px;
 
         .g-md-form-row__control {
             min-width: 0;
-        }
-
-        .g-md-form-row:has(.g-md-image-form__input_type_name),
-        .g-md-form-row:has(.g-md-image-form__input_type_alt),
-        .g-md-form-row:has(.g-md-image-form__size-controls) {
-            display: none;
         }
     }
 

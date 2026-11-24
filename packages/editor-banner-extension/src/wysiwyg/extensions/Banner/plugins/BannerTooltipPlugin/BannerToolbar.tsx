@@ -25,7 +25,7 @@ const b = cn('banner-toolbar');
 /** The open toolbar of each editor, for the keymap to move focus into it. */
 export const bannerToolbars = new WeakMap<EditorView, HTMLElement>();
 
-/** The blocks removed with the settings switches, by banner, until the page reloads. */
+/** The blocks removed with the settings switches, by banner, while its node view exists. */
 const removedParts = new WeakMap<HTMLElement, RemovedParts>();
 
 function removedPartsOf(block: HTMLElement | null): RemovedParts {

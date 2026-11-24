@@ -1,4 +1,4 @@
-import type {CSSProperties, ReactNode} from 'react';
+import type {CSSProperties, KeyboardEvent, ReactNode} from 'react';
 
 import {Xmark} from '@gravity-ui/icons';
 import {Button, Icon, Popup, type PopupProps, Text, useUniqId} from '@gravity-ui/uikit';
@@ -40,13 +40,16 @@ export function SettingsDialog({
     ...popupProps
 }: SettingsDialogProps) {
     const titleId = useUniqId();
+    const handleOpenChange = closeUnlessAnchor(closeAnchor, onClose);
+    const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => closeOnTabOut(event, onClose);
+    const handleCloseClick = () => onClose();
     return (
         <Popup
             open
             {...popupProps}
             className={popupClassName}
             floatingStyles={FLOATING_STYLES}
-            onOpenChange={closeUnlessAnchor(closeAnchor, onClose)}
+            onOpenChange={handleOpenChange}
         >
             <dialog
                 open
@@ -54,7 +57,7 @@ export function SettingsDialog({
                 aria-labelledby={titleId}
                 data-qa={qa}
                 tabIndex={-1}
-                onKeyDown={(event) => closeOnTabOut(event, onClose)}
+                onKeyDown={handleKeyDown}
             >
                 <div className={cnBannerSettings('title')}>
                     <Text
@@ -70,7 +73,7 @@ export function SettingsDialog({
                             view="flat"
                             size={closeSize}
                             aria-label={i18n('close')}
-                            onClick={() => onClose()}
+                            onClick={handleCloseClick}
                         >
                             <Icon data={Xmark} size={CLOSE_ICON_SIZE} />
                         </Button>

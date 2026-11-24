@@ -27,6 +27,7 @@
   "upload-hint-types": "Формат {{types}}",
   "upload-hint-size": "Вес до {{size}}",
   "list-or": "{{items}} или {{last}}",
+  "upload-hint-image": "Выберите изображение для загрузки",
   "upload-error-type": "Формат файла не поддерживается",
   "upload-error-size": "Файл больше {{size}}",
   "link-error": "Адрес изображения не поддерживается",

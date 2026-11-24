@@ -7,7 +7,7 @@ import {
     ReactRendererExtension,
 } from '@gravity-ui/markdown-editor/extensions';
 import {history, redo, undo} from '@gravity-ui/markdown-editor/pm/history';
-import {DOMParser, DOMSerializer} from '@gravity-ui/markdown-editor/pm/model';
+import {DOMParser, DOMSerializer, Schema} from '@gravity-ui/markdown-editor/pm/model';
 import {
     AllSelection,
     type Command,
@@ -28,12 +28,15 @@ import {
     boldMarkName,
 } from '@gravity-ui/markdown-editor/specs';
 import {type BannerDimensions, bannerDefaults} from '@gravity-ui/markdown-plugin-banner';
-import {afterEach, describe, expect, it} from 'vitest';
+import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {insertBanner as insertBannerMarkup} from '../../../markup/commands/insertBanner';
+import {bannerUploadPlugin, uploadBannerFile} from '../../plugins/BannerUploadPlugin';
+import {selectionInside} from '../../plugins/SelectionInsidePlugin/plugin';
 
 import {BannerSpecs, bannerNodeName} from './BannerSpecs';
-import {insertBanner, removeBanner, setBannerDimension} from './commands';
+import {insertBanner, removeBanner, setBannerDimension, toggleBannerPart} from './commands';
+import type {BannerPartSpec} from './parts';
 
 import {Banner} from '.';
 
@@ -122,6 +125,53 @@ describe('Banner extension', () => {
     it('should use the same defaults in the schema and parser', () => {
         expect(schema.nodes.banner.create().attrs).toEqual(bannerDefaults);
         expect(markupParser.parse(':::banner\n:::').firstChild?.attrs).toEqual(bannerDefaults);
+    });
+
+    it('should clamp only the moving end of a selection that starts inside the banner', () => {
+        const editor = createView('Before\n\n:::banner\nInside\n:::\n\nAfter');
+        const {doc} = editor.state;
+        const start = doc.child(0).nodeSize;
+        const end = start + doc.child(1).nodeSize;
+        const select = (anchor: number, head: number) =>
+            selectionInside((s) => s.nodes.banner)(editor, doc.resolve(anchor), doc.resolve(head));
+        expect(select(start + 3, start - 1)).toMatchObject({anchor: start + 3, head: start + 2});
+        expect(select(start + 3, end + 1)).toMatchObject({anchor: start + 3, head: end - 2});
+        expect(select(end + 1, start + 3)).toBeNull();
+        expect(select(start + 3, start - 2)).toBeNull();
+    });
+
+    it('should consume a saved part so a later deletion cannot restore stale text', () => {
+        const part: BannerPartSpec = {part: 'title', create: (type) => type.create()};
+        const partsSchema = new Schema({
+            nodes: schema.spec.nodes.addToEnd('testTitle', {
+                group: 'block',
+                content: 'text*',
+                bannerPart: part,
+            }),
+            marks: schema.spec.marks,
+        });
+        const title = partsSchema.node('testTitle', null, partsSchema.text('Saved title'));
+        let state = EditorState.create({
+            doc: partsSchema.node('doc', null, [
+                partsSchema.node('banner', null, [title, partsSchema.node('paragraph')]),
+            ]),
+        });
+        const removed = new Map();
+        const toggle = (enabled: boolean) =>
+            toggleBannerPart(
+                0,
+                'title',
+                enabled,
+                removed,
+            )(state, (tr) => {
+                state = state.apply(tr);
+            });
+        expect(toggle(false)).toBe(true);
+        expect(toggle(true)).toBe(true);
+        expect(state.doc.firstChild?.firstChild).toBe(title);
+        state = state.apply(state.tr.delete(1, 1 + title.nodeSize));
+        expect(toggle(true)).toBe(true);
+        expect(state.doc.firstChild?.firstChild?.textContent).toBe('');
     });
 
     it('should insert the same dimensions in both editor modes', () => {
@@ -299,6 +349,29 @@ describe('Banner extension', () => {
             (editor.nodeDOM(pos) as HTMLElement).classList.contains('ProseMirror-selectednode'),
         ).toBe(true);
         expect(editor.state.selection).toBeInstanceOf(NodeSelection);
+    });
+
+    it('should settle pending uploads as soon as the editor is destroyed', async () => {
+        const editor = createView();
+        editor.updateState(editor.state.reconfigure({plugins: [bannerUploadPlugin()]}));
+        const setImage = vi.fn();
+        let finish!: (result: {url: string}) => void;
+        const response = new Promise<{url: string}>((resolve) => {
+            finish = resolve;
+        });
+        const result = uploadBannerFile(
+            editor,
+            0,
+            new File([], 'banner.png'),
+            () => response,
+            setImage,
+        );
+
+        editor.destroy();
+        await expect(result).resolves.toBe(false);
+        finish({url: 'https://example.com/banner.png'});
+        await response;
+        expect(setImage).not.toHaveBeenCalled();
     });
 
     it('should apply content DOM edits to the document', async () => {

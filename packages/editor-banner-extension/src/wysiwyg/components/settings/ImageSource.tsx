@@ -1,12 +1,4 @@
-import {
-    type KeyboardEvent,
-    type ReactNode,
-    type Ref,
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
-} from 'react';
+import {type ReactNode, type Ref, useCallback, useEffect, useRef, useState} from 'react';
 
 import {ArrowsRotateRight} from '@gravity-ui/icons';
 import {
@@ -17,18 +9,11 @@ import {safeImageUrl} from '@gravity-ui/markdown-plugin-banner';
 import {Button, Icon, Text, useForkRef} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../i18n';
-import type {BannerUploadLimits} from '../../plugins/BannerUploadPlugin';
 import {focusableSelector} from '../../utils/popup';
 
 import {SettingsRow} from './SettingsRow';
 import {cnBannerSettings} from './classname';
-import {imageFileError, imageName, uploadHint} from './image';
-
-/** Enter in a text field of the form does not press the button that has the focus ring. */
-const keepEnterInField = (event: KeyboardEvent) => {
-    if (event.key !== 'Enter' || event.nativeEvent.isComposing) return;
-    if (event.target instanceof HTMLInputElement) event.preventDefault();
-};
+import {type BannerUploadLimits, imageFileError, imageName, uploadHint} from './image';
 
 type ImageSourceProps = {
     image: string | null;
@@ -94,6 +79,7 @@ export function ImageSource({
         [replacing, setFirstField],
     );
 
+    const startReplacing = () => setReplacing(true);
     if (image && !replacing) {
         const file = (
             <SettingsRow label={i18n('file')}>
@@ -112,7 +98,7 @@ export function ImageSource({
                             view="flat-secondary"
                             size="s"
                             aria-label={i18n('replace-file')}
-                            onClick={() => setReplacing(true)}
+                            onClick={startReplacing}
                         >
                             <Icon data={ArrowsRotateRight} size={14} />
                         </Button>
@@ -141,11 +127,13 @@ export function ImageSource({
             setError(i18n('link-error'));
             return;
         }
+        if (uploading.current) cancelUpload?.();
         closeForm();
         onLink(address);
     };
 
-    const uploadFile = async (file: File, send: (file: File) => Promise<boolean>) => {
+    const attachFile = async ([file]: File[]) => {
+        if (!file || !upload || uploading.current) return;
         const fileError = imageFileError(file, limits);
         if (fileError) {
             setError(fileError);
@@ -155,10 +143,7 @@ export function ImageSource({
         setError(null);
         setLoading(true);
         try {
-            if (await send(file)) {
-                restoreFocus.current = true;
-                setReplacing(false);
-            }
+            if (await upload(file)) closeForm();
         } catch {
             failed.current = true;
             setError(i18n('upload-error'));
@@ -169,13 +154,14 @@ export function ImageSource({
     };
 
     return (
-        // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Enter in a field must not submit the form before the field is saved.
-        <div ref={formRef} onKeyDown={keepEnterInField}>
+        <div ref={formRef}>
             <ImageForm
                 className={cnBannerSettings('image-form')}
+                fields={[]}
+                multiple={false}
                 loading={loading}
-                uploadHint={uploadHint(limits) ?? undefined}
-                onAttach={upload && (([file]) => uploadFile(file, upload))}
+                uploadHint={uploadHint(limits)}
+                onAttach={upload && attachFile}
                 onSubmit={submitLink}
                 onCancel={cancelForm}
             />

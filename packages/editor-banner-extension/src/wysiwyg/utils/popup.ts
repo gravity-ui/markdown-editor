@@ -8,18 +8,16 @@ export const nodeAnchor = (element: HTMLElement): PopupAnchorElement => ({
     getBoundingClientRect: () => element.getBoundingClientRect(),
 });
 
-export type CloseAnchor = Element | null | undefined | (() => Element | null | undefined);
+export type CloseAnchor = Element | null | undefined;
 
-/** `onOpenChange` of a popup that is toggled by its anchor: a press on the anchor is left to it. */
 export const closeUnlessAnchor =
     (anchor: CloseAnchor, onClose: (reason?: string) => void) =>
     (open: boolean, event?: Event, reason?: string) => {
         if (open) return;
-        const element = typeof anchor === 'function' ? anchor() : anchor;
         const onAnchor =
             reason === 'outside-press' &&
             event?.target instanceof window.Node &&
-            element?.contains(event.target);
+            anchor?.contains(event.target);
         if (!onAnchor) onClose(reason);
     };
 
@@ -33,7 +31,6 @@ const tabbable = (container: Element) =>
             element.checkVisibility?.() !== false,
     );
 
-/** Tab from the last control or Shift+Tab from the first one closes the popup. */
 export const closeOnTabOut = (
     event: KeyboardEvent<HTMLElement>,
     onClose: (reason?: string) => void,
