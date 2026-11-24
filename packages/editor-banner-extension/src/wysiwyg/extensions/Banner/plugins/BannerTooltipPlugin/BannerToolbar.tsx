@@ -2,7 +2,7 @@ import {Gear, TrashBin} from '@gravity-ui/icons';
 import {Toolbar, type ToolbarData, ToolbarDataType, cn} from '@gravity-ui/markdown-editor';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {bannerBackground, bannerDimensions} from '@gravity-ui/markdown-plugin-banner';
+import {bannerBackground, bannerDimensions, bannerLayout} from '@gravity-ui/markdown-plugin-banner';
 import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
@@ -13,6 +13,7 @@ import {
     removeBanner,
     setBannerBackground,
     setBannerDimension,
+    setBannerLayout,
     toggleBannerPart,
 } from '../../commands';
 import type {BannerOptions} from '../../index';
@@ -20,7 +21,7 @@ import {bannerPartTypes, bannerParts} from '../../parts';
 
 import type {BackgroundControls} from './Settings/BackgroundField';
 import {BannerSettings} from './Settings/BannerSettings';
-import type {ContentControls} from './Settings/SettingsFields';
+import type {ContentControls, LayoutControls} from './Settings/SettingsFields';
 
 import './BannerToolbar.scss';
 
@@ -66,6 +67,10 @@ export function BannerToolbar({
         onPartChange: (part, enabled) =>
             runCommand(view, toggleBannerPart(pos, part, enabled, removedPartsOf(block))),
     };
+    const layout: LayoutControls = {
+        value: bannerLayout(node.attrs),
+        onChange: (name, value) => runCommand(view, setBannerLayout(pos, name, value)),
+    };
     const background: BackgroundControls = {
         value: bannerBackground(node.attrs),
         imageTypes,
@@ -98,6 +103,7 @@ export function BannerToolbar({
                             runCommand(view, setBannerDimension(pos, name, value))
                         }
                         content={content}
+                        layout={layout}
                         background={background}
                         onClose={hide}
                     />

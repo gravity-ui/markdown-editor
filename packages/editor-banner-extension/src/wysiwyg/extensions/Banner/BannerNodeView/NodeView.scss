@@ -1,12 +1,12 @@
 .g-md-banner-nodeview {
-    box-sizing: border-box;
+    // An outline takes no space, so the banner has the width of the preview and switches
+    // to the narrow layout at the same width.
+    outline: 2px dashed var(--g-color-line-generic);
+    outline-offset: -2px;
 
-    border: 2px dashed var(--g-color-line-generic);
-
-    // The dashed frame marks a block without a background; a background covers the frame area.
+    // The dashed frame marks a block without a background.
     &:is([data-bg-color], [data-bg-image]) {
-        border-color: transparent;
-        background-origin: border-box;
+        outline-color: transparent;
     }
 
     // The blurred image layer is positioned in the padding box; the margin extends it over the frame.

@@ -5,12 +5,16 @@ import {
     type BannerBackground,
     type BannerDimensions,
     type BannerHeight,
+    type BannerLayout,
     type BannerWidth,
+    bannerAligns,
     bannerBackgroundDefaults,
     bannerBgColors,
     bannerBgThemes,
     bannerDefaults,
     bannerHeights,
+    bannerLayoutDefaults,
+    bannerVerticals,
     bannerWidths,
 } from './const';
 
@@ -27,6 +31,21 @@ export function bannerDimensions(attrs: {height?: unknown; width?: unknown}): Ba
         height: isBannerHeight(attrs.height) ? attrs.height : bannerDefaults.height,
         width: isBannerWidth(attrs.width) ? attrs.width : bannerDefaults.width,
     };
+}
+
+export function bannerLayout(attrs: {align?: unknown; vertical?: unknown}): BannerLayout {
+    return {
+        align: includes(bannerAligns, attrs.align) ? attrs.align : bannerLayoutDefaults.align,
+        vertical: includes(bannerVerticals, attrs.vertical)
+            ? attrs.vertical
+            : bannerLayoutDefaults.vertical,
+    };
+}
+
+export function bannerLayoutValues(
+    layout: BannerLayout,
+): Partial<Record<keyof BannerLayout, string>> {
+    return valuesOtherThan(layout, bannerLayoutDefaults);
 }
 
 export function bannerBackground(

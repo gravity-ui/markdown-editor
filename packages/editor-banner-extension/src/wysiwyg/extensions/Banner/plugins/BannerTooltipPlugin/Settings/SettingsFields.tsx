@@ -6,14 +6,15 @@ import {
     ObjectsAlignRight,
     ObjectsAlignTop,
 } from '@gravity-ui/icons';
+import type {BannerLayout} from '@gravity-ui/markdown-plugin-banner';
 import {Divider, Text} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
 import {SettingsSwitch} from '../../../../../components/settings';
 import type {BannerPart, BannerParts} from '../../../parts';
 
-import {AlignmentSelect} from './AlignmentSelect';
 import {type BackgroundControls, BackgroundField} from './BackgroundField';
+import {SegmentedSelect} from './SegmentedSelect';
 import {SettingsSection} from './SettingsSection';
 import {logClick} from './utils';
 
@@ -35,9 +36,21 @@ function PartSwitch({part, label, action, content}: PartSwitchProps) {
     return <SettingsSwitch label={label} checked={content.parts[part]} onUpdate={handleUpdate} />;
 }
 
-type SettingsFieldsProps = {content: ContentControls; background: BackgroundControls};
+export type LayoutControls = {
+    value: BannerLayout;
+    onChange: <K extends keyof BannerLayout>(name: K, value: BannerLayout[K]) => void;
+};
 
-export function SettingsFields({content, background}: SettingsFieldsProps) {
+type SettingsFieldsProps = {
+    content: ContentControls;
+    layout: LayoutControls;
+    background: BackgroundControls;
+};
+
+export function SettingsFields({content, layout, background}: SettingsFieldsProps) {
+    const handleVerticalUpdate = (value: BannerLayout['vertical']) =>
+        layout.onChange('vertical', value);
+    const handleAlignUpdate = (value: BannerLayout['align']) => layout.onChange('align', value);
     const handleButton1Toggle = () => logClick('Button 1 toggle');
     const handleButton2Toggle = () => logClick('Button 2 toggle');
     const handleButton3Toggle = () => logClick('Button 3 toggle');
@@ -53,53 +66,29 @@ export function SettingsFields({content, background}: SettingsFieldsProps) {
                     content={content}
                 />
                 <Text variant="subheader-1">{i18n('alignment')}</Text>
-                <AlignmentSelect
+                <SegmentedSelect
                     label={i18n('vertical-alignment')}
-                    defaultValue="top"
+                    value={layout.value.vertical}
                     options={[
-                        {
-                            value: 'top',
-                            label: i18n('top'),
-                            icon: ObjectsAlignTop,
-                            action: 'Align top',
-                        },
-                        {
-                            value: 'center',
-                            label: i18n('center'),
-                            icon: ObjectsAlignCenterVertical,
-                            action: 'Align vertically center',
-                        },
-                        {
-                            value: 'bottom',
-                            label: i18n('bottom'),
-                            icon: ObjectsAlignBottom,
-                            action: 'Align bottom',
-                        },
+                        {value: 'top', label: i18n('top'), icon: ObjectsAlignTop},
+                        {value: 'center', label: i18n('center'), icon: ObjectsAlignCenterVertical},
+                        {value: 'bottom', label: i18n('bottom'), icon: ObjectsAlignBottom},
                     ]}
+                    onUpdate={handleVerticalUpdate}
                 />
-                <AlignmentSelect
+                <SegmentedSelect
                     label={i18n('horizontal-alignment')}
-                    defaultValue="center"
+                    value={layout.value.align}
                     options={[
-                        {
-                            value: 'left',
-                            label: i18n('left'),
-                            icon: ObjectsAlignLeft,
-                            action: 'Align left',
-                        },
+                        {value: 'left', label: i18n('left'), icon: ObjectsAlignLeft},
                         {
                             value: 'center',
                             label: i18n('center'),
                             icon: ObjectsAlignCenterHorizontal,
-                            action: 'Align horizontally center',
                         },
-                        {
-                            value: 'right',
-                            label: i18n('right'),
-                            icon: ObjectsAlignRight,
-                            action: 'Align right',
-                        },
+                        {value: 'right', label: i18n('right'), icon: ObjectsAlignRight},
                     ]}
+                    onUpdate={handleAlignUpdate}
                 />
             </SettingsSection>
             <Divider />

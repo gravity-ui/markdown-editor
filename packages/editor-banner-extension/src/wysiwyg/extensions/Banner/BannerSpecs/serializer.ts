@@ -3,6 +3,8 @@ import {
     bannerBackground,
     bannerBackgroundValues,
     bannerDimensions,
+    bannerLayout,
+    bannerLayoutValues,
 } from '@gravity-ui/markdown-plugin-banner';
 
 import {directiveAttrs} from '../../directive';
@@ -13,6 +15,7 @@ export const BannerSerializerSpecs: ExtensionAuto = (builder) => {
     builder.addNodeSerializerSpec(bannerNodeName, () => (state, node) => {
         const attrs = {
             ...bannerDimensions(node.attrs),
+            ...bannerLayoutValues(bannerLayout(node.attrs)),
             ...bannerBackgroundValues(bannerBackground(node.attrs)),
         };
         state.write(`:::banner${directiveAttrs(attrs)}`);

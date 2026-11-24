@@ -13,7 +13,7 @@ import {SettingsDialog, cnBannerSettings} from '../../../../../components/settin
 
 import type {BackgroundControls} from './BackgroundField';
 import {DimensionSelect} from './DimensionSelect';
-import {type ContentControls, SettingsFields} from './SettingsFields';
+import {type ContentControls, type LayoutControls, SettingsFields} from './SettingsFields';
 
 import './BannerSettings.scss';
 
@@ -52,6 +52,7 @@ type BannerSettingsProps = {
     dimensions: BannerDimensions;
     onChange: <K extends keyof BannerDimensions>(name: K, value: BannerDimensions[K]) => void;
     content: ContentControls;
+    layout: LayoutControls;
     background: BackgroundControls;
     onClose: () => void;
 };
@@ -62,6 +63,7 @@ export function BannerSettings({
     dimensions,
     onChange,
     content,
+    layout,
     background,
     onClose,
 }: BannerSettingsProps) {
@@ -96,7 +98,7 @@ export function BannerSettings({
                 format={(value) => (value === 'full' ? i18n('full-width') : value.toUpperCase())}
                 onUpdate={(value) => onChange('width', value)}
             />
-            <SettingsFields content={content} background={background} />
+            <SettingsFields content={content} layout={layout} background={background} />
         </SettingsDialog>
     );
 }
