@@ -3,7 +3,8 @@ import {type ReactNode, useState} from 'react';
 import {ChevronDown, ChevronUp} from '@gravity-ui/icons';
 import {Button, Icon, Text, useUniqId} from '@gravity-ui/uikit';
 
-import {cnBannerSettings} from './BannerSettings.classname';
+import {cnBannerSettings} from '../../../../../components/settings';
+
 import {logClick} from './utils';
 
 export function SettingsSection({

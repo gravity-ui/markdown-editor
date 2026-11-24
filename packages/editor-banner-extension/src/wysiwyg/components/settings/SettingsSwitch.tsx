@@ -1,20 +1,15 @@
-import {useState} from 'react';
-
 import {Switch, Text, useUniqId} from '@gravity-ui/uikit';
 
-import {cnBannerSettings} from './BannerSettings.classname';
-import {logClick} from './utils';
+import {cnBannerSettings} from './classname';
 
-export function SettingsSwitch({
-    label,
-    action,
-    defaultChecked = false,
-}: {
+type SettingsSwitchProps = {
     label: string;
-    action: string;
+    checked?: boolean;
     defaultChecked?: boolean;
-}) {
-    const [checked, setChecked] = useState(defaultChecked);
+    onUpdate?: (checked: boolean) => void;
+};
+
+export function SettingsSwitch({label, checked, defaultChecked, onUpdate}: SettingsSwitchProps) {
     const controlId = useUniqId();
     return (
         <div className={cnBannerSettings('row')}>
@@ -25,10 +20,8 @@ export function SettingsSwitch({
                 id={controlId}
                 size="m"
                 checked={checked}
-                onUpdate={(value) => {
-                    setChecked(value);
-                    logClick(`${action} toggle`);
-                }}
+                defaultChecked={defaultChecked}
+                onUpdate={onUpdate}
             />
         </div>
     );
