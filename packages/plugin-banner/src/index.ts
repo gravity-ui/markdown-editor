@@ -1,4 +1,20 @@
-export {bannerAttrs, bannerClassNames, bannerDimensionsFromAttrs} from './banner/attrs';
+export {
+    type BannerBackground,
+    type BannerBgColor,
+    type BannerBgColorFamily,
+    type BannerBgColorSaturation,
+    type BannerBgTheme,
+    bannerBackground,
+    bannerBackgroundDefaults,
+    bannerBackgroundValues,
+    bannerBgColorFamilies,
+    bannerBgColorSaturations,
+    bannerBgColors,
+    bannerBgThemes,
+    safeImageUrl,
+    toCssUrl,
+} from './banner/background';
+export {bannerAttrs, bannerBackgroundFromAttrs, bannerDimensionsFromAttrs} from './banner/attrs';
 export {bannerClassName, bannerTokenName} from './banner/model';
 export {
     type BannerDimensions,

@@ -1,3 +1,5 @@
+import {includes} from '../utils';
+
 export const bannerClassName = 'g-md-banner-plugin';
 export const bannerTokenName = 'g_md_banner';
 
@@ -10,11 +12,11 @@ export type BannerDimensions = {height: BannerHeight; width: BannerWidth};
 export const bannerDefaults: Readonly<BannerDimensions> = {height: 's', width: 'm'};
 
 export function isBannerHeight(value: unknown): value is BannerHeight {
-    return (bannerHeights as readonly unknown[]).includes(value);
+    return includes(bannerHeights, value);
 }
 
 export function isBannerWidth(value: unknown): value is BannerWidth {
-    return (bannerWidths as readonly unknown[]).includes(value);
+    return includes(bannerWidths, value);
 }
 
 export function bannerDimensions(attrs: {height?: unknown; width?: unknown}): BannerDimensions {
