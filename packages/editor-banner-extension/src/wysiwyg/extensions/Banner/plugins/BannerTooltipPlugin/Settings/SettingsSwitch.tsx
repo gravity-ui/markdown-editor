@@ -2,7 +2,8 @@ import {useState} from 'react';
 
 import {Switch, Text, useUniqId} from '@gravity-ui/uikit';
 
-import {cnBannerSettings} from './BannerSettings.classname';
+import {cnBannerSettings} from '../../../../settings';
+
 import {logClick} from './utils';
 
 export function SettingsSwitch({
