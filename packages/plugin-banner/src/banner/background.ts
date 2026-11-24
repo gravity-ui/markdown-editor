@@ -29,15 +29,6 @@ export const bannerBackgroundDefaults: Readonly<BannerBackground> = {
     'bg-image-blur': false,
 };
 
-// The style parser of the sanitizer splits values at `;` outside parentheses and cuts `/*` comments.
-const percentEncode = (char: string) =>
-    `%${char.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`;
-
-export function toCssUrl(raw: string): string | null {
-    const value = safeImageUrl(raw);
-    return value && `url("${value.replace(/["'()*\\ ]/g, percentEncode)}")`;
-}
-
 /** The theme and the blur are kept with an image only. */
 export function bannerBackground(
     attrs: Partial<Record<keyof BannerBackground, unknown>>,
@@ -63,4 +54,10 @@ export function bannerBackground(
 /** Values other than the defaults, as attribute strings. */
 export function bannerBackgroundValues(background: BannerBackground): Record<string, string> {
     return valuesOtherThan(background, bannerBackgroundDefaults);
+}
+
+export function toCssUrl(value: string): string {
+    // CSS escapes preserve the URL and hide parentheses and comment delimiters from the style sanitizer.
+    const escaped = value.replace(/["'()*\\]/g, (char) => `\\${char.charCodeAt(0).toString(16)} `);
+    return `url("${escaped}")`;
 }

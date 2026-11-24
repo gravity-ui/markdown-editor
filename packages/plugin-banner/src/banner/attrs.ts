@@ -14,6 +14,10 @@ const b = cn(bannerClassName);
 
 type BannerAttrsInput = Partial<Record<keyof BannerDimensions | keyof BannerBackground, unknown>>;
 
+export function bannerClassNames(attrs: {height?: unknown; width?: unknown}) {
+    return b(bannerDimensions(attrs));
+}
+
 /**
  * Modifiers and the `style` render the block; data attributes carry its options for parsing.
  * The image address is in the `style`: there a relative address resolves against the page,

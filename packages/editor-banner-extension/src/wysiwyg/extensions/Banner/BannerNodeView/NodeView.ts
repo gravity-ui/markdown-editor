@@ -24,7 +24,7 @@ export class WBannerNodeView implements NodeView {
 
     update(node: Node) {
         if (node.type !== this.node.type) return false;
-        const attrsChanged = node.attrs !== this.node.attrs;
+        const attrsChanged = !node.sameMarkup(this.node);
         this.node = node;
         if (attrsChanged) this.renderAttrs();
         return true;

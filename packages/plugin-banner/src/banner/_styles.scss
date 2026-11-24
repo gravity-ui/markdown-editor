@@ -18,6 +18,7 @@ $bg-colors: (
     'violet-medium': var(--g-color-base-utility-medium),
     'violet-heavy': var(--g-color-base-utility-heavy),
 );
+$blur-outset: 24px;
 
 .g-root {
     // Declared on every theme root, so a fixed theme resolves its own colors.
@@ -85,19 +86,18 @@ $bg-colors: (
         position: relative;
 
         isolation: isolate;
-        // `overflow` clips at the padding edge and leaves the sharp background under a border.
-        clip-path: inset(0 round var(--g-border-radius-2xl, 16px));
 
         &::before {
             position: absolute;
             z-index: -1;
-            inset: -24px;
+            inset: -$blur-outset;
 
             content: '';
             pointer-events: none;
 
             background: inherit;
             filter: blur(12px);
+            clip-path: inset($blur-outset round var(--g-border-radius-2xl, 16px));
         }
     }
 
