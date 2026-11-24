@@ -111,4 +111,11 @@ describe('Image extension', () => {
     ])('should preserve literal backslashes in an image title $title', ({title, markup}) => {
         same(markup, doc(p(img({[ImageAttr.Title]: title}))));
     });
+
+    it.each([
+        {title: 'a &amp; b', markup: '![](img.png "a &amp;amp; b")'},
+        {title: 'a & b', markup: '![](img.png "a & b")'},
+    ])('should keep the text of an image title $title after parsing', ({title, markup}) => {
+        same(markup, doc(p(img({[ImageAttr.Title]: title}))));
+    });
 });

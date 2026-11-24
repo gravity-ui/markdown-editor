@@ -96,6 +96,25 @@ export class BannerBlock {
         return settings && Math.round(settings.y + settings.height);
     }
 
+    /** The boxes of each banner in `blocks`, of its image and of its title. */
+    async layoutBoxes(blocks: Locator = this.blocks) {
+        return blocks.evaluateAll((elements) =>
+            elements.map((element) => {
+                const rect = (target: Element | null) => {
+                    if (!target) return null;
+                    const {left, top, right, bottom, width, height} =
+                        target.getBoundingClientRect();
+                    return {left, top, right, bottom, width, height};
+                };
+                return {
+                    banner: rect(element),
+                    image: rect(element.querySelector('.g-md-banner-image-plugin')),
+                    title: rect(element.querySelector('.g-md-banner-title-plugin')),
+                };
+            }),
+        );
+    }
+
     /** The editor opens with the cursor in the first block, which shows its toolbar. */
     async hideToolbar() {
         await this.expect(this.toolbar).toBeVisible();

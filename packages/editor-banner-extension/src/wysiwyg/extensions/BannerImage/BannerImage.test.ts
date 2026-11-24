@@ -91,6 +91,17 @@ describe('Banner image extension', () => {
             expect(DOMParser.fromSchema(schema).parse(container).toJSON()).toEqual(doc.toJSON());
         });
 
+        it.each([
+            ['A & b', 'A & b'],
+            ['A &amp; b', 'A &amp;amp; b'],
+        ])('should write the alternative text %j as %j', (alt, written) => {
+            const image = schema.nodes[bannerImageNodeName].create({src: '/a.png?x=1&y=2', alt});
+            const doc = schema.node('doc', null, [schema.nodes.banner.create(null, [image])]);
+            const source = serializer.serialize(doc);
+            expect(source).toBe(banner(`::banner-image{src="/a.png?x=1&y=2" alt="${written}"}`));
+            expect(markupParser.parse(source).firstChild?.firstChild?.attrs.alt).toBe(alt);
+        });
+
         it('should drop an unsafe address', () => {
             const src = ['javascript', 'alert(1)'].join(':');
             const doc = markupParser.parse(`:::banner\n::banner-image{src="${src}"}\n:::`);

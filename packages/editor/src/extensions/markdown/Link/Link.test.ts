@@ -103,6 +103,13 @@ describe('Link extension', () => {
         same(markup, doc(p(lnk({[LinkAttr.Title]: title}, 'text'))));
     });
 
+    it.each([
+        {title: 'a &amp; b', markup: '[text](ya.ru "a &amp;amp; b")'},
+        {title: 'a & b', markup: '[text](ya.ru "a & b")'},
+    ])('should keep the text of a link title $title after parsing', ({title, markup}) => {
+        same(markup, doc(p(lnk({[LinkAttr.Title]: title}, 'text'))));
+    });
+
     it('ensure no escapes in url', () => {
         same(
             '[text](https://example.com/+_file/#~anchor)',
