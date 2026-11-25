@@ -5,27 +5,26 @@ import {
     ObjectsAlignLeft,
     ObjectsAlignRight,
     ObjectsAlignTop,
-    SquareMinus,
 } from '@gravity-ui/icons';
-import {Button, Divider, Icon, Text, useUniqId} from '@gravity-ui/uikit';
+import {Divider, Text} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
-import {SettingsSwitch, cnBannerSettings} from '../../../../../components/settings';
+import {SettingsSwitch} from '../../../../../components/settings';
 
 import {AlignmentSelect} from './AlignmentSelect';
+import {type BackgroundControls, BackgroundField} from './BackgroundField';
 import {SettingsSection} from './SettingsSection';
 import {logClick} from './utils';
 
-export function SettingsFields() {
-    const backgroundLabelId = useUniqId();
-    const backgroundValueId = useUniqId();
+type SettingsFieldsProps = {background: BackgroundControls};
+
+export function SettingsFields({background}: SettingsFieldsProps) {
     const handleTitleToggle = () => logClick('Title toggle');
     const handleDescriptionToggle = () => logClick('Description toggle');
     const handleButton1Toggle = () => logClick('Button 1 toggle');
     const handleButton2Toggle = () => logClick('Button 2 toggle');
     const handleButton3Toggle = () => logClick('Button 3 toggle');
     const handleImageToggle = () => logClick('Image toggle');
-    const handleBackgroundButton = () => logClick('Background button');
     return (
         <>
             <Divider />
@@ -103,22 +102,7 @@ export function SettingsFields() {
             <Divider />
             <SettingsSection title={i18n('image-and-background')} action="Image and background">
                 <SettingsSwitch label={i18n('image')} defaultChecked onUpdate={handleImageToggle} />
-                <div className={cnBannerSettings('row')}>
-                    <Text variant="body-1" id={backgroundLabelId}>
-                        {i18n('background')}
-                    </Text>
-                    <Button
-                        className={cnBannerSettings('background')}
-                        view="outlined"
-                        size="m"
-                        width="max"
-                        aria-labelledby={`${backgroundLabelId} ${backgroundValueId}`}
-                        onClick={handleBackgroundButton}
-                    >
-                        <Icon data={SquareMinus} size={16} />
-                        <span id={backgroundValueId}>{i18n('no-background')}</span>
-                    </Button>
-                </div>
+                <BackgroundField background={background} />
             </SettingsSection>
         </>
     );

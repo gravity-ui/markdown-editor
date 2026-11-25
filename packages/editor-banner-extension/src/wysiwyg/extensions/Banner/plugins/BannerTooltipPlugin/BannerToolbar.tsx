@@ -1,13 +1,32 @@
 import {Gear, TrashBin} from '@gravity-ui/icons';
-import {Toolbar, type ToolbarData, ToolbarDataType, cn} from '@gravity-ui/markdown-editor';
+import {
+    type FileUploadHandler,
+    Toolbar,
+    type ToolbarData,
+    ToolbarDataType,
+    cn,
+} from '@gravity-ui/markdown-editor';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {bannerDimensions} from '@gravity-ui/markdown-plugin-banner';
+import {
+    type LinkParser,
+    bannerBackground,
+    bannerDimensions,
+    normalizeLinkUrl,
+} from '@gravity-ui/markdown-plugin-banner';
 import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
-import {removeBanner, setBannerDimension} from '../../commands';
+import {uploadNodeFile} from '../../../../plugins/NodeUploadPlugin';
+import {
+    bannerBackgroundSources,
+    removeBanner,
+    setBannerBackground,
+    setBannerDimension,
+} from '../../commands';
+import type {BannerOptions} from '../../index';
 
+import type {BackgroundControls} from './Settings/BackgroundField';
 import {BannerSettings} from './Settings/BannerSettings';
 
 import './BannerToolbar.scss';
@@ -20,15 +39,54 @@ export const bannerToolbars = new WeakMap<EditorView, HTMLElement>();
 const isActive = () => false;
 const isEnable = () => true;
 
-type BannerToolbarProps = {
+export type BannerToolbarOptions = BannerOptions & {fileUploadHandler?: FileUploadHandler};
+
+type BannerToolbarProps = BannerToolbarOptions & {
     view: EditorView;
     node: Node;
     pos: number;
     block: HTMLElement | null;
     markup: () => string;
+    parser: LinkParser;
 };
 
-export function BannerToolbar({view, node, pos, block, markup}: BannerToolbarProps) {
+export function BannerToolbar({
+    view,
+    node,
+    pos,
+    block,
+    markup,
+    parser,
+    fileUploadHandler,
+    imageTypes,
+    maxImageSize,
+}: BannerToolbarProps) {
+    const uploadImage =
+        fileUploadHandler &&
+        (async (file: File) => {
+            const {url} = await fileUploadHandler(file);
+            const image = normalizeLinkUrl(parser, url);
+            if (!image) throw new Error(`Unsupported image address: ${url}`);
+            return image;
+        });
+    const background: BackgroundControls = {
+        value: bannerBackground(node.attrs),
+        parser,
+        imageTypes,
+        maxImageSize,
+        onChange: (value) => setBannerBackground(pos, value)(view.state, view.dispatch),
+        upload:
+            uploadImage &&
+            ((file, signal) =>
+                uploadNodeFile(
+                    view,
+                    pos,
+                    file,
+                    uploadImage,
+                    (current, image) => setBannerBackground(current, {'bg-image': image}),
+                    {attrs: bannerBackgroundSources, signal},
+                )),
+    };
     const data: ToolbarData<EditorView> = [
         [
             {
@@ -47,6 +105,7 @@ export function BannerToolbar({view, node, pos, block, markup}: BannerToolbarPro
                         onChange={(name, value) =>
                             setBannerDimension(pos, name, value)(view.state, view.dispatch)
                         }
+                        background={background}
                         onClose={hide}
                     />
                 ),

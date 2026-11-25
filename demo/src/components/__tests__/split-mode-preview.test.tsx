@@ -5,7 +5,7 @@ import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {SplitModePreview} from '../SplitModePreview';
 
-describe('SplitModePreview heading editing', () => {
+describe('SplitModePreview', () => {
     let container: HTMLDivElement;
     let root: Root;
 
@@ -63,5 +63,25 @@ describe('SplitModePreview heading editing', () => {
         await act(async () => button.click());
 
         expect(onHeadingEdit).not.toHaveBeenCalled();
+    });
+
+    it('should keep reserved URL characters in a sanitized banner background', async () => {
+        const address = 'https://cdn.example.com/a(b)/*;image.png?token=a*b&width=800';
+        const source = `:::banner{bg-image="${address}"}\nBanner\n:::`;
+        await act(async () => {
+            root.render(
+                <ThemeProvider>
+                    <SplitModePreview getValue={() => source} needToSanitizeHtml />
+                </ThemeProvider>,
+            );
+        });
+        await act(async () => vi.advanceTimersByTime(200));
+
+        const banner = container.querySelector('.g-md-banner-plugin');
+        assert(banner instanceof HTMLElement);
+        expect(banner.getAttribute('data-bg-image')).toBe(address);
+        expect(banner.getAttribute('style')).toBe(
+            String.raw`background-image:url("https://cdn.example.com/a\28 b\29 /\2a ;image.png?token=a\2a b&width=800")`,
+        );
     });
 });
