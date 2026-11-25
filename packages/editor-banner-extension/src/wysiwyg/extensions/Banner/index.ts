@@ -2,11 +2,12 @@ import type {FileUploadHandler} from '@gravity-ui/markdown-editor';
 import type {Action, ExtensionBuilder} from '@gravity-ui/markdown-editor/core';
 
 import {type BannerUploadLimits, bannerUploadPlugin} from '../../plugins/BannerUploadPlugin';
+import {BannerContent} from '../BannerContent';
 import {BannerTitle} from '../BannerTitle';
 
 import {WBannerNodeView} from './BannerNodeView';
 import {BannerSpecs, bannerNodeName} from './BannerSpecs';
-import {insertBanner} from './commands';
+import {insertBanner, stopAtBannerEnd, stopAtBannerStart} from './commands';
 import {insertBannerAction} from './const';
 import {bannerKeymap, bannerTooltipPlugin} from './plugins/BannerTooltipPlugin';
 
@@ -21,10 +22,15 @@ export const Banner = (builder: ExtensionBuilder, options: BannerOptions = {}) =
     builder
         .use(BannerSpecs)
         .use(BannerTitle)
+        .use(BannerContent)
         .addNodeView(bannerNodeName, () => (node) => new WBannerNodeView(node))
         .addPlugin((deps) => bannerTooltipPlugin(deps, options))
         .addPlugin(bannerUploadPlugin)
         .addAction(insertBannerAction, () => ({isEnable: insertBanner, run: insertBanner}))
+        .addKeymap(
+            () => ({Backspace: stopAtBannerStart, Delete: stopAtBannerEnd}),
+            builder.Priority.High,
+        )
         // Blocks inside the banner handle Tab first.
         .addKeymap(bannerKeymap, builder.Priority.Low);
 };

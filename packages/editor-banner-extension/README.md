@@ -18,12 +18,12 @@ const editor = useMarkdownEditor({
 | `maxImageSize`      | Maximum background image size in bytes; without it, the size is not checked                      |
 | `imageTypes`        | MIME types of background images, such as `['image/jpeg', 'image/png']`; any `image/*` without it |
 
-| Entry point                                                  | Exports                                                                                                            |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `@gravity-ui/markdown-editor-banner-extension`               | `Banner`, `Button`, the Markdown command `insertBanner`, and the toolbar button `toolbarBannerItem` for both modes |
-| `@gravity-ui/markdown-editor-banner-extension/wysiwyg`       | `Banner`, `Button`, and `toolbarBannerItem` for the visual editor                                                  |
-| `@gravity-ui/markdown-editor-banner-extension/wysiwyg/specs` | `BannerSpecs`, `bannerNodeName`, `bannerTitleNodeName`, `ButtonSpecs`, and `buttonNodeName`                        |
-| `@gravity-ui/markdown-editor-banner-extension/markup`        | `insertBanner` and `toolbarBannerItem` for the Markdown editor                                                     |
+| Entry point                                                  | Exports                                                                                                              |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| `@gravity-ui/markdown-editor-banner-extension`               | `Banner`, `Button`, the Markdown command `insertBanner`, and the toolbar button `toolbarBannerItem` for both modes   |
+| `@gravity-ui/markdown-editor-banner-extension/wysiwyg`       | `Banner`, `Button`, and `toolbarBannerItem` for the visual editor                                                    |
+| `@gravity-ui/markdown-editor-banner-extension/wysiwyg/specs` | `BannerSpecs`, `bannerNodeName`, `bannerTitleNodeName`, `bannerContentNodeName`, `ButtonSpecs`, and `buttonNodeName` |
+| `@gravity-ui/markdown-editor-banner-extension/markup`        | `insertBanner` and `toolbarBannerItem` for the Markdown editor                                                       |
 
 `toolbarBannerItem` inserts the block.
 In the visual editor, the button is disabled inside another banner.
@@ -83,6 +83,18 @@ Escape closes an open menu; Escape on a button hides the toolbar and returns foc
 The title is the `title` part of the banner. The Title switch of the settings panel inserts a title with the default text after the image; a banner that holds only one paragraph of plain text without formatting turns it into the title.
 Turning the switch off removes the title; turning it on again restores the removed title with its text, size and color, also after the panel is closed.
 A banner holds one title: a second title in the Markdown of a banner stays a paragraph of text, and an edit that adds a second title to a banner is rejected.
+
+## Banner description
+
+`Banner` includes the description of the banner: the container `:::banner-content` with paragraphs, marks, links, and other blocks.
+`BannerSpecs` adds its schema, Markdown parsing, and serialization; its syntax and styles are in `@gravity-ui/markdown-plugin-banner`, and the preview needs `bannerContentPlugin`.
+The description has no attributes: an attribute written on `:::banner-content` in Markdown, such as `size`, is dropped.
+A banner holds one description as its child block. A description outside a banner, inside another block, or after the first one in a banner becomes its blocks, without the container: when Markdown is parsed, and when such a description is pasted, dropped, or left outside a banner by an edit.
+The description is edited in place as rich text with the marks and links of the editor and its selection toolbar.
+An empty description shows a placeholder. Change its text with the editor `placeholder` option: `{placeholder: {banner_content: 'Text'}}`.
+Enter starts a paragraph inside the description and does nothing in an empty paragraph, so the text never leaves the block.
+Backspace at its start and Delete at its end keep it and do not join it with the blocks around it; an empty paragraph next to it is removed instead.
+Deleting all the selected text of the description leaves an empty paragraph in it; a selection that runs from the description to the start of the next block stays inside the description.
 
 ## Button
 

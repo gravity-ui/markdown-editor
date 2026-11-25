@@ -1,6 +1,7 @@
 import type {Meta, StoryObj} from '@storybook/react';
 
 import {BannerExample} from './Banner';
+import {bannerDescriptionMarkup} from './markup';
 
 export default {
     title: 'Extensions / Landing / Banner',
@@ -23,4 +24,8 @@ export const Title: StoryObj<typeof BannerExample> = {
             ':::',
         ].join('\n\n'),
     },
+};
+
+export const Description: StoryObj<typeof BannerExample> = {
+    args: {initial: bannerDescriptionMarkup},
 };

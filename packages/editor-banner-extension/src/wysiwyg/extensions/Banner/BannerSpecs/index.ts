@@ -1,5 +1,6 @@
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 
+import {BannerContentSpecs} from '../../BannerContent/BannerContentSpecs';
 import {BannerTitleSpecs} from '../../BannerTitle/BannerTitleSpecs';
 
 import {BannerParserSpecs} from './parser';
@@ -13,5 +14,6 @@ export const BannerSpecs: ExtensionAuto = (builder) => {
         .use(BannerSchemaSpecs)
         .use(BannerParserSpecs)
         .use(BannerSerializerSpecs)
-        .use(BannerTitleSpecs);
+        .use(BannerTitleSpecs)
+        .use(BannerContentSpecs);
 };
