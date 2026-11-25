@@ -8,3 +8,9 @@ export function normalizeLinkUrl(md: LinkParser, value: unknown): string {
     const href = md.normalizeLink(value.trim());
     return md.validateLink(href) ? href : '';
 }
+
+export function toCssUrl(value: string): string {
+    // CSS escapes preserve the URL and hide parentheses and comment delimiters from the style sanitizer.
+    const escaped = value.replace(/["'()*\\]/g, (char) => `\\${char.charCodeAt(0).toString(16)} `);
+    return `url("${escaped}")`;
+}

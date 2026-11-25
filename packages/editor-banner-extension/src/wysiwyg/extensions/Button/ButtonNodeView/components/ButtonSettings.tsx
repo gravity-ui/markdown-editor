@@ -5,7 +5,7 @@ import {cn} from '@gravity-ui/markdown-editor';
 import {enterKeyHandler} from '@gravity-ui/markdown-editor/_/utils/handlers.js';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {normalizeLinkUrl} from '@gravity-ui/markdown-plugin-banner';
+import {type LinkParser, normalizeLinkUrl} from '@gravity-ui/markdown-plugin-banner';
 import {Icon, Popup, Switch, TextInput} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
@@ -20,8 +20,6 @@ import './ButtonSettings.scss';
 const b = cn('button-settings');
 
 const LINK_ICON_SIZE = 16;
-
-export type LinkParser = Parameters<typeof normalizeLinkUrl>[0];
 
 type ButtonSettingsProps = {
     view: EditorView;

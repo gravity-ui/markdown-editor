@@ -1,45 +1,32 @@
 import {useState} from 'react';
 
-import {Icon, type IconData, SegmentedRadioGroup} from '@gravity-ui/uikit';
+import type {IconData} from '@gravity-ui/uikit';
 
-import {SettingsRow} from '../../../../../components/settings';
-
+import {SegmentedSelect} from './SegmentedSelect';
 import {logClick} from './utils';
 
-export function AlignmentSelect({
-    label,
-    defaultValue,
-    options,
-}: {
+type AlignmentOption = {value: string; label: string; icon: IconData; action: string};
+
+type AlignmentSelectProps = {
     label: string;
     defaultValue: string;
-    options: {value: string; label: string; icon: IconData; action: string}[];
-}) {
+    options: AlignmentOption[];
+};
+
+/** The demonstration alignment: the choice stays in the panel and each click is logged. */
+export function AlignmentSelect({label, defaultValue, options}: AlignmentSelectProps) {
     const [value, setValue] = useState(defaultValue);
+    const logOptionClick = (clicked: string) => {
+        const option = options.find((item) => item.value === clicked);
+        if (option) logClick(`${option.action} button`);
+    };
     return (
-        <SettingsRow label={label}>
-            {(labelId) => (
-                <SegmentedRadioGroup
-                    size="m"
-                    aria-labelledby={labelId}
-                    value={value}
-                    onUpdate={setValue}
-                >
-                    {options.map((option) => (
-                        <SegmentedRadioGroup.Option
-                            key={option.value}
-                            value={option.value}
-                            title={option.label}
-                            controlProps={{
-                                'aria-label': option.label,
-                                onClick: () => logClick(`${option.action} button`),
-                            }}
-                        >
-                            <Icon data={option.icon} size={16} />
-                        </SegmentedRadioGroup.Option>
-                    ))}
-                </SegmentedRadioGroup>
-            )}
-        </SettingsRow>
+        <SegmentedSelect
+            label={label}
+            value={value}
+            options={options}
+            onUpdate={setValue}
+            onOptionClick={logOptionClick}
+        />
     );
 }
