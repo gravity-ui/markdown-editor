@@ -1,17 +1,15 @@
+import type {ViewerEffectContext} from '../../../lifecycle/types';
 import {getDomConstructor} from '../../../utils/dom-constructor';
-import {createElementRegistration} from '../../../utils/dom-ownership';
 import {inspectViewerNode} from '../../../utils/inspect-viewer-node';
 
 const attributes = ['role', 'tabindex'] as const;
-const imageControls = createElementRegistration(setImageAttributes);
-const imageLabels = createElementRegistration(retainImageLabel);
+const galleryButtons = new WeakSet<HTMLImageElement>();
 
 export function registerImageControls(
-    root: HTMLElement,
-    signal: AbortSignal,
+    {root, signal, claim}: ViewerEffectContext,
     fallbackLabel: string,
 ) {
-    const releases = new Map<HTMLImageElement, () => void>();
+    const registered = new WeakSet<HTMLImageElement>();
     root.addEventListener(
         'keydown',
         (event) => {
@@ -36,28 +34,18 @@ export function registerImageControls(
     root.addEventListener('load', ({target}) => registerImage(target), {capture: true, signal});
     for (const image of Array.from(root.querySelectorAll('img'))) registerImage(image);
 
-    return () => {
-        for (const release of releases.values()) release();
-    };
-
     function registerImage(target: EventTarget | null) {
         if (
             !isStandaloneImage(root, target) ||
             isPresentationalImage(target) ||
-            releases.has(target)
+            registered.has(target)
         )
             return;
 
-        const releaseControls = imageControls.register(target);
-        const releaseLabel = imageLabels.register(target, (isOwner) => {
-            if (isOwner) {
-                target.setAttribute('aria-label', target.alt || target.title || fallbackLabel);
-            }
-        });
-        releases.set(target, () => {
-            releaseLabel?.();
-            releaseControls?.();
-        });
+        registered.add(target);
+        claim(target, 'files-gallery:image-controls', () =>
+            setImageAttributes(target, fallbackLabel),
+        );
     }
 }
 
@@ -71,7 +59,7 @@ export function isStandaloneImage(
         (!target.hasAttribute('role') ||
             target.getAttribute('role') === 'img' ||
             isPresentationalImage(target) ||
-            imageControls.has(target)) &&
+            galleryButtons.has(target)) &&
         !target.parentElement?.closest('a, button, [role="button"]') &&
         inspectViewerNode(root, target).kind === 'content'
     );
@@ -82,21 +70,20 @@ function isPresentationalImage(image: HTMLImageElement) {
     return role === 'presentation' || role === 'none';
 }
 
-function setImageAttributes(image: HTMLImageElement) {
+function setImageAttributes(image: HTMLImageElement, fallbackLabel: string) {
     const originalAttributes = attributes.map((name) => [name, image.getAttribute(name)] as const);
+    const needsLabel = !image.hasAttribute('aria-label') && !image.hasAttribute('aria-labelledby');
+    galleryButtons.add(image);
     image.setAttribute('role', 'button');
     if (!image.hasAttribute('tabindex')) image.setAttribute('tabindex', '0');
+    if (needsLabel) image.setAttribute('aria-label', image.alt || image.title || fallbackLabel);
 
     return () => {
+        galleryButtons.delete(image);
+        if (needsLabel) image.removeAttribute('aria-label');
         for (const [name, value] of originalAttributes) {
             if (value === null) image.removeAttribute(name);
             else image.setAttribute(name, value);
         }
     };
-}
-
-function retainImageLabel(image: HTMLImageElement) {
-    if (image.hasAttribute('aria-label') || image.hasAttribute('aria-labelledby')) return undefined;
-
-    return () => image.removeAttribute('aria-label');
 }

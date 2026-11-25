@@ -366,6 +366,24 @@ If HTML and dependencies change together, setup runs once. A new setup function 
 
 Effects only run on the client. Each run gets a new signal.
 
+Use `claim(element, key, setup)` when several effects can make the same change to an element. The first claim in a viewer runs its setup. Later claims on the same element and key wait. Releasing the active claim runs its cleanup before the next setup starts. Each setup should capture the current DOM state when it runs.
+
+```tsx
+useViewerEffect(({claim}) => {
+  claim(fallback, 'feedback:hide-fallback', () => {
+    const previous = fallback.hidden;
+    fallback.hidden = true;
+    return () => {
+      fallback.hidden = previous;
+    };
+  });
+}, [fallback]);
+```
+
+You can claim elements later, for example in a `load` listener. Call the returned `release()` to withdraw a claim early. The effect releases all its remaining claims when it stops. If its dependencies change, the new run joins the end of the queue. Replacing HTML or unmounting the viewer discards all waiting claims from the old runs. Calls through an expired effect context have no effect.
+
+Choose a shared key for extensions that coordinate the same DOM change. The viewer treats different keys independently. Effect keys and `ViewerTargets` slot keys have separate queues.
+
 Separate extensions have no fixed execution order. Put steps that need a fixed order in one extension. The hook throws an error outside a viewer.
 
 - On first mount or when HTML changes, a setup error stops the remaining setups. Place an error boundary above `MarkdownViewer` to catch it.
@@ -380,6 +398,11 @@ The package exports these types:
 interface ViewerEffectContext {
   readonly root: HTMLDivElement;
   readonly signal: AbortSignal;
+  readonly claim: (
+    element: Element,
+    key: string,
+    setup: () => void | ViewerEffectCleanup,
+  ) => ViewerEffectCleanup;
 }
 
 type ViewerEffectCleanup = () => void;
