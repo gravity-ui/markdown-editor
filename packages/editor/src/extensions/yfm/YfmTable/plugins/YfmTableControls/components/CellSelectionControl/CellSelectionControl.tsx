@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
 
 import type {VirtualElement} from '@floating-ui/react';
-import {EllipsisVertical} from '@gravity-ui/icons';
+import {EllipsisVertical, LayoutCellsLarge, Square} from '@gravity-ui/icons';
 import {Button, DropdownMenu, Icon, Menu, useDirection} from '@gravity-ui/uikit';
 
 import type {EditorView} from '#pm/view';
@@ -21,6 +21,8 @@ export type CellSelectionControlProps = {
     selection: TableCellSelection;
     currentCellBg?: string | null;
     onCellBgChange?: (color: string | null) => void;
+    onMergeCellsClick?: () => void;
+    onSplitCellsClick?: () => void;
     onClearCellsClick: () => void;
     onInsertRow: (position: 'before' | 'after') => void;
     onInsertColumn: (position: 'before' | 'after') => void;
@@ -35,6 +37,8 @@ export function CellSelectionControl({
     selection,
     currentCellBg,
     onCellBgChange,
+    onMergeCellsClick,
+    onSplitCellsClick,
     onClearCellsClick,
     onInsertRow,
     onInsertColumn,
@@ -151,6 +155,26 @@ export function CellSelectionControl({
                                     setOpen(false);
                                 }}
                             />
+                        </Menu.Group>
+                    )}
+                    {(onMergeCellsClick || onSplitCellsClick) && (
+                        <Menu.Group>
+                            {onMergeCellsClick && (
+                                <DropdownMenu.Item
+                                    qa="g-md-yfm-table-action-merge-cells"
+                                    iconStart={<Icon data={Square} />}
+                                    text={i18n('cells.merge')}
+                                    action={onMergeCellsClick}
+                                />
+                            )}
+                            {onSplitCellsClick && (
+                                <DropdownMenu.Item
+                                    qa="g-md-yfm-table-action-split-cells"
+                                    iconStart={<Icon data={LayoutCellsLarge} />}
+                                    text={i18n('cells.split')}
+                                    action={onSplitCellsClick}
+                                />
+                            )}
                         </Menu.Group>
                     )}
                     <Menu.Group>

@@ -65,6 +65,8 @@ Drag across cells or use Shift+click. A selection that touches part of a merged 
 
 ## Horizontal spans
 
+Select A1 and C1 and open Cell actions. Choose Merge cells to combine them. Open Cell actions again and choose Split cells. All three cells are selected, with both paragraphs in A1.
+
 #|
 || A1 | > | C1 ||
 || A2 | B2 | C2 ||
@@ -95,6 +97,8 @@ Start a drag in an outer cell and move across the inner table. The selection sho
 ## Row and column spans together
 
 Select a rectangle through the middle of this grid, then extend it in the opposite direction.
+
+Select the yellow merged cell and choose Split cells. All four parts keep its background. Undo restores the merged cell and its selection.
 
 #|
 || A1 | B1 | C1 | D1 | E1 ||

@@ -23,6 +23,61 @@ afterEach(() => {
 });
 
 describe('table cell controls integration', () => {
+    it.each(['onMergeCellsClick', 'onSplitCellsClick'] as const)(
+        'should apply retained %s to the latest cells and undo it separately from typing',
+        (action) => {
+            const context = createEditor({
+                initialContent: '#|\n|| A | > | B ||\n|| C | > | D ||\n|#',
+            });
+            const {editor} = context;
+            const {view} = editor;
+            view.dispatch(view.state.tr.insertText('before'));
+            selectCells(editor, 0, 1);
+            const run = required(control(context)[action]);
+            selectCells(editor, 3, 2);
+            const before = view.state;
+            run();
+            const result = view.state;
+            expect((result.selection as TableCellSelection).rect).toEqual({
+                top: 1,
+                left: 0,
+                bottom: 2,
+                right: 3,
+            });
+
+            view.dispatch(result.tr.insertText('after'));
+            expect(undoDepth(view.state)).toBe(3);
+            for (const [command, expected] of [
+                [undo, result],
+                [undo, before],
+                [redo, result],
+            ] as const) {
+                command(view.state, view.dispatch);
+                expect(view.state.doc.eq(expected.doc)).toBe(true);
+                expect(view.state.selection.eq(expected.selection)).toBe(true);
+            }
+        },
+    );
+
+    it.each(['an ordinary cell', 'a text cursor'])(
+        'should ignore retained merge and split for %s',
+        (selection) => {
+            const context = createEditor({initialContent: '#|\n|| A | > | B ||\n|#'});
+            const {editor} = context;
+            selectCells(editor, 0, 1);
+            const {onMergeCellsClick, onSplitCellsClick} = control(context);
+            if (selection === 'an ordinary cell') selectCells(editor, 1);
+            else
+                editor.view.dispatch(
+                    editor.view.state.tr.setSelection(TextSelection.create(editor.doc, 5)),
+                );
+            const before = editor.view.state;
+            required(onMergeCellsClick)();
+            required(onSplitCellsClick)();
+            expect(editor.view.state).toBe(before);
+        },
+    );
+
     it('should clear cells through the control and restore the selection on undo', () => {
         const context = createEditor();
         const {editor} = context;

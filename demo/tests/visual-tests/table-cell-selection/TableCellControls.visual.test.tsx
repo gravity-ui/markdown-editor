@@ -3,7 +3,7 @@ import {expect, test} from 'playwright/core';
 import {TableCellSelectionStories} from './TableCellSelection.helpers';
 
 const markup = '#|\n|| A1 | B1 | C1 ||\n|| A2 | B2 | C2 ||\n|| A3 | B3 | C3 ||\n|#';
-const mixedMarkup = '#|\n||::{bg="yellow"} A1 | B1 | C1 ||\n|| A2 | B2 | C2 ||\n|#';
+const mixedMarkup = '#|\n||::{bg="yellow"} A1 | > | C1 ||\n|| A2 | B2 | C2 ||\n|#';
 const scrollingMarkup = `${markup}\n\n${'A paragraph below the table.\n\n'.repeat(20)}`;
 
 test.describe('Table cell controls @wysiwyg', () => {
@@ -73,15 +73,31 @@ test.describe('Table cell controls @wysiwyg', () => {
         });
     }
 
-    test('should omit the background group when disabled', async ({mount, editor}) => {
-        await mount(<TableCellSelectionStories.WithoutCellBackground initialMarkup={markup} />);
-        const cells = editor.tableCellSelection.getCells(editor.tableCellSelection.getTable('yfm'));
-        await editor.tableCellSelection.selectCells(cells.first(), cells.nth(4));
-        await editor.tableCellSelection.openSelectionMenu();
-        await expect(editor.tableCellSelection.getSelectionMenuItems().first()).toHaveText(
-            'Add row before',
+    test('should merge and split nested cells without the background palette', async ({
+        mount,
+        editor,
+    }) => {
+        await mount(
+            <TableCellSelectionStories.WithoutCellBackground
+                initialMarkup={'#|\n|| Outer |\n\n#|\n|| A | > | B | > ||\n|#\n\n||\n|#'}
+            />,
         );
-        await expect(editor.tableCellSelection.getSelectionMenuItems()).toHaveCount(7);
+        const controls = editor.tableCellSelection;
+        const inner = controls.getNestedTable(controls.getTable('yfm'));
+        const cells = controls.getCells(inner);
+        await controls.selectCells(cells.first(), cells.last());
+        await controls.openSelectionMenu();
+        const items = controls.getSelectionMenuItems();
+        await expect(controls.getSelectionAction('cell-bg')).toHaveCount(0);
+        await expect(items.first()).toHaveText('Merge cells');
+        await expect(items.nth(1)).toHaveText('Split cells');
+        await controls.getSelectionAction('merge-cells').click();
+        await controls.openSelectionMenu();
+        await expect(controls.getSelectionAction('merge-cells')).toHaveCount(0);
+        await controls.getSelectionAction('split-cells').click();
+        await expect(controls.getSelectedCells(inner)).toHaveCount(4);
+        await expect(controls.selectionMenu).toBeHidden();
+        await expect(editor.locators.contenteditable).toBeFocused();
     });
 
     test('should show mixed backgrounds and preserve selection after a color change', async ({
@@ -93,6 +109,12 @@ test.describe('Table cell controls @wysiwyg', () => {
         const cells = editor.tableCellSelection.getCells(table);
         await editor.tableCellSelection.selectCells(cells.first(), cells.nth(1));
         await editor.tableCellSelection.openSelectionPalette();
+        await expect(editor.tableCellSelection.getSelectionMenuItems()).toContainText([
+            'Background color',
+            'Merge cells',
+            'Split cells',
+            'Add row before',
+        ]);
         await expect(editor.tableCellSelection.getSelectedBackgroundSwatches()).toHaveCount(0);
         await editor.tableCellSelection.getBackgroundSwatch('Red').click({scroll: 'none'});
         await expect(editor.tableCellSelection.selectionMenu).toBeHidden();

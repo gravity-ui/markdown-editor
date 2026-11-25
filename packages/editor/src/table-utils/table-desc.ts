@@ -2,7 +2,7 @@ import type {Node} from 'prosemirror-model';
 
 import {isTableBodyNode, isTableCellNode, isTableNode, isTableRowNode} from './utils';
 
-const MAX_COLSPAN = 1000;
+export const MAX_COLSPAN = 1000;
 
 // TableDesc creates a virtual table description containing info about real and virtual cells needed for correct table operations.
 // This description is cached.
