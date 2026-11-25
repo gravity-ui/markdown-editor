@@ -1,6 +1,9 @@
 export const includes = <T>(values: readonly T[], value: unknown): value is T =>
     (values as readonly unknown[]).includes(value);
 
+export const dataAttrs = (values: Record<string, string>): Record<string, string> =>
+    Object.fromEntries(Object.entries(values).map(([name, value]) => [`data-${name}`, value]));
+
 export type AttrGetter = (name: string) => string | null | undefined;
 
 export function valuesOtherThan<T extends object>(
