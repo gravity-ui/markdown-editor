@@ -1,24 +1,18 @@
 import {type PluginOptions, transform} from '@diplodoc/html-extension';
 
-import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
+import type {ExtensionAuto} from '#core';
 import {generateEntityId} from 'src/utils/entity-id';
 
 import {YfmHtmlBlockConsts, defaultYfmHtmlBlockEntityId} from './const';
 
 export {yfmHtmlBlockNodeName, YfmHtmlBlockConsts} from './const';
 
-export interface YfmHtmlBlockSpecsOptions extends Omit<
+export type YfmHtmlBlockSpecsOptions = Omit<
     PluginOptions,
     'runtimeJsPath' | 'containerClasses' | 'bundle' | 'embeddingMode'
-> {
-    /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    nodeView?: ExtensionNodeSpec['view'];
-}
+>;
 
-const YfmHtmlBlockSpecsExtension: ExtensionAuto<YfmHtmlBlockSpecsOptions> = (
-    builder,
-    {nodeView, ...options},
-) => {
+const YfmHtmlBlockSpecsExtension: ExtensionAuto<YfmHtmlBlockSpecsOptions> = (builder, options) => {
     builder
         .configureMd((md) =>
             md.use(
@@ -76,10 +70,6 @@ const YfmHtmlBlockSpecsExtension: ExtensionAuto<YfmHtmlBlockSpecsOptions> = (
             state.write(':::');
             state.closeBlock(node);
         });
-
-    if (nodeView) {
-        builder.addNodeView(YfmHtmlBlockConsts.NodeName, nodeView);
-    }
 };
 
 export const YfmHtmlBlockSpecs = Object.assign(YfmHtmlBlockSpecsExtension, YfmHtmlBlockConsts);

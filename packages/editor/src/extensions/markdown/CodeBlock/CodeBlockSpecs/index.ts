@@ -1,4 +1,4 @@
-import type {ExtensionAuto, ExtensionNodeSpec} from '#core';
+import type {ExtensionAuto} from '#core';
 import {nodeTypeFactory} from 'src/utils/schema';
 
 export const CodeBlockNodeAttr = {
@@ -27,8 +27,6 @@ export type LineNumbersOptions = {
 };
 
 export type CodeBlockSpecsOptions = {
-    /** @deprecated Register the view with builder.addNodeView() after the specs. */
-    nodeview?: ExtensionNodeSpec['view'];
     /** Configure line numbers in code block */
     lineNumbers?: LineNumbersOptions;
 };
@@ -156,9 +154,6 @@ export const CodeBlockSpecs: ExtensionAuto<CodeBlockSpecsOptions> = (builder, op
         },
         prepareContent: removeNewLineAtEnd, // content of fence blocks contains extra \n at the end
     }));
-    if (opts.nodeview) {
-        builder.addNodeView(codeBlockNodeName, opts.nodeview);
-    }
 
     builder.addKeymap(() => ({
         Tab: (state, dispatch) => {
