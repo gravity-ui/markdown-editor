@@ -1,12 +1,18 @@
-export {YfmCodeBlockActions, type YfmCodeBlockActionsProps} from './extensions/YfmCodeBlockActions';
+export {
+    YfmCodeBlockActions,
+    codeBlockActionsSlotKey,
+    type YfmCodeBlockActionsProps,
+} from './extensions/YfmCodeBlockActions';
 export {RevealYfmElement, type RevealYfmElementProps} from './extensions/RevealYfmElement';
 export {
     HeadingAnchors,
+    headingAnchorSlotKey,
     type HeadingAnchorsProps,
     type HeadingAnchorTarget,
 } from './extensions/HeadingAnchors';
 export {
     HeadingEditButtons,
+    headingEditSlotKey,
     type HeadingEditButtonsProps,
     type HeadingEditTarget,
 } from './extensions/HeadingEditButtons';

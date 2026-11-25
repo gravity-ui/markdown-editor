@@ -5,8 +5,8 @@ import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {act} from '../../../tests/utils/act';
-import {type HeadingAnchorTarget, HeadingAnchors} from '../../extensions';
-import {MarkdownViewer} from '../../index';
+import {type HeadingAnchorTarget, HeadingAnchors, headingAnchorSlotKey} from '../../extensions';
+import {MarkdownViewer, ViewerTargets} from '../../index';
 
 describe('HeadingAnchors', () => {
     let container: HTMLDivElement;
@@ -145,6 +145,40 @@ describe('HeadingAnchors', () => {
         );
         await act(async () => getButton().click());
         expect(writeText).toHaveBeenLastCalledWith('#second');
+    });
+
+    it('should show the button and keep the heading class supplied by the author', () => {
+        const html = '<h2 id="overview" class="g-md-v-heading-anchor">Overview</h2>';
+        render(
+            <MarkdownViewer html={html}>
+                <HeadingAnchors getHref={() => '#overview'} />
+            </MarkdownViewer>,
+        );
+
+        expect(container.querySelector('h2 button')?.getAttribute('aria-label')).toBe('Copy link');
+        render(<MarkdownViewer html={html} />);
+        expect(container.querySelector('h2')?.className).toBe('g-md-v-heading-anchor');
+    });
+
+    it('should share the anchor slot with a custom extension', () => {
+        const update = (custom: boolean) =>
+            render(
+                <MarkdownViewer html='<h2 id="overview">Overview</h2>'>
+                    {custom && (
+                        <ViewerTargets selector="h2" slotKey={headingAnchorSlotKey}>
+                            {() => <button>Custom link</button>}
+                        </ViewerTargets>
+                    )}
+                    <HeadingAnchors getHref={() => '#overview'} />
+                </MarkdownViewer>,
+            );
+
+        update(true);
+        expect(container.querySelector('h2 button')?.textContent).toBe('Custom link');
+        expect(container.querySelector('button[aria-label="Copy link"]')).toBeNull();
+
+        update(false);
+        expect(container.querySelector('h2 button')?.getAttribute('aria-label')).toBe('Copy link');
     });
 
     it('should use a custom heading selector', () => {

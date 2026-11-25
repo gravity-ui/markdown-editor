@@ -34,6 +34,7 @@ export function shouldAcceptViewerProps() {
         qa: 'document',
         children: createElement(ViewerTargets, {
             selector: 'h2[id]',
+            slotKey: 'copy',
             as: 'span',
             className: 'actions',
             style: {display: 'flex'},
@@ -95,6 +96,11 @@ export const invalidSlot = createElement(ViewerTargets, {
     as: 'button',
     children: () => null,
 });
+
+export function shouldRejectInvalidSlotKey(props: ViewerTargetsProps) {
+    // @ts-expect-error Named slots use string keys.
+    return createElement(ViewerTargets, {...props, slotKey: 1});
+}
 
 expectTypeOf<MarkdownViewerProps['html']>().toEqualTypeOf<string>();
 expectTypeOf<ViewerEffectContext['root']>().toEqualTypeOf<HTMLDivElement>();

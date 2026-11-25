@@ -243,6 +243,76 @@ describe('ViewerTargets', () => {
         expect(container.querySelector('h2')?.firstChild?.textContent).toBe('Title');
     });
 
+    it('should keep the first named slot on each matching target', () => {
+        const html = '<h2></h2><h3></h3><h4></h4>';
+        const second = (
+            <ViewerTargets key="second" selector="h3,h4" slotKey="action">
+                {() => 'Second'}
+            </ViewerTargets>
+        );
+        function render(selector: string, label: string, reverse = false) {
+            const first = (
+                <ViewerTargets key="first" selector={selector} slotKey="action">
+                    {() => label}
+                </ViewerTargets>
+            );
+            act(() =>
+                root.render(
+                    <MarkdownViewer html={html}>
+                        {reverse ? [second, first] : [first, second]}
+                    </MarkdownViewer>,
+                ),
+            );
+        }
+        render('h2,h3', 'First');
+        const shared = container.querySelector('h3 > span');
+        expect(container.querySelector('h2')?.textContent).toBe('First');
+        expect(container.querySelector('h3')?.textContent).toBe('First');
+        expect(container.querySelector('h4')?.textContent).toBe('Second');
+
+        render('h3', 'Updated', true);
+        expect(container.querySelector('h3 > span')).toBe(shared);
+        expect(container.querySelector('h3')?.textContent).toBe('Updated');
+
+        render('h2', 'Updated');
+        expect(container.querySelector('h3')?.textContent).toBe('Second');
+        render('h2,h3', 'Returned');
+        expect(container.querySelector('h3')?.textContent).toBe('Second');
+    });
+
+    it('should reserve a named slot with empty content and let other keys render', () => {
+        const waiting = vi.fn(() => 'Waiting');
+        function render(slotKey: string) {
+            act(() =>
+                root.render(
+                    <MarkdownViewer html="<h2></h2>">
+                        <ViewerTargets selector="h2" slotKey={slotKey}>
+                            {() => null}
+                        </ViewerTargets>
+                        <ViewerTargets selector="h2" slotKey="copy">
+                            {waiting}
+                        </ViewerTargets>
+                        <ViewerTargets selector="h2" slotKey="edit">
+                            {() => 'Edit'}
+                        </ViewerTargets>
+                        <ViewerTargets selector="h2">{() => 'Help'}</ViewerTargets>
+                    </MarkdownViewer>,
+                ),
+            );
+        }
+        render('copy');
+        const heading = container.querySelector('h2');
+        expect(waiting).not.toHaveBeenCalled();
+        expect(heading?.children).toHaveLength(3);
+        expect(heading?.textContent).toContain('Edit');
+        expect(heading?.textContent).toContain('Help');
+
+        render('edit');
+        expect(heading?.children).toHaveLength(3);
+        expect(heading?.textContent).toContain('Waiting');
+        expect(heading?.textContent).toContain('Edit');
+    });
+
     it('should scope target searches to each viewer root', () => {
         act(() =>
             root.render(

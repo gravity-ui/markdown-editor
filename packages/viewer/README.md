@@ -481,6 +481,7 @@ Use `ViewerTargets` inside `MarkdownViewer`. The package exports the `ViewerTarg
 | Prop        | Type                                 | Description                                                              |
 | ----------- | ------------------------------------ | ------------------------------------------------------------------------ |
 | `selector`  | `string`                             | CSS selector for HTML elements inside this viewer.                       |
+| `slotKey`   | `string`                             | Optional key for one shared slot per matching element.                   |
 | `as`        | `'span' \| 'div'`                    | Slot tag. Default: `span`. Choose a tag that is valid inside the target. |
 | `className` | `string`                             | CSS class for each slot.                                                 |
 | `style`     | `CSSProperties`                      | Inline styles for each slot.                                             |
@@ -491,6 +492,16 @@ Use a stable selector, such as `h2[id]` or `[data-grid-id]`. Adding a slot must 
 Searches skip slots and their content. Elements added later by an external runtime are not detected automatically.
 
 Several extensions can add separate slots to the same target. Each extension must keep the other slots and the original content. Their order in the React tree must not affect how they work. Put DOM steps that need a fixed order in one extension.
+
+Pass the same `slotKey` to share a place on a target. The first instance to match that target renders its slot. Other instances with the same key wait until it unmounts, changes its key, or stops matching that element. Targets that still match keep their place when props or the order of keyed React children change. Returning `null` from the active renderer keeps its place. Different keys and instances without a key render independently.
+
+To share a slot with a built-in extension, import `headingAnchorSlotKey`, `headingEditSlotKey`, or `codeBlockActionsSlotKey` from `@gravity-ui/markdown-viewer/extensions`. For example, a custom copy button can share the heading anchor slot:
+
+```tsx
+<ViewerTargets selector="h2[id]" slotKey={headingAnchorSlotKey}>
+  {(heading) => <CustomCopyButton heading={heading} />}
+</ViewerTargets>
+```
 
 </details>
 

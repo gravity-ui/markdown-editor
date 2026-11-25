@@ -1,1 +1,5 @@
-export {YfmCodeBlockActions, type YfmCodeBlockActionsProps} from './YfmCodeBlockActions';
+export {
+    YfmCodeBlockActions,
+    codeBlockActionsSlotKey,
+    type YfmCodeBlockActionsProps,
+} from './YfmCodeBlockActions';
