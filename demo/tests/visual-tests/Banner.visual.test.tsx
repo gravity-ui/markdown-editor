@@ -115,18 +115,35 @@ test.describe('Banner', () => {
 
     test('should keep a blurred background inside a narrow column @wysiwyg', async ({
         mount,
+        page,
         banner,
     }) => {
-        await mount(
-            <BannerStories.Banner
-                width={300}
-                initial={
-                    ':::banner{height="s" width="full" bg-image="https://example.com/banner.png" bg-image-blur="true"}\n:::'
-                }
-            />,
+        const backgrounds = Array.from(
+            {length: 10},
+            (_, index) => `/assets/watercolors/lake-${index + 1}.webp`,
         );
-        await expect(banner.blocks).toHaveCount(1);
-        const overflow = await banner.blocks.evaluate((element) => {
+        const initial = backgrounds
+            .map(
+                (url) =>
+                    `:::banner{height="s" width="full" bg-image="${url}" bg-image-blur="true"}\n:::`,
+            )
+            .join('\n\n');
+        await mount(
+            <div style={smallSizes}>
+                <BannerStories.Banner width={300} initial={initial} />
+            </div>,
+        );
+        await expect(banner.blocks).toHaveCount(backgrounds.length);
+        for (const [index, url] of backgrounds.entries()) {
+            const block = banner.blocks.nth(index);
+            await expect(block).toHaveCSS('background-image', `url("${new URL(url, page.url())}")`);
+            await block.evaluate(async (_, src) => {
+                const image = new Image();
+                image.src = src;
+                await image.decode();
+            }, url);
+        }
+        const overflow = await banner.blocks.first().evaluate((element) => {
             const parent = element.parentElement;
             return parent ? parent.scrollWidth - parent.clientWidth : null;
         });
