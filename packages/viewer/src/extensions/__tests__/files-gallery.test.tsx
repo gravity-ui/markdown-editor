@@ -15,6 +15,7 @@ describe('FilesGallery', () => {
     let root: Root;
 
     beforeEach(() => {
+        vi.useFakeTimers();
         vi.stubGlobal('matchMedia', (media: string) =>
             Object.assign(new EventTarget(), {matches: false, media, onchange: null}),
         );
@@ -35,12 +36,19 @@ describe('FilesGallery', () => {
         root = createRoot(container);
     });
 
-    afterEach(() => {
-        act(() => root.unmount());
-        container.remove();
-        vi.unstubAllGlobals();
-        Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
-        Reflect.deleteProperty(navigator, 'clipboard');
+    afterEach(async () => {
+        try {
+            act(() => root.unmount());
+            await act(async () => {
+                await vi.runOnlyPendingTimersAsync();
+            });
+        } finally {
+            container.remove();
+            vi.unstubAllGlobals();
+            Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
+            Reflect.deleteProperty(navigator, 'clipboard');
+            vi.useRealTimers();
+        }
     });
 
     it.each(['click', 'Enter', ' '])('should open the selected image with %s', async (action) => {

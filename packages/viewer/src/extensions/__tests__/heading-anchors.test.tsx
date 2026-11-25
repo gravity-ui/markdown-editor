@@ -14,6 +14,7 @@ describe('HeadingAnchors', () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
 
     beforeEach(() => {
+        vi.useFakeTimers();
         container = document.createElement('div');
         document.body.append(container);
         root = createRoot(container.appendChild(document.createElement('div')));
@@ -23,11 +24,18 @@ describe('HeadingAnchors', () => {
         });
     });
 
-    afterEach(() => {
-        act(() => root.unmount());
-        container.remove();
-        Reflect.deleteProperty(navigator, 'clipboard');
-        vi.clearAllMocks();
+    afterEach(async () => {
+        try {
+            act(() => root.unmount());
+            await act(async () => {
+                await vi.runOnlyPendingTimersAsync();
+            });
+        } finally {
+            container.remove();
+            Reflect.deleteProperty(navigator, 'clipboard');
+            vi.clearAllMocks();
+            vi.useRealTimers();
+        }
     });
 
     it('should copy the link provided by the application', async () => {
