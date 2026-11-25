@@ -28,6 +28,7 @@ export type WysiwygEditorViewProps = ClassNameProps &
         hiddenActionsConfig?: WToolbarItemData[];
         children?: React.ReactNode;
         toolbarDisplay?: ToolbarDisplay;
+        scrollContainerRef?: React.RefObject<HTMLElement>;
     };
 
 export const WysiwygEditorView: React.FC<WysiwygEditorViewProps> = (props) => {
@@ -45,6 +46,7 @@ export const WysiwygEditorView: React.FC<WysiwygEditorViewProps> = (props) => {
         children,
         stickyToolbar = true,
         toolbarDisplay,
+        scrollContainerRef,
     } = props;
 
     useRenderTime((time) => {
@@ -74,6 +76,7 @@ export const WysiwygEditorView: React.FC<WysiwygEditorViewProps> = (props) => {
                     settingsVisible={settingsVisible}
                     className={b('toolbar', [toolbarClassName])}
                     toolbarDisplay={toolbarDisplay}
+                    scrollContainerRef={scrollContainerRef}
                 >
                     {children}
                 </ToolbarView>
