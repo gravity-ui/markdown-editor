@@ -355,22 +355,23 @@ Setup runs after the HTML is in the DOM. It runs again when HTML or dependencies
 
 Pass both `setup` and `dependencies`. Setup must return a cleanup function or nothing, not a Promise.
 
-| Event                        | Behavior                                                                                   |
-| ---------------------------- | ------------------------------------------------------------------------------------------ |
-| Mount                        | Run setup after the HTML is in the DOM.                                                    |
-| HTML changes                 | Abort all old signals, run cleanup before replacing HTML, then run setup for the new HTML. |
-| Dependencies change          | Abort and clean up the affected effect, then run its new setup. Keep the HTML DOM.         |
-| Extension or viewer unmounts | Abort its active signals and run cleanup.                                                  |
+| Event               | Behavior                                                                                                              |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Mount               | Run setup after the HTML is in the DOM.                                                                               |
+| HTML changes        | Discard waiting claims and abort all old signals. Run cleanup before replacing HTML, then run setup for the new HTML. |
+| Dependencies change | Abort and clean up the affected effect. Run setup again on the same DOM. New claims join the end of their queues.     |
+| Extension unmounts  | Abort its active signals, run cleanup and release its claims.                                                         |
+| Viewer unmounts     | Discard all waiting claims, abort all active signals and run cleanup.                                                 |
 
 If HTML and dependencies change together, setup runs once. A new setup function alone does not restart the effect; list its reactive values in `dependencies`.
 
 Effects only run on the client. Each run gets a new signal.
 
-Use `claim(element, key, setup)` when several effects can make the same change to an element. The first claim in a viewer runs its setup. Later claims on the same element and key wait. Releasing the active claim runs its cleanup before the next setup starts. Each setup should capture the current DOM state when it runs.
+Use `claim(element, key, setup)` when effects share a DOM change. Within one viewer, the first claim for each element and key runs its setup. Later claims for that pair wait. Capture the current DOM state in setup and restore it in cleanup. Both must finish synchronously so cleanup completes before the next setup starts.
 
 ```tsx
 useViewerEffect(({claim}) => {
-  claim(fallback, 'feedback:hide-fallback', () => {
+  claim(fallback, 'demo:feedback-fallback', () => {
     const previous = fallback.hidden;
     fallback.hidden = true;
     return () => {
@@ -380,9 +381,7 @@ useViewerEffect(({claim}) => {
 }, [fallback]);
 ```
 
-You can claim elements later, for example in a `load` listener. Call the returned `release()` to withdraw a claim early. The effect releases all its remaining claims when it stops. If its dependencies change, the new run joins the end of the queue. Replacing HTML or unmounting the viewer discards all waiting claims from the old runs. Calls through an expired effect context have no effect.
-
-Choose a shared key for extensions that coordinate the same DOM change. The viewer treats different keys independently. Effect keys and `ViewerTargets` slot keys have separate queues.
+You can call `claim` later, for example in a `load` listener. Call the returned `release()` to release a claim early. When the effect stops, it releases its claims and ignores later calls from that run. Effect keys and `ViewerTargets` slot keys have separate queues.
 
 Separate extensions have no fixed execution order. Put steps that need a fixed order in one extension. The hook throws an error outside a viewer.
 

@@ -1,7 +1,9 @@
 export interface ViewerEffectContext {
+    /** Element containing the viewer's rendered HTML. */
     readonly root: HTMLDivElement;
+    /** Aborted when this effect run stops. */
     readonly signal: AbortSignal;
-    /** Queue a setup for this element and key. Release it early or let the effect release it. */
+    /** Queues synchronous setup and cleanup by element and key. Returns a release function. */
     readonly claim: (
         element: Element,
         key: string,

@@ -128,19 +128,49 @@ describe('viewer effect claims', () => {
         expect(stop).toHaveBeenCalledOnce();
     });
 
-    it('should start a waiting claim even if the previous cleanup throws', () => {
-        const failure = new Error('Claim cleanup failed');
-        let release: () => void;
+    it.each(['setup', 'cleanup'])('should start the next claim after a %s error', (phase) => {
+        const failure = new Error('Claim failed');
+        const fail = () => {
+            throw failure;
+        };
         const next = vi.fn();
+        let release: () => void;
         const setup: ViewerEffect = ({root: content, claim}) => {
-            release = claim(content, 'action', () => () => {
-                throw failure;
-            });
+            release = claim(content, 'action', () => (phase === 'cleanup' ? fail : undefined));
+            if (phase === 'setup') claim(content, 'action', fail);
             claim(content, 'action', next);
         };
+
         render(<Effect setup={setup} />);
         expect(() => release()).toThrow(failure);
         expect(next).toHaveBeenCalledOnce();
+    });
+
+    it('should finish setup and cleanup before starting the next claim', () => {
+        const events: string[] = [];
+        const setup: ViewerEffect = ({root: content, claim}) => {
+            const releaseFirst = claim(content, 'action', () => stopFirst);
+            const releaseSecond = claim(content, 'action', () => {
+                events.push('start second');
+            });
+            const releaseThird = claim(content, 'action', () => {
+                releaseThird();
+                events.push('start third');
+                return () => events.push('stop third');
+            });
+            claim(content, 'action', () => {
+                events.push('start last');
+            });
+            releaseFirst();
+
+            function stopFirst() {
+                releaseSecond();
+                events.push('stop first');
+            }
+        };
+
+        render(<Effect setup={setup} />);
+        expect(events).toEqual(['stop first', 'start third', 'stop third', 'start last']);
     });
 });
 
