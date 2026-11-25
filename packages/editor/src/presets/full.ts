@@ -1,5 +1,5 @@
 import type {ExtensionAuto} from '../core';
-import {Color, Emoji, type EmojiOptions, Mark} from '../extensions';
+import {Color, Emoji, type EmojiOptions, Mark, Status} from '../extensions';
 
 import {YfmPreset, type YfmPresetOptions} from './yfm';
 
@@ -11,7 +11,7 @@ export type FullPresetOptions = YfmPresetOptions &
 export const FullPreset: ExtensionAuto<FullPresetOptions> = (builder, opts) => {
     builder.use(YfmPreset, opts);
 
-    builder.use(Mark).use(Color);
+    builder.use(Mark).use(Color).use(Status);
 
     if (opts.emoji) {
         builder.use(Emoji, opts.emoji);

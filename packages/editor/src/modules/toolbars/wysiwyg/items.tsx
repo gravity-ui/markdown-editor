@@ -231,6 +231,12 @@ export const liftListItemWysiwyg: ToolbarItemWysiwyg = {
     isEnable: (e) => e.actions.liftListItem.isEnable(),
 };
 
+export const statusItemWysiwyg: ToolbarItemWysiwyg = {
+    isActive: (editor) => editor.actions.addStatus?.isActive() ?? false,
+    isEnable: (editor) => editor.actions.addStatus?.isEnable() ?? false,
+    exec: (editor) => editor.actions.addStatus.run(),
+};
+
 export const toggleHeadingFoldingItemWysiwyg: ToolbarItemWysiwyg = {
     isActive: (editor) => editor.actions.toggleHeadingFolding?.isActive() ?? false,
     isEnable: (editor) => editor.actions.toggleHeadingFolding?.isEnable() ?? false,
