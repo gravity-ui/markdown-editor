@@ -1,6 +1,7 @@
 export * from './Editor';
 export * from './ExtensionBuilder';
 export * from './ExtensionsManager';
+export {TabFocusModeState, type TabFocusMode} from '../utils/tab-focus-mode';
 export {bindActions} from './utils/actions';
 export {getLoggerFromState} from './utils/logger';
 export {getParserFromState} from './utils/parser';

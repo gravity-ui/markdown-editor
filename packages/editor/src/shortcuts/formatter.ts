@@ -27,12 +27,19 @@ class ShortCutFormatter {
     toCM(name: string): string | null {
         const defs = this.#map.get(name);
         if (!defs) return null;
-        return defs.sort((a) => (a === MK.Shift ? -1 : 0)).join('-');
+        return [...defs].sort((a) => (a === MK.Shift ? -1 : 0)).join('-');
     }
 
     toView(name: string): string | undefined {
         const defs = this.#map.get(name);
         return defs?.join('+');
+    }
+
+    toText(name: string): string | undefined {
+        const defs = this.#map.get(name);
+        return defs
+            ?.map((key) => (key === MK.Ctrl ? 'Control' : key[0].toUpperCase() + key.slice(1)))
+            .join('+');
     }
 }
 

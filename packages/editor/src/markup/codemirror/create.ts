@@ -192,8 +192,14 @@ export function createCodemirror(params: CreateCodemirrorParams) {
             // toggleBlockComment, is the only one left without. Its command stays reachable via
             // Mod-/, since markdown has no line comment syntax and toggleComment then falls back
             // to block comments.
+            // Tab focus mode uses Control+Shift+M on macOS, so keep Option+Shift+M available
+            // for text input.
             ...defaultKeymap.filter(
-                (binding) => !(isMac() && (binding.mac || binding.key) === 'Alt-A'),
+                (binding) =>
+                    !(
+                        isMac() &&
+                        ((binding.mac || binding.key) === 'Alt-A' || binding.mac === 'Shift-Alt-m')
+                    ),
             ),
             ...(disabledExtensions.history ? [] : historyKeymap),
             ...keymaps,

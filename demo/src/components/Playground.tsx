@@ -12,16 +12,19 @@ import {
     type MarkupString,
     NumberInput,
     type RenderPreview,
+    type TabFocusMode,
     type ToolbarsPreset,
     type UseMarkdownEditorProps,
     type WysiwygPlaceholderOptions,
     type YfmMods,
+    getToggleTabFocusModeShortcut,
     logger,
     useMarkdownEditor,
 } from '@gravity-ui/markdown-editor';
 import type {ToolbarActionData} from '@gravity-ui/markdown-editor/_/bundle/Editor.js';
 import type {SettingItems} from '@gravity-ui/markdown-editor/_/bundle/settings/index.js';
 import type {Extension} from '@gravity-ui/markdown-editor/cm/state';
+import {EditorView} from '@gravity-ui/markdown-editor/cm/view';
 import {FoldingHeading} from '@gravity-ui/markdown-editor/extensions/additional/FoldingHeading/index.js';
 import {Mermaid} from '@gravity-ui/markdown-editor/extensions/additional/Mermaid/index.js';
 import {YfmHtmlBlock} from '@gravity-ui/markdown-editor/extensions/additional/YfmHtmlBlock/index.js';
@@ -40,6 +43,12 @@ import {updateLocation} from '../utils/location';
 import {PlaygroundLayout, b} from './PlaygroundLayout';
 import {SplitModePreviewLazy} from './SplitModePreviewLazy';
 
+const tabFocusShortcut = getToggleTabFocusModeShortcut();
+const contentAttributes = {
+    'aria-description': `Press ${tabFocusShortcut} to toggle Tab navigation.`,
+    'aria-keyshortcuts': tabFocusShortcut,
+};
+
 const fileUploadHandler: FileUploadHandler = async (file) => {
     console.info('[Playground] Uploading file: ' + file.name);
     await randomDelay(1000, 3000);
@@ -53,6 +62,7 @@ export type PlaygroundProps = {
     allowHTML?: boolean;
     settingsVisible?: boolean | SettingItems[];
     initialEditor?: MarkdownEditorMode;
+    initialTabFocusMode?: TabFocusMode;
     preserveEmptyRows?: boolean;
     breaks?: boolean;
     linkify?: boolean;
@@ -101,6 +111,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
         initial,
         syncMarkupToUrl = true,
         initialEditor,
+        initialTabFocusMode,
         initialSplitModeEnabled,
         settingsVisible,
         allowHTML,
@@ -260,6 +271,13 @@ export const Playground = memo<PlaygroundProps>((props) => {
                         table_ignoreSplittersInInlineMath: true,
                     },
                     ...wysiwygConfig?.extensionOptions,
+                    baseStyles: {
+                        ...wysiwygConfig?.extensionOptions?.baseStyles,
+                        attributes: {
+                            ...contentAttributes,
+                            ...wysiwygConfig?.extensionOptions?.baseStyles?.attributes,
+                        },
+                    },
                 },
             },
             md: {
@@ -272,6 +290,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                 markup: mdRaw,
                 mode: editorMode,
                 toolbarVisible: true,
+                tabFocusMode: initialTabFocusMode,
                 splitModeEnabled: initialSplitModeEnabled,
             },
             handlers: {
@@ -287,7 +306,10 @@ export const Playground = memo<PlaygroundProps>((props) => {
             },
             markupConfig: {
                 parseHtmlOnPaste: true,
-                extensions: markupConfigExtensions,
+                extensions: [
+                    ...(markupConfigExtensions ?? []),
+                    EditorView.contentAttributes.of(contentAttributes),
+                ],
                 parseInsertedUrlAsImage,
                 renderPreview,
                 splitMode: splitModeOrientation,
@@ -306,6 +328,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
             renderPreview,
             experimental?.needToSetDimensionsForUploadedImages,
             initial,
+            initialTabFocusMode,
             experimental?.enableNewImageSizeCalculation,
             experimental?.needToSetDimensionsForUploadedImages,
             experimental?.beforeEditorModeChange,

@@ -1,6 +1,6 @@
 import type {DependencyList} from 'react';
 
-import {ViewPlugin} from '@codemirror/view';
+import {type EditorView, ViewPlugin} from '@codemirror/view';
 import {type Root, createRoot} from 'react-dom/client';
 import {act} from 'react-dom/test-utils';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
@@ -183,6 +183,51 @@ describe('useMarkdownEditor', () => {
         expect(editor.getValue()).toBe('updated');
         expect(newChanges).toEqual([null]);
         expect(oldChanges).toEqual([]);
+    });
+
+    it('should preserve configured extensions and options with Tab navigation', () => {
+        const markupViews: EditorView[] = [];
+        const wysiwygExtension = vi.fn();
+        const extensionOptions = {baseStyles: {attributes: {'data-consumer': 'true'}}};
+        render({
+            initial: {mode: 'markup', tabFocusMode: 'focus'},
+            markupConfig: {
+                extensions: [
+                    ViewPlugin.define((view) => {
+                        markupViews.push(view);
+                        return {};
+                    }),
+                ],
+            },
+            wysiwygConfig: {extensions: wysiwygExtension, extensionOptions},
+        });
+        editor.getValue();
+        expect(markupViews).toHaveLength(1);
+        const markupTab = new KeyboardEvent('keydown', {
+            key: 'Tab',
+            keyCode: 9,
+            bubbles: true,
+            cancelable: true,
+        });
+        markupViews[0].contentDOM.dispatchEvent(markupTab);
+        expect(markupTab.defaultPrevented).toBe(false);
+
+        editor.setEditorMode('wysiwyg');
+        editor.getValue();
+
+        expect(wysiwygExtension).toHaveBeenCalledOnce();
+        expect(wysiwygExtension).toHaveBeenCalledWith(expect.anything(), extensionOptions);
+        const wysiwygView = editor._wysiwygView;
+        if (!wysiwygView) throw new Error('WYSIWYG view is missing');
+        expect(wysiwygView.dom.getAttribute('data-consumer')).toBe('true');
+        const wysiwygTab = new KeyboardEvent('keydown', {
+            key: 'Tab',
+            keyCode: 9,
+            bubbles: true,
+            cancelable: true,
+        });
+        wysiwygView.dom.dispatchEvent(wysiwygTab);
+        expect(wysiwygTab.defaultPrevented).toBe(false);
     });
 
     it('should skip same-mode requests and veto only an explicit false', () => {

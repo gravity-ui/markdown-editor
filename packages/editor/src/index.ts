@@ -13,11 +13,18 @@ export * from './view';
 export * from './utils';
 export * from './bundle';
 
-export {DirectiveSyntaxFacet, ReactRendererFacet, getImageDimensions} from './markup';
+export {
+    DirectiveSyntaxFacet,
+    ReactRendererFacet,
+    createMarkupTabFocusMode,
+    getImageDimensions,
+} from './markup';
 export * as MarkupCommands from './markup/commands';
 export * as MarkupHelpers from './markup/commands/helpers';
 
 export {Lang, configure} from './configure';
+
+export {getToggleTabFocusModeShortcut} from './shortcuts';
 
 export {isMac} from './utils/platform';
 export {markInputRule, nodeInputRule, inlineNodeInputRule} from './utils/inputrules';

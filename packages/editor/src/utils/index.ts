@@ -20,6 +20,7 @@ export * from './schema';
 export * from './selection';
 export * from './serialize-for-clipboard';
 export * from './sync-scroll';
+export * from './tab-focus-mode';
 export * from './upload';
 export * from './get-proportional-size';
 export type {DirectiveSyntaxValue, DirectiveSyntaxOption} from './directive';
