@@ -1,0 +1,25 @@
+.g-md-yfm-html-block-templates {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 240px;
+    max-width: 360px;
+
+    &__search {
+        padding: 8px 8px 4px;
+    }
+
+    &__editor {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        padding: 8px;
+    }
+
+    &__controls {
+        display: flex;
+        justify-content: end;
+        gap: 8px;
+    }
+}
