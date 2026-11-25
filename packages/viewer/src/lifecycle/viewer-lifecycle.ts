@@ -79,14 +79,13 @@ interface EffectRun {
 }
 
 function trackCleanup(entry: EffectEntry, run: EffectRun, cleanup: ViewerEffectCleanup) {
-    if (entry.run !== run) {
-        cleanup();
-        return () => undefined;
+    run.cleanups.add(release);
+    if (entry.run !== run) release();
+    return release;
+
+    function release() {
+        if (run.cleanups.delete(release)) cleanup();
     }
-    run.cleanups.add(cleanup);
-    return () => {
-        if (run.cleanups.delete(cleanup)) cleanup();
-    };
 }
 
 function sameDependencies(previous: DependencyList, next: DependencyList) {
@@ -105,10 +104,9 @@ function stopRuns(entries: EffectEntry[], errors: unknown[] = []) {
     for (const run of runs) run.controller.abort();
 
     for (const run of runs) {
-        for (const cleanup of run.cleanups) {
+        for (const release of run.cleanups) {
             try {
-                run.cleanups.delete(cleanup);
-                cleanup();
+                release();
             } catch (error) {
                 errors.push(error);
             }

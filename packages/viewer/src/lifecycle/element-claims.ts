@@ -3,11 +3,11 @@ type Setup = () => void | (() => void);
 interface Claim {
     setup: Setup;
     cleanup?: ReturnType<Setup>;
+    released?: boolean;
 }
 
 interface Queue {
     claims: Set<Claim>;
-    active?: Claim;
     updating: boolean;
 }
 
@@ -26,11 +26,13 @@ export class ElementClaims {
             slots.set(key, queue);
         }
 
-        const claim = {setup};
+        const claim: Claim = {setup};
         queue.claims.add(claim);
-        updateQueue(slots, key);
+        if (queue.claims.size === 1) updateQueue(slots, key);
         return () => {
-            if (queue.claims.delete(claim)) updateQueue(slots, key);
+            claim.released = true;
+            if (queue.claims.values().next().value === claim) updateQueue(slots, key);
+            else queue.claims.delete(claim);
         };
     }
 }
@@ -40,27 +42,16 @@ function updateQueue(slots: Map<string, Queue>, key: string) {
     if (!queue || queue.updating) return;
     queue.updating = true;
     const errors: unknown[] = [];
-    // Read the queue again after each user callback.
-    while (true) {
-        const next = queue.claims.values().next().value;
-        const previous = queue.active;
-        if (previous === next) break;
-        if (previous) {
-            queue.active = undefined;
-            try {
-                previous.cleanup?.();
-            } catch (error) {
-                errors.push(error);
-            }
-        } else if (next) {
-            queue.active = next;
-            try {
-                next.cleanup = next.setup();
-            } catch (error) {
-                queue.claims.delete(next);
-                errors.push(error);
-            }
+    for (const claim of queue.claims) {
+        try {
+            if (!claim.released) claim.cleanup = claim.setup();
+            // Setup can release its own claim.
+            if (!claim.released) break;
+            claim.cleanup?.();
+        } catch (error) {
+            errors.push(error);
         }
+        queue.claims.delete(claim);
     }
     queue.updating = false;
     if (!queue.claims.size) slots.delete(key);
