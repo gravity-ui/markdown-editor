@@ -3,7 +3,7 @@ import {describe, expect, it} from 'vitest';
 
 import {bannerPlugin, buttonAttrs, buttonFromAttrs, buttonPlugin} from '../index';
 
-import {buttonDefaults, buttonTokenName, buttonViewColors} from './model';
+import {buttonDefaults, buttonTokenName, buttonViewColors} from './const';
 
 const md = new MarkdownIt({html: true}).use(buttonPlugin);
 const inlineTokens = (markup: string) => md.parseInline(markup, {})[0].children ?? [];

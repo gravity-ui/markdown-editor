@@ -1,6 +1,9 @@
 import {cn} from '@bem-react/classname';
 
-import {bannerClassName, bannerDimensions} from './model';
+import type {AttrGetter} from '../utils';
+
+import {bannerClassName} from './const';
+import {bannerDimensions} from './utils';
 
 const b = cn(bannerClassName);
 
@@ -18,6 +21,6 @@ export function bannerAttrs(attrs: {height?: unknown; width?: unknown}) {
     };
 }
 
-export function bannerDimensionsFromAttrs(getAttr: (name: string) => string | null | undefined) {
+export function bannerDimensionsFromAttrs(getAttr: AttrGetter) {
     return bannerDimensions({height: getAttr('data-height'), width: getAttr('data-width')});
 }

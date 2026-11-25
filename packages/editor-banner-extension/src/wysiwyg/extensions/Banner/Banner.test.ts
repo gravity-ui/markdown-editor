@@ -207,6 +207,13 @@ describe('Banner extension', () => {
         expect(dimensions(editor)).toEqual({height: 'l', width: 'm'});
     });
 
+    it('should skip dispatch when the dimension is unchanged', () => {
+        const editor = createView();
+        const state = editor.state;
+        expect(run(editor, setBannerDimension(0, 'height', bannerDefaults.height))).toBe(true);
+        expect(editor.state).toBe(state);
+    });
+
     it('should insert an empty banner and undo the insertion', () => {
         const editor = createView('');
         editor.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 1)));
