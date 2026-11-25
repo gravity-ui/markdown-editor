@@ -20,8 +20,8 @@ const md = new MarkdownIt().use(bannerPlugin);
 
 | Attribute       | Values                                                                                                     | Default  |
 | --------------- | ---------------------------------------------------------------------------------------------------------- | -------- |
-| `height`        | `s` 236 px, `m` 300 px, `l` 360 px (minimum height)                                                        | `s`      |
-| `width`         | `s` 600 px, `m` 900 px, `l` 1200 px, `full` (container width)                                              | `m`      |
+| `height`        | `s` 236 px, `m` 300 px, `l` 420 px (minimum height)                                                        | `s`      |
+| `width`         | `s` 740 px, `m` 900 px, `l` 1200 px, `full` (container width)                                              | `m`      |
 | `bg-color`      | `<family>-<saturation>`: `gray`, `green`, `yellow`, `blue`, `red`, `violet` and `light`, `medium`, `heavy` | none     |
 | `bg-image`      | an image address, checked as the address of a Markdown image                                               | none     |
 | `bg-theme`      | the theme of the content over the image: `system` as the page, `dark` light text, `light` dark text        | `system` |
@@ -99,7 +99,7 @@ The size and typography are custom properties; a host overrides them:
 | Property                                             | Default                                            |
 | ---------------------------------------------------- | -------------------------------------------------- |
 | `--g-md-button-plugin-height`                        | `36px`                                             |
-| `--g-md-button-plugin-padding`                       | `var(--g-spacing-4)`                               |
+| `--g-md-button-plugin-padding`                       | `16px`                                             |
 | `--g-md-button-plugin-padding-block`                 | `var(--g-spacing-2)`                               |
 | `--g-md-button-plugin-border-radius`                 | `var(--g-border-radius-l)`                         |
 | `--g-md-button-plugin-font-size`                     | `var(--g-text-body-1-font-size)`                   |

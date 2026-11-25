@@ -45,7 +45,7 @@ test.describe('Banner', () => {
         );
         expect(sizes).toEqual([
             [900, 236],
-            [600, 236],
+            [740, 236],
             [1200, 300],
             [column?.width, 236],
         ]);

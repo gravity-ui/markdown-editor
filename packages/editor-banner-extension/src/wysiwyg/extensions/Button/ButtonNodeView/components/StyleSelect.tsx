@@ -147,10 +147,12 @@ export function StyleSelect({style, onUpdate}: StyleSelectProps) {
                     placement="right"
                     offset={PREVIEW_OFFSET}
                 >
-                    <div className={b('preview')} data-qa="button-style-preview">
-                        <span className={buttonClass(preview.style)}>
-                            {i18n('button-placeholder')}
-                        </span>
+                    <div className={b('preview-frame')}>
+                        <div className={b('preview')} data-qa="button-style-preview">
+                            <span className={buttonClass(preview.style)}>
+                                {i18n('button-placeholder')}
+                            </span>
+                        </div>
                     </div>
                 </Popup>
             )}

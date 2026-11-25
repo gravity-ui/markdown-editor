@@ -33,6 +33,8 @@ import './BannerToolbar.scss';
 
 const b = cn('banner-toolbar');
 
+export const bannerToolbarPopupClassName = b('popup');
+
 /** The open toolbar of each editor, for the keymap to move focus into it. */
 export const bannerToolbars = new WeakMap<EditorView, HTMLElement>();
 

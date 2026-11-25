@@ -8,7 +8,7 @@
 .g-md-button-settings {
     $width: 256px;
 
-    --_--font-size: 14px;
+    --_--font-size: var(--g-text-body-1-font-size);
 
     width: $width;
 
