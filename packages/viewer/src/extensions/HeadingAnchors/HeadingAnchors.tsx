@@ -11,7 +11,7 @@ import {i18n} from './i18n';
 import './HeadingAnchors.scss';
 
 const b = cn('heading-anchor');
-export const headingAnchorSlotKey = 'heading-anchor';
+export const HEADING_ANCHOR_SLOT_KEY = 'heading-anchor';
 
 export interface HeadingAnchorTarget {
     readonly id: string;
@@ -31,7 +31,7 @@ export function HeadingAnchors({
     onClick,
 }: HeadingAnchorsProps) {
     return (
-        <ViewerTargets selector={selector} slotKey={headingAnchorSlotKey} className={b('slot')}>
+        <ViewerTargets selector={selector} slotKey={HEADING_ANCHOR_SLOT_KEY} className={b('slot')}>
             {(heading) => <HeadingAnchor heading={heading} getHref={getHref} onClick={onClick} />}
         </ViewerTargets>
     );

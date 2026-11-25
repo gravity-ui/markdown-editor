@@ -487,21 +487,13 @@ Use `ViewerTargets` inside `MarkdownViewer`. The package exports the `ViewerTarg
 | `style`     | `CSSProperties`                      | Inline styles for each slot.                                             |
 | `children`  | `(target: HTMLElement) => ReactNode` | Returns React content for each target.                                   |
 
+To share a built-in slot, import `HEADING_ANCHOR_SLOT_KEY`, `HEADING_EDIT_SLOT_KEY`, or `YFM_CODE_BLOCK_ACTIONS_SLOT_KEY` from `@gravity-ui/markdown-viewer/extensions`.
+
 Use a stable selector, such as `h2[id]` or `[data-grid-id]`. Adding a slot must not change whether the target matches. Avoid selectors such as `h2:empty`.
 
 Searches skip slots and their content. Elements added later by an external runtime are not detected automatically.
 
 Several extensions can add separate slots to the same target. Each extension must keep the other slots and the original content. Their order in the React tree must not affect how they work. Put DOM steps that need a fixed order in one extension.
-
-Pass the same `slotKey` to share a place on a target. The first instance to match that target renders its slot. Other instances with the same key wait until it unmounts, changes its key, or stops matching that element. Targets that still match keep their place when props or the order of keyed React children change. Returning `null` from the active renderer keeps its place. Different keys and instances without a key render independently.
-
-To share a slot with a built-in extension, import `headingAnchorSlotKey`, `headingEditSlotKey`, or `codeBlockActionsSlotKey` from `@gravity-ui/markdown-viewer/extensions`. For example, a custom copy button can share the heading anchor slot:
-
-```tsx
-<ViewerTargets selector="h2[id]" slotKey={headingAnchorSlotKey}>
-  {(heading) => <CustomCopyButton heading={heading} />}
-</ViewerTargets>
-```
 
 </details>
 
@@ -510,6 +502,8 @@ To share a slot with a built-in extension, import `headingAnchorSlotKey`, `headi
 
 - A target keeps its slot and React state during ordinary rerenders.
 - After a selector change, targets that still match keep their slots. Other slots are added or removed as needed.
+- For each target and `slotKey`, the first matching extension renders the slot. When it unmounts, changes its key, or stops matching the target, the next waiting extension takes over.
+- An extension keeps its place when its props change, keyed siblings are reordered, or it renders `null`, as long as the target and slot key still match.
 - Changing `as` may replace the slot and reset its state.
 - Replacing HTML creates new DOM elements, even if their IDs stay the same. To keep state across HTML updates, store it above `ViewerTargets` and use a stable, unique ID for each target.
 - Removing an extension removes its slots and portal content. Other extensions' slots and the original HTML stay in place.

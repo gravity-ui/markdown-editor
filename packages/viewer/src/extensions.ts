@@ -1,18 +1,18 @@
 export {
     YfmCodeBlockActions,
-    codeBlockActionsSlotKey,
+    YFM_CODE_BLOCK_ACTIONS_SLOT_KEY,
     type YfmCodeBlockActionsProps,
 } from './extensions/YfmCodeBlockActions';
 export {RevealYfmElement, type RevealYfmElementProps} from './extensions/RevealYfmElement';
 export {
     HeadingAnchors,
-    headingAnchorSlotKey,
+    HEADING_ANCHOR_SLOT_KEY,
     type HeadingAnchorsProps,
     type HeadingAnchorTarget,
 } from './extensions/HeadingAnchors';
 export {
     HeadingEditButtons,
-    headingEditSlotKey,
+    HEADING_EDIT_SLOT_KEY,
     type HeadingEditButtonsProps,
     type HeadingEditTarget,
 } from './extensions/HeadingEditButtons';

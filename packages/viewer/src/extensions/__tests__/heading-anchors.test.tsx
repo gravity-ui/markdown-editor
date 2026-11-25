@@ -5,7 +5,7 @@ import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {act} from '../../../tests/utils/act';
-import {type HeadingAnchorTarget, HeadingAnchors, headingAnchorSlotKey} from '../../extensions';
+import {HEADING_ANCHOR_SLOT_KEY, type HeadingAnchorTarget, HeadingAnchors} from '../../extensions';
 import {MarkdownViewer, ViewerTargets} from '../../index';
 
 describe('HeadingAnchors', () => {
@@ -104,24 +104,27 @@ describe('HeadingAnchors', () => {
         expect(writeText).toHaveBeenCalledWith('/current#overview');
     });
 
-    it('should preserve existing heading content and classes when disabled', () => {
-        const html =
-            '<h2 id="overview" class="original"><a class="yfm-anchor" href="#overview"></a><em>Overview</em></h2>';
-        const update = (anchors: boolean) =>
-            render(
-                <MarkdownViewer html={html}>
-                    {anchors && <HeadingAnchors getHref={() => '#overview'} />}
-                </MarkdownViewer>,
-            );
-        update(true);
-        const nativeAnchor = container.querySelector('a');
+    it.each(['original', 'g-md-v-heading-anchor'])(
+        'should preserve source HTML with %s',
+        (name) => {
+            const html = `<h2 id="overview" class="${name}"><a class="yfm-anchor" href="#overview"></a><em>Overview</em></h2>`;
+            const update = (anchors: boolean) =>
+                render(
+                    <MarkdownViewer html={html}>
+                        {anchors && <HeadingAnchors getHref={() => '#overview'} />}
+                    </MarkdownViewer>,
+                );
+            update(true);
+            expect(container.querySelector('button')).not.toBeNull();
+            const nativeAnchor = container.querySelector('a');
 
-        update(false);
+            update(false);
 
-        expect(container.querySelector('a')).toBe(nativeAnchor);
-        expect(container.querySelector('em')?.textContent).toBe('Overview');
-        expect(container.querySelector('h2')?.className).toBe('original');
-    });
+            expect(container.querySelector('a')).toBe(nativeAnchor);
+            expect(container.querySelector('em')?.textContent).toBe('Overview');
+            expect(container.querySelector('h2')?.className).toBe(name);
+        },
+    );
 
     it('should keep one copy button when heading anchors overlap', async () => {
         function update(first: boolean) {
@@ -147,25 +150,12 @@ describe('HeadingAnchors', () => {
         expect(writeText).toHaveBeenLastCalledWith('#second');
     });
 
-    it('should show the button and keep the heading class supplied by the author', () => {
-        const html = '<h2 id="overview" class="g-md-v-heading-anchor">Overview</h2>';
-        render(
-            <MarkdownViewer html={html}>
-                <HeadingAnchors getHref={() => '#overview'} />
-            </MarkdownViewer>,
-        );
-
-        expect(container.querySelector('h2 button')?.getAttribute('aria-label')).toBe('Copy link');
-        render(<MarkdownViewer html={html} />);
-        expect(container.querySelector('h2')?.className).toBe('g-md-v-heading-anchor');
-    });
-
     it('should share the anchor slot with a custom extension', () => {
         const update = (custom: boolean) =>
             render(
                 <MarkdownViewer html='<h2 id="overview">Overview</h2>'>
                     {custom && (
-                        <ViewerTargets selector="h2" slotKey={headingAnchorSlotKey}>
+                        <ViewerTargets selector="h2" slotKey={HEADING_ANCHOR_SLOT_KEY}>
                             {() => <button>Custom link</button>}
                         </ViewerTargets>
                     )}

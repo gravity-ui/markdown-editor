@@ -65,32 +65,26 @@ export function ViewerTargets({
 
     return (
         <>
-            {Array.from(targets, ([target, key]) =>
-                slotKey === undefined ? (
-                    renderSlot(target, key)
-                ) : (
-                    <NamedSlot
-                        key={key}
-                        claims={lifecycle.slotClaims}
-                        target={target}
-                        slotKey={slotKey}
-                    >
-                        {() => renderSlot(target, key)}
-                    </NamedSlot>
-                ),
-            )}
+            {Array.from(targets, ([target, key]) => {
+                const render = () => (
+                    <Slot {...{[VIEWER_SLOT_ATTRIBUTE]: ''}} className={className} style={style}>
+                        {children(target)}
+                    </Slot>
+                );
+                return createPortal(
+                    slotKey === undefined ? (
+                        render()
+                    ) : (
+                        <NamedSlot claims={lifecycle.slotClaims} target={target} slotKey={slotKey}>
+                            {render}
+                        </NamedSlot>
+                    ),
+                    target,
+                    String(key),
+                );
+            })}
         </>
     );
-
-    function renderSlot(target: HTMLElement, key: number) {
-        return createPortal(
-            <Slot {...{[VIEWER_SLOT_ATTRIBUTE]: ''}} className={className} style={style}>
-                {children(target)}
-            </Slot>,
-            target,
-            String(key),
-        );
-    }
 }
 
 function NamedSlot({
@@ -106,14 +100,10 @@ function NamedSlot({
 }) {
     const [activeKey, setActiveKey] = useState<string>();
 
-    useClientLayoutEffect(
-        () =>
-            claims.claim(target, slotKey, () => {
-                setActiveKey(slotKey);
-                return () => setActiveKey(undefined);
-            }),
-        [claims, target, slotKey],
-    );
+    useClientLayoutEffect(() => {
+        setActiveKey(undefined);
+        return claims.claim(target, slotKey, () => setActiveKey(slotKey));
+    }, [claims, target, slotKey]);
 
     return activeKey === slotKey ? children() : null;
 }

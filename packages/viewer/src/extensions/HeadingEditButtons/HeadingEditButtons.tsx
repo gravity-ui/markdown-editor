@@ -12,7 +12,7 @@ import {i18n} from './i18n';
 import './HeadingEditButtons.scss';
 
 const b = cn('heading-edit');
-export const headingEditSlotKey = 'heading-edit';
+export const HEADING_EDIT_SLOT_KEY = 'heading-edit';
 
 export interface HeadingEditTarget {
     readonly line: number;
@@ -34,7 +34,7 @@ export function HeadingEditButtons({
     onClick,
 }: HeadingEditButtonsProps) {
     return (
-        <ViewerTargets selector={selector} slotKey={headingEditSlotKey} className={b('slot')}>
+        <ViewerTargets selector={selector} slotKey={HEADING_EDIT_SLOT_KEY} className={b('slot')}>
             {(heading) => {
                 const value = heading.dataset.line?.trim();
                 if (!value) return null;

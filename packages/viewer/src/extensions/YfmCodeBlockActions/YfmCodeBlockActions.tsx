@@ -11,7 +11,7 @@ import {CodeTextWrappingToggleButton} from './TextWrappingButton';
 import './YfmCodeBlockActions.scss';
 
 const b = cn('yfm-code-block');
-export const codeBlockActionsSlotKey = 'code-block-actions';
+export const YFM_CODE_BLOCK_ACTIONS_SLOT_KEY = 'yfm-code-block-actions';
 
 export interface YfmCodeBlockActionsProps {
     /** @default true */
@@ -32,7 +32,7 @@ export function YfmCodeBlockActions({
     return (
         <ViewerTargets
             selector={codeBlockSelector}
-            slotKey={codeBlockActionsSlotKey}
+            slotKey={YFM_CODE_BLOCK_ACTIONS_SLOT_KEY}
             as="div"
             className={b('actions')}
         >
