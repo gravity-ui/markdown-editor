@@ -1,6 +1,6 @@
 import {assert, describe, expect, it} from 'vitest';
 
-import {revealYfmElement} from '../index';
+import {VIEWER_ROOT_ATTRIBUTE, revealYfmElement} from '../index';
 
 describe('revealYfmElement', () => {
     it('should return null for a null or missing target', () => {
@@ -143,6 +143,7 @@ describe('revealYfmElement', () => {
         );
         const root = outer.querySelector('#root');
         assert(root);
+        root.setAttribute(VIEWER_ROOT_ATTRIBUTE, '');
 
         expect(revealYfmElement(root.querySelector('p'))).toBeNull();
         expect(revealYfmElement({id: 'target'}, {root})).toBe(root.querySelector('p'));

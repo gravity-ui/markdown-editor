@@ -3,12 +3,11 @@ import {type ReactElement, type ReactNode, useContext, useState} from 'react';
 import type {DOMProps} from '@gravity-ui/uikit';
 import {createPortal} from 'react-dom';
 
+import {VIEWER_SLOT_ATTRIBUTE} from '../../constants';
 import {useViewerEffect} from '../../hooks/use-viewer-effect';
 import {ViewerContext, ViewerHtmlContext} from '../../lifecycle/context';
 import {getDomConstructor} from '../../utils/dom-constructor';
 import {inspectViewerNode} from '../../utils/inspect-viewer-node';
-
-import {VIEWER_SLOT_ATTRIBUTE} from './constants';
 
 export interface ViewerTargetsProps extends DOMProps {
     selector: string;

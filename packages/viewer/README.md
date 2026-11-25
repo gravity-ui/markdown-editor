@@ -296,6 +296,8 @@ import {RevealYfmElement} from '@gravity-ui/markdown-viewer/extensions';
 
 Pass exactly one of `id` (literal ID), `selector` (CSS selector), or `element` (DOM element). `null` cancels the request. Searches are scoped to this viewer.
 
+For nested viewers, including those in React slots, pass the same target element to each viewer. Each viewer reveals only its own containers.
+
 - `onReveal(element)` runs synchronously once per processed request, including already visible targets.
 - HTML updates retry missing targets but do not repeat completed requests. Callback changes do not trigger processing.
 - Change the target or React `key` to start a new request. Use `id` or `selector` to resolve targets in replacement HTML.
@@ -312,9 +314,9 @@ const target = revealYfmElement({id: 'installation'}, {root: pageContainer});
 target?.scrollIntoView({block: 'start'});
 ```
 
-`revealYfmElement` accepts an `Element`, `{id: string}`, `{selector: string}`, or `null`. Optional `root` bounds lookup and ancestor traversal, including itself. Without it, lookup uses `document`; a supplied element uses its own ancestors.
+`revealYfmElement` accepts an `Element`, `{id: string}`, `{selector: string}`, or `null`. Optional `root` bounds lookup and ancestor traversal, including itself. If `root` belongs to a viewer, only that viewer's containers are revealed. Without it, lookup uses `document`; a supplied element uses its own ancestors.
 
-Returns the processed element or `null` for missing or excluded targets. Both APIs select the first ID or selector match outside viewer slots. Slots, their descendants, and targets outside the root are excluded. Processing does not wait for runtimes or animations and does not guarantee visibility.
+Returns the processed element or `null` for missing or excluded targets. Both APIs select the first ID or selector match outside viewer slots, or inside nested viewers when `root` is provided. Slots themselves and targets outside the root are excluded. Processing does not wait for runtimes or animations and does not guarantee visibility.
 
 </details>
 
@@ -544,7 +546,7 @@ The result inside the host is:
 <details>
 <summary>Use slots with DOM extensions</summary>
 
-The viewer marks each slot with `data-markdown-viewer-slot`. Import `VIEWER_SLOT_ATTRIBUTE` to use this attribute name. Its value is not part of the API. Do not add the attribute to prepared HTML or change it in an extension.
+Import `VIEWER_ROOT_ATTRIBUTE` and `VIEWER_SLOT_ATTRIBUTE` to identify HTML roots and React slots. The attribute values are not part of the API. Do not add these attributes to prepared HTML or change them in an extension.
 
 React owns each slot and its content. Keep the targets that `ViewerTargets` uses inside the viewer. Use `inspectViewerNode(root, node)` to check whether a node belongs to the viewer's HTML content. Pass the `root` from `useViewerEffect`. The helper accepts any `Node`, including text nodes. The package also exports the `ViewerNodeInfo` type.
 

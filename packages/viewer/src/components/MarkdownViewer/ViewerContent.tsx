@@ -1,5 +1,6 @@
 import {Component, type HTMLAttributes, type ReactElement, type RefObject} from 'react';
 
+import {VIEWER_ROOT_ATTRIBUTE} from '../../constants';
 import {ViewerContext, ViewerHtmlContext} from '../../lifecycle/context';
 import {ViewerLifecycle} from '../../lifecycle/viewer-lifecycle';
 import {cn} from '../../utils/classname';
@@ -53,6 +54,7 @@ export class ViewerContent extends Component<ViewerContentProps> {
                         {...restProps}
                         ref={contentRef}
                         data-qa={qa}
+                        {...{[VIEWER_ROOT_ATTRIBUTE]: ''}}
                         className={b('content', className)}
                         dangerouslySetInnerHTML={{__html: html}}
                     />
