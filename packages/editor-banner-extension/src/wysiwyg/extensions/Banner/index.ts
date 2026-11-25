@@ -3,6 +3,7 @@ import type {Action, ExtensionBuilder} from '@gravity-ui/markdown-editor/core';
 
 import {type BannerUploadLimits, bannerUploadPlugin} from '../../plugins/BannerUploadPlugin';
 import {BannerContent} from '../BannerContent';
+import {BannerImage} from '../BannerImage';
 import {BannerTitle} from '../BannerTitle';
 
 import {WBannerNodeView} from './BannerNodeView';
@@ -23,6 +24,7 @@ export const Banner = (builder: ExtensionBuilder, options: BannerOptions = {}) =
         .use(BannerSpecs)
         .use(BannerTitle)
         .use(BannerContent)
+        .use(BannerImage)
         .addNodeView(bannerNodeName, () => (node) => new WBannerNodeView(node))
         .addPlugin((deps) => bannerTooltipPlugin(deps, options))
         .addPlugin(bannerUploadPlugin)

@@ -4,7 +4,7 @@ import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import {type Command, type EditorState, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
 
 import {findDepth, textRange} from '../../plugins/SelectionInsidePlugin';
-import {atTextblockEdge, stopAtBlockEdge} from '../commands';
+import {atTextblockEdge, siblingBlockAcross, stopAtBlockEdge} from '../commands';
 
 import {bannerContentNodeType} from './BannerContentSpecs';
 
@@ -39,6 +39,8 @@ const edgeIsTextblock = (node: Node, dir: -1 | 1) => {
     return Boolean(edge);
 };
 
+const besideBannerContent = siblingBlockAcross(bannerContentNodeType);
+
 const holdBannerContentEdge =
     (dir: -1 | 1): Command =>
     (state) => {
@@ -46,7 +48,8 @@ const holdBannerContentEdge =
         if (!$cursor || !atTextblockEdge($cursor, dir)) return false;
         const container = $cursor.node(-1);
         if (!isBannerContent(state, container)) return false;
-        return $cursor.index(-1) === (dir < 0 ? 0 : container.childCount - 1);
+        if ($cursor.index(-1) !== (dir < 0 ? 0 : container.childCount - 1)) return false;
+        return !besideBannerContent($cursor, dir)?.node.isAtom;
     };
 
 /** Backspace at the start and Delete at the end of the description do not join it with the blocks around it. */

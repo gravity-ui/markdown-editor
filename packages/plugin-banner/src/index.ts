@@ -47,6 +47,16 @@ export {
     bannerContentDirectiveName,
     bannerContentTokenName,
 } from './banner-content/model';
+export {bannerImagePlugin} from './banner-image/plugin';
+export {bannerImageAttrs, bannerImageFromAttrs} from './banner-image/attrs';
+export {
+    type BannerImage,
+    bannerImage,
+    bannerImageClassName,
+    bannerImageDefaults,
+    bannerImageTokenName,
+    bannerImageValues,
+} from './banner-image/model';
 export {buttonPlugin} from './button/plugin';
 export {buttonAttrs, buttonFromAttrs} from './button/attrs';
 export {

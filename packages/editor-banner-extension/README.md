@@ -18,12 +18,12 @@ const editor = useMarkdownEditor({
 | `maxImageSize`      | Maximum background image size in bytes; without it, the size is not checked                      |
 | `imageTypes`        | MIME types of background images, such as `['image/jpeg', 'image/png']`; any `image/*` without it |
 
-| Entry point                                                  | Exports                                                                                                              |
-| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
-| `@gravity-ui/markdown-editor-banner-extension`               | `Banner`, `Button`, the Markdown command `insertBanner`, and the toolbar button `toolbarBannerItem` for both modes   |
-| `@gravity-ui/markdown-editor-banner-extension/wysiwyg`       | `Banner`, `Button`, and `toolbarBannerItem` for the visual editor                                                    |
-| `@gravity-ui/markdown-editor-banner-extension/wysiwyg/specs` | `BannerSpecs`, `bannerNodeName`, `bannerTitleNodeName`, `bannerContentNodeName`, `ButtonSpecs`, and `buttonNodeName` |
-| `@gravity-ui/markdown-editor-banner-extension/markup`        | `insertBanner` and `toolbarBannerItem` for the Markdown editor                                                       |
+| Entry point                                                  | Exports                                                                                                                                     |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@gravity-ui/markdown-editor-banner-extension`               | `Banner`, `Button`, the Markdown command `insertBanner`, and the toolbar button `toolbarBannerItem` for both modes                          |
+| `@gravity-ui/markdown-editor-banner-extension/wysiwyg`       | `Banner`, `Button`, and `toolbarBannerItem` for the visual editor                                                                           |
+| `@gravity-ui/markdown-editor-banner-extension/wysiwyg/specs` | `BannerSpecs`, `bannerNodeName`, `bannerImageNodeName`, `bannerTitleNodeName`, `bannerContentNodeName`, `ButtonSpecs`, and `buttonNodeName` |
+| `@gravity-ui/markdown-editor-banner-extension/markup`        | `insertBanner` and `toolbarBannerItem` for the Markdown editor                                                                              |
 
 `toolbarBannerItem` inserts the block.
 In the visual editor, the button is disabled inside another banner.
@@ -58,7 +58,17 @@ The Title, Description, and Image switches of the settings panel show whether th
 A switched-on part goes after the parts before it in the order image → title → description; the parts of a document keep their order. A part replaces the only empty paragraph of the banner.
 Switching a part back on restores the block removed by the switch, with its content and attributes, while the same banner block stays in the editor.
 
-`BannerSpecs` adds only the schema, Markdown parsing, and serialization of the banner and its title, and runs in Node.js.
+### Banner image
+
+The image is a part of the banner: `::banner-image{src="..." alt="..." title="..."}` (see `@gravity-ui/markdown-plugin-banner`).
+It is an atom block among the child blocks of the banner and keeps its place in the Markdown.
+The editor writes `src`, `alt`, and `title` when they are set; an unsafe address is not kept.
+An image without an address is a placeholder; the Image switch inserts a placeholder before the other blocks.
+A click on the image selects it, and so do the arrow keys from the next text, Backspace at the start of the block after the image, and Delete at the end of the block before it.
+Backspace or Delete removes the selected image in one undo step; the cursor goes to the nearest text.
+A banner holds one image: a change that would put a second image into a banner is rejected.
+
+`BannerSpecs` adds only the schema, Markdown parsing, and serialization of the banner and its parts, and runs in Node.js.
 `Banner` also needs the editor's React renderer, which the standard presets include.
 
 ## Banner title
