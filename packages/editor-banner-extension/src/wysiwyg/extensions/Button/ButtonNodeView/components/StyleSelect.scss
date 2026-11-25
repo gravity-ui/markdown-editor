@@ -19,7 +19,6 @@
     & &__select {
         display: block;
 
-        max-width: none;
         padding-inline: var(--g-spacing-4);
     }
 
@@ -68,12 +67,11 @@
         color: var(--g-color-text-secondary);
     }
 
-    // The doubled class outweighs the styles of the popup.
-    &__list#{&}__list {
+    &__list {
+        --g-popup-border-radius: var(--g-border-radius-s);
+
         box-sizing: border-box;
         padding-inline: var(--g-spacing-1);
-
-        border-radius: var(--g-border-radius-s);
 
         // The element scrolls the options.
         .g-select-list {
@@ -144,7 +142,7 @@
     }
 
     &__preview-popup {
-        border-radius: var(--g-border-radius-s);
+        --g-popup-border-radius: var(--g-border-radius-s);
     }
 
     // The uikit popup gives its radius to its direct child, so the preview is nested.

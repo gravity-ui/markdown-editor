@@ -8,17 +8,10 @@
 .g-md-button-settings {
     $width: 256px;
 
-    --_--font-size: var(--g-text-body-1-font-size);
-
     width: $width;
 
-    .g-text-input__control,
-    .g-switch__content {
-        font-size: var(--_--font-size);
-    }
-
     &__popup {
-        border-radius: var(--g-border-radius-xl);
+        --g-popup-border-radius: var(--g-border-radius-xl);
     }
 
     &__label {
