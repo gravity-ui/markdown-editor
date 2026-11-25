@@ -10,11 +10,10 @@ import {
 } from '@gravity-ui/markdown-editor/pm/model';
 import {type EditorState, Plugin} from '@gravity-ui/markdown-editor/pm/state';
 import {findParentNodeOfTypeClosestToPos} from '@gravity-ui/markdown-editor/pm/utils';
-import {bannerContentTokenName, bannerTitleTokenName} from '@gravity-ui/markdown-plugin-banner';
 
+import {type PasteTarget, lineText, markupSlice, pasteLine} from '../../../../utils/pasteTarget';
 import {bannerContentNodeType} from '../../../BannerContent/BannerContentSpecs';
 import {bannerTitleNodeType} from '../../../BannerTitle/BannerTitleSpecs';
-import {type PasteTarget, lineText, markupSlice, pasteLine} from '../../../pasteTarget';
 import {bannerNodeType} from '../../BannerSpecs';
 
 function bannerPartsBlocks(
@@ -102,7 +101,7 @@ function bannerPasteSlice(schema: Schema, {$from}: PasteTarget, slice: Slice): S
     );
 }
 
-const bannerPartDirective = new RegExp(`::(${bannerTitleTokenName}|${bannerContentTokenName})`);
+const bannerPartDirective = /::(banner-title|banner-content)/;
 
 const isTitle = ($pos: ResolvedPos) =>
     $pos.parent.type === bannerTitleNodeType($pos.doc.type.schema);

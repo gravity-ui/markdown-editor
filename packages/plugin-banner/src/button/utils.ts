@@ -1,32 +1,34 @@
-import type MarkdownIt from 'markdown-it';
-
-import {safeLinkUrl} from '../url';
-import {oneOf} from '../utils';
+import {includes} from '../utils';
 
 import {
+    type ButtonColor,
     type ButtonModel,
+    type ButtonTarget,
+    type ButtonView,
     buttonDefaults,
     buttonTargets,
     buttonViewColors,
     buttonViews,
 } from './const';
 
+export const buttonDefaultColor = (view: ButtonView): ButtonColor => buttonViewColors[view][0];
+
+export function isButtonView(value: unknown): value is ButtonView {
+    return includes(buttonViews, value);
+}
+
+export function isButtonTarget(value: unknown): value is ButtonTarget {
+    return includes(buttonTargets, value);
+}
+
 export function buttonModel(attrs: Partial<Record<keyof ButtonModel, unknown>>): ButtonModel {
-    const view = oneOf(buttonViews, attrs.view) ?? buttonDefaults.view;
+    const view = isButtonView(attrs.view) ? attrs.view : buttonDefaults.view;
     const colors = buttonViewColors[view];
     return {
         view,
-        color: colors.find((color) => color === attrs.color) ?? colors[0],
-        target: oneOf(buttonTargets, attrs.target) ?? buttonDefaults.target,
-        href: typeof attrs.href === 'string' ? (safeLinkUrl(attrs.href) ?? '') : '',
+        color: colors.find((color) => color === attrs.color) ?? buttonDefaultColor(view),
+        target: isButtonTarget(attrs.target) ? attrs.target : buttonDefaults.target,
+        href: typeof attrs.href === 'string' ? attrs.href : '',
+        title: typeof attrs.title === 'string' ? attrs.title : '',
     };
-}
-
-export function normalizeButtonHref(
-    md: Pick<MarkdownIt, 'normalizeLink' | 'validateLink'>,
-    value: unknown,
-): string {
-    if (typeof value !== 'string' || !value.trim()) return '';
-    const href = md.normalizeLink(value.trim());
-    return md.validateLink(href) && !/^data:/i.test(href) ? href : '';
 }

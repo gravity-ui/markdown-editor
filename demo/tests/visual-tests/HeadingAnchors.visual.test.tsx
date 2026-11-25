@@ -2,9 +2,64 @@ import type {Page} from '@playwright/test';
 
 import {expect, test} from 'playwright/core';
 
-import {ViewerStories} from './MarkdownViewer.helpers';
+import {HeadingAliasViewer, ViewerStories} from './MarkdownViewer.helpers';
 
 test.describe('MarkdownViewer heading anchors', () => {
+    for (const [variant, attribute] of [
+        ['button-id', 'id'],
+        ['link-name', 'name'],
+        ['link-id', 'id'],
+    ] as const) {
+        test(`should scroll to a legacy ${variant} alias while hiding its old control`, async ({
+            mount,
+            page,
+        }) => {
+            await page.addStyleTag({
+                content: 'h2 { scroll-margin-block-start: 64px; padding: 16px 0 0 28px; }',
+            });
+            await mount(<HeadingAliasViewer variant={variant} />, {width: 700});
+            const heading = page.locator('h2#heading');
+            await expect(heading).toBeAttached();
+            await expect(heading).not.toBeInViewport();
+
+            await page.getByRole('link', {name: 'Go to heading'}).click();
+            await expect.poll(async () => (await heading.boundingBox())?.y).toBeCloseTo(64, 0);
+            await page.getByRole('link', {name: 'Go to alias'}).click();
+
+            await expect.poll(async () => (await heading.boundingBox())?.y).toBeCloseTo(64, 0);
+            const alias = heading.locator(`[${attribute}="legacy-alias"]`);
+            await expect(alias).toBeHidden();
+
+            await page.getByRole('link', {name: 'Go to alias'}).focus();
+            await page.keyboard.press('Tab');
+            await expect(
+                heading.getByRole('button', {name: 'Copy link', exact: true}),
+            ).toBeFocused();
+
+            const headingRect = await heading.boundingBox();
+            expect(
+                await alias.evaluate((element) => element.getBoundingClientRect().toJSON()),
+            ).toMatchObject({
+                x: headingRect?.x,
+                y: headingRect?.y,
+                width: 0,
+                height: 0,
+            });
+        });
+    }
+
+    test('should preserve a custom scroll margin on the fragment target', async ({mount, page}) => {
+        await page.addStyleTag({content: ':target { scroll-margin-block-start: 64px; }'});
+        await mount(<HeadingAliasViewer variant="button-id" />, {width: 700});
+        const heading = page.locator('h2#heading');
+        await expect(heading).toBeAttached();
+
+        await page.getByRole('link', {name: 'Go to heading'}).click();
+        await expect.poll(async () => (await heading.boundingBox())?.y).toBeCloseTo(64, 0);
+        await page.getByRole('link', {name: 'Go to alias'}).click();
+        await expect.poll(async () => (await heading.boundingBox())?.y).toBeCloseTo(64, 0);
+    });
+
     test('should cover list markers beside every heading level', async ({
         mount,
         page,

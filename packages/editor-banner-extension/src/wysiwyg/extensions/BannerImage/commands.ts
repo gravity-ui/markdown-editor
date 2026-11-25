@@ -1,19 +1,16 @@
 import {findSelectedNodeOfType} from '@gravity-ui/markdown-editor';
 import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
 import {type Command, type EditorState, Selection} from '@gravity-ui/markdown-editor/pm/state';
-import {bannerImage, bannerImageDefaults, safeImageUrl} from '@gravity-ui/markdown-plugin-banner';
+import {bannerImage, bannerImageDefaults} from '@gravity-ui/markdown-plugin-banner';
 
-import {removeChild, selectNodeNear, setNodeAttrs, siblingBlock} from '../commands';
+import {removeChild, selectNodeNear, setNodeAttrs, siblingBlock} from '../../utils/commands';
 
 import {bannerImageNodeType} from './BannerImageSpecs';
 
 export const selectedBannerImage = (state: EditorState) =>
     findSelectedNodeOfType(bannerImageNodeType(state.schema))(state.selection) ?? null;
 
-export const setBannerImageAttrs = setNodeAttrs(bannerImageNodeType, bannerImage, {
-    accept: ({src}) => typeof src !== 'string' || safeImageUrl(src) !== null,
-    history: true,
-});
+export const setBannerImageAttrs = setNodeAttrs(bannerImageNodeType, bannerImage, {history: true});
 
 export const resetBannerImage = (pos: number) => setBannerImageAttrs(pos, bannerImageDefaults);
 

@@ -14,6 +14,7 @@ describe('YfmCodeBlockActions', () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
 
     beforeEach(() => {
+        vi.useFakeTimers();
         container = document.createElement('div');
         document.body.append(container);
         root = createRoot(container);
@@ -23,11 +24,18 @@ describe('YfmCodeBlockActions', () => {
         });
     });
 
-    afterEach(() => {
-        act(() => root.unmount());
-        container.remove();
-        Reflect.deleteProperty(navigator, 'clipboard');
-        vi.clearAllMocks();
+    afterEach(async () => {
+        try {
+            act(() => root.unmount());
+            await act(async () => {
+                await vi.runOnlyPendingTimersAsync();
+            });
+        } finally {
+            container.remove();
+            Reflect.deleteProperty(navigator, 'clipboard');
+            vi.clearAllMocks();
+            vi.useRealTimers();
+        }
     });
 
     it('should copy code without line numbers and keep whitespace', async () => {

@@ -2,16 +2,17 @@ import {useMemo, useRef} from 'react';
 
 import {limitShift, offset, shift, size} from '@floating-ui/react';
 import {
+    type BannerDimensions,
     type BannerHeight,
-    type BannerModel,
+    type BannerLayout,
     type BannerWidth,
     bannerHeights,
     bannerWidths,
 } from '@gravity-ui/markdown-plugin-banner';
 
 import {i18n} from '../../../../../../i18n';
-import {nodeAnchor} from '../../../../popup';
-import {SettingsDialog, cnBannerSettings} from '../../../../settings';
+import {SettingsDialog, cnBannerSettings} from '../../../../../components/settings';
+import {nodeAnchor} from '../../../../../utils/popup';
 
 import type {BackgroundControls} from './BackgroundField';
 import {DimensionSelect} from './DimensionSelect';
@@ -21,6 +22,7 @@ import './BannerSettings.scss';
 
 const PANEL_OFFSET = 4;
 const PANEL_INSET = 16;
+// The title and both dimension selects stay visible.
 const PANEL_MIN_HEIGHT = 160;
 const PANEL_MAX_HEIGHT = 720;
 
@@ -41,10 +43,14 @@ const widthLabel = (width: BannerWidth) =>
     width === 'full' ? i18n('full-width') : width.toUpperCase();
 
 type BannerSettingsProps = {
+    /** The panel opens next to this banner. */
     block: HTMLElement | null;
+    /** Receives focus when the panel closes. */
     button: HTMLElement | null;
-    model: BannerModel;
-    onChange: (changes: Partial<BannerModel>) => void;
+    dimensions: BannerDimensions;
+    onChange: <K extends keyof BannerDimensions>(name: K, value: BannerDimensions[K]) => void;
+    layout: BannerLayout;
+    onLayoutChange: <K extends keyof BannerLayout>(name: K, value: BannerLayout[K]) => void;
     content: ContentControls;
     background: BackgroundControls;
     onClose: () => void;
@@ -53,16 +59,16 @@ type BannerSettingsProps = {
 export function BannerSettings({
     block,
     button,
-    model,
+    dimensions,
     onChange,
+    layout,
+    onLayoutChange,
     content,
     background,
     onClose,
 }: BannerSettingsProps) {
-    const heightRef = useRef<HTMLButtonElement>(null);
-    const handleHeightUpdate = (height: BannerModel['height']) => onChange({height});
-    const handleWidthUpdate = (width: BannerModel['width']) => onChange({width});
     const anchorElement = useMemo(() => block && nodeAnchor(block), [block]);
+    const heightRef = useRef<HTMLButtonElement>(null);
     return (
         <SettingsDialog
             title={i18n('title')}
@@ -70,31 +76,31 @@ export function BannerSettings({
             qa="banner-settings"
             closeSize="l"
             closeAnchor={button}
+            onClose={onClose}
             anchorElement={anchorElement}
             placement="right-start"
             floatingMiddlewares={middlewares}
             initialFocus={heightRef}
             returnFocus={{current: button}}
-            onClose={onClose}
         >
             <DimensionSelect
                 controlRef={heightRef}
                 label={i18n('height')}
-                value={model.height}
+                value={dimensions.height}
                 values={bannerHeights}
                 format={heightLabel}
-                onUpdate={handleHeightUpdate}
+                onUpdate={(value) => onChange('height', value)}
             />
             <DimensionSelect
                 label={i18n('width')}
-                value={model.width}
+                value={dimensions.width}
                 values={bannerWidths}
                 format={widthLabel}
-                onUpdate={handleWidthUpdate}
+                onUpdate={(value) => onChange('width', value)}
             />
             <SettingsFields
-                model={model}
-                onChange={onChange}
+                layout={layout}
+                onLayoutChange={onLayoutChange}
                 content={content}
                 background={background}
             />

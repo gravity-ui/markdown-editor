@@ -2,7 +2,7 @@ import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {bannerContentClassName} from '@gravity-ui/markdown-plugin-banner';
 
 import {i18n} from '../../../../i18n';
-import {placeholderSpec} from '../../schema';
+import {placeholderSpec} from '../../../utils/schema';
 
 import {bannerContentNodeName} from './const';
 

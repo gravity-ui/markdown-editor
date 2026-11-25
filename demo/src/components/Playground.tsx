@@ -219,7 +219,7 @@ export const Playground = memo<PlaygroundProps>((props) => {
                             },
                         })
                         .use(FoldingHeading)
-                        .use(Banner, {fileUploadHandler})
+                        .use(Banner)
                         .use(ButtonExtension)
                         .use(YfmHtmlBlock, {
                             useConfig: useYfmHtmlBlockStyles,

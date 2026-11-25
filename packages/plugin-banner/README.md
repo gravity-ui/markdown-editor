@@ -8,7 +8,7 @@ markdown-it plugins for the Banner markup. Each block has its own plugin, and `b
 | [Banner title](#banner-title)     | `bannerTitlePlugin`   | `::banner-title[text]{…}` |
 | [Banner content](#banner-content) | `bannerContentPlugin` | `:::banner-content`       |
 | [Banner image](#banner-image)     | `bannerImagePlugin`   | `::banner-image{…}`       |
-| [Button](#button)                 | `buttonPlugin`        | `:button[label]{…}`       |
+| [Button](#button)                 | `buttonPlugin`        | `:button[label](…){…}`    |
 
 ```ts
 import MarkdownIt from 'markdown-it';
@@ -18,7 +18,7 @@ import '@gravity-ui/markdown-plugin-banner/styles.css';
 const md = new MarkdownIt().use(bannerPreset);
 ```
 
-A single block is enabled with its own plugin, for example `md.use(buttonPlugin)`, and has its own stylesheet, for example `import '@gravity-ui/markdown-plugin-banner/button/styles.css'`: `banner`, `banner-title`, `banner-content`, `banner-image` and `button`. `styles.css` holds all five. The order of the stylesheets does not matter; a banner with buttons needs the button stylesheet too.
+A single block is enabled with its own plugin, for example `md.use(buttonPlugin)`. `styles.css` holds the styles of all five blocks.
 
 ## Browser support
 
@@ -34,19 +34,19 @@ import {bannerSanitizeAllowedAttributes} from '@gravity-ui/markdown-plugin-banne
 const allowedAttributes = {iframe: ['srcdoc'], ...bannerSanitizeAllowedAttributes};
 ```
 
-Another allow-list sanitizer has to keep every attribute the blocks use, otherwise they lose their look or behavior without an error: `class` (all styles), `style` with `background-image` (the background image), `data-*` (the values that the editor reads back from HTML, and `data-files-gallery-exclude` on the banner and the banner image), `role` and `aria-level` (the title heading), `href`, `target` and `rel` (buttons), `src`, `alt` and `title` (images).
+Another allow-list sanitizer has to keep every attribute the blocks use, otherwise they lose their look or behavior without an error: `class` (all styles), `style` with `background-image` (the background image), `data-*` (the values that the editor reads back from HTML, and `data-files-gallery-exclude` on the banner and the banner image), `role` and `aria-level` (the title heading), `href`, `title`, `target` and `rel` (buttons), `src`, `alt` and `title` (images).
 
 ## Exports
 
-| Block          | Plugin                                                                                                | Attributes ↔ model                                                             | Values                                                                                                                                                                                                                                                   | Types                                                                                                                                                                                                                     |
-| -------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Banner         | `bannerPlugin`, `bannerTokenName`, `bannerClassName`                                                  | `bannerAttrs`, `bannerModel`, `bannerModelValues`, `bannerModelFromAttrs`      | `bannerDefaults`, `bannerLayoutDefaults`, `bannerBackgroundDefaults`, `bannerModelDefaults`, `bannerHeights`, `bannerWidths`, `bannerAligns`, `bannerVerticals`, `bannerBgColors`, `bannerBgColorFamilies`, `bannerBgColorSaturations`, `bannerBgThemes` | `BannerDimensions`, `BannerHeight`, `BannerWidth`, `BannerLayout`, `BannerAlign`, `BannerVertical`, `BannerBackground`, `BannerBgColor`, `BannerBgColorFamily`, `BannerBgColorSaturation`, `BannerBgTheme`, `BannerModel` |
-| Banner title   | `bannerTitlePlugin`, `bannerTitleTokenName`, `bannerTitleClassName`                                   | `bannerTitleAttrs`, `bannerTitle`, `bannerTitleValues`, `bannerTitleFromAttrs` | `bannerTitleDefaults`, `bannerTitleSizes`, `bannerTitleColors`                                                                                                                                                                                           | `BannerTitle`, `BannerTitleSize`, `BannerTitleColor`                                                                                                                                                                      |
-| Banner content | `bannerContentPlugin`, `bannerContentTokenName`, `bannerContentClassName`                             | —                                                                              | —                                                                                                                                                                                                                                                        | —                                                                                                                                                                                                                         |
-| Banner image   | `bannerImagePlugin`, `bannerImageTokenName`, `bannerImageClassName`                                   | `bannerImageAttrs`, `bannerImage`, `bannerImageValues`, `bannerImageFromAttrs` | `bannerImageDefaults`                                                                                                                                                                                                                                    | `BannerImage`                                                                                                                                                                                                             |
-| Button         | `buttonPlugin`, `buttonTokenName`, `buttonClassName`, `buttonRowClassName`, `buttonRowBreakTokenName` | `buttonAttrs`, `buttonModel`, `buttonFromAttrs`, `normalizeButtonHref`         | `buttonDefaults`, `buttonViews`, `buttonColors`, `buttonViewColors`, `buttonTargets`                                                                                                                                                                     | `ButtonModel`, `ButtonView`, `ButtonColor`, `ButtonTarget`                                                                                                                                                                |
-| All blocks     | `bannerPreset`                                                                                        | —                                                                              | —                                                                                                                                                                                                                                                        | —                                                                                                                                                                                                                         |
-| Shared         | —                                                                                                     | `safeImageUrl`, `safeLinkUrl`, `toCssUrl`                                      | `bannerSanitizeAllowedAttributes`                                                                                                                                                                                                                        | —                                                                                                                                                                                                                         |
+| Block          | Plugin                                                                                                | Attributes ↔ model                                                                                                                                       | Values                                                                                                                                                                                                                            | Types                                                                                                                                                                                                      |
+| -------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Banner         | `bannerPlugin`, `bannerTokenName`, `bannerClassName`                                                  | `bannerAttrs`, `bannerRender`, `bannerFromAttrs`, `bannerDimensions`, `bannerLayout`, `bannerLayoutValues`, `bannerBackground`, `bannerBackgroundValues` | `bannerDefaults`, `bannerLayoutDefaults`, `bannerBackgroundDefaults`, `bannerHeights`, `bannerWidths`, `bannerAligns`, `bannerVerticals`, `bannerBgColors`, `bannerBgColorFamilies`, `bannerBgColorSaturations`, `bannerBgThemes` | `BannerDimensions`, `BannerHeight`, `BannerWidth`, `BannerLayout`, `BannerAlign`, `BannerVertical`, `BannerBackground`, `BannerBgColor`, `BannerBgColorFamily`, `BannerBgColorSaturation`, `BannerBgTheme` |
+| Banner title   | `bannerTitlePlugin`, `bannerTitleTokenName`, `bannerTitleClassName`                                   | `bannerTitleAttrs`, `bannerTitle`, `bannerTitleValues`, `bannerTitleFromAttrs`                                                                           | `bannerTitleDefaults`, `bannerTitleSizes`, `bannerTitleColors`                                                                                                                                                                    | `BannerTitle`, `BannerTitleSize`, `BannerTitleColor`                                                                                                                                                       |
+| Banner content | `bannerContentPlugin`, `bannerContentTokenName`, `bannerContentClassName`                             | —                                                                                                                                                        | —                                                                                                                                                                                                                                 | —                                                                                                                                                                                                          |
+| Banner image   | `bannerImagePlugin`, `bannerImageTokenName`, `bannerImageClassName`                                   | `bannerImageAttrs`, `bannerImage`, `bannerImageValues`, `bannerImageFromAttrs`                                                                           | `bannerImageDefaults`                                                                                                                                                                                                             | `BannerImage`                                                                                                                                                                                              |
+| Button         | `buttonPlugin`, `buttonTokenName`, `buttonClassName`, `buttonRowClassName`, `buttonRowBreakTokenName` | `buttonAttrs`, `buttonModel`, `buttonFromAttrs`, `buttonDefaultColor`                                                                                    | `buttonDefaults`, `buttonViews`, `buttonColors`, `buttonViewColors`, `buttonTargets`, `ButtonAttr`                                                                                                                                | `ButtonModel`, `ButtonView`, `ButtonColor`, `ButtonTarget`                                                                                                                                                 |
+| All blocks     | `bannerPreset`                                                                                        | —                                                                                                                                                        | —                                                                                                                                                                                                                                 | —                                                                                                                                                                                                          |
+| Shared         | —                                                                                                     | `normalizeLinkUrl`                                                                                                                                       | `bannerSanitizeAllowedAttributes`                                                                                                                                                                                                 | `LinkParser`                                                                                                                                                                                               |
 
 ## Banner
 
@@ -61,7 +61,7 @@ Another allow-list sanitizer has to keep every attribute the blocks use, otherwi
 Portal description.
 :::
 
-:button[Open]{href="/page" view="action" color="blue"}
+:button[Open](/page){view="action" color="blue"}
 :::
 ```
 
@@ -72,12 +72,12 @@ Portal description.
 | `align`         | `left`, `center`, `right`: the text and the buttons along the line                                         | `left`   |
 | `vertical`      | `top`, `center`, `bottom`: the content in the height of the block                                          | `center` |
 | `bg-color`      | `<family>-<saturation>`: `gray`, `green`, `yellow`, `blue`, `red`, `violet` and `light`, `medium`, `heavy` | none     |
-| `bg-image`      | an `http:`, `https:`, `blob:` or relative address                                                          | none     |
+| `bg-image`      | an image address, checked as the address of a Markdown image                                               | none     |
 | `bg-theme`      | the theme of the content over the image: `system` as the page, `dark` light text, `light` dark text        | `system` |
 | `bg-image-blur` | `true`                                                                                                     | none     |
 
 The block is rendered as `div.g-md-banner-plugin` with the modifiers `_height_{s,m,l}` and `_width_{s,m,l,full}`; the `data-height` and `data-width` attributes of the element and of the opening token hold the same dimensions.
-The alignment and the background are rendered when they differ from the defaults: the modifiers `_align_{center,right}`, `_vertical_{top,bottom}`, `_bg-color_<value>`, `_bg-image`, `_bg-image-blur` and the attributes `data-align`, `data-vertical`, `data-bg-*`; `bannerModelFromAttrs` reads all of them back.
+The alignment and the background are rendered when they differ from the defaults: the modifiers `_align_{center,right}`, `_vertical_{top,bottom}`, `_bg-color_<value>`, `_bg-image`, `_bg-image-blur` and the attributes `data-align`, `data-vertical`, `data-bg-*`; `bannerFromAttrs` reads all of them back.
 The element also has `data-files-gallery-exclude="true"`: the files galleries of `@gravity-ui/markdown-viewer` (`FilesGallery`) and of `@gravity-ui/markdown-editor` (`useFilesGallery`) skip the images and the links inside an element with this attribute and leave the clicks on them alone, so a banner image is not a gallery file and a button navigates as a link. The plugin does not depend on these packages; it writes the attribute name itself.
 
 ```html
@@ -96,7 +96,7 @@ The element also has `data-files-gallery-exclude="true"`: the files galleries of
 
 The block is a container directive of [`@diplodoc/directive`](https://github.com/diplodoc-platform/directive).
 An unknown attribute is skipped, and an unsupported value is replaced with the default: `:::banner{height="xl" color="red"}` is an `s` × `m` block.
-An image address with another scheme, such as `javascript:` or `data:`, or with control characters, is skipped, and so is an address that `md.validateLink` of the parser rejects.
+The image address goes through `md.normalizeLink` and `md.validateLink`, as the address of a Markdown image; an address they reject, such as `javascript:`, is skipped.
 The container parses its child blocks in the same Markdown token stream.
 Inline titles and destinations in the opening directive are not supported and remain ordinary Markdown.
 
@@ -123,7 +123,6 @@ The numbers are custom properties; a host overrides them:
 | `--g-md-banner-plugin-image-width`                 | `50%`, at most `50%`                       |
 | `--g-md-banner-plugin-image-padding`               | `var(--g-spacing-2)`                       |
 | `--g-md-banner-plugin-blur`                        | `12px`                                     |
-| `--g-md-banner-plugin-blur-inset`                  | `24px`                                     |
 | `--g-md-banner-plugin-narrow-padding`              | `var(--g-spacing-4)`                       |
 | `--g-md-banner-plugin-narrow-image-aspect-ratio`   | `16 / 10`                                  |
 | `--g-md-banner-plugin-narrow-button-height`        | `44px`                                     |
@@ -145,8 +144,8 @@ The block is a size container (`container-type: inline-size`), so its width come
 ### Background
 
 The fill is the `_bg-color_<value>` modifier; its colors are Gravity UI tokens declared on `.g-root` as `--g-md-banner-plugin-bg-color-<value>`.
-The image is written into the `style` attribute as a percent-encoded `url("…")` after the scheme check, and the `_bg-image` modifier covers the block with it. The address is taken as written: HTML entities in it are not decoded, so `/image&copy;.png` and `/a.png?x=1&copy=2` keep their `&copy`. `\"` writes a quote.
-`bg-image-blur` adds the `_bg-image-blur` modifier: a blurred copy of the image under the content.
+The image is written into the `style` attribute as `url("…")`: quotes, parentheses, `*` and `\` become CSS escapes, and a relative address resolves against the page. The `_bg-image` modifier covers the block with it.
+`bg-image-blur` adds the `_bg-image-blur` modifier: a layer under the content blurs the background of the block by `--g-md-banner-plugin-blur` within the block bounds.
 
 `bg-theme` other than `system` adds `g-root g-root_theme_<theme>` to the block: text, links, inline code and buttons use the fixed theme, and the image stays the same.
 The block is then a nested Gravity UI theme root, as a nested `ThemeProvider`: `.g-root` also declares the spacing, radius and typography tokens with the UIKit defaults. A host that changes these tokens declares them on `.g-root`, as the UIKit theming guide says, so they reach the nested root too.
@@ -294,11 +293,11 @@ The margin applies to a description outside Banner.
 :::
 ```
 
-| Attribute | Values                                                      | Default |
-| --------- | ----------------------------------------------------------- | ------- |
-| `src`     | an `http:`, `https:`, `blob:` or relative address           | none    |
-| `alt`     | the alternative text; an empty one marks a decorative image | empty   |
-| `title`   | the native browser tooltip of the image                     | none    |
+| Attribute | Values                                                       | Default |
+| --------- | ------------------------------------------------------------ | ------- |
+| `src`     | an image address, checked as the address of a Markdown image | none    |
+| `alt`     | the alternative text; an empty one marks a decorative image  | empty   |
+| `title`   | the native browser tooltip of the image                      | none    |
 
 ```html
 <div class="g-md-banner-plugin …">
@@ -326,9 +325,9 @@ The `alt` attribute is always rendered: without it a screen reader announces the
 
 The image is a leaf block directive: one line with the attributes, no text in square brackets and no closing line. It stands after an empty line, as a paragraph does.
 
-The address passes the same check as the background image of a banner, `safeImageUrl`: an address with another scheme, such as `javascript:` or `data:`, or with control characters, is skipped, and so is an address that `md.validateLink` of the parser rejects.
+The address passes the same check as the background image of a banner: `md.normalizeLink` and `md.validateLink`, as the address of a Markdown image; an address they reject, such as `javascript:`, is skipped.
 An image without an address, or with a skipped one, keeps its token and renders nothing.
-The values are taken as written: HTML entities in them are not decoded, so `/image?a=1&copy=2` stays this address, and `\"` writes a quote.
+A quoted value is read like the title of a Markdown link: `\"` writes a quote, and HTML entities are decoded.
 An unknown attribute is skipped; a repeated attribute counts as not set.
 
 In a Diplodoc build the images plugin of `@diplodoc/transform` processes only Markdown images. The `src` of a banner image and the `bg-image` of a banner are not copied to the build output and not rebased, and a missing file is not reported: use absolute addresses there.
@@ -349,14 +348,15 @@ The margin applies to an image outside Banner.
 ## Button
 
 ```markdown
-:button[Read more]{href="https://example.com" view="action" color="blue" target="\_blank"}
+:button[Read more](https://example.com "Example link"){view="action" color="blue" target="_blank"}
 
-:button[Open]{href="/page" view="action" color="blue"} :button[Docs]{href="/docs" view="normal" color="gray"} :button[Skip]{view="flat" color="standard"}
+:button[Open](/page){view="action" color="blue"} :button[Docs](/docs){view="normal" color="gray"} :button[Skip]{view="flat" color="standard"}
 ```
+
+The address and the title in parentheses are written and read like those of a Markdown link; the title becomes the `title` attribute. A button without parentheses has no address.
 
 | Attribute | Values                                                         | Default                                                               |
 | --------- | -------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `href`    | a link address                                                 | none                                                                  |
 | `view`    | `action`, `normal`, `outline`, `flat`                          | `action`                                                              |
 | `color`   | `standard`, `gray`, `blue`, `green`, `yellow`, `red`, `violet` | `standard` for `action` and `flat`, `gray` for `normal` and `outline` |
 | `target`  | `_self`, `_blank`, `_parent`, `_top`                           | `_self`                                                               |
@@ -376,6 +376,7 @@ The button is rendered as a link:
 <a
   class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_blue"
   href="https://example.com"
+  title="Example link"
   target="_blank"
   rel="noopener noreferrer"
   data-view="action"
@@ -384,27 +385,26 @@ The button is rendered as a link:
 >
 ```
 
-- Without `href`, or with an unsafe one (`javascript:`, `data:`, `vbscript:`, `file:`), the `<a>` has no `href` and is not interactive. `normalizeButtonHref(md, value)` is the check of the Markdown path: it normalizes the address with `md.normalizeLink` and returns it when `md.validateLink` accepts it and it is not a `data:` address, or an empty string; an editor that checks a typed address with its own parser gets the same result as Markdown. `safeLinkUrl` is the guard for an address that comes from neither (HTML, the DOM): it returns the trimmed address, or `null` for an empty or unsafe one or one with control characters; `buttonModel`, `buttonAttrs` and `buttonFromAttrs` apply it.
+- `md.normalizeLink` and `md.validateLink` check the address; without an address, or with an unsafe one such as `javascript:`, the `<a>` has no `href` and is not interactive.
 - `target="_blank"` adds `rel="noopener noreferrer"`; `_self` is not rendered.
-- The address is taken as written: HTML entities in it are not decoded, so `/page?a=1&copy=2` and `/image&copy;.png` keep their `&copy`. `\"` writes a quote.
 - `data-view` and `data-color` of the element and of the token hold the resolved view and color.
-- The button is its own token (`button`), not a Markdown link. Plugins that work on `link_open` tokens skip it: the Diplodoc links plugin does not turn a `.md` address of a button into `.html`, does not check it and does not add `target="_blank"` to an external one. Write the final address and the target in the button.
+- The button is its own token (`buttonTokenName`), not a Markdown link. Plugins that work on `link_open` tokens skip it: the Diplodoc links plugin does not turn a `.md` address of a button into `.html`, does not check it and does not add `target="_blank"` to an external one. Write the final address and the target in the button.
 - The label is the `content` of the token and also `meta.label`; the renderer writes `meta.label`, so a later rule that changes `content`, such as markdown-it-attrs reading a trailing `{…}` as attributes, does not change the label.
 
 The button is an inline directive: it stays in the line of text, and buttons written one after another in a paragraph, separated by spaces, form a row.
 A paragraph that holds only buttons, spaces and line breaks gets the class `g-md-button-plugin-row` (`buttonRowClassName`): a wrapping flex row with a gap between the buttons and between the lines.
 Buttons inside running text keep the spaces of the text.
 The label in square brackets is plain text: Markdown and HTML entities inside it are shown as written, and `\]` writes a closing bracket.
-A button with an empty label renders nothing, and a paragraph of such buttons renders no `<p>`.
+A button with an empty label renders an empty link. `:button` without square brackets stays text.
 
 Inside Banner every button may stand in its own paragraph; paragraphs of buttons that follow one another render as one row:
 
 ```markdown
 :::banner
 
-:button[Open]{href="/page" view="action" color="blue"}
+:button[Open](/page){view="action" color="blue"}
 
-:button[Docs]{href="/docs" view="normal" color="gray"}
+:button[Docs](/docs){view="normal" color="gray"}
 
 :button[Skip]{view="flat" color="standard"}
 :::
@@ -429,6 +429,10 @@ An unsupported value is replaced with the default, and a color the view lacks wi
 
 The size and the text of the button are Gravity UI tokens with fallback values, so a button keeps its size and shape on a page without the Gravity UI theme.
 Colors are Gravity UI theme tokens without fallbacks; the host application supplies their values. `blue` uses the `info` family, `green` `positive`, `yellow` `warning`, `red` `danger`, `violet` `utility`, `gray` `generic`, and `standard` the contrast fill of `action` and the primary text of `flat`.
+
+A button with an address shows the hover fill of its color (`…-hover` variables, `--g-color-base-simple-hover` for `outline` and `flat`), shrinks while pressed and gets an outline on keyboard focus.
+The fill and the label color change with a transition; `prefers-reduced-motion: reduce` turns it off.
+Every view has a border, transparent except `outline`, so forced-colors mode keeps the boundary.
 
 The light `action` labels on the `blue`, `green`, `red` and `violet` fills follow the mock; with the default Gravity UI themes their contrast is below WCAG AA, and a host theme can raise it through the fill tokens.
 

@@ -1,8 +1,0 @@
-@use 'zindex';
-
-.g-md-banner-popup-layer {
-    position: absolute;
-    z-index: zindex.$layer;
-    inset-block-start: 0;
-    inset-inline-start: 0;
-}

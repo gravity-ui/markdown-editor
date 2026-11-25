@@ -72,23 +72,26 @@ test.describe('Clipboard', () => {
         });
 
         test('should copy and paste with preserve markup', async ({
-            helpers: {keys},
             editor,
             expectScreenshot,
             wait,
             page,
         }) => {
+            const getMarkup = () => page.evaluate(() => window.mdEditor?.getValue().trim());
+
             await editor.paste(emphasisMarkup);
-            await editor.press(keys.selectAll);
+            await expect.poll(getMarkup).toBe(emphasisMarkup);
+            await editor.selectTextIn();
             const data = await editor.dispatchClipboardEvent('copy');
             expect(data['text/yfm']?.trim()).toBe(emphasisMarkup);
-            await editor.press('ArrowRight');
+
+            await editor.press('ControlOrMeta+End');
+            await editor.waitForTextCursorAtEnd();
             await editor.press('Enter');
+            await expect(editor.getBySelectorInContenteditable('p')).toHaveCount(4);
             await editor.paste(data);
 
-            await expect
-                .poll(() => page.evaluate(() => window.mdEditor?.getValue().trim()))
-                .toBe(`${emphasisMarkup}\n\n${emphasisMarkup}`);
+            await expect.poll(getMarkup).toBe(`${emphasisMarkup}\n\n${emphasisMarkup}`);
             await wait.timeout(500);
             await expectScreenshot();
         });

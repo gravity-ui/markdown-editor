@@ -2,7 +2,7 @@ import type {Ref} from 'react';
 
 import {Select} from '@gravity-ui/uikit';
 
-import {SettingsRow} from '../../../../settings';
+import {SettingsRow} from '../../../../../components/settings';
 
 type DimensionSelectProps<T extends string> = {
     label: string;
@@ -21,11 +21,6 @@ export function DimensionSelect<T extends string>({
     onUpdate,
     controlRef,
 }: DimensionSelectProps<T>) {
-    const options = values.map((option) => ({value: option, content: format(option)}));
-    const handleUpdate = ([next]: string[]) => {
-        const selected = values.find((option) => option === next);
-        if (selected) onUpdate(selected);
-    };
     return (
         <SettingsRow label={label}>
             {(labelId) => (
@@ -35,8 +30,11 @@ export function DimensionSelect<T extends string>({
                     width="max"
                     aria-labelledby={labelId}
                     value={[value]}
-                    options={options}
-                    onUpdate={handleUpdate}
+                    options={values.map((option) => ({value: option, content: format(option)}))}
+                    onUpdate={([next]) => {
+                        const selected = values.find((option) => option === next);
+                        if (selected) onUpdate(selected);
+                    }}
                 />
             )}
         </SettingsRow>

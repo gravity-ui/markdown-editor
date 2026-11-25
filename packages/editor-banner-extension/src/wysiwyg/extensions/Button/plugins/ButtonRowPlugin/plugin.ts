@@ -4,7 +4,7 @@ import {Plugin} from '@gravity-ui/markdown-editor/pm/state';
 import {Decoration, DecorationSet} from '@gravity-ui/markdown-editor/pm/view';
 import {buttonRowClassName} from '@gravity-ui/markdown-plugin-banner';
 
-import {changedRange, coveringMapping} from '../../../changedRange';
+import {changedRange, coveringMapping} from '../../../../utils/changedRange';
 import {isButton, isButtonRow} from '../../ButtonSpecs/utils';
 
 import './plugin.scss';

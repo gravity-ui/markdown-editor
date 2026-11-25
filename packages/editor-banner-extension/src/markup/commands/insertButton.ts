@@ -6,7 +6,7 @@ import {
 import {buttonDefaults} from '@gravity-ui/markdown-plugin-banner';
 
 import {i18n} from '../../i18n';
-import {escapeDirectiveLabel} from '../../wysiwyg/extensions/directive';
+import {escapeDirectiveLabel} from '../../wysiwyg/utils/directive';
 
 const open = ':button[';
 
@@ -19,6 +19,23 @@ function labelEnd(text: string, index: number) {
         else if (char === ']' && --depth === 0) return i + 1;
     }
     return -1;
+}
+
+// A quote opens the link title only after a space.
+function linkEnd(text: string, index: number) {
+    if (text[index] !== '(') return index;
+    let depth = 0;
+    let quote = '';
+    for (let i = index; i < text.length; i++) {
+        const char = text[i];
+        if (char === '\\') i++;
+        else if (quote) {
+            if (char === quote) quote = '';
+        } else if ((char === '"' || char === "'") && /\s/.test(text[i - 1])) quote = char;
+        else if (char === '(') depth++;
+        else if (char === ')' && --depth === 0) return i + 1;
+    }
+    return index;
 }
 
 function attrsEnd(text: string, index: number) {
@@ -45,7 +62,7 @@ function buttonEnd(state: EditorState, from: number, to: number) {
             index = line.text.indexOf(open, index + 1);
             continue;
         }
-        const end = attrsEnd(line.text, label);
+        const end = attrsEnd(line.text, linkEnd(line.text, label));
         if (line.from + index <= to && from <= line.from + end) result = line.from + end;
         index = line.text.indexOf(open, end);
     }

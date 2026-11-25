@@ -1,0 +1,134 @@
+@use '../../mixins';
+
+$label-width: 120px;
+$popup-width: 325px;
+$popup-field-width: 190px;
+$form-label-width: 100px;
+$preview-size: 16px;
+
+:where(.g-md-banner-settings__dialog) {
+    // Zero specificity leaves the size and padding to the window styles.
+    @include mixins.reset-dialog;
+
+    &:focus {
+        outline: none;
+    }
+}
+
+.g-md-banner-settings {
+    &__heading {
+        margin: 0;
+    }
+
+    &__title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        height: var(--g-spacing-7);
+    }
+
+    // The 36 px button overflows this 28 px square by 4 px on each side.
+    &__close {
+        display: flex;
+        justify-content: center;
+
+        width: var(--g-spacing-7);
+    }
+
+    &__row {
+        display: grid;
+        align-items: center;
+        grid-template-columns: minmax(0, $label-width) minmax(0, 1fr);
+        gap: var(--g-spacing-2);
+
+        min-height: var(--g-spacing-7);
+
+        > * {
+            min-width: 0;
+        }
+    }
+
+    &__label {
+        display: flex;
+        align-items: center;
+        align-self: start;
+
+        min-height: var(--g-spacing-7);
+    }
+
+    &__preview {
+        display: block;
+
+        width: $preview-size;
+        height: $preview-size;
+
+        border-radius: var(--g-border-radius-xs);
+        object-fit: cover;
+    }
+
+    &__popup {
+        display: flex;
+        flex-direction: column;
+
+        box-sizing: border-box;
+        width: $popup-width;
+        max-width: 100%;
+        padding: var(--g-spacing-3) var(--g-spacing-4) var(--g-spacing-4);
+    }
+
+    &__popup &__title {
+        margin-block-end: var(--g-spacing-2);
+    }
+
+    &__popup &__row {
+        grid-template-columns: minmax(0, 1fr) minmax(0, $popup-field-width);
+    }
+
+    &__popup_untitled {
+        padding: var(--g-spacing-4);
+    }
+
+    &__image-popup {
+        border-radius: var(--g-border-radius-xl);
+    }
+
+    &__image-form {
+        padding: 0;
+
+        .g-md-form-row__label {
+            flex-basis: $form-label-width;
+
+            min-width: 0;
+        }
+
+        .g-md-form-row__control {
+            min-width: 0;
+        }
+    }
+
+    &__image {
+        display: flex;
+        flex-direction: column;
+        gap: var(--g-spacing-4);
+    }
+
+    &__file {
+        display: flex;
+        align-items: center;
+        gap: var(--g-spacing-2);
+
+        box-sizing: border-box;
+        height: var(--g-spacing-7);
+        padding-inline: var(--g-spacing-2) var(--g-spacing-half);
+
+        border: 1px solid var(--g-color-line-generic);
+        border-radius: var(--g-border-radius-m);
+    }
+
+    &__file-name {
+        flex: 1;
+
+        min-width: 0;
+    }
+}

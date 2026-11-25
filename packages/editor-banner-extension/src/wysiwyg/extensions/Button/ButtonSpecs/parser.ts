@@ -6,7 +6,7 @@ import {
     buttonTokenName,
 } from '@gravity-ui/markdown-plugin-banner';
 
-import {ButtonAttr, buttonNodeName} from './const';
+import {ButtonNodeAttr, buttonNodeName} from './const';
 
 export const ButtonParserSpecs: ExtensionAuto = (builder) => {
     builder
@@ -16,7 +16,7 @@ export const ButtonParserSpecs: ExtensionAuto = (builder) => {
             type: 'node',
             getAttrs: (token) => ({
                 ...buttonFromAttrs((name) => token.attrGet(name)),
-                [ButtonAttr.Label]: token.meta?.label ?? token.content,
+                [ButtonNodeAttr.Label]: token.meta?.label ?? token.content,
             }),
         }))
         .addMarkdownTokenParserSpec(buttonRowBreakTokenName, () => ({

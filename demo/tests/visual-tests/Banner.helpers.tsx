@@ -37,7 +37,7 @@ const wysiwygMarkup = `:::banner
 Portal description.
 :::
 
-:button[Button 1]{href="https://example.com" view="action" color="blue"}
+:button[Button 1](https://example.com){view="action" color="blue"}
 
 :::
 
@@ -82,7 +82,6 @@ export function BannerExample({
                     .use(Banner, {
                         imageTypes: ['image/jpeg', 'image/gif', 'image/png'],
                         maxImageSize: 2 * 1024 * 1024,
-                        fileUploadHandler,
                     })
                     .use(Button),
         },

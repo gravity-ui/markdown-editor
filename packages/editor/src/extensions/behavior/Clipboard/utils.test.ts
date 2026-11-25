@@ -9,11 +9,13 @@ import {ExtensionsManager} from '../../../core';
 import {BaseNode, BaseSchemaSpecs} from '../../base/specs';
 import {
     BlockquoteSpecs,
+    CodeBlockSpecs,
     ImageSpecs,
     ItalicSpecs,
     ListNode,
     ListsSpecs,
     blockquoteNodeName,
+    codeBlockNodeName,
     imageNodeName,
     italicMarkName,
 } from '../../markdown/specs';
@@ -28,6 +30,7 @@ function buildDeps() {
                 .use(BaseSchemaSpecs, {})
                 .use(ItalicSpecs)
                 .use(BlockquoteSpecs)
+                .use(CodeBlockSpecs, {})
                 .use(YfmCutSpecs, {})
                 .use(ImageSpecs)
                 .use(ListsSpecs, {});
@@ -37,8 +40,8 @@ function buildDeps() {
 
 const {schema} = buildDeps();
 
-const {doc, p, cut, cutTitle, cutContent, li, ul, ol, bq, img} = builders<
-    'doc' | 'p' | 'bq' | 'img' | 'cut' | 'cutTitle' | 'cutContent',
+const {doc, p, cut, cutTitle, cutContent, li, ul, ol, bq, img, code} = builders<
+    'doc' | 'p' | 'bq' | 'img' | 'cut' | 'cutTitle' | 'cutContent' | 'code',
     'i' | 'li' | 'ul' | 'ol'
 >(schema, {
     doc: {nodeType: BaseNode.Doc},
@@ -46,6 +49,7 @@ const {doc, p, cut, cutTitle, cutContent, li, ul, ol, bq, img} = builders<
     i: {markType: italicMarkName},
     bq: {nodeType: blockquoteNodeName},
     img: {nodeType: imageNodeName},
+    code: {nodeType: codeBlockNodeName},
     cut: {nodeType: CutNode.Cut},
     cutTitle: {nodeType: CutNode.CutTitle},
     cutContent: {nodeType: CutNode.CutContent},
@@ -122,6 +126,11 @@ describe('findNotEmptyContentPosses', () => {
     it('detects non-empty content after multiple nested empty lists', () => {
         const fragment = doc(ul(li(p(''), ul(li(p(''))))), ul(li(p(''))), p('Final')).content;
         expect(findNotEmptyContentPosses(fragment)).toEqual([18, 25, 0, 25]);
+    });
+
+    it('should treat a whitespace-only code block as content', () => {
+        const fragment = doc(p('11'), code('   ')).content;
+        expect(findNotEmptyContentPosses(fragment)).toEqual([0, 9, 0, 9]);
     });
 });
 

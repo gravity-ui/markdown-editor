@@ -1,10 +1,10 @@
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 
-import {buttonSettingsOpen} from '../../../Button/plugins/ButtonSettingsPlugin';
-import {type Toolbars, type Tooltips, blockTooltip} from '../../../blockToolbar';
-import {bannerPlacement} from '../../../placement';
-import type {BannerOptions} from '../../Banner';
+import {type Toolbars, type Tooltips, blockTooltip} from '../../../../components/BlockToolbar';
+import {bannerPlacement} from '../../../../utils/placement';
+import {isButtonSettingsOpen} from '../../../Button/plugins/ButtonSettingsPlugin';
 import {bannerNodeType} from '../../BannerSpecs';
+import type {BannerUploadOptions} from '../../index';
 import {bannerParts} from '../../utils';
 
 import {BannerToolbar} from './BannerToolbar';
@@ -22,7 +22,8 @@ export const keepBannerToolbarWith = (view: EditorView, element: Element | null)
     else companions.delete(view);
 };
 
-export const bannerTooltip = (options: BannerOptions) =>
+/** `options` is read on render, after the editor context is set. */
+export const bannerTooltip = (options: () => BannerUploadOptions) =>
     blockTooltip({
         idPrefix: 'banner-tooltip',
         nodeType: bannerNodeType,
@@ -31,8 +32,8 @@ export const bannerTooltip = (options: BannerOptions) =>
         tooltips,
         keepWithin: (view) => companions.get(view),
         watch: (_state, node) => Object.values(bannerParts(node)).join(),
-        skip: buttonSettingsOpen,
-        content: (view, {node, pos, dom}, {serializer}) => (
+        skip: isButtonSettingsOpen,
+        content: (view, {node, pos, dom}, {serializer, markupParser}) => (
             <BannerToolbar
                 view={view}
                 attrs={node.attrs}
@@ -43,7 +44,8 @@ export const bannerTooltip = (options: BannerOptions) =>
                     const {doc} = view.state;
                     return serializer.serialize(doc.type.create(null, doc.nodeAt(pos) ?? node));
                 }}
-                {...options}
+                parser={markupParser}
+                {...options()}
             />
         ),
     });

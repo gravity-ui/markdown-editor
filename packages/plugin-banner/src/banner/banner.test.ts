@@ -6,6 +6,7 @@ import {bannerHeights, bannerPlugin, bannerTokenName, bannerWidths} from '../ind
 const md = new MarkdownIt().use(bannerPlugin);
 const bannerOpen = `${bannerTokenName}_open`;
 const bannerClose = `${bannerTokenName}_close`;
+const scriptUrl = ['javascript', 'alert(1)'].join(':');
 
 const html = (height: string, width: string) =>
     `<div class="g-md-banner-plugin g-md-banner-plugin_height_${height} g-md-banner-plugin_width_${width}" data-files-gallery-exclude="true" data-height="${height}" data-width="${width}"></div>\n`;
@@ -116,5 +117,15 @@ describe('Banner Markdown', () => {
         const [token] = md.parse(':::banner{height="s"}\n:::', {});
         expect(token.attrGet('data-height')).toBe('s');
         expect(token.attrGet('data-width')).toBe('m');
+    });
+
+    it.each([
+        [scriptUrl, null],
+        ['data:text/html;base64,PHNjcmlwdD4=', null],
+        ['https://cdn.example.com/a b.png', 'https://cdn.example.com/a%20b.png'],
+        ['/images/banner.png', '/images/banner.png'],
+    ])('should check the background image %j like a Markdown image', (address, expected) => {
+        const [token] = md.parse(`:::banner{bg-image="${address}"}\n:::`, {});
+        expect(token.attrGet('data-bg-image')).toBe(expected);
     });
 });

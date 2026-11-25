@@ -11,8 +11,8 @@ import {
 } from '@gravity-ui/markdown-plugin-banner';
 
 import {i18n} from '../../../../../i18n';
-import {BlockToolbar, type ToolbarOption, optionsButton} from '../../../blockToolbar';
-import {runCommand} from '../../../commands';
+import {BlockToolbar, type ToolbarOption, optionsButton} from '../../../../components/BlockToolbar';
+import {runCommand} from '../../../../utils/commands';
 import {setBannerTitleAttrs} from '../../commands';
 
 const colorTokens: Record<Exclude<BannerTitleColor, 'auto'>, string> = {

@@ -1,7 +1,7 @@
-export const buttonTokenName = 'button';
+export const buttonTokenName = 'g_md_button';
 export const buttonClassName = 'g-md-button-plugin';
 export const buttonRowClassName = 'g-md-button-plugin-row';
-export const buttonRowBreakTokenName = 'button_row_break';
+export const buttonRowBreakTokenName = 'g_md_button_row_break';
 
 export const buttonViews = ['action', 'normal', 'outline', 'flat'] as const;
 export const buttonColors = [
@@ -22,8 +22,18 @@ export type ButtonModel = {
     color: ButtonColor;
     target: ButtonTarget;
     href: string;
+    title: string;
 };
 
+export const ButtonAttr = {
+    Href: 'href',
+    Title: 'title',
+    View: 'view',
+    Color: 'color',
+    Target: 'target',
+} as const satisfies Record<string, keyof ButtonModel>;
+
+/** Colors of each view; the first one replaces a color the view lacks. */
 export const buttonViewColors: Readonly<Record<ButtonView, readonly ButtonColor[]>> = {
     action: ['standard', 'blue', 'green', 'yellow', 'red', 'violet'],
     normal: ['gray', 'blue', 'green', 'yellow', 'red', 'violet'],
@@ -33,6 +43,7 @@ export const buttonViewColors: Readonly<Record<ButtonView, readonly ButtonColor[
 
 export const buttonDefaults: Readonly<ButtonModel> = {
     href: '',
+    title: '',
     view: 'action',
     color: 'standard',
     target: '_self',

@@ -3,9 +3,9 @@ import {chainCommands} from '@gravity-ui/markdown-editor/pm/commands';
 import {type Command, Selection, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
 import {bannerTitle} from '@gravity-ui/markdown-plugin-banner';
 
+import {setNodeAttrs, siblingBlock, stopAtBlockEdge} from '../../utils/commands';
 import {bannerNodeType} from '../Banner/BannerSpecs/const';
 import {bannerContentNodeType} from '../BannerContent/BannerContentSpecs';
-import {setNodeAttrs, siblingBlock, stopAtBlockEdge} from '../commands';
 
 import {bannerTitleNodeType} from './BannerTitleSpecs';
 

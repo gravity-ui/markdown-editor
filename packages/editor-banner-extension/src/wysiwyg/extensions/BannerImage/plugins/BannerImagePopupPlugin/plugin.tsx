@@ -4,6 +4,7 @@ import {
     type RendererItem,
     getReactRendererFromState,
 } from '@gravity-ui/markdown-editor';
+import type {ExtensionDeps} from '@gravity-ui/markdown-editor/core';
 import {keydownHandler} from '@gravity-ui/markdown-editor/pm/keymap';
 import {
     type Command,
@@ -14,24 +15,25 @@ import {
     type PluginView,
 } from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {bannerImage} from '@gravity-ui/markdown-plugin-banner';
+import {type LinkParser, bannerImage} from '@gravity-ui/markdown-plugin-banner';
 
+import {type BannerUploadLimits, imageUploader} from '../../../../components/settings';
 import {
-    type BannerUploadLimits,
-    cancelBannerUploads,
-    uploadBannerFile,
-} from '../../../../plugins/BannerUploadPlugin';
+    dropNodeUploads,
+    hasNodeUploads,
+    uploadNodeFile,
+} from '../../../../plugins/NodeUploadPlugin';
 import {findDepth} from '../../../../plugins/SelectionInsidePlugin';
-import type {BannerOptions} from '../../../Banner';
+import {runCommand} from '../../../../utils/commands';
+import {bannerImagePlacement} from '../../../../utils/placement';
+import {popupDismiss} from '../../../../utils/popup';
+import type {BannerUploadOptions} from '../../../Banner';
 import {bannerNodeType} from '../../../Banner/BannerSpecs';
 import {
     bannerToolbar,
     keepBannerToolbarWith,
     showBannerToolbar,
 } from '../../../Banner/plugins/BannerTooltipPlugin';
-import {runCommand} from '../../../commands';
-import {bannerImagePlacement} from '../../../placement';
-import {popupDismiss} from '../../../popup';
 import {bannerImageNodeType} from '../../BannerImageSpecs';
 import {resetBannerImage, selectedBannerImage, setBannerImageAttrs} from '../../commands';
 
@@ -44,11 +46,15 @@ const imageSelectionKey = new PluginKey<ImageSelection>('banner-image-selection'
 
 const selectedImagePos = (state: EditorState) => selectedBannerImage(state)?.pos ?? null;
 
+/** A change of the image address drops its pending upload. */
+const imageSources = ['src'] as const;
+
 class ImagePopupView implements PluginView {
     readonly dismiss: ReturnType<typeof popupDismiss>;
     private readonly view: EditorView;
-    private readonly options: BannerOptions;
     private readonly limits: BannerUploadLimits;
+    private readonly parser: LinkParser;
+    private readonly uploadImage?: (file: File) => Promise<string>;
     private readonly firstField: {current: HTMLElement | null} = {current: null};
     private readonly renderItem: RendererItem;
     private selected: SelectedImage | null = null;
@@ -59,10 +65,12 @@ class ImagePopupView implements PluginView {
     private untilFocus = false;
     private visible = false;
     private focusOnOpen = false;
-    constructor(view: EditorView, options: BannerOptions) {
+    constructor(view: EditorView, options: BannerUploadOptions, parser: LinkParser) {
         this.view = view;
-        this.options = options;
         this.limits = {imageTypes: options.imageTypes, maxImageSize: options.maxImageSize};
+        this.parser = parser;
+        const {fileUploadHandler} = options;
+        this.uploadImage = fileUploadHandler && imageUploader(fileUploadHandler, parser);
         this.dismiss = popupDismiss(view, {
             anchor: () => this.anchor,
             visible: () => this.visible,
@@ -162,11 +170,11 @@ class ImagePopupView implements PluginView {
                     toolbar={this.toolbar}
                     src={selected.src}
                     limits={this.limits}
+                    parser={this.parser}
                     focusOnOpen={this.focusOnOpen}
                     firstField={this.firstField}
                     onLayer={this.setLayer}
-                    upload={this.options.fileUploadHandler && this.upload}
-                    cancelUpload={this.cancelUpload}
+                    upload={this.uploadImage && this.upload}
                     onChange={this.changeSrc}
                     onReset={this.reset}
                     onOpenChange={this.dismiss.onOpenChange}
@@ -203,36 +211,38 @@ class ImagePopupView implements PluginView {
         this.view.focus();
     };
 
-    private upload = async (file: File) => {
-        const {fileUploadHandler} = this.options;
-        if (!this.selected || !fileUploadHandler) return false;
-        return uploadBannerFile(
+    private upload = async (file: File, signal: AbortSignal) => {
+        if (!this.selected || !this.uploadImage) return false;
+        return uploadNodeFile(
             this.view,
             this.selected.pos,
             file,
-            fileUploadHandler,
+            this.uploadImage,
             (current, src) => setBannerImageAttrs(current, {src}),
+            {attrs: imageSources, signal},
         );
     };
 
-    private cancelUpload = () => {
-        if (this.selected) cancelBannerUploads(this.view, this.selected.pos);
-    };
+    private dropUploads(pos: number) {
+        const {state} = this.view;
+        if (hasNodeUploads(state, pos)) this.view.dispatch(dropNodeUploads(state.tr, pos));
+    }
 
     private reset = () => {
         if (!this.selected) return;
-        cancelBannerUploads(this.view, this.selected.pos);
+        this.dropUploads(this.selected.pos);
         runCommand(this.view, resetBannerImage(this.selected.pos));
     };
 
     private changeSrc = (src: string) => {
         if (!this.selected) return;
-        cancelBannerUploads(this.view, this.selected.pos);
+        this.dropUploads(this.selected.pos);
         runCommand(this.view, setBannerImageAttrs(this.selected.pos, {src}));
     };
 }
 
-export function bannerImagePopup(options: BannerOptions) {
+/** `options` is read when the editor view is created, after the editor context is set. */
+export function bannerImagePopup(options: () => BannerUploadOptions) {
     let popup: ImagePopupView | undefined;
     const focus: Command = () => popup?.focus() ?? false;
     const select = (view: EditorView, pos: number) => {
@@ -243,7 +253,7 @@ export function bannerImagePopup(options: BannerOptions) {
         select(view, pos);
         popup?.show();
     };
-    const plugin = () =>
+    const plugin = ({markupParser}: ExtensionDeps) =>
         new Plugin<ImageSelection>({
             key: imageSelectionKey,
             state: {
@@ -256,7 +266,7 @@ export function bannerImagePopup(options: BannerOptions) {
                 },
             },
             view: (view) => {
-                popup = new ImagePopupView(view, options);
+                popup = new ImagePopupView(view, options(), markupParser);
                 return popup;
             },
             props: {

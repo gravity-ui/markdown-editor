@@ -6,7 +6,7 @@ import {
     bannerImageFromAttrs,
 } from '@gravity-ui/markdown-plugin-banner';
 
-import {attrSpecs} from '../../schema';
+import {attrSpecs} from '../../../utils/schema';
 
 import {bannerImageNodeName} from './const';
 

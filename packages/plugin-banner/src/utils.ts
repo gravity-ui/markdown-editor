@@ -1,28 +1,16 @@
-export type GetAttr = (name: string) => string | null | undefined;
+export const includes = <T>(values: readonly T[], value: unknown): value is T =>
+    (values as readonly unknown[]).includes(value);
 
-export const oneOf = <T extends string | number>(
-    values: readonly T[],
-    value: unknown,
-): T | undefined =>
-    typeof value === 'number' || typeof value === 'string'
-        ? values.find((item) => String(item) === String(value))
-        : undefined;
+export type AttrGetter = (name: string) => string | null | undefined;
 
-export function nonDefaultValues<T extends object>(
-    values: T,
+export function valuesOtherThan<T extends object>(
+    model: T,
     defaults: Readonly<T>,
 ): Record<string, string> {
-    const result: Record<string, string> = {};
+    const values: Record<string, string> = {};
     for (const name of Object.keys(defaults) as (keyof T & string)[]) {
-        if (values[name] !== defaults[name]) result[name] = String(values[name]);
+        const value = model[name];
+        if (value !== null && value !== defaults[name]) values[name] = String(value);
     }
-    return result;
+    return values;
 }
-
-export const dataAttrs = (values: Record<string, string>): Record<string, string> =>
-    Object.fromEntries(Object.entries(values).map(([name, value]) => [`data-${name}`, value]));
-
-export const fromDataAttrs = <T extends object>(getAttr: GetAttr, defaults: Readonly<T>) =>
-    Object.fromEntries(
-        Object.keys(defaults).map((name) => [name, getAttr(`data-${name}`)]),
-    ) as Partial<Record<keyof T, unknown>>;

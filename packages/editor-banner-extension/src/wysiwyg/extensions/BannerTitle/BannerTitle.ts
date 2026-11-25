@@ -13,8 +13,6 @@ import {
 import {bannerTitleGuardPlugin} from './plugins/BannerTitleGuardPlugin';
 import {bannerTitleTooltip} from './plugins/BannerTitleTooltipPlugin';
 
-import '@gravity-ui/markdown-plugin-banner/banner-title/styles.css';
-
 export const BannerTitle: ExtensionAuto = (builder) => {
     const tooltip = bannerTitleTooltip();
     builder

@@ -16,6 +16,7 @@ describe('Button Markdown', () => {
         const model = {
             ...buttonDefaults,
             href: '/help',
+            title: 'Help',
             view: 'outline',
             color: 'blue',
             target: '_blank',
@@ -24,7 +25,7 @@ describe('Button Markdown', () => {
         expect(buttonFromAttrs((name) => attrs[name as keyof typeof attrs])).toEqual(model);
     });
     it('should render a button with defaults', () => {
-        expect(md.renderInline(':button[Read more]{href="/page"}')).toBe(
+        expect(md.renderInline(':button[Read more](/page)')).toBe(
             '<a class="g-md-button-plugin g-md-button-plugin_view_action g-md-button-plugin_color_standard" href="/page" data-view="action" data-color="standard">Read more</a>',
         );
     });
@@ -46,10 +47,26 @@ describe('Button Markdown', () => {
         const html = md.renderInline(':button[**Bold** & <b>tag</b> \\] [pair]]');
         expect(html).toContain('>**Bold** &amp; &lt;b&gt;tag&lt;/b&gt; ] [pair]</a>');
     });
+    it.each([':button[]', ':button[   ]', ':button[](/page)'])(
+        'should render an empty link for the empty button %j',
+        (markup) => {
+            expect(md.renderInline(`Before ${markup} After`)).toMatch(
+                /^Before <a [^>]+><\/a> After$/,
+            );
+        },
+    );
+    it.each([':button', ':button(/page)', ':button{view="flat"}'])(
+        'should keep the button %j without a label as text',
+        (markup) => {
+            expect(md.renderInline(`Before ${markup} After`)).toBe(
+                `Before ${md.utils.escapeHtml(markup)} After`,
+            );
+        },
+    );
     it('should protect links opened in a new tab', () => {
-        expect(
-            md.renderInline(':button[Open]{href="https://example.com" target="_blank"}'),
-        ).toContain('target="_blank" rel="noopener noreferrer"');
+        expect(md.renderInline(':button[Open](https://example.com){target="_blank"}')).toContain(
+            'target="_blank" rel="noopener noreferrer"',
+        );
     });
     it('should ignore unsupported attributes and normalize styles', () => {
         const token = openToken(
@@ -74,14 +91,26 @@ describe('Button Markdown', () => {
             expect(tokens.filter((token) => token.type === buttonTokenName)).toHaveLength(2);
         },
     );
-    it.each(['/page?a=1&b=2', '/a\\(b\\)'])(
-        'should read the address %s like the address of a link',
-        (href) => {
-            const link = inlineTokens(`[Open](${href})`).find(
+    it.each([
+        '/page?a=1&b=2',
+        '/image&copy;.png',
+        '/page?a=1&copy=2&reg;=3',
+        '/page?a=1&amp;b=2',
+        '/image&#10;.png',
+        '/a&lt;b&gt;c&quot;d',
+        '/a\\(b\\)',
+    ])('should read the address %s like the address of a link', (href) => {
+        const link = inlineTokens(`[Open](${href})`).find((token) => token.type === 'link_open');
+        expect(openToken(`:button[Open](${href})`)?.attrGet('href')).toBe(link?.attrGet('href'));
+    });
+    it.each(['"Title"', "'Title'", '(Title)', '"A \\"quoted\\" &amp; title"'])(
+        'should read the title %s like the title of a link',
+        (title) => {
+            const link = inlineTokens(`[Open](/page ${title})`).find(
                 (token) => token.type === 'link_open',
             );
-            expect(openToken(`:button[Open]{href="${href}"}`)?.attrGet('href')).toBe(
-                link?.attrGet('href'),
+            expect(openToken(`:button[Open](/page ${title})`)?.attrGet('title')).toBe(
+                link?.attrGet('title'),
             );
         },
     );
@@ -94,8 +123,19 @@ describe('Button Markdown', () => {
         ['vbscript:alert(1)', null],
         ['VBSCRIPT:alert(1)', null],
         ['file:///123', null],
+        [
+            '&#34;&#62;&#60;script&#62;alert&#40;&#34;xss&#34;&#41;&#60;/script&#62;',
+            '%22%3E%3Cscript%3Ealert(%22xss%22)%3C/script%3E',
+        ],
+        ['&#74;avascript:alert(1)', null],
+        ['&#x26;#74;avascript:alert(1)', '&#74;avascript:alert(1)'],
         ['\\&#74;avascript:alert(1)', '&#74;avascript:alert(1)'],
+        ['javascript&#x3A;alert(1)', null],
         ['data:text/html;base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4K', null],
+        [
+            'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+            'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+        ],
         ['/javascript:link', '/javascript:link'],
         ['http://example.com/α%CE%B2γ%CE%B4', 'http://example.com/%CE%B1%CE%B2%CE%B3%CE%B4'],
         [
@@ -109,6 +149,11 @@ describe('Button Markdown', () => {
         ['//☃.net/', '//xn--n3h.net/'],
         ['skype:γγγ', 'skype:%CE%B3%CE%B3%CE%B3'],
     ])('should read the address %s like the markdown-it link tests', (href, expected) => {
-        expect(openToken(`:button[Open]{href="${href}"}`)?.attrGet('href')).toBe(expected);
+        expect(openToken(`:button[Open](${href})`)?.attrGet('href')).toBe(expected);
+    });
+    it('should ignore the address and the title in the attributes', () => {
+        const token = openToken(':button[Open]{href="/page" title="Title"}');
+        expect(token?.attrGet('href')).toBeNull();
+        expect(token?.attrGet('title')).toBeNull();
     });
 });

@@ -37,12 +37,7 @@
         "default": "./build/cjs/index.js"
       }
     },
-    "./styles.css": "./build/styles.css",
-    "./banner/styles.css": "./build/esm/banner/index.css",
-    "./banner-title/styles.css": "./build/esm/banner-title/index.css",
-    "./banner-content/styles.css": "./build/esm/banner-content/index.css",
-    "./banner-image/styles.css": "./build/esm/banner-image/index.css",
-    "./button/styles.css": "./build/esm/button/index.css"
+    "./styles.css": "./build/styles.css"
   },
   "main": "build/cjs/index.js",
   "module": "build/esm/index.js",

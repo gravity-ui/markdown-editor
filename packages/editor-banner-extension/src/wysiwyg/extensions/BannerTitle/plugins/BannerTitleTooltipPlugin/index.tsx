@@ -1,7 +1,7 @@
 import {bannerTitle} from '@gravity-ui/markdown-plugin-banner';
 
-import {blockTooltip} from '../../../blockToolbar';
-import {bannerAlignPlacement} from '../../../placement';
+import {blockTooltip} from '../../../../components/BlockToolbar';
+import {bannerAlignPlacement} from '../../../../utils/placement';
 import {bannerTitleNodeType} from '../../BannerTitleSpecs';
 
 import {BannerTitleToolbar} from './BannerTitleToolbar';

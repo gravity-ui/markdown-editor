@@ -6,17 +6,16 @@ import {
     ObjectsAlignRight,
     ObjectsAlignTop,
 } from '@gravity-ui/icons';
-import {type BannerModel, bannerAligns, bannerVerticals} from '@gravity-ui/markdown-plugin-banner';
+import {type BannerLayout, bannerAligns, bannerVerticals} from '@gravity-ui/markdown-plugin-banner';
 import {Divider, Text} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
-import {cnBannerSettings} from '../../../../settings';
+import {SettingsSwitch, cnBannerSettings} from '../../../../../components/settings';
 import type {BannerPart, BannerParts} from '../../../utils';
 
 import {type BackgroundControls, BackgroundField} from './BackgroundField';
-import {IconRadioGroup} from './IconRadioGroup';
+import {SegmentedSelect} from './SegmentedSelect';
 import {SettingsSection} from './SettingsSection';
-import {SettingsSwitch} from './SettingsSwitch';
 
 const verticalIcons = {
     top: ObjectsAlignTop,
@@ -58,19 +57,20 @@ function ButtonSwitch({index, buttons, onButtonChange}: ButtonSwitchProps) {
 }
 
 type SettingsFieldsProps = {
-    model: BannerModel;
-    onChange: (changes: Partial<BannerModel>) => void;
+    layout: BannerLayout;
+    onLayoutChange: <K extends keyof BannerLayout>(name: K, value: BannerLayout[K]) => void;
     content: ContentControls;
     background: BackgroundControls;
 };
 
-export function SettingsFields({model, onChange, content, background}: SettingsFieldsProps) {
+export function SettingsFields({layout, onLayoutChange, content, background}: SettingsFieldsProps) {
     const {parts, buttonsAvailable, onPartChange, onButtonChange} = content;
     const handleTitleUpdate = (enabled: boolean) => onPartChange('title', enabled);
     const handleContentUpdate = (enabled: boolean) => onPartChange('content', enabled);
     const handleImageUpdate = (enabled: boolean) => onPartChange('image', enabled);
-    const handleVerticalUpdate = (vertical: BannerModel['vertical']) => onChange({vertical});
-    const handleAlignUpdate = (align: BannerModel['align']) => onChange({align});
+    const handleVerticalUpdate = (vertical: BannerLayout['vertical']) =>
+        onLayoutChange('vertical', vertical);
+    const handleAlignUpdate = (align: BannerLayout['align']) => onLayoutChange('align', align);
     return (
         <>
             <Divider />
@@ -88,9 +88,9 @@ export function SettingsFields({model, onChange, content, background}: SettingsF
                 <Text as="h4" className={cnBannerSettings('heading')} variant="subheader-1">
                     {i18n('alignment')}
                 </Text>
-                <IconRadioGroup
+                <SegmentedSelect
                     label={i18n('vertical-alignment')}
-                    value={model.vertical}
+                    value={layout.vertical}
                     options={bannerVerticals.map((value) => ({
                         value,
                         label: i18n(value),
@@ -98,9 +98,9 @@ export function SettingsFields({model, onChange, content, background}: SettingsF
                     }))}
                     onUpdate={handleVerticalUpdate}
                 />
-                <IconRadioGroup
+                <SegmentedSelect
                     label={i18n('horizontal-alignment')}
-                    value={model.align}
+                    value={layout.align}
                     options={bannerAligns.map((value) => ({
                         value,
                         label: i18n(value),

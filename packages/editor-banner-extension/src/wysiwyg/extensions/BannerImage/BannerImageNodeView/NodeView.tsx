@@ -5,7 +5,7 @@ import {bannerImageAttrs} from '@gravity-ui/markdown-plugin-banner';
 import {Portal} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../i18n';
-import {syncDomAttrs} from '../../nodeview';
+import {syncDomAttrs} from '../../../utils/nodeview';
 
 import {BannerImagePlaceholder, cnBannerImageNodeView} from './components/BannerImagePlaceholder';
 
@@ -72,6 +72,7 @@ export class WBannerImageNodeView implements NodeView {
     private renderAttrs(attrs: Record<string, string>) {
         const {alt, ...named} = attrs;
         const domAttrs = alt ? attrs : {...named, role: 'img', 'aria-label': i18n('image')};
-        this.attrs = syncDomAttrs(this.dom, this.attrs, domAttrs);
+        syncDomAttrs(this.dom, this.attrs, domAttrs);
+        this.attrs = domAttrs;
     }
 }

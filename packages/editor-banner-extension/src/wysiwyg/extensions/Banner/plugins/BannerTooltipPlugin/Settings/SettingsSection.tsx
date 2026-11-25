@@ -3,7 +3,7 @@ import type {ReactNode} from 'react';
 import {ChevronDown, ChevronUp} from '@gravity-ui/icons';
 import {Button, Disclosure, Icon, Text} from '@gravity-ui/uikit';
 
-import {cnBannerSettings} from '../../../../settings';
+import {cnBannerSettings} from '../../../../../components/settings';
 
 const ICON_SIZE = 16;
 

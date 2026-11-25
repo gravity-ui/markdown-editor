@@ -11,8 +11,6 @@ import {
     stopAtBannerContentStart,
 } from './commands';
 
-import '@gravity-ui/markdown-plugin-banner/banner-content/styles.css';
-
 export const BannerContent: ExtensionAuto = (builder) => {
     builder
         .addPlugin(() => selectionInsidePlugin(bannerContentNodeType))

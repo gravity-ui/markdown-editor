@@ -8,15 +8,20 @@ import {buttonMarksPlugin} from './plugins/ButtonMarksPlugin';
 import {buttonRowPlugin} from './plugins/ButtonRowPlugin';
 import {buttonSettingsPlugin} from './plugins/ButtonSettingsPlugin';
 
-import '@gravity-ui/markdown-plugin-banner/button/styles.css';
+import '@gravity-ui/markdown-plugin-banner/styles.css';
 
 export const Button: ExtensionAuto = (builder) => {
     builder
         .use(ButtonSpecs)
-        .addNodeView(buttonNodeName, () => (node) => new WButtonNodeView(node))
+        .addNodeView(
+            buttonNodeName,
+            ({markupParser}) =>
+                (node, view, getPos, decorations) =>
+                    new WButtonNodeView(node, view, getPos, markupParser, decorations),
+        )
         .addPlugin(buttonRowPlugin)
         .addPlugin(buttonMarksPlugin)
-        .addPlugin(buttonSettingsPlugin, builder.Priority.High)
+        .addPlugin(buttonSettingsPlugin)
         .addKeymap(
             () => ({Backspace: selectButtonBefore, Delete: selectButtonAfter}),
             builder.Priority.High,

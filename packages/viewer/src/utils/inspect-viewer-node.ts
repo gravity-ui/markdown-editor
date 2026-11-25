@@ -1,4 +1,4 @@
-import {VIEWER_SLOT_ATTRIBUTE} from '../components/ViewerTargets/constants';
+import {VIEWER_SLOT_ATTRIBUTE} from '../constants';
 
 const slotSelector = `[${VIEWER_SLOT_ATTRIBUTE}]`;
 

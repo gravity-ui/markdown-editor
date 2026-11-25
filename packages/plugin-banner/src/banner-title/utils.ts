@@ -1,6 +1,12 @@
-import {nonDefaultValues, oneOf} from '../utils';
+import {valuesOtherThan} from '../utils';
 
 import {type BannerTitle, bannerTitleColors, bannerTitleDefaults, bannerTitleSizes} from './const';
+
+/** A value of the list written as a number or a string: `"1.0"` and `"01"` are not `1`. */
+const oneOf = <T extends string | number>(values: readonly T[], value: unknown): T | undefined =>
+    typeof value === 'number' || typeof value === 'string'
+        ? values.find((item) => String(item) === String(value))
+        : undefined;
 
 export function bannerTitle(attrs: {size?: unknown; color?: unknown}): BannerTitle {
     return {
@@ -9,5 +15,6 @@ export function bannerTitle(attrs: {size?: unknown; color?: unknown}): BannerTit
     };
 }
 
-export const bannerTitleValues = (title: BannerTitle): Record<string, string> =>
-    nonDefaultValues(title, bannerTitleDefaults);
+export function bannerTitleValues(title: BannerTitle): Record<string, string> {
+    return valuesOtherThan(title, bannerTitleDefaults);
+}

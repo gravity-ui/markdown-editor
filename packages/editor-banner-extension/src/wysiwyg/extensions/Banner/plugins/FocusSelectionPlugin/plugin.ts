@@ -1,7 +1,7 @@
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import {Plugin, Selection} from '@gravity-ui/markdown-editor/pm/state';
 
-import {isDomSelectionReset, pointerFocusEvents} from '../../../blockToolbar';
+import {isDomSelectionReset, pointerFocusEvents} from '../../../../components/BlockToolbar';
 
 export const focusSelectionPlugin = () => {
     let saved: {selection: Selection; doc: Node} | null = null;

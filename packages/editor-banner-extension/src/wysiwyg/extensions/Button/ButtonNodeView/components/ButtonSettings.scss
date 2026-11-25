@@ -1,0 +1,49 @@
+@use '../../../../mixins';
+
+:where(.g-md-button-settings) {
+    // Zero specificity leaves the width to the block styles.
+    @include mixins.reset-dialog;
+}
+
+.g-md-button-settings {
+    $width: 256px;
+
+    --_--font-size: 14px;
+
+    width: $width;
+
+    .g-text-input__control,
+    .g-switch__content {
+        font-size: var(--_--font-size);
+    }
+
+    &__popup {
+        border-radius: var(--g-border-radius-xl);
+    }
+
+    &__label {
+        padding: var(--g-spacing-4);
+    }
+
+    &__style {
+        padding-block-start: var(--g-spacing-4);
+
+        border-block-start: 1px solid var(--g-color-line-generic);
+    }
+
+    &__fields {
+        display: flex;
+        flex-direction: column;
+        gap: var(--g-spacing-3);
+
+        padding: var(--g-spacing-3) var(--g-spacing-4) var(--g-spacing-4);
+    }
+
+    &__icon {
+        display: flex;
+
+        margin-inline: var(--g-spacing-2) var(--g-spacing-1);
+
+        color: var(--g-color-text-hint);
+    }
+}

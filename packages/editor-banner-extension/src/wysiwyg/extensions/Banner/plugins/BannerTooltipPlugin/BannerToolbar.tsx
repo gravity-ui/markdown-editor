@@ -7,36 +7,46 @@ import {
 import type {Attrs} from '@gravity-ui/markdown-editor/pm/model';
 import type {Command} from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {type BannerModel, bannerModel} from '@gravity-ui/markdown-plugin-banner';
+import {
+    type LinkParser,
+    bannerBackground,
+    bannerDimensions,
+    bannerLayout,
+} from '@gravity-ui/markdown-plugin-banner';
 import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
-import {cancelBannerUploads, uploadBannerFile} from '../../../../plugins/BannerUploadPlugin';
+import {BlockToolbar, isActive, isEnable} from '../../../../components/BlockToolbar';
+import {imageUploader} from '../../../../components/settings';
+import {uploadNodeFile} from '../../../../plugins/NodeUploadPlugin';
+import {runCommand} from '../../../../utils/commands';
 import {buttonNodeType} from '../../../Button/ButtonSpecs';
-import {BlockToolbar, isActive, isEnable} from '../../../blockToolbar';
-import {runCommand} from '../../../commands';
-import type {BannerOptions} from '../../Banner';
 import {
     type RemovedParts,
     addBannerButton,
+    bannerBackgroundSources,
     removeBanner,
     removeBannerButton,
-    setBannerAttrs,
+    setBannerBackground,
+    setBannerDimension,
+    setBannerLayout,
     toggleBannerPart,
 } from '../../commands';
+import type {BannerUploadOptions} from '../../index';
 import type {BannerParts} from '../../utils';
 
 import type {BackgroundControls} from './Settings/BackgroundField';
 import {BannerSettings} from './Settings/BannerSettings';
 import type {ContentControls} from './Settings/SettingsFields';
 
-type BannerToolbarProps = BannerOptions & {
+type BannerToolbarProps = BannerUploadOptions & {
     view: EditorView;
     attrs: Attrs;
     pos: number;
     block: HTMLElement | null;
     parts: BannerParts;
     markup: () => string;
+    parser: LinkParser;
 };
 
 const COPY_BUTTON_WIDTH = 28;
@@ -63,13 +73,13 @@ export function BannerToolbar({
     block,
     parts,
     markup,
+    parser,
     fileUploadHandler,
     imageTypes,
     maxImageSize,
 }: BannerToolbarProps) {
     const run = (command: Command) => runCommand(view, command);
-    const model = bannerModel(attrs);
-    const setAttrs = (changes: Partial<BannerModel>) => run(setBannerAttrs(pos, changes));
+    const uploadImage = fileUploadHandler && imageUploader(fileUploadHandler, parser);
     const content: ContentControls = {
         parts,
         buttonsAvailable: Boolean(buttonNodeType(view.state.schema)),
@@ -79,20 +89,22 @@ export function BannerToolbar({
             run(enabled ? addBannerButton(pos) : removeBannerButton(pos, index)),
     };
     const background: BackgroundControls = {
-        value: model,
+        value: bannerBackground(attrs),
+        parser,
         imageTypes,
         maxImageSize,
-        onChange: (value) => {
-            if ('bg-image' in value) cancelBannerUploads(view, pos);
-            setAttrs(value);
-        },
+        onChange: (value) => run(setBannerBackground(pos, value)),
         upload:
-            fileUploadHandler &&
-            ((file) =>
-                uploadBannerFile(view, pos, file, fileUploadHandler, (current, src) =>
-                    setBannerAttrs(current, {'bg-image': src}),
+            uploadImage &&
+            ((file, signal) =>
+                uploadNodeFile(
+                    view,
+                    pos,
+                    file,
+                    uploadImage,
+                    (current, image) => setBannerBackground(current, {'bg-image': image}),
+                    {attrs: bannerBackgroundSources, signal},
                 )),
-        cancelUpload: () => cancelBannerUploads(view, pos),
     };
     const data: ToolbarData<EditorView> = [
         [
@@ -108,8 +120,10 @@ export function BannerToolbar({
                     <BannerSettings
                         block={block}
                         button={anchorElement}
-                        model={model}
-                        onChange={setAttrs}
+                        dimensions={bannerDimensions(attrs)}
+                        onChange={(name, value) => run(setBannerDimension(pos, name, value))}
+                        layout={bannerLayout(attrs)}
+                        onLayoutChange={(name, value) => run(setBannerLayout(pos, name, value))}
                         content={content}
                         background={background}
                         onClose={hide}

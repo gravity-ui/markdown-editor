@@ -1,5 +1,5 @@
 export const bannerClassName = 'g-md-banner-plugin';
-export const bannerTokenName = 'banner';
+export const bannerTokenName = 'g_md_banner';
 
 export const bannerHeights = ['s', 'm', 'l'] as const;
 export const bannerWidths = ['s', 'm', 'l', 'full'] as const;
@@ -42,12 +42,4 @@ export const bannerBackgroundDefaults: Readonly<BannerBackground> = {
     'bg-image': null,
     'bg-theme': 'system',
     'bg-image-blur': false,
-};
-
-export type BannerModel = BannerDimensions & BannerLayout & BannerBackground;
-
-export const bannerModelDefaults: Readonly<BannerModel> = {
-    ...bannerDefaults,
-    ...bannerLayoutDefaults,
-    ...bannerBackgroundDefaults,
 };

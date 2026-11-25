@@ -1,12 +1,14 @@
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {
     bannerAttrs,
+    bannerBackgroundDefaults,
     bannerClassName,
-    bannerModelDefaults,
-    bannerModelFromAttrs,
+    bannerDefaults,
+    bannerFromAttrs,
+    bannerLayoutDefaults,
 } from '@gravity-ui/markdown-plugin-banner';
 
-import {attrSpecs} from '../../schema';
+import {attrSpecs} from '../../../utils/schema';
 
 import {bannerNodeName} from './const';
 
@@ -18,11 +20,11 @@ export const BannerSchemaSpecs: ExtensionAuto = (builder) => {
         isolating: true,
         allowSelection: true,
         selectAll: 'node',
-        attrs: attrSpecs(bannerModelDefaults),
+        attrs: attrSpecs({...bannerDefaults, ...bannerLayoutDefaults, ...bannerBackgroundDefaults}),
         parseDOM: [
             {
                 tag: `div.${bannerClassName}`,
-                getAttrs: (dom) => bannerModelFromAttrs((name) => dom.getAttribute(name)),
+                getAttrs: (dom) => bannerFromAttrs((name) => dom.getAttribute(name)),
             },
         ],
         toDOM: (node) => ['div', bannerAttrs(node.attrs), 0],

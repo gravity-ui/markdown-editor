@@ -13,7 +13,7 @@ Everything the team needs in **one place**: the [handbook](https://example.com/h
 
 :::
 
-:button[Get started]{href="https://example.com/start" view="action" color="standard"} :button[Read the docs]{href="https://example.com/docs" view="outline" color="gray"}
+:button[Get started](https://example.com/start){view="action" color="standard"} :button[Read the docs](https://example.com/docs){view="outline" color="gray"}
 
 :::
 
@@ -45,7 +45,7 @@ The text and the buttons start at the left edge and stand at the bottom.
 
 :::
 
-:button[Open]{href="https://example.com" view="action" color="blue"}
+:button[Open](https://example.com){view="action" color="blue"}
 
 :::
 
@@ -61,7 +61,7 @@ The text and the buttons are centered and stand at the top.
 
 :::
 
-:button[Open]{href="https://example.com" view="action" color="blue"}
+:button[Open](https://example.com){view="action" color="blue"}
 
 :::
 
@@ -77,7 +77,7 @@ The text and the buttons end at the right edge, in the middle of the height.
 
 :::
 
-:button[Open]{href="https://example.com" view="action" color="blue"}
+:button[Open](https://example.com){view="action" color="blue"}
 
 :::
 
@@ -93,7 +93,7 @@ The text and the buttons end at the right edge and stand at the bottom.
 
 :::
 
-:button[Open]{href="https://example.com" view="action" color="blue"}
+:button[Open](https://example.com){view="action" color="blue"}
 
 :::
 
@@ -213,7 +213,7 @@ A soft background with \`monospace\` text and a [link](https://example.com).
 
 :::
 
-:button[Open]{href="https://example.com" view="action" color="violet"} :button[Later]{view="flat" color="violet"}
+:button[Open](https://example.com){view="action" color="violet"} :button[Later]{view="flat" color="violet"}
 
 :::
 
@@ -229,7 +229,7 @@ A brighter background with \`monospace\` text and a [link](https://example.com).
 
 :::
 
-:button[Open]{href="https://example.com" view="action" color="green"} :button[Later]{view="flat" color="green"}
+:button[Open](https://example.com){view="action" color="green"} :button[Later]{view="flat" color="green"}
 
 :::
 
@@ -245,7 +245,7 @@ A saturated background with \`monospace\` text and a [link](https://example.com)
 
 :::
 
-:button[Open]{href="https://example.com" view="normal" color="gray"} :button[Later]{view="flat" color="standard"}
+:button[Open](https://example.com){view="normal" color="gray"} :button[Later]{view="flat" color="standard"}
 
 :::
 
@@ -263,7 +263,7 @@ The content keeps the light theme in a dark page.
 
 :::
 
-:button[Open]{href="https://example.com" view="action" color="standard"}
+:button[Open](https://example.com){view="action" color="standard"}
 
 :::
 
@@ -279,7 +279,7 @@ The content keeps the dark theme in a light page.
 
 :::
 
-:button[Open]{href="https://example.com" view="action" color="standard"}
+:button[Open](https://example.com){view="action" color="standard"}
 
 :::
 
@@ -313,7 +313,7 @@ A right-aligned text moves the image to the left.
 
 :::
 
-:button[Download]{href="https://example.com/report" view="action" color="blue"}
+:button[Download](https://example.com/report){view="action" color="blue"}
 
 :::
 
@@ -335,7 +335,7 @@ A right-aligned text moves the image to the left.
 
 ::banner-title[One button]
 
-:button[Sign up]{href="https://example.com" view="action" color="green"}
+:button[Sign up](https://example.com){view="action" color="green"}
 
 :::
 
@@ -345,7 +345,7 @@ A right-aligned text moves the image to the left.
 
 ::banner-title[Two buttons]
 
-:button[Sign up]{href="https://example.com" view="action" color="yellow"} :button[Learn more]{href="https://example.com" view="normal" color="gray"}
+:button[Sign up](https://example.com){view="action" color="yellow"} :button[Learn more](https://example.com){view="normal" color="gray"}
 
 :::
 
@@ -355,7 +355,7 @@ A right-aligned text moves the image to the left.
 
 ::banner-title[Three buttons]
 
-:button[Sign up]{href="https://example.com" view="action" color="red"} :button[Learn more]{href="https://example.com" view="outline" color="blue"} :button[Skip]{view="flat" color="gray"}
+:button[Sign up](https://example.com){view="action" color="red"} :button[Learn more](https://example.com){view="outline" color="blue"} :button[Skip]{view="flat" color="gray"}
 
 :::
 

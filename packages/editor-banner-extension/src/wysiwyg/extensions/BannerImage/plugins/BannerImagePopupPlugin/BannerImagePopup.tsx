@@ -1,15 +1,18 @@
-import {type RefObject, memo, useEffect, useMemo, useRef} from 'react';
+import {type KeyboardEvent, type RefObject, memo, useEffect, useMemo, useRef} from 'react';
 
 import {type Placement, flip, limitShift, offset, shift} from '@floating-ui/react';
+import type {LinkParser} from '@gravity-ui/markdown-plugin-banner';
 import {Button, Popup, type PopupProps, Text} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
-import type {BannerUploadLimits} from '../../../../plugins/BannerUploadPlugin';
-import {PopupLayer} from '../../../PopupLayer';
-import {TabOutClose} from '../../../TabOutClose';
-import {belowBlockToolbar} from '../../../placement';
-import {nodeAnchor} from '../../../popup';
-import {ImageSource, cnBannerSettings} from '../../../settings';
+import {PopupLayer} from '../../../../components/PopupLayer';
+import {
+    type BannerUploadLimits,
+    ImageSource,
+    cnBannerSettings,
+} from '../../../../components/settings';
+import {belowBlockToolbar} from '../../../../utils/placement';
+import {closeOnTabOut, nodeAnchor} from '../../../../utils/popup';
 
 const NO_FOCUS = -1;
 const OFFSET = 4;
@@ -21,11 +24,11 @@ type BannerImagePopupProps = {
     toolbar: () => HTMLElement | null | undefined;
     src: string | null;
     limits: BannerUploadLimits;
+    parser: LinkParser;
     focusOnOpen: boolean;
     firstField: RefObject<HTMLElement>;
     onLayer: (layer: HTMLDivElement | null) => void;
-    upload?: (file: File) => Promise<boolean>;
-    cancelUpload: () => void;
+    upload?: (file: File, signal: AbortSignal) => Promise<boolean>;
     onChange: (src: string) => void;
     onReset: () => void;
     onOpenChange: NonNullable<PopupProps['onOpenChange']>;
@@ -39,11 +42,11 @@ export const BannerImagePopup = memo<BannerImagePopupProps>(function BannerImage
     toolbar,
     src,
     limits,
+    parser,
     focusOnOpen,
     firstField,
     onLayer,
     upload,
-    cancelUpload,
     onChange,
     onReset,
     onOpenChange,
@@ -69,6 +72,7 @@ export const BannerImagePopup = memo<BannerImagePopupProps>(function BannerImage
         focusForm.current = true;
         onReset();
     };
+    const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => closeOnTabOut(event, onClose);
     return (
         <PopupLayer onLayer={onLayer}>
             <Popup
@@ -81,43 +85,44 @@ export const BannerImagePopup = memo<BannerImagePopupProps>(function BannerImage
                 initialFocus={focusOnOpen ? firstField : NO_FOCUS}
                 onOpenChange={onOpenChange}
             >
-                <TabOutClose onClose={onClose}>
-                    <div
-                        className={cnBannerSettings('popup', {untitled: true})}
-                        role="dialog"
-                        aria-label={i18n('image')}
-                        data-qa="banner-image-popup"
-                        tabIndex={-1}
+                <dialog
+                    open
+                    className={cnBannerSettings('dialog', [
+                        cnBannerSettings('popup', {untitled: true}),
+                    ])}
+                    aria-label={i18n('image')}
+                    data-qa="banner-image-popup"
+                    tabIndex={-1}
+                    onKeyDown={handleKeyDown}
+                >
+                    <ImageSource
+                        image={src}
+                        limits={limits}
+                        parser={parser}
+                        firstFieldRef={firstField}
+                        upload={upload}
+                        onLink={onChange}
+                        onClose={onClose}
                     >
-                        <ImageSource
-                            image={src}
-                            limits={limits}
-                            firstFieldRef={firstField}
-                            upload={upload}
-                            cancelUpload={cancelUpload}
-                            onLink={onChange}
-                            onClose={onClose}
-                        >
-                            {(file) => (
-                                <>
-                                    <div className={cnBannerSettings('title')}>
-                                        <Text
-                                            as="h2"
-                                            className={cnBannerSettings('heading')}
-                                            variant="subheader-3"
-                                        >
-                                            {i18n('image')}
-                                        </Text>
-                                        <Button view="flat" size="m" onClick={reset}>
-                                            {i18n('background-reset')}
-                                        </Button>
-                                    </div>
-                                    {file}
-                                </>
-                            )}
-                        </ImageSource>
-                    </div>
-                </TabOutClose>
+                        {(file) => (
+                            <>
+                                <div className={cnBannerSettings('title')}>
+                                    <Text
+                                        as="h2"
+                                        className={cnBannerSettings('heading')}
+                                        variant="subheader-3"
+                                    >
+                                        {i18n('image')}
+                                    </Text>
+                                    <Button view="flat" size="m" onClick={reset}>
+                                        {i18n('background-reset')}
+                                    </Button>
+                                </div>
+                                {file}
+                            </>
+                        )}
+                    </ImageSource>
+                </dialog>
             </Popup>
         </PopupLayer>
     );

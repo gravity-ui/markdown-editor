@@ -13,10 +13,11 @@ import {
 import {bannerImageClickPlugin} from './plugins/BannerImageClickPlugin';
 import {bannerImagePopup} from './plugins/BannerImagePopupPlugin';
 
-import '@gravity-ui/markdown-plugin-banner/banner-image/styles.css';
-
 export const BannerImage: ExtensionAuto<BannerOptions> = (builder, options) => {
-    const popup = bannerImagePopup(options);
+    const popup = bannerImagePopup(() => ({
+        ...options,
+        fileUploadHandler: builder.context.get('fileUploadHandler'),
+    }));
     builder
         .addNodeView(
             bannerImageNodeName,

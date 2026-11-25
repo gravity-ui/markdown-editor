@@ -1,9 +1,9 @@
 import {cn} from '@gravity-ui/markdown-editor';
 import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import type {NodeView} from '@gravity-ui/markdown-editor/pm/view';
-import {bannerAttrs} from '@gravity-ui/markdown-plugin-banner';
+import {bannerRender} from '@gravity-ui/markdown-plugin-banner';
 
-import {syncDomAttrs} from '../../nodeview';
+import {syncDomAttrs} from '../../../utils/nodeview';
 
 import './NodeView.scss';
 
@@ -24,13 +24,18 @@ export class WBannerNodeView implements NodeView {
 
     update(node: Node) {
         if (node.type !== this.node.type) return false;
-        const changed = !node.sameMarkup(this.node);
+        const attrsChanged = !node.sameMarkup(this.node);
         this.node = node;
-        if (changed) this.renderAttrs();
+        if (attrsChanged) this.renderAttrs();
         return true;
     }
 
+    // Only `background-image` is written, so the styles of node decorations stay.
     private renderAttrs() {
-        this.attrs = syncDomAttrs(this.dom, this.attrs, bannerAttrs(this.node.attrs));
+        const {className, backgroundImage, data} = bannerRender(this.node.attrs);
+        const attrs = {class: className, ...data};
+        syncDomAttrs(this.dom, this.attrs, attrs);
+        this.attrs = attrs;
+        this.dom.style.backgroundImage = backgroundImage ?? '';
     }
 }

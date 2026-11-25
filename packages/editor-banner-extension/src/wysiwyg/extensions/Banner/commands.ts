@@ -8,15 +8,22 @@ import {
     TextSelection,
     type Transaction,
 } from '@gravity-ui/markdown-editor/pm/state';
-import {bannerModel} from '@gravity-ui/markdown-plugin-banner';
+import {
+    type BannerBackground,
+    type BannerDimensions,
+    type BannerLayout,
+    bannerBackground,
+} from '@gravity-ui/markdown-plugin-banner';
 
 import {i18n} from '../../../i18n';
+import {dropNodeUploads, hasNodeUploads} from '../../plugins/NodeUploadPlugin';
+import {changedAttrs} from '../../utils/attrs';
+import {removeChild, stopAtBlockEdge} from '../../utils/commands';
 import {bannerContentNodeType} from '../BannerContent/BannerContentSpecs';
 import {bannerImageNodeType} from '../BannerImage/BannerImageSpecs';
 import {bannerTitleNodeType} from '../BannerTitle/BannerTitleSpecs';
-import {ButtonAttr, isButtonRow} from '../Button/ButtonSpecs';
+import {ButtonNodeAttr, isButtonRow} from '../Button/ButtonSpecs';
 import {buttonNode} from '../Button/commands';
-import {removeChild, setNodeAttrs, stopAtBlockEdge} from '../commands';
 
 import {bannerNodeType} from './BannerSpecs';
 import {bannerButtonStyles, bannerButtonsMax} from './const';
@@ -80,7 +87,7 @@ function partFromParagraph(part: BannerPart, paragraph: Node): Node | undefined 
 const bannerButton = (schema: Schema, index: number) =>
     buttonNode(schema, {
         ...bannerButtonStyles[index],
-        [ButtonAttr.Label]: i18n('button-placeholder'),
+        [ButtonNodeAttr.Label]: i18n('button-placeholder'),
     });
 
 function bannerNode(schema: Schema): Node {
@@ -167,7 +174,54 @@ export const insertBanner: Command = (state, dispatch) => {
     return true;
 };
 
-export const setBannerAttrs = setNodeAttrs(bannerNodeType, bannerModel);
+const setBannerAttr =
+    (pos: number, name: string, value: unknown): Command =>
+    (state, dispatch) => {
+        const node = bannerAt(state, pos);
+        if (!node) return false;
+        if (dispatch && node.attrs[name] !== value) {
+            dispatch(state.tr.setNodeAttribute(pos, name, value));
+        }
+        return true;
+    };
+
+export const setBannerDimension = <K extends keyof BannerDimensions>(
+    pos: number,
+    name: K,
+    value: BannerDimensions[K],
+) => setBannerAttr(pos, name, value);
+
+export const setBannerLayout = <K extends keyof BannerLayout>(
+    pos: number,
+    name: K,
+    value: BannerLayout[K],
+) => setBannerAttr(pos, name, value);
+
+/** Attributes that set the source of the background; a change of either drops a pending upload. */
+export const bannerBackgroundSources = ['bg-image', 'bg-color'] as const;
+
+export const setBannerBackground =
+    (pos: number, background: Partial<BannerBackground>): Command =>
+    (state, dispatch) => {
+        const node = bannerAt(state, pos);
+        if (!node) return false;
+        if (dispatch) {
+            const next = bannerBackground({...bannerBackground(node.attrs), ...background});
+            const tr = state.tr;
+            for (const [name, value] of changedAttrs(node.attrs, next)) {
+                tr.setNodeAttribute(pos, name, value);
+            }
+            const changesSource = bannerBackgroundSources.some((name) => name in background);
+            const cancelsUpload = changesSource && hasNodeUploads(state, pos);
+            if (cancelsUpload) dropNodeUploads(tr, pos);
+            if (tr.docChanged) {
+                dispatch(closeHistory(tr));
+            } else if (cancelsUpload) {
+                dispatch(tr);
+            }
+        }
+        return true;
+    };
 
 export const setBannerPart = (
     pos: number,

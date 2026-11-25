@@ -9,7 +9,7 @@ import {
     superscriptMarkName,
 } from '@gravity-ui/markdown-editor/specs';
 
-import {type Range, coveringRanges} from '../../../changedRange';
+import {type Range, coveringRanges} from '../../../../utils/changedRange';
 import {isButton} from '../../ButtonSpecs/utils';
 
 const excludedMarks = [linkMarkName, codeMarkName, subscriptMarkName, superscriptMarkName];

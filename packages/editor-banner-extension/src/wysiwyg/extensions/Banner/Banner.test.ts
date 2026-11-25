@@ -29,17 +29,31 @@ import {
 } from '@gravity-ui/markdown-editor/specs';
 import {
     type BannerDimensions,
+    bannerBackgroundDefaults,
     bannerDefaults,
-    bannerModelDefaults,
+    bannerLayoutDefaults,
 } from '@gravity-ui/markdown-plugin-banner';
-import {afterEach, describe, expect, it} from 'vitest';
+import {afterEach, describe, expect, it, vi} from 'vitest';
 
 import {insertBanner as insertBannerMarkup} from '../../../markup/commands/insertBanner';
+import {nodeUploadPlugin, uploadNodeFile} from '../../plugins/NodeUploadPlugin';
 
 import {BannerSpecs, bannerNodeName} from './BannerSpecs';
-import {insertBanner, removeBanner, setBannerAttrs} from './commands';
+import {
+    bannerBackgroundSources,
+    insertBanner,
+    removeBanner,
+    setBannerBackground,
+    setBannerDimension,
+} from './commands';
 
 import {Banner} from '.';
+
+const bannerNodeDefaults = {
+    ...bannerDefaults,
+    ...bannerLayoutDefaults,
+    ...bannerBackgroundDefaults,
+};
 
 const {schema, markupParser, serializer} = new ExtensionsManager({
     extensions: (builder) =>
@@ -62,7 +76,7 @@ afterEach(() => {
 function createView(markup = ':::banner\n:::') {
     const doc = markupParser.parse(markup);
     view = new EditorView(document.createElement('div'), {
-        state: EditorState.create({schema, doc, plugins: [history()]}),
+        state: EditorState.create({schema, doc, plugins: [history(), nodeUploadPlugin()]}),
     });
     return view;
 }
@@ -103,7 +117,7 @@ describe('Banner extension', () => {
     ])('should round trip %j', ({height, width}) => {
         const source = `:::banner{height="${height}" width="${width}"}\n\n:::`;
         const doc = markupParser.parse(source);
-        expect(doc.firstChild?.attrs).toEqual({...bannerModelDefaults, height, width});
+        expect(doc.firstChild?.attrs).toEqual({...bannerNodeDefaults, height, width});
         expect(serializer.serialize(doc)).toBe(source);
         const container = document.createElement('div');
         container.append(DOMSerializer.fromSchema(schema).serializeFragment(doc.content));
@@ -124,8 +138,14 @@ describe('Banner extension', () => {
     });
 
     it('should use the same defaults in the schema and parser', () => {
-        expect(schema.nodes.banner.create().attrs).toEqual(bannerModelDefaults);
-        expect(markupParser.parse(':::banner\n:::').firstChild?.attrs).toEqual(bannerModelDefaults);
+        expect(schema.nodes.banner.create().attrs).toEqual(bannerNodeDefaults);
+        expect(markupParser.parse(':::banner\n:::').firstChild?.attrs).toEqual(bannerNodeDefaults);
+    });
+
+    it('should preserve query delimiters in background image markup', () => {
+        const source =
+            ':::banner{height="s" width="m" bg-image="https://cdn.example.com/a.png?w=1200&q=80"}\n\n:::';
+        expect(serializer.serialize(markupParser.parse(source))).toBe(source);
     });
 
     it('should insert the same dimensions in both editor modes', () => {
@@ -171,7 +191,7 @@ describe('Banner extension', () => {
     it('should preserve child blocks when changing dimensions', () => {
         const editor = createView(':::banner\nKeep **text**\n:::');
         const content = editor.state.doc.child(0).content;
-        expect(run(editor, setBannerAttrs(0, {height: 'l'}))).toBe(true);
+        expect(run(editor, setBannerDimension(0, 'height', 'l'))).toBe(true);
         expect(editor.state.doc.child(0).content.eq(content)).toBe(true);
         const container = document.createElement('div');
         container.append(
@@ -188,7 +208,7 @@ describe('Banner extension', () => {
             '</div>';
         const doc = DOMParser.fromSchema(schema).parse(container);
         expect(doc.firstChild?.type.name).toBe('banner');
-        expect(doc.firstChild?.attrs).toEqual({...bannerModelDefaults, height: 'l', width: 'full'});
+        expect(doc.firstChild?.attrs).toEqual({...bannerNodeDefaults, height: 'l', width: 'full'});
     });
 
     it('should remove a banner', () => {
@@ -200,8 +220,8 @@ describe('Banner extension', () => {
 
     it('should update dimensions independently and undo each change', () => {
         const editor = createView();
-        expect(run(editor, setBannerAttrs(0, {height: 'l'}))).toBe(true);
-        expect(run(editor, setBannerAttrs(0, {width: 'full'}))).toBe(true);
+        expect(run(editor, setBannerDimension(0, 'height', 'l'))).toBe(true);
+        expect(run(editor, setBannerDimension(0, 'width', 'full'))).toBe(true);
         expect(dimensions(editor)).toEqual({height: 'l', width: 'full'});
         expect(undo(editor.state, editor.dispatch)).toBe(true);
         expect(dimensions(editor)).toEqual({height: 'l', width: 'm'});
@@ -209,6 +229,99 @@ describe('Banner extension', () => {
         expect(dimensions(editor)).toEqual({height: 's', width: 'm'});
         expect(redo(editor.state, editor.dispatch)).toBe(true);
         expect(dimensions(editor)).toEqual({height: 'l', width: 'm'});
+    });
+
+    it('should skip dispatch when the dimension is unchanged', () => {
+        const editor = createView();
+        const state = editor.state;
+        expect(run(editor, setBannerDimension(0, 'height', bannerDefaults.height))).toBe(true);
+        expect(editor.state).toBe(state);
+    });
+
+    it('should skip dispatch when the background is reset to its current value', () => {
+        const editor = createView();
+        const state = editor.state;
+        expect(run(editor, setBannerBackground(0, bannerBackgroundDefaults))).toBe(true);
+        expect(editor.state).toBe(state);
+    });
+
+    it('should cancel an upload without splitting undo history when the background is unchanged', async () => {
+        const editor = createView();
+        const file = new File(['image'], 'image.png', {type: 'image/png'});
+        const {promise, resolve} = Promise.withResolvers<string>();
+        const upload = uploadNodeFile(
+            editor,
+            0,
+            file,
+            () => promise,
+            (pos, image) => setBannerBackground(pos, {'bg-image': image}),
+        );
+        editor.dispatch(editor.state.tr.insertText('a', 2));
+        expect(run(editor, setBannerBackground(0, bannerBackgroundDefaults))).toBe(true);
+        resolve('https://cdn.example.com/image.png');
+        expect(await upload).toBe(false);
+        expect(editor.state.doc.firstChild?.attrs['bg-image']).toBeNull();
+
+        editor.dispatch(editor.state.tr.insertText('b', 3));
+        expect(editor.state.doc.textContent).toBe('ab');
+        expect(run(editor, undo)).toBe(true);
+        expect(editor.state.doc.textContent).toBe('');
+    });
+
+    it('should drop an upload when undo changes the background', async () => {
+        const editor = createView();
+        expect(run(editor, setBannerBackground(0, {'bg-image': 'https://example.com/a.png'}))).toBe(
+            true,
+        );
+        const {promise, resolve} = Promise.withResolvers<string>();
+        const upload = uploadNodeFile(
+            editor,
+            0,
+            new File(['image'], 'b.png', {type: 'image/png'}),
+            () => promise,
+            (pos, image) => setBannerBackground(pos, {'bg-image': image}),
+            {attrs: bannerBackgroundSources},
+        );
+        expect(run(editor, undo)).toBe(true);
+        resolve('https://example.com/b.png');
+        expect(await upload).toBe(false);
+        expect(editor.state.doc.firstChild?.attrs['bg-image']).toBeNull();
+    });
+
+    it('should keep an upload when another attribute of the banner changes', async () => {
+        const editor = createView();
+        const {promise, resolve} = Promise.withResolvers<string>();
+        const upload = uploadNodeFile(
+            editor,
+            0,
+            new File(['image'], 'b.png', {type: 'image/png'}),
+            () => promise,
+            (pos, image) => setBannerBackground(pos, {'bg-image': image}),
+            {attrs: bannerBackgroundSources},
+        );
+        expect(run(editor, setBannerDimension(0, 'height', 'l'))).toBe(true);
+        resolve('https://example.com/b.png');
+        expect(await upload).toBe(true);
+        expect(editor.state.doc.firstChild?.attrs['bg-image']).toBe('https://example.com/b.png');
+    });
+
+    it('should cancel its own upload after the banner moves', async () => {
+        const editor = createView();
+        const controller = new AbortController();
+        const {promise, resolve} = Promise.withResolvers<string>();
+        const upload = uploadNodeFile(
+            editor,
+            0,
+            new File(['image'], 'b.png', {type: 'image/png'}),
+            () => promise,
+            (pos, image) => setBannerBackground(pos, {'bg-image': image}),
+            {signal: controller.signal},
+        );
+        editor.dispatch(editor.state.tr.insert(0, schema.nodes.paragraph.create()));
+        controller.abort();
+        resolve('https://example.com/b.png');
+        expect(await upload).toBe(false);
+        expect(editor.state.doc.child(1).attrs['bg-image']).toBeNull();
     });
 
     it('should insert an empty banner and undo the insertion', () => {
@@ -302,11 +415,46 @@ describe('Banner extension', () => {
         const editor = createNodeView('Before\n\n:::banner\n:::');
         const pos = editor.state.doc.child(0).nodeSize;
         editor.dispatch(editor.state.tr.setSelection(NodeSelection.create(editor.state.doc, pos)));
-        expect(run(editor, setBannerAttrs(pos, {height: 'l'}))).toBe(true);
+        expect(run(editor, setBannerDimension(pos, 'height', 'l'))).toBe(true);
         expect(
             (editor.nodeDOM(pos) as HTMLElement).classList.contains('ProseMirror-selectednode'),
         ).toBe(true);
         expect(editor.state.selection).toBeInstanceOf(NodeSelection);
+    });
+
+    it('should keep the styles of node decorations when the image changes', () => {
+        const editor = createNodeView(':::banner\n:::');
+        const dom = editor.nodeDOM(0) as HTMLElement;
+        dom.style.outline = '2px solid red';
+        const image = 'https://example.com/a.png';
+        expect(run(editor, setBannerBackground(0, {'bg-image': image}))).toBe(true);
+        expect(dom.style.backgroundImage).toContain(image);
+        expect(run(editor, setBannerBackground(0, {'bg-image': null}))).toBe(true);
+        expect(dom.style.backgroundImage).toBe('');
+        expect(dom.style.outline).toBe('2px solid red');
+    });
+
+    it('should settle pending uploads as soon as the editor is destroyed', async () => {
+        const editor = createView();
+        editor.updateState(editor.state.reconfigure({plugins: [nodeUploadPlugin()]}));
+        const setImage = vi.fn();
+        let finish!: (url: string) => void;
+        const response = new Promise<string>((resolve) => {
+            finish = resolve;
+        });
+        const result = uploadNodeFile(
+            editor,
+            0,
+            new File([], 'banner.png'),
+            () => response,
+            setImage,
+        );
+
+        editor.destroy();
+        await expect(result).resolves.toBe(false);
+        finish('https://example.com/banner.png');
+        await response;
+        expect(setImage).not.toHaveBeenCalled();
     });
 
     it('should apply content DOM edits to the document', async () => {

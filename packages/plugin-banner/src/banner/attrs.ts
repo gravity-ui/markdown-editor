@@ -2,42 +2,74 @@ import {cn} from '@bem-react/classname';
 
 import {filesGalleryExcludeAttrs} from '../const';
 import {toCssUrl} from '../url';
-import {type GetAttr, dataAttrs, fromDataAttrs, nonDefaultValues} from '../utils';
+import type {AttrGetter} from '../utils';
 
 import {
+    type BannerBackground,
+    type BannerDimensions,
     type BannerLayout,
-    type BannerModel,
     bannerClassName,
-    bannerLayoutDefaults,
-    bannerModelDefaults,
 } from './const';
-import {bannerModel, bannerModelValues} from './utils';
+import {
+    bannerBackground,
+    bannerBackgroundValues,
+    bannerDimensions,
+    bannerLayout,
+    bannerLayoutValues,
+} from './utils';
 
 const b = cn(bannerClassName);
 
-type BannerAttrsInput = Partial<Record<keyof BannerModel, unknown>>;
+type BannerAttrsInput = Partial<
+    Record<keyof BannerDimensions | keyof BannerLayout | keyof BannerBackground, unknown>
+>;
 
-export function bannerAttrs(attrs: BannerAttrsInput): Record<string, string> {
-    const model = bannerModel(attrs);
-    const image = model['bg-image'] && toCssUrl(model['bg-image']);
-    const theme = model['bg-theme'];
+export function bannerRender(attrs: BannerAttrsInput) {
+    const dimensions = bannerDimensions(attrs);
+    const layout = bannerLayoutValues(bannerLayout(attrs));
+    const background = bannerBackground(attrs);
+    const backgroundImage = background['bg-image'] && toCssUrl(background['bg-image']);
+    const theme = background['bg-theme'];
+    const data: Record<string, string> = {
+        ...filesGalleryExcludeAttrs,
+        'data-height': dimensions.height,
+        'data-width': dimensions.width,
+    };
+    const values = {...layout, ...bannerBackgroundValues(background)};
+    for (const [name, value] of Object.entries(values)) data[`data-${name}`] = value;
     return {
-        class: b(
+        className: b(
             {
-                height: model.height,
-                width: model.width,
-                ...nonDefaultValues<BannerLayout>(model, bannerLayoutDefaults),
-                'bg-color': model['bg-color'] ?? undefined,
-                'bg-image': Boolean(image),
-                'bg-image-blur': model['bg-image-blur'],
+                ...dimensions,
+                ...layout,
+                'bg-color': background['bg-color'] ?? undefined,
+                'bg-image': Boolean(backgroundImage),
+                'bg-image-blur': background['bg-image-blur'],
             },
             theme === 'system' ? undefined : ['g-root', `g-root_theme_${theme}`],
         ),
-        ...filesGalleryExcludeAttrs,
-        ...dataAttrs(bannerModelValues(model)),
-        ...(image ? {style: `background-image:${image}`} : undefined),
+        backgroundImage,
+        data,
     };
 }
 
-export const bannerModelFromAttrs = (getAttr: GetAttr): BannerModel =>
-    bannerModel(fromDataAttrs(getAttr, bannerModelDefaults));
+export function bannerAttrs(attrs: BannerAttrsInput): Record<string, string> {
+    const {className, backgroundImage, data} = bannerRender(attrs);
+    const result: Record<string, string> = {class: className, ...data};
+    // In `style` a relative address resolves against the page; in a custom property, against the stylesheet.
+    if (backgroundImage) result.style = `background-image:${backgroundImage}`;
+    return result;
+}
+
+export function bannerFromAttrs(getAttr: AttrGetter) {
+    return {
+        ...bannerDimensions({height: getAttr('data-height'), width: getAttr('data-width')}),
+        ...bannerLayout({align: getAttr('data-align'), vertical: getAttr('data-vertical')}),
+        ...bannerBackground({
+            'bg-color': getAttr('data-bg-color'),
+            'bg-image': getAttr('data-bg-image'),
+            'bg-theme': getAttr('data-bg-theme'),
+            'bg-image-blur': getAttr('data-bg-image-blur'),
+        }),
+    };
+}

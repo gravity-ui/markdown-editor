@@ -7,7 +7,7 @@ import {
 } from '@gravity-ui/markdown-plugin-banner';
 
 import {i18n} from '../../../../i18n';
-import {attrSpecs, placeholderSpec} from '../../schema';
+import {attrSpecs, placeholderSpec} from '../../../utils/schema';
 
 import {bannerTitleNodeName} from './const';
 

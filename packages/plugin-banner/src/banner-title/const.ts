@@ -1,4 +1,4 @@
-export const bannerTitleTokenName = 'banner-title';
+export const bannerTitleTokenName = 'g_md_banner_title';
 export const bannerTitleClassName = 'g-md-banner-title-plugin';
 
 export const bannerTitleSizes = [1, 2, 3, 4, 5, 6] as const;

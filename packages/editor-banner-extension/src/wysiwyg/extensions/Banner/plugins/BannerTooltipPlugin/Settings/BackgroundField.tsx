@@ -1,43 +1,45 @@
 import {useRef, useState} from 'react';
 
 import {SquareMinus, Xmark} from '@gravity-ui/icons';
-import {type BannerBackground, bannerBackgroundDefaults} from '@gravity-ui/markdown-plugin-banner';
+import {
+    type BannerBackground,
+    type LinkParser,
+    bannerBackgroundDefaults,
+} from '@gravity-ui/markdown-plugin-banner';
 import {Button, Checkbox, Icon, useUniqId} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
-import type {BannerUploadLimits} from '../../../../../plugins/BannerUploadPlugin';
-import {SettingsRow, cnBannerSettings, imageName} from '../../../../settings';
+import {
+    type BannerUploadLimits,
+    SettingsRow,
+    cnBannerSettings,
+    imageName,
+} from '../../../../../components/settings';
 
 import {BackgroundPopup} from './BackgroundPopup';
 import {bgColorLabel, bgColorStyle} from './utils';
 
 export type BackgroundControls = BannerUploadLimits & {
     value: BannerBackground;
+    parser: LinkParser;
     onChange: (value: Partial<BannerBackground>) => void;
-    upload?: (file: File) => Promise<boolean>;
-    cancelUpload?: () => void;
+    /** Without it, the image is set by a link only. Resolves to `false` when the banner no longer takes the result. */
+    upload?: (file: File, signal: AbortSignal) => Promise<boolean>;
 };
 
-function BackgroundPreview({value}: {value: BannerBackground}) {
-    const {'bg-image': image, 'bg-color': color} = value;
-    if (image) return <img className={cnBannerSettings('preview')} src={image} alt="" />;
-    if (color) return <span className={cnBannerSettings('preview')} style={bgColorStyle(color)} />;
-    return <Icon data={SquareMinus} size={16} />;
-}
-
 export function BackgroundField({background}: {background: BackgroundControls}) {
-    const {value, onChange} = background;
-    const {'bg-image': image, 'bg-color': color} = value;
     const [open, setOpen] = useState(false);
     const buttonRef = useRef<HTMLButtonElement>(null);
+    const {value, onChange} = background;
+    const {'bg-image': image, 'bg-color': color} = value;
     const clearable = Boolean(image || color);
-    const handleButtonClick = () => setOpen(!open);
-    const handleClearClick = () => {
+    const toggle = () => setOpen(!open);
+    const close = () => setOpen(false);
+    const clear = () => {
         onChange(bannerBackgroundDefaults);
         buttonRef.current?.focus();
     };
-    const handleBlurUpdate = (checked: boolean) => onChange({'bg-image-blur': checked});
-    const handlePopupClose = () => setOpen(false);
+    const setBlur = (checked: boolean) => onChange({'bg-image-blur': checked});
     const valueId = useUniqId();
     return (
         <SettingsRow label={i18n('background')}>
@@ -54,7 +56,7 @@ export function BackgroundField({background}: {background: BackgroundControls}) 
                                 aria-labelledby={`${labelId} ${valueId}`}
                                 aria-haspopup="dialog"
                                 aria-expanded={open}
-                                onClick={handleButtonClick}
+                                onClick={toggle}
                             >
                                 <Button.Icon>
                                     <BackgroundPreview value={value} />
@@ -71,18 +73,14 @@ export function BackgroundField({background}: {background: BackgroundControls}) 
                                     view="flat-secondary"
                                     size="s"
                                     aria-label={i18n('background-remove')}
-                                    onClick={handleClearClick}
+                                    onClick={clear}
                                 >
                                     <Icon data={Xmark} size={14} />
                                 </Button>
                             )}
                         </div>
                         {image && (
-                            <Checkbox
-                                size="m"
-                                checked={value['bg-image-blur']}
-                                onUpdate={handleBlurUpdate}
-                            >
+                            <Checkbox size="m" checked={value['bg-image-blur']} onUpdate={setBlur}>
                                 {i18n('background-blur')}
                             </Checkbox>
                         )}
@@ -91,11 +89,18 @@ export function BackgroundField({background}: {background: BackgroundControls}) 
                         <BackgroundPopup
                             anchor={buttonRef.current}
                             background={background}
-                            onClose={handlePopupClose}
+                            onClose={close}
                         />
                     )}
                 </>
             )}
         </SettingsRow>
     );
+}
+
+function BackgroundPreview({value}: {value: BannerBackground}) {
+    const {'bg-image': image, 'bg-color': color} = value;
+    if (image) return <img className={cnBannerSettings('preview')} src={image} alt="" />;
+    if (color) return <span className={cnBannerSettings('preview')} style={bgColorStyle(color)} />;
+    return <Icon data={SquareMinus} size={16} />;
 }

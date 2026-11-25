@@ -1,13 +1,14 @@
-import {type FocusEvent, type KeyboardEvent, type MouseEvent, useRef, useState} from 'react';
+import {type CSSProperties, type FocusEvent, type KeyboardEvent, useRef, useState} from 'react';
 
 import {Moon, Sun} from '@gravity-ui/icons';
 import {
     type BannerBackground,
+    type BannerBgColor,
     type BannerBgTheme,
-    bannerAttrs,
     bannerBackgroundDefaults,
+    bannerBgColorFamilies,
     bannerBgColors,
-    toCssUrl,
+    bannerRender,
 } from '@gravity-ui/markdown-plugin-banner';
 import {
     Button,
@@ -21,27 +22,31 @@ import {
 } from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
-import {ImageSource, SettingsDialog, cnBannerSettings} from '../../../../settings';
+import {ImageSource, SettingsDialog, cnBannerSettings} from '../../../../../components/settings';
 
 import type {BackgroundControls} from './BackgroundField';
 import {DimensionSelect} from './DimensionSelect';
-import {IconRadioGroup} from './IconRadioGroup';
+import {SegmentedSelect} from './SegmentedSelect';
 import {bgColorLabel, bgColorStyle} from './utils';
 
 const textColors: readonly BannerBgTheme[] = ['system', 'dark', 'light'];
+// Light text is the content in the dark theme.
 const textColorKeys = {
     system: 'text-color-system',
     dark: 'text-color-light',
     light: 'text-color-dark',
 } as const;
-const textColorLabel = (theme: BannerBgTheme) => i18n(textColorKeys[theme]);
+const formatTextColor = (theme: BannerBgTheme) => i18n(textColorKeys[theme]);
 
 const previewThemes = [
     {value: 'light', icon: Sun, label: 'preview-light'},
     {value: 'dark', icon: Moon, label: 'preview-dark'},
 ] as const;
 
-const PALETTE_COLUMNS = 6;
+// `bannerBgColors` is a row of families for each saturation.
+const PALETTE_COLUMNS = bannerBgColorFamilies.length;
+
+const paletteStyle = {'--g-md-banner-settings-palette-columns': PALETTE_COLUMNS} as CSSProperties;
 
 const paletteSteps: Record<string, (index: number) => number> = {
     ArrowLeft: (index) => index - 1,
@@ -54,130 +59,6 @@ const paletteSteps: Record<string, (index: number) => number> = {
 
 const mirroredKeys: Record<string, string> = {ArrowLeft: 'ArrowRight', ArrowRight: 'ArrowLeft'};
 
-function FillPalette({value, onChange}: BackgroundControls) {
-    const swatches = useRef<(HTMLButtonElement | null)[]>([]);
-    const [active, setActive] = useState<number>();
-    const selected = bannerBgColors.findIndex((color) => color === value['bg-color']);
-    const tabStop = active ?? Math.max(selected, 0);
-    const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
-        const rtl = getComputedStyle(event.currentTarget).direction === 'rtl';
-        const step = paletteSteps[(rtl && mirroredKeys[event.key]) || event.key];
-        if (!step) return;
-        event.preventDefault();
-        const next = step(tabStop);
-        if (next >= 0 && next < bannerBgColors.length) swatches.current[next]?.focus();
-    };
-    const handleBlur = (event: FocusEvent<HTMLElement>) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setActive(undefined);
-    };
-    const handleSwatchFocus = ({currentTarget}: FocusEvent<HTMLButtonElement>) =>
-        setActive(swatches.current.indexOf(currentTarget));
-    const handleSwatchClick = ({currentTarget}: MouseEvent<HTMLButtonElement>) =>
-        onChange({
-            ...bannerBackgroundDefaults,
-            'bg-color': bannerBgColors[swatches.current.indexOf(currentTarget)],
-        });
-    return (
-        <div
-            className={cnBannerSettings('palette')}
-            role="radiogroup"
-            aria-label={i18n('background-fill')}
-            onBlur={handleBlur}
-        >
-            {bannerBgColors.map((color, index) => {
-                const label = bgColorLabel(color);
-                const checked = index === selected;
-                return (
-                    <button
-                        key={color}
-                        ref={(element) => {
-                            swatches.current[index] = element;
-                        }}
-                        type="button"
-                        role="radio"
-                        className={cnBannerSettings('swatch', {selected: checked})}
-                        style={bgColorStyle(color)}
-                        title={label}
-                        aria-label={label}
-                        aria-checked={checked}
-                        tabIndex={index === tabStop ? 0 : -1}
-                        onFocus={handleSwatchFocus}
-                        onKeyDown={handleKeyDown}
-                        onClick={handleSwatchClick}
-                    />
-                );
-            })}
-        </div>
-    );
-}
-
-function BannerPreview({value}: {value: BannerBackground}) {
-    const pageTheme = useThemeType();
-    const [theme, setTheme] = useState<ThemeType>(pageTheme);
-    const image = value['bg-image'] && toCssUrl(value['bg-image']);
-    return (
-        <div className={cnBannerSettings('banner-preview')}>
-            <IconRadioGroup
-                label={i18n('preview')}
-                className={cnBannerSettings('preview-theme')}
-                value={theme}
-                options={previewThemes.map(({value: option, icon, label}) => ({
-                    value: option,
-                    icon,
-                    label: i18n(label),
-                }))}
-                onUpdate={setTheme}
-            />
-            <div
-                className={cnBannerSettings('thumbnail', ['g-root', `g-root_theme_${theme}`])}
-                aria-hidden
-            >
-                <div
-                    className={`${bannerAttrs(value).class} ${cnBannerSettings('banner')}`}
-                    style={{backgroundImage: image ?? undefined}}
-                >
-                    <Text variant="header-1" as="div">
-                        {i18n('preview-title')}
-                    </Text>
-                    <Text variant="body-2" as="div">
-                        {i18n('preview-description')}
-                    </Text>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function ImageTab({background, onClose}: {background: BackgroundControls; onClose: () => void}) {
-    const {value, onChange, upload, cancelUpload} = background;
-    const handleLink = (address: string) => onChange({'bg-image': address});
-    const handleThemeUpdate = (theme: BannerBgTheme) => onChange({'bg-theme': theme});
-    return (
-        <ImageSource
-            image={value['bg-image']}
-            limits={background}
-            upload={upload}
-            cancelUpload={cancelUpload}
-            onLink={handleLink}
-            onClose={onClose}
-        >
-            {(file) => (
-                <>
-                    <BannerPreview value={value} />
-                    {file}
-                    <DimensionSelect
-                        label={i18n('text-color')}
-                        value={value['bg-theme']}
-                        values={textColors}
-                        format={textColorLabel}
-                        onUpdate={handleThemeUpdate}
-                    />
-                </>
-            )}
-        </ImageSource>
-    );
-}
-
 type BackgroundPopupProps = {
     anchor: HTMLElement | null;
     background: BackgroundControls;
@@ -185,22 +66,21 @@ type BackgroundPopupProps = {
 };
 
 export function BackgroundPopup({anchor, background, onClose}: BackgroundPopupProps) {
-    const {value, onChange} = background;
-    const [tab, setTab] = useState(value['bg-image'] ? 'image' : 'fill');
-    const activeTab = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
-    const handleResetClick = () => onChange(bannerBackgroundDefaults);
+    const [tab, setTab] = useState(background.value['bg-image'] ? 'image' : 'fill');
+    const activeTab = useRef<HTMLButtonElement>(null);
+    const reset = () => background.onChange(bannerBackgroundDefaults);
     return (
         <SettingsDialog
             title={i18n('background')}
             className={cnBannerSettings('popup')}
-            popupClassName={cnBannerSettings('background-popup')}
+            popupClassName={cnBannerSettings('background-surface')}
             qa="banner-background"
             closeSize="m"
             closeAnchor={anchor}
+            onClose={onClose}
             anchorElement={anchor}
             placement={['top-end', 'bottom-end']}
             initialFocus={activeTab}
-            onClose={onClose}
         >
             <TabProvider value={tab} onUpdate={setTab}>
                 <div className={cnBannerSettings('tabs')}>
@@ -212,7 +92,7 @@ export function BackgroundPopup({anchor, background, onClose}: BackgroundPopupPr
                             {i18n('image')}
                         </Tab>
                     </TabList>
-                    <Button view="flat" size="m" onClick={handleResetClick}>
+                    <Button view="flat" size="m" onClick={reset}>
                         {i18n('background-reset')}
                     </Button>
                 </div>
@@ -224,5 +104,162 @@ export function BackgroundPopup({anchor, background, onClose}: BackgroundPopupPr
                 </TabPanel>
             </TabProvider>
         </SettingsDialog>
+    );
+}
+
+function FillPalette({value, onChange}: BackgroundControls) {
+    const swatches = useRef<(HTMLButtonElement | null)[]>([]);
+    const [active, setActive] = useState<number>();
+    const selected = bannerBgColors.findIndex((color) => color === value['bg-color']);
+    const tabStop = active ?? Math.max(selected, 0);
+    const registerSwatch = (index: number, element: HTMLButtonElement | null) => {
+        swatches.current[index] = element;
+    };
+    const selectColor = (color: BannerBgColor) =>
+        onChange({...bannerBackgroundDefaults, 'bg-color': color});
+    const onBlur = (event: FocusEvent<HTMLDivElement>) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setActive(undefined);
+    };
+    const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+        const rtl = getComputedStyle(event.currentTarget).direction === 'rtl';
+        const step = paletteSteps[(rtl && mirroredKeys[event.key]) || event.key];
+        if (!step) return;
+        event.preventDefault();
+        const next = step(tabStop);
+        const swatch = swatches.current[next];
+        if (swatch) {
+            swatch.focus();
+            selectColor(bannerBgColors[next]);
+        }
+    };
+    return (
+        <div
+            className={cnBannerSettings('palette')}
+            style={paletteStyle}
+            role="radiogroup"
+            aria-label={i18n('background-fill')}
+            onBlur={onBlur}
+        >
+            {bannerBgColors.map((color, index) => (
+                <Swatch
+                    key={color}
+                    color={color}
+                    index={index}
+                    checked={index === selected}
+                    focusable={index === tabStop}
+                    onRef={registerSwatch}
+                    onFocusIndex={setActive}
+                    onSelect={selectColor}
+                    onKeyDown={onKeyDown}
+                />
+            ))}
+        </div>
+    );
+}
+
+type SwatchProps = {
+    color: BannerBgColor;
+    index: number;
+    checked: boolean;
+    focusable: boolean;
+    onRef: (index: number, element: HTMLButtonElement | null) => void;
+    onFocusIndex: (index: number) => void;
+    onSelect: (color: BannerBgColor) => void;
+    onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
+};
+
+function Swatch({
+    color,
+    index,
+    checked,
+    focusable,
+    onRef,
+    onFocusIndex,
+    onSelect,
+    onKeyDown,
+}: SwatchProps) {
+    const label = bgColorLabel(color);
+    const setRef = (element: HTMLButtonElement | null) => onRef(index, element);
+    const onFocus = () => onFocusIndex(index);
+    const onClick = () => onSelect(color);
+    return (
+        <button
+            ref={setRef}
+            type="button"
+            role="radio"
+            className={cnBannerSettings('swatch', {selected: checked})}
+            style={bgColorStyle(color)}
+            title={label}
+            aria-label={label}
+            aria-checked={checked}
+            tabIndex={focusable ? 0 : -1}
+            onFocus={onFocus}
+            onKeyDown={onKeyDown}
+            onClick={onClick}
+        />
+    );
+}
+
+function ImageTab({background, onClose}: {background: BackgroundControls; onClose: () => void}) {
+    const {value, parser, onChange, upload} = background;
+    const setImage = (address: string) => onChange({'bg-image': address});
+    const setTheme = (theme: BannerBgTheme) => onChange({'bg-theme': theme});
+    return (
+        <ImageSource
+            image={value['bg-image']}
+            limits={background}
+            parser={parser}
+            upload={upload}
+            onLink={setImage}
+            onClose={onClose}
+        >
+            {(file) => (
+                <>
+                    <BannerPreview value={value} />
+                    {file}
+                    <DimensionSelect
+                        label={i18n('text-color')}
+                        value={value['bg-theme']}
+                        values={textColors}
+                        format={formatTextColor}
+                        onUpdate={setTheme}
+                    />
+                </>
+            )}
+        </ImageSource>
+    );
+}
+
+function BannerPreview({value}: {value: BannerBackground}) {
+    const pageTheme = useThemeType();
+    const [theme, setTheme] = useState<ThemeType>(pageTheme);
+    const {className, backgroundImage} = bannerRender(value);
+    const options = previewThemes.map(({label, ...option}) => ({...option, label: i18n(label)}));
+    return (
+        <div className={cnBannerSettings('banner-preview')}>
+            <SegmentedSelect
+                className={cnBannerSettings('preview-theme')}
+                label={i18n('preview')}
+                value={theme}
+                options={options}
+                onUpdate={setTheme}
+            />
+            <div
+                className={cnBannerSettings('thumbnail', ['g-root', `g-root_theme_${theme}`])}
+                aria-hidden
+            >
+                <div
+                    className={`${className} ${cnBannerSettings('banner')}`}
+                    style={{backgroundImage: backgroundImage ?? undefined}}
+                >
+                    <Text variant="header-1" as="div">
+                        {i18n('preview-title')}
+                    </Text>
+                    <Text variant="body-2" as="div">
+                        {i18n('preview-description')}
+                    </Text>
+                </div>
+            </div>
+        </div>
     );
 }

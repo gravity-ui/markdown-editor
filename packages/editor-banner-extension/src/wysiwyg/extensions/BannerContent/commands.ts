@@ -4,7 +4,7 @@ import type {Node} from '@gravity-ui/markdown-editor/pm/model';
 import {type Command, type EditorState, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
 
 import {findDepth, textRange} from '../../plugins/SelectionInsidePlugin';
-import {atTextblockEdge, stopAtBlockEdge} from '../commands';
+import {atTextblockEdge, stopAtBlockEdge} from '../../utils/commands';
 
 import {bannerContentNodeType} from './BannerContentSpecs';
 

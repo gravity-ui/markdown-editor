@@ -1,9 +1,9 @@
 import {Mark, type Node} from '@gravity-ui/markdown-editor/pm/model';
 import {Plugin, type Transaction} from '@gravity-ui/markdown-editor/pm/state';
 
-import {changedRange} from '../../../changedRange';
-import {joinTextLines} from '../../../joinTextLines';
-import {plainTextInput} from '../../../plainTextInput';
+import {changedRange} from '../../../../utils/changedRange';
+import {joinTextLines} from '../../../../utils/joinTextLines';
+import {plainTextInput} from '../../../../utils/plainTextInput';
 import {bannerTitleNodeType} from '../../BannerTitleSpecs';
 
 function keepsTitle(tr: Transaction, title: Node, pos: number) {

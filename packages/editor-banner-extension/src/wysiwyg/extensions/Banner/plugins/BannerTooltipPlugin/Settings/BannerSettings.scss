@@ -1,12 +1,8 @@
-@use 'sass:list';
 @use 'sass:math';
 
 $panel-width: 320px;
-$swatch-size: 28px;
-$palette-columns: 6;
-$swatch-ring-width: 2px;
+$swatch-size: var(--g-spacing-7);
 $thumbnail-scale: 3;
-$thumbnail-aspect-ratio: list.slash(293, 77);
 
 .g-md-banner-settings {
     display: flex;
@@ -16,9 +12,11 @@ $thumbnail-aspect-ratio: list.slash(293, 77);
 
     box-sizing: border-box;
     width: $panel-width;
+    max-width: 100%;
     max-height: var(--g-md-banner-settings-max-height);
     padding: var(--g-spacing-4);
 
+    // A scrolling flex column shrinks the 1 px divider to zero.
     > * {
         flex-shrink: 0;
     }
@@ -30,7 +28,7 @@ $thumbnail-aspect-ratio: list.slash(293, 77);
         gap: var(--g-spacing-4);
     }
 
-    &__background-popup {
+    &__background-surface {
         --g-popup-border-radius: var(--g-border-radius-xl);
     }
 
@@ -53,6 +51,7 @@ $thumbnail-aspect-ratio: list.slash(293, 77);
         padding-inline-end: var(--g-spacing-7);
     }
 
+    // Higher specificity than the `position` of a uikit button.
     &__background-field &__background-clear {
         position: absolute;
         inset-block: 0;
@@ -75,7 +74,7 @@ $thumbnail-aspect-ratio: list.slash(293, 77);
     &__palette {
         display: grid;
         justify-content: space-between;
-        grid-template-columns: repeat($palette-columns, $swatch-size);
+        grid-template-columns: repeat(var(--g-md-banner-settings-palette-columns), $swatch-size);
         gap: var(--g-spacing-3) var(--g-spacing-4);
     }
 
@@ -90,12 +89,12 @@ $thumbnail-aspect-ratio: list.slash(293, 77);
         border-radius: var(--g-border-radius-m);
 
         &_selected {
-            outline: $swatch-ring-width solid var(--g-color-line-brand);
+            outline: 2px solid var(--g-color-line-generic-accent);
             outline-offset: var(--g-spacing-half);
         }
 
         &:focus-visible {
-            outline: $swatch-ring-width solid var(--g-color-line-focus);
+            outline: 2px solid var(--g-color-line-focus);
             outline-offset: var(--g-spacing-half);
         }
     }
@@ -115,7 +114,7 @@ $thumbnail-aspect-ratio: list.slash(293, 77);
 
         overflow: hidden;
 
-        aspect-ratio: $thumbnail-aspect-ratio;
+        aspect-ratio: 293 / 77;
 
         border-radius: var(--g-border-radius-s);
 
@@ -125,10 +124,11 @@ $thumbnail-aspect-ratio: list.slash(293, 77);
         }
     }
 
+    // The banner is laid out at full size and scaled down, so the blur scales with it.
     &__banner.g-md-banner-plugin {
         position: absolute;
-        top: 0;
-        left: 0;
+        inset-block-start: 0;
+        inset-inline-start: 0;
 
         box-sizing: border-box;
         width: $thumbnail-scale * 100%;
@@ -140,6 +140,10 @@ $thumbnail-aspect-ratio: list.slash(293, 77);
         border-radius: 0;
 
         transform: scale(math.div(1, $thumbnail-scale));
-        transform-origin: 0 0;
+        transform-origin: left top;
+
+        &:dir(rtl) {
+            transform-origin: right top;
+        }
     }
 }
