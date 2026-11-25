@@ -31,6 +31,14 @@ function isTextblock(node: Node): boolean {
     return node.isTextblock && !isCodeBlock(node);
 }
 
+function isBlockContainer(node: Node | null): boolean {
+    return Boolean(node?.isBlock && node.type.spec.content?.includes('block'));
+}
+
+function isBetweenBlockContainers($pos: ResolvedPos): boolean {
+    return isBlockContainer($pos.nodeBefore) && isBlockContainer($pos.nodeAfter);
+}
+
 function isEdgeTextblock($cursor: ResolvedPos, dir: Direction): boolean {
     const index = $cursor.index($cursor.depth - 1);
     if (dir === 'before') return index === 0;
@@ -121,11 +129,16 @@ export function findFakeParaPosClosestToPos(
 
         if (dir === 'before') {
             if (isFirstChild || !isTextblock(parent.child(index - 1))) {
-                return $pos.doc.resolve($pos.before(depth));
+                const $target = $pos.doc.resolve($pos.before(depth));
+                if (depth > 1 && isBetweenBlockContainers($target)) continue;
+                return $target;
             }
         } else if (dir === 'after') {
             if (isLastChild || !isTextblock(parent.child(index + 1))) {
-                return $pos.doc.resolve($pos.after(depth));
+                const $target = $pos.doc.resolve($pos.after(depth));
+                // the end of a nested container leaves the cursor stuck on the next Arrow Down
+                if (depth > 1 && (isLastChild || isBetweenBlockContainers($target))) continue;
+                return $target;
             }
         }
 
