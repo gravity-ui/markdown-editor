@@ -75,9 +75,13 @@ export function ViewerTargets({
                     slotKey === undefined ? (
                         render()
                     ) : (
-                        <NamedSlot claims={lifecycle.slotClaims} target={target} slotKey={slotKey}>
+                        <ViewerNamedSlot
+                            claims={lifecycle.slotClaims}
+                            target={target}
+                            slotKey={slotKey}
+                        >
                             {render}
-                        </NamedSlot>
+                        </ViewerNamedSlot>
                     ),
                     target,
                     String(key),
@@ -87,7 +91,7 @@ export function ViewerTargets({
     );
 }
 
-function NamedSlot({
+function ViewerNamedSlot({
     claims,
     target,
     slotKey,
