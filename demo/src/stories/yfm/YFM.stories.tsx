@@ -52,12 +52,34 @@ export const YfmTabs: Story = {
 };
 
 export const YfmHtmlBlock: Story = {
-    name: 'YFM HTML',
+    name: 'YFM HTML — 1. Element properties',
     args: {
         initial: markup.yfmHtmlBlock,
         storyAdditionalControls: {
             yfmHtmlBlockAutoSaveEnabled: false,
             yfmHtmlBlockAutoSaveDelay: 2000,
+        },
+    },
+};
+
+export const YfmHtmlBlockInlineSource: Story = {
+    name: 'YFM HTML — 2. Inline source',
+    args: {
+        ...YfmHtmlBlock.args,
+        storyAdditionalControls: {
+            ...YfmHtmlBlock.args?.storyAdditionalControls,
+            yfmHtmlBlockElementEditingMode: 'inline-source',
+        },
+    },
+};
+
+export const YfmHtmlBlockOverlaySource: Story = {
+    name: 'YFM HTML — 3. Hover and source overlay',
+    args: {
+        ...YfmHtmlBlock.args,
+        storyAdditionalControls: {
+            ...YfmHtmlBlock.args?.storyAdditionalControls,
+            yfmHtmlBlockElementEditingMode: 'overlay-source',
         },
     },
 };
