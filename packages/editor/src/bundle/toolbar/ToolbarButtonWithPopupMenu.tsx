@@ -19,6 +19,7 @@ import {groupBy, isFunction} from '../../lodash';
 import {useTargetZIndex} from '../../react-utils';
 import {useBooleanState, useElementState} from '../../react-utils/hooks';
 import {type ToolbarBaseProps, type ToolbarIconData, ToolbarTooltipDelay} from '../../toolbar';
+import {useToolbarMenuNavigation} from '../../toolbar/useToolbarMenuNavigation';
 
 import './ToolbarButtonWithPopupMenu.scss';
 const b = cn('toolbar-button-with-popup-menu');
@@ -65,7 +66,7 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
     ...props
 }) => {
     const [anchorElement, setAnchorElement] = useElementState();
-    const [open, , hide, toggleOpen] = useBooleanState(false);
+    const [open, show, hide] = useBooleanState(false);
     const zIndex = useTargetZIndex(LAYOUT.STICKY_TOOLBAR);
     const groups = useMemo(
         () =>
@@ -83,6 +84,12 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
 
     const popupOpen = everyDisabled ? false : open;
     const shouldForceHide = open && !popupOpen;
+    const menuNavigation = useToolbarMenuNavigation({
+        open: popupOpen,
+        anchorElement,
+        show,
+        hide,
+    });
     useEffect(() => {
         if (shouldForceHide) {
             hide();
@@ -114,8 +121,11 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                     selected={btnSelected}
                     disabled={everyDisabled}
                     className={b(null, [className])}
-                    onClick={toggleOpen}
+                    onClick={menuNavigation.onTriggerClick}
+                    onKeyDown={menuNavigation.onTriggerKeyDown}
                     aria-label={textTitle}
+                    aria-haspopup="menu"
+                    aria-expanded={popupOpen}
                     qa={qa}
                     {...props}
                 >
@@ -128,12 +138,21 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                 open={popupOpen}
                 disablePortal={disablePortal}
                 anchorElement={anchorElement}
+                initialFocus={menuNavigation.initialFocus}
+                returnFocus={menuNavigation.returnFocus}
+                onTransitionIn={menuNavigation.onTransitionIn}
                 onOpenChange={(open) => {
                     if (!open) hide();
                 }}
                 zIndex={typeof zIndex === 'number' ? zIndex : undefined}
             >
-                <Menu size="l" qa={qaMenu} data-toolbar-menu-for={textTitle}>
+                <Menu
+                    ref={menuNavigation.menuRef}
+                    size="l"
+                    qa={qaMenu}
+                    aria-label={textTitle}
+                    data-toolbar-menu-for={textTitle}
+                >
                     {Object.entries(groups).map(([label, items], key) => {
                         return (
                             <Menu.Group label={label} key={key} className={b('menu-group')}>
@@ -151,12 +170,15 @@ export const ToolbarButtonWithPopupMenu: React.FC<ToolbarButtonWithPopupMenuProp
                                             active={action.isActive()}
                                             disabled={!action.isEnable()}
                                             onClick={() => {
-                                                hide();
+                                                menuNavigation.closeMenu();
                                                 focus();
                                                 action.run();
                                                 onClick?.(id);
                                             }}
-                                            extraProps={{'aria-label': text}}
+                                            extraProps={{
+                                                'aria-label': text,
+                                                'aria-disabled': !action.isEnable(),
+                                            }}
                                         >
                                             {text}
                                         </Menu.Item>

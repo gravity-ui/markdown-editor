@@ -1,4 +1,4 @@
-import {type ReactNode, forwardRef} from 'react';
+import {type ButtonHTMLAttributes, type ReactNode, forwardRef} from 'react';
 
 import {ActionTooltip, Button, Icon, Popover, setRef} from '@gravity-ui/uikit';
 
@@ -26,7 +26,8 @@ export type ToolbarButtonViewProps = Pick<
     id?: string;
     className?: string;
 } & (Pick<ToolbarItemData<unknown>, 'icon'> | {children: ReactNode}) &
-    Pick<ToolbarBaseProps<unknown>, 'disableTooltip'>;
+    Pick<ToolbarBaseProps<unknown>, 'disableTooltip'> &
+    Pick<ButtonHTMLAttributes<HTMLButtonElement>, 'onKeyDown' | 'aria-haspopup' | 'aria-expanded'>;
 
 const DEFAULT_ICON_SIZE = 16;
 
@@ -45,6 +46,9 @@ export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonView
             qa,
             id,
             disableTooltip,
+            onKeyDown,
+            'aria-haspopup': ariaHasPopup,
+            'aria-expanded': ariaExpanded,
             ...props
         },
         ref,
@@ -90,8 +94,11 @@ export const ToolbarButtonView = forwardRef<HTMLButtonElement, ToolbarButtonView
                                     theme === 'danger' ? 'flat-danger' : active ? 'normal' : 'flat'
                                 }
                                 onClick={onClick}
+                                onKeyDown={onKeyDown}
                                 className={b(null, [className])}
                                 aria-label={titleText}
+                                aria-haspopup={ariaHasPopup}
+                                aria-expanded={ariaExpanded}
                                 data-toolbar-item={id}
                             >
                                 {'icon' in props ? (
