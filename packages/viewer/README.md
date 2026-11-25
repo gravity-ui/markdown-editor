@@ -296,7 +296,7 @@ import {RevealYfmElement} from '@gravity-ui/markdown-viewer/extensions';
 
 Pass exactly one of `id` (literal ID), `selector` (CSS selector), or `element` (DOM element). `null` cancels the request. Searches are scoped to this viewer.
 
-Targets in nested viewers are found, but their containers stay closed. Pass the same target element to each viewer to reveal all levels.
+For nested viewers, including those in React slots, pass the same target element to each viewer. Each viewer reveals only its own containers.
 
 - `onReveal(element)` runs synchronously once per processed request, including already visible targets.
 - HTML updates retry missing targets but do not repeat completed requests. Callback changes do not trigger processing.
@@ -314,9 +314,9 @@ const target = revealYfmElement({id: 'installation'}, {root: pageContainer});
 target?.scrollIntoView({block: 'start'});
 ```
 
-`revealYfmElement` accepts an `Element`, `{id: string}`, `{selector: string}`, or `null`. Optional `root` bounds lookup and ancestor traversal, including itself, and leaves containers in nested viewers unchanged. Without it, lookup uses `document`; a supplied element uses its own ancestors.
+`revealYfmElement` accepts an `Element`, `{id: string}`, `{selector: string}`, or `null`. Optional `root` bounds lookup and ancestor traversal, including itself. If `root` belongs to a viewer, only that viewer's containers are revealed. Without it, lookup uses `document`; a supplied element uses its own ancestors.
 
-Returns the processed element or `null` for missing or excluded targets. Both APIs select the first ID or selector match outside viewer slots. Slots, their descendants, and targets outside the root are excluded. Processing does not wait for runtimes or animations and does not guarantee visibility.
+Returns the processed element or `null` for missing or excluded targets. Both APIs select the first ID or selector match outside viewer slots, or inside nested viewers when `root` is provided. Slots themselves and targets outside the root are excluded. Processing does not wait for runtimes or animations and does not guarantee visibility.
 
 </details>
 

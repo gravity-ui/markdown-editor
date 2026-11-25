@@ -11,13 +11,13 @@ export type RevealYfmTarget =
     | {selector: string; id?: never};
 
 export interface RevealYfmElementOptions {
-    /** Limit lookup and traversal to this root. Containers in nested viewers stay unchanged. */
+    /** Limit lookup and traversal to this root. A root in a viewer reveals only that viewer. */
     root?: Element;
 }
 
 /**
  * Reveal YFM containers around a target. Tab selection needs the application's runtime.
- * Return the processed element, or null if it is missing, outside the root, or in a slot.
+ * Return the processed element, or null if it is missing, outside the root, or excluded.
  * A returned element may still be hidden by other styles or a missing tabs runtime.
  */
 export function revealYfmElement(
@@ -35,16 +35,20 @@ export function revealYfmElement(
         ancestors.push(scope);
     }
     if (root && scope !== root) return null;
+    const owner = root?.closest(viewerRootSelector);
 
     for (const container of ancestors.reverse()) {
-        if (!container.contains(element) || inspectViewerNode(scope, element).kind !== 'content') {
+        if (!container.contains(element) || !isRevealTarget(scope, element, Boolean(root))) {
             return null;
         }
-        if (!root || isSameViewer(container, root)) {
-            revealContainer(container, element, scope, Boolean(root));
+        if (
+            (!owner || container.closest(viewerRootSelector) === owner) &&
+            inspectViewerNode(scope, container).kind === 'content'
+        ) {
+            revealContainer(container, element, scope);
         }
     }
-    return inspectViewerNode(scope, element).kind === 'content' ? element : null;
+    return isRevealTarget(scope, element, Boolean(root)) ? element : null;
 }
 
 function resolveTarget(target: RevealYfmTarget, root?: Element): Element | null {
@@ -60,17 +64,18 @@ function resolveTarget(target: RevealYfmTarget, root?: Element): Element | null 
         candidates.find(
             (node) =>
                 (target.id === undefined || node.id === target.id) &&
-                inspectViewerNode(scope, node).kind === 'content',
+                isRevealTarget(scope, node, Boolean(root)),
         ) ?? null
     );
 }
 
-function revealContainer(
-    container: Element,
-    target: Element,
-    root: Element,
-    ownViewerOnly: boolean,
-): void {
+function isRevealTarget(scope: Element, element: Element, allowNestedViewer: boolean): boolean {
+    const viewer = allowNestedViewer ? element.closest(viewerRootSelector) : null;
+    const targetRoot = viewer && scope.contains(viewer) ? viewer : scope;
+    return inspectViewerNode(targetRoot, element).kind === 'content';
+}
+
+function revealContainer(container: Element, target: Element, root: Element): void {
     if (container.tagName === 'DETAILS') {
         const summary = container.querySelector(':scope > summary');
         if (!summary?.contains(target)) container.setAttribute('open', '');
@@ -84,17 +89,17 @@ function revealContainer(
     }
 
     if (!container.matches('.yfm-tab-panel:not(.active)')) return;
-    const control = findTabControl(container, ownViewerOnly);
+    const control = findTabControl(container);
     if (!(control instanceof getDomConstructor(container, 'HTMLElement'))) return;
     if (inspectViewerNode(root, control).kind !== 'content') return;
     control.click();
 }
 
-function findTabControl(panel: Element, ownViewerOnly: boolean): Element | undefined {
+function findTabControl(panel: Element): Element | undefined {
     const tabs = panel.parentElement;
     if (!tabs?.classList.contains('yfm-tabs')) return undefined;
     const controls = Array.from(tabs.querySelectorAll('.yfm-tab')).filter(
-        (tab) => tab.closest('.yfm-tabs') === tabs && (!ownViewerOnly || isSameViewer(tab, panel)),
+        (tab) => tab.closest('.yfm-tabs') === tabs,
     );
     if (panel.id) {
         const control = controls.find((tab) => tab.getAttribute('aria-controls') === panel.id);
@@ -111,8 +116,4 @@ function findTabControl(panel: Element, ownViewerOnly: boolean): Element | undef
 
     const title = panel.getAttribute('data-title');
     return title ? controls.find((tab) => tab.textContent?.trim() === title) : undefined;
-}
-
-function isSameViewer(first: Element, second: Element): boolean {
-    return first.closest(viewerRootSelector) === second.closest(viewerRootSelector);
 }

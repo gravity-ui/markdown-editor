@@ -203,53 +203,78 @@ describe('RevealYfmElement', () => {
         expect(onReveal).toHaveBeenCalledExactlyOnceWith(target);
     });
 
-    it('should resolve duplicate ids within each viewer root', () => {
+    it('should resolve the first duplicate id and reveal only the current viewer', () => {
         const {outer, inner, target} = renderNestedViewers();
 
-        expect(revealYfmElement({id: 'target'}, {root: outer})).toBe(outer.querySelector('p'));
-        expect(container.querySelector('#outer-cut')?.hasAttribute('open')).toBe(false);
-        expect(revealYfmElement({id: 'target'}, {root: inner})).toBe(target);
-    });
-
-    it('should preserve ancestor traversal without an explicit root', () => {
-        const {target} = renderNestedViewers();
-
-        expect(revealYfmElement(target)).toBe(target);
+        expect(revealYfmElement({id: 'target'}, {root: outer})).toBe(target);
         expect(container.querySelector('#outer-cut')?.hasAttribute('open')).toBe(true);
+        expect(container.querySelector('#inner-cut')?.hasAttribute('open')).toBe(false);
+        expect(revealYfmElement({id: 'target'}, {root: inner})).toBe(target);
         expect(container.querySelector('#inner-cut')?.hasAttribute('open')).toBe(true);
     });
 
-    it('should keep a nested viewer in a slot excluded from its parent', () => {
+    it.each(['implicit', 'explicit'])(
+        'should reveal across viewers with an %s unmarked root',
+        (kind) => {
+            const {target} = renderNestedViewers();
+            const options = kind === 'explicit' ? {root: container} : undefined;
+
+            expect(revealYfmElement(target, options)).toBe(target);
+            expect(container.querySelector('#outer-cut')?.hasAttribute('open')).toBe(true);
+            expect(container.querySelector('#inner-cut')?.hasAttribute('open')).toBe(true);
+        },
+    );
+
+    it.each(['element', 'id', 'selector'] as const)(
+        'should reveal each viewer around a target in a slot using %s',
+        (kind) => {
+            const {outer, inner, target} = renderNestedViewers();
+            const host = container.querySelector('#host');
+            assert(host);
+            host.setAttribute('data-markdown-viewer-slot', '');
+            host.classList.add('heading-section');
+            const request = {
+                element: target,
+                id: {id: 'target'},
+                selector: {selector: '#target'},
+            }[kind];
+
+            expect(revealYfmElement(request, {root: outer})).toBe(target);
+            expect(container.querySelector('#outer-cut')?.hasAttribute('open')).toBe(true);
+            expect(container.querySelector('#inner-cut')?.hasAttribute('open')).toBe(false);
+            expect(host.classList.contains('open')).toBe(false);
+            expect(inner.classList.contains('open')).toBe(false);
+            expect(revealYfmElement(request, {root: inner})).toBe(target);
+            expect(container.querySelector('#inner-cut')?.hasAttribute('open')).toBe(true);
+            expect(host.classList.contains('open')).toBe(false);
+        },
+    );
+
+    it('should exclude a target in the nested viewer own slot', () => {
         const {outer, inner, target} = renderNestedViewers();
-        container.querySelector('#host')?.setAttribute('data-markdown-viewer-slot', '');
+        target.parentElement?.setAttribute('data-markdown-viewer-slot', '');
 
         expect(revealYfmElement(target, {root: outer})).toBeNull();
-        expect(container.querySelector('#outer-cut')?.hasAttribute('open')).toBe(false);
-        expect(revealYfmElement(target, {root: inner})).toBe(target);
-        expect(container.querySelector('#inner-cut')?.hasAttribute('open')).toBe(true);
+        expect(revealYfmElement(target, {root: inner})).toBeNull();
+        expect(container.querySelector('details[open]')).toBeNull();
     });
 
-    it('should skip tab controls owned by a nested viewer', () => {
-        const {outer, inner} = renderNestedViewers();
-        const tabs = document.createElement('div');
-        tabs.className = 'yfm-tabs';
-        tabs.innerHTML =
-            '<div id="panel" class="yfm-tab-panel"><p>Target</p></div><button class="yfm-tab" aria-controls="panel">Parent control</button>';
-        outer.append(tabs);
-        tabs.prepend(inner);
-        const childControl = document.createElement('button');
-        childControl.className = 'yfm-tab';
-        childControl.setAttribute('aria-controls', 'panel');
-        inner.append(childControl);
-        const childClick = vi.fn();
-        const parentClick = vi.fn();
-        childControl.addEventListener('click', childClick);
-        tabs.querySelector(':scope > button')?.addEventListener('click', parentClick);
+    it('should reveal a nested tab panel only from its own viewer', () => {
+        const {outer, inner, target} = renderNestedViewers(`
+            <div class="yfm-tabs">
+                <div class="yfm-tab-list"><button class="yfm-tab" aria-controls="panel">Tab</button></div>
+                <div id="panel" class="yfm-tab-panel"><p id="target">Inner target</p></div>
+            </div>
+        `);
+        const onClick = vi.fn();
+        inner.querySelector('.yfm-tab')?.addEventListener('click', onClick);
 
-        revealYfmElement({id: 'panel'}, {root: outer});
+        expect(revealYfmElement(target, {root: outer})).toBe(target);
+        expect(container.querySelector('#outer-cut')?.hasAttribute('open')).toBe(true);
+        expect(onClick).not.toHaveBeenCalled();
 
-        expect(childClick).not.toHaveBeenCalled();
-        expect(parentClick).toHaveBeenCalledTimes(1);
+        expect(revealYfmElement(target, {root: inner})).toBe(target);
+        expect(onClick).toHaveBeenCalledTimes(1);
     });
 
     it('should reveal each level independently across three nested viewers', () => {
@@ -284,9 +309,11 @@ describe('RevealYfmElement', () => {
         }
     });
 
-    function renderNestedViewers() {
+    function renderNestedViewers(
+        innerHtml = '<details id="inner-cut"><summary>Inner</summary><p id="target">Inner target</p></details>',
+    ) {
         const html =
-            '<p id="target">Outer target</p><details id="outer-cut"><summary>Outer</summary><div id="host"></div></details>';
+            '<details id="outer-cut"><summary>Outer</summary><div id="host"></div></details><p id="target">Outer target</p>';
         render(<MarkdownViewer html={html} />);
         const host = container.querySelector('#host');
         assert(host);
@@ -295,11 +322,7 @@ describe('RevealYfmElement', () => {
         render(
             <MarkdownViewer html={html} ref={outer}>
                 {createPortal(
-                    <MarkdownViewer
-                        ref={inner}
-                        className="heading-section"
-                        html='<details id="inner-cut"><summary>Inner</summary><p id="target">Inner target</p></details>'
-                    />,
+                    <MarkdownViewer ref={inner} className="heading-section" html={innerHtml} />,
                     host,
                 )}
             </MarkdownViewer>,
