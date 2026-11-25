@@ -20,6 +20,7 @@ for (const [format, api] of [
         assert.equal(typeof api.inspectViewerNode, 'function');
         assert.equal(typeof api.revealYfmElement, 'function');
         assert.equal(api.revealYfmElement(null), null);
+        assert.equal(api.VIEWER_ROOT_ATTRIBUTE, 'data-markdown-viewer-root');
         assert.equal(api.VIEWER_SLOT_ATTRIBUTE, 'data-markdown-viewer-slot');
         assert.equal(api.NAMESPACE, 'g-md-v-');
         assert.equal(api.cn('diagram')('caption'), 'g-md-v-diagram__caption');
@@ -35,6 +36,7 @@ for (const [format, api] of [
             ),
         );
         assert.match(result, /<p>Prepared HTML<\/p>/);
+        assert.ok(result.includes(`${api.VIEWER_ROOT_ATTRIBUTE}=""`));
     });
 }
 

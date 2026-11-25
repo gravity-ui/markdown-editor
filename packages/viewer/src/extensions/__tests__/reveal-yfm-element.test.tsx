@@ -1,11 +1,12 @@
-import {type ReactNode, StrictMode} from 'react';
+import {type ReactNode, StrictMode, createRef} from 'react';
 
+import {createPortal} from 'react-dom';
 import {type Root, createRoot} from 'react-dom/client';
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {act} from '../../../tests/utils/act';
 import {RevealYfmElement} from '../../extensions';
-import {MarkdownViewer} from '../../index';
+import {MarkdownViewer, revealYfmElement} from '../../index';
 
 describe('RevealYfmElement', () => {
     let container: HTMLDivElement;
@@ -201,6 +202,114 @@ describe('RevealYfmElement', () => {
         expect(container.querySelector('details')?.open).toBe(true);
         expect(onReveal).toHaveBeenCalledExactlyOnceWith(target);
     });
+
+    it('should resolve duplicate ids within each viewer root', () => {
+        const {outer, inner, target} = renderNestedViewers();
+
+        expect(revealYfmElement({id: 'target'}, {root: outer})).toBe(outer.querySelector('p'));
+        expect(container.querySelector('#outer-cut')?.hasAttribute('open')).toBe(false);
+        expect(revealYfmElement({id: 'target'}, {root: inner})).toBe(target);
+    });
+
+    it('should preserve ancestor traversal without an explicit root', () => {
+        const {target} = renderNestedViewers();
+
+        expect(revealYfmElement(target)).toBe(target);
+        expect(container.querySelector('#outer-cut')?.hasAttribute('open')).toBe(true);
+        expect(container.querySelector('#inner-cut')?.hasAttribute('open')).toBe(true);
+    });
+
+    it('should keep a nested viewer in a slot excluded from its parent', () => {
+        const {outer, inner, target} = renderNestedViewers();
+        container.querySelector('#host')?.setAttribute('data-markdown-viewer-slot', '');
+
+        expect(revealYfmElement(target, {root: outer})).toBeNull();
+        expect(container.querySelector('#outer-cut')?.hasAttribute('open')).toBe(false);
+        expect(revealYfmElement(target, {root: inner})).toBe(target);
+        expect(container.querySelector('#inner-cut')?.hasAttribute('open')).toBe(true);
+    });
+
+    it('should skip tab controls owned by a nested viewer', () => {
+        const {outer, inner} = renderNestedViewers();
+        const tabs = document.createElement('div');
+        tabs.className = 'yfm-tabs';
+        tabs.innerHTML =
+            '<div id="panel" class="yfm-tab-panel"><p>Target</p></div><button class="yfm-tab" aria-controls="panel">Parent control</button>';
+        outer.append(tabs);
+        tabs.prepend(inner);
+        const childControl = document.createElement('button');
+        childControl.className = 'yfm-tab';
+        childControl.setAttribute('aria-controls', 'panel');
+        inner.append(childControl);
+        const childClick = vi.fn();
+        const parentClick = vi.fn();
+        childControl.addEventListener('click', childClick);
+        tabs.querySelector(':scope > button')?.addEventListener('click', parentClick);
+
+        revealYfmElement({id: 'panel'}, {root: outer});
+
+        expect(childClick).not.toHaveBeenCalled();
+        expect(parentClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('should reveal each level independently across three nested viewers', () => {
+        const {outer, inner} = renderNestedViewers();
+        const host = document.createElement('div');
+        const innerCut = inner.querySelector('#inner-cut');
+        assert(innerCut);
+        innerCut.append(host);
+        const nestedRoot = createRoot(host);
+        const deepest = createRef<HTMLDivElement>();
+        try {
+            act(() =>
+                nestedRoot.render(
+                    <MarkdownViewer
+                        ref={deepest}
+                        html='<details id="deep-cut"><p id="deep-target">Deep</p></details>'
+                    />,
+                ),
+            );
+            const target = host.querySelector('p');
+            assert(deepest.current);
+            const cuts = Array.from(container.querySelectorAll('details'));
+            for (const [index, viewer] of [outer, inner, deepest.current].entries()) {
+                cuts.forEach((cut) => cut.removeAttribute('open'));
+                inner.classList.remove('open');
+                expect(revealYfmElement(target, {root: viewer})).toBe(target);
+                expect(cuts.map((cut) => cut.open)).toEqual(cuts.map((_, i) => i === index));
+                expect(inner.classList.contains('open')).toBe(index === 1);
+            }
+        } finally {
+            act(() => nestedRoot.unmount());
+        }
+    });
+
+    function renderNestedViewers() {
+        const html =
+            '<p id="target">Outer target</p><details id="outer-cut"><summary>Outer</summary><div id="host"></div></details>';
+        render(<MarkdownViewer html={html} />);
+        const host = container.querySelector('#host');
+        assert(host);
+        const outer = createRef<HTMLDivElement>();
+        const inner = createRef<HTMLDivElement>();
+        render(
+            <MarkdownViewer html={html} ref={outer}>
+                {createPortal(
+                    <MarkdownViewer
+                        ref={inner}
+                        className="heading-section"
+                        html='<details id="inner-cut"><summary>Inner</summary><p id="target">Inner target</p></details>'
+                    />,
+                    host,
+                )}
+            </MarkdownViewer>,
+        );
+        const target = host.querySelector('p');
+        assert(outer.current);
+        assert(inner.current);
+        assert(target);
+        return {outer: outer.current, inner: inner.current, target};
+    }
 
     function render(element: ReactNode) {
         act(() => root.render(element));

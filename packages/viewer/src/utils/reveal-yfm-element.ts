@@ -1,5 +1,9 @@
+import {VIEWER_ROOT_ATTRIBUTE} from '../constants';
+
 import {getDomConstructor} from './dom-constructor';
 import {inspectViewerNode} from './inspect-viewer-node';
+
+const viewerRootSelector = `[${VIEWER_ROOT_ATTRIBUTE}]`;
 
 export type RevealYfmTarget =
     | Element
@@ -7,7 +11,7 @@ export type RevealYfmTarget =
     | {selector: string; id?: never};
 
 export interface RevealYfmElementOptions {
-    /** Limit lookup and ancestor traversal to this root, including the root itself. */
+    /** Limit lookup and traversal to this root. Containers in nested viewers stay unchanged. */
     root?: Element;
 }
 
@@ -36,7 +40,9 @@ export function revealYfmElement(
         if (!container.contains(element) || inspectViewerNode(scope, element).kind !== 'content') {
             return null;
         }
-        revealContainer(container, element, scope);
+        if (!root || isSameViewer(container, root)) {
+            revealContainer(container, element, scope, Boolean(root));
+        }
     }
     return inspectViewerNode(scope, element).kind === 'content' ? element : null;
 }
@@ -59,7 +65,12 @@ function resolveTarget(target: RevealYfmTarget, root?: Element): Element | null 
     );
 }
 
-function revealContainer(container: Element, target: Element, root: Element): void {
+function revealContainer(
+    container: Element,
+    target: Element,
+    root: Element,
+    ownViewerOnly: boolean,
+): void {
     if (container.tagName === 'DETAILS') {
         const summary = container.querySelector(':scope > summary');
         if (!summary?.contains(target)) container.setAttribute('open', '');
@@ -73,17 +84,17 @@ function revealContainer(container: Element, target: Element, root: Element): vo
     }
 
     if (!container.matches('.yfm-tab-panel:not(.active)')) return;
-    const control = findTabControl(container);
+    const control = findTabControl(container, ownViewerOnly);
     if (!(control instanceof getDomConstructor(container, 'HTMLElement'))) return;
     if (inspectViewerNode(root, control).kind !== 'content') return;
     control.click();
 }
 
-function findTabControl(panel: Element): Element | undefined {
+function findTabControl(panel: Element, ownViewerOnly: boolean): Element | undefined {
     const tabs = panel.parentElement;
     if (!tabs?.classList.contains('yfm-tabs')) return undefined;
     const controls = Array.from(tabs.querySelectorAll('.yfm-tab')).filter(
-        (tab) => tab.closest('.yfm-tabs') === tabs,
+        (tab) => tab.closest('.yfm-tabs') === tabs && (!ownViewerOnly || isSameViewer(tab, panel)),
     );
     if (panel.id) {
         const control = controls.find((tab) => tab.getAttribute('aria-controls') === panel.id);
@@ -100,4 +111,8 @@ function findTabControl(panel: Element): Element | undefined {
 
     const title = panel.getAttribute('data-title');
     return title ? controls.find((tab) => tab.textContent?.trim() === title) : undefined;
+}
+
+function isSameViewer(first: Element, second: Element): boolean {
+    return first.closest(viewerRootSelector) === second.closest(viewerRootSelector);
 }

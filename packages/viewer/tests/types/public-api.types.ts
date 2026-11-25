@@ -6,6 +6,8 @@ import {
     MarkdownViewer,
     type MarkdownViewerProps,
     type NAMESPACE,
+    VIEWER_ROOT_ATTRIBUTE,
+    VIEWER_SLOT_ATTRIBUTE,
     type ViewerEffect,
     type ViewerEffectCleanup,
     type ViewerEffectContext,
@@ -16,6 +18,12 @@ import {
     cnYFM,
     useViewerEffect,
 } from '../../src';
+
+export function shouldExportViewerAttributeNames() {
+    const root: 'data-markdown-viewer-root' = VIEWER_ROOT_ATTRIBUTE;
+    const slot: 'data-markdown-viewer-slot' = VIEWER_SLOT_ATTRIBUTE;
+    return {root, slot};
+}
 
 export function shouldAcceptViewerProps() {
     const mods: YFMMods = {'no-list-reset': true, custom: 'value', level: 2};
