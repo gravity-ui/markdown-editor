@@ -11,6 +11,6 @@
   "refetch": "Попробовать ещё",
   "replace": "Заменить выделенный текст",
   "replace-disabled": "Вставить текст",
-  "try-again": "Иначе",
+  "try-again": "Повторить",
   "alert-gpt-presets-info": "Выделите текст, чтобы увидеть пресеты GPT"
 }
