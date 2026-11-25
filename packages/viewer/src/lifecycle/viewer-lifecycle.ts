@@ -1,15 +1,26 @@
 import type {DependencyList} from 'react';
 
+import type {TargetRegistry} from '../components/ViewerTargets/target-registry';
 import {getDomConstructor} from '../utils/dom-constructor';
 
 import {ElementClaims} from './element-claims';
-import type {ViewerEffect, ViewerEffectCleanup, ViewerEffectContext} from './types';
+import type {AfterCommit, ViewerEffect, ViewerEffectCleanup, ViewerEffectContext} from './types';
 
 export class ViewerLifecycle {
-    readonly slotClaims = new ElementClaims();
+    private readonly afterCommit: AfterCommit;
+    private targets?: TargetRegistry;
     private entries = new Map<symbol, EffectEntry>();
     private claims = new ElementClaims();
     private root: HTMLDivElement | null = null;
+
+    constructor(afterCommit: AfterCommit) {
+        this.afterCommit = afterCommit;
+    }
+
+    getTargets(root: HTMLElement, Registry: typeof TargetRegistry) {
+        if (this.targets?.root !== root) this.targets = new Registry(root, this.afterCommit);
+        return this.targets;
+    }
 
     update(key: symbol, setup: ViewerEffect, dependencies: DependencyList) {
         const previous = this.entries.get(key);

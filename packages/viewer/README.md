@@ -467,7 +467,7 @@ export function AsyncExtension({load, onError}: AsyncExtensionProps) {
 
 ### Add React content to HTML
 
-Use `ViewerTargets` to add React components inside the HTML. It finds matching HTML elements in the current viewer and adds a slot to each one. The original content stays in place. Each slot uses a React portal, so its components can read your application's React context.
+Use `ViewerTargets` to add React components inside the HTML. It finds matching HTML elements in the current viewer and adds a slot to each one. By default, the original content stays in place. Each slot uses a React portal, so its components can read your application's React context.
 
 ```tsx
 import {useState} from 'react';
@@ -503,7 +503,8 @@ Use `ViewerTargets` inside `MarkdownViewer`. The package exports the `ViewerTarg
 | Prop        | Type                                 | Description                                                              |
 | ----------- | ------------------------------------ | ------------------------------------------------------------------------ |
 | `selector`  | `string`                             | CSS selector for HTML elements inside this viewer.                       |
-| `slotKey`   | `string`                             | Optional key for one shared slot per matching element.                   |
+| `mode`      | `'append' \| 'replace'`              | Append a slot (default) or replace the target's children with it.        |
+| `slotKey`   | `string`                             | Optional key for a shared slot in append mode.                           |
 | `as`        | `'span' \| 'div'`                    | Slot tag. Default: `span`. Choose a tag that is valid inside the target. |
 | `className` | `string`                             | CSS class for each slot.                                                 |
 | `style`     | `CSSProperties`                      | Inline styles for each slot.                                             |
@@ -512,11 +513,11 @@ Use `ViewerTargets` inside `MarkdownViewer`. The package exports the `ViewerTarg
 To share a built-in slot, import `HEADING_ANCHOR_SLOT_KEY`, `HEADING_EDIT_SLOT_KEY`, or `YFM_CODE_BLOCK_ACTIONS_SLOT_KEY` from `@gravity-ui/markdown-viewer/extensions`.
 If your extension uses `HEADING_ANCHOR_SLOT_KEY` to replace a native YFM anchor, hide the native anchor while your control is visible.
 
-Use a stable selector, such as `h2[id]` or `[data-grid-id]`. Adding a slot must not change whether the target matches. Avoid selectors such as `h2:empty`.
+Use a stable selector, such as `h2[id]` or `[data-widget]`. The target must still match after rendering. Avoid `h2:empty` or a selector that depends on fallback content, such as `.widget:has(.fallback)`.
 
-Searches skip slots and their content. Elements added later by an external runtime are not detected automatically.
+Searches skip slots, their content, and nested viewers. When original children are restored, extensions can find targets in those subtrees. Elements added later by an external runtime are not detected automatically.
 
-Several extensions can add separate slots to the same target. Each extension must keep the other slots and the original content. Their order in the React tree must not affect how they work. Put DOM steps that need a fixed order in one extension.
+Several extensions can append slots to the same target. A replacement needs the target and its descendants free of other slots in this viewer. Append slots on ancestors can stay active.
 
 </details>
 
@@ -525,13 +526,14 @@ Several extensions can add separate slots to the same target. Each extension mus
 
 - A target keeps its slot and React state during ordinary rerenders.
 - After a selector change, targets that still match keep their slots. Other slots are added or removed as needed.
-- For each target and `slotKey`, the first matching extension renders the slot. When it unmounts, changes its key, or stops matching the target, the next waiting extension takes over.
-- An extension keeps its place when its props change, keyed siblings are reordered, or it renders `null`, as long as the target and slot key still match.
+- For each target and `slotKey`, the first matching extension renders the slot.
+- When a slot is released, compatible requests take over in registration order. Waiting requests do not block other slots. Siblings that mount together register in JSX order, and targets for one selector register in document order.
+- Changing `mode` or `slotKey` starts a new request. Reordering keyed siblings or rendering `null` keeps the extension's place.
 - Changing `as` may replace the slot and reset its state.
-- Replacing HTML creates new DOM elements, even if their IDs stay the same. To keep state across HTML updates, store it above `ViewerTargets` and use a stable, unique ID for each target.
-- Removing an extension removes its slots and portal content. Other extensions' slots and the original HTML stay in place.
+- Replacing HTML creates new DOM elements, even if their IDs stay the same. Detached fallback stays disconnected when the HTML changes or the viewer unmounts. To keep state across HTML updates, store it above `ViewerTargets` and use a stable, unique ID for each target.
+- Removing an extension removes its slots and portal content. When a replacement ends, the viewer restores the original child nodes in order. A replacement that is next in the queue takes over with the original nodes still detached. An earlier request for a hidden child can require restoring the nodes to check its selector.
 
-When `html` changes, `useViewerEffect` cleanup runs before the viewer replaces the old HTML. Portal children follow React's cleanup timing. Their target may already be detached from the document. If cleanup needs the old HTML in place, use `useViewerEffect` in the extension that renders `ViewerTargets`. Cleanup order between extensions is unspecified.
+When `html` changes, `useViewerEffect` cleanup runs before the viewer replaces the old HTML. Portal children follow React's cleanup timing. Their target may already be detached from the document. If cleanup needs the old HTML in place, use `useViewerEffect` in the extension that renders `ViewerTargets`. Cleanup order between extensions is unspecified. If Suspense reveals a portal in the same commit that another extension replaces its ancestor, the portal's layout effect may run with a detached target.
 
 On the server, the viewer renders the prepared HTML and its regular React children. `ViewerTargets` adds no slots or portal content. It adds them on the client after hydration.
 
@@ -540,34 +542,31 @@ On the server, the viewer renders the prepared HTML and its regular React childr
 <details>
 <summary>React blocks and fallback content</summary>
 
-For a React block, prepare an empty target element (the host). Put fallback content beside it:
+Put fallback content inside the target:
 
 ```html
-<section>
-  <p data-grid-fallback>Grid is unavailable.</p>
-  <div data-grid-id="grid-42"></div>
-</section>
+<div data-widget>Fallback content</div>
 ```
 
-Use `as="div"` to add a block slot:
+Use `mode="replace"` to show React content in its place:
 
 ```tsx
-<ViewerTargets selector="[data-grid-id]" as="div">
-  {(host) => <GridAdapter host={host} />}
+<ViewerTargets selector="[data-widget]" mode="replace" as="div">
+  {() => <p>Widget content</p>}
 </ViewerTargets>
 ```
 
-`GridAdapter` is your component. It reads the grid ID, renders the grid, and hides or shows the fallback. `ViewerTargets` does not manage the fallback.
-
-The result inside the host is:
+While the replacement is active, the target contains the slot:
 
 ```html
-<div data-grid-id="grid-42">
+<div data-widget>
   <div data-markdown-viewer-slot>
-    <div class="grid">...</div>
+    <p>Widget content</p>
   </div>
 </div>
 ```
+
+Returning `null` keeps the fallback hidden. Render a loading state if needed.
 
 </details>
 

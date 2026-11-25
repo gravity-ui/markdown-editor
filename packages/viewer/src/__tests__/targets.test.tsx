@@ -345,23 +345,39 @@ describe('ViewerTargets', () => {
         expect(container.querySelector('#new button')?.textContent).toBe('Action');
     });
 
-    it('should search a nested viewer inside an outer portal using its own root', () => {
-        act(() =>
-            root.render(
-                <MarkdownViewer html='<section data-host=""></section>'>
-                    <ViewerTargets selector="[data-host]" as="div">
-                        {() => (
-                            <MarkdownViewer html='<h2 id="inner">Inner</h2>'>
-                                <ViewerTargets selector="h2[id]">
-                                    {() => <button>Inner action</button>}
-                                </ViewerTargets>
-                            </MarkdownViewer>
-                        )}
-                    </ViewerTargets>
-                </MarkdownViewer>,
-            ),
-        );
-        expect(container.querySelector('#inner button')?.textContent).toBe('Inner action');
+    it('should advance named slots independently in the outer viewer and its portal', () => {
+        function action(label: string) {
+            return (
+                <ViewerTargets key={label} selector="p" slotKey="action">
+                    {() => label}
+                </ViewerTargets>
+            );
+        }
+        const first = action('first');
+        const next = action('next');
+        function render(outerFirst: boolean, innerFirst: boolean) {
+            renderTargets(
+                '<p></p><section></section>',
+                outerFirst && first,
+                next,
+                <ViewerTargets key="inner" selector="section" as="div">
+                    {() => (
+                        <MarkdownViewer html="<p></p>">
+                            {innerFirst && first}
+                            {next}
+                        </MarkdownViewer>
+                    )}
+                </ViewerTargets>,
+            );
+        }
+
+        render(true, true);
+        const [outer, inner] = Array.from(container.querySelectorAll('p'));
+        expect([outer.textContent, inner.textContent]).toEqual(['first', 'first']);
+        render(true, false);
+        expect([outer.textContent, inner.textContent]).toEqual(['first', 'next']);
+        render(false, false);
+        expect([outer.textContent, inner.textContent]).toEqual(['next', 'next']);
     });
 
     function renderTargets(html: string, ...slots: ReactNode[]) {
