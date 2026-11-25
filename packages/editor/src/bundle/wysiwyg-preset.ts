@@ -52,12 +52,14 @@ declare global {
     namespace WysiwygEditor {
         interface Context {
             directiveSyntax: DirectiveSyntaxContext;
+            fileUploadHandler: FileUploadHandler;
         }
     }
 }
 
 export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) => {
     builder.context.set('directiveSyntax', opts.directiveSyntax);
+    if (opts.fileUploadHandler) builder.context.set('fileUploadHandler', opts.fileUploadHandler);
 
     const dropCursor: NonNullable<BundlePresetOptions['cursor']>['dropOptions'] = {
         color: 'var(--g-color-line-brand)',

@@ -158,6 +158,23 @@ describe('useMarkdownEditor', () => {
         expect(initialized).toEqual(['markup', 'wysiwyg']);
     });
 
+    it('should pass the file upload handler to extensions through the context', () => {
+        const uploadFile = vi.fn();
+        let received: unknown;
+        render({
+            initial: {mode: 'wysiwyg'},
+            handlers: {uploadFile},
+            wysiwygConfig: {
+                extensions: (builder) => {
+                    received = builder.context.get('fileUploadHandler');
+                },
+            },
+        });
+
+        editor.getValue();
+        expect(received).toBe(uploadFile);
+    });
+
     it('should replace the instance, state and subscriptions when dependencies change', () => {
         render(
             {
