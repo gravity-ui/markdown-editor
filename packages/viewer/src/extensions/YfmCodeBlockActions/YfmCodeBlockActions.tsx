@@ -1,18 +1,17 @@
-import {type ReactElement, useState} from 'react';
+import type {ReactElement} from 'react';
 
 import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {ViewerTargets} from '../../components/ViewerTargets/ViewerTargets';
+import {useTargetClass} from '../../hooks/use-target-class';
 import {cn} from '../../utils/classname';
-import {createClassRegistration} from '../../utils/dom-ownership';
-import {useClientLayoutEffect} from '../../utils/use-client-layout-effect';
 
 import {CodeTextWrappingToggleButton} from './TextWrappingButton';
 
 import './YfmCodeBlockActions.scss';
 
 const b = cn('yfm-code-block');
-const registerBlockActions = createClassRegistration(b());
+export const YFM_CODE_BLOCK_ACTIONS_SLOT_KEY = 'yfm-code-block-actions';
 
 export interface YfmCodeBlockActionsProps {
     /** @default true */
@@ -31,7 +30,12 @@ export function YfmCodeBlockActions({
     getCodeBlockText = getCodeBlockTextDefault,
 }: YfmCodeBlockActionsProps): ReactElement {
     return (
-        <ViewerTargets selector={codeBlockSelector} as="div" className={b('actions')}>
+        <ViewerTargets
+            selector={codeBlockSelector}
+            slotKey={YFM_CODE_BLOCK_ACTIONS_SLOT_KEY}
+            as="div"
+            className={b('actions')}
+        >
             {(element) => (
                 <CodeBlockActions
                     element={element}
@@ -50,11 +54,7 @@ function CodeBlockActions({
     lineWrappingButton,
     getCodeBlockText,
 }: {element: HTMLElement} & Required<Omit<YfmCodeBlockActionsProps, 'codeBlockSelector'>>) {
-    const [ownsBlock, setOwnsBlock] = useState(false);
-
-    useClientLayoutEffect(() => registerBlockActions(element, setOwnsBlock), [element]);
-
-    if (!ownsBlock) return null;
+    useTargetClass(element, b());
 
     return (
         <>

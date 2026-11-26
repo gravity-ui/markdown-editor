@@ -2,9 +2,11 @@ import type {DependencyList} from 'react';
 
 import {getDomConstructor} from '../utils/dom-constructor';
 
+import {ElementClaims} from './element-claims';
 import type {ViewerEffect, ViewerEffectCleanup} from './types';
 
 export class ViewerLifecycle {
+    readonly slotClaims = new ElementClaims();
     private entries = new Map<symbol, EffectEntry>();
     private root: HTMLDivElement | null = null;
 

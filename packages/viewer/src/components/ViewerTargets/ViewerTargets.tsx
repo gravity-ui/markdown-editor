@@ -6,17 +6,22 @@ import {createPortal} from 'react-dom';
 import {VIEWER_SLOT_ATTRIBUTE} from '../../constants';
 import {useViewerEffect} from '../../hooks/use-viewer-effect';
 import {ViewerContext, ViewerHtmlContext} from '../../lifecycle/context';
+import type {ElementClaims} from '../../lifecycle/element-claims';
 import {getDomConstructor} from '../../utils/dom-constructor';
 import {inspectViewerNode} from '../../utils/inspect-viewer-node';
+import {useClientLayoutEffect} from '../../utils/use-client-layout-effect';
 
 export interface ViewerTargetsProps extends DOMProps {
     selector: string;
+    /** Render only the first slot with this key on each target. By default, slots are independent. */
+    slotKey?: string;
     as?: 'span' | 'div';
     children: (target: HTMLElement) => ReactNode;
 }
 
 export function ViewerTargets({
     selector,
+    slotKey,
     as: Slot = 'span',
     className,
     style,
@@ -60,15 +65,49 @@ export function ViewerTargets({
 
     return (
         <>
-            {Array.from(targets, ([target, key]) =>
-                createPortal(
+            {Array.from(targets, ([target, key]) => {
+                const render = () => (
                     <Slot {...{[VIEWER_SLOT_ATTRIBUTE]: ''}} className={className} style={style}>
                         {children(target)}
-                    </Slot>,
+                    </Slot>
+                );
+                return createPortal(
+                    slotKey === undefined ? (
+                        render()
+                    ) : (
+                        <ViewerNamedSlot
+                            claims={lifecycle.slotClaims}
+                            target={target}
+                            slotKey={slotKey}
+                        >
+                            {render}
+                        </ViewerNamedSlot>
+                    ),
                     target,
                     String(key),
-                ),
-            )}
+                );
+            })}
         </>
     );
+}
+
+function ViewerNamedSlot({
+    claims,
+    target,
+    slotKey,
+    children,
+}: {
+    claims: ElementClaims;
+    target: HTMLElement;
+    slotKey: string;
+    children: () => ReactElement;
+}) {
+    const [activeKey, setActiveKey] = useState<string>();
+
+    useClientLayoutEffect(() => {
+        setActiveKey(undefined);
+        return claims.claim(target, slotKey, () => setActiveKey(slotKey));
+    }, [claims, target, slotKey]);
+
+    return activeKey === slotKey ? children() : null;
 }

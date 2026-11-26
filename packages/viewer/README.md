@@ -481,10 +481,14 @@ Use `ViewerTargets` inside `MarkdownViewer`. The package exports the `ViewerTarg
 | Prop        | Type                                 | Description                                                              |
 | ----------- | ------------------------------------ | ------------------------------------------------------------------------ |
 | `selector`  | `string`                             | CSS selector for HTML elements inside this viewer.                       |
+| `slotKey`   | `string`                             | Optional key for one shared slot per matching element.                   |
 | `as`        | `'span' \| 'div'`                    | Slot tag. Default: `span`. Choose a tag that is valid inside the target. |
 | `className` | `string`                             | CSS class for each slot.                                                 |
 | `style`     | `CSSProperties`                      | Inline styles for each slot.                                             |
 | `children`  | `(target: HTMLElement) => ReactNode` | Returns React content for each target.                                   |
+
+To share a built-in slot, import `HEADING_ANCHOR_SLOT_KEY`, `HEADING_EDIT_SLOT_KEY`, or `YFM_CODE_BLOCK_ACTIONS_SLOT_KEY` from `@gravity-ui/markdown-viewer/extensions`.
+If your extension uses `HEADING_ANCHOR_SLOT_KEY` to replace a native YFM anchor, hide the native anchor while your control is visible.
 
 Use a stable selector, such as `h2[id]` or `[data-grid-id]`. Adding a slot must not change whether the target matches. Avoid selectors such as `h2:empty`.
 
@@ -499,6 +503,8 @@ Several extensions can add separate slots to the same target. Each extension mus
 
 - A target keeps its slot and React state during ordinary rerenders.
 - After a selector change, targets that still match keep their slots. Other slots are added or removed as needed.
+- For each target and `slotKey`, the first matching extension renders the slot. When it unmounts, changes its key, or stops matching the target, the next waiting extension takes over.
+- An extension keeps its place when its props change, keyed siblings are reordered, or it renders `null`, as long as the target and slot key still match.
 - Changing `as` may replace the slot and reset its state.
 - Replacing HTML creates new DOM elements, even if their IDs stay the same. To keep state across HTML updates, store it above `ViewerTargets` and use a stable, unique ID for each target.
 - Removing an extension removes its slots and portal content. Other extensions' slots and the original HTML stay in place.
