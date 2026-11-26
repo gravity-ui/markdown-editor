@@ -30,7 +30,9 @@ import {
 import {
     type BannerDimensions,
     bannerBackgroundDefaults,
+    bannerContentTokenName,
     bannerDefaults,
+    bannerImageTokenName,
 } from '@gravity-ui/markdown-plugin-banner';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
@@ -155,6 +157,30 @@ describe('Banner extension', () => {
         const parts = ['::banner-title[]', ':::banner-content\n\n:::', '::banner-image'];
         const markup = [':::banner{height="s" width="m"}', ...parts, ':::'].join('\n\n');
         expect(serializer.serialize(markupParser.parse(markup))).toBe(markup);
+    });
+
+    it.each(['[A] <tag> &amp;', 'A\\B [C]\\', String.raw`\[escaped\]`])(
+        'should preserve edited title text %j across mode changes',
+        (text) => {
+            const editor = createView(':::banner\n\n::banner-title[Title]\n\n:::');
+            editor.dispatch(editor.state.tr.insertText(text, 2, 7));
+            const reparsed = markupParser.parse(serializer.serialize(editor.state.doc));
+            expect(reparsed.eq(editor.state.doc)).toBe(true);
+            expect(reparsed.textContent).toBe(text);
+        },
+    );
+
+    it.each([
+        ':::banner-content\n- One\n- Two\n:::',
+        ':::banner-content\n> Quoted **text**\n:::',
+        ':::banner-content\n:::banner-content\nNested\n:::\n:::',
+        String.raw`::banner-image{src="/team.png?a=1&b=2" alt="A &amp; B \\\"team\\\"" title="[Team]"}`,
+    ])('should preserve nested blocks and image attributes in %j', (part) => {
+        const doc = markupParser.parse(`:::banner\n\n${part}\n\n:::`);
+        expect(doc.firstChild?.firstChild?.type.name).toBe(
+            part.startsWith('::banner-image') ? bannerImageTokenName : bannerContentTokenName,
+        );
+        expect(markupParser.parse(serializer.serialize(doc)).eq(doc)).toBe(true);
     });
 
     it('should use the same defaults in the schema and parser', () => {
