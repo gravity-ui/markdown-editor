@@ -1,8 +1,8 @@
 import {useRef} from 'react';
 
+import {useClientLayoutEffect} from '../../hooks/use-client-layout-effect';
 import {useViewerEffect} from '../../hooks/use-viewer-effect';
 import {type RevealYfmTarget, revealYfmElement} from '../../utils/reveal-yfm-element';
-import {useClientLayoutEffect} from '../../utils/use-client-layout-effect';
 
 export type RevealYfmElementProps = (
     | {id: string | null; selector?: never; element?: never}

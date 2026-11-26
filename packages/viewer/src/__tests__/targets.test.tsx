@@ -1,4 +1,4 @@
-import {createContext, createRef, useContext, useState} from 'react';
+import {type ReactNode, createContext, createRef, useContext, useState} from 'react';
 
 import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
@@ -243,6 +243,65 @@ describe('ViewerTargets', () => {
         expect(container.querySelector('h2')?.firstChild?.textContent).toBe('Title');
     });
 
+    it('should give each target to the first matching slot in registration order', () => {
+        function slot(name: string, selector: string, label = name) {
+            return (
+                <ViewerTargets key={name} selector={selector} slotKey="action">
+                    {() => label}
+                </ViewerTargets>
+            );
+        }
+        const update = (...slots: ReactNode[]) =>
+            renderTargets('<h2></h2><h3></h3><h4></h4>', ...slots);
+        const second = slot('B', 'h3,h4');
+        const third = slot('C', 'h3');
+
+        update(slot('A', 'h2,h3'), second, third);
+        const shared = container.querySelector('h3 > span');
+        expect(container.querySelector('h2')?.textContent).toBe('A');
+        expect(container.querySelector('h3')?.textContent).toBe('A');
+        expect(container.querySelector('h4')?.textContent).toBe('B');
+
+        update(third, second, slot('A', 'h3', 'Updated'));
+        expect(container.querySelector('h3 > span')).toBe(shared);
+        expect(shared?.textContent).toBe('Updated');
+
+        update(third, second, slot('A', 'h2'));
+        expect(container.querySelector('h3')?.textContent).toBe('B');
+        update(slot('A', 'h2,h3'), third, second);
+        expect(container.querySelector('h3')?.textContent).toBe('B');
+        update(slot('A', 'h2,h3'), third);
+        expect(container.querySelector('h3')?.textContent).toBe('C');
+    });
+
+    it('should keep an empty named slot until its key changes', () => {
+        const waiting = vi.fn(() => 'Copy');
+        function update(slotKey: string) {
+            renderTargets(
+                '<h2></h2>',
+                <ViewerTargets key="empty" selector="h2" slotKey={slotKey}>
+                    {() => null}
+                </ViewerTargets>,
+                <ViewerTargets key="copy" selector="h2" slotKey="copy">
+                    {waiting}
+                </ViewerTargets>,
+                <ViewerTargets key="edit" selector="h2" slotKey="edit">
+                    {() => 'Edit'}
+                </ViewerTargets>,
+            );
+        }
+        update('copy');
+        const heading = container.querySelector('h2');
+        expect(waiting).not.toHaveBeenCalled();
+        expect(heading?.children).toHaveLength(2);
+        expect(heading?.textContent).toBe('Edit');
+
+        update('edit');
+        expect(heading?.children).toHaveLength(2);
+        expect(heading?.textContent).toContain('Copy');
+        expect(heading?.textContent).toContain('Edit');
+    });
+
     it('should scope target searches to each viewer root', () => {
         act(() =>
             root.render(
@@ -286,24 +345,44 @@ describe('ViewerTargets', () => {
         expect(container.querySelector('#new button')?.textContent).toBe('Action');
     });
 
-    it('should search a nested viewer inside an outer portal using its own root', () => {
-        act(() =>
-            root.render(
-                <MarkdownViewer html='<section data-host=""></section>'>
-                    <ViewerTargets selector="[data-host]" as="div">
-                        {() => (
-                            <MarkdownViewer html='<h2 id="inner">Inner</h2>'>
-                                <ViewerTargets selector="h2[id]">
-                                    {() => <button>Inner action</button>}
-                                </ViewerTargets>
-                            </MarkdownViewer>
-                        )}
-                    </ViewerTargets>
-                </MarkdownViewer>,
-            ),
-        );
-        expect(container.querySelector('#inner button')?.textContent).toBe('Inner action');
+    it('should advance named slots independently in the outer viewer and its portal', () => {
+        function action(label: string) {
+            return (
+                <ViewerTargets key={label} selector="p" slotKey="action">
+                    {() => label}
+                </ViewerTargets>
+            );
+        }
+        const first = action('first');
+        const next = action('next');
+        function render(outerFirst: boolean, innerFirst: boolean) {
+            renderTargets(
+                '<p></p><section></section>',
+                outerFirst && first,
+                next,
+                <ViewerTargets key="inner" selector="section" as="div">
+                    {() => (
+                        <MarkdownViewer html="<p></p>">
+                            {innerFirst && first}
+                            {next}
+                        </MarkdownViewer>
+                    )}
+                </ViewerTargets>,
+            );
+        }
+
+        render(true, true);
+        const [outer, inner] = Array.from(container.querySelectorAll('p'));
+        expect([outer.textContent, inner.textContent]).toEqual(['first', 'first']);
+        render(true, false);
+        expect([outer.textContent, inner.textContent]).toEqual(['first', 'next']);
+        render(false, false);
+        expect([outer.textContent, inner.textContent]).toEqual(['next', 'next']);
     });
+
+    function renderTargets(html: string, ...slots: ReactNode[]) {
+        act(() => root.render(<MarkdownViewer html={html}>{slots}</MarkdownViewer>));
+    }
 });
 
 function Counter({label}: {label: string}) {
