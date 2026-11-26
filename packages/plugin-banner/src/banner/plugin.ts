@@ -8,7 +8,6 @@ import type {PluginSimple} from 'markdown-it';
 import type Core from 'markdown-it/lib/parser_core';
 
 import {normalizeLinkUrl} from '../url';
-import {isBareContainer} from '../utils';
 
 import {bannerAttrs, bannerTitleAttrs} from './attrs';
 import {
@@ -17,6 +16,7 @@ import {
     bannerTitleTokenName,
     bannerTokenName,
 } from './const';
+import {isBareContainer} from './utils';
 
 const bannerTitleHandler: LeafBlockDirectiveHandler = (state, params) => {
     if (!params.inlineContent || params.dests) return false;

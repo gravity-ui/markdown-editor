@@ -1,8 +1,3 @@
-import type {ContainerDirectiveParams} from '@diplodoc/directive';
-
-export const isBareContainer = ({inlineContent, dests, contentTitle}: ContainerDirectiveParams) =>
-    !inlineContent && !dests && !contentTitle;
-
 export const includes = <T>(values: readonly T[], value: unknown): value is T =>
     (values as readonly unknown[]).includes(value);
 
