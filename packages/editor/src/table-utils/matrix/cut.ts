@@ -7,6 +7,7 @@ import {type TableCellSelection, prepareCellClear} from '../cell-selection/selec
 
 import {applyTableChanges} from './changes';
 import {selectCellContent} from './selection';
+import type {TableMatrixSnapshot} from './types';
 
 export function prepareMatrixCut(
     state: EditorState,
@@ -66,6 +67,7 @@ function cutTable(state: EditorState, selection: TableCellSelection): Transactio
     );
     if (!snapshot) return null;
     const tr = state.tr;
+    if (!snapshot.table.eq(geometry.table)) deleteSelectedRanges(tr, selection, snapshot);
     if (!applyTableChanges(tr, tablePos, snapshot.table)) return null;
     const result = getTableGeometry(tr.doc.nodeAt(tablePos)!);
     if (!result) return null;
@@ -79,4 +81,43 @@ function cutTable(state: EditorState, selection: TableCellSelection): Transactio
     tr.setSelection(nextSelection);
     result.table.check();
     return tr;
+}
+
+function deleteSelectedRanges(
+    tr: Transaction,
+    selection: TableCellSelection,
+    result: TableMatrixSnapshot,
+) {
+    const {geometry, rect, tablePos} = selection;
+    const ranges: {from: number; to: number}[] = [];
+    if (selection.isRowSelection()) {
+        const sections: number[] = [];
+        result.table.forEach((section, _, index) => {
+            section.forEach(() => sections.push(index));
+        });
+        let rowIndex = 0;
+        let keptIndex = result.rect.top;
+        geometry.table.forEach((section, sectionOffset, sectionIndex) => {
+            section.forEach((row, rowOffset) => {
+                const selected = rowIndex >= rect.top && rowIndex < rect.bottom;
+                // Rows moved to another section are rebuilt from the adapter result.
+                if (selected || sections[keptIndex++] !== sectionIndex) {
+                    const from = tablePos + sectionOffset + rowOffset + 2;
+                    ranges.push({from, to: from + row.nodeSize});
+                }
+                rowIndex++;
+            });
+        });
+    } else {
+        for (const cell of geometry.cellsInRect(rect)) {
+            const from = tablePos + cell.offset;
+            ranges.push({from, to: from + cell.node.nodeSize});
+        }
+    }
+    for (let index = ranges.length - 1; index >= 0; index--) {
+        const to = ranges[index].to;
+        let from = ranges[index].from;
+        while (index > 0 && ranges[index - 1].to === from) from = ranges[--index].from;
+        tr.delete(from, to);
+    }
 }

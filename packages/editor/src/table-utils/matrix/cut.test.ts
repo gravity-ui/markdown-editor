@@ -1,6 +1,8 @@
+import {history, redo, undo} from 'prosemirror-history';
 import {Fragment, type Node} from 'prosemirror-model';
-import {EditorState, TextSelection} from 'prosemirror-state';
-import {describe, expect, it} from 'vitest';
+import {EditorState, TextSelection, type Transaction} from 'prosemirror-state';
+import {Decoration, DecorationSet} from 'prosemirror-view';
+import {assert, describe, expect, it} from 'vitest';
 
 import {ExtensionsManager} from '#core';
 import {BaseSchemaSpecs} from 'src/extensions/base/specs';
@@ -17,6 +19,82 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
 }).buildDeps();
 
 describe('matrix cut', () => {
+    it.each([
+        {
+            name: 'YFM columns',
+            markup: '#|\n|| A | A ||\n|| B | B ||\n|#',
+            end: [1, 0],
+            keep: [0, 1],
+            expected: '#|\n|| A ||\n|| B ||\n|#',
+        },
+        {
+            name: 'YFM rows',
+            markup: '#|\n|| A | B ||\n|| A | B ||\n|#',
+            end: [0, 1],
+            keep: [1, 0],
+            expected: '#|\n|| A | B ||\n|#',
+        },
+        {
+            name: 'Markdown columns',
+            markup: '| A | A |\n| --- | --- |\n| B | B |',
+            end: [1, 0],
+            keep: [0, 1],
+            expected: '| A |\n| --- |\n| B |',
+        },
+        {
+            name: 'Markdown rows after header promotion',
+            markup: '| H | H |\n| --- | --- |\n| A | B |\n| A | B |',
+            end: [0, 1],
+            keep: [2, 0],
+            expected: '| A | B |\n| --- | --- |\n| A | B |',
+        },
+        {
+            name: 'Markdown body rows',
+            markup: '| H | H |\n| --- | --- |\n| A | B |\n| A | B |',
+            start: [1, 0],
+            end: [1, 1],
+            keep: [2, 0],
+            expected: '| H | H |\n| --- | --- |\n| A | B |',
+        },
+    ])(
+        'should preserve surviving cell positions when cutting equal $name',
+        ({markup, start = [0, 0], end, keep, expected}) => {
+            const doc = markupParser.parse(markup);
+            const geometry = getTableGeometry(doc.child(0));
+            assert(geometry);
+            const anchor = geometry.cellAt(start[0], start[1]);
+            const head = geometry.cellAt(end[0], end[1]);
+            const cell = geometry.cellAt(keep[0], keep[1]);
+            assert(anchor && head && cell);
+            const selection = TableCellSelection.create(doc, anchor.offset, head.offset);
+            const decorations = DecorationSet.create(doc, [
+                Decoration.node(cell.offset, cell.offset + cell.node.nodeSize, {class: 'keep'}),
+            ]);
+            const textPos = cell.offset + (cell.node.inlineContent ? 1 : 2);
+            let state = EditorState.create({doc, selection, plugins: [history()]});
+            const dispatch = (tr: Transaction) => {
+                state = state.apply(tr);
+            };
+            const pending = state.tr.insertText('X', textPos).steps[0];
+
+            const tr = prepareMatrixCut(state, selection);
+            assert(tr);
+
+            expect(tr.doc).toMatchNode(markupParser.parse(expected));
+            expect(tr.mapping.mapResult(textPos).deleted).toBe(false);
+            expect(decorations.map(tr.mapping, tr.doc).find()).toHaveLength(1);
+            const mapped = pending.map(tr.mapping);
+            assert(mapped);
+            expect(mapped.apply(tr.doc).doc?.textContent).toContain('XA');
+            dispatch(tr);
+            expect(undo(state, dispatch)).toBe(true);
+            expect(state.doc).toMatchNode(doc);
+            expect(state.selection.eq(selection)).toBe(true);
+            expect(redo(state, dispatch)).toBe(true);
+            expect(state.doc).toMatchNode(tr.doc);
+        },
+    );
+
     it.each([
         {name: 'clearing cells', endColumn: 0},
         {name: 'removing a row', endColumn: 1},

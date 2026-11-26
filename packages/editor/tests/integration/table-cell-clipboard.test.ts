@@ -12,6 +12,7 @@ import {DataTransferType} from 'src/extensions/behavior/Clipboard/utils';
 import {History} from 'src/extensions/behavior/History';
 import {ReactRendererExtension} from 'src/extensions/behavior/ReactRenderer';
 import {TableCellSelectionExtension} from 'src/extensions/behavior/TableCellSelection/TableCellSelectionExtension';
+import {Bold} from 'src/extensions/markdown/Bold';
 import {Code} from 'src/extensions/markdown/Code';
 import {CodeBlockSpecs} from 'src/extensions/markdown/CodeBlock/CodeBlockSpecs';
 import {ImageSpecs} from 'src/extensions/markdown/Image/ImageSpecs';
@@ -34,6 +35,37 @@ afterEach(() => {
 });
 
 describe('matrix clipboard integration', () => {
+    it.each([false, true])(
+        'should paste a table at a marked cursor with cell selection enabled=%s',
+        (enabled) => {
+            const editor = createEditor({
+                enabled,
+                initialContent: '**beforeafter**',
+                extra: (builder) => builder.use(Bold, {}),
+            });
+            const paragraph = editor.doc.child(0);
+            editor.view.dispatch(
+                editor.view.state.tr.setSelection(TextSelection.create(editor.doc, 7)),
+            );
+
+            dispatchPasteEvent(editor.view, {
+                [DataTransferType.Html]: '<table><tr><td>X</td><td>Y</td></tr></table>',
+            });
+
+            expect(editor.doc.childCount).toBe(3);
+            expect(editor.doc.child(0)).toMatchNode(paragraph.cut(0, 6));
+            expect(editor.doc.child(2)).toMatchNode(paragraph.cut(6));
+            const table = editor.doc.child(1);
+            expect(getTableGeometry(table)).not.toBeNull();
+            expect(table.textContent).toBe('XY');
+            expect(table.marks).toEqual([]);
+            expect(editor.view.state.selection).toBeInstanceOf(
+                enabled ? TableCellSelection : TextSelection,
+            );
+            editor.doc.check();
+        },
+    );
+
     it.each([
         {
             name: 'a DOM event',

@@ -172,7 +172,7 @@ function insertStandaloneTable(
             tablePos = target.tablePos + target.geometry.table.nodeSize;
             tr.insert(tablePos, table);
         } else {
-            tr.replaceSelectionWith(table);
+            tr.replaceSelectionWith(table, false);
             tr.doc.descendants((node, pos) => {
                 if (node === table) tablePos = pos;
                 return tablePos === undefined;
