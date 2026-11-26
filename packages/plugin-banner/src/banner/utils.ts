@@ -52,15 +52,12 @@ export function bannerBackgroundValues(background: BannerBackground): Record<str
     return valuesOtherThan(background, bannerBackgroundDefaults);
 }
 
-const oneOf = <T extends string | number>(values: readonly T[], value: unknown): T | undefined =>
-    typeof value === 'number' || typeof value === 'string'
-        ? values.find((item) => String(item) === String(value))
-        : undefined;
-
 export function bannerTitle(attrs: {size?: unknown; color?: unknown}): BannerTitle {
     return {
-        size: oneOf(bannerTitleSizes, attrs.size) ?? bannerTitleDefaults.size,
-        color: oneOf(bannerTitleColors, attrs.color) ?? bannerTitleDefaults.color,
+        size:
+            bannerTitleSizes.find((size) => size === attrs.size || String(size) === attrs.size) ??
+            bannerTitleDefaults.size,
+        color: includes(bannerTitleColors, attrs.color) ? attrs.color : bannerTitleDefaults.color,
     };
 }
 
