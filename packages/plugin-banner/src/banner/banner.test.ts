@@ -10,7 +10,7 @@ import {
     buttonTokenName,
 } from '../index';
 
-import {bannerContentTokenName, bannerTitleTokenName} from './const';
+import {bannerContentTokenName, bannerImageTokenName, bannerTitleTokenName} from './const';
 import {bannerTitle} from './utils';
 
 const md = new MarkdownIt().use(bannerPlugin);
@@ -111,6 +111,36 @@ describe('Banner content Markdown', () => {
             ).toBe(false);
         },
     );
+});
+
+describe('Banner image Markdown', () => {
+    it.each([
+        [scriptUrl, null],
+        ['data:text/html;base64,PHNjcmlwdD4=', null],
+        ['https://cdn.example.com/a b.png?w=2&h=3', 'https://cdn.example.com/a%20b.png?w=2&h=3'],
+        ['/images/banner.png', '/images/banner.png'],
+        ['', null],
+    ])('should validate image address %j and hide rejected images', (address, expected) => {
+        const [token] = md.parse(`::banner-image{src="${address}"}`, {});
+        expect(token.type).toBe(bannerImageTokenName);
+        expect(token.attrGet('src')).toBe(expected);
+        expect(token.hidden).toBe(expected === null);
+    });
+
+    it('should escape image descriptions and exclude the image from galleries', () => {
+        const markup = '::banner-image{src="/team.png" alt="<Team>" title="Our &quot;team&quot;"}';
+        const [token] = md.parse(markup, {});
+        expect(token.attrGet('data-files-gallery-exclude')).toBe('true');
+        expect(token.attrGet('alt')).toBe('<Team>');
+        expect(token.attrGet('title')).toBe('Our "team"');
+        expect(md.render(markup)).toContain('alt="&lt;Team&gt;" title="Our &quot;team&quot;"');
+    });
+
+    it('should render decorative images with an empty alternative text', () => {
+        const [token] = md.parse('::banner-image{src="/team.png"}', {});
+        expect(token.attrGet('alt')).toBe('');
+        expect(token.attrGet('title')).toBeNull();
+    });
 });
 
 describe('Banner Markdown', () => {
