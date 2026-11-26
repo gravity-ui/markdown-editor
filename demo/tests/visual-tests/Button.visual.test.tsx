@@ -5,7 +5,8 @@ import {ButtonStories} from './Button.helpers';
 
 const singleButton = ':button[Кнопка](https://example.com){view="action" color="standard"}';
 
-const withSpace = `${singleButton}${'\n\nТекст'.repeat(12)}`;
+const paragraphs = '\n\nТекст'.repeat(15);
+const withSpace = `${singleButton}${paragraphs}`;
 
 const scriptUrl = ['javascript', 'alert(1)'].join(':');
 
@@ -157,6 +158,7 @@ test.describe('Button', () => {
         await button.styleSelect.click();
         await expect(button.option(/, Green$/)).toHaveCount(4);
         await expect(button.styleSelect).toHaveAccessibleName('Style: Accent, Standard');
+        expect((await button.styleListPopup.boundingBox())?.height).toBe(392);
         await button.option('Accent, Green').hover();
         await expect(button.preview).toBeVisible();
         await expectScreenshot({component: editor.locators.component});
@@ -208,7 +210,7 @@ test.describe('Button', () => {
     }) => {
         await mount(
             <ButtonStories.Button
-                initial={`:button[Кнопка]{view="action" color="standard"} и текст${'\n\nТекст'.repeat(12)}`}
+                initial={`:button[Кнопка]{view="action" color="standard"} и текст${paragraphs}`}
                 width={440}
             />,
         );

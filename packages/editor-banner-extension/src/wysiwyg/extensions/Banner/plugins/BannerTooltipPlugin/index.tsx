@@ -4,11 +4,7 @@ import {Plugin} from '@gravity-ui/markdown-editor/pm/state';
 
 import {bannerNodeType} from '../../BannerSpecs';
 
-import {
-    BannerToolbar,
-    type BannerToolbarOptions,
-    bannerToolbarPopupClassName,
-} from './BannerToolbar';
+import {BannerToolbar, type BannerToolbarOptions} from './BannerToolbar';
 
 export {bannerKeymap} from './keymap';
 
@@ -22,7 +18,6 @@ export const bannerTooltipPlugin = (
                 idPrefix: 'banner-tooltip',
                 nodeType: bannerNodeType(view.state.schema),
                 popupPlacement: ['bottom', 'top'],
-                popupClassName: bannerToolbarPopupClassName,
                 content: (editorView, {node, pos, dom}) => {
                     const markup = () => {
                         const {doc} = editorView.state;

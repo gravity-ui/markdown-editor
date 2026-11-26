@@ -34,7 +34,6 @@ export interface BaseTooltipPluginOptions {
     content?: TooltipContentCb;
     nodeType: NodeType | MarkType;
     popupPlacement?: PopupPlacement;
-    popupClassName?: string;
     disableHideOnEscapeKeyDown?: boolean;
 }
 
@@ -66,7 +65,6 @@ export class BaseTooltipPluginView implements PluginView {
     protected readonly content?: TooltipContentCb;
     protected readonly nodeType: NodeType | MarkType;
     protected readonly popupPlacement?: PopupPlacement;
-    protected readonly popupClassName?: string;
     protected manualHidden = false;
     protected destroyed = false;
 
@@ -85,7 +83,6 @@ export class BaseTooltipPluginView implements PluginView {
         this.content = options.content;
         this.nodeType = options.nodeType;
         this.popupPlacement = options.popupPlacement;
-        this.popupClassName = options.popupClassName;
         this.disableHideOnEscapeKeyDown = options.disableHideOnEscapeKeyDown;
     }
 
@@ -251,7 +248,6 @@ export class BaseTooltipPluginView implements PluginView {
             <EditorPopup
                 editorElement={this.view.dom}
                 anchorElement={currentNode.dom}
-                className={this.popupClassName}
                 placement={this.popupPlacement || defaultPlacement}
                 onOpenChange={this.popupOpenChangeHandler}
             >
