@@ -130,6 +130,33 @@ describe('Banner extension', () => {
         expect(serializer.serialize(expected)).toBe(markup);
     });
 
+    it('should preserve all banner directives after a visual edit', () => {
+        const markup = [
+            ':::banner{height="s" width="m"}',
+            '::banner-title[Portal]{size="1" color="blue"}',
+            ':::banner-content\n\nFirst **paragraph**\n\nSecond paragraph\n\n:::',
+            '::banner-image{src="/team.png" alt="Team" title="Our team"}',
+            ':::',
+        ].join('\n\n');
+        const editor = createView(markup);
+        editor.dispatch(editor.state.tr.insertText(' [A]', 2 + 'Portal'.length));
+        const edited = serializer.serialize(editor.state.doc);
+        expect(edited).toBe(markup.replace('Portal', 'Portal \\[A\\]'));
+        expect(markupParser.parse(edited).eq(editor.state.doc)).toBe(true);
+
+        const container = document.createElement('div');
+        container.append(
+            DOMSerializer.fromSchema(schema).serializeFragment(editor.state.doc.content),
+        );
+        expect(DOMParser.fromSchema(schema).parse(container).eq(editor.state.doc)).toBe(true);
+    });
+
+    it('should preserve empty banner directives', () => {
+        const parts = ['::banner-title[]', ':::banner-content\n\n:::', '::banner-image'];
+        const markup = [':::banner{height="s" width="m"}', ...parts, ':::'].join('\n\n');
+        expect(serializer.serialize(markupParser.parse(markup))).toBe(markup);
+    });
+
     it('should use the same defaults in the schema and parser', () => {
         const defaults = {...bannerDefaults, ...bannerBackgroundDefaults};
         expect(schema.nodes.banner.create().attrs).toEqual(defaults);
