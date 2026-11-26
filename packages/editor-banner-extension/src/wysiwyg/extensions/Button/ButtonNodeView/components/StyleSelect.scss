@@ -1,9 +1,6 @@
 .g-md-button-style {
     $field-height: 36px;
     $row-height: 28px;
-    $list-height: 392px;
-    // The margin of the uikit select list.
-    $list-margin: 4px;
     $swatch-size-m: 16px;
     $swatch-size-l: 20px;
     $preview-width: 140px;
@@ -70,12 +67,8 @@
 
     &__list {
         box-sizing: border-box;
+        max-height: min(392px, 90vh);
         padding-inline: var(--g-spacing-1);
-
-        // The element scrolls the options.
-        .g-select-list {
-            max-height: $list-height - 2 * $list-margin;
-        }
 
         [role='option'] {
             border-radius: var(--g-border-radius-s);

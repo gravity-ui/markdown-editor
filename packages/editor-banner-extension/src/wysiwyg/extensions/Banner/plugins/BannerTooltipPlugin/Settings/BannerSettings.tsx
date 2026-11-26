@@ -69,7 +69,6 @@ export function BannerSettings({
         <SettingsDialog
             title={i18n('title')}
             className={cnBannerSettings()}
-            popupClassName={cnBannerSettings('surface')}
             qa="banner-settings"
             closeSize="l"
             closeAnchor={button}

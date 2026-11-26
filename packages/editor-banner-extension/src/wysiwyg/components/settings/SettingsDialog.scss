@@ -16,6 +16,10 @@ $preview-size: 16px;
 }
 
 .g-md-banner-settings {
+    &__surface {
+        --g-popup-border-radius: var(--g-border-radius-xl);
+    }
+
     &__heading {
         margin: 0;
     }

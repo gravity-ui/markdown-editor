@@ -32,11 +32,6 @@ $thumbnail-scale: 3;
         }
     }
 
-    &__surface,
-    &__background-surface {
-        --g-popup-border-radius: var(--g-border-radius-xl);
-    }
-
     &__background {
         display: flex;
         flex-direction: column;
