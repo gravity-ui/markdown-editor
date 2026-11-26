@@ -30,10 +30,11 @@ const dimensions = [
 
 test.describe('Banner', () => {
     test('should apply default sizes @wysiwyg', async ({mount, page, banner}) => {
+        const defaultDimensions = [...dimensions, ['l', 'm']];
         await mount(
             <BannerStories.Banner
                 width={1280}
-                initial={`${dimensions.map(([height, width]) => bannerMarkup(height, width)).join('\n\n')}\n\nAfter`}
+                initial={`${defaultDimensions.map(([height, width]) => bannerMarkup(height, width)).join('\n\n')}\n\nAfter`}
             />,
         );
         const column = await page.locator('.ProseMirror > p').boundingBox();
@@ -48,6 +49,7 @@ test.describe('Banner', () => {
             [740, 236],
             [1200, 300],
             [column?.width, 236],
+            [900, 420],
         ]);
     });
 
