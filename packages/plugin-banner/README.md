@@ -99,8 +99,8 @@ The size and typography are custom properties; a host overrides them:
 | Property                                             | Default                                            |
 | ---------------------------------------------------- | -------------------------------------------------- |
 | `--g-md-button-plugin-height`                        | `36px`                                             |
-| `--g-md-button-plugin-padding`                       | `16px`                                             |
-| `--g-md-button-plugin-padding-block`                 | `8px`                                              |
+| `--g-md-button-plugin-padding`                       | `var(--g-spacing-4)`                               |
+| `--g-md-button-plugin-padding-block`                 | `var(--g-spacing-2)`                               |
 | `--g-md-button-plugin-border-radius`                 | `var(--g-border-radius-l)`                         |
 | `--g-md-button-plugin-font-size`                     | `var(--g-text-body-1-font-size)`                   |
 | `--g-md-button-plugin-line-height`                   | `var(--g-text-body-1-line-height)`                 |

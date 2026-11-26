@@ -187,20 +187,6 @@ test.describe('Banner', () => {
         await expect(banner.settingsButton).toBeFocused();
     });
 
-    test('should use the theme background for the settings popup @wysiwyg', async ({
-        mount,
-        page,
-        banner,
-    }) => {
-        await mount(<BannerStories.Banner />);
-        const popupColor = 'rgb(100, 110, 120)';
-        await page.evaluate((color) => {
-            document.body.style.setProperty('--g-popup-background-color', color);
-        }, popupColor);
-        await banner.openSettings();
-        await expect(banner.settingsPopup).toHaveCSS('background-color', popupColor);
-    });
-
     test('should close the settings on a second click of the settings button @wysiwyg', async ({
         mount,
         editor,

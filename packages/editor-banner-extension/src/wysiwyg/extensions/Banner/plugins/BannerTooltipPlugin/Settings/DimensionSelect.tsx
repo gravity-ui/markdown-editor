@@ -2,7 +2,7 @@ import type {Ref} from 'react';
 
 import {Select} from '@gravity-ui/uikit';
 
-import {SettingsRow, cnBannerSettings} from '../../../../../components/settings';
+import {SettingsRow} from '../../../../../components/settings';
 
 type DimensionSelectProps<T extends string> = {
     label: string;
@@ -28,7 +28,6 @@ export function DimensionSelect<T extends string>({
                     ref={controlRef}
                     size="m"
                     width="max"
-                    popupClassName={cnBannerSettings('list')}
                     aria-labelledby={labelId}
                     value={[value]}
                     options={values.map((option) => ({value: option, content: format(option)}))}

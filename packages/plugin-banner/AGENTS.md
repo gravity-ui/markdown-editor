@@ -49,11 +49,7 @@ A `border-radius` with a length takes one of these variables:
 - `--g-border-radius-xl`
 - `--g-border-radius-2xl`
 
-The variable comes from the binding of the layer in Figma, not from its px value: themes give one variable different values. A layer whose corners bind a spacing variable takes the radius variable with the same value in the mockup. `@gravity-ui/uikit` has no `--g-border-radius-2xl`, so it is written with a fallback: `var(--g-border-radius-2xl, 16px)`. `Popup` takes its radius from `--g-popup-border-radius`, so a popup or a panel sets this variable instead of `border-radius`.
-
-## Sizes
-
-The button sizes follow `Button` of `@gravity-ui/uikit`: a property reads the public `--g-md-button-plugin-*` variable with the internal `--_--*` one as the fallback.
+The variable comes from the binding of the layer in Figma, not from its px value: themes give one variable different values. `@gravity-ui/uikit` has no `--g-border-radius-2xl`, so it is written with a fallback: `var(--g-border-radius-2xl, 16px)`. `Popup` takes its radius from `--g-popup-border-radius`, so a popup or a panel sets its radius explicitly.
 
 ## Colors
 

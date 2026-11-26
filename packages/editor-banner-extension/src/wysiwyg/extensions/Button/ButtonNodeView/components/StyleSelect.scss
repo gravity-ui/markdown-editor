@@ -19,6 +19,7 @@
     & &__select {
         display: block;
 
+        max-width: none;
         padding-inline: var(--g-spacing-4);
     }
 
@@ -68,8 +69,6 @@
     }
 
     &__list {
-        --g-popup-border-radius: var(--g-border-radius-s);
-
         box-sizing: border-box;
         padding-inline: var(--g-spacing-1);
 
@@ -139,10 +138,6 @@
     &__swatch_size_l {
         width: $swatch-size-l;
         height: $swatch-size-l;
-    }
-
-    &__preview-popup {
-        --g-popup-border-radius: var(--g-border-radius-s);
     }
 
     // The uikit popup gives its radius to its direct child, so the preview is nested.

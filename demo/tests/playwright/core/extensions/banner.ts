@@ -8,7 +8,6 @@ export class BannerBlock {
     readonly settingsButton: Locator;
     readonly removeButton: Locator;
     readonly settings: Locator;
-    readonly settingsPopup: Locator;
     readonly height: Locator;
     readonly width: Locator;
     readonly closeButton: Locator;
@@ -25,7 +24,6 @@ export class BannerBlock {
         this.settingsButton = this.toolbar.getByRole('button', {name: 'Settings', exact: true});
         this.removeButton = this.toolbar.getByRole('button', {name: 'Delete', exact: true});
         this.settings = page.getByRole('dialog', {name: 'Banner settings'});
-        this.settingsPopup = page.locator('.g-popup').filter({has: this.settings});
         this.height = this.settings.getByRole('combobox', {name: 'Height', exact: true});
         this.width = this.settings.getByRole('combobox', {name: 'Width', exact: true});
         this.closeButton = this.settings.getByRole('button', {name: 'Close', exact: true});

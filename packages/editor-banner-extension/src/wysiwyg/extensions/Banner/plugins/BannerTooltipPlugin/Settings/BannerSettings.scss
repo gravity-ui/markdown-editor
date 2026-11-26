@@ -1,7 +1,7 @@
 @use 'sass:math';
 
 $panel-width: 320px;
-$swatch-size: 28px;
+$swatch-size: var(--g-spacing-7);
 $thumbnail-scale: 3;
 
 .g-md-banner-settings {
@@ -32,16 +32,9 @@ $thumbnail-scale: 3;
         }
     }
 
-    &__surface {
-        --g-popup-border-radius: var(--g-border-radius-xl);
-    }
-
+    &__surface,
     &__background-surface {
         --g-popup-border-radius: var(--g-border-radius-xl);
-    }
-
-    &__list {
-        --g-popup-border-radius: var(--g-border-radius-s);
     }
 
     &__background {

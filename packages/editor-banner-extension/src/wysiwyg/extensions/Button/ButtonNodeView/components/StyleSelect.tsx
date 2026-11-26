@@ -142,7 +142,6 @@ export function StyleSelect({style, onUpdate}: StyleSelectProps) {
             {open && preview && (
                 <Popup
                     open
-                    className={b('preview-popup')}
                     anchorElement={preview.row}
                     placement="right"
                     offset={PREVIEW_OFFSET}
