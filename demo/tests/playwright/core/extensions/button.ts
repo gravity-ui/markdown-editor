@@ -16,6 +16,7 @@ export class ButtonBlock {
     readonly styleListPopup: Locator;
     readonly newTab: Locator;
     readonly preview: Locator;
+    readonly previewButton: Locator;
     protected readonly page: Page;
 
     constructor(page: Page, preview: Locator) {
@@ -33,6 +34,7 @@ export class ButtonBlock {
         this.styleListPopup = page.locator('.g-md-button-style__list');
         this.newTab = this.settings.getByText('Open in a new tab', {exact: true});
         this.preview = page.getByTestId('button-style-preview');
+        this.previewButton = this.preview.locator('.g-md-button-plugin');
     }
 
     async getSettingsGeometry() {
