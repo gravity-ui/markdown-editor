@@ -136,6 +136,60 @@ Use colored titles at sizes `1`–`3` on the page or on light fills, avoid the c
 | `--g-md-banner-title-plugin-font-weight`  | the weight of the size, see the table |
 | `--g-md-banner-title-plugin-margin-block` | `0 var(--g-spacing-4)`                |
 
+## Banner content
+
+```markdown
+:::banner
+
+:::banner-content
+Portal description with **bold**, _italic_, ++underlined++, ~~strikethrough~~ and `monospace` text and a [link](/page).
+
+Second paragraph.
+:::
+:::
+```
+
+```html
+<div class="g-md-banner-plugin …">
+  <div class="g-md-banner-content-plugin">
+    <p>
+      Portal description with <strong>bold</strong>, <em>italic</em>, <ins>underlined</ins>,
+      <s>strikethrough</s> and <code>monospace</code> text and a <a href="/page">link</a>.
+    </p>
+    <p>Second paragraph.</p>
+  </div>
+</div>
+```
+
+The block is a `div.g-md-banner-content-plugin`.
+
+The description is a container directive registered by `bannerPlugin`: the opening line, the paragraphs and the closing line `:::`.
+Its content is ordinary Markdown of the same parser, so the marks and the links are the ones the parser has: `++underlined++` needs a plugin for it, such as `markdown-it-ins`, which YFM and the editor include.
+A description without a text, `:::banner-content` right before `:::`, keeps its tokens, marked `hidden`, and renders nothing.
+
+The block has no attributes, and an attribute in the markup is skipped: `:::banner-content{size="1" color="red"}` is the same description.
+
+### Content styles
+
+The description is the regular text of the page: `--yfm-font-size` and `--yfm-font-line-height`, then the Gravity UI `body-2`. Inline code and links take the YFM colors, `--yfm-color-inline-code*` and `--yfm-color-link*`, then the Gravity UI link tokens.
+A link is underlined only with `--g-md-banner-content-plugin-link-decoration-line`, and its underline is thicker than the one of `++underlined++` text.
+
+| Property                                                       | Default                                   |
+| -------------------------------------------------------------- | ----------------------------------------- |
+| `--g-md-banner-content-plugin-font-weight`                     | `var(--g-text-body-font-weight)`          |
+| `--g-md-banner-content-plugin-paragraph-gap`                   | `var(--g-spacing-2)`                      |
+| `--g-md-banner-content-plugin-margin-block`                    | `0 var(--g-spacing-4)`                    |
+| `--g-md-banner-content-plugin-link-color`                      | `var(--yfm-color-link)`                   |
+| `--g-md-banner-content-plugin-link-hover-color`                | `var(--yfm-color-link-hover)`             |
+| `--g-md-banner-content-plugin-link-decoration-line`            | `none` (`text-decoration-line`)           |
+| `--g-md-banner-content-plugin-link-decoration-thickness`       | `2px`                                     |
+| `--g-md-banner-content-plugin-link-hover-decoration-thickness` | `3px`                                     |
+| `--g-md-banner-content-plugin-link-underline-offset`           | `0.2em`                                   |
+| `--g-md-banner-content-plugin-link-focus-outline-width`        | `2px`                                     |
+| `--g-md-banner-content-plugin-link-focus-outline-color`        | `var(--g-color-line-focus)`               |
+| `--g-md-banner-content-plugin-code-color`                      | `var(--yfm-color-inline-code)`            |
+| `--g-md-banner-content-plugin-code-background`                 | `var(--yfm-color-inline-code-background)` |
+
 ## Button
 
 Register `buttonPlugin` independently or together with `bannerPlugin`:

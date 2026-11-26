@@ -21,6 +21,8 @@ export {
     bannerBgColorFamilies,
     bannerBgColors,
     bannerClassName,
+    bannerContentClassName,
+    bannerContentTokenName,
     bannerDefaults,
     bannerHeights,
     bannerTitleClassName,
