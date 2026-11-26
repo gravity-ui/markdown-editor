@@ -371,14 +371,14 @@ Use `claim(element, key, setup)` when effects share a DOM change. Use the same k
 
 ```tsx
 useViewerEffect(({claim}) => {
-  claim(fallback, 'demo:feedback-fallback', () => {
-    const previous = fallback.hidden;
-    fallback.hidden = true;
+  claim(button, 'app:disabled', () => {
+    const previous = button.disabled;
+    button.disabled = true;
     return () => {
-      fallback.hidden = previous;
+      button.disabled = previous;
     };
   });
-}, [fallback]);
+}, [button]);
 ```
 
 You can call `claim` later, for example in a `load` listener. Call the returned `release()` to release a claim early. When the effect stops, it releases its claims and ignores later calls from that run. Effect keys and `ViewerTargets` slot keys have separate queues.
@@ -511,13 +511,14 @@ Use `ViewerTargets` inside `MarkdownViewer`. The package exports the `ViewerTarg
 | `children`  | `(target: HTMLElement) => ReactNode` | Returns React content for each target.                                   |
 
 To share a built-in slot, import `HEADING_ANCHOR_SLOT_KEY`, `HEADING_EDIT_SLOT_KEY`, or `YFM_CODE_BLOCK_ACTIONS_SLOT_KEY` from `@gravity-ui/markdown-viewer/extensions`.
-If your extension uses `HEADING_ANCHOR_SLOT_KEY` to replace a native YFM anchor, hide the native anchor while your control is visible.
+When replacing heading anchors or code block actions, hide the corresponding native YFM anchor or code block controls (`.yfm-clipboard-button` and `.yfm-code-floating`) while your controls are visible.
 
 Use a stable selector, such as `h2[id]` or `[data-widget]`. The target must still match after rendering. Avoid `h2:empty` or a selector that depends on fallback content, such as `.widget:has(.fallback)`.
 
-Searches skip slots, their content, and nested viewers. When original children are restored, extensions can find targets in those subtrees. Elements added later by an external runtime are not detected automatically.
+Searches skip slots, their content, and nested viewers. When original children are restored, only `ViewerTargets` searches them again. Elements added later by an external runtime are not detected automatically.
 
 Several extensions can append slots to the same target. A replacement needs the target and its descendants free of other slots in this viewer. Append slots on ancestors can stay active.
+Use a selector such as `h2[id]:not([data-widget] *)` to keep heading anchors out of widget fallbacks.
 
 </details>
 
@@ -528,9 +529,10 @@ Several extensions can append slots to the same target. A replacement needs the 
 - After a selector change, targets that still match keep their slots. Other slots are added or removed as needed.
 - For each target and `slotKey`, the first matching extension renders the slot.
 - When a slot is released, compatible requests take over in registration order. Waiting requests do not block other slots. Siblings that mount together register in JSX order, and targets for one selector register in document order.
-- Changing `mode` or `slotKey` starts a new request. Reordering keyed siblings or rendering `null` keeps the extension's place.
+- Changing `mode` or `slotKey` starts a new request and resets the slot's React state. Reordering keyed siblings or rendering `null` keeps the extension's place.
+- When an outer Suspense boundary shows its fallback, `ViewerTargets` releases its slots. On reveal, requests rejoin their queues. Put the boundary inside `children` to keep the slot.
 - Changing `as` may replace the slot and reset its state.
-- Replacing HTML creates new DOM elements, even if their IDs stay the same. Detached fallback stays disconnected when the HTML changes or the viewer unmounts. To keep state across HTML updates, store it above `ViewerTargets` and use a stable, unique ID for each target.
+- Replacing HTML creates new targets, even for the same IDs. Slots register again, so a different extension can win the same key. Detached fallback stays disconnected when the HTML changes or the viewer unmounts. To keep state across HTML updates, store it above `ViewerTargets` and use a stable, unique ID for each target.
 - Removing an extension removes its slots and portal content. When a replacement ends, the viewer restores the original child nodes in order. A replacement that is next in the queue takes over with the original nodes still detached. An earlier request for a hidden child can require restoring the nodes to check its selector.
 
 When `html` changes, `useViewerEffect` cleanup runs before the viewer replaces the old HTML. Portal children follow React's cleanup timing. Their target may already be detached from the document. If cleanup needs the old HTML in place, use `useViewerEffect` in the extension that renders `ViewerTargets`. Cleanup order between extensions is unspecified. If Suspense reveals a portal in the same commit that another extension replaces its ancestor, the portal's layout effect may run with a detached target.

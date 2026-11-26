@@ -97,6 +97,7 @@ describe('ViewerTargets lifecycle', () => {
             assert(original && button);
 
             act(() => button.click());
+            expect(container.querySelector('section > iframe')).toBe(frame);
             expect(frame.contentDocument?.isSameNode(original)).toBe(true);
             expect(container.querySelector('aside')?.textContent).toBe(
                 change === 'changes selector' ? 'Replacement' : '',
@@ -271,10 +272,8 @@ describe('ViewerTargets lifecycle', () => {
     });
 
     it('should preserve append slot state after Suspense shows its fallback', () => {
-        const pending = new Promise<void>(() => undefined);
-        function Wait(): never {
-            throw pending;
-        }
+        const Wait = createSuspender();
+
         function render(suspend: boolean) {
             act(() =>
                 root.render(
@@ -299,10 +298,8 @@ describe('ViewerTargets lifecycle', () => {
     });
 
     it('should restore the original child when a hidden viewer resumes without its replacement', () => {
-        const pending = new Promise<void>(() => undefined);
-        function Wait(): never {
-            throw pending;
-        }
+        const Wait = createSuspender();
+
         function render(hidden: boolean, replace: boolean) {
             act(() =>
                 root.render(
@@ -369,11 +366,9 @@ describe('ViewerTargets lifecycle', () => {
     ] as const)(
         'should keep a suspended %s slot inactive while a replacement owns %s',
         (mode, selector) => {
-            const pending = new Promise<void>(() => undefined);
+            const Wait = createSuspender();
             const layout = vi.fn();
-            function Wait(): never {
-                throw pending;
-            }
+
             function Action() {
                 useLayoutEffect(layout, []);
                 return <button>Action</button>;
@@ -416,12 +411,43 @@ describe('ViewerTargets lifecycle', () => {
         },
     );
 
-    it('should keep committed portals during an interrupted transition', async () => {
-        const pending = new Promise<void>(() => undefined);
-        function Wait({value}: {value: string}) {
-            if (value === 'pending') throw pending;
-            return null;
+    it('should keep a resumed named slot inactive when another target is released', () => {
+        const Wait = createSuspender();
+        const action = vi.fn(() => 'Action');
+        function render(phase: 'active' | 'suspended' | 'resumed') {
+            act(() =>
+                root.render(
+                    <MarkdownViewer html="<h2></h2><aside></aside>">
+                        <Suspense fallback="Loading">
+                            <ViewerTargets selector="h2" slotKey="action">
+                                {action}
+                            </ViewerTargets>
+                            {phase === 'suspended' && <Wait />}
+                        </Suspense>
+                        <ViewerTargets selector="h2" slotKey="action">
+                            {() => 'Next'}
+                        </ViewerTargets>
+                        {phase !== 'resumed' && (
+                            <ViewerTargets selector="aside" mode="replace">
+                                {() => 'Aside'}
+                            </ViewerTargets>
+                        )}
+                    </MarkdownViewer>,
+                ),
+            );
         }
+
+        render('active');
+        expect(container.querySelector('h2')?.textContent).toBe('Action');
+        render('suspended');
+        action.mockClear();
+        render('resumed');
+        expect(action).not.toHaveBeenCalled();
+        expect(container.querySelector('h2')?.textContent).toBe('Next');
+    });
+
+    it('should keep committed portals during an interrupted transition', async () => {
+        const Wait = createSuspender();
         function view(value: string) {
             return (
                 <Suspense fallback="Loading">
@@ -429,7 +455,7 @@ describe('ViewerTargets lifecycle', () => {
                         <ViewerTargets selector="h2[id]">
                             {(host) => <Counter label={host.id} />}
                         </ViewerTargets>
-                        <Wait value={value} />
+                        {value === 'pending' && <Wait />}
                     </MarkdownViewer>
                 </Suspense>
             );
@@ -455,4 +481,11 @@ function Counter({label}: {label: string}) {
             {label}: {count}
         </button>
     );
+}
+
+function createSuspender() {
+    const pending = new Promise<void>(() => undefined);
+    return function Wait(): never {
+        throw pending;
+    };
 }

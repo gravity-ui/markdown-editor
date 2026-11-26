@@ -63,9 +63,11 @@ function ViewerTargetSlots({
         ({root, signal}) => {
             const subscription = lifecycle
                 .getTargets(root, TargetRegistry)
-                .subscribe(latestSelector.current, mode, slotKey, signal, setTargets);
+                .subscribe(latestSelector.current, mode, slotKey, signal, (next) => {
+                    setTargets(next);
+                    setCanResume(null);
+                });
             select.current = subscription.select;
-            setCanResume(null);
             return () => {
                 select.current = null;
                 subscription.remove();

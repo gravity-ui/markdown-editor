@@ -4,6 +4,7 @@ import {type Root, createRoot} from 'react-dom/client';
 import {afterEach, assert, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {act} from '../../tests/utils/act';
+import {ViewerContent} from '../components/MarkdownViewer/ViewerContent';
 import {MarkdownViewer, ViewerTargets} from '../index';
 
 const gridHtml = '<section id="grid"><p>Fallback</p></section>';
@@ -21,6 +22,7 @@ describe('ViewerTargets replace mode', () => {
     afterEach(() => {
         act(() => root.unmount());
         container.remove();
+        vi.restoreAllMocks();
     });
 
     it('should keep the host and restore the original children in order', () => {
@@ -247,9 +249,15 @@ describe('ViewerTargets replace mode', () => {
         const waiting = vi.fn(() => 'Old');
         const next = replace('Next', '#grid', waiting);
         render(gridHtml, replace('Table'), next);
-        render('<section>New</section>', next);
-        expect(container.textContent).toBe('New');
+        const newHtml = '<section>New</section>';
+        render(newHtml, next, append('Action', 'section'));
+        expect(container.textContent).toBe('NewAction');
         expect(waiting).not.toHaveBeenCalled();
+
+        const update = vi.spyOn(ViewerContent.prototype, 'forceUpdate');
+        // Removing the last slot leaves no waiting claims to process.
+        render(newHtml, next);
+        expect(update).not.toHaveBeenCalled();
     });
 
     it('should keep the outer replacement while the nested viewer restores or changes its HTML', () => {
