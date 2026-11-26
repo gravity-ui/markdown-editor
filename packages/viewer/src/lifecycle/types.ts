@@ -1,3 +1,5 @@
+export type AfterCommit = (callback: () => void) => void;
+
 export interface ViewerEffectContext {
     /** Element containing the viewer's rendered HTML. */
     readonly root: HTMLDivElement;

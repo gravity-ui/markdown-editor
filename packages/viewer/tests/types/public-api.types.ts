@@ -117,6 +117,15 @@ export function shouldRejectInvalidSlotKey(props: ViewerTargetsProps) {
     return createElement(ViewerTargets, {...props, slotKey: 1});
 }
 
+export function shouldAcceptSlotKeysOnlyInAppendMode() {
+    const props = {selector: 'section', children: () => null};
+    const append: ViewerTargetsProps = {...props, mode: 'append', slotKey: 'action'};
+    const replace: ViewerTargetsProps = {...props, mode: 'replace'};
+    // @ts-expect-error Only append slots can have a key.
+    createElement(ViewerTargets, {...replace, slotKey: 'action'});
+    return [createElement(ViewerTargets, append), createElement(ViewerTargets, replace)];
+}
+
 expectTypeOf<MarkdownViewerProps['html']>().toEqualTypeOf<string>();
 expectTypeOf<ViewerEffectContext['root']>().toEqualTypeOf<HTMLDivElement>();
 expectTypeOf<ViewerEffectContext['signal']>().toEqualTypeOf<AbortSignal>();
@@ -126,4 +135,5 @@ expectTypeOf(cn('diagram')('caption')).toEqualTypeOf<string>();
 expectTypeOf<typeof NAMESPACE>().toEqualTypeOf<'g-md-v-'>();
 expectTypeOf(cnYFM).parameter(0).toEqualTypeOf<YFMMods | null | undefined>();
 expectTypeOf<ViewerTargetsProps['children']>().parameter(0).toEqualTypeOf<HTMLElement>();
+expectTypeOf<ViewerTargetsProps['mode']>().toEqualTypeOf<'append' | 'replace' | undefined>();
 expectTypeOf<ViewerTargetsProps['className']>().toEqualTypeOf<string | undefined>();
