@@ -163,6 +163,28 @@ describe('FilesGallery', () => {
         expect(pendingImage.outerHTML).toBe(pendingHtml);
     });
 
+    it('should use the next gallery label when the first gallery unmounts', async () => {
+        const html = '<img src="/image.png">';
+        const update = (first: boolean) =>
+            render(
+                <MarkdownViewer html={html}>
+                    {first && <FilesGallery />}
+                    <ThemeProvider lang="ru">
+                        <FilesGallery />
+                    </ThemeProvider>
+                </MarkdownViewer>,
+            );
+
+        await update(true);
+        const image = container.querySelector('img');
+        assert(image);
+        expect(image.getAttribute('aria-label')).toBe('Open image');
+
+        await update(false);
+        expect(image.getAttribute('aria-label')).toBe('Открыть изображение');
+        expect(image.getAttribute('role')).toBe('button');
+    });
+
     it('should show a mobile gallery without a stray zero when there are no actions', async () => {
         await render(
             <MarkdownViewer html='<img src="/image.png" alt="Photo">'>

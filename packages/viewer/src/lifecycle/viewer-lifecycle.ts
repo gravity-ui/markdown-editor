@@ -3,11 +3,12 @@ import type {DependencyList} from 'react';
 import {getDomConstructor} from '../utils/dom-constructor';
 
 import {ElementClaims} from './element-claims';
-import type {ViewerEffect, ViewerEffectCleanup} from './types';
+import type {ViewerEffect, ViewerEffectCleanup, ViewerEffectContext} from './types';
 
 export class ViewerLifecycle {
     readonly slotClaims = new ElementClaims();
     private entries = new Map<symbol, EffectEntry>();
+    private claims = new ElementClaims();
     private root: HTMLDivElement | null = null;
 
     update(key: symbol, setup: ViewerEffect, dependencies: DependencyList) {
@@ -44,13 +45,23 @@ export class ViewerLifecycle {
         if (!entry || entry.run || !root) return;
 
         const Controller = getDomConstructor(root, 'AbortController');
-        const run: EffectRun = {controller: new Controller()};
+        const run: EffectRun = {controller: new Controller(), cleanups: new Set()};
         entry.run = run;
+
+        const claim: ViewerEffectContext['claim'] = (element, claimKey, setup) => {
+            if (entry.run !== run) return () => undefined;
+
+            const release = this.claims.claim(element, claimKey, () =>
+                entry.run === run ? setup() : undefined,
+            );
+            return trackCleanup(entry, run, release);
+        };
+
         try {
-            run.cleanup = entry.setup({root, signal: run.controller.signal});
+            const cleanup = entry.setup({root, signal: run.controller.signal, claim});
+            if (cleanup) trackCleanup(entry, run, cleanup);
         } catch (error) {
-            entry.run = undefined;
-            run.controller.abort();
+            if (entry.run === run) stopRuns([entry], [error]);
             throw error;
         }
     }
@@ -64,7 +75,17 @@ interface EffectEntry {
 
 interface EffectRun {
     controller: AbortController;
-    cleanup?: void | ViewerEffectCleanup;
+    cleanups: Set<ViewerEffectCleanup>;
+}
+
+function trackCleanup(entry: EffectEntry, run: EffectRun, cleanup: ViewerEffectCleanup) {
+    run.cleanups.add(release);
+    if (entry.run !== run) release();
+    return release;
+
+    function release() {
+        if (run.cleanups.delete(release)) cleanup();
+    }
 }
 
 function sameDependencies(previous: DependencyList, next: DependencyList) {
@@ -73,7 +94,7 @@ function sameDependencies(previous: DependencyList, next: DependencyList) {
     );
 }
 
-function stopRuns(entries: EffectEntry[]) {
+function stopRuns(entries: EffectEntry[], errors: unknown[] = []) {
     const runs: EffectRun[] = [];
     for (const entry of entries) {
         if (entry.run) runs.push(entry.run);
@@ -82,12 +103,13 @@ function stopRuns(entries: EffectEntry[]) {
 
     for (const run of runs) run.controller.abort();
 
-    const errors: unknown[] = [];
     for (const run of runs) {
-        try {
-            run.cleanup?.();
-        } catch (error) {
-            errors.push(error);
+        for (const release of run.cleanups) {
+            try {
+                release();
+            } catch (error) {
+                errors.push(error);
+            }
         }
     }
     if (errors.length === 1) throw errors[0];

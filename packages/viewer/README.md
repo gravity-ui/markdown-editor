@@ -355,16 +355,33 @@ Setup runs after the HTML is in the DOM. It runs again when HTML or dependencies
 
 Pass both `setup` and `dependencies`. Setup must return a cleanup function or nothing, not a Promise.
 
-| Event                        | Behavior                                                                                   |
-| ---------------------------- | ------------------------------------------------------------------------------------------ |
-| Mount                        | Run setup after the HTML is in the DOM.                                                    |
-| HTML changes                 | Abort all old signals, run cleanup before replacing HTML, then run setup for the new HTML. |
-| Dependencies change          | Abort and clean up the affected effect, then run its new setup. Keep the HTML DOM.         |
-| Extension or viewer unmounts | Abort its active signals and run cleanup.                                                  |
+| Event               | Behavior                                                                                                              |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Mount               | Run setup after the HTML is in the DOM.                                                                               |
+| HTML changes        | Discard waiting claims and abort all old signals. Run cleanup before replacing HTML, then run setup for the new HTML. |
+| Dependencies change | Abort and clean up the affected effect. Run setup again on the same DOM. New claims join the end of their queues.     |
+| Extension unmounts  | Abort its active signals, run cleanup and release its claims.                                                         |
+| Viewer unmounts     | Discard all waiting claims, abort all active signals and run cleanup.                                                 |
 
 If HTML and dependencies change together, setup runs once. A new setup function alone does not restart the effect; list its reactive values in `dependencies`.
 
 Effects only run on the client. Each run gets a new signal.
+
+Use `claim(element, key, setup)` when effects share a DOM change. Use the same key for claims that change the same property on an element. Within one viewer, the first claim for each element and key runs its setup. Later claims for that pair wait. Capture the current DOM state in setup and restore it in cleanup. Both must finish synchronously so cleanup completes before the next setup starts.
+
+```tsx
+useViewerEffect(({claim}) => {
+  claim(fallback, 'demo:feedback-fallback', () => {
+    const previous = fallback.hidden;
+    fallback.hidden = true;
+    return () => {
+      fallback.hidden = previous;
+    };
+  });
+}, [fallback]);
+```
+
+You can call `claim` later, for example in a `load` listener. Call the returned `release()` to release a claim early. When the effect stops, it releases its claims and ignores later calls from that run. Effect keys and `ViewerTargets` slot keys have separate queues.
 
 Separate extensions have no fixed execution order. Put steps that need a fixed order in one extension. The hook throws an error outside a viewer.
 
@@ -380,6 +397,11 @@ The package exports these types:
 interface ViewerEffectContext {
   readonly root: HTMLDivElement;
   readonly signal: AbortSignal;
+  readonly claim: (
+    element: Element,
+    key: string,
+    setup: () => void | ViewerEffectCleanup,
+  ) => ViewerEffectCleanup;
 }
 
 type ViewerEffectCleanup = () => void;
