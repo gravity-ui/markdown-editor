@@ -367,7 +367,7 @@ If HTML and dependencies change together, setup runs once. A new setup function 
 
 Effects only run on the client. Each run gets a new signal.
 
-Use `claim(element, key, setup)` when effects share a DOM change. Within one viewer, the first claim for each element and key runs its setup. Later claims for that pair wait. Capture the current DOM state in setup and restore it in cleanup. Both must finish synchronously so cleanup completes before the next setup starts.
+Use `claim(element, key, setup)` when effects share a DOM change. Use the same key for claims that change the same property on an element. Within one viewer, the first claim for each element and key runs its setup. Later claims for that pair wait. Capture the current DOM state in setup and restore it in cleanup. Both must finish synchronously so cleanup completes before the next setup starts.
 
 ```tsx
 useViewerEffect(({claim}) => {
