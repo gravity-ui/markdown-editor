@@ -1,6 +1,5 @@
 import {cn} from '@bem-react/classname';
 
-import {filesGalleryExcludeAttrs} from '../const';
 import {toCssUrl} from '../url';
 import {type AttrGetter, dataAttrs} from '../utils';
 
@@ -97,7 +96,7 @@ export function bannerImageAttrs(
     const {src, alt, title} = bannerImage(attrs);
     return {
         class: bannerImageClassName,
-        ...filesGalleryExcludeAttrs,
+        'data-files-gallery-exclude': 'true',
         ...(src === null ? undefined : {src}),
         alt,
         ...(title === null ? undefined : {title}),
