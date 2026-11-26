@@ -65,6 +65,11 @@
         color: var(--g-color-text-secondary);
     }
 
+    &__list,
+    &__preview-popup {
+        --g-popup-border-radius: var(--g-border-radius-s);
+    }
+
     &__list {
         box-sizing: border-box;
         max-height: min(392px, 90vh);

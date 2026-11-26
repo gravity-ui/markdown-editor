@@ -5,6 +5,7 @@ import {test as base} from '../index';
 export class ButtonBlock {
     readonly content: Locator;
     readonly blocks: Locator;
+    readonly selectedBlocks: Locator;
     readonly variants: Locator;
     readonly settings: Locator;
     readonly label: Locator;
@@ -22,6 +23,7 @@ export class ButtonBlock {
         this.page = page;
         this.content = page.locator('.ProseMirror');
         this.blocks = this.content.locator('.g-md-button-plugin');
+        this.selectedBlocks = this.blocks.and(page.locator('.ProseMirror-selectednode'));
         this.variants = preview.locator('.g-md-button-plugin');
         this.settings = page.getByRole('dialog', {name: 'Button settings'});
         this.label = this.settings.getByRole('textbox', {name: 'Label', exact: true});

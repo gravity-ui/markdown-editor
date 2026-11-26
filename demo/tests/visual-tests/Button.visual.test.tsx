@@ -5,7 +5,8 @@ import {ButtonStories} from './Button.helpers';
 
 const singleButton = ':button[Кнопка](https://example.com){view="action" color="standard"}';
 
-const withSpace = `${singleButton}${'\n\nТекст'.repeat(15)}`;
+const paragraphs = '\n\nТекст'.repeat(15);
+const withSpace = `${singleButton}${paragraphs}`;
 
 const scriptUrl = ['javascript', 'alert(1)'].join(':');
 
@@ -205,6 +206,65 @@ test.describe('Button', () => {
         await expect(editor.locators.contenteditable).toBeFocused();
         await expect(button.blocks).toHaveAttribute('href', '/page');
         await expect(button.blocks).toHaveText('Открыть');
+    });
+
+    test('should edit and delete a button with the keyboard @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        button,
+    }) => {
+        await mount(
+            <ButtonStories.Button
+                initial={`:button[Кнопка]{view="action" color="standard"} и текст${paragraphs}`}
+                width={440}
+            />,
+        );
+        await expect(button.blocks).toHaveCount(1);
+        await editor.focus();
+        await editor.press('Control+Home');
+        await editor.press('ArrowRight');
+        await expect(button.selectedBlocks).toHaveCount(1);
+        await editor.press('Enter');
+        await expect(button.label).toBeFocused();
+        await page.keyboard.press('Tab');
+        await page.keyboard.press('Tab');
+        await expect(button.styleSelect).toBeFocused();
+        await page.keyboard.press('ArrowDown');
+        await expect(button.styleSelect).toBeFocused();
+        await expect(button.styleSelect).toHaveAttribute('aria-expanded', 'true');
+        await expect(button.option('Accent, Standard')).toHaveAttribute(
+            'id',
+            (await button.styleSelect.getAttribute('aria-activedescendant')) ?? '',
+        );
+        await page.keyboard.press('ArrowDown');
+        await expect(button.option('Accent, Blue')).toHaveAttribute(
+            'id',
+            (await button.styleSelect.getAttribute('aria-activedescendant')) ?? '',
+        );
+        await expect(button.preview).toHaveCount(0);
+        await page.keyboard.press('Enter');
+        await expect(button.blocks).toHaveAttribute('data-color', 'blue');
+        await expect(button.option(/, Blue$/)).toHaveCount(0);
+        await expect(button.styleSelect).toHaveAccessibleName('Style: Accent, Blue');
+        await expect(button.styleSelect).toBeFocused();
+        await page.keyboard.press('Tab');
+        await expect(button.link).toBeFocused();
+        await page.keyboard.type('/page');
+        await page.keyboard.press('Tab');
+        await expect(button.blocks).toHaveAttribute('href', '/page');
+        await page.keyboard.press('Space');
+        await expect(button.blocks).toHaveAttribute('target', '_blank');
+        await page.keyboard.press('Tab');
+        await expect(button.settings).toBeHidden();
+        await expect(editor.locators.contenteditable).toBeFocused();
+        await expect(button.selectedBlocks).toHaveCount(1);
+        await editor.press('ArrowRight');
+        await expect(button.selectedBlocks).toHaveCount(0);
+        await editor.press('Backspace');
+        await expect(button.selectedBlocks).toHaveCount(1);
+        await editor.press('Backspace');
+        await expect(button.blocks).toHaveCount(0);
     });
 
     test('should show the hover state of every view @markup', async ({mount, editor, button}) => {

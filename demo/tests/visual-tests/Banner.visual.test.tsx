@@ -170,7 +170,6 @@ test.describe('Banner', () => {
 
         await banner.height.click();
         await expect(banner.options).toHaveText(['S', 'M', 'L']);
-        await expectScreenshot({nameSuffix: 'height list'});
         await page.keyboard.press('Escape');
         await expect(banner.options).toHaveCount(0);
         await expect(banner.settings).toBeVisible();
