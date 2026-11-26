@@ -1,13 +1,16 @@
 import {cn} from '@bem-react/classname';
 
+import {filesGalleryExcludeAttrs} from '../const';
 import {toCssUrl} from '../url';
 import {type AttrGetter, dataAttrs} from '../utils';
 
 import {
     type BannerBackground,
     type BannerDimensions,
+    type BannerImage,
     type BannerTitle,
     bannerClassName,
+    bannerImageClassName,
     bannerTitleClassName,
     bannerTitleDefaults,
 } from './const';
@@ -15,6 +18,7 @@ import {
     bannerBackground,
     bannerBackgroundValues,
     bannerDimensions,
+    bannerImage,
     bannerTitle,
     bannerTitleValues,
 } from './utils';
@@ -85,4 +89,21 @@ export function bannerTitleAttrs(attrs: {size?: unknown; color?: unknown}): Reco
 
 export function bannerTitleFromAttrs(getAttr: AttrGetter): BannerTitle {
     return bannerTitle({size: getAttr('data-size'), color: getAttr('data-color')});
+}
+
+export function bannerImageAttrs(
+    attrs: Partial<Record<keyof BannerImage, unknown>>,
+): Record<string, string> {
+    const {src, alt, title} = bannerImage(attrs);
+    return {
+        class: bannerImageClassName,
+        ...filesGalleryExcludeAttrs,
+        ...(src === null ? undefined : {src}),
+        alt,
+        ...(title === null ? undefined : {title}),
+    };
+}
+
+export function bannerImageFromAttrs(getAttr: AttrGetter): BannerImage {
+    return bannerImage({src: getAttr('src'), alt: getAttr('alt'), title: getAttr('title')});
 }

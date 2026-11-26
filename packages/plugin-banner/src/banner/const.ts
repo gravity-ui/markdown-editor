@@ -58,3 +58,10 @@ export type BannerTitleColor = (typeof bannerTitleColors)[number];
 export type BannerTitle = {size: BannerTitleSize; color: BannerTitleColor};
 
 export const bannerTitleDefaults: Readonly<BannerTitle> = {size: 2, color: 'auto'};
+
+export const bannerImageTokenName = 'g_md_banner_image';
+export const bannerImageClassName = 'g-md-banner-image-plugin';
+
+export type BannerImage = {src: string | null; alt: string; title: string | null};
+
+export const bannerImageDefaults: Readonly<BannerImage> = {src: null, alt: '', title: null};

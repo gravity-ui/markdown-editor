@@ -9,10 +9,11 @@ import type Core from 'markdown-it/lib/parser_core';
 
 import {normalizeLinkUrl} from '../url';
 
-import {bannerAttrs, bannerTitleAttrs} from './attrs';
+import {bannerAttrs, bannerImageAttrs, bannerTitleAttrs} from './attrs';
 import {
     bannerContentClassName,
     bannerContentTokenName,
+    bannerImageTokenName,
     bannerTitleTokenName,
     bannerTokenName,
 } from './const';
@@ -28,6 +29,19 @@ const bannerTitleHandler: LeafBlockDirectiveHandler = (state, params) => {
     open.hidden = !text;
     if (text) state.push('text', '', 0).content = text;
     state.push(`${bannerTitleTokenName}_close`, 'div', -1).hidden = open.hidden;
+    return true;
+};
+
+const bannerImageHandler: LeafBlockDirectiveHandler = (state, params) => {
+    if (params.inlineContent || params.dests) return false;
+    const attrs = params.attrs ?? {};
+    const token = state.push(bannerImageTokenName, 'img', 0);
+    token.map = [params.startLine, params.endLine];
+    token.markup = '::banner-image';
+    token.attrs = Object.entries(
+        bannerImageAttrs({...attrs, src: normalizeLinkUrl(state.md, attrs.src)}),
+    );
+    token.hidden = token.attrGet('src') === null;
     return true;
 };
 
@@ -66,5 +80,6 @@ export const bannerPlugin: PluginSimple = (md) => {
             attrs: {class: bannerContentClassName},
         },
     });
+    registerLeafBlockDirective(md, 'banner-image', bannerImageHandler);
     md.core.ruler.push(`${bannerContentTokenName}_hide_empty`, hideEmptyContent);
 };
