@@ -106,38 +106,32 @@ The width is a `max-width` and the height a `min-height`: the block never exceed
 An image beside the text, the [Banner image](#banner-image) block, takes half of the block: on the right of the text, and on the left of a right-aligned text. A centered banner has no place for an image: write an image with `align="left"` or `align="right"`.
 `left` and `right` of `align` are the start and the end of the line: in a right-to-left page the sides swap.
 
-A banner narrower than 600 px has the narrow layout: the image stands above the text, and the buttons stand in a column of the full width. The width is the one of the block itself, not of the window: the block is a query container named `g-md-banner-plugin`, and the 600 px takes no custom property.
+A banner narrower than 600 px has the narrow layout: the image stands above the text, and the buttons stand in a column of the full width and take the XL size of the uikit button: 44px high, 12px and 24px padding, the extra-large radius and the Body 2 text. The width is the one of the block itself, not of the window: the block is a query container named `g-md-banner-plugin`, and the 600 px takes no custom property.
 
 The numbers are custom properties; a host overrides them:
 
-| Property                                           | Default                                    |
-| -------------------------------------------------- | ------------------------------------------ |
-| `--g-md-banner-plugin-height-{s,m,l}`              | `236px`, `300px`, `360px`                  |
-| `--g-md-banner-plugin-width-{s,m,l}`               | `600px`, `900px`, `1200px`                 |
-| `--g-md-banner-plugin-margin-block`                | `0 var(--g-spacing-5)`                     |
-| `--g-md-banner-plugin-margin-inline`               | `0`                                        |
-| `--g-md-banner-plugin-border-radius`               | `var(--g-border-radius-2xl)`, 16 px        |
-| `--g-md-banner-plugin-padding`                     | `var(--g-spacing-8)`                       |
-| `--g-md-banner-plugin-text-gap`                    | `var(--g-spacing-4)`                       |
-| `--g-md-banner-plugin-buttons-gap`                 | `var(--g-spacing-8)`, the text and buttons |
-| `--g-md-banner-plugin-image-width`                 | `50%`, at most `50%`                       |
-| `--g-md-banner-plugin-image-padding`               | `var(--g-spacing-2)`                       |
-| `--g-md-banner-plugin-blur`                        | `12px`                                     |
-| `--g-md-banner-plugin-narrow-padding`              | `var(--g-spacing-4)`                       |
-| `--g-md-banner-plugin-narrow-image-aspect-ratio`   | `16 / 10`                                  |
-| `--g-md-banner-plugin-narrow-button-height`        | `44px`                                     |
-| `--g-md-banner-plugin-narrow-button-padding-block` | `12px`, a wrapped label                    |
-| `--g-md-banner-plugin-narrow-button-border-radius` | `var(--g-border-radius-xl)`                |
-| `--g-md-banner-plugin-narrow-button-padding`       | `var(--g-spacing-6)`                       |
-| `--g-md-banner-plugin-narrow-button-font-size`     | `var(--g-text-body-2-font-size)`           |
-| `--g-md-banner-plugin-narrow-button-line-height`   | `var(--g-text-body-2-line-height)`         |
-| `--g-md-banner-plugin-button-focus-outline-color`  | `var(--g-color-text-primary)`              |
-| `--g-md-banner-plugin-link-focus-outline-color`    | the focus ring color of the buttons        |
-| `--g-md-banner-plugin-link-color`                  | `currentColor`                             |
-| `--g-md-banner-plugin-link-hover-color`            | `currentColor`                             |
-| `--g-md-banner-plugin-link-decoration-line`        | `underline` (`text-decoration-line`)       |
-| `--g-md-banner-plugin-code-color`                  | `currentColor`                             |
-| `--g-md-banner-plugin-code-background`             | `var(--g-color-base-generic)`              |
+| Property                                          | Default                                    |
+| ------------------------------------------------- | ------------------------------------------ |
+| `--g-md-banner-plugin-height-{s,m,l}`             | `236px`, `300px`, `360px`                  |
+| `--g-md-banner-plugin-width-{s,m,l}`              | `600px`, `900px`, `1200px`                 |
+| `--g-md-banner-plugin-margin-block`               | `0 var(--g-spacing-5)`                     |
+| `--g-md-banner-plugin-margin-inline`              | `0`                                        |
+| `--g-md-banner-plugin-border-radius`              | `var(--g-border-radius-2xl)`, 16 px        |
+| `--g-md-banner-plugin-padding`                    | `var(--g-spacing-8)`                       |
+| `--g-md-banner-plugin-text-gap`                   | `var(--g-spacing-4)`                       |
+| `--g-md-banner-plugin-buttons-gap`                | `var(--g-spacing-8)`, the text and buttons |
+| `--g-md-banner-plugin-image-width`                | `50%`, at most `50%`                       |
+| `--g-md-banner-plugin-image-padding`              | `var(--g-spacing-2)`                       |
+| `--g-md-banner-plugin-blur`                       | `12px`                                     |
+| `--g-md-banner-plugin-narrow-padding`             | `var(--g-spacing-4)`                       |
+| `--g-md-banner-plugin-narrow-image-aspect-ratio`  | `16 / 10`                                  |
+| `--g-md-banner-plugin-button-focus-outline-color` | `var(--g-color-text-primary)`              |
+| `--g-md-banner-plugin-link-focus-outline-color`   | the focus ring color of the buttons        |
+| `--g-md-banner-plugin-link-color`                 | `currentColor`                             |
+| `--g-md-banner-plugin-link-hover-color`           | `currentColor`                             |
+| `--g-md-banner-plugin-link-decoration-line`       | `underline` (`text-decoration-line`)       |
+| `--g-md-banner-plugin-code-color`                 | `currentColor`                             |
+| `--g-md-banner-plugin-code-background`            | `var(--g-color-base-generic)`              |
 
 The block is a size container (`container-type: inline-size`), so its width comes from its parent, never from its content. Where the parent sizes its children by their content, such as a table cell with automatic layout or a flex item without a width, the block has no width of its own: give the parent or the block a width there.
 
@@ -441,8 +435,8 @@ The size and typography are custom properties; a host overrides them:
 | Property                                             | Default                                                  |
 | ---------------------------------------------------- | -------------------------------------------------------- |
 | `--g-md-button-plugin-height`                        | `36px`                                                   |
-| `--g-md-button-plugin-padding`                       | `var(--g-spacing-4, 16px)`                               |
-| `--g-md-button-plugin-padding-block`                 | `9px`, above and below a wrapped label                   |
+| `--g-md-button-plugin-padding`                       | `16px`                                                   |
+| `--g-md-button-plugin-padding-block`                 | `8px`, above and below a wrapped label                   |
 | `--g-md-button-plugin-border-radius`                 | `var(--g-border-radius-l, 8px)`                          |
 | `--g-md-button-plugin-font-size`                     | `var(--g-text-body-1-font-size, 13px)`                   |
 | `--g-md-button-plugin-line-height`                   | `var(--g-text-body-1-line-height, 18px)`                 |

@@ -1,26 +1,12 @@
-@use 'sass:math';
+@use '../mixins';
 @use '../variables';
 
-$height: 36px;
-$line-height: 18px;
-
 .g-md-button-plugin {
-    --_--height: var(--g-md-button-plugin-height, #{$height});
+    @include mixins.button-size-l;
+
     --_--border-width: var(--g-md-button-plugin-border-width, 1px);
     --_--focus-outline-width: var(--g-md-button-plugin-focus-outline-width, 2px);
     --_--pressed-scale: var(--g-md-button-plugin-pressed-scale, 0.96);
-    --_--padding: var(--g-md-button-plugin-padding, var(--g-spacing-4, 16px));
-    --_--border-radius: var(--g-md-button-plugin-border-radius, var(--g-border-radius-l, 8px));
-    --_--font-size: var(--g-md-button-plugin-font-size, var(--g-text-body-1-font-size, 13px));
-    --_--line-height: var(
-        --g-md-button-plugin-line-height,
-        var(--g-text-body-1-line-height, #{$line-height})
-    );
-    // A wrapped label keeps the padding of a single line.
-    --_--padding-block: var(
-        --g-md-button-plugin-padding-block,
-        #{math.div($height - $line-height, 2)}
-    );
     --_--focus-outline-color: var(--g-color-line-focus);
     --_--focus-outline-offset: 0;
     --_--action-focus-outline-offset: 1px;
@@ -51,18 +37,19 @@ $line-height: 18px;
 
     box-sizing: border-box;
     max-width: 100%;
-    min-height: var(--_--height);
-    padding: var(--_--padding-block) var(--_--padding);
+    min-height: var(--g-md-button-plugin-height, var(--_--height));
+    padding-block: var(--g-md-button-plugin-padding-block, var(--_--padding-block));
+    padding-inline: var(--g-md-button-plugin-padding, var(--_--padding));
 
-    font-size: var(--_--font-size);
+    font-size: var(--g-md-button-plugin-font-size, var(--_--font-size));
     font-weight: var(--g-text-body-font-weight, 400);
-    line-height: var(--_--line-height);
+    line-height: var(--g-md-button-plugin-line-height, var(--_--line-height));
     text-align: center;
     vertical-align: middle;
     white-space: normal;
     text-decoration: none;
 
-    border-radius: var(--_--border-radius);
+    border-radius: var(--g-md-button-plugin-border-radius, var(--_--border-radius));
     overflow-wrap: anywhere;
 
     // The border lies over the padding, as in the uikit button, so the size does not depend on it.

@@ -1,4 +1,5 @@
 @use 'sass:string';
+@use '../mixins';
 @use '../variables';
 
 $bg-colors: (
@@ -71,24 +72,6 @@ $button: '.g-md-button-plugin';
     --_--blur: var(--g-md-banner-plugin-blur, 12px);
     --_--narrow-padding: var(--g-md-banner-plugin-narrow-padding, var(--g-spacing-4, 16px));
     --_--narrow-image-aspect-ratio: var(--g-md-banner-plugin-narrow-image-aspect-ratio, 16 / 10);
-    --_--narrow-button-height: var(--g-md-banner-plugin-narrow-button-height, 44px);
-    --_--narrow-button-padding-block: var(--g-md-banner-plugin-narrow-button-padding-block, 12px);
-    --_--narrow-button-padding: var(
-        --g-md-banner-plugin-narrow-button-padding,
-        var(--g-spacing-6, 24px)
-    );
-    --_--narrow-button-font-size: var(
-        --g-md-banner-plugin-narrow-button-font-size,
-        var(--g-text-body-2-font-size, 15px)
-    );
-    --_--narrow-button-line-height: var(
-        --g-md-banner-plugin-narrow-button-line-height,
-        var(--g-text-body-2-line-height, 20px)
-    );
-    --_--narrow-button-border-radius: var(
-        --g-md-banner-plugin-narrow-button-border-radius,
-        var(--g-border-radius-xl, 10px)
-    );
 
     --_--content-padding: var(--_--padding);
     --_--content-column: 1 / -1;
@@ -322,12 +305,7 @@ $button: '.g-md-button-plugin';
         }
 
         #{$button} {
-            --g-md-button-plugin-height: var(--_--narrow-button-height);
-            --g-md-button-plugin-padding-block: var(--_--narrow-button-padding-block);
-            --g-md-button-plugin-border-radius: var(--_--narrow-button-border-radius);
-            --g-md-button-plugin-padding: var(--_--narrow-button-padding);
-            --g-md-button-plugin-font-size: var(--_--narrow-button-font-size);
-            --g-md-button-plugin-line-height: var(--_--narrow-button-line-height);
+            @include mixins.button-size-xl;
         }
     }
 }
