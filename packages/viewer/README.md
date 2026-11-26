@@ -488,6 +488,7 @@ Use `ViewerTargets` inside `MarkdownViewer`. The package exports the `ViewerTarg
 | `children`  | `(target: HTMLElement) => ReactNode` | Returns React content for each target.                                   |
 
 To share a built-in slot, import `HEADING_ANCHOR_SLOT_KEY`, `HEADING_EDIT_SLOT_KEY`, or `YFM_CODE_BLOCK_ACTIONS_SLOT_KEY` from `@gravity-ui/markdown-viewer/extensions`.
+If your extension uses `HEADING_ANCHOR_SLOT_KEY` to replace a native YFM anchor, hide the native anchor while your control is visible.
 
 Use a stable selector, such as `h2[id]` or `[data-grid-id]`. Adding a slot must not change whether the target matches. Avoid selectors such as `h2:empty`.
 
