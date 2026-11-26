@@ -1,3 +1,5 @@
+export const escapeLabel = (label: string) => label.replace(/[\\[\]]/g, '\\$&');
+
 // markdown-it decodes backslash escapes and character references in a quoted value.
 export const escapeQuoted = (value: string) =>
     value.replace(/[\\"]/g, '\\$&').replace(/&(?=[a-z#][a-z0-9]{1,31};)/gi, '&amp;');
