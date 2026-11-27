@@ -6,7 +6,8 @@ import {getDomConstructor} from '../../utils/dom-constructor';
 import {createClassRegistration} from '../../utils/dom-ownership';
 import {inspectViewerNode} from '../../utils/inspect-viewer-node';
 
-import {collectGallery, isExcludedFromGallery} from './helpers/collect-gallery';
+import {excludedSelector} from './constants';
+import {collectGallery} from './helpers/collect-gallery';
 import {isStandaloneImage, registerImageControls} from './helpers/image-controls';
 import {i18n} from './i18n';
 import type {FilesGalleryProps} from './types';
@@ -51,7 +52,7 @@ export function FilesGallery({
                 if (!(clickedElement instanceof ElementConstructor)) return;
 
                 if (inspectViewerNode(root, clickedElement).kind !== 'content') return;
-                if (isExcludedFromGallery(clickedElement)) return;
+                if (clickedElement.closest(excludedSelector)) return;
 
                 const target = clickedElement.closest('img,a');
                 if (!target || inspectViewerNode(root, target).kind !== 'content') return;

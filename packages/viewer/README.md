@@ -160,7 +160,7 @@ export function Document({html}: {html: string}) {
 
 Images support `picture` and `srcset`. Ctrl/Meta/Shift/Alt-click and images inside links keep their normal behavior.
 
-To keep a part of the document out of the gallery, render the `data-files-gallery-exclude` attribute on it (`FILES_GALLERY_EXCLUDE_ATTRIBUTE`). Images and links inside an element with this attribute are not collected, and a click on them keeps its normal behavior: the gallery does not open and the event is not prevented, so a link navigates. The value of the attribute does not matter.
+Set `data-files-gallery-exclude` on an image, link, or container to omit it and its descendants from the gallery. The attribute works with any value. Clicks keep their normal behavior.
 
 ```html
 <div data-files-gallery-exclude="true"><img src="/banner.png" alt="" /></div>

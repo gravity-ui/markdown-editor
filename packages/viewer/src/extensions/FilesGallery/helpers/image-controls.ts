@@ -1,8 +1,7 @@
 import {getDomConstructor} from '../../../utils/dom-constructor';
 import {createElementRegistration} from '../../../utils/dom-ownership';
 import {inspectViewerNode} from '../../../utils/inspect-viewer-node';
-
-import {isExcludedFromGallery} from './collect-gallery';
+import {excludedSelector} from '../constants';
 
 const attributes = ['role', 'tabindex'] as const;
 const imageControls = createElementRegistration(setImageAttributes);
@@ -75,7 +74,7 @@ export function isStandaloneImage(
             isPresentationalImage(target) ||
             imageControls.has(target)) &&
         !target.parentElement?.closest('a, button, [role="button"]') &&
-        !isExcludedFromGallery(target) &&
+        !target.closest(excludedSelector) &&
         inspectViewerNode(root, target).kind === 'content'
     );
 }
