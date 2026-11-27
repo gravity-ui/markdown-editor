@@ -2,11 +2,10 @@ import {escapeParenthesesInUrl} from '@gravity-ui/markdown-editor/_/extensions/m
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {buttonDefaults, buttonModel} from '@gravity-ui/markdown-plugin-banner';
 
+import {escapeLabel, escapeQuoted} from '../../../utils/directive';
+
 import {buttonNodeName} from './const';
 import {buttonLabel} from './utils';
-
-const escapeLabel = (label: string) => label.replace(/[\\[\]]/g, '\\$&');
-const escapeQuoted = (value: string) => value.replace(/[\\"]/g, '\\$&');
 
 export const ButtonSerializerSpecs: ExtensionAuto = (builder) => {
     builder.addNodeSerializerSpec(buttonNodeName, () => (state, node) => {

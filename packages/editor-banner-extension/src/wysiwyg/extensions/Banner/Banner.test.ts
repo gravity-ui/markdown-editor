@@ -2,6 +2,7 @@
 import {EditorState as MarkupEditorState} from '@gravity-ui/markdown-editor/cm/state';
 import {ExtensionsManager} from '@gravity-ui/markdown-editor/core';
 import {
+    BaseKeymap,
     Clipboard,
     ReactRenderStorage,
     ReactRendererExtension,
@@ -23,6 +24,7 @@ import {
     BlockquoteSpecs,
     BoldSpecs,
     CodeBlockSpecs,
+    HeadingSpecs,
     LinkSpecs,
     ListsSpecs,
     boldMarkName,
@@ -30,7 +32,9 @@ import {
 import {
     type BannerDimensions,
     bannerBackgroundDefaults,
+    bannerContentTokenName,
     bannerDefaults,
+    bannerImageTokenName,
 } from '@gravity-ui/markdown-plugin-banner';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
@@ -57,6 +61,7 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
             .use(BlockquoteSpecs)
             .use(ListsSpecs)
             .use(CodeBlockSpecs, {})
+            .use(HeadingSpecs, {})
             .use(BannerSpecs),
 }).buildDeps();
 
@@ -89,7 +94,8 @@ function createNodeView(markup: string) {
             builder
                 .use(BaseSchemaSpecs, {})
                 .use(ReactRendererExtension, new ReactRenderStorage())
-                .use(Banner),
+                .use(Banner)
+                .use(BaseKeymap),
     }).build();
     view = new EditorView(document.createElement('div'), {
         state: EditorState.create({
@@ -128,6 +134,116 @@ describe('Banner extension', () => {
         const expected = doc(banner(p('Keep ', b('text'))), p('After'));
         expect(markupParser.parse(markup).toJSON()).toEqual(expected.toJSON());
         expect(serializer.serialize(expected)).toBe(markup);
+    });
+
+    it('should preserve all banner directives after a visual edit', () => {
+        const markup = [
+            ':::banner{height="s" width="m"}',
+            '::banner-title[Portal]{size="1" color="blue"}',
+            ':::banner-content\n\nFirst **paragraph**\n\nSecond paragraph\n\n:::',
+            '::banner-image[Team](/team.png "Our team")',
+            ':::',
+        ].join('\n\n');
+        const editor = createView(markup);
+        editor.dispatch(editor.state.tr.insertText(' [A]', 2 + 'Portal'.length));
+        const edited = serializer.serialize(editor.state.doc);
+        expect(edited).toBe(markup.replace('Portal', 'Portal \\[A\\]'));
+        expect(markupParser.parse(edited).eq(editor.state.doc)).toBe(true);
+
+        const container = document.createElement('div');
+        container.append(
+            DOMSerializer.fromSchema(schema).serializeFragment(editor.state.doc.content),
+        );
+        expect(container.querySelector('h1.g-md-banner-title-plugin')?.textContent).toBe(
+            'Portal [A]',
+        );
+        expect(DOMParser.fromSchema(schema).parse(container).eq(editor.state.doc)).toBe(true);
+    });
+
+    it.each([
+        ['Enter', 4],
+        ['Delete', 7],
+        ['Backspace', 10],
+    ] as const)('should keep the title and description when pressing %s', (key, cursor) => {
+        const editor = createNodeView(
+            ':::banner\n::banner-title[Title]\n:::banner-content\nDescription\n:::\n:::',
+        );
+        const {doc, tr} = editor.state;
+        editor.dispatch(tr.setSelection(TextSelection.create(doc, cursor)));
+        editor.dom.dispatchEvent(
+            new KeyboardEvent('keydown', {key, bubbles: true, cancelable: true}),
+        );
+        expect(editor.state.doc.eq(doc)).toBe(true);
+    });
+
+    it('should allow typing into an empty description after reopening it', () => {
+        const editor = createView(':::banner\n:::banner-content\n:::\n:::');
+        const {doc, tr} = editor.state;
+        expect(markupParser.parse(serializer.serialize(doc)).eq(doc)).toBe(true);
+        const cursor = TextSelection.atStart(doc);
+        expect(cursor.$from.parent.type.name).toBe(BaseNode.Paragraph);
+        editor.dispatch(tr.setSelection(cursor).insertText('Description'));
+        expect(editor.state.doc.firstChild?.firstChild?.textContent).toBe('Description');
+    });
+
+    it('should preserve image attribute line breaks in a single directive line', () => {
+        const source =
+            '::banner-image{src="/team.png" alt="First&#10;second" title="First&#13;&#10;second"}';
+        const doc = markupParser.parse(source);
+        expect(doc.firstChild?.attrs.alt).toBe('First\nsecond');
+        expect(doc.firstChild?.attrs.title).toBe('First\r\nsecond');
+        const saved = serializer.serialize(doc);
+        expect(saved).toBe('::banner-image[First&#10;second](/team.png "First&#13;&#10;second")');
+        expect(markupParser.parse(saved).eq(doc)).toBe(true);
+    });
+
+    it.each([
+        [
+            '::banner-image{src="./.files/team.jpg" alt="Team" title="Project team"}',
+            '::banner-image[Team](./.files/team.jpg "Project team")',
+        ],
+        ['::banner-image{src="/team.jpg"}', '::banner-image[](/team.jpg)'],
+        ['::banner-image', '::banner-image[]()'],
+        [
+            String.raw`::banner-image{src="/a(1).png" alt="A [B] &amp;amp;" title="Say \"hi\""}`,
+            String.raw`::banner-image[A \[B\] &amp;amp;](</a(1).png> "Say \"hi\"")`,
+        ],
+        ['::banner-image{src="/a&amp;amp;.png"}', '::banner-image[](/a&amp;amp;.png)'],
+    ])('should save %s with Markdown image syntax', (source, expected) => {
+        const doc = markupParser.parse(source);
+        const saved = serializer.serialize(doc);
+        expect(saved).toBe(expected);
+        expect(markupParser.parse(saved).eq(doc)).toBe(true);
+    });
+
+    it('should preserve empty banner directives', () => {
+        const parts = ['::banner-title[]', ':::banner-content\n\n:::', '::banner-image[]()'];
+        const markup = [':::banner{height="s" width="m"}', ...parts, ':::'].join('\n\n');
+        expect(serializer.serialize(markupParser.parse(markup))).toBe(markup);
+    });
+
+    it.each(['[A] <tag> &amp;', 'A\\B [C]\\', String.raw`\[escaped\]`])(
+        'should preserve edited title text %j across mode changes',
+        (text) => {
+            const editor = createView(':::banner\n\n::banner-title[Title]\n\n:::');
+            editor.dispatch(editor.state.tr.insertText(text, 2, 7));
+            const reparsed = markupParser.parse(serializer.serialize(editor.state.doc));
+            expect(reparsed.eq(editor.state.doc)).toBe(true);
+            expect(reparsed.textContent).toBe(text);
+        },
+    );
+
+    it.each([
+        ':::banner-content\n- One\n- Two\n:::',
+        ':::banner-content\n> Quoted **text**\n:::',
+        ':::banner-content\n:::banner-content\nNested\n:::\n:::',
+        String.raw`::banner-image{src="/team.png?a=1&b=2" alt="A &amp; B \\\"team\\\"" title="[Team]"}`,
+    ])('should preserve nested blocks and image attributes in %j', (part) => {
+        const doc = markupParser.parse(`:::banner\n\n${part}\n\n:::`);
+        expect(doc.firstChild?.firstChild?.type.name).toBe(
+            part.startsWith('::banner-image') ? bannerImageTokenName : bannerContentTokenName,
+        );
+        expect(markupParser.parse(serializer.serialize(doc)).eq(doc)).toBe(true);
     });
 
     it('should use the same defaults in the schema and parser', () => {

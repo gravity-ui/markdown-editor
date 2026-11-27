@@ -112,6 +112,10 @@ describe('Button extension', () => {
             ':button[Label](</a (b)> \'A "quoted" \\\\ title\')',
             ':button[Label](/a%20\\(b\\) "A \\"quoted\\" \\\\ title"){view="action" color="standard"}',
         ],
+        [
+            ':button[Label](/page "Literal &amp;amp;")',
+            ':button[Label](/page "Literal &amp;amp;"){view="action" color="standard"}',
+        ],
         [':button[Label]{href="/page"}', ':button[Label]{view="action" color="standard"}'],
     ])('should save %j as %j', (source, expected) => {
         expect(serializer.serialize(markupParser.parse(source))).toBe(expected);
