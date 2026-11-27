@@ -62,8 +62,6 @@ test.describe('Editor keyboard accessibility', () => {
                 initial="Preview keyboard navigation"
                 initialEditor="markup"
                 initialSplitModeEnabled={false}
-                enableSubmitInPreview
-                hidePreviewAfterSubmit
             />,
         );
 
