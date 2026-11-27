@@ -244,6 +244,55 @@ describe('MarkdownEditorView', () => {
         },
     );
 
+    it('should keep preview open when the submit shortcut is pressed on a preview button', () => {
+        const button = createRef<HTMLButtonElement>();
+        const options: MarkdownEditorOptions = {
+            initial: {mode: 'markup', toolbarVisible: false},
+            markupConfig: {renderPreview: () => <button ref={button}>Preview action</button>},
+        };
+        document.body.appendChild(container);
+        renderEditor({options, view: {enableSubmitInPreview: true}});
+        act(() => testEditor.changePreviewVisible(true));
+        expect(document.activeElement).toBe(container.firstElementChild);
+        renderEditor({options, view: {enableSubmitInPreview: true, hidePreviewAfterSubmit: true}});
+        const submit = vi.fn();
+        testEditor.on('submit', submit);
+
+        const previewButton = button.current;
+        if (!previewButton) throw new Error('Preview button is missing');
+        previewButton.focus();
+        expect(document.activeElement).toBe(previewButton);
+        act(() => pressShortcut('Enter', 'Enter', previewButton));
+
+        expect(submit).not.toHaveBeenCalled();
+        expect(testEditor.previewVisible).toBe(true);
+    });
+
+    it.each([false, true])(
+        'should respect enableSubmitInPreview=%s when the wrapper has focus',
+        (enableSubmitInPreview) => {
+            document.body.appendChild(container);
+            renderEditor({
+                options: {
+                    initial: {mode: 'markup', toolbarVisible: false},
+                    markupConfig: {renderPreview: () => <span>Preview</span>},
+                },
+                view: {enableSubmitInPreview, hidePreviewAfterSubmit: true},
+            });
+            act(() => testEditor.changePreviewVisible(true));
+            const wrapper = container.firstElementChild;
+            if (!wrapper) throw new Error('Editor wrapper is missing');
+            expect(document.activeElement).toBe(wrapper);
+            const submit = vi.fn();
+            testEditor.on('submit', submit);
+
+            act(() => pressShortcut('Enter', 'Enter', wrapper));
+
+            expect(submit).toHaveBeenCalledTimes(enableSubmitInPreview ? 1 : 0);
+            expect(testEditor.previewVisible).toBe(!enableSubmitInPreview);
+        },
+    );
+
     it('should log each toolbar action once after the view rerenders', () => {
         const logger = new Logger2();
         const actions: Logger2.ActionData[] = [];
@@ -280,8 +329,8 @@ describe('MarkdownEditorView', () => {
         expect(globalActions).toEqual(actions);
     });
 
-    function pressShortcut(key: string, code: string) {
-        getContent().dispatchEvent(
+    function pressShortcut(key: string, code: string, target: Element = getContent()) {
+        target.dispatchEvent(
             new KeyboardEvent('keydown', {
                 key,
                 code,
