@@ -65,6 +65,76 @@ describe('ViewerTargets lifecycle', () => {
         },
     );
 
+    it.each(['unmounts', 'changes selector'])(
+        'should keep the iframe document when a slot unmounts and its waiting replacement %s',
+        (change) => {
+            function Extensions() {
+                const [active, setActive] = useState(true);
+                return (
+                    <>
+                        <button onClick={() => setActive(false)}>Remove</button>
+                        {active && (
+                            <ViewerTargets selector="section">{() => 'Action'}</ViewerTargets>
+                        )}
+                        {(active || change === 'changes selector') && (
+                            <ViewerTargets selector={active ? 'section' : 'aside'} mode="replace">
+                                {() => 'Replacement'}
+                            </ViewerTargets>
+                        )}
+                    </>
+                );
+            }
+            act(() =>
+                root.render(
+                    <MarkdownViewer html="<section><iframe></iframe></section><aside></aside>">
+                        <Extensions />
+                    </MarkdownViewer>,
+                ),
+            );
+            const frame = container.querySelector('iframe');
+            const original = frame?.contentDocument;
+            const button = container.querySelector('button');
+            assert(original && button);
+
+            act(() => button.click());
+            expect(container.querySelector('section > iframe')).toBe(frame);
+            expect(frame.contentDocument?.isSameNode(original)).toBe(true);
+            expect(container.querySelector('aside')?.textContent).toBe(
+                change === 'changes selector' ? 'Replacement' : '',
+            );
+        },
+    );
+
+    it.each(['update', 'unmount'])(
+        'should discard a replaced fallback without reconnecting it on viewer %s',
+        (change) => {
+            const connected = vi.fn();
+            const tag = `test-fallback-${change}`;
+            customElements.define(
+                tag,
+                class extends HTMLElement {
+                    connectedCallback() {
+                        connected();
+                    }
+                },
+            );
+            act(() =>
+                root.render(
+                    <MarkdownViewer html={`<section><${tag}></${tag}></section>`}>
+                        <ViewerTargets selector="section" mode="replace">
+                            {() => 'Replacement'}
+                        </ViewerTargets>
+                    </MarkdownViewer>,
+                ),
+            );
+            expect(connected).toHaveBeenCalledOnce();
+            connected.mockClear();
+
+            act(() => root.render(change === 'update' ? <MarkdownViewer html="Next" /> : null));
+            expect(connected).not.toHaveBeenCalled();
+        },
+    );
+
     it('should preserve extension state and remount a replaced host with the same ID', () => {
         function Extension() {
             const [count, setCount] = useState(0);
@@ -201,12 +271,183 @@ describe('ViewerTargets lifecycle', () => {
         expect(host?.querySelector('button')?.textContent).toBe('Action');
     });
 
-    it('should keep committed portals during an interrupted transition', async () => {
-        const pending = new Promise<void>(() => undefined);
-        function Wait({value}: {value: string}) {
-            if (value === 'pending') throw pending;
-            return null;
+    it('should preserve append slot state after Suspense shows its fallback', () => {
+        const Wait = createSuspender();
+
+        function render(suspend: boolean) {
+            act(() =>
+                root.render(
+                    <MarkdownViewer html="<h2>Title</h2>">
+                        <Suspense fallback="Loading">
+                            <ViewerTargets selector="h2">
+                                {() => <Counter label="Count" />}
+                            </ViewerTargets>
+                            {suspend && <Wait />}
+                        </Suspense>
+                    </MarkdownViewer>,
+                ),
+            );
         }
+
+        render(false);
+        act(() => container.querySelector('button')?.click());
+        render(true);
+        expect(container.textContent).toContain('Loading');
+        render(false);
+        expect(container.querySelector('button')?.textContent).toBe('Count: 1');
+    });
+
+    it('should restore the original child when a hidden viewer resumes without its replacement', () => {
+        const Wait = createSuspender();
+
+        function render(hidden: boolean, replace: boolean) {
+            act(() =>
+                root.render(
+                    <Suspense fallback="Loading">
+                        <MarkdownViewer html="<section><i>Original</i></section>">
+                            {replace && (
+                                <ViewerTargets selector="section" mode="replace">
+                                    {() => 'Active'}
+                                </ViewerTargets>
+                            )}
+                        </MarkdownViewer>
+                        {hidden && <Wait />}
+                    </Suspense>,
+                ),
+            );
+        }
+
+        render(false, false);
+        const original = container.querySelector('i');
+        assert(original);
+        render(false, true);
+        render(true, true);
+        expect(container.textContent).toContain('Loading');
+        render(true, false);
+        render(false, false);
+        expect(container.querySelector('i')).toBe(original);
+    });
+
+    it('should show the outer Suspense fallback until a portal child is ready', async () => {
+        let finish!: () => void;
+        const pending = new Promise<void>((resolve) => {
+            finish = resolve;
+        });
+        let ready = false;
+        function Child() {
+            if (!ready) throw pending;
+            return <button>Action</button>;
+        }
+
+        act(() =>
+            root.render(
+                <MarkdownViewer html="<p>Text</p>">
+                    <Suspense fallback="Loading">
+                        <ViewerTargets selector="p">{() => <Child />}</ViewerTargets>
+                    </Suspense>
+                </MarkdownViewer>,
+            ),
+        );
+        expect(container.textContent).toContain('Loading');
+
+        await act(async () => {
+            ready = true;
+            finish();
+            await pending;
+        });
+        expect(container.textContent).toBe('TextAction');
+    });
+
+    it.each([
+        ['append', 'section'],
+        ['append', 'p'],
+        ['replace', 'section'],
+        ['replace', 'p'],
+    ] as const)(
+        'should keep a suspended %s slot inactive while a replacement owns %s',
+        (mode, selector) => {
+            const Wait = createSuspender();
+            const layout = vi.fn();
+
+            function Action() {
+                useLayoutEffect(layout, []);
+                return <button>Action</button>;
+            }
+            const children = vi.fn(() => <Action />);
+            function render(suspend: boolean, replace = true) {
+                act(() =>
+                    root.render(
+                        <MarkdownViewer html="<section><p>Text</p></section>">
+                            <Suspense fallback="Loading">
+                                <ViewerTargets selector="p" mode={mode}>
+                                    {children}
+                                </ViewerTargets>
+                                {suspend && <Wait />}
+                            </Suspense>
+                            {replace && (
+                                <ViewerTargets mode="replace" selector={selector}>
+                                    {() => 'Replacement'}
+                                </ViewerTargets>
+                            )}
+                        </MarkdownViewer>,
+                    ),
+                );
+            }
+
+            render(false);
+            expect(container.querySelector('button')?.textContent).toBe('Action');
+            render(true);
+            expect(container.textContent).toContain('Replacement');
+            children.mockClear();
+            layout.mockClear();
+
+            render(false);
+            expect(children).not.toHaveBeenCalled();
+            expect(layout).not.toHaveBeenCalled();
+
+            render(false, false);
+            expect(container.querySelector('button')?.textContent).toBe('Action');
+            expect(layout).toHaveBeenCalledOnce();
+        },
+    );
+
+    it('should keep a resumed named slot inactive when another target is released', () => {
+        const Wait = createSuspender();
+        const action = vi.fn(() => 'Action');
+        function render(phase: 'active' | 'suspended' | 'resumed') {
+            act(() =>
+                root.render(
+                    <MarkdownViewer html="<h2></h2><aside></aside>">
+                        <Suspense fallback="Loading">
+                            <ViewerTargets selector="h2" slotKey="action">
+                                {action}
+                            </ViewerTargets>
+                            {phase === 'suspended' && <Wait />}
+                        </Suspense>
+                        <ViewerTargets selector="h2" slotKey="action">
+                            {() => 'Next'}
+                        </ViewerTargets>
+                        {phase !== 'resumed' && (
+                            <ViewerTargets selector="aside" mode="replace">
+                                {() => 'Aside'}
+                            </ViewerTargets>
+                        )}
+                    </MarkdownViewer>,
+                ),
+            );
+        }
+
+        render('active');
+        expect(container.querySelector('h2')?.textContent).toBe('Action');
+        render('suspended');
+        action.mockClear();
+        render('resumed');
+        expect(action).not.toHaveBeenCalled();
+        expect(container.querySelector('h2')?.textContent).toBe('Next');
+    });
+
+    it('should keep committed portals during an interrupted transition', async () => {
+        const Wait = createSuspender();
         function view(value: string) {
             return (
                 <Suspense fallback="Loading">
@@ -214,7 +455,7 @@ describe('ViewerTargets lifecycle', () => {
                         <ViewerTargets selector="h2[id]">
                             {(host) => <Counter label={host.id} />}
                         </ViewerTargets>
-                        <Wait value={value} />
+                        {value === 'pending' && <Wait />}
                     </MarkdownViewer>
                 </Suspense>
             );
@@ -240,4 +481,11 @@ function Counter({label}: {label: string}) {
             {label}: {count}
         </button>
     );
+}
+
+function createSuspender() {
+    const pending = new Promise<void>(() => undefined);
+    return function Wait(): never {
+        throw pending;
+    };
 }
