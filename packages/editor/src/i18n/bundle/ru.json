@@ -9,5 +9,7 @@
   "split-mode-text": "Предпросмотр",
   "markup_placeholder": "Добавьте вашу разметку",
   "preview_label": "Предпросмотр",
-  "settings_label": "Настройки"
+  "settings_label": "Настройки",
+  "recover-markdown": "Показать текст в Markdown",
+  "recovery-error": "Не удалось преобразовать документ в Markdown. Попробуйте ещё раз. Не закрывайте страницу: несохранённые изменения могут потеряться."
 }

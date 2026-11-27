@@ -1,19 +1,20 @@
 import {useEffect} from 'react';
 
-import type {MarkdownEditorInstance} from '@gravity-ui/markdown-editor';
+import type {PlaygroundEditor} from '../utils/editor';
 
 declare global {
     interface Window {
-        mdEditor?: MarkdownEditorInstance;
+        mdEditor?: PlaygroundEditor;
     }
 }
 
 /** Mount order; several editors can be mounted at once */
-const mounted: MarkdownEditorInstance[] = [];
+const mounted: PlaygroundEditor[] = [];
 
 /** Visual tests and the browser console reach the editor mounted last through this handle */
-export function useEditorHandle(editor: MarkdownEditorInstance) {
+export function useEditorHandle(editor?: PlaygroundEditor) {
     useEffect(() => {
+        if (!editor) return undefined;
         mounted.push(editor);
         window.mdEditor = editor;
 

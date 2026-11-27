@@ -403,6 +403,60 @@ type VisibleState = 'attached' | 'detached' | 'visible' | 'hidden' | undefined;
 
 const DEFAULT_DELAY = 100;
 
+class WysiwygOnlyEditor {
+    readonly exportedMarkup: Locator;
+    readonly error: Locator;
+    readonly recoveredMarkup: Locator;
+    private readonly page: Page;
+    private readonly expect: Expect;
+    private readonly locators: MarkdownEditorLocators;
+
+    constructor(page: Page, expect: Expect, locators: MarkdownEditorLocators) {
+        this.page = page;
+        this.expect = expect;
+        this.locators = locators;
+        this.exportedMarkup = page.getByTestId('standalone-export');
+        this.error = page.getByTestId('g-md-wysiwyg-error');
+        this.recoveredMarkup = page.getByTestId('g-md-recovered-markdown').locator('textarea');
+    }
+
+    async fill(value: string) {
+        await this.locators.contenteditable.fill(value);
+    }
+
+    async fitViewportToEditor() {
+        const bounds = await this.locators.component.boundingBox();
+        if (!bounds) throw new Error('The WYSIWYG-only editor is not visible');
+        await this.page.setViewportSize({
+            width: Math.ceil(bounds.width + bounds.x * 2),
+            height: Math.ceil(bounds.y + bounds.height + 20),
+        });
+    }
+
+    async assertSettings() {
+        await this.expect(this.locators.settingsContent.getByRole('checkbox')).toHaveCount(1);
+        await this.expect(this.page.getByTestId('g-md-settings-mode-wysiwyg')).toHaveCount(0);
+        await this.expect(this.page.getByTestId('g-md-settings-mode-markup')).toHaveCount(0);
+        await this.expect(this.locators.previewButton).toHaveCount(0);
+    }
+
+    async toggleToolbar() {
+        await this.locators.settingsContent.getByRole('checkbox').click();
+    }
+
+    async exportMarkdown() {
+        await this.page.getByRole('button', {name: 'Export Markdown', exact: true}).click();
+    }
+
+    async failToolbar() {
+        await this.page.getByRole('button', {name: 'Fail toolbar', exact: true}).click();
+    }
+
+    async recoverMarkdown() {
+        await this.page.getByTestId('g-md-recover-markdown').click();
+    }
+}
+
 export class MarkdownEditorPage {
     readonly locators;
     readonly yfmTable;
@@ -412,6 +466,7 @@ export class MarkdownEditorPage {
     readonly link;
     readonly searchPanel;
     readonly codeBlock;
+    readonly wysiwygOnly;
     protected readonly page: Page;
     protected readonly expect: Expect;
 
@@ -427,6 +482,7 @@ export class MarkdownEditorPage {
         this.link = new Link(page, expect);
         this.searchPanel = new SearchPanel(page);
         this.codeBlock = new CodeBlock(page);
+        this.wysiwygOnly = new WysiwygOnlyEditor(page, expect, this.locators);
     }
 
     /**
@@ -630,6 +686,10 @@ export class MarkdownEditorPage {
                 throw new Error(
                     'window.mdEditor is undefined: the mounted component must call useEditorHandle()',
                 );
+            }
+
+            if (!('setEditorMode' in window.mdEditor)) {
+                throw new Error('The standalone editor cannot switch modes');
             }
 
             // the settings menu hides the preview along with the mode change

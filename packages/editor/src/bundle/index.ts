@@ -12,3 +12,5 @@ export {markupToolbarConfigs, wysiwygToolbarConfigs};
 
 // MAJOR: remove in next major
 export * from './config';
+
+export * from './wysiwyg';

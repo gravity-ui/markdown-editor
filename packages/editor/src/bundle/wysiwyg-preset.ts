@@ -8,6 +8,7 @@ import {
 } from '../extensions/behavior/EditorModeKeymap';
 import {BaseNode, YfmHeadingAttr, YfmNoteNode} from '../extensions/specs';
 import {i18n as i18nPlaceholder} from '../i18n/placeholder';
+import {wysiwygToolbarsPresets} from '../modules/toolbars/wysiwyg/presets';
 import {CommonMarkPreset, type CommonMarkPresetOptions} from '../presets/commonmark';
 import {DefaultPreset, type DefaultPresetOptions} from '../presets/default';
 import {FullPreset, type FullPresetOptions} from '../presets/full';
@@ -22,7 +23,7 @@ import type {MarkdownEditorPreset, WysiwygPlaceholderOptions} from './preset-bas
 import {
     createSelectionToolbarConfig,
     createSlashToolbarConfig,
-} from './toolbar/utils/toolbarsConfigs';
+} from './toolbar/utils/createToolbarConfig';
 
 const DEFAULT_IGNORED_KEYS = ['Tab', 'Shift-Tab'] as const;
 
@@ -85,8 +86,14 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
               }
             : undefined,
         clipboard: {pasteFileHandler: opts.fileUploadHandler, ...opts.clipboard},
-        selectionContext: {config: createSelectionToolbarConfig('zero'), ...opts.selectionContext},
-        commandMenu: {actions: createSlashToolbarConfig('zero'), ...opts.commandMenu},
+        selectionContext: {
+            config: createSelectionToolbarConfig(wysiwygToolbarsPresets.zero),
+            ...opts.selectionContext,
+        },
+        commandMenu: {
+            actions: createSlashToolbarConfig(wysiwygToolbarsPresets.zero),
+            ...opts.commandMenu,
+        },
         history: {undoKey: f.toPM(A.Undo), redoKey: f.toPM(A.Redo), ...opts.history},
         baseSchema: {
             paragraphKey: f.toPM(A.Text),
@@ -115,10 +122,13 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
     const commonMarkOptions: BehaviorPresetOptions & CommonMarkPresetOptions = {
         ...zeroOptions,
         selectionContext: {
-            config: createSelectionToolbarConfig('commonmark'),
+            config: createSelectionToolbarConfig(wysiwygToolbarsPresets.commonmark),
             ...opts.selectionContext,
         },
-        commandMenu: {actions: createSlashToolbarConfig('commonmark'), ...opts.commandMenu},
+        commandMenu: {
+            actions: createSlashToolbarConfig(wysiwygToolbarsPresets.commonmark),
+            ...opts.commandMenu,
+        },
         breaks: {
             preferredBreak: (opts.mdBreaks ? 'soft' : 'hard') as 'soft' | 'hard',
             ...opts.breaks,
@@ -145,17 +155,26 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
     const defaultOptions: BehaviorPresetOptions & DefaultPresetOptions = {
         ...commonMarkOptions,
         selectionContext: {
-            config: createSelectionToolbarConfig('default'),
+            config: createSelectionToolbarConfig(wysiwygToolbarsPresets.default),
             ...opts.selectionContext,
         },
-        commandMenu: {actions: createSlashToolbarConfig('default'), ...opts.commandMenu},
+        commandMenu: {
+            actions: createSlashToolbarConfig(wysiwygToolbarsPresets.default),
+            ...opts.commandMenu,
+        },
         strike: {strikeKey: f.toPM(A.Strike), ...opts.strike},
     };
     const yfmOptions: BehaviorPresetOptions & YfmPresetOptions = {
         ...defaultOptions,
         yfmConfigs: {disableAttrs: opts.disableMdAttrs, ...opts.yfmConfigs},
-        selectionContext: {config: createSelectionToolbarConfig('yfm'), ...opts.selectionContext},
-        commandMenu: {actions: createSlashToolbarConfig('yfm'), ...opts.commandMenu},
+        selectionContext: {
+            config: createSelectionToolbarConfig(wysiwygToolbarsPresets.yfm),
+            ...opts.selectionContext,
+        },
+        commandMenu: {
+            actions: createSlashToolbarConfig(wysiwygToolbarsPresets.yfm),
+            ...opts.commandMenu,
+        },
         underline: {underlineKey: f.toPM(A.Underline), ...opts.underline},
         imgSize: {
             imageUploadHandler: opts.fileUploadHandler,
@@ -206,8 +225,14 @@ export const BundlePreset: ExtensionAuto<BundlePresetOptions> = (builder, opts) 
     };
     const fullOptions: BehaviorPresetOptions & FullPresetOptions = {
         ...yfmOptions,
-        selectionContext: {config: createSelectionToolbarConfig('full'), ...opts.selectionContext},
-        commandMenu: {actions: createSlashToolbarConfig('full'), ...opts.commandMenu},
+        selectionContext: {
+            config: createSelectionToolbarConfig(wysiwygToolbarsPresets.full),
+            ...opts.selectionContext,
+        },
+        commandMenu: {
+            actions: createSlashToolbarConfig(wysiwygToolbarsPresets.full),
+            ...opts.commandMenu,
+        },
         emoji: {defs: emojiDefs, ...opts.emoji},
     };
 

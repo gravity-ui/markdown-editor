@@ -18,7 +18,7 @@ import {
     ToolbarProvider,
 } from '../toolbar';
 
-import type {EditorInt} from './Editor';
+import type {EditorHost} from './shared/editor-host';
 import {stickyCn} from './sticky';
 import type {MarkdownEditorMode} from './types';
 
@@ -28,7 +28,7 @@ type ToolbarProviderValue = NonNullable<ComponentProps<typeof ToolbarProvider>['
 
 export type ToolbarViewProps<T> = ClassNameProps &
     QAProps & {
-        editor: EditorInt;
+        editor: EditorHost;
         editorMode: MarkdownEditorMode;
         toolbarEditor: T;
         toolbarConfig: ToolbarData<T>;

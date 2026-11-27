@@ -2,14 +2,14 @@ import {useEffect, useLayoutEffect, useRef} from 'react';
 
 import type {QAProps} from '@gravity-ui/uikit';
 
-import type {EditorInt} from './Editor';
 import type {WysiwygContenteditableAttributes} from './types';
+import type {WysiwygEditorHost} from './wysiwyg/editor-host';
 
 export type WysiwygEditorComponentProps = QAProps & {
     className?: string;
     autofocus?: boolean;
     contenteditableAttributes?: WysiwygContenteditableAttributes;
-    editor: EditorInt;
+    editor: WysiwygEditorHost;
     children?: React.ReactNode;
 };
 

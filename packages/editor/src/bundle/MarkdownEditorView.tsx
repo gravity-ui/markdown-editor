@@ -13,11 +13,9 @@ import {ErrorBoundary} from 'react-error-boundary';
 import {useEnsuredForwardedRef, useKey, useUpdate} from 'react-use';
 
 import type {ClassNameProps} from '../classname';
-import {contextualToolbarsKey} from '../extensions/behavior/ContextualToolbars';
 import {i18n} from '../i18n/bundle';
 import {globalLogger} from '../logger';
 import type {ToolbarsPreset} from '../modules/toolbars/types';
-import {useSticky} from '../react-utils';
 import {isMac} from '../utils';
 
 import type {EditorInt} from './Editor';
@@ -28,12 +26,13 @@ import {WysiwygEditorView} from './WysiwygEditorView';
 import {useMarkdownEditorContext} from './context';
 import {cnEditorComponent} from './editor-classname';
 import type {MarkdownEditorInstance} from './editor-public-types';
-import {EditorSettings, type EditorSettingsProps, type SettingItems} from './settings';
+import type {SettingItems} from './settings';
+import {SettingsLayout} from './settings/SettingsLayout';
 import {resolveContenteditableAttributes} from './shared/contenteditable-attributes';
-import {stickyCn} from './sticky';
 import type {ToolbarConfigs} from './toolbar/types';
-import {getContextualToolbarsConfig, getToolbarsConfigs} from './toolbar/utils/toolbarsConfigs';
+import {getToolbarsConfigs} from './toolbar/utils/toolbarsConfigs';
 import type {ContenteditableAttributes, MarkdownEditorMode} from './types';
+import {useContextualToolbars} from './wysiwyg/useContextualToolbars';
 
 import '../styles/styles.scss';
 import './MarkdownEditorView.scss'; // eslint-disable-line import/order
@@ -63,31 +62,8 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
         ref,
     ) => {
         const showPreview = editor.previewVisible;
-        const contextualConfig = useMemo(
-            () => getContextualToolbarsConfig(toolbarsPreset),
-            [toolbarsPreset],
-        );
 
-        useLayoutEffect(() => {
-            if (editorMode !== 'wysiwyg' || editor.mobile) return undefined;
-            const {view} = editor.wysiwygEditor;
-            return () => {
-                if (!view.isDestroyed)
-                    view.dispatch(view.state.tr.setMeta(contextualToolbarsKey, {}));
-            };
-        }, [editor, editorMode]);
-
-        useEffect(() => {
-            if (editorMode !== 'wysiwyg' || editor.mobile) return;
-            const {view} = editor.wysiwygEditor;
-            const current = contextualToolbarsKey.getState(view.state);
-            if (
-                current?.selection !== contextualConfig.selection ||
-                current?.slash !== contextualConfig.slash
-            ) {
-                view.dispatch(view.state.tr.setMeta(contextualToolbarsKey, contextualConfig));
-            }
-        }, [editor, editorMode, contextualConfig]);
+        useContextualToolbars(editor, editorMode === 'wysiwyg', toolbarsPreset);
 
         const {
             wysiwygToolbarConfig,
@@ -192,7 +168,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 directiveSyntax: editor.directiveSyntax,
                             })}
                         </div>
-                        <Settings {...settingsProps} settingsVisible={settingsVisibleProp} />
+                        <SettingsLayout {...settingsProps} settingsVisible={settingsVisibleProp} />
                     </>
                 ) : (
                     <>
@@ -213,7 +189,7 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 stickyToolbar={stickyToolbar}
                                 toolbarDisplay={toolbarDisplay}
                             >
-                                <Settings
+                                <SettingsLayout
                                     {...settingsProps}
                                     settingsVisible={editor.toolbarVisible && settingsVisibleProp}
                                 />
@@ -238,13 +214,13 @@ const EditorWrapper = forwardRef<HTMLDivElement, EditorWrapperProps>(
                                 stickyToolbar={stickyToolbar}
                                 toolbarDisplay={toolbarDisplay}
                             >
-                                <Settings
+                                <SettingsLayout
                                     {...settingsProps}
                                     settingsVisible={editor.toolbarVisible && settingsVisibleProp}
                                 />
                             </MarkupEditorView>
                         )}
-                        <Settings
+                        <SettingsLayout
                             {...settingsProps}
                             settingsVisible={!editor.toolbarVisible && settingsVisibleProp}
                             renderPreviewButton={!editor.toolbarVisible && canRenderPreview}
@@ -427,36 +403,6 @@ export const MarkdownEditorView = forwardRef<HTMLDivElement, MarkdownEditorViewP
     },
 );
 MarkdownEditorView.displayName = 'MarkdownEditorView';
-
-interface MarkupSearchAnchorProps extends Pick<EditorSettingsProps, 'mode'> {}
-
-const MarkupSearchAnchor: React.FC<MarkupSearchAnchorProps> = ({mode}) => (
-    <div className={`g-md-search-${mode}-anchor`}></div>
-);
-
-function Settings(props: EditorSettingsProps & {stickyToolbar: boolean}) {
-    const wrapperRef = useRef<HTMLDivElement>(null);
-    const isSticky = useSticky(wrapperRef) && props.toolbarVisibility && props.stickyToolbar;
-
-    return (
-        <>
-            {(props.renderPreviewButton || props.settingsVisible) && (
-                <div className={b('settings-wrapper')}>
-                    <div
-                        ref={wrapperRef}
-                        className={stickyCn.settings({
-                            withToolbar: props.toolbarVisibility,
-                            stickyActive: isSticky,
-                        })}
-                    >
-                        <EditorSettings {...props} />
-                        <MarkupSearchAnchor {...props} />
-                    </div>
-                </div>
-            )}
-        </>
-    );
-}
 
 function isPreviewKeyDown(e: KeyboardEvent) {
     const modKey = isMac() ? e.metaKey : e.ctrlKey;

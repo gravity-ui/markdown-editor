@@ -1,12 +1,12 @@
 import {StrictMode, useEffect} from 'react';
 
-import type {MarkdownEditorInstance} from '@gravity-ui/markdown-editor';
 import {VERSION} from '@gravity-ui/markdown-editor/_/version.js';
 import {useUpdate} from 'react-use';
 
 import {useEditorHandle} from '../hooks/useEditorHandle';
 import {useMarkdownEditorValue} from '../hooks/useMarkdownEditorValue';
 import {block} from '../utils/cn';
+import type {PlaygroundEditor} from '../utils/editor';
 
 import {WysiwygSelection} from './PMSelection';
 import {WysiwygDevTools} from './ProseMirrorDevTools';
@@ -19,7 +19,8 @@ export type RenderFn = (props: {className?: string}) => React.ReactNode;
 
 export type PlaygroundLayoutProps = {
     title?: string;
-    editor: MarkdownEditorInstance;
+    /** Editor for live Markdown output and editor tools. */
+    editor?: PlaygroundEditor;
     devTools?: boolean;
     view: RenderFn;
     viewHeight?: React.CSSProperties['height'];
@@ -37,6 +38,7 @@ export const PlaygroundLayout: React.FC<PlaygroundLayoutProps> = function Playgr
     useEditorHandle(editor);
 
     useEffect(() => {
+        if (!editor || !('currentMode' in editor)) return undefined;
         editor.on('change-editor-mode', forceRender);
         return () => {
             editor.off('change-editor-mode', forceRender);
@@ -64,15 +66,17 @@ export const PlaygroundLayout: React.FC<PlaygroundLayoutProps> = function Playgr
                     >
                         {props.view({className: b('editor-view')})}
 
-                        {devTools && <WysiwygDevTools editor={editor} />}
-                        <WysiwygSelection editor={editor} className={b('pm-selection')} />
+                        {editor && devTools && <WysiwygDevTools editor={editor} />}
+                        {editor && (
+                            <WysiwygSelection editor={editor} className={b('pm-selection')} />
+                        )}
                     </div>
                 </StrictMode>
 
                 <hr />
 
                 <div className={b('preview')} style={{width: props.viewWidth ?? 'initial'}}>
-                    {editor.currentMode === 'wysiwyg' && (
+                    {editor && (!('currentMode' in editor) || editor.currentMode === 'wysiwyg') && (
                         <pre className={b('markup')}>{mdMarkup}</pre>
                     )}
                 </div>

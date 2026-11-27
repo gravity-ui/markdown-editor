@@ -1,4 +1,4 @@
-import {useLayoutEffect, useMemo} from 'react';
+import {useMemo} from 'react';
 
 import {Logger2, globalLogger} from 'src/logger';
 import {ReactRenderStorage} from 'src/modules/react-renderer';
@@ -10,7 +10,8 @@ import type {MarkdownEditorInstance} from './editor-public-types';
 import {useMarkupCore} from './markup/useMarkupCore';
 import type {EditorEventMap} from './shared/events';
 import type {EditorMarkupState} from './shared/types';
-import type {MarkdownEditorMode, MarkdownEditorOptions} from './types';
+import {useEditorLifecycle} from './shared/useEditorLifecycle';
+import type {MarkdownEditorOptions} from './types';
 import {useWysiwygCore} from './wysiwyg/useWysiwygCore';
 
 export type UseMarkdownEditorProps = MarkdownEditorOptions;
@@ -59,17 +60,6 @@ export function useMarkdownEditor(
         [editorOptions, events, wysiwyg, markup, editorMarkupState],
     );
 
-    useLayoutEffect(() => {
-        function onToolbarAction({editorMode, id}: {editorMode: MarkdownEditorMode; id: string}) {
-            globalLogger.action({mode: editorMode, source: 'toolbar', action: id});
-            editor.logger.action({mode: editorMode, source: 'toolbar', action: id});
-        }
-
-        editor.on('toolbar-action', onToolbarAction);
-        return () => {
-            editor.off('toolbar-action', onToolbarAction);
-            editor.destroy();
-        };
-    }, [editor]);
+    useEditorLifecycle(editor);
     return editor;
 }
