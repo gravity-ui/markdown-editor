@@ -5,7 +5,6 @@ import {
     bannerBackgroundValues,
     bannerContentTokenName,
     bannerDimensions,
-    bannerImage,
     bannerImageTokenName,
     bannerImageValues,
     bannerTitle,
@@ -38,7 +37,7 @@ export const BannerSerializerSpecs: ExtensionAuto = (builder) => {
     });
 
     builder.addNodeSerializerSpec(bannerImageTokenName, () => (state, node) => {
-        const attrs = directiveAttrs(bannerImageValues(bannerImage(node.attrs)));
+        const attrs = directiveAttrs(bannerImageValues(node.attrs));
         state.write(`::banner-image${attrs}`);
         state.closeBlock(node);
     });

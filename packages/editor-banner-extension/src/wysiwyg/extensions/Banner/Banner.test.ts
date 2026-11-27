@@ -2,6 +2,7 @@
 import {EditorState as MarkupEditorState} from '@gravity-ui/markdown-editor/cm/state';
 import {ExtensionsManager} from '@gravity-ui/markdown-editor/core';
 import {
+    BaseKeymap,
     Clipboard,
     ReactRenderStorage,
     ReactRendererExtension,
@@ -91,7 +92,8 @@ function createNodeView(markup: string) {
             builder
                 .use(BaseSchemaSpecs, {})
                 .use(ReactRendererExtension, new ReactRenderStorage())
-                .use(Banner),
+                .use(Banner)
+                .use(BaseKeymap),
     }).build();
     view = new EditorView(document.createElement('div'), {
         state: EditorState.create({
@@ -151,6 +153,41 @@ describe('Banner extension', () => {
             DOMSerializer.fromSchema(schema).serializeFragment(editor.state.doc.content),
         );
         expect(DOMParser.fromSchema(schema).parse(container).eq(editor.state.doc)).toBe(true);
+    });
+
+    it.each([
+        ['Enter', 4],
+        ['Delete', 7],
+        ['Backspace', 10],
+    ] as const)('should keep the title and description when pressing %s', (key, cursor) => {
+        const editor = createNodeView(
+            ':::banner\n::banner-title[Title]\n:::banner-content\nDescription\n:::\n:::',
+        );
+        const {doc, tr} = editor.state;
+        editor.dispatch(tr.setSelection(TextSelection.create(doc, cursor)));
+        editor.dom.dispatchEvent(
+            new KeyboardEvent('keydown', {key, bubbles: true, cancelable: true}),
+        );
+        expect(editor.state.doc.eq(doc)).toBe(true);
+    });
+
+    it('should allow typing into an empty description after reopening it', () => {
+        const editor = createView(':::banner\n:::banner-content\n:::\n:::');
+        const {doc, tr} = editor.state;
+        expect(markupParser.parse(serializer.serialize(doc)).eq(doc)).toBe(true);
+        const cursor = TextSelection.atStart(doc);
+        expect(cursor.$from.parent.type.name).toBe(BaseNode.Paragraph);
+        editor.dispatch(tr.setSelection(cursor).insertText('Description'));
+        expect(editor.state.doc.firstChild?.firstChild?.textContent).toBe('Description');
+    });
+
+    it('should preserve image attribute line breaks in a single directive line', () => {
+        const source =
+            '::banner-image{src="/team.png" alt="First&#10;second" title="First&#13;&#10;second"}';
+        const doc = markupParser.parse(source);
+        expect(doc.firstChild?.attrs.alt).toBe('First\nsecond');
+        expect(doc.firstChild?.attrs.title).toBe('First\r\nsecond');
+        expect(serializer.serialize(doc)).toBe(source);
     });
 
     it('should preserve empty banner directives', () => {

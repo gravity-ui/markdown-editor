@@ -1,5 +1,6 @@
 import type {Keymap} from '@gravity-ui/markdown-editor/core';
 import type {Command} from '@gravity-ui/markdown-editor/pm/state';
+import {bannerTitleTokenName} from '@gravity-ui/markdown-plugin-banner';
 
 import {bannerToolbars} from './BannerToolbar';
 
@@ -16,6 +17,8 @@ const focusToolbar =
     };
 
 export const bannerKeymap = (): Keymap => ({
+    Enter: ({selection: {$from, $to}}) =>
+        $from.parent.type.name === bannerTitleTokenName && $from.sameParent($to),
     Tab: focusToolbar(false),
     'Shift-Tab': focusToolbar(true),
 });

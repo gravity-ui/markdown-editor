@@ -48,6 +48,7 @@ export const BannerSchemaSpecs: ExtensionAuto = (builder) => {
     builder.addNodeSpec(bannerTitleTokenName, () => ({
         group: 'block',
         content: 'text*',
+        isolating: true,
         marks: '',
         attrs: {
             size: {default: bannerTitleDefaults.size},
@@ -64,7 +65,8 @@ export const BannerSchemaSpecs: ExtensionAuto = (builder) => {
 
     builder.addNodeSpec(bannerContentTokenName, () => ({
         group: 'block',
-        content: 'block*',
+        content: 'block+',
+        isolating: true,
         parseDOM: [{tag: `div.${bannerContentClassName}`}],
         toDOM: () => ['div', {class: bannerContentClassName}, 0],
     }));
