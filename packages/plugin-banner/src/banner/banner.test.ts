@@ -3,6 +3,9 @@ import {describe, expect, it} from 'vitest';
 
 import {bannerHeights, bannerPlugin, bannerTokenName, bannerWidths} from '../index';
 
+import {bannerTitleTokenName} from './const';
+import {bannerTitle} from './utils';
+
 const md = new MarkdownIt().use(bannerPlugin);
 const bannerOpen = `${bannerTokenName}_open`;
 const bannerClose = `${bannerTokenName}_close`;
@@ -10,6 +13,57 @@ const scriptUrl = ['javascript', 'alert(1)'].join(':');
 
 const html = (height: string, width: string) =>
     `<div class="g-md-banner-plugin g-md-banner-plugin_height_${height} g-md-banner-plugin_width_${width}" data-height="${height}" data-width="${width}"></div>\n`;
+
+describe('Banner title Markdown', () => {
+    it.each([1, 2, 3, 4, 5, 6])('should accept numeric and string heading size %i', (size) => {
+        expect(bannerTitle({size})).toEqual({size, color: 'auto'});
+        expect(bannerTitle({size: String(size)})).toEqual({size, color: 'auto'});
+    });
+
+    it.each(['02', '2.0', ' 2', 0, 7, true, null, {}])(
+        'should use the default for unsupported heading size %j',
+        (size) => {
+            expect(bannerTitle({size})).toEqual({size: 2, color: 'auto'});
+        },
+    );
+
+    it('should render a plain text title as a native heading', () => {
+        const markup =
+            '::banner-title[Text &amp; **bold** <img src=x> \\[A\\]]{size="1" color="blue"}';
+        const tokens = md.parse(markup, {});
+        expect(tokens.map((token) => token.type)).toEqual([
+            `${bannerTitleTokenName}_open`,
+            'text',
+            `${bannerTitleTokenName}_close`,
+        ]);
+        expect(tokens[0].tag).toBe('h1');
+        expect(tokens[0].attrGet('data-color')).toBe('blue');
+        expect(tokens[0].attrGet('role')).toBeNull();
+        expect(tokens[0].attrGet('aria-level')).toBeNull();
+        expect(md.render(markup)).toBe(
+            '<h1 class="g-md-banner-title-plugin g-md-banner-title-plugin_size_1 g-md-banner-title-plugin_color_blue" data-size="1" data-color="blue">\n' +
+                'Text &amp;amp; **bold** &lt;img src=x&gt; [A]</h1>\n',
+        );
+    });
+
+    it.each([
+        ['', 'h2'],
+        ['{size="3"}', 'h3'],
+        ['{size="7"}', 'h2'],
+    ])('should pick the heading tag for the attributes %s', (attrs, tag) => {
+        expect(md.parse(`::banner-title[Title]${attrs}`, {})[0].tag).toBe(tag);
+    });
+
+    it('should preserve empty title tokens without rendering a heading', () => {
+        const tokens = md.parse('::banner-title[   ]', {});
+        expect(tokens.map((token) => token.type)).toEqual([
+            `${bannerTitleTokenName}_open`,
+            `${bannerTitleTokenName}_close`,
+        ]);
+        expect(tokens.every((token) => token.hidden)).toBe(true);
+        expect(md.render('::banner-title[   ]')).toBe('');
+    });
+});
 
 describe('Banner Markdown', () => {
     for (const height of bannerHeights) {

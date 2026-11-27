@@ -56,6 +56,26 @@ The image address goes through `md.normalizeLink` and `md.validateLink`, as the 
 The container parses its child blocks in the same Markdown token stream.
 Inline titles and destinations in the opening directive are not supported and remain ordinary Markdown.
 
+## Banner title
+
+```markdown
+:::banner
+
+::banner-title[Team portal]{size="1" color="blue"}
+:::
+```
+
+| Attribute | Values                                                               | Default |
+| --------- | -------------------------------------------------------------------- | ------- |
+| `size`    | `1`–`6`: the typography of the headings `h1`–`h6`                    | `2`     |
+| `color`   | `auto`, `gray`, `yellow`, `orange`, `red`, `green`, `blue`, `violet` | `auto`  |
+
+The title renders as `h1`–`h6` according to `size`. It stays out of the Diplodoc table of contents.
+
+The title contains plain text. Use `\[` and `\]` for literal brackets. Empty titles are hidden. Unsupported values use the defaults.
+
+Use `--g-md-banner-title-plugin-font-weight` and `--g-md-banner-title-plugin-margin-block` to customize the title. Check the contrast of colored titles against the banner background.
+
 ## Button
 
 Register `buttonPlugin` independently or together with `bannerPlugin`:

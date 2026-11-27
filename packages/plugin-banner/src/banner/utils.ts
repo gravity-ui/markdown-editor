@@ -4,12 +4,16 @@ import {
     type BannerBackground,
     type BannerDimensions,
     type BannerHeight,
+    type BannerTitle,
     type BannerWidth,
     bannerBackgroundDefaults,
     bannerBgColors,
     bannerBgThemes,
     bannerDefaults,
     bannerHeights,
+    bannerTitleColors,
+    bannerTitleDefaults,
+    bannerTitleSizes,
     bannerWidths,
 } from './const';
 
@@ -46,4 +50,20 @@ export function bannerBackground(
 
 export function bannerBackgroundValues(background: BannerBackground): Record<string, string> {
     return valuesOtherThan(background, bannerBackgroundDefaults);
+}
+
+export function bannerTitle(attrs: {size?: unknown; color?: unknown}): BannerTitle {
+    return {
+        size:
+            bannerTitleSizes.find((size) => size === attrs.size || String(size) === attrs.size) ??
+            bannerTitleDefaults.size,
+        color: includes(bannerTitleColors, attrs.color) ? attrs.color : bannerTitleDefaults.color,
+    };
+}
+
+export function bannerTitleValues(attrs: {
+    size?: unknown;
+    color?: unknown;
+}): Record<string, string> {
+    return valuesOtherThan(bannerTitle(attrs), bannerTitleDefaults);
 }

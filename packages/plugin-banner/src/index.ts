@@ -1,4 +1,10 @@
-export {bannerAttrs, bannerFromAttrs, bannerRender} from './banner/attrs';
+export {
+    bannerAttrs,
+    bannerFromAttrs,
+    bannerRender,
+    bannerTitleAttrs,
+    bannerTitleFromAttrs,
+} from './banner/attrs';
 export {
     type BannerBackground,
     type BannerBgColor,
@@ -7,6 +13,9 @@ export {
     type BannerBgTheme,
     type BannerDimensions,
     type BannerHeight,
+    type BannerTitle,
+    type BannerTitleColor,
+    type BannerTitleSize,
     type BannerWidth,
     bannerBackgroundDefaults,
     bannerBgColorFamilies,
@@ -14,10 +23,20 @@ export {
     bannerClassName,
     bannerDefaults,
     bannerHeights,
+    bannerTitleClassName,
+    bannerTitleColors,
+    bannerTitleDefaults,
+    bannerTitleSizes,
+    bannerTitleTokenName,
     bannerTokenName,
     bannerWidths,
 } from './banner/const';
-export {bannerBackground, bannerBackgroundValues, bannerDimensions} from './banner/utils';
+export {
+    bannerBackground,
+    bannerBackgroundValues,
+    bannerDimensions,
+    bannerTitleValues,
+} from './banner/utils';
 export {bannerPlugin} from './banner/plugin';
 export {buttonPlugin} from './button/plugin';
 export {buttonAttrs, buttonFromAttrs} from './button/attrs';

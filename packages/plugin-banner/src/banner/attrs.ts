@@ -1,12 +1,26 @@
 import {cn} from '@bem-react/classname';
 
 import {toCssUrl} from '../url';
-import type {AttrGetter} from '../utils';
+import {type AttrGetter, dataAttrs} from '../utils';
 
-import {type BannerBackground, type BannerDimensions, bannerClassName} from './const';
-import {bannerBackground, bannerBackgroundValues, bannerDimensions} from './utils';
+import {
+    type BannerBackground,
+    type BannerDimensions,
+    type BannerTitle,
+    bannerClassName,
+    bannerTitleClassName,
+    bannerTitleDefaults,
+} from './const';
+import {
+    bannerBackground,
+    bannerBackgroundValues,
+    bannerDimensions,
+    bannerTitle,
+    bannerTitleValues,
+} from './utils';
 
 const b = cn(bannerClassName);
+const bTitle = cn(bannerTitleClassName);
 
 type BannerAttrsInput = Partial<Record<keyof BannerDimensions | keyof BannerBackground, unknown>>;
 
@@ -18,10 +32,8 @@ export function bannerRender(attrs: BannerAttrsInput) {
     const data: Record<string, string> = {
         'data-height': dimensions.height,
         'data-width': dimensions.width,
+        ...dataAttrs(bannerBackgroundValues(background)),
     };
-    for (const [name, value] of Object.entries(bannerBackgroundValues(background))) {
-        data[`data-${name}`] = value;
-    }
     return {
         className: b(
             {
@@ -55,4 +67,19 @@ export function bannerFromAttrs(getAttr: AttrGetter) {
             'bg-image-blur': getAttr('data-bg-image-blur'),
         }),
     };
+}
+
+export function bannerTitleAttrs(attrs: {size?: unknown; color?: unknown}): Record<string, string> {
+    const {size, color} = bannerTitle(attrs);
+    return {
+        class: bTitle({
+            size: String(size),
+            color: color === bannerTitleDefaults.color ? undefined : color,
+        }),
+        ...dataAttrs(bannerTitleValues(attrs)),
+    };
+}
+
+export function bannerTitleFromAttrs(getAttr: AttrGetter): BannerTitle {
+    return bannerTitle({size: getAttr('data-size'), color: getAttr('data-color')});
 }
