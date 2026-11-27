@@ -1,7 +1,14 @@
 import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
-import {bannerHeights, bannerPlugin, bannerTokenName, bannerWidths} from '../index';
+import {
+    bannerHeights,
+    bannerPlugin,
+    bannerTokenName,
+    bannerWidths,
+    buttonPlugin,
+    buttonTokenName,
+} from '../index';
 
 import {bannerContentTokenName, bannerTitleTokenName} from './const';
 import {bannerTitle} from './utils';
@@ -60,6 +67,26 @@ describe('Banner content Markdown', () => {
         const rendered = md.render(markup);
         expect(rendered).toContain('<p>First <strong>paragraph</strong></p>');
         expect(rendered).toContain('<p><a href="/page">Second</a></p>');
+    });
+
+    it('should ignore content attributes and keep the following button inside the banner', () => {
+        const markup =
+            ':::banner\n:::banner-content{size="1"}\nDescription\n:::\n\n:button[Open](/page)\n:::';
+        const tokens = new MarkdownIt().use(bannerPlugin).use(buttonPlugin).parse(markup, {});
+        expect(tokens.map((token) => token.type)).toEqual([
+            bannerOpen,
+            `${bannerContentTokenName}_open`,
+            'paragraph_open',
+            'inline',
+            'paragraph_close',
+            `${bannerContentTokenName}_close`,
+            'paragraph_open',
+            'inline',
+            'paragraph_close',
+            bannerClose,
+        ]);
+        expect(tokens[1].attrs).toEqual([['class', 'g-md-banner-content-plugin']]);
+        expect(tokens[7].children?.map((token) => token.type)).toContain(buttonTokenName);
     });
 
     it('should preserve empty content tokens without rendering a container', () => {

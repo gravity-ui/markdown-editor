@@ -29,7 +29,7 @@ $button: '.g-md-button-plugin';
     }
 
     &#{&} a[href]:not(#{$button}) {
-        text-decoration-line: var(--g-md-banner-content-plugin-link-decoration-line, none);
+        text-decoration-line: var(--g-md-banner-content-plugin-link-decoration-line, underline);
         text-decoration-thickness: var(--_--link-decoration-thickness);
         text-underline-offset: var(--_--link-underline-offset);
 
@@ -53,7 +53,7 @@ $button: '.g-md-button-plugin';
             outline: var(--_--link-focus-outline-width) solid;
             outline-color: var(
                 --g-md-banner-content-plugin-link-focus-outline-color,
-                var(--g-color-line-focus)
+                var(--g-color-line-focus, currentColor)
             );
         }
     }
