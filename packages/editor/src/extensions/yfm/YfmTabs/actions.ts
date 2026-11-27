@@ -1,6 +1,8 @@
 import {generateID} from '@diplodoc/transform/lib/plugins/utils.js';
 import type {Command} from 'prosemirror-state';
 
+import {isDefaultOrEmptySelection} from 'src/utils/selection';
+
 import {pType} from '../../base/BaseSchema';
 
 import {
@@ -16,6 +18,8 @@ import {
 } from './const';
 
 export const createYfmTabsCommand: Command = (state, dispatch) => {
+    if (!isDefaultOrEmptySelection(state.selection)) return false;
+
     if (dispatch) {
         const {schema} = state;
 

@@ -63,6 +63,15 @@ export function shouldKeepNestedOptions(logger: Public.Logger2.ILogger) {
     return options;
 }
 
+export function shouldConfigureTableCellSelection() {
+    const config: Public.MarkdownEditorWysiwygConfig = {tableCellSelection: true};
+    const invalid: Public.MarkdownEditorWysiwygConfig = {
+        // @ts-expect-error Cell selection is configured outside extensionOptions.
+        extensionOptions: {tableCellSelection: true},
+    };
+    return {config, invalid};
+}
+
 export function shouldKeepInstanceMethods(editor: Public.MarkdownEditorInstance) {
     const mode: 'markup' | 'wysiwyg' = editor.currentMode;
     const logger: Public.Logger2.LogReceiver = editor.logger;
