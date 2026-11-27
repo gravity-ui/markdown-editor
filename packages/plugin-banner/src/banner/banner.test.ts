@@ -28,7 +28,8 @@ describe('Banner title Markdown', () => {
     );
 
     it('should render a plain text title with heading attributes', () => {
-        const markup = '::banner-title[Text **bold** <img src=x> \\[A\\]]{size="1" color="blue"}';
+        const markup =
+            '::banner-title[Text &amp; **bold** <img src=x> \\[A\\]]{size="1" color="blue"}';
         const tokens = md.parse(markup, {});
         expect(tokens.map((token) => token.type)).toEqual([
             `${bannerTitleTokenName}_open`,
@@ -38,7 +39,7 @@ describe('Banner title Markdown', () => {
         expect(tokens[0].attrGet('aria-level')).toBe('1');
         expect(tokens[0].attrGet('data-color')).toBe('blue');
         expect(tokens[0].attrGet('role')).toBe('heading');
-        expect(md.render(markup)).toContain('Text **bold** &lt;img src=x&gt; [A]</div>');
+        expect(md.render(markup)).toContain('Text &amp;amp; **bold** &lt;img src=x&gt; [A]</div>');
     });
 
     it('should preserve empty title tokens without rendering a heading', () => {

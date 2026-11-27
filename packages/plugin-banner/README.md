@@ -7,9 +7,14 @@ markdown-it plugins for Banner containers and inline buttons.
 `bannerSanitizeAllowedAttributes` holds only what the defaults of the `@diplodoc/transform` sanitizer lack (`aria-level` on `div`, for the [title](#banner-title) heading); add it to the allowed attributes of that sanitizer:
 
 ```ts
+import {buildYfmHtmlBlockOptions} from '@diplodoc/html-extension';
 import {bannerSanitizeAllowedAttributes} from '@gravity-ui/markdown-plugin-banner';
 
-const allowedAttributes = {iframe: ['srcdoc'], ...bannerSanitizeAllowedAttributes};
+const sanitizeOptions = buildYfmHtmlBlockOptions({allowedAttributes: {iframe: ['srcdoc']}});
+const {allowedAttributes} = sanitizeOptions;
+if (allowedAttributes) {
+    allowedAttributes.div = [...(allowedAttributes.div ?? []), ...bannerSanitizeAllowedAttributes.div];
+}
 ```
 
 ## Banner
@@ -80,61 +85,11 @@ Inline titles and destinations in the opening directive are not supported and re
 | `size`    | `1`–`6`: the typography of the headings `h1`–`h6`                    | `2`     |
 | `color`   | `auto`, `gray`, `yellow`, `orange`, `red`, `green`, `blue`, `violet` | `auto`  |
 
-```html
-<div class="g-md-banner-plugin …">
-  <div
-    class="g-md-banner-title-plugin g-md-banner-title-plugin_size_1 g-md-banner-title-plugin_color_blue"
-    role="heading"
-    aria-level="1"
-    data-size="1"
-    data-color="blue"
-  >
-    Team portal
-  </div>
-</div>
-```
+The title renders as a `div` with the heading role and a level equal to its size. It stays out of the Diplodoc table of contents. In sanitized previews, [allow the heading level](#sanitizer).
 
-The title is a `div` with `role="heading"` and `aria-level` of its size, so it is a heading for assistive technology and stays out of the heading tags of the page. The size and the color other than the defaults are also written to `data-size` and `data-color`; `bannerTitleFromAttrs` reads them back.
-A sanitizer has to allow `aria-level`: the default list of `@diplodoc/transform` keeps `role` and drops the level, and a heading without a level is read as a heading of level 2 (see [Sanitizer](#sanitizer)).
+The title contains plain text. Use `\[` and `\]` for literal brackets. Empty titles are hidden. Unsupported values use the defaults.
 
-The title is a leaf block directive registered by `bannerPlugin`: one line with the text in square brackets and no closing line. It stands after an empty line, as a paragraph does.
-The text is plain: Markdown and HTML entities inside it are shown as written, and `\]` writes a closing bracket.
-A title without a text, `::banner-title[]`, keeps its tokens, marked `hidden`, and renders nothing.
-
-An unknown attribute is skipped, and an unsupported value is replaced with the default: `::banner-title[Team portal]{size="7" color="pink"}` is a title of size `2` in the `auto` color.
-
-### Title styles
-
-| Size | Font size and line height                                        | Gravity UI typography | Weight                           |
-| ---- | ---------------------------------------------------------------- | --------------------- | -------------------------------- |
-| `1`  | `--yfm-font-size-h1`, `--yfm-font-line-height-h1`: 32 px / 40 px | `display-2`           | `--g-text-display-font-weight`   |
-| `2`  | `--yfm-font-size-h2`, `--yfm-font-line-height-h2`: 24 px / 28 px | `header-2`            | `--g-text-header-font-weight`    |
-| `3`  | `--yfm-font-size-h3`, `--yfm-font-line-height-h3`: 20 px / 24 px | `header-1`            | `--g-text-header-font-weight`    |
-| `4`  | `--yfm-font-size-h4`, `--yfm-font-line-height-h4`: 17 px / 24 px | `subheader-3`         | `--g-text-subheader-font-weight` |
-| `5`  | `--yfm-font-size-h5`, `--yfm-font-line-height-h5`: 15 px / 20 px | `subheader-2`         | `--g-text-subheader-font-weight` |
-| `6`  | `--yfm-font-size-h6`, `--yfm-font-line-height-h6`: 13 px / 18 px | `subheader-1`         | `--g-text-subheader-font-weight` |
-
-A size takes the variables of the YFM heading of that level; where they are not set, it takes the Gravity UI typography of the same size.
-
-The `auto` color is the color of the text around the title. The other colors are the colors of colored text in YFM, `--yfm-colorify-<color>`; where they are not set, the title takes the Gravity UI tokens those colors use in the editor:
-
-| Color    | Variable                | Gravity UI token                     |
-| -------- | ----------------------- | ------------------------------------ |
-| `gray`   | `--yfm-colorify-gray`   | `--g-color-text-secondary`           |
-| `yellow` | `--yfm-colorify-yellow` | `--g-color-private-yellow-600-solid` |
-| `orange` | `--yfm-colorify-orange` | `--g-color-private-orange-500-solid` |
-| `red`    | `--yfm-colorify-red`    | `--g-color-text-danger`              |
-| `green`  | `--yfm-colorify-green`  | `--g-color-text-positive`            |
-| `blue`   | `--yfm-colorify-blue`   | `--g-color-text-info`                |
-| `violet` | `--yfm-colorify-violet` | `--g-color-text-utility`             |
-
-These colors are the colored text of the editor and are not all readable as a title: on the page `yellow` and `orange` are below the WCAG AA contrast, `green` and `blue` too at sizes `4`–`6`, and a color is barely visible on a fill of its own family.
-Use colored titles at sizes `1`–`3` on the page or on light fills, avoid the color of the fill's family, or set `--yfm-colorify-<color>` to the colors your theme needs.
-
-| Property                                  | Default                               |
-| ----------------------------------------- | ------------------------------------- |
-| `--g-md-banner-title-plugin-font-weight`  | the weight of the size, see the table |
-| `--g-md-banner-title-plugin-margin-block` | `0 var(--g-spacing-4)`                |
+Use `--g-md-banner-title-plugin-font-weight` and `--g-md-banner-title-plugin-margin-block` to customize the title. Check the contrast of colored titles against the banner background.
 
 ## Button
 
