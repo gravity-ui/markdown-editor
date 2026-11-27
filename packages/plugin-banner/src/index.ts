@@ -44,7 +44,6 @@ export {
     bannerBackgroundValues,
     bannerDimensions,
     bannerImageValues,
-    bannerTitle,
     bannerTitleValues,
 } from './banner/utils';
 export {bannerPlugin} from './banner/plugin';
@@ -61,5 +60,4 @@ export {
     buttonViewColors,
 } from './button/const';
 export {buttonDefaultColor, buttonModel} from './button/utils';
-export {bannerSanitizeAllowedAttributes} from './const';
 export {type LinkParser, normalizeLinkUrl} from './url';
