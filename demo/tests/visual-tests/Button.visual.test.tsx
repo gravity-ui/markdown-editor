@@ -5,7 +5,8 @@ import {ButtonStories} from './Button.helpers';
 
 const singleButton = ':button[Кнопка](https://example.com){view="action" color="standard"}';
 
-const withSpace = `${singleButton}${'\n\nТекст'.repeat(12)}`;
+const paragraphs = '\n\nТекст'.repeat(15);
+const withSpace = `${singleButton}${paragraphs}`;
 
 const scriptUrl = ['javascript', 'alert(1)'].join(':');
 
@@ -148,6 +149,7 @@ test.describe('Button', () => {
 
     test('should change the style of a button in its window @wysiwyg', async ({
         mount,
+        page,
         editor,
         button,
         expectScreenshot,
@@ -157,10 +159,17 @@ test.describe('Button', () => {
         await button.styleSelect.click();
         await expect(button.option(/, Green$/)).toHaveCount(4);
         await expect(button.styleSelect).toHaveAccessibleName('Style: Accent, Standard');
-        await button.option('Accent, Green').hover();
-        await expect(button.preview).toBeVisible();
-        await expectScreenshot({component: editor.locators.component});
-        await button.option('Accent, Green').click();
+        expect((await button.styleListPopup.boundingBox())?.height).toBe(392);
+        const green = button.option('Accent, Green');
+        for (const theme of ['light', 'dark'] as const) {
+            await page.emulateMedia({colorScheme: theme});
+            await expect(page.locator('body')).toHaveClass(new RegExp(`g-root_theme_${theme}`));
+            await editor.locators.component.scrollIntoViewIfNeeded();
+            await green.hover();
+            await expect(button.previewButton).toHaveClass(/g-md-button-plugin_color_green/);
+            await expectScreenshot({component: editor.locators.component, themes: [theme]});
+        }
+        await green.click();
         await expect(button.blocks).toHaveAttribute('data-view', 'action');
         await expect(button.blocks).toHaveAttribute('data-color', 'green');
         await button.newTab.click();
@@ -204,11 +213,10 @@ test.describe('Button', () => {
         page,
         editor,
         button,
-        expectScreenshot,
     }) => {
         await mount(
             <ButtonStories.Button
-                initial={`:button[Кнопка]{view="action" color="standard"} и текст${'\n\nТекст'.repeat(12)}`}
+                initial={`:button[Кнопка]{view="action" color="standard"} и текст${paragraphs}`}
                 width={440}
             />,
         );
@@ -223,9 +231,18 @@ test.describe('Button', () => {
         await page.keyboard.press('Tab');
         await expect(button.styleSelect).toBeFocused();
         await page.keyboard.press('ArrowDown');
-        await expect(button.option('Accent, Blue')).toBeVisible();
-        await expectScreenshot({component: editor.locators.component});
+        await expect(button.styleSelect).toBeFocused();
+        await expect(button.styleSelect).toHaveAttribute('aria-expanded', 'true');
+        await expect(button.option('Accent, Standard')).toHaveAttribute(
+            'id',
+            (await button.styleSelect.getAttribute('aria-activedescendant')) ?? '',
+        );
         await page.keyboard.press('ArrowDown');
+        await expect(button.option('Accent, Blue')).toHaveAttribute(
+            'id',
+            (await button.styleSelect.getAttribute('aria-activedescendant')) ?? '',
+        );
+        await expect(button.preview).toHaveCount(0);
         await page.keyboard.press('Enter');
         await expect(button.blocks).toHaveAttribute('data-color', 'blue');
         await expect(button.option(/, Blue$/)).toHaveCount(0);

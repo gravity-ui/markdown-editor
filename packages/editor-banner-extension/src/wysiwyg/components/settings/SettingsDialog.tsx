@@ -23,7 +23,6 @@ type SettingsDialogProps = Pick<
     qa: string;
     closeSize: 'm' | 'l';
     closeAnchor: CloseAnchor;
-    popupClassName?: string;
     onClose: (reason?: string) => void;
     children: ReactNode;
 };
@@ -34,7 +33,6 @@ export function SettingsDialog({
     qa,
     closeSize,
     closeAnchor,
-    popupClassName,
     onClose,
     children,
     ...popupProps
@@ -47,7 +45,7 @@ export function SettingsDialog({
         <Popup
             open
             {...popupProps}
-            className={popupClassName}
+            className={cnBannerSettings('surface')}
             floatingStyles={FLOATING_STYLES}
             onOpenChange={handleOpenChange}
         >
