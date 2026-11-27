@@ -24,6 +24,7 @@ import {
     BlockquoteSpecs,
     BoldSpecs,
     CodeBlockSpecs,
+    HeadingSpecs,
     LinkSpecs,
     ListsSpecs,
     boldMarkName,
@@ -60,6 +61,7 @@ const {schema, markupParser, serializer} = new ExtensionsManager({
             .use(BlockquoteSpecs)
             .use(ListsSpecs)
             .use(CodeBlockSpecs, {})
+            .use(HeadingSpecs, {})
             .use(BannerSpecs),
 }).buildDeps();
 
@@ -151,6 +153,9 @@ describe('Banner extension', () => {
         const container = document.createElement('div');
         container.append(
             DOMSerializer.fromSchema(schema).serializeFragment(editor.state.doc.content),
+        );
+        expect(container.querySelector('h1.g-md-banner-title-plugin')?.textContent).toBe(
+            'Portal [A]',
         );
         expect(DOMParser.fromSchema(schema).parse(container).eq(editor.state.doc)).toBe(true);
     });

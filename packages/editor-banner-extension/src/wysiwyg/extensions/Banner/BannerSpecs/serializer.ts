@@ -7,7 +7,6 @@ import {
     bannerDimensions,
     bannerImageTokenName,
     bannerImageValues,
-    bannerTitle,
     bannerTitleTokenName,
     bannerTitleValues,
 } from '@gravity-ui/markdown-plugin-banner';
@@ -32,7 +31,7 @@ export const BannerSerializerSpecs: ExtensionAuto = (builder) => {
     });
 
     builder.addNodeSerializerSpec(bannerTitleTokenName, () => (state, node) => {
-        const attrs = directiveAttrs(bannerTitleValues(bannerTitle(node.attrs)));
+        const attrs = directiveAttrs(bannerTitleValues(node.attrs));
         const label = escapeLabel(singleLine(node.textContent));
         state.write(`::banner-title[${label}]${attrs}`);
         state.closeBlock(node);
