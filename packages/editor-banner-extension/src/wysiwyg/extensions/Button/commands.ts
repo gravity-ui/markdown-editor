@@ -2,6 +2,8 @@ import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
 import {type Command, NodeSelection, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
 import type {ButtonModel} from '@gravity-ui/markdown-plugin-banner';
 
+import {changedAttrs} from '../../utils/attrs';
+
 import {buttonNodeType} from './ButtonSpecs';
 
 export const setButtonAttrs =
@@ -12,8 +14,8 @@ export const setButtonAttrs =
         if (dispatch) {
             const tr = state.tr;
             // An attribute step keeps the selection of the node, which keeps the settings window open.
-            for (const [name, value] of Object.entries(attrs)) {
-                if (node.attrs[name] !== value) tr.setNodeAttribute(pos, name, value);
+            for (const [name, value] of changedAttrs(node.attrs, attrs)) {
+                tr.setNodeAttribute(pos, name, value);
             }
             if (tr.docChanged) dispatch(closeHistory(tr));
         }

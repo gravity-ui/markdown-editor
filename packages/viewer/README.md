@@ -296,6 +296,8 @@ import {RevealYfmElement} from '@gravity-ui/markdown-viewer/extensions';
 
 Pass exactly one of `id` (literal ID), `selector` (CSS selector), or `element` (DOM element). `null` cancels the request. Searches are scoped to this viewer.
 
+For nested viewers, including those in React slots, pass the same target element to each viewer. Each viewer reveals only its own containers.
+
 - `onReveal(element)` runs synchronously once per processed request, including already visible targets.
 - HTML updates retry missing targets but do not repeat completed requests. Callback changes do not trigger processing.
 - Change the target or React `key` to start a new request. Use `id` or `selector` to resolve targets in replacement HTML.
@@ -312,9 +314,9 @@ const target = revealYfmElement({id: 'installation'}, {root: pageContainer});
 target?.scrollIntoView({block: 'start'});
 ```
 
-`revealYfmElement` accepts an `Element`, `{id: string}`, `{selector: string}`, or `null`. Optional `root` bounds lookup and ancestor traversal, including itself. Without it, lookup uses `document`; a supplied element uses its own ancestors.
+`revealYfmElement` accepts an `Element`, `{id: string}`, `{selector: string}`, or `null`. Optional `root` bounds lookup and ancestor traversal, including itself. If `root` belongs to a viewer, only that viewer's containers are revealed. Without it, lookup uses `document`; a supplied element uses its own ancestors.
 
-Returns the processed element or `null` for missing or excluded targets. Both APIs select the first ID or selector match outside viewer slots. Slots, their descendants, and targets outside the root are excluded. Processing does not wait for runtimes or animations and does not guarantee visibility.
+Returns the processed element or `null` for missing or excluded targets. Both APIs select the first ID or selector match outside viewer slots, or inside nested viewers when `root` is provided. Slots themselves and targets outside the root are excluded. Processing does not wait for runtimes or animations and does not guarantee visibility.
 
 </details>
 
@@ -353,16 +355,33 @@ Setup runs after the HTML is in the DOM. It runs again when HTML or dependencies
 
 Pass both `setup` and `dependencies`. Setup must return a cleanup function or nothing, not a Promise.
 
-| Event                        | Behavior                                                                                   |
-| ---------------------------- | ------------------------------------------------------------------------------------------ |
-| Mount                        | Run setup after the HTML is in the DOM.                                                    |
-| HTML changes                 | Abort all old signals, run cleanup before replacing HTML, then run setup for the new HTML. |
-| Dependencies change          | Abort and clean up the affected effect, then run its new setup. Keep the HTML DOM.         |
-| Extension or viewer unmounts | Abort its active signals and run cleanup.                                                  |
+| Event               | Behavior                                                                                                              |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Mount               | Run setup after the HTML is in the DOM.                                                                               |
+| HTML changes        | Discard waiting claims and abort all old signals. Run cleanup before replacing HTML, then run setup for the new HTML. |
+| Dependencies change | Abort and clean up the affected effect. Run setup again on the same DOM. New claims join the end of their queues.     |
+| Extension unmounts  | Abort its active signals, run cleanup and release its claims.                                                         |
+| Viewer unmounts     | Discard all waiting claims, abort all active signals and run cleanup.                                                 |
 
 If HTML and dependencies change together, setup runs once. A new setup function alone does not restart the effect; list its reactive values in `dependencies`.
 
 Effects only run on the client. Each run gets a new signal.
+
+Use `claim(element, key, setup)` when effects share a DOM change. Use the same key for claims that change the same property on an element. Within one viewer, the first claim for each element and key runs its setup. Later claims for that pair wait. Capture the current DOM state in setup and restore it in cleanup. Both must finish synchronously so cleanup completes before the next setup starts.
+
+```tsx
+useViewerEffect(({claim}) => {
+  claim(button, 'app:disabled', () => {
+    const previous = button.disabled;
+    button.disabled = true;
+    return () => {
+      button.disabled = previous;
+    };
+  });
+}, [button]);
+```
+
+You can call `claim` later, for example in a `load` listener. Call the returned `release()` to release a claim early. When the effect stops, it releases its claims and ignores later calls from that run. Effect keys and `ViewerTargets` slot keys have separate queues.
 
 Separate extensions have no fixed execution order. Put steps that need a fixed order in one extension. The hook throws an error outside a viewer.
 
@@ -378,6 +397,11 @@ The package exports these types:
 interface ViewerEffectContext {
   readonly root: HTMLDivElement;
   readonly signal: AbortSignal;
+  readonly claim: (
+    element: Element,
+    key: string,
+    setup: () => void | ViewerEffectCleanup,
+  ) => ViewerEffectCleanup;
 }
 
 type ViewerEffectCleanup = () => void;
@@ -443,7 +467,7 @@ export function AsyncExtension({load, onError}: AsyncExtensionProps) {
 
 ### Add React content to HTML
 
-Use `ViewerTargets` to add React components inside the HTML. It finds matching HTML elements in the current viewer and adds a slot to each one. The original content stays in place. Each slot uses a React portal, so its components can read your application's React context.
+Use `ViewerTargets` to add React components inside the HTML. It finds matching HTML elements in the current viewer and adds a slot to each one. By default, the original content stays in place. Each slot uses a React portal, so its components can read your application's React context.
 
 ```tsx
 import {useState} from 'react';
@@ -479,16 +503,22 @@ Use `ViewerTargets` inside `MarkdownViewer`. The package exports the `ViewerTarg
 | Prop        | Type                                 | Description                                                              |
 | ----------- | ------------------------------------ | ------------------------------------------------------------------------ |
 | `selector`  | `string`                             | CSS selector for HTML elements inside this viewer.                       |
+| `mode`      | `'append' \| 'replace'`              | Append a slot (default) or replace the target's children with it.        |
+| `slotKey`   | `string`                             | Optional key for a shared slot in append mode.                           |
 | `as`        | `'span' \| 'div'`                    | Slot tag. Default: `span`. Choose a tag that is valid inside the target. |
 | `className` | `string`                             | CSS class for each slot.                                                 |
 | `style`     | `CSSProperties`                      | Inline styles for each slot.                                             |
 | `children`  | `(target: HTMLElement) => ReactNode` | Returns React content for each target.                                   |
 
-Use a stable selector, such as `h2[id]` or `[data-grid-id]`. Adding a slot must not change whether the target matches. Avoid selectors such as `h2:empty`.
+To share a built-in slot, import `HEADING_ANCHOR_SLOT_KEY`, `HEADING_EDIT_SLOT_KEY`, or `YFM_CODE_BLOCK_ACTIONS_SLOT_KEY` from `@gravity-ui/markdown-viewer/extensions`.
+When replacing heading anchors or code block actions, hide the corresponding native YFM anchor or code block controls (`.yfm-clipboard-button` and `.yfm-code-floating`) while your controls are visible.
 
-Searches skip slots and their content. Elements added later by an external runtime are not detected automatically.
+Use a stable selector, such as `h2[id]` or `[data-widget]`. The target must still match after rendering. Avoid `h2:empty` or a selector that depends on fallback content, such as `.widget:has(.fallback)`.
 
-Several extensions can add separate slots to the same target. Each extension must keep the other slots and the original content. Their order in the React tree must not affect how they work. Put DOM steps that need a fixed order in one extension.
+Searches skip slots, their content, and nested viewers. When original children are restored, only `ViewerTargets` searches them again. Elements added later by an external runtime are not detected automatically.
+
+Several extensions can append slots to the same target. A replacement needs the target and its descendants free of other slots in this viewer. Append slots on ancestors can stay active.
+Use a selector such as `h2[id]:not([data-widget] *)` to keep heading anchors out of widget fallbacks.
 
 </details>
 
@@ -497,11 +527,15 @@ Several extensions can add separate slots to the same target. Each extension mus
 
 - A target keeps its slot and React state during ordinary rerenders.
 - After a selector change, targets that still match keep their slots. Other slots are added or removed as needed.
+- For each target and `slotKey`, the first matching extension renders the slot.
+- When a slot is released, compatible requests take over in registration order. Waiting requests do not block other slots. Siblings that mount together register in JSX order, and targets for one selector register in document order.
+- Changing `mode` or `slotKey` starts a new request and resets the slot's React state. Reordering keyed siblings or rendering `null` keeps the extension's place.
+- When an outer Suspense boundary shows its fallback, `ViewerTargets` releases its slots. On reveal, requests rejoin their queues. Put the boundary inside `children` to keep the slot.
 - Changing `as` may replace the slot and reset its state.
-- Replacing HTML creates new DOM elements, even if their IDs stay the same. To keep state across HTML updates, store it above `ViewerTargets` and use a stable, unique ID for each target.
-- Removing an extension removes its slots and portal content. Other extensions' slots and the original HTML stay in place.
+- Replacing HTML creates new targets, even for the same IDs. Slots register again, so a different extension can win the same key. Detached fallback stays disconnected when the HTML changes or the viewer unmounts. To keep state across HTML updates, store it above `ViewerTargets` and use a stable, unique ID for each target.
+- Removing an extension removes its slots and portal content. When a replacement ends, the viewer restores the original child nodes in order. A replacement that is next in the queue takes over with the original nodes still detached. An earlier request for a hidden child can require restoring the nodes to check its selector.
 
-When `html` changes, `useViewerEffect` cleanup runs before the viewer replaces the old HTML. Portal children follow React's cleanup timing. Their target may already be detached from the document. If cleanup needs the old HTML in place, use `useViewerEffect` in the extension that renders `ViewerTargets`. Cleanup order between extensions is unspecified.
+When `html` changes, `useViewerEffect` cleanup runs before the viewer replaces the old HTML. Portal children follow React's cleanup timing. Their target may already be detached from the document. If cleanup needs the old HTML in place, use `useViewerEffect` in the extension that renders `ViewerTargets`. Cleanup order between extensions is unspecified. If Suspense reveals a portal in the same commit that another extension replaces its ancestor, the portal's layout effect may run with a detached target.
 
 On the server, the viewer renders the prepared HTML and its regular React children. `ViewerTargets` adds no slots or portal content. It adds them on the client after hydration.
 
@@ -510,41 +544,38 @@ On the server, the viewer renders the prepared HTML and its regular React childr
 <details>
 <summary>React blocks and fallback content</summary>
 
-For a React block, prepare an empty target element (the host). Put fallback content beside it:
+Put fallback content inside the target:
 
 ```html
-<section>
-  <p data-grid-fallback>Grid is unavailable.</p>
-  <div data-grid-id="grid-42"></div>
-</section>
+<div data-widget>Fallback content</div>
 ```
 
-Use `as="div"` to add a block slot:
+Use `mode="replace"` to show React content in its place:
 
 ```tsx
-<ViewerTargets selector="[data-grid-id]" as="div">
-  {(host) => <GridAdapter host={host} />}
+<ViewerTargets selector="[data-widget]" mode="replace" as="div">
+  {() => <p>Widget content</p>}
 </ViewerTargets>
 ```
 
-`GridAdapter` is your component. It reads the grid ID, renders the grid, and hides or shows the fallback. `ViewerTargets` does not manage the fallback.
-
-The result inside the host is:
+While the replacement is active, the target contains the slot:
 
 ```html
-<div data-grid-id="grid-42">
+<div data-widget>
   <div data-markdown-viewer-slot>
-    <div class="grid">...</div>
+    <p>Widget content</p>
   </div>
 </div>
 ```
+
+Returning `null` keeps the fallback hidden. Render a loading state if needed.
 
 </details>
 
 <details>
 <summary>Use slots with DOM extensions</summary>
 
-The viewer marks each slot with `data-markdown-viewer-slot`. Import `VIEWER_SLOT_ATTRIBUTE` to use this attribute name. Its value is not part of the API. Do not add the attribute to prepared HTML or change it in an extension.
+Import `VIEWER_ROOT_ATTRIBUTE` and `VIEWER_SLOT_ATTRIBUTE` to identify HTML roots and React slots. The attribute values are not part of the API. Do not add these attributes to prepared HTML or change them in an extension.
 
 React owns each slot and its content. Keep the targets that `ViewerTargets` uses inside the viewer. Use `inspectViewerNode(root, node)` to check whether a node belongs to the viewer's HTML content. Pass the `root` from `useViewerEffect`. The helper accepts any `Node`, including text nodes. The package also exports the `ViewerNodeInfo` type.
 

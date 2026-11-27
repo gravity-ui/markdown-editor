@@ -46,25 +46,3 @@ export const buttonDefaults: Readonly<ButtonModel> = {
     color: 'standard',
     target: '_self',
 };
-
-export const buttonDefaultColor = (view: ButtonView): ButtonColor => buttonViewColors[view][0];
-
-export function isButtonView(value: unknown): value is ButtonView {
-    return (buttonViews as readonly unknown[]).includes(value);
-}
-
-export function isButtonTarget(value: unknown): value is ButtonTarget {
-    return (buttonTargets as readonly unknown[]).includes(value);
-}
-
-export function buttonModel(attrs: Partial<Record<keyof ButtonModel, unknown>>): ButtonModel {
-    const view = isButtonView(attrs.view) ? attrs.view : buttonDefaults.view;
-    const colors = buttonViewColors[view];
-    return {
-        view,
-        color: colors.find((color) => color === attrs.color) ?? buttonDefaultColor(view),
-        target: isButtonTarget(attrs.target) ? attrs.target : buttonDefaults.target,
-        href: typeof attrs.href === 'string' ? attrs.href : '',
-        title: typeof attrs.title === 'string' ? attrs.title : '',
-    };
-}

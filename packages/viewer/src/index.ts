@@ -2,9 +2,9 @@ export {
     MarkdownViewer,
     type MarkdownViewerProps,
     ViewerTargets,
-    VIEWER_SLOT_ATTRIBUTE,
     type ViewerTargetsProps,
 } from './components';
+export {VIEWER_ROOT_ATTRIBUTE, VIEWER_SLOT_ATTRIBUTE} from './constants';
 export {useViewerEffect} from './hooks/use-viewer-effect';
 export type {ViewerEffect, ViewerEffectCleanup, ViewerEffectContext} from './lifecycle/types';
 export {cn, NAMESPACE} from './utils/classname';

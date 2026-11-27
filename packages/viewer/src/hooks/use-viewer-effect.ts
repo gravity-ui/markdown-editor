@@ -2,7 +2,8 @@ import {type DependencyList, useContext, useState} from 'react';
 
 import {ViewerContext} from '../lifecycle/context';
 import type {ViewerEffect} from '../lifecycle/types';
-import {useClientLayoutEffect} from '../utils/use-client-layout-effect';
+
+import {useClientLayoutEffect} from './use-client-layout-effect';
 
 export function useViewerEffect(setup: ViewerEffect, dependencies: DependencyList): void {
     const lifecycle = useContext(ViewerContext);

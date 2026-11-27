@@ -4,7 +4,7 @@ import type {PluginSimple} from 'markdown-it';
 import {normalizeLinkUrl} from '../url';
 
 import {buttonAttrs} from './attrs';
-import {buttonTokenName} from './model';
+import {buttonTokenName} from './const';
 
 export const buttonPlugin: PluginSimple = (md) => {
     md.use(directiveParser());

@@ -1,5 +1,6 @@
 import {Component, type HTMLAttributes, type ReactElement, type RefObject} from 'react';
 
+import {VIEWER_ROOT_ATTRIBUTE} from '../../constants';
 import {ViewerContext, ViewerHtmlContext} from '../../lifecycle/context';
 import {ViewerLifecycle} from '../../lifecycle/viewer-lifecycle';
 import {cn} from '../../utils/classname';
@@ -21,7 +22,7 @@ interface ViewerContentProps extends MarkdownViewerProps {
 
 // getSnapshotBeforeUpdate lets this class clean up effects before React replaces the old HTML.
 export class ViewerContent extends Component<ViewerContentProps> {
-    private lifecycle = new ViewerLifecycle();
+    private lifecycle = new ViewerLifecycle((callback) => this.forceUpdate(callback));
 
     componentDidMount() {
         this.lifecycle.resume(this.props.contentRef.current);
@@ -53,6 +54,7 @@ export class ViewerContent extends Component<ViewerContentProps> {
                         {...restProps}
                         ref={contentRef}
                         data-qa={qa}
+                        {...{[VIEWER_ROOT_ATTRIBUTE]: ''}}
                         className={b('content', className)}
                         dangerouslySetInnerHTML={{__html: html}}
                     />

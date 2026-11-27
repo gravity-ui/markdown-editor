@@ -6,6 +6,8 @@ import {
     MarkdownViewer,
     type MarkdownViewerProps,
     type NAMESPACE,
+    VIEWER_ROOT_ATTRIBUTE,
+    VIEWER_SLOT_ATTRIBUTE,
     type ViewerEffect,
     type ViewerEffectCleanup,
     type ViewerEffectContext,
@@ -17,6 +19,12 @@ import {
     useViewerEffect,
 } from '../../src';
 
+export function shouldExportViewerAttributeNames() {
+    const root: 'data-markdown-viewer-root' = VIEWER_ROOT_ATTRIBUTE;
+    const slot: 'data-markdown-viewer-slot' = VIEWER_SLOT_ATTRIBUTE;
+    return {root, slot};
+}
+
 export function shouldAcceptViewerProps() {
     const mods: YFMMods = {'no-list-reset': true, custom: 'value', level: 2};
     return createElement(MarkdownViewer, {
@@ -26,6 +34,7 @@ export function shouldAcceptViewerProps() {
         qa: 'document',
         children: createElement(ViewerTargets, {
             selector: 'h2[id]',
+            slotKey: 'copy',
             as: 'span',
             className: 'actions',
             style: {display: 'flex'},
@@ -69,6 +78,21 @@ export function shouldAcceptSynchronousSetup() {
     return null;
 }
 
+export function shouldAcceptSynchronousElementClaims({root, claim}: ViewerEffectContext) {
+    const release: () => void = claim(root, 'hide', () => {
+        root.setAttribute('hidden', '');
+        return () => root.removeAttribute('hidden');
+    });
+    return release;
+}
+
+export function shouldRejectInvalidClaims({root, claim}: ViewerEffectContext) {
+    // @ts-expect-error Claim keys are strings.
+    claim(root, Symbol(), () => undefined);
+    // @ts-expect-error Claim setup must finish before the next claim starts.
+    claim(root, 'hide', async () => undefined);
+}
+
 export function shouldRejectDangerouslySetInnerHTML() {
     const props: MarkdownViewerProps = {
         html: '',
@@ -88,6 +112,20 @@ export const invalidSlot = createElement(ViewerTargets, {
     children: () => null,
 });
 
+export function shouldRejectInvalidSlotKey(props: ViewerTargetsProps) {
+    // @ts-expect-error Named slots use string keys.
+    return createElement(ViewerTargets, {...props, slotKey: 1});
+}
+
+export function shouldAcceptSlotKeysOnlyInAppendMode() {
+    const props = {selector: 'section', children: () => null};
+    const append: ViewerTargetsProps = {...props, mode: 'append', slotKey: 'action'};
+    const replace: ViewerTargetsProps = {...props, mode: 'replace'};
+    // @ts-expect-error Only append slots can have a key.
+    createElement(ViewerTargets, {...replace, slotKey: 'action'});
+    return [createElement(ViewerTargets, append), createElement(ViewerTargets, replace)];
+}
+
 expectTypeOf<MarkdownViewerProps['html']>().toEqualTypeOf<string>();
 expectTypeOf<ViewerEffectContext['root']>().toEqualTypeOf<HTMLDivElement>();
 expectTypeOf<ViewerEffectContext['signal']>().toEqualTypeOf<AbortSignal>();
@@ -97,4 +135,5 @@ expectTypeOf(cn('diagram')('caption')).toEqualTypeOf<string>();
 expectTypeOf<typeof NAMESPACE>().toEqualTypeOf<'g-md-v-'>();
 expectTypeOf(cnYFM).parameter(0).toEqualTypeOf<YFMMods | null | undefined>();
 expectTypeOf<ViewerTargetsProps['children']>().parameter(0).toEqualTypeOf<HTMLElement>();
+expectTypeOf<ViewerTargetsProps['mode']>().toEqualTypeOf<'append' | 'replace' | undefined>();
 expectTypeOf<ViewerTargetsProps['className']>().toEqualTypeOf<string | undefined>();

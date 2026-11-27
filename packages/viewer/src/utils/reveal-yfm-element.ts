@@ -1,5 +1,9 @@
+import {VIEWER_ROOT_ATTRIBUTE} from '../constants';
+
 import {getDomConstructor} from './dom-constructor';
 import {inspectViewerNode} from './inspect-viewer-node';
+
+const viewerRootSelector = `[${VIEWER_ROOT_ATTRIBUTE}]`;
 
 export type RevealYfmTarget =
     | Element
@@ -7,13 +11,13 @@ export type RevealYfmTarget =
     | {selector: string; id?: never};
 
 export interface RevealYfmElementOptions {
-    /** Limit lookup and ancestor traversal to this root, including the root itself. */
+    /** Limit lookup and traversal to this root. A root in a viewer reveals only that viewer. */
     root?: Element;
 }
 
 /**
  * Reveal YFM containers around a target. Tab selection needs the application's runtime.
- * Return the processed element, or null if it is missing, outside the root, or in a slot.
+ * Return the processed element, or null if it is missing, outside the root, or excluded.
  * A returned element may still be hidden by other styles or a missing tabs runtime.
  */
 export function revealYfmElement(
@@ -31,14 +35,20 @@ export function revealYfmElement(
         ancestors.push(scope);
     }
     if (root && scope !== root) return null;
+    const owner = root?.closest(viewerRootSelector);
 
     for (const container of ancestors.reverse()) {
-        if (!container.contains(element) || inspectViewerNode(scope, element).kind !== 'content') {
+        if (!container.contains(element) || !isRevealTarget(scope, element, Boolean(root))) {
             return null;
         }
-        revealContainer(container, element, scope);
+        if (
+            (!owner || container.closest(viewerRootSelector) === owner) &&
+            inspectViewerNode(scope, container).kind === 'content'
+        ) {
+            revealContainer(container, element, scope);
+        }
     }
-    return inspectViewerNode(scope, element).kind === 'content' ? element : null;
+    return isRevealTarget(scope, element, Boolean(root)) ? element : null;
 }
 
 function resolveTarget(target: RevealYfmTarget, root?: Element): Element | null {
@@ -54,9 +64,15 @@ function resolveTarget(target: RevealYfmTarget, root?: Element): Element | null 
         candidates.find(
             (node) =>
                 (target.id === undefined || node.id === target.id) &&
-                inspectViewerNode(scope, node).kind === 'content',
+                isRevealTarget(scope, node, Boolean(root)),
         ) ?? null
     );
+}
+
+function isRevealTarget(scope: Element, element: Element, allowNestedViewer: boolean): boolean {
+    const viewer = allowNestedViewer ? element.closest(viewerRootSelector) : null;
+    const targetRoot = viewer && scope.contains(viewer) ? viewer : scope;
+    return inspectViewerNode(targetRoot, element).kind === 'content';
 }
 
 function revealContainer(container: Element, target: Element, root: Element): void {

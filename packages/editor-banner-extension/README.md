@@ -7,9 +7,15 @@ import {useMarkdownEditor} from '@gravity-ui/markdown-editor';
 import {Banner} from '@gravity-ui/markdown-editor-banner-extension';
 
 const editor = useMarkdownEditor({
+  handlers: {uploadFile},
   wysiwygConfig: {extensions: (builder) => builder.use(Banner)},
 });
 ```
+
+| Option         | Description                                                                                      |
+| -------------- | ------------------------------------------------------------------------------------------------ |
+| `maxImageSize` | Maximum background image size in bytes; without it, the size is not checked                      |
+| `imageTypes`   | MIME types of background images, such as `['image/jpeg', 'image/png']`; any `image/*` without it |
 
 | Entry point                                                  | Exports                                                                                                            |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
@@ -25,8 +31,20 @@ With the block selected or the cursor inside or next to it, Tab and Shift+Tab fo
 The settings panel opens inside the block, 16 px from its top and right edges, and stays within the viewport.
 Opening the panel focuses the height select; Escape or the close button closes it and returns focus to the settings button.
 Each height or width change is a separate undo step.
+The Background field of the panel opens the Background popup with the Fill and Image tabs and the Reset button.
+When an image is set, the Blur background checkbox appears below the Background field in the settings panel.
+Choosing a color removes `bg-image`, `bg-theme`, and `bg-image-blur`; setting an image keeps the color; Reset and the clear button of the field remove all `bg-*` attributes.
+Each background change is one undo step.
+The popup opens with focus on the active tab. The palette has one Tab stop, and arrow keys, Home, and End move focus and select a color.
+The Image tab holds the image form of the editor: a file goes to the `uploadFile` handler of the editor, which the extension reads as `fileUploadHandler` from `builder.context`, and a link is written into `bg-image` after the Markdown link check of the editor; without the handler, the form takes a link only.
+A file of `imageTypes` up to `maxImageSize` is uploaded; another file shows an error and leaves the document unchanged.
+The hint of the form lists the formats of `imageTypes` and the `maxImageSize` limit.
+With an image, the Image tab shows a scaled-down banner in the light or dark page theme, the file with a replace button that opens the form again, and the text color.
+An address is written into `bg-image` only if it passes the address check; an uploaded one also requires that the banner still exists, and a newer upload into the same banner discards the older one.
+Cancel, closing the popup, choosing a fill or another address, Reset, and any other change of the image or fill, such as Undo, discard a pending upload.
+The form restores focus after a failed upload or a cancelled replacement.
 
-The editor writes both attributes, including default values.
+The editor writes `height` and `width`, including default values, and background attributes other than the defaults.
 Syntax, sizes, and shared styles for WYSIWYG and previews are in `@gravity-ui/markdown-plugin-banner`.
 `Banner` imports those styles; previews import `@gravity-ui/markdown-plugin-banner/styles.css`.
 Child blocks remain editable and are preserved when changing dimensions, copying, or switching modes.

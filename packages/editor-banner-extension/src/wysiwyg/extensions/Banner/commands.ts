@@ -1,6 +1,14 @@
 import {get$Cursor, pType, removeNode} from '@gravity-ui/markdown-editor';
+import {closeHistory} from '@gravity-ui/markdown-editor/pm/history';
 import {type Command, type EditorState, TextSelection} from '@gravity-ui/markdown-editor/pm/state';
-import type {BannerDimensions} from '@gravity-ui/markdown-plugin-banner';
+import {
+    type BannerBackground,
+    type BannerDimensions,
+    bannerBackground,
+} from '@gravity-ui/markdown-plugin-banner';
+
+import {dropNodeUploads, hasNodeUploads} from '../../plugins/NodeUploadPlugin';
+import {changedAttrs} from '../../utils/attrs';
 
 import {bannerNodeType} from './BannerSpecs';
 
@@ -34,8 +42,37 @@ export const insertBanner: Command = (state, dispatch) => {
 export const setBannerDimension =
     <K extends keyof BannerDimensions>(pos: number, name: K, value: BannerDimensions[K]): Command =>
     (state, dispatch) => {
-        if (!bannerAt(state, pos)) return false;
-        dispatch?.(state.tr.setNodeAttribute(pos, name, value));
+        const node = bannerAt(state, pos);
+        if (!node) return false;
+        if (dispatch && node.attrs[name] !== value) {
+            dispatch(state.tr.setNodeAttribute(pos, name, value));
+        }
+        return true;
+    };
+
+/** Attributes that set the source of the background; a change of either drops a pending upload. */
+export const bannerBackgroundSources = ['bg-image', 'bg-color'] as const;
+
+export const setBannerBackground =
+    (pos: number, background: Partial<BannerBackground>): Command =>
+    (state, dispatch) => {
+        const node = bannerAt(state, pos);
+        if (!node) return false;
+        if (dispatch) {
+            const next = bannerBackground({...bannerBackground(node.attrs), ...background});
+            const tr = state.tr;
+            for (const [name, value] of changedAttrs(node.attrs, next)) {
+                tr.setNodeAttribute(pos, name, value);
+            }
+            const changesSource = bannerBackgroundSources.some((name) => name in background);
+            const cancelsUpload = changesSource && hasNodeUploads(state, pos);
+            if (cancelsUpload) dropNodeUploads(tr, pos);
+            if (tr.docChanged) {
+                dispatch(closeHistory(tr));
+            } else if (cancelsUpload) {
+                dispatch(tr);
+            }
+        }
         return true;
     };
 
