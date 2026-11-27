@@ -8,6 +8,7 @@ export type YfmTableControlsPluginsOpts = {
     dndEnabled: boolean;
     headerRowsEnabled: boolean;
     cellBackgroundEnabled: boolean;
+    cellSelectionEnabled: boolean;
 };
 
 export const yfmTableControlsPlugins =

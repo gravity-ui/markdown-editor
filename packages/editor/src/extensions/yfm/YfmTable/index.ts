@@ -77,12 +77,13 @@ export const YfmTable: ExtensionWithOptions<YfmTableOptions> = (builder, options
     );
 
     if (options.controls !== false) {
-        builder.addPlugin(
+        builder.addPlugin((deps) =>
             yfmTableControlsPlugins({
                 dndEnabled: options.dnd !== false,
                 headerRowsEnabled: options.headerRows === true,
                 cellBackgroundEnabled: options.cellBackground === true,
-            }),
+                cellSelectionEnabled: builder.context.get('tableCellSelection') === true,
+            })(deps),
         );
     }
 };

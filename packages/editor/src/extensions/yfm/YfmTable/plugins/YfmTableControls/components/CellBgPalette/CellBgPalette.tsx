@@ -27,7 +27,7 @@ export const CellBgPalette: React.FC<CellBgPaletteProps> = function YfmTableCell
         <div className={b()}>
             {CELL_BG_SWATCHES.map((swatch, index) => {
                 const isSelected =
-                    swatch.value === NO_COLOR_VALUE ? !value : swatch.value === value;
+                    swatch.value === NO_COLOR_VALUE ? value === null : swatch.value === value;
                 const isTopRow = index < CELL_BG_SWATCHES.length / 2;
 
                 return (

@@ -9,6 +9,7 @@
   "row.add.after": "Add row after",
   "row.remove": "Remove row",
   "row.remove.multiple": "Remove rows",
+  "cells.actions": "Cell actions",
   "cells.clear": "Clear cells",
   "cells.bg": "Background color",
   "cells.bg.none": "No color",

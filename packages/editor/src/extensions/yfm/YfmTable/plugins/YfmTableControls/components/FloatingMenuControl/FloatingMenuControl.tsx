@@ -1,16 +1,7 @@
 import {useMemo} from 'react';
 
 import type {ClientRectObject, VirtualElement} from '@floating-ui/react';
-import {
-    ArrowShapeRightFromLine as AddColumnAfterIcon,
-    ArrowShapeLeftFromLine as AddColumnBeforeIcon,
-    ArrowShapeDownFromLine as AddRowAfterIcon,
-    ArrowShapeUpFromLine as AddRowBeforeIcon,
-    BroomMotion as ClearCellsIcon,
-    LayoutHeader as HeaderRowIcon,
-    Xmark as RemoveRowOrColumnIcon,
-    TrashBin as RemoveTableIcon,
-} from '@gravity-ui/icons';
+import {LayoutHeader as HeaderRowIcon} from '@gravity-ui/icons';
 import {DropdownMenu, Flex, Icon, Menu, Switch} from '@gravity-ui/uikit';
 
 import {i18n} from 'src/i18n/yfm-table';
@@ -18,6 +9,7 @@ import {i18n} from 'src/i18n/yfm-table';
 import type {DnDControlHandler} from '../../dnd/dnd';
 import {CellBgMenuItem} from '../CellBgMenuItem';
 import {FloatingMenu, type FloatingMenuProps} from '../FloatingMenu/FloatingMenu';
+import {ClearMenuItem, InsertMenuItems, RemoveMenuItem} from '../TableMenuItems';
 
 type ControlType = FloatingMenuProps['dirtype'];
 
@@ -86,8 +78,7 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
                         )}
                         {onCellBgChange && (
                             <CellBgMenuItem
-                                qa={`g-md-yfm-table-${type}-cell-bg`}
-                                currentCellBg={currentCellBg}
+                                currentCellBg={currentCellBg || null}
                                 onCellBgChange={onCellBgChange}
                             />
                         )}
@@ -95,44 +86,18 @@ export const FloatingMenuControl: React.FC<FloatingMenuControlProps> =
                 )}
 
                 <Menu.Group>
-                    <DropdownMenu.Item
-                        qa={`g-md-yfm-table-action-add-${type}-before`}
-                        iconStart={
-                            <Icon data={type === 'row' ? AddRowBeforeIcon : AddColumnBeforeIcon} />
+                    <InsertMenuItems
+                        type={type}
+                        onClick={(position) =>
+                            position === 'after' ? onInsertAfterClick() : onInsertBeforeClick()
                         }
-                        text={i18n(`${type}.add.before`)}
-                        action={onInsertBeforeClick}
                     />
-                    <DropdownMenu.Item
-                        qa={`g-md-yfm-table-action-add-${type}-after`}
-                        iconStart={
-                            <Icon data={type === 'row' ? AddRowAfterIcon : AddColumnAfterIcon} />
-                        }
-                        text={i18n(`${type}.add.after`)}
-                        action={onInsertAfterClick}
-                    />
-                    <DropdownMenu.Item
-                        qa={`g-md-yfm-table-${type}-clear-cells`}
-                        iconStart={<Icon data={ClearCellsIcon} />}
-                        text={i18n('cells.clear')}
-                        action={onClearCellsClick}
-                    />
+                    <ClearMenuItem onClick={onClearCellsClick} />
                 </Menu.Group>
 
                 <Menu.Group>
-                    <DropdownMenu.Item
-                        qa={`g-md-yfm-table-action-remove-${type}`}
-                        iconStart={<Icon data={RemoveRowOrColumnIcon} />}
-                        text={i18n(`${type}.remove${multiple ? '.multiple' : ''}`)}
-                        action={onRemoveRangeClick}
-                    />
-                    <DropdownMenu.Item
-                        qa="g-md-yfm-table-action-remove-table"
-                        theme="danger"
-                        iconStart={<Icon data={RemoveTableIcon} />}
-                        text={i18n('table.remove')}
-                        action={onRemoveTableClick}
-                    />
+                    <RemoveMenuItem type={type} multiple={multiple} onClick={onRemoveRangeClick} />
+                    <RemoveMenuItem type="table" onClick={onRemoveTableClick} />
                 </Menu.Group>
             </Menu>
         );

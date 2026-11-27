@@ -11,13 +11,11 @@ import {CellBgPalette} from '../CellBgPalette';
 const CLOSE_DELAY = 120;
 
 export type CellBgMenuItemProps = {
-    qa?: string;
     currentCellBg?: string | null;
     onCellBgChange: (color: string | null) => void;
 };
 
 export const CellBgMenuItem: React.FC<CellBgMenuItemProps> = function YfmTableCellBgMenuItem({
-    qa,
     currentCellBg,
     onCellBgChange,
 }) {
@@ -40,7 +38,7 @@ export const CellBgMenuItem: React.FC<CellBgMenuItemProps> = function YfmTableCe
 
     return (
         <Menu.Item
-            qa={qa}
+            qa="g-md-yfm-table-action-cell-bg"
             ref={setAnchorElement}
             iconStart={<Icon data={ColorPalette} />}
             iconEnd={<Icon data={ChevronRight} />}

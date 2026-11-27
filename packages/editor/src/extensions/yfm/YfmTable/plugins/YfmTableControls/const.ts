@@ -3,6 +3,7 @@ export const YfmTableDecorationUniqKey = '__yfm-table-deco-uniq-key';
 
 export enum YfmTableDecorationType {
     FocusTable = 'table--focus',
+    CellSelection = 'table--cell-selection',
 
     ShowRowControl = 'cell--show-row-control', // to show the row control in the cell
     ShowColumnControl = 'cell--show-column-control', // to show the column control in the cell

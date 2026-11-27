@@ -10,6 +10,7 @@ export function useRafThrottle(fn: () => void): () => void {
         return () => {
             if (refHandle.current !== null) {
                 cancelAnimationFrame(refHandle.current);
+                refHandle.current = null;
             }
         };
     }, [refFn]);

@@ -9,6 +9,7 @@
   "row.add.after": "Добавить строку после",
   "row.remove": "Удалить строку",
   "row.remove.multiple": "Удалить строки",
+  "cells.actions": "Действия с ячейками",
   "cells.clear": "Очистить ячейки",
   "cells.bg": "Цвет фона",
   "cells.bg.none": "Без цвета",
