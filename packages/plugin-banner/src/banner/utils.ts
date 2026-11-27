@@ -1,3 +1,5 @@
+import type {ContainerDirectiveParams} from '@diplodoc/directive';
+
 import {includes, valuesOtherThan} from '../utils';
 
 import {
@@ -16,6 +18,9 @@ import {
     bannerTitleSizes,
     bannerWidths,
 } from './const';
+
+export const isBareContainer = ({inlineContent, dests, contentTitle}: ContainerDirectiveParams) =>
+    !inlineContent && !dests && !contentTitle;
 
 export function isBannerHeight(value: unknown): value is BannerHeight {
     return includes(bannerHeights, value);

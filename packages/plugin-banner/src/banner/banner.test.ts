@@ -1,9 +1,16 @@
 import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
-import {bannerHeights, bannerPlugin, bannerTokenName, bannerWidths} from '../index';
+import {
+    bannerHeights,
+    bannerPlugin,
+    bannerTokenName,
+    bannerWidths,
+    buttonPlugin,
+    buttonTokenName,
+} from '../index';
 
-import {bannerTitleTokenName} from './const';
+import {bannerContentTokenName, bannerTitleTokenName} from './const';
 import {bannerTitle} from './utils';
 
 const md = new MarkdownIt().use(bannerPlugin);
@@ -63,6 +70,59 @@ describe('Banner title Markdown', () => {
         expect(tokens.every((token) => token.hidden)).toBe(true);
         expect(md.render('::banner-title[   ]')).toBe('');
     });
+});
+
+describe('Banner content Markdown', () => {
+    it('should preserve formatting and resolve document references in content', () => {
+        const markup =
+            ':::banner-content\nFirst **paragraph**\n\n[Second][ref]\n:::\n\n[ref]: /page';
+        const rendered = md.render(markup);
+        expect(rendered).toContain('<p>First <strong>paragraph</strong></p>');
+        expect(rendered).toContain('<p><a href="/page">Second</a></p>');
+    });
+
+    it('should ignore content attributes and keep the following button inside the banner', () => {
+        const markup =
+            ':::banner\n:::banner-content{size="1"}\nDescription\n:::\n\n:button[Open](/page)\n:::';
+        const tokens = new MarkdownIt().use(bannerPlugin).use(buttonPlugin).parse(markup, {});
+        expect(tokens.map((token) => token.type)).toEqual([
+            bannerOpen,
+            `${bannerContentTokenName}_open`,
+            'paragraph_open',
+            'inline',
+            'paragraph_close',
+            `${bannerContentTokenName}_close`,
+            'paragraph_open',
+            'inline',
+            'paragraph_close',
+            bannerClose,
+        ]);
+        expect(tokens[1].attrs).toEqual([['class', 'g-md-banner-content-plugin']]);
+        expect(tokens[7].children?.map((token) => token.type)).toContain(buttonTokenName);
+    });
+
+    it('should preserve empty content tokens without rendering a container', () => {
+        const markup = ':::banner-content\n\n:::';
+        const tokens = md.parse(markup, {});
+        expect(tokens.map((token) => token.type)).toEqual([
+            `${bannerContentTokenName}_open`,
+            `${bannerContentTokenName}_close`,
+        ]);
+        expect(tokens.every((token) => token.hidden)).toBe(true);
+        expect(md.render(markup)).toBe('');
+    });
+
+    it.each([':::banner-content[Title]', ':::banner-content(link)', ':::banner-content Title'])(
+        'should leave unsupported opening syntax as Markdown in %j',
+        (opening) => {
+            const markup = `${opening}\nText\n:::`;
+            expect(
+                md
+                    .parse(markup, {})
+                    .some((token) => token.type === `${bannerContentTokenName}_open`),
+            ).toBe(false);
+        },
+    );
 });
 
 describe('Banner Markdown', () => {

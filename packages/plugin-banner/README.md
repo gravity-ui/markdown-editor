@@ -76,6 +76,22 @@ The title contains plain text. Use `\[` and `\]` for literal brackets. Empty tit
 
 Use `--g-md-banner-title-plugin-font-weight` and `--g-md-banner-title-plugin-margin-block` to customize the title. Check the contrast of colored titles against the banner background.
 
+## Banner content
+
+```markdown
+:::banner
+
+:::banner-content
+Read the **guide** and open the [portal](/portal).
+
+A second paragraph with ++underlined++ text.
+:::
+
+:::
+```
+
+The description uses the same Markdown parser as the page. Underlining with `++` requires a plugin such as `markdown-it-ins`. Opening attributes are ignored. Empty descriptions are hidden.
+
 ## Button
 
 Register `buttonPlugin` independently or together with `bannerPlugin`:

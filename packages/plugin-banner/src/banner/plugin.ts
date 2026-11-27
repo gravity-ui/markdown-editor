@@ -5,12 +5,18 @@ import {
     registerLeafBlockDirective,
 } from '@diplodoc/directive';
 import type {PluginSimple} from 'markdown-it';
+import type Core from 'markdown-it/lib/parser_core';
 
 import {normalizeLinkUrl} from '../url';
 
 import {bannerAttrs, bannerTitleAttrs} from './attrs';
-import {bannerTitleTokenName, bannerTokenName} from './const';
-import {bannerTitle} from './utils';
+import {
+    bannerContentClassName,
+    bannerContentTokenName,
+    bannerTitleTokenName,
+    bannerTokenName,
+} from './const';
+import {bannerTitle, isBareContainer} from './utils';
 
 const bannerTitleHandler: LeafBlockDirectiveHandler = (state, params) => {
     if (!params.inlineContent || params.dests) return false;
@@ -26,11 +32,24 @@ const bannerTitleHandler: LeafBlockDirectiveHandler = (state, params) => {
     return true;
 };
 
+const contentOpenTokenName = `${bannerContentTokenName}_open`;
+const contentCloseTokenName = `${bannerContentTokenName}_close`;
+
+const hideEmptyContent: Core.RuleCore = ({tokens}) => {
+    tokens.forEach((token, idx) => {
+        const close = tokens[idx + 1];
+        if (token.type === contentOpenTokenName && close?.type === contentCloseTokenName) {
+            token.hidden = true;
+            close.hidden = true;
+        }
+    });
+};
+
 export const bannerPlugin: PluginSimple = (md) => {
     md.use(directiveParser());
     registerContainerDirective(md, {
         name: 'banner',
-        match: ({inlineContent, dests, contentTitle}) => !inlineContent && !dests && !contentTitle,
+        match: isBareContainer,
         container: {
             tag: 'div',
             token: bannerTokenName,
@@ -39,4 +58,14 @@ export const bannerPlugin: PluginSimple = (md) => {
         },
     });
     registerLeafBlockDirective(md, 'banner-title', bannerTitleHandler);
+    registerContainerDirective(md, {
+        name: 'banner-content',
+        match: isBareContainer,
+        container: {
+            tag: 'div',
+            token: bannerContentTokenName,
+            attrs: {class: bannerContentClassName},
+        },
+    });
+    md.core.ruler.push(`${bannerContentTokenName}_hide_empty`, hideEmptyContent);
 };
