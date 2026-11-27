@@ -19,12 +19,15 @@ import {ImageSpecs} from 'src/extensions/markdown/Image/ImageSpecs';
 import {Table} from 'src/extensions/markdown/Table';
 import {YfmTable, YfmTableNode} from 'src/extensions/yfm/YfmTable';
 import {YfmTableSpecs} from 'src/extensions/yfm/YfmTable/YfmTableSpecs';
+import {mergeSelectedCells} from 'src/extensions/yfm/YfmTable/plugins/YfmTableControls/commands/merge-selected-cells';
+import {splitSelectedCells} from 'src/extensions/yfm/YfmTable/plugins/YfmTableControls/commands/split-selected-cells';
 import {ReactRenderStorage} from 'src/modules/react-renderer';
 import {getTableGeometry} from 'src/table-utils/cell-selection/geometry';
 import {TableCellSelection} from 'src/table-utils/cell-selection/selection';
 
 import {dispatchPasteEvent} from '../dispatch-event';
 import {ClipboardEventMock, DataTransferMock} from '../event-mock';
+import {tableSelectionBuilders} from '../yfm-table-selection';
 
 const editors: WysiwygEditor[] = [];
 beforeEach(() => vi.stubGlobal('ClipboardEvent', ClipboardEventMock));
@@ -63,6 +66,33 @@ describe('matrix clipboard integration', () => {
                 enabled ? TableCellSelection : TextSelection,
             );
             editor.doc.check();
+        },
+    );
+
+    it.each([
+        {action: 'merge', command: mergeSelectedCells, second: 'B', end: 1},
+        {action: 'split', command: splitSelectedCells, second: '>', end: 0},
+    ])(
+        'should copy the $action result into another YFM table',
+        ({action, command, second, end}) => {
+            const source = createEditor({
+                initialContent: `#|\n||::{bg="blue" align="center"}\nA | ${second} ||\n|#`,
+            });
+            const target = createEditor({initialContent: '#|\n|| X | Y ||\n|#'});
+            selectCells(source, 0, end);
+            expect(command(source.view.state, source.view.dispatch)).toBe(true);
+            const data = new DataTransferMock();
+            source.view.dispatchEvent(new ClipboardEventMock('copy', {clipboardData: data}));
+            selectCells(target, 0);
+            target.view.dispatchEvent(new ClipboardEventMock('paste', {clipboardData: data}));
+
+            const {doc, table, body, row, cell, p} = tableSelectionBuilders;
+            const attrs = {'data-bg': 'blue', 'data-cell-align': 'cell-align-center'};
+            const expectedRow =
+                action === 'merge'
+                    ? row(cell({...attrs, colspan: '2'}, p('A'), p('B')))
+                    : row(cell(attrs, p('A')), cell(attrs, p()));
+            expect(target.doc).toMatchNodeJson(doc(table(body(expectedRow))));
         },
     );
 

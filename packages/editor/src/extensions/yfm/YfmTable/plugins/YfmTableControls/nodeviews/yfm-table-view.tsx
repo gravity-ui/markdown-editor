@@ -16,9 +16,11 @@ import {YfmTableAttr, yfmTableType} from '../../../YfmTableSpecs';
 import {removeYfmTable} from '../actions';
 import {insertEmptyColumn} from '../commands/insert-empty-column';
 import {insertEmptyRow} from '../commands/insert-empty-row';
+import {mergeSelectedCells} from '../commands/merge-selected-cells';
 import {removeColumnRange} from '../commands/remove-column-range';
 import {removeRowRange} from '../commands/remove-row-range';
 import {setCellBg} from '../commands/set-cell-bg';
+import {splitSelectedCells} from '../commands/split-selected-cells';
 import {CellSelectionControl} from '../components/CellSelectionControl';
 import {FloatingPlusControl} from '../components/FloatingPlusControl';
 import {YfmTableDecorationType, YfmTableDecorationTypeKey} from '../const';
@@ -88,6 +90,16 @@ class YfmTableNewView implements NodeView {
                         currentCellBg={currentCellBg}
                         onCellBgChange={
                             this._opts.cellBackgroundEnabled ? this._onCellBgChange : undefined
+                        }
+                        onMergeCellsClick={
+                            mergeSelectedCells(this._view.state)
+                                ? this._onMergeCellsClick
+                                : undefined
+                        }
+                        onSplitCellsClick={
+                            splitSelectedCells(this._view.state)
+                                ? this._onSplitCellsClick
+                                : undefined
                         }
                         onClearCellsClick={this._onClearCellsClick}
                         onInsertRow={this._onInsertRow}
@@ -218,6 +230,10 @@ class YfmTableNewView implements NodeView {
                 })),
             });
         });
+
+    private _onMergeCellsClick = () => this._runCellCommand(() => mergeSelectedCells);
+
+    private _onSplitCellsClick = () => this._runCellCommand(() => splitSelectedCells);
 
     private _onClearCellsClick = () => this._runCellCommand(() => clearSelectedCells);
 

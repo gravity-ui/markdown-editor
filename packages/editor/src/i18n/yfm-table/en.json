@@ -10,6 +10,8 @@
   "row.remove": "Remove row",
   "row.remove.multiple": "Remove rows",
   "cells.actions": "Cell actions",
+  "cells.merge": "Merge cells",
+  "cells.split": "Split cells",
   "cells.clear": "Clear cells",
   "cells.bg": "Background color",
   "cells.bg.none": "No color",
