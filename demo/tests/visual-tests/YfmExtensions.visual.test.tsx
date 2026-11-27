@@ -1,4 +1,4 @@
-import {test} from 'playwright/core';
+import {expect, test} from 'playwright/core';
 
 import {YFMStories} from './YfmExtensions.helpers';
 
@@ -30,6 +30,19 @@ test.describe('Extensions, YFM', () => {
 
         await page.waitForTimeout(2000);
         await expectScreenshot();
+    });
+    test('should apply the theme config to the YFM HTML preview @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+    }) => {
+        await page.emulateMedia({colorScheme: 'dark'});
+        await mount(<YFMStories.YfmHtmlBlock />);
+        const body = editor.yfmHtmlBlock.getPreviewBody();
+
+        await expect(editor.yfmHtmlBlock.preview).toBeVisible();
+        await expect(body).toHaveClass('dark');
+        await expect(body).toHaveAttribute('style', /--yfm-html-color-background:/);
     });
     test('YFM File', async ({mount, expectScreenshot}) => {
         await mount(<YFMStories.YfmFile />);

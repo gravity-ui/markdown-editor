@@ -21,11 +21,11 @@ export interface YfmHtmlBlockOptions extends Omit<
 
 export const YfmHtmlBlock: ExtensionAuto<YfmHtmlBlockOptions> = (
     builder,
-    {useConfig: _, ...options},
+    {useConfig, ...options},
 ) => {
     builder
         .use(YfmHtmlBlockSpecs, options)
-        .addNodeView(yfmHtmlBlockNodeName, YfmHtmlBlockNodeViewFactory(options));
+        .addNodeView(yfmHtmlBlockNodeName, YfmHtmlBlockNodeViewFactory({...options, useConfig}));
 
     builder.addAction(YfmHtmlBlockAction, () => addYfmHtmlBlock);
 };
