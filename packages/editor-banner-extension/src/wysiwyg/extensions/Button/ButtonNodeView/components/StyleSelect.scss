@@ -1,7 +1,6 @@
 .g-md-button-style {
     $field-height: 36px;
     $row-height: 28px;
-    $list-rows: 14;
     $swatch-size-m: 16px;
     $swatch-size-l: 20px;
     $preview-width: 140px;
@@ -9,8 +8,8 @@
 
     &,
     &__list {
-        --_--font-size: 14px;
-        --_--group-font-size: 12px;
+        --_--font-size: var(--g-text-body-1-font-size);
+        --_--group-font-size: var(--g-text-caption-2-font-size);
     }
 
     // The select spans the window, so its list opens at the window edge.
@@ -66,17 +65,15 @@
         color: var(--g-color-text-secondary);
     }
 
-    // The doubled class outweighs the styles of the popup.
-    &__list#{&}__list {
+    &__list,
+    &__preview-popup {
+        --g-popup-border-radius: var(--g-border-radius-s);
+    }
+
+    &__list {
         box-sizing: border-box;
+        max-height: min(392px, 90vh);
         padding-inline: var(--g-spacing-1);
-
-        border-radius: var(--g-border-radius-l);
-
-        // The element scrolls the options.
-        .g-select-list {
-            max-height: $list-rows * $row-height;
-        }
 
         [role='option'] {
             border-radius: var(--g-border-radius-s);
@@ -141,10 +138,9 @@
         height: $swatch-size-l;
     }
 
-    &__preview-popup {
+    // The uikit popup gives its radius to its direct child, so the preview is nested.
+    &__preview-frame {
         padding: var(--g-spacing-3);
-
-        border-radius: var(--g-border-radius-l);
     }
 
     &__preview {
