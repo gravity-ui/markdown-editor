@@ -1,13 +1,17 @@
 @use '../../variables' as v;
 
+$excluded: '[data-files-gallery-exclude], [data-files-gallery-exclude] *';
+
 // Fallback for browsers without @scope.
 
-.#{v.$ns}files-gallery > .#{v.$ns}viewer__content img:not([data-markdown-viewer-slot] *) {
+.#{v.$ns}files-gallery
+    > .#{v.$ns}viewer__content
+    img:not([data-markdown-viewer-slot] *, #{$excluded}) {
     cursor: pointer;
 }
 
 @scope (.#{v.$ns}files-gallery > .#{v.$ns}viewer__content) to ([data-markdown-viewer-slot]) {
-    img {
+    img:not(#{$excluded}) {
         cursor: pointer;
     }
 }

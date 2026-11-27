@@ -160,12 +160,18 @@ export function Document({html}: {html: string}) {
 
 Images support `picture` and `srcset`. Ctrl/Meta/Shift/Alt-click and images inside links keep their normal behavior.
 
+Set `data-files-gallery-exclude` on an image, link, or container to omit it and its descendants from the gallery. The attribute works with any value. Clicks keep their normal behavior.
+
+```html
+<div data-files-gallery-exclude="true"><img src="/banner.png" alt="" /></div>
+```
+
 On desktop, the copy button shows feedback in a tooltip. On mobile, the menu closes after a tap. Use `onLinkCopied` to show a message after a successful copy.
 
 <details>
 <summary>Gallery props and HTML updates</summary>
 
-The entry point exports `FilesGalleryProps`, `FilesGallerySource`, and `FilesGalleryItemType` (`'image' | 'video' | 'file'`).
+The entry point exports `FILES_GALLERY_EXCLUDE_ATTRIBUTE`, `FilesGalleryProps`, `FilesGallerySource`, and `FilesGalleryItemType` (`'image' | 'video' | 'file'`).
 
 Callbacks receive `source` with `url`, `type`, `element`, and optional `name` and `mimeType`. Callback inputs, including the item passed to `transformItem`, are shallow readonly in TypeScript.
 
@@ -188,7 +194,7 @@ The clicked item is built first; if skipped, collection stops. Callbacks run onc
 
 An open gallery keeps its items when HTML changes or `FilesGallery` unmounts. The next opening reads the current HTML. Items with the same URL stay separate; the clicked element sets the initial item.
 
-Standalone images become buttons and open with Enter or Space. An existing `tabindex` is kept; otherwise it is set to `0`. Existing `aria-label` and `aria-labelledby` are kept; otherwise the name uses `alt`, `title`, or the localized “Open image” label. Images with `role="presentation"` or `role="none"` keep their attributes and open only by click. Images inside links, buttons, or React slots, or with other explicit roles except `img`, are skipped. Canceled, repeated, or modified key presses do not open the gallery. Removing the extension or replacing HTML restores the original attributes.
+Standalone images become buttons and open with Enter or Space. An existing `tabindex` is kept; otherwise it is set to `0`. Existing `aria-label` and `aria-labelledby` are kept; otherwise the name uses `alt`, `title`, or the localized “Open image” label. Images with `role="presentation"` or `role="none"` keep their attributes and open only by click. Images inside links, buttons, React slots, or an element with `data-files-gallery-exclude`, or with other explicit roles except `img`, are skipped. Canceled, repeated, or modified key presses do not open the gallery. Removing the extension or replacing HTML restores the original attributes.
 
 To cancel gallery opening, call `preventDefault()` in `onClickCapture`. A regular React `onClick` runs after the gallery's native listener. This also cancels native link navigation:
 

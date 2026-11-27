@@ -1,6 +1,7 @@
 import type {ViewerEffectContext} from '../../../lifecycle/types';
 import {getDomConstructor} from '../../../utils/dom-constructor';
 import {inspectViewerNode} from '../../../utils/inspect-viewer-node';
+import {excludedSelector} from '../constants';
 
 const attributes = ['role', 'tabindex'] as const;
 const galleryButtons = new WeakSet<HTMLImageElement>();
@@ -61,6 +62,7 @@ export function isStandaloneImage(
             isPresentationalImage(target) ||
             galleryButtons.has(target)) &&
         !target.parentElement?.closest('a, button, [role="button"]') &&
+        !target.closest(excludedSelector) &&
         inspectViewerNode(root, target).kind === 'content'
     );
 }

@@ -1,6 +1,7 @@
 import type {GalleryItemProps} from '@gravity-ui/components';
 
 import {inspectViewerNode} from '../../../utils/inspect-viewer-node';
+import {excludedSelector} from '../constants';
 import type {FilesGalleryProps} from '../types';
 
 import {createGalleryItem} from './create-gallery-item';
@@ -23,6 +24,7 @@ export function collectGallery(
 
     for (const element of Array.from(root.querySelectorAll('img,a'))) {
         if (inspectViewerNode(root, element).kind !== 'content') continue;
+        if (element.closest(excludedSelector)) continue;
 
         if (element === target) {
             initialIndex = items.length;

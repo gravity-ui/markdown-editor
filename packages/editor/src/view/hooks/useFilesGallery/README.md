@@ -141,3 +141,9 @@ const {openFilesGallery} = useFilesGallery(undefined, {resolveCustomItem});
   <YfmStaticView {...props} />
 </div>;
 ```
+
+Set `data-files-gallery-exclude` (`FilesGalleryAttrs.Exclude`) on an image, link, or container to omit it and its descendants from the gallery. The attribute works with any value. Clicks keep their normal behavior.
+
+```html
+<img data-files-gallery-exclude="true" src="/banner.png" alt="" />
+```

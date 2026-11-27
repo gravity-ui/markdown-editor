@@ -16,3 +16,7 @@ export const YfmFileAttrs = {
     Download: 'download',
     Type: 'type',
 } as const;
+
+export const FilesGalleryAttrs = {
+    Exclude: 'data-files-gallery-exclude',
+} as const;

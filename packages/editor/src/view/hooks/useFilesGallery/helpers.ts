@@ -1,4 +1,4 @@
-import {YfmFileAttrs, YfmFileClassname} from './constants';
+import {FilesGalleryAttrs, YfmFileAttrs, YfmFileClassname} from './constants';
 
 type LinkObject = {
     name?: string | null;
@@ -8,6 +8,8 @@ type LinkObject = {
 };
 
 export function buildLinkObject(elem: Element): LinkObject | null {
+    if (elem.closest(`[${FilesGalleryAttrs.Exclude}]`)) return null;
+
     let obj: LinkObject | null = null;
 
     if (elem.tagName === 'IMG') {
