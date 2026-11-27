@@ -81,6 +81,8 @@ export function bannerImage(attrs: Partial<Record<keyof BannerImage, unknown>>):
     };
 }
 
-export function bannerImageValues(image: BannerImage): Record<string, string> {
-    return valuesOtherThan(image, bannerImageDefaults);
+export function bannerImageValues(
+    attrs: Partial<Record<keyof BannerImage, unknown>>,
+): Record<string, string> {
+    return valuesOtherThan(bannerImage(attrs), bannerImageDefaults);
 }

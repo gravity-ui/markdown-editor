@@ -33,7 +33,7 @@ const bannerTitleHandler: LeafBlockDirectiveHandler = (state, params) => {
 };
 
 const bannerImageHandler: LeafBlockDirectiveHandler = (state, params) => {
-    if (params.inlineContent || params.dests) return false;
+    if (params.inlineContent || params.dests || params.contentTitle) return false;
     const attrs = params.attrs ?? {};
     const src = normalizeLinkUrl(state.md, attrs.src);
     const token = state.push(bannerImageTokenName, 'img', 0);

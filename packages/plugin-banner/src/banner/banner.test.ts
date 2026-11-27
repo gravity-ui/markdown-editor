@@ -136,6 +136,11 @@ describe('Banner image Markdown', () => {
         expect(md.render(markup)).toContain('alt="&lt;Team&gt;" title="Our &quot;team&quot;"');
     });
 
+    it('should preserve trailing caption text as ordinary Markdown', () => {
+        const markup = '::banner-image{src="/a.png"} A caption';
+        expect(md.render(markup)).toBe(new MarkdownIt().render(markup));
+    });
+
     it('should render decorative images with an empty alternative text', () => {
         const [token] = md.parse('::banner-image{src="/team.png"}', {});
         expect(token.attrGet('alt')).toBe('');

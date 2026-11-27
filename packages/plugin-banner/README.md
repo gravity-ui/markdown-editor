@@ -112,61 +112,14 @@ The description uses the same Markdown parser as the page. Underlining with `++`
 ```markdown
 :::banner
 
-::banner-image{src="./.files/team.jpg" alt="Team" title="Project team"}
+::banner-image{src="https://example.org/images/team.jpg" alt="Project team" title="Team photo"}
 
-::banner-title[Team portal]
 :::
 ```
 
-| Attribute | Values                                                       | Default |
-| --------- | ------------------------------------------------------------ | ------- |
-| `src`     | an image address, checked as the address of a Markdown image | none    |
-| `alt`     | the alternative text; an empty one marks a decorative image  | empty   |
-| `title`   | the native browser tooltip of the image                      | none    |
+A missing or rejected `src` hides the image. Provide `alt` text for an informative image. Leave it empty for a decorative image. The `title` tooltip is optional.
 
-```html
-<div class="g-md-banner-plugin …">
-  <img
-    class="g-md-banner-image-plugin"
-    data-files-gallery-exclude="true"
-    src="./.files/team.jpg"
-    alt="Team"
-    title="Project team"
-  />
-  <div
-    class="g-md-banner-title-plugin g-md-banner-title-plugin_size_2"
-    role="heading"
-    aria-level="2"
-  >
-    Team portal
-  </div>
-</div>
-```
-
-The block is an `img.g-md-banner-image-plugin` with the `src`, `alt` and `title` attributes; `bannerImageFromAttrs` reads them back.
-The image has `data-files-gallery-exclude="true"`: it stays out of the files galleries.
-The `alt` attribute is always rendered: without it a screen reader announces the address of the image, and with an empty one it skips the image as decorative. An empty `title` is not rendered.
-`title` is the native tooltip of the browser for pointer users: it is not shown on touch or keyboard focus, and it does not describe the image to screen readers. An image with `title` and without `alt` is still decorative (`alt="" title="…"`); an image that matters needs `alt`.
-
-The image is a leaf block directive registered by `bannerPlugin`: one line with the attributes, no text in square brackets and no closing line. It stands after an empty line, as a paragraph does.
-
-The address passes the same check as the background image of a banner: `md.normalizeLink` and `md.validateLink`, as the address of a Markdown image; an address they reject, such as `javascript:`, is skipped.
-An image without an address, or with a skipped one, keeps its token, marked `hidden`, and renders nothing.
-A quoted value is read like the title of a Markdown link: `\"` writes a quote, and HTML entities are decoded.
-An unknown attribute is skipped; a repeated attribute counts as not set.
-
-In a Diplodoc build the images plugin of `@diplodoc/transform` processes only Markdown images. The `src` of a banner image and the `bg-image` of a banner are not copied to the build output and not rebased, and a missing file is not reported: use absolute addresses there.
-
-### Image styles
-
-The image is a block of its own size, not wider than its container.
-The fill under the image is solid, so it hides the banner under the transparent parts of an image: a host that uses transparent images sets `--g-md-banner-image-plugin-background` to `transparent`.
-
-| Property                                   | Default                           |
-| ------------------------------------------ | --------------------------------- |
-| `--g-md-banner-image-plugin-border-radius` | `var(--g-border-radius-xl)`       |
-| `--g-md-banner-image-plugin-background`    | `var(--g-color-base-float-hover)` |
-| `--g-md-banner-image-plugin-margin-block`  | `0 var(--g-spacing-4)`            |
+Use an absolute URL in Diplodoc builds. The asset pipeline skips banner images.
 
 ## Button
 

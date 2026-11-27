@@ -43,7 +43,6 @@ export {
     bannerBackground,
     bannerBackgroundValues,
     bannerDimensions,
-    bannerImage,
     bannerImageValues,
     bannerTitle,
     bannerTitleValues,
