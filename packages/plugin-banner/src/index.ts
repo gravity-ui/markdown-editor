@@ -1,6 +1,8 @@
 export {
     bannerAttrs,
     bannerFromAttrs,
+    bannerImageAttrs,
+    bannerImageFromAttrs,
     bannerRender,
     bannerTitleAttrs,
     bannerTitleFromAttrs,
@@ -13,6 +15,7 @@ export {
     type BannerBgTheme,
     type BannerDimensions,
     type BannerHeight,
+    type BannerImage,
     type BannerTitle,
     type BannerTitleColor,
     type BannerTitleSize,
@@ -25,6 +28,9 @@ export {
     bannerContentTokenName,
     bannerDefaults,
     bannerHeights,
+    bannerImageClassName,
+    bannerImageDefaults,
+    bannerImageTokenName,
     bannerTitleClassName,
     bannerTitleColors,
     bannerTitleDefaults,
@@ -37,6 +43,7 @@ export {
     bannerBackground,
     bannerBackgroundValues,
     bannerDimensions,
+    bannerImageValues,
     bannerTitleValues,
 } from './banner/utils';
 export {bannerPlugin} from './banner/plugin';

@@ -92,6 +92,20 @@ A second paragraph with ++underlined++ text.
 
 The description uses the same Markdown parser as the page. Underlining with `++` requires a plugin such as `markdown-it-ins`. Opening attributes are ignored. Empty descriptions are hidden.
 
+## Banner image
+
+```markdown
+:::banner
+
+::banner-image[Project team](https://example.org/images/team.jpg "Team photo")
+
+:::
+```
+
+A missing or rejected `src` hides the image. Provide `alt` text for an informative image. Leave it empty for a decorative image. The quoted tooltip is optional. Existing `::banner-image{src="…" alt="…" title="…"}` directives are also supported.
+
+Use an absolute URL in Diplodoc builds. The asset pipeline skips banner images.
+
 ## Button
 
 Register `buttonPlugin` independently or together with `bannerPlugin`:

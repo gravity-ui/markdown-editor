@@ -1,11 +1,12 @@
 import type {ContainerDirectiveParams} from '@diplodoc/directive';
 
-import {includes, valuesOtherThan} from '../utils';
+import {includes, nonEmptyString, valuesOtherThan} from '../utils';
 
 import {
     type BannerBackground,
     type BannerDimensions,
     type BannerHeight,
+    type BannerImage,
     type BannerTitle,
     type BannerWidth,
     bannerBackgroundDefaults,
@@ -13,6 +14,7 @@ import {
     bannerBgThemes,
     bannerDefaults,
     bannerHeights,
+    bannerImageDefaults,
     bannerTitleColors,
     bannerTitleDefaults,
     bannerTitleSizes,
@@ -41,7 +43,7 @@ export function bannerBackground(
     attrs: Partial<Record<keyof BannerBackground, unknown>>,
 ): BannerBackground {
     const {'bg-color': color, 'bg-image': image, 'bg-theme': theme, 'bg-image-blur': blur} = attrs;
-    const address = typeof image === 'string' && image ? image : null;
+    const address = nonEmptyString(image);
     return {
         'bg-color': includes(bannerBgColors, color) ? color : bannerBackgroundDefaults['bg-color'],
         'bg-image': address,
@@ -71,4 +73,19 @@ export function bannerTitleValues(attrs: {
     color?: unknown;
 }): Record<string, string> {
     return valuesOtherThan(bannerTitle(attrs), bannerTitleDefaults);
+}
+
+export function bannerImage(attrs: Partial<Record<keyof BannerImage, unknown>>): BannerImage {
+    const {src, alt, title} = attrs;
+    return {
+        src: nonEmptyString(src),
+        alt: typeof alt === 'string' ? alt : bannerImageDefaults.alt,
+        title: nonEmptyString(title),
+    };
+}
+
+export function bannerImageValues(
+    attrs: Partial<Record<keyof BannerImage, unknown>>,
+): Record<string, string> {
+    return valuesOtherThan(bannerImage(attrs), bannerImageDefaults);
 }
