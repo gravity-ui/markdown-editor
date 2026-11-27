@@ -7,26 +7,14 @@ $sizes: (
     6 'subheader' 1 13px 18px
 );
 
-$colors: (
-    'gray': var(--g-color-text-secondary),
-    'yellow': var(--g-color-private-yellow-600-solid),
-    'orange': var(--g-color-private-orange-500-solid),
-    'red': var(--g-color-text-danger),
-    'green': var(--g-color-text-positive),
-    'blue': var(--g-color-text-info),
-    'violet': var(--g-color-text-utility),
-);
-
 .g-md-banner-title-plugin {
-    --_--color: initial;
-
     margin-block: var(--g-md-banner-title-plugin-margin-block, 0 var(--g-spacing-4, 16px));
 
     font-size: var(--_--font-size);
     font-weight: var(--g-md-banner-title-plugin-font-weight, var(--_--font-weight));
     line-height: var(--_--line-height);
 
-    color: var(--_--color, inherit);
+    color: inherit;
     overflow-wrap: anywhere;
 
     @each $size, $family, $step, $font-size, $line-height in $sizes {
@@ -43,9 +31,9 @@ $colors: (
         }
     }
 
-    @each $name, $color in $colors {
+    @each $name in 'gray', 'yellow', 'orange', 'red', 'green', 'blue', 'violet' {
         &_color_#{$name} {
-            --_--color: var(--yfm-colorify-#{$name}, var(--yfm-color-text-#{$name}, #{$color}));
+            color: var(--yfm-color-text-#{$name}, var(--yfm-colorify-#{$name}, inherit));
         }
     }
 }
