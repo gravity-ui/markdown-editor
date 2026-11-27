@@ -1,11 +1,17 @@
-import {liftListItem, splitListItem} from 'prosemirror-schema-list';
+import {splitListItem} from 'prosemirror-schema-list';
 
 import type {Action, ExtensionAuto, Keymap} from '../../../core';
 import {withLogAction} from '../../../utils/keymap';
 
 import {ListsSpecs, blType, liType, olType} from './ListsSpecs';
 import {actions} from './actions';
-import {joinPrevList, liftEmptyListItem, sinkOnlySelectedListItem, toList} from './commands';
+import {
+    joinPrevList,
+    liftEmptyListItem,
+    liftSelectedListItems,
+    sinkOnlySelectedListItem,
+    toList,
+} from './commands';
 import {ListAction} from './const';
 import {ListsInputRulesExtension, type ListsInputRulesOptions} from './inputrules';
 import {collapseListsPlugin} from './plugins/CollapseListsPlugin';
@@ -30,10 +36,10 @@ export const Lists: ExtensionAuto<ListsOptions> = (builder, opts) => {
 
         return {
             Tab: sinkOnlySelectedListItem(liType(schema)),
-            'Shift-Tab': liftListItem(liType(schema)),
+            'Shift-Tab': liftSelectedListItems(liType(schema)),
             Backspace: liftEmptyListItem(liType(schema)),
 
-            'Mod-[': liftListItem(liType(schema)),
+            'Mod-[': liftSelectedListItems(liType(schema)),
             'Mod-]': sinkOnlySelectedListItem(liType(schema)),
 
             ...bindings,
