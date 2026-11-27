@@ -13,8 +13,10 @@ export class ButtonBlock {
     readonly link: Locator;
     readonly linkError: Locator;
     readonly styleSelect: Locator;
+    readonly styleListPopup: Locator;
     readonly newTab: Locator;
     readonly preview: Locator;
+    readonly previewButton: Locator;
     protected readonly page: Page;
 
     constructor(page: Page, preview: Locator) {
@@ -29,8 +31,10 @@ export class ButtonBlock {
         this.link = this.settings.getByRole('textbox', {name: 'Link', exact: true});
         this.linkError = this.settings.getByRole('alert');
         this.styleSelect = this.settings.getByRole('combobox', {name: /^Style: /});
+        this.styleListPopup = page.locator('.g-md-button-style__list');
         this.newTab = this.settings.getByText('Open in a new tab', {exact: true});
         this.preview = page.getByTestId('button-style-preview');
+        this.previewButton = this.preview.locator('.g-md-button-plugin');
     }
 
     async getSettingsGeometry() {

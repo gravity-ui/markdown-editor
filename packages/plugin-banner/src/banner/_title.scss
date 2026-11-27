@@ -45,7 +45,7 @@ $colors: (
 
     @each $name, $color in $colors {
         &_color_#{$name} {
-            --_--color: var(--yfm-colorify-#{$name}, #{$color});
+            --_--color: var(--yfm-colorify-#{$name}, var(--yfm-color-text-#{$name}, #{$color}));
         }
     }
 }

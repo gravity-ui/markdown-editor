@@ -1,3 +1,3 @@
-export const bannerSanitizeAllowedAttributes: Readonly<Record<string, readonly string[]>> = {
+export const bannerSanitizeAllowedAttributes = {
     div: ['aria-level'],
-};
+} as const;
