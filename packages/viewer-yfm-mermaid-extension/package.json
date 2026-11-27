@@ -1,6 +1,6 @@
 {
   "name": "@gravity-ui/markdown-viewer-yfm-mermaid-extension",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Diplodoc Mermaid extension for @gravity-ui/markdown-viewer",
   "license": "MIT",
   "repository": {
