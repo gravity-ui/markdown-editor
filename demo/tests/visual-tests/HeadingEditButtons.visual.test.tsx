@@ -68,7 +68,9 @@ test.describe('MarkdownViewer heading edit buttons', () => {
         );
         await page.evaluate(() => {
             window.mdEditor?.moveCursor({line: 2});
-            window.mdEditor?.changePreviewVisible(true);
+            if (window.mdEditor && 'changePreviewVisible' in window.mdEditor) {
+                window.mdEditor.changePreviewVisible(true);
+            }
         });
         await expect(page.locator('.cm-content')).toHaveCount(0);
         await page

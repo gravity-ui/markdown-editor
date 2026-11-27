@@ -1,32 +1,17 @@
-import {useEffect, useLayoutEffect} from 'react';
+import {useEffect} from 'react';
 
-import type {MarkdownEditorInstance} from '@gravity-ui/markdown-editor';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {useEffectOnce, useUpdate} from 'react-use';
+
+import {useWysiwygEditorView} from '../hooks/useWysiwygEditorView';
+import type {PlaygroundEditor} from '../utils/editor';
 
 export type WysiwygDevToolsProps = {
-    editor: MarkdownEditorInstance;
+    editor: PlaygroundEditor;
 };
 
 /** The toolkit serializes both documents and diffs them on every transaction */
 export function WysiwygDevTools({editor}: WysiwygDevToolsProps) {
-    const rerender = useUpdate();
-    useEffectOnce(() => {
-        rerender();
-    });
-
-    const view =
-        editor?.currentMode === 'wysiwyg' &&
-        // @ts-expect-error
-        editor._wysiwygView;
-
-    useLayoutEffect(() => {
-        if (!editor) return undefined;
-        editor.on('change-editor-mode', rerender);
-        return () => {
-            editor.off('change-editor-mode', rerender);
-        };
-    }, [editor, rerender]);
+    const view = useWysiwygEditorView(editor);
 
     if (!view) return null;
 

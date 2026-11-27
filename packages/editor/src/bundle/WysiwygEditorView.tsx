@@ -5,11 +5,11 @@ import {globalLogger} from '../logger';
 import {ReactRendererComponent} from '../modules/react-renderer';
 import {useRenderTime} from '../react-utils/hooks';
 
-import type {EditorInt} from './Editor';
 import {ToolbarView} from './ToolbarView';
 import {WysiwygEditorComponent} from './WysiwygEditorComponent';
 import type {ToolbarDisplay, WToolbarData, WToolbarItemData} from './toolbar/types';
 import type {WysiwygContenteditableAttributes} from './types';
+import type {WysiwygEditorHost} from './wysiwyg/editor-host';
 
 import './WysiwygEditorView.scss';
 
@@ -17,7 +17,7 @@ const b = cn('wysiwyg-editor');
 
 export type WysiwygEditorViewProps = ClassNameProps &
     QAProps & {
-        editor: EditorInt;
+        editor: WysiwygEditorHost;
         autofocus?: boolean;
         contenteditableAttributes?: WysiwygContenteditableAttributes;
         settingsVisible?: boolean;

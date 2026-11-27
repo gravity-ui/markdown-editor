@@ -2,46 +2,24 @@ import {useLayoutEffect} from 'react';
 
 import {
     type ClassNameProps,
-    type MarkdownEditorInstance,
     isNodeSelection,
     isTextSelection,
     isWholeSelection,
 } from '@gravity-ui/markdown-editor';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
-import {useEffectOnce, useUpdate} from 'react-use';
+import {useUpdate} from 'react-use';
+
+import {useWysiwygEditorView} from '../hooks/useWysiwygEditorView';
+import {type PlaygroundEditor, subscribeToSelection} from '../utils/editor';
 
 export type WysiwygSelectionProps = ClassNameProps & {
-    editor: MarkdownEditorInstance;
+    editor: PlaygroundEditor;
 };
 
 export function WysiwygSelection({editor, className}: WysiwygSelectionProps) {
+    const view = useWysiwygEditorView(editor);
     const rerender = useUpdate();
-    useEffectOnce(() => {
-        rerender();
-    });
-
-    const view =
-        editor?.currentMode === 'wysiwyg' &&
-        // @ts-expect-error
-        editor._wysiwygView;
-
-    useLayoutEffect(() => {
-        if (!editor) return undefined;
-        editor.on(
-            // @ts-expect-error TODO: add public event for selection change
-            'rerender-toolbar',
-            rerender,
-        );
-        editor.on('change-editor-mode', rerender);
-        return () => {
-            editor.off(
-                // @ts-expect-error TODO: add public event for selection change
-                'rerender-toolbar',
-                rerender,
-            );
-            editor.off('change-editor-mode', rerender);
-        };
-    }, [editor, rerender]);
+    useLayoutEffect(() => subscribeToSelection(editor, rerender), [editor, rerender]);
 
     if (!view) return null;
 

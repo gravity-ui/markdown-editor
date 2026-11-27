@@ -19,19 +19,17 @@ import {
     sp,
 } from '@gravity-ui/uikit';
 
+import {MarkdownHints} from 'src/bundle/settings/MarkdownHints';
+import type {MarkdownEditorMode, MarkdownEditorSplitMode} from 'src/bundle/types';
+import {type ClassNameProps, cn} from 'src/classname';
 import {LAYOUT} from 'src/common/layout';
-
-import {type ClassNameProps, cn} from '../../classname';
-import {i18n} from '../../i18n/bundle';
-import WysiwygModeIcon from '../../icons/WysiwygMode';
-import {noop} from '../../lodash';
-import {useTargetZIndex} from '../../react-utils';
-import {useBooleanState} from '../../react-utils/hooks';
-import {ToolbarTooltipDelay} from '../../toolbar';
-import {VERSION} from '../../version';
-import type {MarkdownEditorMode, MarkdownEditorSplitMode} from '../types';
-
-import {MarkdownHints} from './MarkdownHints';
+import {i18n} from 'src/i18n/bundle';
+import WysiwygModeIcon from 'src/icons/WysiwygMode';
+import {noop} from 'src/lodash';
+import {useTargetZIndex} from 'src/react-utils';
+import {useBooleanState} from 'src/react-utils/hooks';
+import {ToolbarTooltipDelay} from 'src/toolbar';
+import {VERSION} from 'src/version';
 
 import './index.scss';
 
@@ -122,8 +120,8 @@ type SettingsContentProps = ClassNameProps &
     QAProps & {
         mode: MarkdownEditorMode;
         onClose: () => void;
-        onModeChange: (mode: MarkdownEditorMode) => void;
-        onShowPreviewChange: (showPreview: boolean) => void;
+        onModeChange?: (mode: MarkdownEditorMode) => void;
+        onShowPreviewChange?: (showPreview: boolean) => void;
         showPreview: boolean;
         toolbarVisibility: boolean;
         settingsVisible?: SettingItems[] | boolean;
@@ -166,7 +164,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                         qa="g-md-settings-mode-wysiwyg"
                         active={mode === 'wysiwyg'}
                         onClick={() => {
-                            onModeChange('wysiwyg');
+                            onModeChange?.('wysiwyg');
                             onClose();
                         }}
                         iconStart={<Icon data={WysiwygModeIcon} />}
@@ -177,7 +175,7 @@ const SettingsContent: React.FC<SettingsContentProps> = function SettingsContent
                         qa="g-md-settings-mode-markup"
                         active={mode === 'markup'}
                         onClick={() => {
-                            onModeChange('markup');
+                            onModeChange?.('markup');
                             onClose();
                         }}
                         iconStart={<Icon data={LogoMarkdown} />}

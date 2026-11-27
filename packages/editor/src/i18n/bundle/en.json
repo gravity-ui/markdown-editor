@@ -9,5 +9,7 @@
   "settings_split-mode-hint": "Splitting the editor into two windows: preview and editing",
   "markup_placeholder": "Add your markup here",
   "preview_label": "Preview",
-  "settings_label": "Settings"
+  "settings_label": "Settings",
+  "recover-markdown": "Show text as Markdown",
+  "recovery-error": "Could not convert the document to Markdown. Try again. Keep this page open: unsaved changes may be lost."
 }

@@ -2,13 +2,14 @@ import type {ReactNode} from 'react';
 
 import type {EditorView as PMEditorView} from 'prosemirror-view';
 
+import type {WysiwygEditorHost} from 'src/bundle/wysiwyg/editor-host';
 import type {CommonEditor, MarkupString} from 'src/common';
-import type {ActionStorage, EscapeConfig, WysiwygEditor} from 'src/core';
+import type {EscapeConfig, WysiwygEditor} from 'src/core';
 import type {Logger2} from 'src/logger';
 import type {CodeEditor, Editor as MarkupEditor} from 'src/markup/editor';
 import type {ReactRenderStorage, RenderStorage} from 'src/modules/react-renderer';
 import type {DirectiveSyntaxContext} from 'src/utils/directive';
-import type {Emitter, Listener, Receiver, SafeEventEmitter} from 'src/utils/event-emitter';
+import type {Listener, SafeEventEmitter} from 'src/utils/event-emitter';
 import type {FileUploadHandler} from 'src/utils/upload';
 
 import type {ChangeEditorModeOptions, MarkdownEditorInstance} from './editor-public-types';
@@ -29,9 +30,7 @@ export type {ToolbarActionData, EventMap, ChangeEditorModeOptions};
 export type Editor = MarkdownEditorInstance;
 
 /** @internal */
-export interface EditorInt
-    extends CommonEditor, Emitter<EventMapInt>, Receiver<EventMapInt>, ActionStorage, CodeEditor {
-    readonly logger: Logger2.ILogger;
+export interface EditorInt extends CommonEditor, WysiwygEditorHost, CodeEditor {
     readonly currentMode: EditorMode;
     readonly toolbarVisible: boolean;
     readonly splitModeEnabled: boolean;
@@ -39,16 +38,16 @@ export interface EditorInt
     readonly preset: EditorPreset;
     readonly mdOptions: Readonly<MarkdownEditorMdOptions>;
     readonly directiveSyntax: DirectiveSyntaxContext;
-    readonly mobile: boolean;
 
-    /** @internal used in demo for dev-tools */
+    /**
+     * Used in demo for dev-tools.
+     * @internal
+     */
     readonly _wysiwygView?: PMEditorView;
 
     readonly currentEditor: CommonEditor;
-    readonly wysiwygEditor: WysiwygEditor;
     readonly markupEditor: MarkupEditor;
 
-    readonly renderStorage: RenderStorage<ReactNode>;
     readonly fileUploadHandler?: FileUploadHandler;
     readonly needToSetDimensionsForUploadedImages: boolean;
     readonly disableHTMLParsingInMd?: boolean;
@@ -68,8 +67,6 @@ export interface EditorInt
     readonly previewVisible: boolean;
 
     changePreviewVisible(visible?: boolean): void;
-
-    destroy(): void;
 }
 
 type SetEditorModeOptions = Pick<ChangeEditorModeOptions, 'emit'>;
