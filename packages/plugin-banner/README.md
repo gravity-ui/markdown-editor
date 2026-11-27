@@ -2,21 +2,6 @@
 
 markdown-it plugins for Banner containers and inline buttons.
 
-## Sanitizer
-
-`bannerSanitizeAllowedAttributes` holds only what the defaults of the `@diplodoc/transform` sanitizer lack (`aria-level` on `div`, for the [title](#banner-title) heading); add it to the allowed attributes of that sanitizer:
-
-```ts
-import {buildYfmHtmlBlockOptions} from '@diplodoc/html-extension';
-import {bannerSanitizeAllowedAttributes} from '@gravity-ui/markdown-plugin-banner';
-
-const sanitizeOptions = buildYfmHtmlBlockOptions({allowedAttributes: {iframe: ['srcdoc']}});
-const {allowedAttributes} = sanitizeOptions;
-if (allowedAttributes) {
-    allowedAttributes.div = [...(allowedAttributes.div ?? []), ...bannerSanitizeAllowedAttributes.div];
-}
-```
-
 ## Banner
 
 ```ts
@@ -85,7 +70,7 @@ Inline titles and destinations in the opening directive are not supported and re
 | `size`    | `1`–`6`: the typography of the headings `h1`–`h6`                    | `2`     |
 | `color`   | `auto`, `gray`, `yellow`, `orange`, `red`, `green`, `blue`, `violet` | `auto`  |
 
-The title renders as a `div` with the heading role and a level equal to its size. It stays out of the Diplodoc table of contents. In sanitized previews, [allow the heading level](#sanitizer).
+The title renders as `h1`–`h6` according to `size`. It stays out of the Diplodoc table of contents.
 
 The title contains plain text. Use `\[` and `\]` for literal brackets. Empty titles are hidden. Unsupported values use the defaults.
 

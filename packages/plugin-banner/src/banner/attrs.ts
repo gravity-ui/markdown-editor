@@ -70,16 +70,13 @@ export function bannerFromAttrs(getAttr: AttrGetter) {
 }
 
 export function bannerTitleAttrs(attrs: {size?: unknown; color?: unknown}): Record<string, string> {
-    const title = bannerTitle(attrs);
-    const {size, color} = title;
+    const {size, color} = bannerTitle(attrs);
     return {
         class: bTitle({
             size: String(size),
             color: color === bannerTitleDefaults.color ? undefined : color,
         }),
-        role: 'heading',
-        'aria-level': String(size),
-        ...dataAttrs(bannerTitleValues(title)),
+        ...dataAttrs(bannerTitleValues(attrs)),
     };
 }
 
