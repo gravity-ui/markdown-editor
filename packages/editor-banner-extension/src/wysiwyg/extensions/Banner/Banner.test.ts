@@ -139,7 +139,7 @@ describe('Banner extension', () => {
             ':::banner{height="s" width="m"}',
             '::banner-title[Portal]{size="1" color="blue"}',
             ':::banner-content\n\nFirst **paragraph**\n\nSecond paragraph\n\n:::',
-            '::banner-image{src="/team.png" alt="Team" title="Our team"}',
+            '::banner-image[Team](/team.png "Our team")',
             ':::',
         ].join('\n\n');
         const editor = createView(markup);
@@ -187,11 +187,32 @@ describe('Banner extension', () => {
         const doc = markupParser.parse(source);
         expect(doc.firstChild?.attrs.alt).toBe('First\nsecond');
         expect(doc.firstChild?.attrs.title).toBe('First\r\nsecond');
-        expect(serializer.serialize(doc)).toBe(source);
+        const saved = serializer.serialize(doc);
+        expect(saved).toBe('::banner-image[First&#10;second](/team.png "First&#13;&#10;second")');
+        expect(markupParser.parse(saved).eq(doc)).toBe(true);
+    });
+
+    it.each([
+        [
+            '::banner-image{src="./.files/team.jpg" alt="Team" title="Project team"}',
+            '::banner-image[Team](./.files/team.jpg "Project team")',
+        ],
+        ['::banner-image{src="/team.jpg"}', '::banner-image[](/team.jpg)'],
+        ['::banner-image', '::banner-image[]()'],
+        [
+            String.raw`::banner-image{src="/a(1).png" alt="A [B] &amp;amp;" title="Say \"hi\""}`,
+            String.raw`::banner-image[A \[B\] &amp;amp;](</a(1).png> "Say \"hi\"")`,
+        ],
+        ['::banner-image{src="/a&amp;amp;.png"}', '::banner-image[](/a&amp;amp;.png)'],
+    ])('should save %s with Markdown image syntax', (source, expected) => {
+        const doc = markupParser.parse(source);
+        const saved = serializer.serialize(doc);
+        expect(saved).toBe(expected);
+        expect(markupParser.parse(saved).eq(doc)).toBe(true);
     });
 
     it('should preserve empty banner directives', () => {
-        const parts = ['::banner-title[]', ':::banner-content\n\n:::', '::banner-image'];
+        const parts = ['::banner-title[]', ':::banner-content\n\n:::', '::banner-image[]()'];
         const markup = [':::banner{height="s" width="m"}', ...parts, ':::'].join('\n\n');
         expect(serializer.serialize(markupParser.parse(markup))).toBe(markup);
     });

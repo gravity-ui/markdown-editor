@@ -12,7 +12,13 @@ import {
     bannerTitleValues,
 } from '@gravity-ui/markdown-plugin-banner';
 
-import {directiveAttrs, escapeLabel, singleLine} from '../../../utils/directive';
+import {
+    directiveAttrs,
+    encodeDirectiveText,
+    escapeLabel,
+    escapeQuoted,
+    singleLine,
+} from '../../../utils/directive';
 
 import {bannerNodeName} from './const';
 
@@ -37,8 +43,12 @@ export const BannerSerializerSpecs: ExtensionAuto = (builder) => {
     });
 
     builder.addNodeSerializerSpec(bannerImageTokenName, () => (state, node) => {
-        const attrs = directiveAttrs(bannerImageValues(node.attrs));
-        state.write(`::banner-image${attrs}`);
+        const {src = '', alt = '', title} = bannerImageValues(node.attrs);
+        const label = escapeLabel(encodeDirectiveText(alt));
+        const url = encodeDirectiveText(src);
+        const destination = /[\s()'"<>\\]/.test(url) ? `<${url.replace(/[<>\\]/g, '\\$&')}>` : url;
+        const tooltip = title ? ` "${escapeQuoted(title)}"` : '';
+        state.write(`::banner-image[${label}](${destination}${tooltip})`);
         state.closeBlock(node);
     });
 };
