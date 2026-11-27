@@ -127,6 +127,30 @@ describe('Banner image Markdown', () => {
         expect(token.hidden).toBe(expected === null);
     });
 
+    it.each([
+        [
+            '::banner-image[Team](./.files/team.jpg "Project team")',
+            './.files/team.jpg',
+            'Team',
+            'Project team',
+        ],
+        ['::banner-image[](/team.jpg)', '/team.jpg', '', null],
+        [
+            String.raw`::banner-image[Team \[A\]](/team\(1\).jpg "A \"quote\"")`,
+            '/team(1).jpg',
+            'Team [A]',
+            'A "quote"',
+        ],
+        [`::banner-image[Team](${scriptUrl})`, null, 'Team', null],
+    ] as const)('should parse the image label and destination in %s', (markup, src, alt, title) => {
+        const [token] = md.parse(markup, {});
+        expect(token.type).toBe(bannerImageTokenName);
+        expect(token.attrGet('src')).toBe(src);
+        expect(token.attrGet('alt')).toBe(alt);
+        expect(token.attrGet('title')).toBe(title);
+        expect(token.hidden).toBe(src === null);
+    });
+
     it('should escape image descriptions and exclude the image from galleries', () => {
         const markup = '::banner-image{src="/team.png" alt="<Team>" title="Our &quot;team&quot;"}';
         const [token] = md.parse(markup, {});

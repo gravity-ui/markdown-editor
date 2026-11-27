@@ -112,12 +112,12 @@ The description uses the same Markdown parser as the page. Underlining with `++`
 ```markdown
 :::banner
 
-::banner-image{src="https://example.org/images/team.jpg" alt="Project team" title="Team photo"}
+::banner-image[Project team](https://example.org/images/team.jpg "Team photo")
 
 :::
 ```
 
-A missing or rejected `src` hides the image. Provide `alt` text for an informative image. Leave it empty for a decorative image. The `title` tooltip is optional.
+A missing or rejected `src` hides the image. Provide `alt` text for an informative image. Leave it empty for a decorative image. The quoted tooltip is optional. Existing `::banner-image{src="…" alt="…" title="…"}` directives are also supported.
 
 Use an absolute URL in Diplodoc builds. The asset pipeline skips banner images.
 
