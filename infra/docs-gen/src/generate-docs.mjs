@@ -12,6 +12,8 @@ import process from 'node:process';
 
 import {EXTENSION_PAGES_DIR, generateExtensionPages} from './generate-extension-pages.mjs';
 import {REPO_ROOT} from './repo-root.mjs';
+import {slugify} from './slugify.mjs';
+import {SPEC_CATEGORY, renderSpecPage} from './spec-pages.mjs';
 
 const DOCS_DIR = join(REPO_ROOT, 'docs');
 const OUT_DIR = join(REPO_ROOT, 'tmp/docs-src');
@@ -22,17 +24,6 @@ const GITHUB_RAW_RE =
 // Format: "##### Category / Title" or "##### Title" (no category).
 // This line is stripped from the output; the rest becomes the page content.
 const HEADER_RE = /^#{5}\s+(.+)$/;
-
-/**
- * Converts a string to a URL-friendly slug (lowercase, alphanumeric, hyphens).
- * @param str
- */
-function slugify(str) {
-    return str
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
-}
 
 /**
  * Extracts category and title from a `##### Category / Title` header line.
@@ -84,12 +75,14 @@ function collectDocs() {
             }
 
             const strippedContent = lines.slice(1).join('\n').replace(/^\n+/, '');
+            const category = dir === EXTENSION_PAGES_DIR ? 'Extension API' : parsed.category;
 
             docs.push({
                 sourceFile: dir === EXTENSION_PAGES_DIR ? `extensions/${file}` : file,
-                category: dir === EXTENSION_PAGES_DIR ? 'Extension API' : parsed.category,
+                category,
                 title: parsed.title,
-                content: strippedContent,
+                content:
+                    category === SPEC_CATEGORY ? renderSpecPage(strippedContent) : strippedContent,
             });
         }
     }
