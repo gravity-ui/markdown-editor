@@ -105,3 +105,30 @@ Select a rectangle through the middle of this grid, then extend it in the opposi
 || A6 | B6 | C6 | D6 | E6 ||
 |#
 `;
+
+export const clipboardMarkup = `
+# Copy, cut and paste table cells
+
+Select a row with Shift+click, cut it, then paste into a cell of the other table. Cut removes the source row; Paste replaces destination cells. Undo Paste and Cut separately.
+
+## Markdown table
+
+| Name | Status | Owner |
+| :--- | :---: | ---: |
+| First | Ready | Alice |
+| Second | Review | Bob |
+| Third | Draft | Carol |
+
+## YFM table
+
+#|
+|| Task | State | Person ||
+|| One | Done | Dana ||
+|| Two | Open | Eli ||
+|| Three | Planned | Fran ||
+|#
+
+Copy a single cell, select a larger rectangle, and paste. Only the first result cell changes; the rest of the selection stays unchanged. Copy a larger rectangle and paste near the bottom-right corner to combine overflow into the available cells without growing the table.
+
+Paste the copied cells below the tables to create a new table. Try the Merged and Nested example for existing spans and rich content. In a multi-block YFM cell, a normal cursor keeps ordinary rich paste; select the whole cell to replace it with matrix content.
+`;

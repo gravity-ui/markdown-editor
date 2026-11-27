@@ -27,8 +27,7 @@ test.describe('Table cell selection @wysiwyg', () => {
             const dropTarget = editor.getByTextInContenteditable('Drop here');
             await expect(editor.image.getElement()).toBeVisible();
             await expect(editor.image.getElement()).toHaveJSProperty('naturalWidth', 180);
-            await cells.first().click();
-            await cells.nth(5).click({modifiers: ['Shift']});
+            await editor.tableCellSelection.selectCells(cells.first(), cells.nth(5));
             await expect(editor.tableCellSelection.getSelectedCells(table)).toHaveCount(4);
             const before = await editor.getWysiwygState();
 
@@ -58,8 +57,7 @@ test.describe('Table cell selection @wysiwyg', () => {
             const cells = editor.tableCellSelection.getCells(table);
             const contents = await cells.allTextContents();
 
-            await cells.first().click();
-            await cells.nth(5).click({modifiers: ['Shift']});
+            await editor.tableCellSelection.selectCells(cells.first(), cells.nth(5));
             await expect(editor.tableCellSelection.getSelectedCells(table)).toHaveCount(4);
             await expect(editor.tableCellSelection.selectionButton).toHaveCount(0);
             await expect(editor.tableCellSelection.markdownCellButton).toBeHidden();
@@ -124,8 +122,7 @@ test.describe('Table cell selection @wysiwyg', () => {
             const table = editor.tableCellSelection.getTable(kind);
             const cells = editor.tableCellSelection.getCells(table);
             const contents = await cells.allTextContents();
-            await cells.first().click();
-            await cells.nth(5).click({modifiers: ['Shift']});
+            await editor.tableCellSelection.selectCells(cells.first(), cells.nth(5));
             await expect(editor.tableCellSelection.getSelectedCells(table)).toHaveCount(4);
             await page.keyboard.press('Backquote');
             await expect.poll(() => editor.tableCellSelection.getCellText(cells.nth(5))).toBe('`');
@@ -182,8 +179,7 @@ test.describe('Table cell selection @wysiwyg', () => {
             await editor.tableCellSelection.clickCell(cells.first());
             await page.keyboard.press('Tab');
             await expect(cells.nth(1)).toHaveClass(/g-md-table-selected-cell/);
-            await cells.nth(5).click();
-            await cells.first().click({modifiers: ['Shift']});
+            await editor.tableCellSelection.selectCells(cells.nth(5), cells.first());
             await page.keyboard.press('Tab');
             await expect(editor.tableCellSelection.getSelectedCells(table)).toHaveCount(1);
             await expect(cells.nth(6)).toHaveClass(/g-md-table-selected-cell/);
@@ -237,8 +233,7 @@ test.describe('Table cell selection @wysiwyg', () => {
             );
             const table = editor.tableCellSelection.getTable(kind);
             const cells = editor.tableCellSelection.getCells(table);
-            await cells.first().click();
-            await cells.nth(5).click({modifiers: ['Shift']});
+            await editor.tableCellSelection.selectCells(cells.first(), cells.nth(5));
             await expect(editor.tableCellSelection.getSelectedCells(table)).toHaveCount(0);
             expect(
                 await page.evaluate(
@@ -272,8 +267,7 @@ test.describe('Table cell selection @wysiwyg', () => {
         await mount(<TableCellSelectionStories.BothTables initialMarkup={mixedColorsMarkup} />);
         const table = editor.tableCellSelection.getTable('yfm');
         const cells = editor.tableCellSelection.getCells(table);
-        await cells.nth(2).click();
-        await cells.nth(3).click({modifiers: ['Shift']});
+        await editor.tableCellSelection.selectCells(cells.nth(2), cells.nth(3));
         await editor.clickMainToolbarButton('Text color', 'Red');
         await expect(editor.colorify.getMarks(table, 'red')).toHaveCount(2);
         await expect(editor.colorify.getMarks(table, 'blue')).toHaveCount(0);
@@ -284,8 +278,7 @@ test.describe('Table cell selection @wysiwyg', () => {
     test(`should clear mixed colors through the yfm toolbar`, async ({mount, editor}) => {
         await mount(<TableCellSelectionStories.BothTables initialMarkup={mixedColorsMarkup} />);
         const cells = editor.tableCellSelection.getCells(editor.tableCellSelection.getTable('yfm'));
-        await cells.nth(2).click();
-        await cells.nth(3).click({modifiers: ['Shift']});
+        await editor.tableCellSelection.selectCells(cells.nth(2), cells.nth(3));
         await editor.clickMainToolbarButton('Text color', 'Default');
         await expect(editor.colorify.getMarks()).toHaveCount(0);
     });
@@ -302,9 +295,9 @@ test.describe('Table cell selection @wysiwyg', () => {
         await page.keyboard.press('Home');
         await page.keyboard.press('Shift+End');
         await page.keyboard.type('/');
-        await expect(editor.getCommandMenu()).toBeVisible();
+        await expect(editor.locators.toolbars.commandMenu).toBeVisible();
         await cells.first().click({modifiers: ['Shift']});
-        await expect(editor.getCommandMenu()).toBeHidden();
+        await expect(editor.locators.toolbars.commandMenu).toBeHidden();
         await expect(editor.tableCellSelection.getSelectedCells(table)).toHaveCount(4);
         await page.keyboard.press('Enter');
         await expect(editor.tableCellSelection.getSelectedCells(table)).toHaveCount(0);
@@ -337,8 +330,7 @@ test.describe('Table cell selection @wysiwyg', () => {
                 const cells = editor.tableCellSelection.getCells(table);
                 const contents = await cells.allTextContents();
                 const text = sameText ? contents[5] : 'あい';
-                await cells.first().click();
-                await cells.nth(5).click({modifiers: ['Shift']});
+                await editor.tableCellSelection.selectCells(cells.first(), cells.nth(5));
                 await expect(editor.tableCellSelection.getSelectedCells(table)).toHaveCount(4);
                 await editor.tableCellSelection.composeText(text);
                 for (const index of [0, 1, 4]) {
@@ -366,8 +358,7 @@ test.describe('Table cell selection @wysiwyg', () => {
             const table = editor.tableCellSelection.tableWithoutControls;
             const cells = editor.tableCellSelection.getCells(table);
             const contents = await cells.allTextContents();
-            await cells.first().click();
-            await cells.nth(5).click({modifiers: ['Shift']});
+            await editor.tableCellSelection.selectCells(cells.first(), cells.nth(5));
             await expect(editor.tableCellSelection.getSelectedCells(table)).toHaveCount(4);
             await expect(editor.tableCellSelection.selectionButton).toHaveCount(0);
             expect(
@@ -445,8 +436,7 @@ test.describe('Table cell selection @wysiwyg', () => {
             const oldStyle = await editor.tableCellSelection.getSelectedStyles(cells.first());
             const background = await cells.first().getAttribute('data-bg');
             await page.keyboard.press('Escape');
-            await cells.first().click();
-            await cells.nth(3).click({modifiers: ['Shift']});
+            await editor.tableCellSelection.selectCells(cells.first(), cells.nth(3));
             await expect(editor.tableCellSelection.getSelectedCells(table)).toHaveCount(4);
             expect(await editor.tableCellSelection.getSelectedStyles(cells.first())).toEqual(
                 oldStyle,

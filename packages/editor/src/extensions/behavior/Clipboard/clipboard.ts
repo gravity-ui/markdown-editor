@@ -10,6 +10,7 @@ import {isNodeSelection, isTextSelection, isWholeSelection} from 'src/utils/sele
 
 import {BaseNode, pType} from '../../base/BaseSchema';
 
+import {type ClipboardMetadataEntry, setClipboardMetadata} from './metadata';
 import {getSelectionContent} from './selection-content';
 import {trimTextSelection} from './trim-selection';
 import {DataTransferType, extractTextContentFromHtml, isIosSafariShare, trimContent} from './utils';
@@ -171,10 +172,11 @@ function getSliceFromMarkupFragment(fragment: Fragment) {
     return new Slice(fragment, start, end);
 }
 
-type SerializeResult = {
+export type SerializeResult = {
     text: string;
     html?: string;
     markup?: string;
+    metadata?: ClipboardMetadataEntry<object>[];
 };
 function serializeSelected(view: EditorView, serializer: Serializer): SerializeResult | null {
     const sel = view.state.selection;
@@ -193,8 +195,9 @@ function serializeSelected(view: EditorView, serializer: Serializer): SerializeR
     return {markup, text, html: dom.innerHTML};
 }
 
-function setClipboardData(data: DataTransfer, result: SerializeResult) {
+export function setClipboardData(data: DataTransfer, result: SerializeResult) {
     data.clearData();
+    if (result.metadata) setClipboardMetadata(data, result.metadata);
     if (typeof result.markup === 'string') data.setData(DataTransferType.Yfm, result.markup);
     if (typeof result.html === 'string') data.setData(DataTransferType.Html, result.html);
     data.setData(DataTransferType.Text, result.text);
