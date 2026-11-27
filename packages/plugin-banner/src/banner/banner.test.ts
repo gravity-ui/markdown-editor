@@ -34,7 +34,7 @@ describe('Banner title Markdown', () => {
         },
     );
 
-    it('should render a plain text title with heading attributes', () => {
+    it('should render a plain text title as a native heading', () => {
         const markup =
             '::banner-title[Text &amp; **bold** <img src=x> \\[A\\]]{size="1" color="blue"}';
         const tokens = md.parse(markup, {});
@@ -43,10 +43,22 @@ describe('Banner title Markdown', () => {
             'text',
             `${bannerTitleTokenName}_close`,
         ]);
-        expect(tokens[0].attrGet('aria-level')).toBe('1');
+        expect(tokens[0].tag).toBe('h1');
         expect(tokens[0].attrGet('data-color')).toBe('blue');
-        expect(tokens[0].attrGet('role')).toBe('heading');
-        expect(md.render(markup)).toContain('Text &amp;amp; **bold** &lt;img src=x&gt; [A]</div>');
+        expect(tokens[0].attrGet('role')).toBeNull();
+        expect(tokens[0].attrGet('aria-level')).toBeNull();
+        expect(md.render(markup)).toBe(
+            '<h1 class="g-md-banner-title-plugin g-md-banner-title-plugin_size_1 g-md-banner-title-plugin_color_blue" data-size="1" data-color="blue">\n' +
+                'Text &amp;amp; **bold** &lt;img src=x&gt; [A]</h1>\n',
+        );
+    });
+
+    it.each([
+        ['', 'h2'],
+        ['{size="3"}', 'h3'],
+        ['{size="7"}', 'h2'],
+    ])('should pick the heading tag for the attributes %s', (attrs, tag) => {
+        expect(md.parse(`::banner-title[Title]${attrs}`, {})[0].tag).toBe(tag);
     });
 
     it('should preserve empty title tokens without rendering a heading', () => {

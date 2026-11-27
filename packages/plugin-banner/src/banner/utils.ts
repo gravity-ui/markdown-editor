@@ -66,6 +66,9 @@ export function bannerTitle(attrs: {size?: unknown; color?: unknown}): BannerTit
     };
 }
 
-export function bannerTitleValues(title: BannerTitle): Record<string, string> {
-    return valuesOtherThan(title, bannerTitleDefaults);
+export function bannerTitleValues(attrs: {
+    size?: unknown;
+    color?: unknown;
+}): Record<string, string> {
+    return valuesOtherThan(bannerTitle(attrs), bannerTitleDefaults);
 }
