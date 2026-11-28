@@ -1,72 +1,11 @@
-@use 'sass:math';
-@use '~@gravity-ui/markdown-plugin-banner/build/styles/variables';
-
-$half-gap: math.div(variables.$button-gap, 2);
-
 .ProseMirror :where(.g-md-banner-plugin) .g-md-button-plugin-row {
-    display: flow-root;
-
-    text-align: start;
-
-    &::before,
-    &::after {
-        display: block;
-
-        content: '';
+    & > .ProseMirror-trailingBreak {
+        display: none;
     }
 
-    &::before {
-        margin-block-end: -$half-gap;
-    }
+    & > :is(.ProseMirror-separator, .g-md-button-plugin-row__space) {
+        position: absolute;
 
-    &::after {
-        margin-block-start: -$half-gap;
-    }
-
-    & > .g-md-button-plugin {
-        margin-block: $half-gap;
-    }
-
-    & > .g-md-button-plugin-row__space {
-        font-size: 0;
-        white-space: pre-wrap;
-        word-spacing: var(--_--gap);
-    }
-}
-
-.ProseMirror .g-md-banner-plugin > .g-md-button-plugin-row {
-    text-align: inherit;
-}
-
-@container g-md-banner-plugin (width < #{variables.$narrow-width}) {
-    .ProseMirror .g-md-banner-plugin > .g-md-button-plugin-row {
-        &:has(> :nth-child(2 of .g-md-button-plugin)):not(
-                :has(> :nth-child(3 of .g-md-button-plugin))
-            ) {
-            display: flex;
-
-            &::before,
-            &::after,
-            & > .ProseMirror-trailingBreak {
-                display: none;
-            }
-
-            & > :is(.ProseMirror-separator, .g-md-button-plugin-row__space) {
-                position: absolute;
-            }
-
-            & > .g-md-button-plugin {
-                width: auto;
-                margin-block: 0;
-            }
-        }
-
-        & > .g-md-button-plugin {
-            width: 100%;
-        }
-
-        & > .g-md-button-plugin-row__space {
-            word-spacing: 0;
-        }
+        pointer-events: none;
     }
 }
