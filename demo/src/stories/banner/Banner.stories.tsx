@@ -6,7 +6,19 @@ export default {
     title: 'Extensions / Landing / Banner',
     component: BannerExample,
 } satisfies Meta<typeof BannerExample>;
-export const Banner: StoryObj<typeof BannerExample> = {};
+export const Banner: StoryObj<typeof BannerExample> = {
+    args: {
+        initial: `# Team workspace
+
+:::banner{height="s" width="m"}
+
+::banner-title[Team portal]{size="2" color="blue"}
+
+::banner-image[Minion](https://octodex.github.com/images/minion.png)
+
+:::`,
+    },
+};
 
 const title = '::banner-title[Team portal]{size="2"}';
 const content =

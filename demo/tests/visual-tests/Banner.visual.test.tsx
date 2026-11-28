@@ -8,6 +8,8 @@ import {BannerStories} from './Banner.helpers';
 const bannerMarkup = (height: string, width: string) =>
     `:::banner{height="${height}" width="${width}"}\n:::`;
 
+const emptyBanner = `:::banner{height="s" width="m"}\n\n:::\n\nAfter`;
+
 // Host sizes keep the screenshots small; the default sizes are checked in 'should apply default sizes'.
 const smallSizes = {
     '--g-md-banner-plugin-height-s': '40px',
@@ -75,9 +77,9 @@ test.describe('Banner', () => {
         await banner.titleColor('Blue').click();
 
         await expect(banner.title).toHaveAttribute('data-color', 'blue');
-        await expect
-            .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
-            .toContain('::banner-title[Team portal]{size="3" color="blue"}');
+        await expect(
+            page.getByText('::banner-title[Team portal]{size="3" color="blue"}'),
+        ).toBeVisible();
 
         await banner.titleColorButton.click();
         await expect(banner.titleColor('Blue')).toBeVisible();
@@ -292,7 +294,7 @@ test.describe('Banner', () => {
         expectScreenshot,
     }) => {
         await page.setViewportSize({width: 740, height: 980});
-        await mount(<BannerStories.Banner width={660} />);
+        await mount(<BannerStories.Banner width={660} initial={emptyBanner} />);
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await banner.openSettings();
@@ -323,7 +325,7 @@ test.describe('Banner', () => {
         expectScreenshot,
     }) => {
         await page.setViewportSize({width: 740, height: 980});
-        await mount(<BannerStories.Banner width={660} />);
+        await mount(<BannerStories.Banner width={660} initial={emptyBanner} />);
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await banner.openSettings();
@@ -404,7 +406,7 @@ test.describe('Banner', () => {
         editor,
         banner,
     }) => {
-        await mount(<BannerStories.Banner width={660} />);
+        await mount(<BannerStories.Banner width={660} initial={emptyBanner} />);
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await banner.openSettings();
@@ -607,7 +609,7 @@ test.describe('Banner on mobile', () => {
         banner,
         expectScreenshot,
     }) => {
-        await mount(<BannerStories.Banner width={335} />);
+        await mount(<BannerStories.Banner width={335} initial={emptyBanner} />);
         await expect(banner.blocks).toBeVisible();
         await banner.hideToolbar();
         await expectScreenshot({component: editor.locators.component});
@@ -620,7 +622,9 @@ test.describe('Banner on mobile', () => {
         banner,
         expectScreenshot,
     }) => {
-        await mount(<BannerStories.Banner width={375} />, {rootStyle: {padding: 0}});
+        await mount(<BannerStories.Banner width={375} initial={emptyBanner} />, {
+            rootStyle: {padding: 0},
+        });
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await banner.openSettings();
