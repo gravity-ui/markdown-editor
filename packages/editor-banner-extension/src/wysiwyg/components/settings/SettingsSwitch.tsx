@@ -6,14 +6,26 @@ type SettingsSwitchProps = {
     label: string;
     checked?: boolean;
     defaultChecked?: boolean;
+    disabled?: boolean;
     onUpdate?: (checked: boolean) => void;
 };
 
-export function SettingsSwitch({label, checked, defaultChecked, onUpdate}: SettingsSwitchProps) {
+export function SettingsSwitch({
+    label,
+    checked,
+    defaultChecked,
+    disabled,
+    onUpdate,
+}: SettingsSwitchProps) {
     const controlId = useUniqId();
     return (
         <div className={cnBannerSettings('row')}>
-            <Text as="label" variant="body-1" htmlFor={controlId}>
+            <Text
+                as="label"
+                variant="body-1"
+                color={disabled ? 'hint' : 'primary'}
+                htmlFor={controlId}
+            >
                 {label}
             </Text>
             <Switch
@@ -21,6 +33,7 @@ export function SettingsSwitch({label, checked, defaultChecked, onUpdate}: Setti
                 size="m"
                 checked={checked}
                 defaultChecked={defaultChecked}
+                disabled={disabled}
                 onUpdate={onUpdate}
             />
         </div>

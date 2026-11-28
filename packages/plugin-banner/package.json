@@ -2,7 +2,7 @@
   "name": "@gravity-ui/markdown-plugin-banner",
   "version": "0.0.0",
   "private": true,
-  "description": "markdown-it plugin for the banner block markup",
+  "description": "markdown-it plugins for the Banner markup: banner, title, content, image and button",
   "license": "MIT",
   "repository": {
     "type": "git",

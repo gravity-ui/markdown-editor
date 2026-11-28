@@ -1,3 +1,5 @@
+import type {CSSProperties} from 'react';
+
 import {expect} from 'playwright/core';
 import {test} from 'playwright/core/extensions/button';
 
@@ -47,6 +49,7 @@ test.describe('Button', () => {
         await editor.assertMode('wysiwyg');
         await expect(button.blocks).toHaveCount(EXAMPLES_COUNT);
         expect(await button.getFilledBackgrounds()).not.toContain('rgba(0, 0, 0, 0)');
+        expect(await button.buttonGap('Save', 'Preview')).toBeLessThan(8);
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -70,10 +73,72 @@ test.describe('Button', () => {
             'rgba(0, 0, 0, 0)',
         );
         expect(await button.getValues(button.variants)).toEqual(before);
+        expect(await button.buttonGap('Save', 'Preview', button.variants)).toBeLessThan(8);
         await expectScreenshot({component: editor.locators.component});
         await editor.switchMode('wysiwyg');
         await expect(button.blocks).toHaveCount(EXAMPLES_COUNT);
         expect(await button.getValues()).toEqual(before);
+    });
+
+    test('should apply the banner row gap in both modes @wysiwyg @markup', async ({
+        mount,
+        editor,
+        button,
+    }) => {
+        const style = {'--g-md-button-plugin-gap': '24px'} as CSSProperties;
+        await mount(
+            <div style={style}>
+                <ButtonStories.Button
+                    initial={`:::banner\n\n:button[One](/one):button[Two](/two)\n\n:::`}
+                    width={800}
+                />
+            </div>,
+        );
+        await expect(button.blocks).toHaveCount(2);
+        expect(await button.buttonGap('One', 'Two')).toBe(24);
+
+        await editor.switchMode('markup');
+        await editor.switchPreview('visible');
+        await expect(button.variants).toHaveCount(2);
+        expect(await button.buttonGap('One', 'Two', button.variants)).toBe(24);
+    });
+
+    test('should navigate between banner buttons with the keyboard @wysiwyg', async ({
+        mount,
+        page,
+        editor,
+        button,
+    }) => {
+        await mount(
+            <ButtonStories.Button
+                initial={`:::banner\n\n:button[One](/one) :button[Two](/two)\n\n:::`}
+                width={800}
+            />,
+        );
+        await editor.focus();
+        await editor.press('ControlOrMeta+Home');
+        await editor.press('ArrowRight');
+        await expect(button.selectedBlocks).toHaveText('One');
+
+        const selection = () =>
+            page.evaluate(() => {
+                const range = window.mdEditor?.wysiwygEditor.view.state.selection;
+                return range && [range.from, range.to];
+            });
+        for (let step = 0; step < 3; step++) {
+            const before = await selection();
+            await editor.press('ArrowRight');
+            await expect.poll(selection).not.toEqual(before);
+            if (await button.selectedBlocks.count()) break;
+        }
+        await expect(button.selectedBlocks).toHaveText('Two');
+
+        await editor.press('ArrowRight');
+        await expect(button.selectedBlocks).toHaveCount(0);
+        await editor.press('Backspace');
+        await expect(button.selectedBlocks).toHaveText('Two');
+        await editor.press('Backspace');
+        await expect(button.blocks).toHaveText('One');
     });
 
     test('should open settings on repeated clicks and preserve selection @wysiwyg', async ({

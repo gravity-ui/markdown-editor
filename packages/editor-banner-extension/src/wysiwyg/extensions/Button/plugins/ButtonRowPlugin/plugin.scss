@@ -1,0 +1,11 @@
+.ProseMirror :where(.g-md-banner-plugin) .g-md-button-plugin-row {
+    & > .ProseMirror-trailingBreak {
+        display: none;
+    }
+
+    & > :is(.ProseMirror-separator, .g-md-button-plugin-row__space) {
+        position: absolute;
+
+        pointer-events: none;
+    }
+}

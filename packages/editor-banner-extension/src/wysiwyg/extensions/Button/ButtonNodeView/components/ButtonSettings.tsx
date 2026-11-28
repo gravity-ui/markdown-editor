@@ -10,7 +10,7 @@ import {Icon, Popup, Switch, TextInput} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
 import {closeOnTabOut, closeUnlessAnchor, nodeAnchor} from '../../../../utils/popup';
-import {ButtonNodeAttr} from '../../ButtonSpecs';
+import {ButtonNodeAttr, buttonPlaceholder} from '../../ButtonSpecs';
 import {setButtonAttrs} from '../../commands';
 
 import {StyleSelect} from './StyleSelect';
@@ -124,7 +124,7 @@ export function ButtonSettings({view, node, getPos, anchor, parser, onClose}: Bu
                         size="l"
                         hasClear
                         controlRef={labelRef}
-                        placeholder={i18n('button-placeholder')}
+                        placeholder={buttonPlaceholder(node)}
                         controlProps={{'aria-label': i18n('button-label')}}
                     />
                 </div>

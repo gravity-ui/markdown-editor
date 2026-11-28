@@ -51,6 +51,10 @@ A `border-radius` with a length takes one of these variables:
 
 The variable comes from the binding of the layer in Figma, not from its px value: themes give one variable different values. `@gravity-ui/uikit` has no `--g-border-radius-2xl`, so it is written with a fallback: `var(--g-border-radius-2xl, 16px)`. `Popup` takes its radius from `--g-popup-border-radius`, so a popup or a panel sets its radius explicitly.
 
+## Sizes
+
+The button sizes follow `Button` of `@gravity-ui/uikit`: the `button-size-l` and `button-size-xl` mixins set the internal `--_--*` variables, as the uikit size classes do, and a property reads the public `--g-md-button-plugin-*` variable with the internal one as the fallback.
+
 ## Colors
 
 Every color is a `--g-color-*` token of `@gravity-ui/uikit`, provided by the application theme. The block has no palette of its own, no HEX or `rgb()` values, and no rules per theme class such as `.g-root_theme_light`: the theme changes the token values. Without the tokens, fills and borders disappear and text inherits the surrounding color.

@@ -1,4 +1,6 @@
+import type {FileUploadHandler} from '@gravity-ui/markdown-editor';
 import {getConfig} from '@gravity-ui/markdown-editor/_/configure.js';
+import {type LinkParser, normalizeLinkUrl} from '@gravity-ui/markdown-plugin-banner';
 
 import {i18n} from '../../../i18n';
 
@@ -53,3 +55,12 @@ export function imageFileError(file: File, {imageTypes, maxImageSize}: BannerUpl
     }
     return null;
 }
+
+/** Uploads an image file and resolves to its address; an unsafe address rejects. */
+export const imageUploader =
+    (fileUploadHandler: FileUploadHandler, parser: LinkParser) => async (file: File) => {
+        const {url} = await fileUploadHandler(file);
+        const image = normalizeLinkUrl(parser, url);
+        if (!image) throw new Error(`Unsupported image address: ${url}`);
+        return image;
+    };

@@ -1,5 +1,7 @@
 export const buttonTokenName = 'g_md_button';
 export const buttonClassName = 'g-md-button-plugin';
+export const buttonRowClassName = 'g-md-button-plugin-row';
+export const buttonRowBreakTokenName = 'g_md_button_row_break';
 
 export const buttonViews = ['action', 'normal', 'outline', 'flat'] as const;
 export const buttonColors = [

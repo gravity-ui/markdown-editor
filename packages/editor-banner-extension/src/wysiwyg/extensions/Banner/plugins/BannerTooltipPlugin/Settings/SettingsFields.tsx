@@ -6,102 +6,131 @@ import {
     ObjectsAlignRight,
     ObjectsAlignTop,
 } from '@gravity-ui/icons';
+import {type BannerLayout, bannerAligns, bannerVerticals} from '@gravity-ui/markdown-plugin-banner';
 import {Divider, Text} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../../i18n';
-import {SettingsSwitch} from '../../../../../components/settings';
+import {SettingsSwitch, cnBannerSettings} from '../../../../../components/settings';
+import type {BannerPart, BannerParts} from '../../../utils';
 
-import {AlignmentSelect} from './AlignmentSelect';
 import {type BackgroundControls, BackgroundField} from './BackgroundField';
+import {SegmentedSelect} from './SegmentedSelect';
 import {SettingsSection} from './SettingsSection';
-import {logClick} from './utils';
 
-type SettingsFieldsProps = {background: BackgroundControls};
+const verticalIcons = {
+    top: ObjectsAlignTop,
+    center: ObjectsAlignCenterVertical,
+    bottom: ObjectsAlignBottom,
+};
 
-export function SettingsFields({background}: SettingsFieldsProps) {
-    const handleTitleToggle = () => logClick('Title toggle');
-    const handleDescriptionToggle = () => logClick('Description toggle');
-    const handleButton1Toggle = () => logClick('Button 1 toggle');
-    const handleButton2Toggle = () => logClick('Button 2 toggle');
-    const handleButton3Toggle = () => logClick('Button 3 toggle');
-    const handleImageToggle = () => logClick('Image toggle');
+const alignIcons = {
+    left: ObjectsAlignLeft,
+    center: ObjectsAlignCenterHorizontal,
+    right: ObjectsAlignRight,
+};
+
+const buttonLabels = ['button-1', 'button-2', 'button-3'] as const;
+
+export type ContentControls = {
+    parts: BannerParts;
+    buttonsAvailable: boolean;
+    onPartChange: (part: BannerPart, enabled: boolean) => void;
+    onButtonChange: (index: number, enabled: boolean) => void;
+};
+
+type ButtonSwitchProps = {
+    index: number;
+    buttons: number;
+    onButtonChange: ContentControls['onButtonChange'];
+};
+
+function ButtonSwitch({index, buttons, onButtonChange}: ButtonSwitchProps) {
+    const handleUpdate = (enabled: boolean) => onButtonChange(index, enabled);
+    return (
+        <SettingsSwitch
+            label={i18n(buttonLabels[index])}
+            checked={index < buttons}
+            disabled={index > buttons}
+            onUpdate={handleUpdate}
+        />
+    );
+}
+
+type SettingsFieldsProps = {
+    layout: BannerLayout;
+    onLayoutChange: <K extends keyof BannerLayout>(name: K, value: BannerLayout[K]) => void;
+    content: ContentControls;
+    background: BackgroundControls;
+};
+
+export function SettingsFields({layout, onLayoutChange, content, background}: SettingsFieldsProps) {
+    const {parts, buttonsAvailable, onPartChange, onButtonChange} = content;
+    const handleTitleUpdate = (enabled: boolean) => onPartChange('title', enabled);
+    const handleContentUpdate = (enabled: boolean) => onPartChange('content', enabled);
+    const handleImageUpdate = (enabled: boolean) => onPartChange('image', enabled);
+    const handleVerticalUpdate = (vertical: BannerLayout['vertical']) =>
+        onLayoutChange('vertical', vertical);
+    const handleAlignUpdate = (align: BannerLayout['align']) => onLayoutChange('align', align);
     return (
         <>
             <Divider />
-            <SettingsSection title={i18n('text')} action="Text">
+            <SettingsSection title={i18n('text')}>
                 <SettingsSwitch
                     label={i18n('heading')}
-                    defaultChecked
-                    onUpdate={handleTitleToggle}
+                    checked={parts.title}
+                    onUpdate={handleTitleUpdate}
                 />
                 <SettingsSwitch
                     label={i18n('description')}
-                    defaultChecked
-                    onUpdate={handleDescriptionToggle}
+                    checked={parts.content}
+                    onUpdate={handleContentUpdate}
                 />
-                <Text variant="subheader-1">{i18n('alignment')}</Text>
-                <AlignmentSelect
+                <Text as="h4" className={cnBannerSettings('heading')} variant="subheader-1">
+                    {i18n('alignment')}
+                </Text>
+                <SegmentedSelect
                     label={i18n('vertical-alignment')}
-                    defaultValue="top"
-                    options={[
-                        {
-                            value: 'top',
-                            label: i18n('top'),
-                            icon: ObjectsAlignTop,
-                            action: 'Align top',
-                        },
-                        {
-                            value: 'center',
-                            label: i18n('center'),
-                            icon: ObjectsAlignCenterVertical,
-                            action: 'Align vertically center',
-                        },
-                        {
-                            value: 'bottom',
-                            label: i18n('bottom'),
-                            icon: ObjectsAlignBottom,
-                            action: 'Align bottom',
-                        },
-                    ]}
+                    value={layout.vertical}
+                    options={bannerVerticals.map((value) => ({
+                        value,
+                        label: i18n(value),
+                        icon: verticalIcons[value],
+                    }))}
+                    onUpdate={handleVerticalUpdate}
                 />
-                <AlignmentSelect
+                <SegmentedSelect
                     label={i18n('horizontal-alignment')}
-                    defaultValue="center"
-                    options={[
-                        {
-                            value: 'left',
-                            label: i18n('left'),
-                            icon: ObjectsAlignLeft,
-                            action: 'Align left',
-                        },
-                        {
-                            value: 'center',
-                            label: i18n('center'),
-                            icon: ObjectsAlignCenterHorizontal,
-                            action: 'Align horizontally center',
-                        },
-                        {
-                            value: 'right',
-                            label: i18n('right'),
-                            icon: ObjectsAlignRight,
-                            action: 'Align right',
-                        },
-                    ]}
+                    value={layout.align}
+                    options={bannerAligns.map((value) => ({
+                        value,
+                        label: i18n(value),
+                        icon: alignIcons[value],
+                    }))}
+                    onUpdate={handleAlignUpdate}
                 />
             </SettingsSection>
+            {buttonsAvailable && (
+                <>
+                    <Divider />
+                    <SettingsSection title={i18n('buttons')}>
+                        {buttonLabels.map((label, index) => (
+                            <ButtonSwitch
+                                key={label}
+                                index={index}
+                                buttons={parts.buttons}
+                                onButtonChange={onButtonChange}
+                            />
+                        ))}
+                    </SettingsSection>
+                </>
+            )}
             <Divider />
-            <SettingsSection title={i18n('buttons')} action="Buttons">
+            <SettingsSection title={i18n('image-and-background')}>
                 <SettingsSwitch
-                    label={i18n('button-1')}
-                    defaultChecked
-                    onUpdate={handleButton1Toggle}
+                    label={i18n('image')}
+                    checked={parts.image}
+                    onUpdate={handleImageUpdate}
                 />
-                <SettingsSwitch label={i18n('button-2')} onUpdate={handleButton2Toggle} />
-                <SettingsSwitch label={i18n('button-3')} onUpdate={handleButton3Toggle} />
-            </SettingsSection>
-            <Divider />
-            <SettingsSection title={i18n('image-and-background')} action="Image and background">
-                <SettingsSwitch label={i18n('image')} defaultChecked onUpdate={handleImageToggle} />
                 <BackgroundField background={background} />
             </SettingsSection>
         </>

@@ -1,0 +1,12 @@
+$popup-z-index: 1000;
+
+.g-md-banner-popup-layer {
+    position: absolute;
+    z-index: $popup-z-index + 1;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+
+    &_raised {
+        z-index: $popup-z-index + 2;
+    }
+}

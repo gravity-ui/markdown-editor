@@ -1,0 +1,1 @@
+export {bannerTitleGuardPlugin} from './plugin';

@@ -1,0 +1,33 @@
+.ProseMirror {
+    --_--banner-image-placeholder-background: var(
+        --g-md-banner-image-plugin-background,
+        var(--g-color-base-float-hover)
+    );
+    --_--banner-image-placeholder-color: var(--g-color-text-hint);
+}
+
+.g-md-banner-image-nodeview {
+    cursor: pointer;
+
+    &_empty.g-md-banner-image-plugin {
+        --g-md-banner-image-plugin-background: var(--_--banner-image-placeholder-background);
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    &__icon {
+        flex-shrink: 1;
+
+        min-height: 0;
+        margin: var(--g-spacing-4);
+
+        color: var(--_--banner-image-placeholder-color);
+    }
+}
+
+.g-md-editor.ProseMirror-focused .g-md-banner-image-nodeview.ProseMirror-selectednode {
+    box-shadow: none;
+}

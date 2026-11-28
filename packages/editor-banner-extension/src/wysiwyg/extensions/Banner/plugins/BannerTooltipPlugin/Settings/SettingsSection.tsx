@@ -1,44 +1,40 @@
-import {type ReactNode, useState} from 'react';
+import type {ReactNode} from 'react';
 
 import {ChevronDown, ChevronUp} from '@gravity-ui/icons';
-import {Button, Icon, Text, useUniqId} from '@gravity-ui/uikit';
+import {Button, Disclosure, Icon, Text} from '@gravity-ui/uikit';
 
 import {cnBannerSettings} from '../../../../../components/settings';
 
-import {logClick} from './utils';
+const ICON_SIZE = 16;
 
-export function SettingsSection({
-    title,
-    action,
-    children,
-}: {
-    title: string;
-    action: string;
-    children: ReactNode;
-}) {
-    const [expanded, setExpanded] = useState(true);
-    const contentId = useUniqId();
+export function SettingsSection({title, children}: {title: string; children: ReactNode}) {
     return (
-        <div className={cnBannerSettings('section')}>
-            <div className={cnBannerSettings('title')}>
-                <Text variant="subheader-2">{title}</Text>
-                <Button
-                    view="flat-secondary"
-                    size="m"
-                    aria-label={title}
-                    aria-expanded={expanded}
-                    aria-controls={contentId}
-                    onClick={() => {
-                        setExpanded(!expanded);
-                        logClick(`${action} section button`);
-                    }}
-                >
-                    <Icon data={expanded ? ChevronUp : ChevronDown} size={16} />
-                </Button>
-            </div>
-            <div className={cnBannerSettings('fields', {hidden: !expanded})} id={contentId}>
-                {children}
-            </div>
-        </div>
+        <Disclosure className={cnBannerSettings('section')} defaultExpanded>
+            <Disclosure.Summary>
+                {({id, ariaControls, expanded, onClick}) => (
+                    <div className={cnBannerSettings('title')}>
+                        <Text
+                            as="h3"
+                            className={cnBannerSettings('heading')}
+                            variant="subheader-2"
+                            id={id}
+                        >
+                            {title}
+                        </Text>
+                        <Button
+                            view="flat-secondary"
+                            size="m"
+                            aria-labelledby={id}
+                            aria-expanded={expanded}
+                            aria-controls={ariaControls}
+                            onClick={onClick}
+                        >
+                            <Icon data={expanded ? ChevronUp : ChevronDown} size={ICON_SIZE} />
+                        </Button>
+                    </div>
+                )}
+            </Disclosure.Summary>
+            <div className={cnBannerSettings('fields')}>{children}</div>
+        </Disclosure>
     );
 }

@@ -80,7 +80,7 @@ export function BackgroundField({background}: {background: BackgroundControls}) 
                             )}
                         </div>
                         {image && (
-                            <Checkbox size="l" checked={value['bg-image-blur']} onUpdate={setBlur}>
+                            <Checkbox size="m" checked={value['bg-image-blur']} onUpdate={setBlur}>
                                 {i18n('background-blur')}
                             </Checkbox>
                         )}

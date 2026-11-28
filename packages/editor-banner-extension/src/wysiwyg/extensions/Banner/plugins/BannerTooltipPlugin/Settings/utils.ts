@@ -6,11 +6,6 @@ import type {
 
 import {i18n} from '../../../../../../i18n';
 
-export function logClick(name: string) {
-    // eslint-disable-next-line no-console -- Settings actions are demonstration placeholders.
-    console.log(`${name} clicked`);
-}
-
 const bgColorPercents: Record<BannerBgColorSaturation, number> = {
     light: 20,
     medium: 50,

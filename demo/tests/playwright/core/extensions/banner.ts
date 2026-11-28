@@ -1,11 +1,18 @@
 import type {Expect, Locator, Page} from '@playwright/test';
 
+import type {MarkdownEditorPage} from '../editor';
 import {test as base, expect} from '../index';
+
+const SETTINGS_INSET = 16;
 
 export class BannerBlock {
     readonly blocks: Locator;
     readonly toolbar: Locator;
     readonly settingsButton: Locator;
+    readonly editable: Locator;
+    readonly buttonRows: Locator;
+    readonly images: Locator;
+    readonly imagePopup: Locator;
     readonly removeButton: Locator;
     readonly settings: Locator;
     readonly height: Locator;
@@ -15,11 +22,17 @@ export class BannerBlock {
     readonly backgroundPopup: Locator;
     protected readonly page: Page;
     protected readonly expect: Expect;
+    protected readonly editor: MarkdownEditorPage;
 
-    constructor(page: Page, expect: Expect) {
+    constructor(page: Page, expect: Expect, editor: MarkdownEditorPage) {
         this.page = page;
         this.expect = expect;
-        this.blocks = page.locator('.ProseMirror .g-md-banner-plugin');
+        this.editor = editor;
+        this.editable = page.locator('.ProseMirror');
+        this.blocks = this.editable.locator('.g-md-banner-plugin');
+        this.buttonRows = this.blocks.locator('.g-md-button-plugin-row');
+        this.images = this.blocks.locator('.g-md-banner-image-plugin');
+        this.imagePopup = page.getByRole('dialog', {name: 'Image', exact: true});
         this.toolbar = page.getByTestId('g-md-toolbar-banner');
         this.settingsButton = this.toolbar.getByRole('button', {name: 'Settings', exact: true});
         this.removeButton = this.toolbar.getByRole('button', {name: 'Delete', exact: true});
@@ -39,10 +52,6 @@ export class BannerBlock {
         return this.settings.getByRole('switch', {name, exact: true});
     }
 
-    async clickToggle(name: string) {
-        await this.settings.getByText(name, {exact: true}).click();
-    }
-
     section(name: string) {
         return this.settings.getByRole('button', {name, exact: true});
     }
@@ -54,7 +63,7 @@ export class BannerBlock {
     }
 
     get background() {
-        return this.settings.getByRole('button', {name: 'Background No background', exact: true});
+        return this.settings.getByRole('button', {name: /^Background /});
     }
 
     backgroundTab(name: string) {
@@ -76,19 +85,33 @@ export class BannerBlock {
         await this.page.mouse.move(0, 0);
     }
 
-    /** Distances from the top and right edges of the block to the panel. */
-    async settingsInsets() {
-        const [block, settings] = await Promise.all([
-            this.blocks.boundingBox(),
+    async buttonsInRows() {
+        return this.buttonRows.evaluateAll((rows) =>
+            rows.map((row) =>
+                Array.from(row.querySelectorAll('.g-md-button-plugin'), (button) => {
+                    const {y, width} = button.getBoundingClientRect();
+                    return {y, width};
+                }),
+            ),
+        );
+    }
+
+    async settingsOffsets() {
+        const [editable, settings] = await Promise.all([
+            this.editable.boundingBox(),
             this.settings.boundingBox(),
         ]);
-        return (
-            block &&
-            settings && [
-                Math.round(settings.y - block.y),
-                Math.round(block.x + block.width - settings.x - settings.width),
-            ]
-        );
+        const viewport = this.page.viewportSize();
+        if (!editable || !settings || !viewport) return null;
+        const right = Math.min(editable.x + editable.width, viewport.width - SETTINGS_INSET);
+        return [
+            Math.round(settings.y - editable.y),
+            Math.round(settings.x + settings.width - right),
+        ];
+    }
+
+    async scrollSettingsToEnd() {
+        await this.settings.evaluate((element) => element.scrollTo({top: element.scrollHeight}));
     }
 
     async settingsBottom() {
@@ -96,7 +119,11 @@ export class BannerBlock {
         return settings && Math.round(settings.y + settings.height);
     }
 
-    /** The editor opens with the cursor in the first block, which shows its toolbar. */
+    async focusEditor() {
+        await this.editor.focus();
+        await this.editor.press('ControlOrMeta+Home');
+    }
+
     async hideToolbar() {
         await this.expect(this.toolbar).toBeVisible();
         await this.page.keyboard.press('Escape');
@@ -118,7 +145,7 @@ type BannerFixtures = {banner: BannerBlock};
 type Test = ReturnType<typeof base.extend<BannerFixtures>>;
 
 export const test: Test = base.extend<BannerFixtures>({
-    banner: async ({page}, use) => {
-        await use(new BannerBlock(page, expect));
+    banner: async ({page, editor}, use) => {
+        await use(new BannerBlock(page, expect, editor));
     },
 });

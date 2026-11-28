@@ -4,6 +4,7 @@ import {ButtonParserSpecs} from './parser';
 import {ButtonSchemaSpecs} from './schema';
 import {ButtonSerializerSpecs} from './serializer';
 export {ButtonNodeAttr, buttonNodeName, buttonNodeType} from './const';
+export {buttonLabel, buttonPlaceholder, hasButtonLabel, isButton, isButtonRow} from './utils';
 export const ButtonSpecs: ExtensionAuto = (builder) => {
     builder.use(ButtonSchemaSpecs).use(ButtonParserSpecs).use(ButtonSerializerSpecs);
 };

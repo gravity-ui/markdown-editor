@@ -1,3 +1,7 @@
+@use 'sass:string';
+@use '../mixins';
+@use '../variables';
+
 $bg-colors: (
     'gray-light': var(--g-color-base-neutral-light),
     'gray-medium': var(--g-color-base-neutral-medium),
@@ -26,34 +30,102 @@ $bg-colors: (
     }
 }
 
+$max-content-width: 10000px;
+$image: '.g-md-banner-image-plugin';
+$button: '.g-md-button-plugin';
+
+@mixin on-fill {
+    --g-md-banner-content-plugin-link-color: var(--_--link-color);
+    --g-md-banner-content-plugin-link-hover-color: var(--_--link-hover-color);
+    --g-md-banner-content-plugin-link-decoration-line: var(--_--link-decoration-line);
+}
+
+@mixin on-background {
+    --g-md-button-plugin-focus-outline-color: var(--_--button-focus-outline-color);
+    --g-md-banner-content-plugin-link-focus-outline-color: var(--_--link-focus-outline-color);
+    --g-md-banner-content-plugin-code-color: var(--_--code-color);
+    --g-md-banner-content-plugin-code-background: var(--_--code-background);
+    @include on-fill;
+}
+
 .g-md-banner-plugin {
+    --_--border-radius: var(--g-md-banner-plugin-border-radius, var(--g-border-radius-2xl, 16px));
+    --_--padding: var(--g-md-banner-plugin-padding, var(--g-spacing-8, 32px));
+    --_--text-gap: var(--g-md-banner-plugin-text-gap, var(--g-spacing-4, 16px));
+    --_--buttons-gap: var(--g-md-banner-plugin-buttons-gap, var(--g-spacing-8, 32px));
+    --_--image-width: var(--g-md-banner-plugin-image-width, 50%);
+    --_--image-padding: var(--g-md-banner-plugin-image-padding, var(--g-spacing-2, 8px));
+    --_--button-focus-outline-color: var(
+        --g-md-banner-plugin-button-focus-outline-color,
+        var(--g-color-text-primary)
+    );
+    --_--link-focus-outline-color: var(
+        --g-md-banner-plugin-link-focus-outline-color,
+        var(--_--button-focus-outline-color)
+    );
+    --_--link-color: var(--g-md-banner-plugin-link-color, currentColor);
+    --_--link-hover-color: var(--g-md-banner-plugin-link-hover-color, currentColor);
+    --_--link-decoration-line: var(--g-md-banner-plugin-link-decoration-line, underline);
+    --_--code-color: var(--g-md-banner-plugin-code-color, currentColor);
+    --_--code-background: var(--g-md-banner-plugin-code-background, var(--g-color-base-generic));
+    --_--blur: var(--g-md-banner-plugin-blur, 12px);
+    --_--narrow-padding: var(--g-md-banner-plugin-narrow-padding, var(--g-spacing-4, 16px));
+    --_--narrow-image-aspect-ratio: var(
+        --g-md-banner-plugin-narrow-image-aspect-ratio,
+        var(--_--narrow-image-ratio)
+    );
+
+    --_--content-padding: var(--_--padding);
+    --_--content-column: 1 / -1;
+    --_--image-inset-start: auto;
+    --_--image-inset-end: 0;
+
     // `initial` stops inheritance and selects the fallback of `var()`.
     --_--bg-color: initial;
+
+    position: relative;
+
+    display: grid;
+    align-content: center;
+    grid-template-columns: minmax(0, $max-content-width);
 
     max-width: var(--_--width);
     min-height: var(--_--height);
     margin-block: var(--g-md-banner-plugin-margin-block, 0 var(--g-spacing-5, 20px));
     margin-inline: var(--g-md-banner-plugin-margin-inline, 0);
 
-    border-radius: var(--g-border-radius-2xl, 16px);
+    text-align: start;
+
+    border-radius: var(--_--border-radius);
     background-color: var(--_--bg-color, transparent);
+    container: g-md-banner-plugin / inline-size;
+    overflow-wrap: anywhere;
 
     @each $name, $_ in $bg-colors {
         &_bg-color_#{$name} {
             --_--bg-color: var(--g-md-banner-plugin-bg-color-#{$name});
+
+            @if string.index($name, '-medium') or string.index($name, '-heavy') {
+                @include on-background;
+            } @else {
+                @include on-fill;
+            }
         }
     }
 
     &_height_s {
         --_--height: var(--g-md-banner-plugin-height-s, 236px);
+        --_--narrow-image-ratio: 327 / 133;
     }
 
     &_height_m {
         --_--height: var(--g-md-banner-plugin-height-m, 300px);
+        --_--narrow-image-ratio: 327 / 173;
     }
 
     &_height_l {
         --_--height: var(--g-md-banner-plugin-height-l, 420px);
+        --_--narrow-image-ratio: 327 / 204;
     }
 
     &_width_s {
@@ -72,6 +144,89 @@ $bg-colors: (
         --_--width: none;
     }
 
+    &_bg-image {
+        @include on-background;
+    }
+
+    &_align_center {
+        text-align: center;
+    }
+
+    &_align_right {
+        text-align: end;
+    }
+
+    &_vertical_top {
+        align-content: start;
+    }
+
+    &_vertical_bottom {
+        align-content: end;
+    }
+
+    &#{&} > * {
+        grid-column: var(--_--content-column);
+
+        min-width: 0;
+        margin-block: 0;
+        margin-inline: var(--_--content-padding);
+    }
+
+    &#{&} > * + * {
+        margin-block-start: var(--_--text-gap);
+    }
+
+    &#{&} > * + #{$button}-row {
+        margin-block-start: var(--_--buttons-gap);
+    }
+
+    &#{&} > :nth-child(1 of :not(#{$image})) {
+        margin-block-start: var(--_--content-padding);
+    }
+
+    &#{&} > :nth-last-child(1 of :not(#{$image})) {
+        margin-block-end: var(--_--content-padding);
+    }
+
+    &_align_center > #{$button}-row {
+        justify-content: center;
+    }
+
+    &_align_right > #{$button}-row {
+        justify-content: flex-end;
+    }
+
+    &:has(> #{$image}) {
+        --_--content-column: 1;
+
+        grid-template-columns: repeat(2, minmax(0, $max-content-width * 0.5));
+    }
+
+    &:has(> #{$image}:only-child) {
+        align-content: stretch;
+    }
+
+    &_align_right:has(> #{$image}) {
+        --_--content-column: 2;
+        --_--image-inset-start: 0;
+        --_--image-inset-end: auto;
+    }
+
+    &#{&} > #{$image} {
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline: var(--_--image-inset-start) var(--_--image-inset-end);
+
+        grid-column: auto;
+
+        box-sizing: border-box;
+        width: calc(var(--_--image-width) - 2 * var(--_--image-padding));
+        max-width: calc(50% - 2 * var(--_--image-padding));
+        height: calc(100% - 2 * var(--_--image-padding));
+        max-height: none;
+        margin: var(--_--image-padding);
+    }
+
     // Doubled class: the `background` shorthand of `.g-root` resets these in a fixed theme.
     &#{&}_bg-image {
         background-repeat: no-repeat;
@@ -83,8 +238,6 @@ $bg-colors: (
     // The layer blurs the background of the block within the block bounds:
     // nothing overflows the block, and its content is not clipped.
     &#{&}_bg-image-blur {
-        position: relative;
-
         isolation: isolate;
 
         &::before {
@@ -96,7 +249,7 @@ $bg-colors: (
             pointer-events: none;
 
             border-radius: inherit;
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(var(--_--blur));
         }
     }
 
@@ -112,5 +265,60 @@ $bg-colors: (
         font: inherit;
 
         background-color: var(--_--bg-color, var(--g-color-base-background));
+    }
+}
+
+@media print {
+    .g-md-banner-plugin {
+        break-inside: avoid;
+        print-color-adjust: exact;
+    }
+}
+
+@container g-md-banner-plugin (width < #{variables.$narrow-width}) {
+    .g-md-banner-plugin {
+        &#{&} > * {
+            --_--content-padding: var(--_--narrow-padding);
+            --_--content-column: 1 / -1;
+        }
+
+        &#{&} > #{$image} {
+            position: static;
+
+            grid-column: 1 / -1;
+            grid-row: 1;
+            justify-self: stretch;
+
+            width: auto;
+            max-width: none;
+            height: auto;
+            aspect-ratio: var(--_--narrow-image-aspect-ratio);
+        }
+
+        &#{&} > #{$image}:only-child {
+            align-self: stretch;
+        }
+
+        & > #{$button}-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        &
+            > #{$button}-row:has(> :nth-child(2 of #{$button})):not(
+                :has(> :nth-child(3 of #{$button}))
+            ) {
+            flex-direction: row;
+
+            > #{$button} {
+                flex: 1 1 max-content;
+
+                min-width: calc((100% - var(--_--gap)) / 2);
+            }
+        }
+
+        #{$button} {
+            @include mixins.button-size-xl;
+        }
     }
 }

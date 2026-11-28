@@ -1,0 +1,17 @@
+@mixin button-size-l {
+    --_--height: 36px;
+    --_--padding: 16px;
+    --_--padding-block: 8px;
+    --_--border-radius: var(--g-border-radius-l, 8px);
+    --_--font-size: var(--g-text-body-1-font-size, 13px);
+    --_--line-height: var(--g-text-body-1-line-height, 18px);
+}
+
+@mixin button-size-xl {
+    --_--height: 44px;
+    --_--padding: 24px;
+    --_--padding-block: 12px;
+    --_--border-radius: var(--g-border-radius-xl, 10px);
+    --_--font-size: var(--g-text-body-2-font-size, 15px);
+    --_--line-height: var(--g-text-body-2-line-height, 20px);
+}

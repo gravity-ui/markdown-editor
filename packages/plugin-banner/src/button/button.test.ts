@@ -47,16 +47,22 @@ describe('Button Markdown', () => {
         const html = md.renderInline(':button[**Bold** & <b>tag</b> \\] [pair]]');
         expect(html).toContain('>**Bold** &amp; &lt;b&gt;tag&lt;/b&gt; ] [pair]</a>');
     });
-    it.each([
-        ':button',
-        ':button[]',
-        ':button[   ]',
-        ':button[](/page)',
-        ':button(/page)',
-        ':button{view="flat"}',
-    ])('should render an empty link for the empty button %j', (markup) => {
-        expect(md.renderInline(`Before ${markup} After`)).toMatch(/^Before <a [^>]+><\/a> After$/);
-    });
+    it.each([':button[]', ':button[   ]', ':button[](/page)'])(
+        'should render an empty link for the empty button %j',
+        (markup) => {
+            expect(md.renderInline(`Before ${markup} After`)).toMatch(
+                /^Before <a [^>]+><\/a> After$/,
+            );
+        },
+    );
+    it.each([':button', ':button(/page)', ':button{view="flat"}'])(
+        'should keep the button %j without a label as text',
+        (markup) => {
+            expect(md.renderInline(`Before ${markup} After`)).toBe(
+                `Before ${md.utils.escapeHtml(markup)} After`,
+            );
+        },
+    );
     it('should protect links opened in a new tab', () => {
         expect(md.renderInline(':button[Open](https://example.com){target="_blank"}')).toContain(
             'target="_blank" rel="noopener noreferrer"',

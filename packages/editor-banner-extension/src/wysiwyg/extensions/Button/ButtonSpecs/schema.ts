@@ -7,6 +7,7 @@ import {
 } from '@gravity-ui/markdown-plugin-banner';
 
 import {i18n} from '../../../../i18n';
+import {singleLine} from '../../../utils/directive';
 
 import {ButtonNodeAttr, buttonNodeName} from './const';
 import {buttonLabel} from './utils';
@@ -33,7 +34,7 @@ export const ButtonSchemaSpecs: ExtensionAuto = (builder) => {
                 priority: 60,
                 getAttrs: (dom) => ({
                     ...buttonFromAttrs((name) => dom.getAttribute(name)),
-                    [ButtonNodeAttr.Label]: dom.textContent?.trim() ?? '',
+                    [ButtonNodeAttr.Label]: singleLine(dom.textContent ?? '').trim(),
                 }),
             },
         ],

@@ -1,80 +1,101 @@
 import {Gear, TrashBin} from '@gravity-ui/icons';
 import {
-    type FileUploadHandler,
-    Toolbar,
+    type ToolbarBaseProps,
     type ToolbarData,
     ToolbarDataType,
-    cn,
 } from '@gravity-ui/markdown-editor';
-import type {Node} from '@gravity-ui/markdown-editor/pm/model';
+import type {Attrs} from '@gravity-ui/markdown-editor/pm/model';
+import type {Command} from '@gravity-ui/markdown-editor/pm/state';
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import {
     type LinkParser,
     bannerBackground,
     bannerDimensions,
-    normalizeLinkUrl,
+    bannerLayout,
 } from '@gravity-ui/markdown-plugin-banner';
 import {ClipboardButton} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../../../i18n';
+import {BlockToolbar, isActive, isEnable} from '../../../../components/BlockToolbar';
+import {imageUploader} from '../../../../components/settings';
 import {uploadNodeFile} from '../../../../plugins/NodeUploadPlugin';
+import {runCommand} from '../../../../utils/commands';
+import {buttonNodeType} from '../../../Button/ButtonSpecs';
 import {
+    type RemovedParts,
+    addBannerButton,
     bannerBackgroundSources,
     removeBanner,
+    removeBannerButton,
     setBannerBackground,
     setBannerDimension,
+    setBannerLayout,
+    toggleBannerPart,
 } from '../../commands';
-import type {BannerOptions} from '../../index';
+import type {BannerUploadOptions} from '../../index';
+import type {BannerParts} from '../../utils';
 
 import type {BackgroundControls} from './Settings/BackgroundField';
 import {BannerSettings} from './Settings/BannerSettings';
+import type {ContentControls} from './Settings/SettingsFields';
 
-import './BannerToolbar.scss';
-
-const b = cn('banner-toolbar');
-
-/** The open toolbar of each editor, for the keymap to move focus into it. */
-export const bannerToolbars = new WeakMap<EditorView, HTMLElement>();
-
-const isActive = () => false;
-const isEnable = () => true;
-
-export type BannerToolbarOptions = BannerOptions & {fileUploadHandler?: FileUploadHandler};
-
-type BannerToolbarProps = BannerToolbarOptions & {
+type BannerToolbarProps = BannerUploadOptions & {
     view: EditorView;
-    node: Node;
+    attrs: Attrs;
     pos: number;
     block: HTMLElement | null;
+    parts: BannerParts;
+    onSettingsLayer: (layer: HTMLDivElement | null) => void;
     markup: () => string;
     parser: LinkParser;
 };
 
+const COPY_BUTTON_WIDTH = 28;
+
+const removedParts = new WeakMap<HTMLElement, RemovedParts>();
+
+function removedPartsOf(block: HTMLElement | null): RemovedParts {
+    if (!block) return new Map();
+    const removed = removedParts.get(block) ?? new Map();
+    removedParts.set(block, removed);
+    return removed;
+}
+
+type BannerCopyButtonProps = ToolbarBaseProps<EditorView> & {markup?: () => string};
+
+function BannerCopyButton({markup = () => ''}: BannerCopyButtonProps) {
+    return <ClipboardButton qa="banner-copy" text={markup} />;
+}
+
 export function BannerToolbar({
     view,
-    node,
+    attrs,
     pos,
     block,
+    parts,
+    onSettingsLayer,
     markup,
     parser,
     fileUploadHandler,
     imageTypes,
     maxImageSize,
 }: BannerToolbarProps) {
-    const uploadImage =
-        fileUploadHandler &&
-        (async (file: File) => {
-            const {url} = await fileUploadHandler(file);
-            const image = normalizeLinkUrl(parser, url);
-            if (!image) throw new Error(`Unsupported image address: ${url}`);
-            return image;
-        });
+    const run = (command: Command) => runCommand(view, command);
+    const uploadImage = fileUploadHandler && imageUploader(fileUploadHandler, parser);
+    const content: ContentControls = {
+        parts,
+        buttonsAvailable: Boolean(buttonNodeType(view.state.schema)),
+        onPartChange: (part, enabled) =>
+            run(toggleBannerPart(pos, part, enabled, removedPartsOf(block))),
+        onButtonChange: (index, enabled) =>
+            run(enabled ? addBannerButton(pos) : removeBannerButton(pos, index)),
+    };
     const background: BackgroundControls = {
-        value: bannerBackground(node.attrs),
+        value: bannerBackground(attrs),
         parser,
         imageTypes,
         maxImageSize,
-        onChange: (value) => setBannerBackground(pos, value)(view.state, view.dispatch),
+        onChange: (value) => run(setBannerBackground(pos, value)),
         upload:
             uploadImage &&
             ((file, signal) =>
@@ -99,12 +120,14 @@ export function BannerToolbar({
                 exec: () => {},
                 renderPopup: ({anchorElement, hide}) => (
                     <BannerSettings
-                        block={block}
+                        editor={view.dom}
+                        onLayer={onSettingsLayer}
                         button={anchorElement}
-                        dimensions={bannerDimensions(node.attrs)}
-                        onChange={(name, value) =>
-                            setBannerDimension(pos, name, value)(view.state, view.dispatch)
-                        }
+                        dimensions={bannerDimensions(attrs)}
+                        onChange={(name, value) => run(setBannerDimension(pos, name, value))}
+                        layout={bannerLayout(attrs)}
+                        onLayoutChange={(name, value) => run(setBannerLayout(pos, name, value))}
+                        content={content}
                         background={background}
                         onClose={hide}
                     />
@@ -113,8 +136,9 @@ export function BannerToolbar({
             {
                 id: 'banner-copy',
                 type: ToolbarDataType.ReactComponent,
-                width: 28,
-                component: () => <ClipboardButton text={markup} />,
+                width: COPY_BUTTON_WIDTH,
+                component: BannerCopyButton,
+                props: {markup} satisfies Partial<BannerCopyButtonProps>,
                 noRerenderOnUpdate: true,
             },
         ],
@@ -122,30 +146,15 @@ export function BannerToolbar({
             {
                 id: 'banner-remove',
                 type: ToolbarDataType.SingleButton,
-                theme: 'danger',
                 icon: {data: TrashBin},
                 title: i18n('remove'),
+                theme: 'danger',
                 isActive,
                 isEnable,
-                exec: (editor) => removeBanner(pos)(editor.state, editor.dispatch),
+                exec: (editor) => runCommand(editor, removeBanner(pos)),
             },
         ],
     ];
 
-    return (
-        <div
-            className={b()}
-            ref={(element) => {
-                if (element) bannerToolbars.set(view, element);
-                else bannerToolbars.delete(view);
-            }}
-        >
-            <Toolbar
-                editor={view}
-                focus={() => view.focus()}
-                qa="g-md-toolbar-banner"
-                data={data}
-            />
-        </div>
-    );
+    return <BlockToolbar view={view} qa="g-md-toolbar-banner" data={data} />;
 }

@@ -1,5 +1,6 @@
 import {cn} from '@bem-react/classname';
 
+import {filesGalleryExcludeAttrs} from '../const';
 import {toCssUrl} from '../url';
 import {type AttrGetter, dataAttrs} from '../utils';
 
@@ -7,6 +8,7 @@ import {
     type BannerBackground,
     type BannerDimensions,
     type BannerImage,
+    type BannerLayout,
     type BannerTitle,
     bannerClassName,
     bannerImageClassName,
@@ -18,6 +20,8 @@ import {
     bannerBackgroundValues,
     bannerDimensions,
     bannerImage,
+    bannerLayout,
+    bannerLayoutValues,
     bannerTitle,
     bannerTitleValues,
 } from './utils';
@@ -25,22 +29,27 @@ import {
 const b = cn(bannerClassName);
 const bTitle = cn(bannerTitleClassName);
 
-type BannerAttrsInput = Partial<Record<keyof BannerDimensions | keyof BannerBackground, unknown>>;
+type BannerAttrsInput = Partial<
+    Record<keyof BannerDimensions | keyof BannerLayout | keyof BannerBackground, unknown>
+>;
 
 export function bannerRender(attrs: BannerAttrsInput) {
     const dimensions = bannerDimensions(attrs);
+    const layout = bannerLayoutValues(bannerLayout(attrs));
     const background = bannerBackground(attrs);
     const backgroundImage = background['bg-image'] && toCssUrl(background['bg-image']);
     const theme = background['bg-theme'];
     const data: Record<string, string> = {
+        ...filesGalleryExcludeAttrs,
         'data-height': dimensions.height,
         'data-width': dimensions.width,
-        ...dataAttrs(bannerBackgroundValues(background)),
+        ...dataAttrs({...layout, ...bannerBackgroundValues(background)}),
     };
     return {
         className: b(
             {
                 ...dimensions,
+                ...layout,
                 'bg-color': background['bg-color'] ?? undefined,
                 'bg-image': Boolean(backgroundImage),
                 'bg-image-blur': background['bg-image-blur'],
@@ -63,6 +72,7 @@ export function bannerAttrs(attrs: BannerAttrsInput): Record<string, string> {
 export function bannerFromAttrs(getAttr: AttrGetter) {
     return {
         ...bannerDimensions({height: getAttr('data-height'), width: getAttr('data-width')}),
+        ...bannerLayout({align: getAttr('data-align'), vertical: getAttr('data-vertical')}),
         ...bannerBackground({
             'bg-color': getAttr('data-bg-color'),
             'bg-image': getAttr('data-bg-image'),

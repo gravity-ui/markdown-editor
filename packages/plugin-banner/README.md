@@ -34,6 +34,8 @@ Sizes are set by `--g-md-banner-plugin-height-{s,m,l}` and `--g-md-banner-plugin
 Margins are set by `--g-md-banner-plugin-margin-block` (`0 var(--g-spacing-5)` by default) and `--g-md-banner-plugin-margin-inline` (`0` by default).
 The corner radius uses `--g-border-radius-2xl` (16 px by default).
 
+Use `align` to place the content at `left`, `center`, or `right` (default `left`). Use `vertical` for `top`, `center`, or `bottom` (default `center`).
+
 ### Background
 
 The fill is the `background-color` of the block, set by the `_bg-color_<value>` modifier.

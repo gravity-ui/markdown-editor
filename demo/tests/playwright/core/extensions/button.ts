@@ -95,6 +95,24 @@ export class ButtonBlock {
         );
     }
 
+    buttonGap(first: string, second: string, blocks = this.blocks) {
+        return blocks.evaluateAll(
+            (elements, [firstLabel, secondLabel]) => {
+                const rect = (label: string) =>
+                    elements
+                        .find((element) => element.textContent === label)
+                        ?.getBoundingClientRect();
+                const start = rect(firstLabel);
+                const end = rect(secondLabel);
+                if (!start || !end || start.top !== end.top) {
+                    throw new Error('Expected both buttons on the same line');
+                }
+                return end.left - start.right;
+            },
+            [first, second],
+        );
+    }
+
     getFilledBackgrounds(blocks = this.blocks) {
         return blocks.evaluateAll((elements) =>
             elements

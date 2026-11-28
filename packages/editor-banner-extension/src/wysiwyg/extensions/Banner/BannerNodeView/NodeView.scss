@@ -1,16 +1,22 @@
 .g-md-banner-nodeview {
-    box-sizing: border-box;
+    --_--frame-width: 2px;
 
-    border: 2px dashed var(--g-color-line-generic);
+    &:not([data-bg-color], [data-bg-image])::after {
+        position: absolute;
+        inset: 0;
 
-    // The dashed frame marks a block without a background; a background covers the frame area.
-    &:is([data-bg-color], [data-bg-image]) {
-        border-color: transparent;
-        background-origin: border-box;
+        content: '';
+        pointer-events: none;
+
+        border: var(--_--frame-width) dashed var(--g-color-line-generic);
+        border-radius: inherit;
     }
 
-    // The blurred image layer is positioned in the padding box; the margin extends it over the frame.
-    &[data-bg-image-blur]::before {
-        margin: -2px;
+    &[data-bg-image],
+    &[data-bg-color$='-medium'],
+    &[data-bg-color$='-heavy'] {
+        .g-md-placeholder {
+            color: var(--g-color-text-complementary);
+        }
     }
 }

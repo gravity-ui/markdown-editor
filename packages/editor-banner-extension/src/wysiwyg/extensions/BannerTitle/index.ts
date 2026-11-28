@@ -1,0 +1,1 @@
+export {BannerTitle} from './BannerTitle';

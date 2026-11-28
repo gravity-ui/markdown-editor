@@ -1,15 +1,13 @@
+@use '../mixins';
+@use '../variables';
+
 .g-md-button-plugin {
-    --_--height: var(--g-md-button-plugin-height, 36px);
     --_--border-width: var(--g-md-button-plugin-border-width, 1px);
     --_--focus-outline-width: var(--g-md-button-plugin-focus-outline-width, 2px);
     --_--pressed-scale: var(--g-md-button-plugin-pressed-scale, 0.96);
-    --_--padding: var(--g-md-button-plugin-padding, var(--g-spacing-4, 16px));
-    --_--padding-block: var(--g-md-button-plugin-padding-block, var(--g-spacing-2, 8px));
-    --_--border-radius: var(--g-md-button-plugin-border-radius, var(--g-border-radius-l, 12px));
-    --_--font-size: var(--g-md-button-plugin-font-size, var(--g-text-body-1-font-size, 14px));
-    --_--line-height: var(--g-md-button-plugin-line-height, var(--g-text-body-1-line-height, 18px));
     --_--focus-outline-color: var(--g-color-line-focus);
     --_--focus-outline-offset: 0;
+    --_--action-focus-outline-offset: 1px;
     --_--transition-duration-transform: var(
         --g-md-button-plugin-transition-duration-transform,
         0.1s
@@ -32,23 +30,26 @@
     position: relative;
 
     display: inline-flex;
+    justify-content: center;
     align-items: center;
 
     box-sizing: border-box;
     max-width: 100%;
-    min-height: var(--_--height);
-    padding: var(--_--padding-block) var(--_--padding);
+    min-height: var(--g-md-button-plugin-height, var(--_--height));
+    padding-block: var(--g-md-button-plugin-padding-block, var(--_--padding-block));
+    padding-inline: var(--g-md-button-plugin-padding, var(--_--padding));
 
-    font-size: var(--_--font-size);
+    font-size: var(--g-md-button-plugin-font-size, var(--_--font-size));
     font-weight: var(--g-text-body-font-weight, 400);
-    line-height: var(--_--line-height);
+    line-height: var(--g-md-button-plugin-line-height, var(--_--line-height));
     text-align: center;
     vertical-align: middle;
     white-space: normal;
     text-decoration: none;
 
-    border-radius: var(--_--border-radius);
+    border-radius: var(--g-md-button-plugin-border-radius, var(--_--border-radius));
     overflow-wrap: anywhere;
+    @include mixins.button-size-l;
 
     // The border lies over the padding, as in the uikit button, so the size does not depend on it.
     // Every view has a border, so forced-colors mode keeps the boundary of the button.
@@ -114,6 +115,8 @@
     &.g-md-button-plugin_view_action {
         --_--color: var(--_--action-color, var(--g-color-text-light-primary));
         --_--background-hover: var(--_--action-background-hover);
+        --_--focus-outline-color: var(--_--action-background);
+        --_--focus-outline-offset: var(--_--action-focus-outline-offset);
 
         background-color: var(--_--action-background);
     }
@@ -212,4 +215,13 @@
             print-color-adjust: exact;
         }
     }
+}
+
+:where(.g-md-banner-plugin) .g-md-button-plugin-row {
+    --_--gap: var(--g-md-button-plugin-gap, var(--g-spacing-4, #{variables.$button-gap}));
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--_--gap);
 }

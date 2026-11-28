@@ -2,7 +2,7 @@
   "name": "@gravity-ui/markdown-editor-banner-extension",
   "version": "0.0.0",
   "private": true,
-  "description": "Banner block extension for @gravity-ui/markdown-editor",
+  "description": "Banner and Button extensions for @gravity-ui/markdown-editor",
   "license": "MIT",
   "repository": {
     "type": "git",

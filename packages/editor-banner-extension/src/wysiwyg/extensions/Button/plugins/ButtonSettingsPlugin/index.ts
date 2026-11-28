@@ -1,1 +1,6 @@
-export {buttonSettingsPlugin, hasButtonSettings, setButtonSettingsOpen} from './plugin';
+export {
+    buttonSettingsPlugin,
+    hasButtonSettings,
+    isButtonSettingsOpen,
+    setButtonSettingsOpen,
+} from './plugin';

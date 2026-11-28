@@ -19,7 +19,7 @@ const bannerClose = `${bannerTokenName}_close`;
 const scriptUrl = ['javascript', 'alert(1)'].join(':');
 
 const html = (height: string, width: string) =>
-    `<div class="g-md-banner-plugin g-md-banner-plugin_height_${height} g-md-banner-plugin_width_${width}" data-height="${height}" data-width="${width}"></div>\n`;
+    `<div class="g-md-banner-plugin g-md-banner-plugin_height_${height} g-md-banner-plugin_width_${width}" data-files-gallery-exclude="true" data-height="${height}" data-width="${width}"></div>\n`;
 
 describe('Banner title Markdown', () => {
     it.each([1, 2, 3, 4, 5, 6])('should accept numeric and string heading size %i', (size) => {

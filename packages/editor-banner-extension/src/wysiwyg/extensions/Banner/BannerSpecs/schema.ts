@@ -3,22 +3,12 @@ import {
     bannerAttrs,
     bannerBackgroundDefaults,
     bannerClassName,
-    bannerContentClassName,
-    bannerContentTokenName,
     bannerDefaults,
     bannerFromAttrs,
-    bannerImageAttrs,
-    bannerImageClassName,
-    bannerImageDefaults,
-    bannerImageFromAttrs,
-    bannerImageTokenName,
-    bannerTitleAttrs,
-    bannerTitleClassName,
-    bannerTitleDefaults,
-    bannerTitleFromAttrs,
-    bannerTitleSizes,
-    bannerTitleTokenName,
+    bannerLayoutDefaults,
 } from '@gravity-ui/markdown-plugin-banner';
+
+import {attrSpecs} from '../../../utils/schema';
 
 import {bannerNodeName} from './const';
 
@@ -27,16 +17,10 @@ export const BannerSchemaSpecs: ExtensionAuto = (builder) => {
         group: 'block',
         content: 'block+',
         defining: true,
+        isolating: true,
         allowSelection: true,
         selectAll: 'node',
-        attrs: {
-            height: {default: bannerDefaults.height},
-            width: {default: bannerDefaults.width},
-            'bg-color': {default: bannerBackgroundDefaults['bg-color']},
-            'bg-image': {default: bannerBackgroundDefaults['bg-image']},
-            'bg-theme': {default: bannerBackgroundDefaults['bg-theme']},
-            'bg-image-blur': {default: bannerBackgroundDefaults['bg-image-blur']},
-        },
+        attrs: attrSpecs({...bannerDefaults, ...bannerLayoutDefaults, ...bannerBackgroundDefaults}),
         parseDOM: [
             {
                 tag: `div.${bannerClassName}`,
@@ -44,48 +28,5 @@ export const BannerSchemaSpecs: ExtensionAuto = (builder) => {
             },
         ],
         toDOM: (node) => ['div', bannerAttrs(node.attrs), 0],
-    }));
-
-    builder.addNodeSpec(bannerTitleTokenName, () => ({
-        group: 'block',
-        content: 'text*',
-        isolating: true,
-        marks: '',
-        attrs: {
-            size: {default: bannerTitleDefaults.size},
-            color: {default: bannerTitleDefaults.color},
-        },
-        parseDOM: bannerTitleSizes.map((size) => ({
-            tag: `h${size}.${bannerTitleClassName}`,
-            // Before the regular headings.
-            priority: 60,
-            getAttrs: (dom) => bannerTitleFromAttrs((name) => dom.getAttribute(name)),
-        })),
-        toDOM: (node) => [`h${node.attrs.size}`, bannerTitleAttrs(node.attrs), 0],
-    }));
-
-    builder.addNodeSpec(bannerContentTokenName, () => ({
-        group: 'block',
-        content: 'block+',
-        isolating: true,
-        parseDOM: [{tag: `div.${bannerContentClassName}`}],
-        toDOM: () => ['div', {class: bannerContentClassName}, 0],
-    }));
-
-    builder.addNodeSpec(bannerImageTokenName, () => ({
-        group: 'block',
-        attrs: {
-            src: {default: bannerImageDefaults.src},
-            alt: {default: bannerImageDefaults.alt},
-            title: {default: bannerImageDefaults.title},
-        },
-        parseDOM: [
-            {
-                tag: `img.${bannerImageClassName}`,
-                priority: 60,
-                getAttrs: (dom) => bannerImageFromAttrs((name) => dom.getAttribute(name)),
-            },
-        ],
-        toDOM: (node) => ['img', bannerImageAttrs(node.attrs)],
     }));
 };

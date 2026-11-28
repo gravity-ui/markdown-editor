@@ -1,4 +1,4 @@
-import {type ReactNode, useCallback, useEffect, useRef, useState} from 'react';
+import {type ReactNode, type Ref, useCallback, useEffect, useRef, useState} from 'react';
 
 import {ArrowsRotateRight} from '@gravity-ui/icons';
 import {
@@ -6,7 +6,7 @@ import {
     type ImageFormSubmitParams,
 } from '@gravity-ui/markdown-editor/_/forms/ImageForm.js';
 import {type LinkParser, normalizeLinkUrl} from '@gravity-ui/markdown-plugin-banner';
-import {Button, Icon, Text} from '@gravity-ui/uikit';
+import {Button, Icon, Text, useForkRef} from '@gravity-ui/uikit';
 
 import {i18n} from '../../../i18n';
 import {focusableSelector} from '../../utils/popup';
@@ -19,6 +19,8 @@ type ImageSourceProps = {
     image: string | null;
     limits: BannerUploadLimits;
     parser: LinkParser;
+    /** Receives the first control of the source: the replace button or the first form field. */
+    firstFieldRef?: Ref<HTMLElement>;
     /** The signal aborts this upload when the form cancels it or unmounts. */
     upload?: (file: File, signal: AbortSignal) => Promise<boolean>;
     onLink: (address: string) => void;
@@ -30,6 +32,7 @@ export function ImageSource({
     image,
     limits,
     parser,
+    firstFieldRef,
     upload,
     onLink,
     onClose,
@@ -42,6 +45,7 @@ export function ImageSource({
     const pending = useRef<AbortController | null>(null);
     const failed = useRef(false);
     const form = useRef<HTMLDivElement | null>(null);
+    const setFirstField = useForkRef(firstFieldRef);
     useEffect(() => () => pending.current?.abort(), []);
     useEffect(() => {
         if (loading || !failed.current) return;
@@ -50,18 +54,24 @@ export function ImageSource({
         if (focused && focused !== document.body) return;
         form.current?.querySelector<HTMLElement>('input[type="file"] + button')?.focus();
     }, [loading]);
-    const replaceRef = useCallback((element: HTMLButtonElement | null) => {
-        if (element && restoreFocus.current) {
-            restoreFocus.current = false;
-            element.focus();
-        }
-    }, []);
+    const replaceRef = useCallback(
+        (element: HTMLButtonElement | null) => {
+            setFirstField?.(element);
+            if (element && restoreFocus.current) {
+                restoreFocus.current = false;
+                element.focus();
+            }
+        },
+        [setFirstField],
+    );
     const formRef = useCallback(
         (element: HTMLDivElement | null) => {
             form.current = element;
-            if (replacing) element?.querySelector<HTMLElement>(focusableSelector)?.focus();
+            const first = element?.querySelector<HTMLElement>(focusableSelector) ?? null;
+            setFirstField?.(first);
+            if (replacing) first?.focus();
         },
-        [replacing],
+        [replacing, setFirstField],
     );
 
     const startReplacing = () => setReplacing(true);

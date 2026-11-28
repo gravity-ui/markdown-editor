@@ -89,6 +89,15 @@ $preview-size: 16px;
         grid-template-columns: minmax(0, 1fr) minmax(0, $popup-field-width);
     }
 
+    &__popup_untitled {
+        padding: var(--g-spacing-4);
+    }
+
+    &__popup_image {
+        width: 344px;
+        max-width: calc(100vw - 2 * var(--g-spacing-4));
+    }
+
     &__image-form {
         padding: 0;
 

@@ -17,7 +17,11 @@ const selectedButton = ({selection, schema}: EditorState) =>
         ? selection
         : null;
 
-const isSettingsOpen = (state: EditorState) => Boolean(key.getState(state)?.find().length);
+export const isButtonSettingsOpen = (state: EditorState) =>
+    Boolean(key.getState(state)?.find().length);
+
+const hasModifiers = (event: KeyboardEvent) =>
+    event.shiftKey || event.ctrlKey || event.metaKey || event.altKey;
 
 export const setButtonSettingsOpen = (tr: Transaction, open: boolean) => tr.setMeta(key, open);
 
@@ -49,7 +53,8 @@ export const buttonSettingsPlugin = () =>
         props: {
             decorations: (state) => key.getState(state),
             handleKeyDown(view, event) {
-                const open = isSettingsOpen(view.state);
+                if (hasModifiers(event)) return false;
+                const open = isButtonSettingsOpen(view.state);
                 if (event.key === 'Enter' && !open && selectedButton(view.state)) {
                     view.dispatch(setButtonSettingsOpen(view.state.tr, true));
                     return true;
