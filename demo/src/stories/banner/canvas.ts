@@ -1,9 +1,12 @@
+export const bannerBackgroundAsset = 'assets/banner-background.webp';
+export const bannerImageAsset = 'assets/banner-image.webp';
+
 export const bannerCanvas = `
 ## Everything at once
 
-:::banner{height="l" width="l" vertical="top" bg-image="assets/banner-background.webp" bg-theme="light" bg-image-blur="true"}
+:::banner{height="l" width="l" vertical="top" bg-image="${bannerBackgroundAsset}" bg-theme="light" bg-image-blur="true"}
 
-::banner-image[Abstract illustration](assets/banner-image.webp)
+::banner-image[Abstract illustration](${bannerImageAsset})
 
 ::banner-title[Team portal]
 
@@ -253,7 +256,7 @@ A saturated background with \`monospace\` text and a [link](https://example.com)
 
 ### Light theme
 
-:::banner{height="s" width="m" bg-image="assets/banner-background.webp" bg-theme="light"}
+:::banner{height="s" width="m" bg-image="${bannerBackgroundAsset}" bg-theme="light"}
 
 ::banner-title[Dark text on a light image]
 
@@ -269,9 +272,9 @@ The content keeps the light theme in a dark page.
 
 ### Dark theme
 
-:::banner{height="s" width="m" bg-image="assets/banner-bg-dark.svg" bg-theme="dark"}
+:::banner{height="s" width="m" bg-image="${bannerBackgroundAsset}" bg-theme="dark"}
 
-::banner-title[Light text on a dark image]
+::banner-title[Light text over the background]
 
 :::banner-content
 
@@ -285,7 +288,7 @@ The content keeps the dark theme in a light page.
 
 ### Blur
 
-:::banner{height="s" width="m" align="center" vertical="top" bg-image="assets/banner-background.webp" bg-theme="light" bg-image-blur="true"}
+:::banner{height="s" width="m" align="center" vertical="top" bg-image="${bannerBackgroundAsset}" bg-theme="light" bg-image-blur="true"}
 
 ::banner-title[A blurred background]
 
@@ -303,7 +306,7 @@ The blur softens the shapes behind the text.
 
 :::banner{height="s" width="m" align="right" bg-color="blue-light"}
 
-::banner-image{src="assets/banner-image-square.svg" alt="Chart"}
+::banner-image[Abstract illustration](${bannerImageAsset})
 
 ::banner-title[Quarterly report]
 
@@ -321,7 +324,7 @@ A right-aligned text moves the image to the left.
 
 :::banner{height="s" width="m" bg-color="gray-light"}
 
-::banner-image{src="assets/banner-image-wide.svg" alt="Office"}
+::banner-image[Abstract illustration](${bannerImageAsset})
 
 ::banner-title[Welcome aboard]
 

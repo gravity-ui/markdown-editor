@@ -17,6 +17,7 @@ import {
 
 import {PlaygroundLayout} from '../../src/components/PlaygroundLayout';
 import {SplitModePreviewLazy} from '../../src/components/SplitModePreviewLazy';
+import {bannerBackgroundAsset, bannerImageAsset} from '../../src/stories/banner/canvas';
 
 import {composeStories} from './utils/compose-stories';
 
@@ -29,7 +30,7 @@ const mainToolbar = [
 
 const wysiwygMarkup = `:::banner
 
-::banner-image[Abstract illustration](/assets/banner-image.webp)
+::banner-image[Abstract illustration](/${bannerImageAsset})
 
 ::banner-title[Team portal]
 
@@ -43,7 +44,7 @@ Portal description.
 
 After`;
 
-const fileUploadHandler: FileUploadHandler = async () => ({url: '/assets/banner-background.webp'});
+const fileUploadHandler: FileUploadHandler = async () => ({url: `/${bannerBackgroundAsset}`});
 
 const toolbars = {
     items: {
@@ -80,7 +81,7 @@ export function BannerExample({
             extensions: (builder) =>
                 builder
                     .use(Banner, {
-                        imageTypes: ['image/jpeg', 'image/gif', 'image/png'],
+                        imageTypes: ['image/jpeg', 'image/gif', 'image/png', 'image/webp'],
                         maxImageSize: 2 * 1024 * 1024,
                     })
                     .use(Button),

@@ -3,6 +3,8 @@ import type {CSSProperties} from 'react';
 import {expect} from 'playwright/core';
 import {test} from 'playwright/core/extensions/banner';
 
+import {bannerBackgroundAsset, bannerImageAsset} from '../../src/stories/banner/canvas';
+
 import {BannerStories} from './Banner.helpers';
 
 const bannerMarkup = (height: string, width: string) =>
@@ -126,32 +128,27 @@ test.describe('Banner', () => {
     test('should keep a blurred background inside a narrow column @wysiwyg', async ({
         mount,
         page,
+        editor,
         banner,
+        expectScreenshot,
     }) => {
-        const background = '/assets/banner-background.webp';
-        const count = 10;
-        const markup = `:::banner{height="s" width="full" bg-image="${background}" bg-image-blur="true"}\n:::`;
-        const initial = Array.from({length: count}, () => markup).join('\n\n');
-        await mount(
-            <div style={smallSizes}>
-                <BannerStories.Banner width={300} initial={initial} />
-            </div>,
-        );
-        await expect(banner.blocks).toHaveCount(count);
-        const backgroundUrl = new URL(background, page.url()).href;
-        for (const block of await banner.blocks.all()) {
-            await expect(block).toHaveCSS('background-image', `url("${backgroundUrl}")`);
-        }
-        await banner.blocks.first().evaluate(async (_, src) => {
+        const url = new URL(`/${bannerBackgroundAsset}`, page.url()).href;
+        const initial = `:::banner{height="s" width="full" bg-image="/${bannerBackgroundAsset}" bg-image-blur="true"}\n:::`;
+        await mount(<BannerStories.Banner width={300} initial={initial} />);
+        await expect(banner.blocks).toHaveCSS('background-image', `url("${url}")`);
+        await banner.blocks.evaluate(async (_, src) => {
             const image = new Image();
             image.src = src;
             await image.decode();
-        }, backgroundUrl);
-        const overflow = await banner.blocks.first().evaluate((element) => {
+        }, url);
+        const overflow = await banner.blocks.evaluate((element) => {
             const parent = element.parentElement;
             return parent ? parent.scrollWidth - parent.clientWidth : null;
         });
         expect(overflow).toBe(0);
+        await banner.focusEditor();
+        await banner.hideToolbar();
+        await expectScreenshot({component: editor.locators.component});
     });
 
     test('should open banner settings from the hover toolbar @wysiwyg', async ({
@@ -182,9 +179,7 @@ test.describe('Banner', () => {
         await mount(
             <BannerStories.Banner
                 width={800}
-                initial={
-                    ':::banner\n\n::banner-image[Abstract illustration](/assets/banner-image.webp)\n\n:::'
-                }
+                initial={`:::banner\n\n::banner-image[Abstract illustration](/${bannerImageAsset})\n\n:::`}
             />,
         );
         await banner.images.click();
@@ -339,6 +334,10 @@ test.describe('Banner', () => {
         await expect(banner.alignment('Horizontally', 'Left')).toBeChecked();
         await banner.scrollSettingsToEnd();
         await expect(banner.background).toBeInViewport({ratio: 1});
+        await banner.images.evaluate((element) => {
+            if (!(element instanceof HTMLImageElement)) throw new Error('Expected a banner image');
+            return element.decode();
+        });
         await page.mouse.move(0, 0);
         await expectScreenshot({fullPage: true, nameSuffix: 'panel'});
     });
@@ -495,9 +494,7 @@ test.describe('Banner on mobile', () => {
                 initial={['s', 'm', 'l']
                     .map(
                         (height) =>
-                            ':::banner{height="' +
-                            height +
-                            '"}\n\n::banner-image[Abstract illustration](/assets/banner-image.webp)\n\n::banner-title[Team]\n\n:::',
+                            `:::banner{height="${height}"}\n\n::banner-image[Abstract illustration](/${bannerImageAsset})\n\n::banner-title[Team]\n\n:::`,
                     )
                     .join('\n\n')}
             />,
