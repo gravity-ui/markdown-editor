@@ -30,6 +30,7 @@ export {
     bannerHeights,
     bannerImageClassName,
     bannerImageDefaults,
+    bannerImageFrameClassName,
     bannerImageTokenName,
     bannerTitleClassName,
     bannerTitleColors,

@@ -34,6 +34,12 @@ Sizes are set by `--g-md-banner-plugin-height-{s,m,l}` and `--g-md-banner-plugin
 Margins are set by `--g-md-banner-plugin-margin-block` (`0 var(--g-spacing-5)` by default) and `--g-md-banner-plugin-margin-inline` (`0` by default).
 The corner radius uses `--g-border-radius-2xl` (16 px by default).
 
+### Layout
+
+The block has an inner padding of `--g-md-banner-plugin-padding` (`var(--g-spacing-8)`, 32 px by default); the minimum height includes it.
+The title and the description sit at the top of the block and are aligned to the left.
+An image is rendered in the `g-md-banner-plugin__image` frame. The frame takes the right half of the block with an inset of `--g-md-banner-plugin-image-padding` (`var(--g-spacing-2)`, 8 px by default), the image covers the frame, and the text keeps to the left column.
+
 ### Background
 
 The fill is the `background-color` of the block, set by the `_bg-color_<value>` modifier.
