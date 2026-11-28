@@ -7,7 +7,11 @@ import {WBannerNodeView} from './BannerNodeView';
 import {BannerSpecs, bannerNodeName} from './BannerSpecs';
 import {insertBanner} from './commands';
 import {insertBannerAction} from './const';
-import {bannerKeymap, bannerTooltipPlugin} from './plugins/BannerTooltipPlugin';
+import {
+    bannerKeymap,
+    bannerTitleTooltipPlugin,
+    bannerTooltipPlugin,
+} from './plugins/BannerTooltipPlugin';
 
 import '@gravity-ui/markdown-plugin-banner/styles.css';
 
@@ -23,6 +27,7 @@ export const Banner = (builder: ExtensionBuilder, options: BannerOptions = {}) =
                 fileUploadHandler: builder.context.get('fileUploadHandler'),
             }),
         )
+        .addPlugin(bannerTitleTooltipPlugin)
         .addPlugin(nodeUploadPlugin)
         .addAction(insertBannerAction, () => ({isEnable: insertBanner, run: insertBanner}))
         // Blocks inside the banner handle Tab first.

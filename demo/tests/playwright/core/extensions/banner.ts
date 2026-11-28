@@ -5,6 +5,9 @@ import {test as base, expect} from '../index';
 export class BannerBlock {
     readonly blocks: Locator;
     readonly toolbar: Locator;
+    readonly title: Locator;
+    readonly titleSizeButton: Locator;
+    readonly titleColorButton: Locator;
     readonly settingsButton: Locator;
     readonly removeButton: Locator;
     readonly settings: Locator;
@@ -22,6 +25,10 @@ export class BannerBlock {
         this.expect = expect;
         this.blocks = page.locator('.ProseMirror .g-md-banner-plugin');
         this.toolbar = page.getByTestId('g-md-toolbar-banner');
+        this.title = this.blocks.getByRole('heading');
+        const titleToolbar = page.getByTestId('g-md-toolbar-banner-title');
+        this.titleSizeButton = titleToolbar.getByRole('button', {name: /^Title size/});
+        this.titleColorButton = titleToolbar.getByRole('button', {name: 'Text color'});
         this.settingsButton = this.toolbar.getByRole('button', {name: 'Settings', exact: true});
         this.removeButton = this.toolbar.getByRole('button', {name: 'Delete', exact: true});
         this.settings = page.getByRole('dialog', {name: 'Banner settings'});
@@ -31,6 +38,16 @@ export class BannerBlock {
         this.options = page.getByRole('option');
         this.images = this.blocks.locator('img.g-md-banner-image-plugin');
         this.backgroundPopup = page.getByRole('dialog', {name: 'Background', exact: true});
+    }
+
+    titleSize(level: number) {
+        return this.page
+            .getByTestId('g-md-banner-title-size-menu')
+            .getByText(`Heading ${level}`, {exact: true});
+    }
+
+    titleColor(name: string) {
+        return this.page.getByTestId('g-md-toolbar-menu').getByText(name, {exact: true});
     }
 
     option(name: string) {

@@ -2,12 +2,13 @@ import type {Keymap} from '@gravity-ui/markdown-editor/core';
 import type {Command} from '@gravity-ui/markdown-editor/pm/state';
 import {bannerTitleTokenName} from '@gravity-ui/markdown-plugin-banner';
 
+import {bannerTitleToolbars} from './BannerTitleToolbar';
 import {bannerToolbars} from './BannerToolbar';
 
 const focusToolbar =
     (last: boolean): Command =>
     (_state, _dispatch, view) => {
-        const toolbar = view && bannerToolbars.get(view);
+        const toolbar = view && (bannerTitleToolbars.get(view) ?? bannerToolbars.get(view));
         if (!toolbar) return false;
         const buttons = toolbar.querySelectorAll('button');
         const button = buttons[last ? buttons.length - 1 : 0];

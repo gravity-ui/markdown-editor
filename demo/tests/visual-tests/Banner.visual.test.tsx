@@ -8,6 +8,8 @@ import {BannerStories} from './Banner.helpers';
 const bannerMarkup = (height: string, width: string) =>
     `:::banner{height="${height}" width="${width}"}\n:::`;
 
+const emptyBanner = `:::banner{height="s" width="m"}\n\n:::\n\nAfter`;
+
 // Host sizes keep the screenshots small; the default sizes are checked in 'should apply default sizes'.
 const smallSizes = {
     '--g-md-banner-plugin-height-s': '40px',
@@ -51,6 +53,52 @@ test.describe('Banner', () => {
             [column?.width, 236],
             [900, 420],
         ]);
+    });
+
+    test('should change the banner title size and color @wysiwyg', async ({
+        mount,
+        page,
+        banner,
+        expectScreenshot,
+    }) => {
+        await page.setViewportSize({width: 980, height: 590});
+        await mount(
+            <BannerStories.Banner
+                width={900}
+                initial={`:::banner{width="full" bg-image="/assets/banner-background.webp" bg-theme="light"}
+
+::banner-title[Team portal]{size="3"}
+
+::banner-image[Abstract illustration](/assets/banner-image.webp)
+
+:::`}
+            />,
+        );
+
+        await banner.title.click();
+        await expect(banner.titleSizeButton).toHaveAccessibleName('Title size: Heading 3');
+        await page.keyboard.press('Tab');
+        await expect(banner.titleSizeButton).toBeFocused();
+        await page.keyboard.press('Enter');
+        await banner.titleSize(1).click();
+        await expect(banner.title).toHaveAttribute('data-size', '1');
+        await expect(banner.titleSizeButton).toHaveAccessibleName('Title size: Heading 1');
+
+        await banner.titleColorButton.click();
+        await banner.titleColor('Blue').click();
+
+        await expect(banner.title).toHaveAttribute('data-color', 'blue');
+        await expect(
+            page.getByText('::banner-title[Team portal]{size="1" color="blue"}'),
+        ).toBeVisible();
+
+        await banner.titleColorButton.click();
+        await expect(banner.titleColor('Blue')).toBeVisible();
+        await page.mouse.move(0, 0);
+        await expectScreenshot({fullPage: true});
+
+        await banner.titleColor('Default').click();
+        await expect(banner.title).not.toHaveAttribute('data-color');
     });
 
     test('should insert via toolbar @wysiwyg', async ({mount, editor, banner}) => {
@@ -121,7 +169,7 @@ test.describe('Banner', () => {
             <BannerStories.Banner
                 width={300}
                 initial={
-                    ':::banner{height="s" width="full" bg-image="https://example.com/banner.png" bg-image-blur="true"}\n:::'
+                    ':::banner{height="s" width="full" bg-image="/assets/banner-background.webp" bg-image-blur="true"}\n:::'
                 }
             />,
         );
@@ -257,7 +305,7 @@ test.describe('Banner', () => {
         expectScreenshot,
     }) => {
         await page.setViewportSize({width: 740, height: 980});
-        await mount(<BannerStories.Banner width={660} />);
+        await mount(<BannerStories.Banner width={660} initial={emptyBanner} />);
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await banner.openSettings();
@@ -288,7 +336,7 @@ test.describe('Banner', () => {
         expectScreenshot,
     }) => {
         await page.setViewportSize({width: 740, height: 980});
-        await mount(<BannerStories.Banner width={660} />);
+        await mount(<BannerStories.Banner width={660} initial={emptyBanner} />);
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await banner.openSettings();
@@ -369,7 +417,7 @@ test.describe('Banner', () => {
         editor,
         banner,
     }) => {
-        await mount(<BannerStories.Banner width={660} />);
+        await mount(<BannerStories.Banner width={660} initial={emptyBanner} />);
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await banner.openSettings();
@@ -572,7 +620,7 @@ test.describe('Banner on mobile', () => {
         banner,
         expectScreenshot,
     }) => {
-        await mount(<BannerStories.Banner width={335} />);
+        await mount(<BannerStories.Banner width={335} initial={emptyBanner} />);
         await expect(banner.blocks).toBeVisible();
         await banner.hideToolbar();
         await expectScreenshot({component: editor.locators.component});
@@ -585,7 +633,9 @@ test.describe('Banner on mobile', () => {
         banner,
         expectScreenshot,
     }) => {
-        await mount(<BannerStories.Banner width={375} />, {rootStyle: {padding: 0}});
+        await mount(<BannerStories.Banner width={375} initial={emptyBanner} />, {
+            rootStyle: {padding: 0},
+        });
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await banner.openSettings();

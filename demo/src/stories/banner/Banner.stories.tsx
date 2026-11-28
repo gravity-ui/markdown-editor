@@ -6,7 +6,19 @@ export default {
     title: 'Extensions / Landing / Banner',
     component: BannerExample,
 } satisfies Meta<typeof BannerExample>;
-export const Banner: StoryObj<typeof BannerExample> = {};
+export const Banner: StoryObj<typeof BannerExample> = {
+    args: {
+        initial: `# Team workspace
+
+:::banner{height="l" width="l" bg-image="assets/banner-background.webp" bg-theme="light" bg-image-blur="true"}
+
+::banner-title[Team portal]
+
+::banner-image[Abstract illustration](assets/banner-image.webp)
+
+:::`,
+    },
+};
 
 const title = '::banner-title[Team portal]{size="2"}';
 const content =
