@@ -47,6 +47,7 @@ test.describe('Button', () => {
         await editor.assertMode('wysiwyg');
         await expect(button.blocks).toHaveCount(EXAMPLES_COUNT);
         expect(await button.getFilledBackgrounds()).not.toContain('rgba(0, 0, 0, 0)');
+        expect(await button.buttonGap('Save', 'Preview')).toBeLessThan(8);
         await expectScreenshot({component: editor.locators.component});
     });
 
@@ -70,6 +71,7 @@ test.describe('Button', () => {
             'rgba(0, 0, 0, 0)',
         );
         expect(await button.getValues(button.variants)).toEqual(before);
+        expect(await button.buttonGap('Save', 'Preview', button.variants)).toBeLessThan(8);
         await expectScreenshot({component: editor.locators.component});
         await editor.switchMode('wysiwyg');
         await expect(button.blocks).toHaveCount(EXAMPLES_COUNT);

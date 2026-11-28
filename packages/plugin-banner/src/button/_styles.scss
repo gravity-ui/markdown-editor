@@ -217,7 +217,7 @@
     }
 }
 
-.g-md-button-plugin-row {
+:where(.g-md-banner-plugin) .g-md-button-plugin-row {
     --_--gap: var(--g-md-button-plugin-gap, var(--g-spacing-4, #{variables.$button-gap}));
 
     display: flex;

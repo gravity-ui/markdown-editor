@@ -3,7 +3,7 @@
 
 $half-gap: math.div(variables.$button-gap, 2);
 
-.ProseMirror .g-md-button-plugin-row {
+.ProseMirror :where(.g-md-banner-plugin) .g-md-button-plugin-row {
     display: flow-root;
 
     text-align: start;
