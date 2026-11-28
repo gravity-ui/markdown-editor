@@ -61,11 +61,17 @@ test.describe('Banner', () => {
         banner,
         expectScreenshot,
     }) => {
-        await page.setViewportSize({width: 480, height: 590});
+        await page.setViewportSize({width: 980, height: 590});
         await mount(
             <BannerStories.Banner
-                width={440}
-                initial={':::banner{width="full"}\n\n::banner-title[Team portal]{size="3"}\n\n:::'}
+                width={900}
+                initial={`:::banner{width="full" bg-image="/assets/banner-background.webp" bg-theme="light"}
+
+::banner-title[Team portal]{size="3"}
+
+::banner-image[Abstract illustration](/assets/banner-image.webp)
+
+:::`}
             />,
         );
 
@@ -163,7 +169,7 @@ test.describe('Banner', () => {
             <BannerStories.Banner
                 width={300}
                 initial={
-                    ':::banner{height="s" width="full" bg-image="https://example.com/banner.png" bg-image-blur="true"}\n:::'
+                    ':::banner{height="s" width="full" bg-image="/assets/banner-background.webp" bg-image-blur="true"}\n:::'
                 }
             />,
         );
