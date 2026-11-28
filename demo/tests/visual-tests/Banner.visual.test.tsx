@@ -53,6 +53,41 @@ test.describe('Banner', () => {
         ]);
     });
 
+    test('should change the banner title color @wysiwyg', async ({
+        mount,
+        page,
+        banner,
+        expectScreenshot,
+    }) => {
+        await page.setViewportSize({width: 480, height: 590});
+        await mount(
+            <BannerStories.Banner
+                width={440}
+                initial={':::banner{width="full"}\n\n::banner-title[Team portal]{size="3"}\n\n:::'}
+            />,
+        );
+
+        await banner.title.click();
+        await expect(banner.titleColorButton).toBeVisible();
+        await page.keyboard.press('Tab');
+        await expect(banner.titleColorButton).toBeFocused();
+        await page.keyboard.press('Enter');
+        await banner.titleColor('Blue').click();
+
+        await expect(banner.title).toHaveAttribute('data-color', 'blue');
+        await expect
+            .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
+            .toContain('::banner-title[Team portal]{size="3" color="blue"}');
+
+        await banner.titleColorButton.click();
+        await expect(banner.titleColor('Blue')).toBeVisible();
+        await page.mouse.move(0, 0);
+        await expectScreenshot({fullPage: true});
+
+        await banner.titleColor('Default').click();
+        await expect(banner.title).not.toHaveAttribute('data-color');
+    });
+
     test('should insert via toolbar @wysiwyg', async ({mount, editor, banner}) => {
         await mount(<BannerStories.Banner width={660} initial="" />);
         await editor.focus();
