@@ -77,7 +77,7 @@ export const BannerImagePopup = memo<BannerImagePopupProps>(function BannerImage
         <PopupLayer onLayer={onLayer}>
             <Popup
                 open
-                className={cnBannerSettings('image-popup')}
+                className={cnBannerSettings('surface')}
                 returnFocus={false}
                 anchorElement={anchorElement}
                 placement={placement[0]}
@@ -88,7 +88,7 @@ export const BannerImagePopup = memo<BannerImagePopupProps>(function BannerImage
                 <dialog
                     open
                     className={cnBannerSettings('dialog', [
-                        cnBannerSettings('popup', {untitled: true}),
+                        cnBannerSettings('popup', {untitled: true, image: true}),
                     ])}
                     aria-label={i18n('image')}
                     data-qa="banner-image-popup"

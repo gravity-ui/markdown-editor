@@ -55,7 +55,10 @@ $button: '.g-md-button-plugin';
     --_--buttons-gap: var(--g-md-banner-plugin-buttons-gap, var(--g-spacing-8, 32px));
     --_--image-width: var(--g-md-banner-plugin-image-width, 50%);
     --_--image-padding: var(--g-md-banner-plugin-image-padding, var(--g-spacing-2, 8px));
-    --_--image-frame-radius: var(--_--border-radius);
+    --_--image-frame-radius: var(
+        --g-md-banner-image-plugin-border-radius,
+        var(--g-border-radius-xl)
+    );
     --_--button-focus-outline-color: var(
         --g-md-banner-plugin-button-focus-outline-color,
         var(--g-color-text-primary)
@@ -71,7 +74,10 @@ $button: '.g-md-button-plugin';
     --_--code-background: var(--g-md-banner-plugin-code-background, var(--g-color-base-generic));
     --_--blur: var(--g-md-banner-plugin-blur, 12px);
     --_--narrow-padding: var(--g-md-banner-plugin-narrow-padding, var(--g-spacing-4, 16px));
-    --_--narrow-image-aspect-ratio: var(--g-md-banner-plugin-narrow-image-aspect-ratio, 16 / 10);
+    --_--narrow-image-aspect-ratio: var(
+        --g-md-banner-plugin-narrow-image-aspect-ratio,
+        var(--_--narrow-image-ratio)
+    );
 
     --_--content-padding: var(--_--padding);
     --_--content-column: 1 / -1;
@@ -113,14 +119,17 @@ $button: '.g-md-button-plugin';
 
     &_height_s {
         --_--height: var(--g-md-banner-plugin-height-s, 236px);
+        --_--narrow-image-ratio: 327 / 133;
     }
 
     &_height_m {
         --_--height: var(--g-md-banner-plugin-height-m, 300px);
+        --_--narrow-image-ratio: 327 / 173;
     }
 
     &_height_l {
         --_--height: var(--g-md-banner-plugin-height-l, 420px);
+        --_--narrow-image-ratio: 327 / 204;
     }
 
     &_width_s {
@@ -288,7 +297,6 @@ $button: '.g-md-button-plugin';
             grid-row: 1;
             justify-self: stretch;
 
-            box-sizing: content-box;
             width: auto;
             max-width: none;
             height: auto;
@@ -302,6 +310,19 @@ $button: '.g-md-button-plugin';
         & > #{$button}-row {
             flex-direction: column;
             align-items: stretch;
+        }
+
+        &
+            > #{$button}-row:has(> :nth-child(2 of #{$button})):not(
+                :has(> :nth-child(3 of #{$button}))
+            ) {
+            flex-direction: row;
+
+            > #{$button} {
+                flex: 1 1 max-content;
+
+                min-width: calc((100% - var(--_--gap)) / 2);
+            }
         }
 
         #{$button} {

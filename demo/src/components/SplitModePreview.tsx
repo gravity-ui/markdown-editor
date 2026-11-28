@@ -42,9 +42,8 @@ import '@diplodoc/transform/dist/css/yfm.css';
 import '@gravity-ui/markdown-plugin-banner/styles.css';
 
 const ML_ATTR = 'data-ml';
-const sanitizeOptions = buildYfmHtmlBlockOptions({
-    allowedAttributes: {iframe: ['srcdoc']},
-});
+// Keep the iframe content created by HTML blocks after the outer sanitizer runs.
+const sanitizeOptions = buildYfmHtmlBlockOptions({allowedAttributes: {iframe: ['srcdoc']}});
 
 export type SplitModePreviewProps = {
     pluginsOptions?: GetPluginsOptions;

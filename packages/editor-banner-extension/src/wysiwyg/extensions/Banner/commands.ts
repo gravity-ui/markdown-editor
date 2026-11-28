@@ -63,11 +63,11 @@ const bannerCommand =
 const partNodes: Record<BannerPart, (schema: Schema) => Node | undefined> = {
     image: (schema) => bannerImageNodeType(schema)?.create(),
     title: (schema) =>
-        bannerTitleNodeType(schema)?.create(null, schema.text(i18n('preview-title'))),
+        bannerTitleNodeType(schema)?.create(null, schema.text(i18n('title-placeholder'))),
     content: (schema) =>
         bannerContentNodeType(schema)?.create(
             null,
-            pType(schema).create(null, schema.text(i18n('preview-description'))),
+            pType(schema).create(null, schema.text(i18n('content-placeholder'))),
         ),
 };
 

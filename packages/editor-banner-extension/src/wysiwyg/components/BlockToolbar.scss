@@ -1,3 +1,11 @@
 .g-md-banner-block-toolbar {
     margin: var(--g-spacing-1);
+
+    &__popup {
+        --g-popup-border-radius: var(--g-border-radius-l);
+
+        &_title {
+            --g-popup-border-radius: var(--g-border-radius-xl);
+        }
+    }
 }

@@ -58,6 +58,11 @@ test.describe('Banner', () => {
         await editor.focus();
         await editor.clickMainToolbarButton('Banner');
         await expect(banner.blocks).toHaveCount(1);
+        await expect(banner.blocks).toContainText('Banner title');
+        await expect(banner.blocks.getByText('Button', {exact: true})).toHaveAttribute(
+            'data-color',
+            'blue',
+        );
     });
 
     test('should insert via toolbar @markup', async ({mount, page, editor}) => {
@@ -66,7 +71,10 @@ test.describe('Banner', () => {
         await editor.clickMainToolbarButton('Banner');
         await expect
             .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
-            .toMatch(/:::banner\{height="\w+" width="\w+"\}\n\n::banner-title\[/);
+            .toMatch(/:::banner\{height="\w+" width="\w+"\}\n\n::banner-title\[Banner title\]/);
+        await expect
+            .poll(() => page.evaluate(() => window.mdEditor?.getValue()))
+            .toContain(']{view="action" color="blue"}');
     });
 
     test('should render dimensions @wysiwyg', async ({mount, editor, banner, expectScreenshot}) => {
@@ -152,6 +160,51 @@ test.describe('Banner', () => {
         expect(overflow).toBe(0);
     });
 
+    test('should open banner settings from the hover toolbar @wysiwyg', async ({
+        mount,
+        page,
+        banner,
+    }) => {
+        await mount(
+            <BannerStories.Banner width={900} initial={'Before\n\n' + bannerMarkup('s', 's')} />,
+        );
+        await expect(banner.toolbar).toBeHidden();
+        await banner.blocks.hover();
+        await expect(banner.toolbar).toBeVisible();
+        await page.mouse.move(0, 0);
+        await expect(banner.toolbar).toBeHidden();
+        await banner.blocks.hover();
+        await banner.openSettings();
+        await expect.poll(() => banner.settingsOffsets()).toEqual([0, 0]);
+        await banner.height.press('Escape');
+        await expect(banner.settings).toBeHidden();
+        await expect(banner.settingsButton).toBeFocused();
+    });
+
+    test('should use the image popup width and radius on desktop @wysiwyg', async ({
+        mount,
+        banner,
+    }) => {
+        await mount(
+            <BannerStories.Banner
+                width={800}
+                initial={
+                    ':::banner\n\n::banner-image[Team](/assets/watercolors/lake-1.webp)\n\n:::'
+                }
+            />,
+        );
+        await banner.images.click();
+        await expect(banner.imagePopup).toBeVisible();
+        expect((await banner.imagePopup.boundingBox())?.width).toBe(344);
+        const radii = await banner.imagePopup.evaluate((dialog) => {
+            const popup = dialog.parentElement;
+            if (!popup) throw new Error('The image dialog must have a popup surface');
+            const style = getComputedStyle(popup);
+            return [style.borderTopLeftRadius, style.getPropertyValue('--g-border-radius-xl')];
+        });
+        expect(radii[0]).toBe(radii[1].trim());
+    });
+
     test('should show the toolbar when the cursor is in the block @wysiwyg', async ({
         mount,
         editor,
@@ -235,10 +288,10 @@ test.describe('Banner', () => {
         await editor.focus();
         await editor.press('ControlOrMeta+Home');
         await banner.openSettings();
-        const block = await banner.blocks.boundingBox();
-        if (!block) throw new Error('The banner must have bounds');
+        const editable = await banner.editable.boundingBox();
+        if (!editable) throw new Error('The editor must have bounds');
         // Less than the minimum height remains between the panel corner and the viewport bottom.
-        const height = Math.round(block.y) + 2 * SETTINGS_INSET + SETTINGS_MIN_HEIGHT - 20;
+        const height = Math.round(editable.y) + 2 * SETTINGS_INSET + SETTINGS_MIN_HEIGHT - 20;
         await page.setViewportSize({width: 700, height});
         await expect.poll(() => banner.settingsBottom()).toBe(height - SETTINGS_INSET);
         expect((await banner.settings.boundingBox())?.height).toBeCloseTo(SETTINGS_MIN_HEIGHT, 0);
@@ -246,7 +299,7 @@ test.describe('Banner', () => {
         await expect(banner.width).toBeInViewport({ratio: 1});
     });
 
-    test('should fit the settings to the viewport after the banner moves @wysiwyg', async ({
+    test('should keep the settings aligned after the editor moves @wysiwyg', async ({
         mount,
         page,
         editor,
@@ -260,7 +313,7 @@ test.describe('Banner', () => {
         await editor.press('ControlOrMeta+Home');
         await banner.openSettings();
         await expect.poll(() => banner.settingsBottom()).toBe(600 - SETTINGS_INSET);
-        // Content above the banner grows without resize or scroll events.
+        // Content above the editor grows without resize or scroll events.
         await page.locator('.playwright-wrapper-test').evaluate((element) => {
             element.style.paddingTop = '120px';
         });
@@ -437,6 +490,57 @@ test.describe('Banner', () => {
 
 test.describe('Banner on mobile', () => {
     test.use({viewport: {width: 375, height: 812}});
+
+    test('should scale the side image by the banner height on mobile @wysiwyg', async ({
+        mount,
+        banner,
+    }) => {
+        await mount(
+            <BannerStories.Banner
+                width={335}
+                initial={['s', 'm', 'l']
+                    .map(
+                        (height) =>
+                            ':::banner{height="' +
+                            height +
+                            '"}\n\n::banner-image[Team](/assets/watercolors/lake-1.webp)\n\n::banner-title[Team]\n\n:::',
+                    )
+                    .join('\n\n')}
+            />,
+        );
+        await expect(banner.images).toHaveCount(3);
+        const sizes = await banner.images.evaluateAll((images) =>
+            images.map((image) => {
+                const {width, height} = image.getBoundingClientRect();
+                return {width, height, radius: getComputedStyle(image).borderTopLeftRadius};
+            }),
+        );
+        for (const [index, target] of [133, 173, 204].entries()) {
+            expect(sizes[index].height).toBeCloseTo((sizes[index].width * target) / 327, 0);
+            expect(sizes[index].radius).toBe('10px');
+        }
+    });
+
+    test('should place only two short buttons side by side @wysiwyg', async ({mount, banner}) => {
+        await mount(
+            <BannerStories.Banner
+                width={335}
+                initial={[
+                    ':::banner\n\n:button[Open](/open) :button[Save](/save)\n\n:::',
+                    ':::banner\n\n:button[Continue to the next step](/next) :button[Save](/save)\n\n:::',
+                    ':::banner\n\n:button[Open](/open) :button[Save](/save) :button[Next](/next)\n\n:::',
+                ].join('\n\n')}
+            />,
+        );
+        await expect(banner.buttonRows).toHaveCount(3);
+        const [short, long, three] = await banner.buttonsInRows();
+        expect(short[0].y).toBe(short[1].y);
+        expect(short[0].width).toBeCloseTo(short[1].width);
+        expect(long[0].y).toBeLessThan(long[1].y);
+        expect(long[0].width).toBeCloseTo(long[1].width);
+        expect(three[0].y).toBeLessThan(three[1].y);
+        expect(three[1].y).toBeLessThan(three[2].y);
+    });
 
     test('should fit a mobile viewport @wysiwyg', async ({
         mount,

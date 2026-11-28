@@ -3,13 +3,16 @@ import type {Expect, Locator, Page} from '@playwright/test';
 import type {MarkdownEditorPage} from '../editor';
 import {test as base, expect} from '../index';
 
-const SETTINGS_OFFSET = 4;
 const SETTINGS_INSET = 16;
 
 export class BannerBlock {
     readonly blocks: Locator;
     readonly toolbar: Locator;
     readonly settingsButton: Locator;
+    readonly editable: Locator;
+    readonly buttonRows: Locator;
+    readonly images: Locator;
+    readonly imagePopup: Locator;
     readonly removeButton: Locator;
     readonly settings: Locator;
     readonly height: Locator;
@@ -25,7 +28,11 @@ export class BannerBlock {
         this.page = page;
         this.expect = expect;
         this.editor = editor;
-        this.blocks = page.locator('.ProseMirror .g-md-banner-plugin');
+        this.editable = page.locator('.ProseMirror');
+        this.blocks = this.editable.locator('.g-md-banner-plugin');
+        this.buttonRows = this.blocks.locator('.g-md-button-plugin-row');
+        this.images = this.blocks.locator('.g-md-banner-image-plugin');
+        this.imagePopup = page.getByRole('dialog', {name: 'Image', exact: true});
         this.toolbar = page.getByTestId('g-md-toolbar-banner');
         this.settingsButton = this.toolbar.getByRole('button', {name: 'Settings', exact: true});
         this.removeButton = this.toolbar.getByRole('button', {name: 'Delete', exact: true});
@@ -78,18 +85,29 @@ export class BannerBlock {
         await this.page.mouse.move(0, 0);
     }
 
+    async buttonsInRows() {
+        return this.buttonRows.evaluateAll((rows) =>
+            rows.map((row) =>
+                Array.from(row.querySelectorAll('.g-md-button-plugin'), (button) => {
+                    const {y, width} = button.getBoundingClientRect();
+                    return {y, width};
+                }),
+            ),
+        );
+    }
+
     async settingsOffsets() {
-        const [block, settings] = await Promise.all([
-            this.blocks.boundingBox(),
+        const [editable, settings] = await Promise.all([
+            this.editable.boundingBox(),
             this.settings.boundingBox(),
         ]);
         const viewport = this.page.viewportSize();
-        if (!block || !settings || !viewport) return null;
-        const right = Math.min(
-            block.x + block.width + SETTINGS_OFFSET + settings.width,
-            viewport.width - SETTINGS_INSET,
-        );
-        return [Math.round(settings.y - block.y), Math.round(settings.x + settings.width - right)];
+        if (!editable || !settings || !viewport) return null;
+        const right = Math.min(editable.x + editable.width, viewport.width - SETTINGS_INSET);
+        return [
+            Math.round(settings.y - editable.y),
+            Math.round(settings.x + settings.width - right),
+        ];
     }
 
     async scrollSettingsToEnd() {

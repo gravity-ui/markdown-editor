@@ -2,8 +2,6 @@
 @use '../variables';
 
 .g-md-button-plugin {
-    @include mixins.button-size-l;
-
     --_--border-width: var(--g-md-button-plugin-border-width, 1px);
     --_--focus-outline-width: var(--g-md-button-plugin-focus-outline-width, 2px);
     --_--pressed-scale: var(--g-md-button-plugin-pressed-scale, 0.96);
@@ -51,6 +49,7 @@
 
     border-radius: var(--g-md-button-plugin-border-radius, var(--_--border-radius));
     overflow-wrap: anywhere;
+    @include mixins.button-size-l;
 
     // The border lies over the padding, as in the uikit button, so the size does not depend on it.
     // Every view has a border, so forced-colors mode keeps the boundary of the button.

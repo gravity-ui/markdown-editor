@@ -45,6 +45,7 @@ type BannerToolbarProps = BannerUploadOptions & {
     pos: number;
     block: HTMLElement | null;
     parts: BannerParts;
+    onSettingsLayer: (layer: HTMLDivElement | null) => void;
     markup: () => string;
     parser: LinkParser;
 };
@@ -72,6 +73,7 @@ export function BannerToolbar({
     pos,
     block,
     parts,
+    onSettingsLayer,
     markup,
     parser,
     fileUploadHandler,
@@ -118,7 +120,8 @@ export function BannerToolbar({
                 exec: () => {},
                 renderPopup: ({anchorElement, hide}) => (
                     <BannerSettings
-                        block={block}
+                        editor={view.dom}
+                        onLayer={onSettingsLayer}
                         button={anchorElement}
                         dimensions={bannerDimensions(attrs)}
                         onChange={(name, value) => run(setBannerDimension(pos, name, value))}

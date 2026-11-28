@@ -34,6 +34,8 @@ export interface BaseTooltipPluginOptions {
     content?: TooltipContentCb;
     nodeType: NodeType | MarkType;
     popupPlacement?: PopupPlacement;
+    /** Adds a class to the Popup surface. By default, no class is added. */
+    popupClassName?: string;
     disableHideOnEscapeKeyDown?: boolean;
 }
 
@@ -73,6 +75,7 @@ export class BaseTooltipPluginView implements PluginView {
     protected focusTrackingRafId: number | null = null;
 
     private readonly idPrefix: string;
+    private readonly popupClassName?: string;
     private renderItem?: RendererItem;
     private selectionUpdate: object | null = null;
     private popupAnchor: HTMLElement | null = null;
@@ -83,6 +86,7 @@ export class BaseTooltipPluginView implements PluginView {
         this.content = options.content;
         this.nodeType = options.nodeType;
         this.popupPlacement = options.popupPlacement;
+        this.popupClassName = options.popupClassName;
         this.disableHideOnEscapeKeyDown = options.disableHideOnEscapeKeyDown;
     }
 
@@ -246,6 +250,7 @@ export class BaseTooltipPluginView implements PluginView {
         if (!this.content) return null;
         return (
             <EditorPopup
+                className={this.popupClassName}
                 editorElement={this.view.dom}
                 anchorElement={currentNode.dom}
                 placement={this.popupPlacement || defaultPlacement}

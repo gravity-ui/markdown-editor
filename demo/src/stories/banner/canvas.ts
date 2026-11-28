@@ -135,7 +135,7 @@ At least 300 px high.
 
 :::banner-content
 
-At least 360 px high.
+At least 420 px high.
 
 :::
 
@@ -151,7 +151,7 @@ At least 360 px high.
 
 :::banner-content
 
-Up to 600 px wide.
+Up to 740 px wide.
 
 :::
 
@@ -361,5 +361,5 @@ A right-aligned text moves the image to the left.
 
 ## Narrow layout
 
-A banner narrower than 600 px stacks the image above the text and stretches the buttons to the full width: pick a mobile size in the **Viewport** toolbar of Storybook, or shrink the window.
+A banner narrower than 600 px stacks the image above the text and stacks long button labels and rows of three buttons: pick a mobile size in the **Viewport** toolbar of Storybook, or shrink the window.
 `.trim();

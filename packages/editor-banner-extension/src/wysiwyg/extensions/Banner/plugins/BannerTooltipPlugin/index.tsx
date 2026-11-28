@@ -1,6 +1,12 @@
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
+import {bannerClassName} from '@gravity-ui/markdown-plugin-banner';
 
-import {type Toolbars, type Tooltips, blockTooltip} from '../../../../components/BlockToolbar';
+import {
+    type Toolbars,
+    type Tooltips,
+    blockToolbarPopup,
+    blockTooltip,
+} from '../../../../components/BlockToolbar';
 import {bannerPlacement} from '../../../../utils/placement';
 import {isButtonSettingsOpen} from '../../../Button/plugins/ButtonSettingsPlugin';
 import {bannerNodeType} from '../../BannerSpecs';
@@ -12,6 +18,7 @@ import {BannerToolbar} from './BannerToolbar';
 const toolbars: Toolbars = new WeakMap();
 const tooltips: Tooltips = new WeakMap();
 const companions = new WeakMap<EditorView, Element>();
+const settings = new WeakMap<EditorView, Element>();
 
 export const bannerToolbar = (view: EditorView) => toolbars.get(view);
 
@@ -28,9 +35,12 @@ export const bannerTooltip = (options: () => BannerUploadOptions) =>
         idPrefix: 'banner-tooltip',
         nodeType: bannerNodeType,
         placement: bannerPlacement,
+        popupClassName: blockToolbarPopup(),
+        hoverSelector: '.' + bannerClassName,
         toolbars,
         tooltips,
-        keepWithin: (view) => companions.get(view),
+        keepWithin: (view, target) =>
+            Boolean(companions.get(view)?.contains(target) || settings.get(view)?.contains(target)),
         watch: (_state, node) => Object.values(bannerParts(node)).join(),
         skip: isButtonSettingsOpen,
         content: (view, {node, pos, dom}, {serializer, markupParser}) => (
@@ -40,6 +50,10 @@ export const bannerTooltip = (options: () => BannerUploadOptions) =>
                 pos={pos}
                 block={dom}
                 parts={bannerParts(node)}
+                onSettingsLayer={(element) => {
+                    if (element) settings.set(view, element);
+                    else settings.delete(view);
+                }}
                 markup={() => {
                     const {doc} = view.state;
                     return serializer.serialize(doc.type.create(null, doc.nodeAt(pos) ?? node));

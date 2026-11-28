@@ -29,11 +29,15 @@ import {
 import type {EditorView} from '@gravity-ui/markdown-editor/pm/view';
 import type {PopupPlacement} from '@gravity-ui/uikit';
 
+import {findDepth} from '../plugins/SelectionInsidePlugin';
 import {closeOnTabOut} from '../utils/popup';
 
 import './BlockToolbar.scss';
 
 const b = cn('banner-block-toolbar');
+const HOVER_LEAVE_DELAY = 180;
+
+export const blockToolbarPopup = (title = false) => b('popup', {title});
 
 export type Toolbars = WeakMap<EditorView, HTMLElement>;
 
@@ -139,11 +143,13 @@ type BlockTooltipOptions = {
     idPrefix: string;
     nodeType: (schema: Schema) => NodeType;
     placement: Placement;
+    popupClassName?: string;
     watch?: (state: EditorState, node: Node) => unknown;
     skip?: (state: EditorState) => boolean;
     toolbars?: Toolbars;
     tooltips?: Tooltips;
-    keepWithin?: (view: EditorView) => Element | null | undefined;
+    keepWithin?: (view: EditorView, target: globalThis.Node) => boolean;
+    hoverSelector?: string;
     content: (
         view: EditorView,
         node: BaseTooltipPlugin.BaseTooltipNode,
@@ -160,16 +166,31 @@ class BlockTooltipView extends BaseTooltipPlugin.BaseTooltipPluginView {
     private engaged = false;
     private focusSelection: Selection | null = null;
     private outsideHidden = false;
+    private hovered: HTMLElement | null = null;
+    private hoverTimer: ReturnType<typeof setTimeout> | undefined;
+    private readonly containsControl: (target: EventTarget | null) => boolean;
+    private readonly hoverSelector?: string;
 
     constructor(
         view: EditorView,
-        {idPrefix, nodeType, placement, watch, skip, keepWithin, content}: BlockTooltipOptions,
+        {
+            idPrefix,
+            nodeType,
+            placement,
+            popupClassName,
+            watch,
+            skip,
+            keepWithin,
+            hoverSelector,
+            content,
+        }: BlockTooltipOptions,
         toolbars: Toolbars,
         deps: ExtensionDeps,
     ) {
         super(view, {
             idPrefix,
             nodeType: nodeType(view.state.schema),
+            popupClassName,
             content: (editor, node) => (
                 <ToolbarsContext.Provider value={toolbars}>
                     {content(editor, node, deps)}
@@ -179,16 +200,26 @@ class BlockTooltipView extends BaseTooltipPlugin.BaseTooltipPluginView {
         this.placement = placement;
         this.watch = watch;
         this.skip = skip;
+        this.hoverSelector = hoverSelector;
+        this.containsControl = (target) =>
+            target instanceof window.Node &&
+            Boolean(toolbars.get(this.view)?.contains(target) || keepWithin?.(this.view, target));
+        if (hoverSelector) view.dom.ownerDocument.addEventListener('pointerover', this.trackHover);
         const openChange = this.popupOpenChangeHandler;
         this.popupOpenChangeHandler = (open, event, reason) => {
             const target = event instanceof FocusEvent ? event.relatedTarget : event?.target;
-            const within = keepWithin?.(this.view);
-            if (!open && target instanceof window.Node && within?.contains(target)) return;
+            if (!open && target instanceof window.Node && keepWithin?.(this.view, target)) return;
             const focused = toolbars.get(this.view)?.contains(document.activeElement);
             openChange?.(open, event, reason);
             this.outsideHidden = this.manualHidden && reason === 'outside-press';
             if (!open && reason === 'escape-key' && focused) this.view.focus();
         };
+    }
+
+    destroy() {
+        this.view.dom.ownerDocument.removeEventListener('pointerover', this.trackHover);
+        this.stopHoverTimer();
+        super.destroy();
     }
 
     show() {
@@ -200,6 +231,11 @@ class BlockTooltipView extends BaseTooltipPlugin.BaseTooltipPluginView {
     }
 
     focus(pointer: boolean) {
+        if (this.hovered && !this.hovered.matches(':hover')) {
+            this.stopHoverTimer();
+            this.hovered = null;
+            this.updateTooltipView();
+        }
         if (this.engaged) {
             if (this.outsideHidden) this.show();
             return;
@@ -217,10 +253,21 @@ class BlockTooltipView extends BaseTooltipPlugin.BaseTooltipPluginView {
         const {state} = this.view;
         const {$from, $to} = state.selection;
         let skipped = Boolean(this.skip?.(state));
+        const dom = this.hovered;
+        if (!skipped && dom && this.view.dom.contains(dom)) {
+            const $pos = state.doc.resolve(this.view.posAtDOM(dom, 0));
+            const depth = findDepth($pos, nodeType);
+            if (depth) {
+                const pos = $pos.before(depth);
+                if (this.currentNode?.dom !== dom) this.manualHidden = false;
+                this.currentNode = {dom, pos, node: $pos.node(depth)};
+                return;
+            }
+        }
         for (let depth = $from.depth; !skipped && depth > $to.depth; depth--) {
             skipped = $from.node(depth).type === nodeType;
         }
-        if (skipped) {
+        if (skipped || !this.engaged) {
             this.currentNode = null;
             this.manualHidden = false;
             this.stopTrackingViewFocus();
@@ -238,9 +285,12 @@ class BlockTooltipView extends BaseTooltipPlugin.BaseTooltipPluginView {
     protected updateTooltipView() {
         if (!this.engaged) {
             const {selection} = this.view.state;
-            if (!this.view.hasFocus() || this.focusSelection?.eq(selection)) return;
-            this.engaged = true;
-            this.focusSelection = null;
+            if (this.view.hasFocus() && !this.focusSelection?.eq(selection)) {
+                this.engaged = true;
+                this.focusSelection = null;
+            } else if (!this.hovered && !this.currentNode) {
+                return;
+            }
         }
         const previous = this.currentNode;
         const {popupPlacement: placement, manualHidden: hidden, watched} = this;
@@ -259,6 +309,35 @@ class BlockTooltipView extends BaseTooltipPlugin.BaseTooltipPluginView {
             watched === this.watched &&
             previous.node.sameMarkup(current.node);
         if (!same || this.popupPlacement !== placement) this.render();
+    }
+
+    private trackHover = ({target, pointerType}: PointerEvent) => {
+        if (!this.hoverSelector || pointerType === 'touch' || !(target instanceof Element)) return;
+        if (this.containsControl(target)) {
+            this.stopHoverTimer();
+            return;
+        }
+        if (this.hovered && this.containsControl(this.view.dom.ownerDocument.activeElement)) return;
+        const block = target.closest<HTMLElement>(this.hoverSelector);
+        if (block && this.view.dom.contains(block)) {
+            this.stopHoverTimer();
+            if (this.hovered === block) return;
+            this.hovered = block;
+            this.stopTrackingViewFocus();
+            this.updateTooltipView();
+        } else if (this.hovered && this.hoverTimer === undefined) {
+            this.hoverTimer = setTimeout(() => {
+                this.hoverTimer = undefined;
+                if (this.containsControl(this.view.dom.ownerDocument.activeElement)) return;
+                this.hovered = null;
+                this.updateTooltipView();
+            }, HOVER_LEAVE_DELAY);
+        }
+    };
+
+    private stopHoverTimer() {
+        clearTimeout(this.hoverTimer);
+        this.hoverTimer = undefined;
     }
 }
 
