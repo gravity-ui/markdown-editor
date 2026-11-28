@@ -55,10 +55,6 @@ $button: '.g-md-button-plugin';
     --_--buttons-gap: var(--g-md-banner-plugin-buttons-gap, var(--g-spacing-8, 32px));
     --_--image-width: var(--g-md-banner-plugin-image-width, 50%);
     --_--image-padding: var(--g-md-banner-plugin-image-padding, var(--g-spacing-2, 8px));
-    --_--image-frame-radius: var(
-        --g-md-banner-image-plugin-border-radius,
-        var(--g-border-radius-xl)
-    );
     --_--button-focus-outline-color: var(
         --g-md-banner-plugin-button-focus-outline-color,
         var(--g-color-text-primary)
@@ -224,15 +220,11 @@ $button: '.g-md-button-plugin';
         grid-column: auto;
 
         box-sizing: border-box;
-        width: var(--_--image-width);
-        max-width: 50%;
-        height: 100%;
+        width: calc(var(--_--image-width) - 2 * var(--_--image-padding));
+        max-width: calc(50% - 2 * var(--_--image-padding));
+        height: calc(100% - 2 * var(--_--image-padding));
         max-height: none;
-        margin: 0;
-        padding: var(--_--image-padding);
-
-        border-radius: var(--_--image-frame-radius);
-        background-clip: content-box;
+        margin: var(--_--image-padding);
     }
 
     // Doubled class: the `background` shorthand of `.g-root` resets these in a fixed theme.

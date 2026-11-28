@@ -182,6 +182,7 @@ test.describe('Banner', () => {
                 initial={`:::banner\n\n::banner-image[Abstract illustration](/${bannerImageAsset})\n\n:::`}
             />,
         );
+        await expect(banner.images).toHaveCSS('padding', '0px');
         await banner.images.click();
         await expect(banner.imagePopup).toBeVisible();
         expect((await banner.imagePopup.boundingBox())?.width).toBe(344);
@@ -503,12 +504,20 @@ test.describe('Banner on mobile', () => {
         const sizes = await banner.images.evaluateAll((images) =>
             images.map((image) => {
                 const {width, height} = image.getBoundingClientRect();
-                return {width, height, radius: getComputedStyle(image).borderTopLeftRadius};
+                const style = getComputedStyle(image);
+                return {
+                    width,
+                    height,
+                    padding: style.padding,
+                    radius: style.borderTopLeftRadius,
+                    expectedRadius: style.getPropertyValue('--g-border-radius-xl').trim(),
+                };
             }),
         );
         for (const [index, target] of [133, 173, 204].entries()) {
             expect(sizes[index].height).toBeCloseTo((sizes[index].width * target) / 327, 0);
-            expect(sizes[index].radius).toBe('10px');
+            expect(sizes[index].padding).toBe('0px');
+            expect(sizes[index].radius).toBe(sizes[index].expectedRadius);
         }
     });
 
