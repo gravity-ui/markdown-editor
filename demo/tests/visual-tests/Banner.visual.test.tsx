@@ -480,6 +480,89 @@ test.describe('Banner', () => {
     });
 });
 
+const layoutTitle = '::banner-title[Team portal]{size="2"}';
+const layoutContent =
+    ':::banner-content\nRead the **guide** and open the [portal](/portal).\n\nAsk the team in the chat.\n:::';
+const layoutButtons = [
+    ':button[Open](/portal){view="action" color="standard"}',
+    ':button[Guide](/guide){view="normal" color="gray"}',
+    ':button[Chat](/chat){view="flat" color="standard"}',
+].join(' ');
+const layoutImage = '::banner-image[Abstract illustration](/assets/banner-image.webp)';
+
+const layoutFill = 'bg-color="yellow-light"';
+const layoutBackground = 'bg-image="/assets/banner-background.webp"';
+
+// The scenarios grow from the title to the full set of parts, first on a fill, then on a background image.
+const layoutCases: [name: string, attrs: string, parts: string[]][] = [
+    ['the title on a fill', layoutFill, [layoutTitle]],
+    ['the title and the description on a fill', layoutFill, [layoutTitle, layoutContent]],
+    [
+        'the title, the description and the buttons on a fill',
+        layoutFill,
+        [layoutTitle, layoutContent, layoutButtons],
+    ],
+    [
+        'the title, the description, the buttons and the image on a fill',
+        layoutFill,
+        [layoutTitle, layoutContent, layoutButtons, layoutImage],
+    ],
+    [
+        'the title, the description and the buttons on a background image',
+        layoutBackground,
+        [layoutTitle, layoutContent, layoutButtons],
+    ],
+    [
+        'the title, the description, the buttons and the image on a background image',
+        layoutBackground,
+        [layoutTitle, layoutContent, layoutButtons, layoutImage],
+    ],
+    [
+        'the title, the description and the buttons on a background image with a fixed theme',
+        `${layoutBackground} bg-theme="light"`,
+        [layoutTitle, layoutContent, layoutButtons],
+    ],
+    [
+        'the title, the description and the buttons on a blurred background image',
+        `${layoutBackground} bg-image-blur="true"`,
+        [layoutTitle, layoutContent, layoutButtons],
+    ],
+];
+
+test.describe('Banner layout', () => {
+    for (const [name, attrs, parts] of layoutCases) {
+        test(`should show ${name} @wysiwyg`, async ({
+            mount,
+            page,
+            editor,
+            banner,
+            expectScreenshot,
+        }) => {
+            await mount(
+                <BannerStories.Banner
+                    width={900}
+                    initial={[`:::banner{width="full" ${attrs}}`, ...parts, ':::'].join('\n\n')}
+                />,
+            );
+            await expect(banner.blocks).toBeVisible();
+            for (const image of await banner.images.all()) {
+                await expect(image).toHaveJSProperty('complete', true);
+                await expect(image).not.toHaveJSProperty('naturalWidth', 0);
+            }
+            if (attrs.includes('bg-image')) {
+                // The background is a CSS image: the block paints it after the browser loads the file.
+                await page.evaluate(async () => {
+                    const image = new Image();
+                    image.src = '/assets/banner-background.webp';
+                    await image.decode();
+                });
+            }
+            await banner.hideToolbar();
+            await expectScreenshot({component: editor.locators.component});
+        });
+    }
+});
+
 test.describe('Banner on mobile', () => {
     test.use({viewport: {width: 375, height: 812}});
 
