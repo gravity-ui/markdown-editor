@@ -55,7 +55,7 @@ test.describe('Banner', () => {
         ]);
     });
 
-    test('should change the banner title color @wysiwyg', async ({
+    test('should change the banner title size and color @wysiwyg', async ({
         mount,
         page,
         banner,
@@ -70,15 +70,20 @@ test.describe('Banner', () => {
         );
 
         await banner.title.click();
-        await expect(banner.titleColorButton).toBeVisible();
+        await expect(banner.titleSizeButton).toHaveAccessibleName('Title size: Heading 3');
         await page.keyboard.press('Tab');
-        await expect(banner.titleColorButton).toBeFocused();
+        await expect(banner.titleSizeButton).toBeFocused();
         await page.keyboard.press('Enter');
+        await banner.titleSize(1).click();
+        await expect(banner.title).toHaveAttribute('data-size', '1');
+        await expect(banner.titleSizeButton).toHaveAccessibleName('Title size: Heading 1');
+
+        await banner.titleColorButton.click();
         await banner.titleColor('Blue').click();
 
         await expect(banner.title).toHaveAttribute('data-color', 'blue');
         await expect(
-            page.getByText('::banner-title[Team portal]{size="3" color="blue"}'),
+            page.getByText('::banner-title[Team portal]{size="1" color="blue"}'),
         ).toBeVisible();
 
         await banner.titleColorButton.click();

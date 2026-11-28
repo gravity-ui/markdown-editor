@@ -1,3 +1,8 @@
 .g-md-banner-toolbar {
     margin: var(--g-spacing-1);
+
+    &_title {
+        display: flex;
+        gap: var(--g-spacing-half);
+    }
 }

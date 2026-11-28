@@ -6,6 +6,8 @@
   "full-width": "Full width",
   "text": "Text",
   "heading": "Title",
+  "title-size": "Title size: {{value}}",
+  "heading-size": "Heading {{size}}",
   "description": "Description",
   "alignment": "Alignment",
   "vertical-alignment": "Vertically",

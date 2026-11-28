@@ -10,11 +10,11 @@ export const Banner: StoryObj<typeof BannerExample> = {
     args: {
         initial: `# Team workspace
 
-:::banner{height="s" width="m"}
+:::banner{height="l" width="l" bg-image="assets/banner-forest-lake.jpg" bg-theme="light" bg-image-blur="true"}
 
-::banner-title[Team portal]{size="2" color="blue"}
+::banner-title[Team portal]
 
-::banner-image[Minion](https://octodex.github.com/images/minion.png)
+::banner-image[Team](assets/banner-image-landscape.svg)
 
 :::`,
     },
