@@ -29,7 +29,7 @@ const mainToolbar = [
 
 const wysiwygMarkup = `:::banner
 
-::banner-image{src="assets/banner-image-landscape.svg" alt="Team"}
+::banner-image[Abstract illustration](/assets/banner-image.webp)
 
 ::banner-title[Team portal]
 
@@ -43,7 +43,7 @@ Portal description.
 
 After`;
 
-const fileUploadHandler: FileUploadHandler = async () => ({url: '/assets/banner-forest-lake.jpg'});
+const fileUploadHandler: FileUploadHandler = async () => ({url: '/assets/banner-background.webp'});
 
 const toolbars = {
     items: {

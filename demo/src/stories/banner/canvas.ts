@@ -1,9 +1,9 @@
 export const bannerCanvas = `
 ## Everything at once
 
-:::banner{height="l" width="l" vertical="top" bg-image="assets/banner-forest-lake.jpg" bg-theme="light" bg-image-blur="true"}
+:::banner{height="l" width="l" vertical="top" bg-image="assets/banner-background.webp" bg-theme="light" bg-image-blur="true"}
 
-::banner-image{src="assets/banner-image-landscape.svg" alt="Team"}
+::banner-image[Abstract illustration](assets/banner-image.webp)
 
 ::banner-title[Team portal]
 
@@ -253,7 +253,7 @@ A saturated background with \`monospace\` text and a [link](https://example.com)
 
 ### Light theme
 
-:::banner{height="s" width="m" bg-image="assets/banner-bg-light.svg" bg-theme="light"}
+:::banner{height="s" width="m" bg-image="assets/banner-background.webp" bg-theme="light"}
 
 ::banner-title[Dark text on a light image]
 
@@ -285,13 +285,13 @@ The content keeps the dark theme in a light page.
 
 ### Blur
 
-:::banner{height="s" width="m" align="center" vertical="top" bg-image="assets/banner-forest-lake.jpg" bg-theme="light" bg-image-blur="true"}
+:::banner{height="s" width="m" align="center" vertical="top" bg-image="assets/banner-background.webp" bg-theme="light" bg-image-blur="true"}
 
-::banner-title[A blurred photo]
+::banner-title[A blurred background]
 
 :::banner-content
 
-The blur keeps the text readable over a detailed image.
+The blur softens the shapes behind the text.
 
 :::
 

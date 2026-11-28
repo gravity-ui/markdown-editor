@@ -128,31 +128,25 @@ test.describe('Banner', () => {
         page,
         banner,
     }) => {
-        const backgrounds = Array.from(
-            {length: 10},
-            (_, index) => `/assets/watercolors/lake-${index + 1}.webp`,
-        );
-        const initial = backgrounds
-            .map(
-                (url) =>
-                    `:::banner{height="s" width="full" bg-image="${url}" bg-image-blur="true"}\n:::`,
-            )
-            .join('\n\n');
+        const background = '/assets/banner-background.webp';
+        const count = 10;
+        const markup = `:::banner{height="s" width="full" bg-image="${background}" bg-image-blur="true"}\n:::`;
+        const initial = Array.from({length: count}, () => markup).join('\n\n');
         await mount(
             <div style={smallSizes}>
                 <BannerStories.Banner width={300} initial={initial} />
             </div>,
         );
-        await expect(banner.blocks).toHaveCount(backgrounds.length);
-        for (const [index, url] of backgrounds.entries()) {
-            const block = banner.blocks.nth(index);
-            await expect(block).toHaveCSS('background-image', `url("${new URL(url, page.url())}")`);
-            await block.evaluate(async (_, src) => {
-                const image = new Image();
-                image.src = src;
-                await image.decode();
-            }, url);
+        await expect(banner.blocks).toHaveCount(count);
+        const backgroundUrl = new URL(background, page.url()).href;
+        for (const block of await banner.blocks.all()) {
+            await expect(block).toHaveCSS('background-image', `url("${backgroundUrl}")`);
         }
+        await banner.blocks.first().evaluate(async (_, src) => {
+            const image = new Image();
+            image.src = src;
+            await image.decode();
+        }, backgroundUrl);
         const overflow = await banner.blocks.first().evaluate((element) => {
             const parent = element.parentElement;
             return parent ? parent.scrollWidth - parent.clientWidth : null;
@@ -189,7 +183,7 @@ test.describe('Banner', () => {
             <BannerStories.Banner
                 width={800}
                 initial={
-                    ':::banner\n\n::banner-image[Team](/assets/watercolors/lake-1.webp)\n\n:::'
+                    ':::banner\n\n::banner-image[Abstract illustration](/assets/banner-image.webp)\n\n:::'
                 }
             />,
         );
@@ -503,7 +497,7 @@ test.describe('Banner on mobile', () => {
                         (height) =>
                             ':::banner{height="' +
                             height +
-                            '"}\n\n::banner-image[Team](/assets/watercolors/lake-1.webp)\n\n::banner-title[Team]\n\n:::',
+                            '"}\n\n::banner-image[Abstract illustration](/assets/banner-image.webp)\n\n::banner-title[Team]\n\n:::',
                     )
                     .join('\n\n')}
             />,
