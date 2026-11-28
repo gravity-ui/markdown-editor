@@ -1,4 +1,12 @@
-export {bannerAttrs, bannerFromAttrs, bannerRender} from './banner/attrs';
+export {
+    bannerAttrs,
+    bannerFromAttrs,
+    bannerImageAttrs,
+    bannerImageFromAttrs,
+    bannerRender,
+    bannerTitleAttrs,
+    bannerTitleFromAttrs,
+} from './banner/attrs';
 export {
     type BannerAlign,
     type BannerBackground,
@@ -10,6 +18,10 @@ export {
     type BannerHeight,
     type BannerLayout,
     type BannerVertical,
+    type BannerImage,
+    type BannerTitle,
+    type BannerTitleColor,
+    type BannerTitleSize,
     type BannerWidth,
     bannerAligns,
     bannerBackgroundDefaults,
@@ -18,9 +30,19 @@ export {
     bannerBgColors,
     bannerBgThemes,
     bannerClassName,
+    bannerContentClassName,
+    bannerContentTokenName,
     bannerDefaults,
     bannerHeights,
     bannerLayoutDefaults,
+    bannerImageClassName,
+    bannerImageDefaults,
+    bannerImageTokenName,
+    bannerTitleClassName,
+    bannerTitleColors,
+    bannerTitleDefaults,
+    bannerTitleSizes,
+    bannerTitleTokenName,
     bannerTokenName,
     bannerVerticals,
     bannerWidths,
@@ -31,33 +53,12 @@ export {
     bannerDimensions,
     bannerLayout,
     bannerLayoutValues,
+    bannerImage,
+    bannerImageValues,
+    bannerTitle,
+    bannerTitleValues,
 } from './banner/utils';
 export {bannerPlugin} from './banner/plugin';
-export {bannerTitleAttrs, bannerTitleFromAttrs} from './banner-title/attrs';
-export {
-    type BannerTitle,
-    type BannerTitleColor,
-    type BannerTitleSize,
-    bannerSanitizeAllowedAttributes,
-    bannerTitleClassName,
-    bannerTitleColors,
-    bannerTitleDefaults,
-    bannerTitleSizes,
-    bannerTitleTokenName,
-} from './banner-title/const';
-export {bannerTitle, bannerTitleValues} from './banner-title/utils';
-export {bannerTitlePlugin} from './banner-title/plugin';
-export {bannerContentClassName, bannerContentTokenName} from './banner-content/const';
-export {bannerContentPlugin} from './banner-content/plugin';
-export {bannerImageAttrs, bannerImageFromAttrs} from './banner-image/attrs';
-export {
-    type BannerImage,
-    bannerImageClassName,
-    bannerImageDefaults,
-    bannerImageTokenName,
-} from './banner-image/const';
-export {bannerImage, bannerImageValues} from './banner-image/utils';
-export {bannerImagePlugin} from './banner-image/plugin';
 export {buttonPlugin} from './button/plugin';
 export {buttonAttrs, buttonFromAttrs} from './button/attrs';
 export {

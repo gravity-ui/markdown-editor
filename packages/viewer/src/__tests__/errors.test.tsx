@@ -100,14 +100,16 @@ describe('Viewer effect errors', () => {
         expectedErrors.add(failure);
         const caught = vi.fn();
         const signals: AbortSignal[] = [];
+        const release = vi.fn();
         vi.spyOn(console, 'error').mockImplementation(() => undefined);
         act(() =>
             root.render(
                 <ErrorBoundary onError={caught}>
                     <MarkdownViewer html="<p>A</p>">
                         <Effect
-                            setup={({signal}) => {
+                            setup={({root: content, signal, claim}) => {
                                 signals.push(signal);
+                                claim(content, 'partial-setup', () => release);
                                 throw failure;
                             }}
                         />
@@ -118,6 +120,7 @@ describe('Viewer effect errors', () => {
         expect(caught).toHaveBeenCalledWith(failure);
         expect(signals).toHaveLength(1);
         expect(signals[0].aborted).toBe(true);
+        expect(release).toHaveBeenCalledOnce();
         expect(container.textContent).toBe('Failed');
     });
 

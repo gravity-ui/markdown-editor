@@ -22,7 +22,7 @@ interface ViewerContentProps extends MarkdownViewerProps {
 
 // getSnapshotBeforeUpdate lets this class clean up effects before React replaces the old HTML.
 export class ViewerContent extends Component<ViewerContentProps> {
-    private lifecycle = new ViewerLifecycle();
+    private lifecycle = new ViewerLifecycle((callback) => this.forceUpdate(callback));
 
     componentDidMount() {
         this.lifecycle.resume(this.props.contentRef.current);

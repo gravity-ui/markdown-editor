@@ -3,7 +3,6 @@ import {useGallery} from '@gravity-ui/components';
 import {useViewerEffect} from '../../hooks/use-viewer-effect';
 import {cn} from '../../utils/classname';
 import {getDomConstructor} from '../../utils/dom-constructor';
-import {createClassRegistration} from '../../utils/dom-ownership';
 import {inspectViewerNode} from '../../utils/inspect-viewer-node';
 
 import {collectGallery, isExcludedFromGallery} from './helpers/collect-gallery';
@@ -13,7 +12,7 @@ import type {FilesGalleryProps} from './types';
 
 import './FilesGallery.scss';
 
-const retainGalleryClass = createClassRegistration(cn('files-gallery')());
+const galleryClass = cn('files-gallery')();
 
 export function FilesGallery({
     additionalItems,
@@ -27,13 +26,10 @@ export function FilesGallery({
     const {t} = i18n.useTranslation();
     const fallbackLabel = t('open_image');
 
-    useViewerEffect(
-        ({root, signal}) => registerImageControls(root, signal, fallbackLabel),
-        [fallbackLabel],
-    );
+    useViewerEffect((context) => registerImageControls(context, fallbackLabel), [fallbackLabel]);
 
     useViewerEffect(
-        ({root, signal}) => {
+        ({root, signal, claim}) => {
             const ElementConstructor = getDomConstructor(root, 'Element');
 
             function handleClick(event: MouseEvent) {
@@ -77,7 +73,14 @@ export function FilesGallery({
             }
 
             root.addEventListener('click', handleClick, {signal});
-            return retainGalleryClass(root.parentElement);
+            const wrapper = root.parentElement;
+            if (wrapper) {
+                claim(wrapper, galleryClass, () => {
+                    if (wrapper.classList.contains(galleryClass)) return undefined;
+                    wrapper.classList.add(galleryClass);
+                    return () => wrapper.classList.remove(galleryClass);
+                });
+            }
         },
         [
             additionalItems,

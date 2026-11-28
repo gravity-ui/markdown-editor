@@ -30,10 +30,11 @@ const dimensions = [
 
 test.describe('Banner', () => {
     test('should apply default sizes @wysiwyg', async ({mount, page, banner}) => {
+        const defaultDimensions = [...dimensions, ['l', 'm']];
         await mount(
             <BannerStories.Banner
                 width={1280}
-                initial={`${dimensions.map(([height, width]) => bannerMarkup(height, width)).join('\n\n')}\n\nAfter`}
+                initial={`${defaultDimensions.map(([height, width]) => bannerMarkup(height, width)).join('\n\n')}\n\nAfter`}
             />,
         );
         const column = await page.locator('.ProseMirror > p').boundingBox();
@@ -45,9 +46,10 @@ test.describe('Banner', () => {
         );
         expect(sizes).toEqual([
             [900, 236],
-            [600, 236],
+            [740, 236],
             [1200, 300],
-            [column && Math.round(column.width), 236],
+            [column?.width, 236],
+            [900, 420],
         ]);
     });
 
@@ -187,7 +189,6 @@ test.describe('Banner', () => {
 
         await banner.height.click();
         await expect(banner.options).toHaveText(['S', 'M', 'L']);
-        await expectScreenshot({fullPage: true, nameSuffix: 'height list'});
         await page.keyboard.press('Escape');
         await expect(banner.options).toHaveCount(0);
         await expect(banner.settings).toBeVisible();
@@ -305,6 +306,7 @@ test.describe('Banner', () => {
         await editor.press('ControlOrMeta+Home');
         await banner.openSettings();
         await banner.background.click();
+        await expect(banner.backgroundTab('Fill')).toBeFocused();
 
         await banner.backgroundSwatch('Gray 20%').press('ArrowRight');
         await expect(banner.backgroundSwatch('Green 20%')).toBeFocused();

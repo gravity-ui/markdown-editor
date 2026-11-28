@@ -1,10 +1,14 @@
-import {includes, valuesOtherThan} from '../utils';
+import type {ContainerDirectiveParams} from '@diplodoc/directive';
+
+import {includes, nonEmptyString, valuesOtherThan} from '../utils';
 
 import {
     type BannerBackground,
     type BannerDimensions,
     type BannerHeight,
+    type BannerImage,
     type BannerLayout,
+    type BannerTitle,
     type BannerWidth,
     bannerAligns,
     bannerBackgroundDefaults,
@@ -12,10 +16,17 @@ import {
     bannerBgThemes,
     bannerDefaults,
     bannerHeights,
+    bannerImageDefaults,
     bannerLayoutDefaults,
+    bannerTitleColors,
+    bannerTitleDefaults,
+    bannerTitleSizes,
     bannerVerticals,
     bannerWidths,
 } from './const';
+
+export const isBareContainer = ({inlineContent, dests, contentTitle}: ContainerDirectiveParams) =>
+    !inlineContent && !dests && !contentTitle;
 
 export function isBannerHeight(value: unknown): value is BannerHeight {
     return includes(bannerHeights, value);
@@ -49,7 +60,7 @@ export function bannerBackground(
     attrs: Partial<Record<keyof BannerBackground, unknown>>,
 ): BannerBackground {
     const {'bg-color': color, 'bg-image': image, 'bg-theme': theme, 'bg-image-blur': blur} = attrs;
-    const address = typeof image === 'string' && image ? image : null;
+    const address = nonEmptyString(image);
     return {
         'bg-color': includes(bannerBgColors, color) ? color : bannerBackgroundDefaults['bg-color'],
         'bg-image': address,
@@ -63,4 +74,35 @@ export function bannerBackground(
 
 export function bannerBackgroundValues(background: BannerBackground): Record<string, string> {
     return valuesOtherThan(background, bannerBackgroundDefaults);
+}
+
+export function bannerTitle(attrs: {size?: unknown; color?: unknown}): BannerTitle {
+    return {
+        size:
+            bannerTitleSizes.find((size) => size === attrs.size || String(size) === attrs.size) ??
+            bannerTitleDefaults.size,
+        color: includes(bannerTitleColors, attrs.color) ? attrs.color : bannerTitleDefaults.color,
+    };
+}
+
+export function bannerTitleValues(attrs: {
+    size?: unknown;
+    color?: unknown;
+}): Record<string, string> {
+    return valuesOtherThan(bannerTitle(attrs), bannerTitleDefaults);
+}
+
+export function bannerImage(attrs: Partial<Record<keyof BannerImage, unknown>>): BannerImage {
+    const {src, alt, title} = attrs;
+    return {
+        src: nonEmptyString(src),
+        alt: typeof alt === 'string' ? alt : bannerImageDefaults.alt,
+        title: nonEmptyString(title),
+    };
+}
+
+export function bannerImageValues(
+    attrs: Partial<Record<keyof BannerImage, unknown>>,
+): Record<string, string> {
+    return valuesOtherThan(bannerImage(attrs), bannerImageDefaults);
 }

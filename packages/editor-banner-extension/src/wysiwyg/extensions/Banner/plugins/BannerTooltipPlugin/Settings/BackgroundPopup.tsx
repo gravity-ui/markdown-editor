@@ -73,7 +73,6 @@ export function BackgroundPopup({anchor, background, onClose}: BackgroundPopupPr
         <SettingsDialog
             title={i18n('background')}
             className={cnBannerSettings('popup')}
-            popupClassName={cnBannerSettings('background-surface')}
             qa="banner-background"
             closeSize="m"
             closeAnchor={anchor}

@@ -137,10 +137,7 @@ const htmlBlocks = dd`
 `;
 
 const feedback = dd`
-    <section data-demo-block-container>
-    <p data-demo-block-fallback>Feedback is unavailable.</p>
-    <div data-demo-block-id="feedback"></div>
-    </section>
+    <section data-demo-feedback><p>Feedback is unavailable.</p></section>
 `;
 
 export const documents = [

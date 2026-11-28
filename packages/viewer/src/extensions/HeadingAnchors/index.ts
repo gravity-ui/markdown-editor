@@ -1,1 +1,6 @@
-export {HeadingAnchors, type HeadingAnchorsProps, type HeadingAnchorTarget} from './HeadingAnchors';
+export {
+    HeadingAnchors,
+    HEADING_ANCHOR_SLOT_KEY,
+    type HeadingAnchorsProps,
+    type HeadingAnchorTarget,
+} from './HeadingAnchors';

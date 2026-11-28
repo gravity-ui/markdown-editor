@@ -2,15 +2,13 @@ import {escapeParenthesesInUrl} from '@gravity-ui/markdown-editor/_/extensions/m
 import type {ExtensionAuto} from '@gravity-ui/markdown-editor/core';
 import {buttonDefaults, buttonModel} from '@gravity-ui/markdown-plugin-banner';
 
-import {escapeDirectiveLabel, singleLine} from '../../../utils/directive';
+import {escapeLabel, escapeQuoted, singleLine} from '../../../utils/directive';
 
 import {buttonNodeName} from './const';
 import {buttonLabel} from './utils';
 
 // A table row ends at an unescaped `|`.
-const escapeLabel = (label: string) =>
-    escapeDirectiveLabel(singleLine(label)).replace(/\|/g, '\\|');
-const escapeQuoted = (value: string) => value.replace(/[\\"]/g, '\\$&');
+const escapeButtonLabel = (label: string) => escapeLabel(singleLine(label)).replace(/\|/g, '\\|');
 
 export const ButtonSerializerSpecs: ExtensionAuto = (builder) => {
     builder.addNodeSerializerSpec(buttonNodeName, () => (state, node) => {
@@ -24,6 +22,6 @@ export const ButtonSerializerSpecs: ExtensionAuto = (builder) => {
         })
             .map(([name, value]) => `${name}="${escapeQuoted(value)}"`)
             .join(' ');
-        state.write(`:button[${escapeLabel(buttonLabel(node))}]${link}{${attrs}}`);
+        state.write(`:button[${escapeButtonLabel(buttonLabel(node))}]${link}{${attrs}}`);
     });
 };

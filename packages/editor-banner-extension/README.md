@@ -36,12 +36,12 @@ const editor = useMarkdownEditor({
 | `maxImageSize` | Maximum size of an uploaded image in bytes; without it, the size is not checked                |
 | `imageTypes`   | MIME types of uploaded images, such as `['image/jpeg', 'image/png']`; any `image/*` without it |
 
-| Entry point                                                  | Exports                                                                                                                                                                  |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `@gravity-ui/markdown-editor-banner-extension`               | `Banner`, `Button`, the Markdown commands `insertBanner` and `insertButton`, and the toolbar buttons `toolbarBannerItem` and `toolbarButtonItem` for both modes          |
-| `@gravity-ui/markdown-editor-banner-extension/wysiwyg`       | `Banner`, `Button`, `toolbarBannerItem`, and `toolbarButtonItem` for the visual editor                                                                                   |
-| `@gravity-ui/markdown-editor-banner-extension/wysiwyg/specs` | `BannerSpecs`, `ButtonSpecs`, the node names `bannerNodeName`, `bannerTitleNodeName`, `bannerContentNodeName`, `bannerImageNodeName`, `buttonNodeName`                   |
-| `@gravity-ui/markdown-editor-banner-extension/markup`        | `insertBanner`, `insertButton`, `toolbarBannerItem`, and `toolbarButtonItem` for the Markdown editor                                                                     |
+| Entry point                                                  | Exports                                                                                                                                                         |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@gravity-ui/markdown-editor-banner-extension`               | `Banner`, `Button`, the Markdown commands `insertBanner` and `insertButton`, and the toolbar buttons `toolbarBannerItem` and `toolbarButtonItem` for both modes |
+| `@gravity-ui/markdown-editor-banner-extension/wysiwyg`       | `Banner`, `Button`, `toolbarBannerItem`, and `toolbarButtonItem` for the visual editor                                                                          |
+| `@gravity-ui/markdown-editor-banner-extension/wysiwyg/specs` | `BannerSpecs`, `ButtonSpecs`, the node names `bannerNodeName`, `bannerTitleNodeName`, `bannerContentNodeName`, `bannerImageNodeName`, `buttonNodeName`          |
+| `@gravity-ui/markdown-editor-banner-extension/markup`        | `insertBanner`, `insertButton`, `toolbarBannerItem`, and `toolbarButtonItem` for the Markdown editor                                                            |
 
 The background image and the banner image are uploaded with the `uploadFile` handler of the editor (`handlers.uploadFile`), which the extension reads as `fileUploadHandler` from `builder.context`. The `url` it returns is set only if it passes the Markdown link check of the editor; another address, such as `javascript:`, is an upload error. Without the handler, images are set by a link only.
 
@@ -54,18 +54,17 @@ Both items can also go into the `wysiwygSlash` order of a toolbars preset, so th
 
 ### Preview
 
-The Markdown-mode preview is rendered by the host's markdown-it and sanitizer. Register `bannerPreset` from `@gravity-ui/markdown-plugin-banner` (it includes `buttonPlugin`), import `@gravity-ui/markdown-plugin-banner/styles.css`, and add `bannerSanitizeAllowedAttributes` to the allowed attributes of the sanitizer; see the [Sanitizer](https://github.com/gravity-ui/markdown-editor/tree/main/packages/plugin-banner#sanitizer) and [Browser support](https://github.com/gravity-ui/markdown-editor/tree/main/packages/plugin-banner#browser-support) sections of the plugin.
+For the Markdown preview, register `bannerPreset` from `@gravity-ui/markdown-plugin-banner` and import its styles. The preset includes the banner directives and buttons.
 
 ```ts
 import MarkdownIt from 'markdown-it';
-import {bannerPreset, bannerSanitizeAllowedAttributes} from '@gravity-ui/markdown-plugin-banner';
+import {bannerPreset} from '@gravity-ui/markdown-plugin-banner';
 import '@gravity-ui/markdown-plugin-banner/styles.css';
 
 const md = new MarkdownIt().use(bannerPreset);
-const allowedAttributes = {...bannerSanitizeAllowedAttributes};
 ```
 
-`Banner` and `Button` import `@gravity-ui/markdown-plugin-banner/styles.css` for the visual editor, so the editor has the same [browser minimum](https://github.com/gravity-ui/markdown-editor/tree/main/packages/plugin-banner#browser-support) as the preview. Syntax, sizes, and shared styles for WYSIWYG and previews are in `@gravity-ui/markdown-plugin-banner`.
+`Banner` and `Button` import `@gravity-ui/markdown-plugin-banner/styles.css` for the visual editor. Syntax, sizes, and shared styles for WYSIWYG and previews are in `@gravity-ui/markdown-plugin-banner`.
 
 ## Banner
 
@@ -103,7 +102,7 @@ The block looks like its preview: it has the classes and the `data-*` attributes
 
 `Banner` includes the title: the title `::banner-title[text]{size color}` is a block of plain text with its size and color, so it is not escaped as ordinary text and survives switching modes.
 The title looks like its preview and is edited in place as plain text: marks, links and line breaks are not allowed, pasted text loses its inline formatting (bold, code, links) while list, quote and other block markers stay in it as text, code copied from a code editor stays as written, and selecting its text does not open the selection toolbar.
-An empty title shows a placeholder. Change its text with the editor `placeholder` option: `{placeholder: {banner_title: 'Title'}}`.
+An empty title shows a placeholder. Change its text with the editor `placeholder` option: `{placeholder: {g_md_banner_title: 'Title'}}`.
 Deleting a selection that covers the whole title empties the title and keeps the block; a triple click selects only the text of the title.
 Enter in the title moves the cursor to the description that follows it and never splits the title. In a title outside a banner, such as one written in Markdown inside a quote, a list item or a table cell, Enter at its end starts an empty paragraph after it.
 A cursor in the title opens a toolbar with two menus: the size (Heading 1–6, `size`) and the title color (`color`: default, gray, yellow, orange, red, green, blue, violet); the size button shows the icon of the current size, the color menu and its button show the colors of the title, and each button names its current value, for example "Title size: Heading 3".
@@ -115,14 +114,14 @@ With the cursor in the title, Tab focuses the title toolbar, and Shift+Tab focus
 
 `Banner` also includes the description: the description `:::banner-content` is a container of blocks without attributes, so its lines are not escaped as ordinary text and it survives switching modes.
 The description looks like its preview and is edited in place as rich text: paragraphs with the marks and links of the editor (bold, italic, underline, strikethrough, monospace) and its selection toolbar; other blocks written in Markdown, such as lists, are kept. The editor writes the blocks of the description between empty lines, as it writes the blocks of the banner.
-An empty description shows a placeholder. Change its text with the editor `placeholder` option: `{placeholder: {banner_content: 'Text'}}`.
+An empty description shows a placeholder. Change its text with the editor `placeholder` option: `{placeholder: {g_md_banner_content: 'Text'}}`.
 The description is an isolated block: Enter starts a paragraph inside it and does nothing in an empty paragraph, so the text never leaves the block; Backspace at its start and Delete at its end keep it and do not join it with the blocks around it, and an empty paragraph next to it is removed instead. Deleting everything selected in the description leaves an empty description; a selection that runs from the description to the start of the next block stays inside the description.
 The description has no toolbar of its own and no settings: an attribute written on `:::banner-content` in Markdown, such as `size`, is dropped. The text type select of the selection toolbar turns the selected paragraph into a heading block inside the description.
 With the cursor anywhere in the description, Tab and Shift+Tab focus the banner toolbar unless a list, a code block or a table inside it uses the key. In a description outside a banner, these keys work as elsewhere in the editor: they indent or lift a list item and move to another table cell.
 
 ## Banner image
 
-`Banner` also includes the image: the image `::banner-image{src alt title}` is a block without content with its address, alternative text and title, so it is not escaped as ordinary text and survives switching modes.
+`Banner` also includes the image: the image `::banner-image[alt](src "title")` is a block without content with its address, alternative text and title, so it is not escaped as ordinary text and survives switching modes.
 The image looks like its preview: it takes its half of the banner, is cropped to cover it, and moves above the text in a narrow banner. An image without an address is a gray placeholder with an icon, named "Add image" for screen readers: a click anywhere on it selects it and shows the image popup under it, and Enter on the selected placeholder moves the focus to the first control of the form. The colors of the placeholder follow the page theme only: the fill, the background image and the text color of the banner do not change them.
 The image has no toolbar. A click selects the image and shows its popup under it right away, and the popup does not take the focus. The popup is aligned with the outer edge of the image (its start edge when the image is on the start side of the banner, its end edge otherwise), and it moves to the other edge or above the image when the window has no room. A selected image has only the selection ring of the editor.
 The popup adds or replaces the file: "Upload from device" sends it to the `uploadFile` handler of the editor, with the same `imageTypes` and `maxImageSize` limits as the background, and "Add by link" takes an address. The address passes the same check as the background image: one that the Markdown link check of the editor rejects, such as `javascript:`, is rejected with an error. The form is the image form of the editor with only its source: the title, alternative text and size fields are hidden, here and in the Image tab of the Background popup. An error of the link or of the file is announced to screen readers.

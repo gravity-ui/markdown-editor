@@ -6,7 +6,7 @@ import {
 import {buttonDefaults} from '@gravity-ui/markdown-plugin-banner';
 
 import {i18n} from '../../i18n';
-import {escapeDirectiveLabel} from '../../wysiwyg/utils/directive';
+import {escapeLabel} from '../../wysiwyg/utils/directive';
 
 const open = ':button[';
 
@@ -82,7 +82,7 @@ export const insertButton: StateCommand = ({state, dispatch}) => {
             start = after;
             end = after;
         }
-        const escaped = label ? escapeDirectiveLabel(label) : i18n('button-placeholder');
+        const escaped = label ? escapeLabel(label) : i18n('button-placeholder');
         const prefix = after === undefined ? open : ` ${open}`;
         const insert = `${prefix}${escaped}]{view="${view}" color="${color}"}`;
         const labelFrom = start + prefix.length;

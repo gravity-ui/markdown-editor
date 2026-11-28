@@ -4,6 +4,7 @@ import {
     bannerTitleClassName,
     bannerTitleDefaults,
     bannerTitleFromAttrs,
+    bannerTitleSizes,
 } from '@gravity-ui/markdown-plugin-banner';
 
 import {i18n} from '../../../../i18n';
@@ -18,18 +19,18 @@ export const BannerTitleSchemaSpecs: ExtensionAuto = (builder) => {
     builder.addNodeSpec(bannerTitleNodeName, () => ({
         group: 'block',
         content: 'text*',
+        isolating: true,
         marks: '',
         defining: true,
         selectionContext: false,
         complex: 'leaf',
         attrs: attrSpecs(bannerTitleDefaults),
-        parseDOM: [
-            {
-                tag: `div.${bannerTitleClassName}`,
-                getAttrs: (dom) => bannerTitleFromAttrs((name) => dom.getAttribute(name)),
-            },
-        ],
-        toDOM: (node) => ['div', bannerTitleAttrs(node.attrs), 0],
+        parseDOM: bannerTitleSizes.map((size) => ({
+            tag: `h${size}.${bannerTitleClassName}`,
+            priority: 60,
+            getAttrs: (dom) => bannerTitleFromAttrs((name) => dom.getAttribute(name)),
+        })),
+        toDOM: (node) => [`h${node.attrs.size}`, bannerTitleAttrs(node.attrs), 0],
         placeholder,
     }));
 };

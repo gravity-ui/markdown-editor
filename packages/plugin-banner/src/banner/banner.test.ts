@@ -1,7 +1,17 @@
 import MarkdownIt from 'markdown-it';
 import {describe, expect, it} from 'vitest';
 
-import {bannerHeights, bannerPlugin, bannerTokenName, bannerWidths} from '../index';
+import {
+    bannerHeights,
+    bannerPlugin,
+    bannerTokenName,
+    bannerWidths,
+    buttonPlugin,
+    buttonTokenName,
+} from '../index';
+
+import {bannerContentTokenName, bannerImageTokenName, bannerTitleTokenName} from './const';
+import {bannerTitle} from './utils';
 
 const md = new MarkdownIt().use(bannerPlugin);
 const bannerOpen = `${bannerTokenName}_open`;
@@ -10,6 +20,169 @@ const scriptUrl = ['javascript', 'alert(1)'].join(':');
 
 const html = (height: string, width: string) =>
     `<div class="g-md-banner-plugin g-md-banner-plugin_height_${height} g-md-banner-plugin_width_${width}" data-files-gallery-exclude="true" data-height="${height}" data-width="${width}"></div>\n`;
+
+describe('Banner title Markdown', () => {
+    it.each([1, 2, 3, 4, 5, 6])('should accept numeric and string heading size %i', (size) => {
+        expect(bannerTitle({size})).toEqual({size, color: 'auto'});
+        expect(bannerTitle({size: String(size)})).toEqual({size, color: 'auto'});
+    });
+
+    it.each(['02', '2.0', ' 2', 0, 7, true, null, {}])(
+        'should use the default for unsupported heading size %j',
+        (size) => {
+            expect(bannerTitle({size})).toEqual({size: 2, color: 'auto'});
+        },
+    );
+
+    it('should render a plain text title as a native heading', () => {
+        const markup =
+            '::banner-title[Text &amp; **bold** <img src=x> \\[A\\]]{size="1" color="blue"}';
+        const tokens = md.parse(markup, {});
+        expect(tokens.map((token) => token.type)).toEqual([
+            `${bannerTitleTokenName}_open`,
+            'text',
+            `${bannerTitleTokenName}_close`,
+        ]);
+        expect(tokens[0].tag).toBe('h1');
+        expect(tokens[0].attrGet('data-color')).toBe('blue');
+        expect(tokens[0].attrGet('role')).toBeNull();
+        expect(tokens[0].attrGet('aria-level')).toBeNull();
+        expect(md.render(markup)).toBe(
+            '<h1 class="g-md-banner-title-plugin g-md-banner-title-plugin_size_1 g-md-banner-title-plugin_color_blue" data-size="1" data-color="blue">\n' +
+                'Text &amp;amp; **bold** &lt;img src=x&gt; [A]</h1>\n',
+        );
+    });
+
+    it.each([
+        ['', 'h2'],
+        ['{size="3"}', 'h3'],
+        ['{size="7"}', 'h2'],
+    ])('should pick the heading tag for the attributes %s', (attrs, tag) => {
+        expect(md.parse(`::banner-title[Title]${attrs}`, {})[0].tag).toBe(tag);
+    });
+
+    it('should preserve empty title tokens without rendering a heading', () => {
+        const tokens = md.parse('::banner-title[   ]', {});
+        expect(tokens.map((token) => token.type)).toEqual([
+            `${bannerTitleTokenName}_open`,
+            `${bannerTitleTokenName}_close`,
+        ]);
+        expect(tokens.every((token) => token.hidden)).toBe(true);
+        expect(md.render('::banner-title[   ]')).toBe('');
+    });
+});
+
+describe('Banner content Markdown', () => {
+    it('should preserve formatting and resolve document references in content', () => {
+        const markup =
+            ':::banner-content\nFirst **paragraph**\n\n[Second][ref]\n:::\n\n[ref]: /page';
+        const rendered = md.render(markup);
+        expect(rendered).toContain('<p>First <strong>paragraph</strong></p>');
+        expect(rendered).toContain('<p><a href="/page">Second</a></p>');
+    });
+
+    it('should ignore content attributes and keep the following button inside the banner', () => {
+        const markup =
+            ':::banner\n:::banner-content{size="1"}\nDescription\n:::\n\n:button[Open](/page)\n:::';
+        const tokens = new MarkdownIt().use(bannerPlugin).use(buttonPlugin).parse(markup, {});
+        expect(tokens.map((token) => token.type)).toEqual([
+            bannerOpen,
+            `${bannerContentTokenName}_open`,
+            'paragraph_open',
+            'inline',
+            'paragraph_close',
+            `${bannerContentTokenName}_close`,
+            'paragraph_open',
+            'inline',
+            'paragraph_close',
+            bannerClose,
+        ]);
+        expect(tokens[1].attrs).toEqual([['class', 'g-md-banner-content-plugin']]);
+        expect(tokens[7].children?.map((token) => token.type)).toContain(buttonTokenName);
+    });
+
+    it('should preserve empty content tokens without rendering a container', () => {
+        const markup = ':::banner-content\n\n:::';
+        const tokens = md.parse(markup, {});
+        expect(tokens.map((token) => token.type)).toEqual([
+            `${bannerContentTokenName}_open`,
+            `${bannerContentTokenName}_close`,
+        ]);
+        expect(tokens.every((token) => token.hidden)).toBe(true);
+        expect(md.render(markup)).toBe('');
+    });
+
+    it.each([':::banner-content[Title]', ':::banner-content(link)', ':::banner-content Title'])(
+        'should leave unsupported opening syntax as Markdown in %j',
+        (opening) => {
+            const markup = `${opening}\nText\n:::`;
+            expect(
+                md
+                    .parse(markup, {})
+                    .some((token) => token.type === `${bannerContentTokenName}_open`),
+            ).toBe(false);
+        },
+    );
+});
+
+describe('Banner image Markdown', () => {
+    it.each([
+        [scriptUrl, null],
+        ['data:text/html;base64,PHNjcmlwdD4=', null],
+        ['https://cdn.example.com/a b.png?w=2&h=3', 'https://cdn.example.com/a%20b.png?w=2&h=3'],
+        ['/images/banner.png', '/images/banner.png'],
+        ['', null],
+    ])('should validate image address %j and hide rejected images', (address, expected) => {
+        const [token] = md.parse(`::banner-image{src="${address}"}`, {});
+        expect(token.type).toBe(bannerImageTokenName);
+        expect(token.attrGet('src')).toBe(expected);
+        expect(token.hidden).toBe(expected === null);
+    });
+
+    it.each([
+        [
+            '::banner-image[Team](./.files/team.jpg "Project team")',
+            './.files/team.jpg',
+            'Team',
+            'Project team',
+        ],
+        ['::banner-image[](/team.jpg)', '/team.jpg', '', null],
+        [
+            String.raw`::banner-image[Team \[A\]](/team\(1\).jpg "A \"quote\"")`,
+            '/team(1).jpg',
+            'Team [A]',
+            'A "quote"',
+        ],
+        [`::banner-image[Team](${scriptUrl})`, null, 'Team', null],
+    ] as const)('should parse the image label and destination in %s', (markup, src, alt, title) => {
+        const [token] = md.parse(markup, {});
+        expect(token.type).toBe(bannerImageTokenName);
+        expect(token.attrGet('src')).toBe(src);
+        expect(token.attrGet('alt')).toBe(alt);
+        expect(token.attrGet('title')).toBe(title);
+        expect(token.hidden).toBe(src === null);
+    });
+
+    it('should escape image descriptions and exclude the image from galleries', () => {
+        const markup = '::banner-image{src="/team.png" alt="<Team>" title="Our &quot;team&quot;"}';
+        const [token] = md.parse(markup, {});
+        expect(token.attrGet('data-files-gallery-exclude')).toBe('true');
+        expect(token.attrGet('alt')).toBe('<Team>');
+        expect(token.attrGet('title')).toBe('Our "team"');
+        expect(md.render(markup)).toContain('alt="&lt;Team&gt;" title="Our &quot;team&quot;"');
+    });
+
+    it('should preserve trailing caption text as ordinary Markdown', () => {
+        const markup = '::banner-image{src="/a.png"} A caption';
+        expect(md.render(markup)).toBe(new MarkdownIt().render(markup));
+    });
+
+    it('should render decorative images with an empty alternative text', () => {
+        const [token] = md.parse('::banner-image{src="/team.png"}', {});
+        expect(token.attrGet('alt')).toBe('');
+        expect(token.attrGet('title')).toBeNull();
+    });
+});
 
 describe('Banner Markdown', () => {
     for (const height of bannerHeights) {
