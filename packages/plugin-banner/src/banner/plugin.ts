@@ -6,6 +6,7 @@ import {
 } from '@diplodoc/directive';
 import type {PluginSimple} from 'markdown-it';
 import type Core from 'markdown-it/lib/parser_core';
+import type Renderer from 'markdown-it/lib/renderer';
 
 import {normalizeLinkUrl} from '../url';
 
@@ -13,6 +14,7 @@ import {bannerAttrs, bannerImageAttrs, bannerTitleAttrs} from './attrs';
 import {
     bannerContentClassName,
     bannerContentTokenName,
+    bannerImageFrameClassName,
     bannerImageTokenName,
     bannerTitleTokenName,
     bannerTokenName,
@@ -54,6 +56,11 @@ const bannerImageHandler: LeafBlockDirectiveHandler = (state, params) => {
     return true;
 };
 
+const renderBannerImage: Renderer.RenderRule = (tokens, idx, options, _env, self) =>
+    tokens[idx].hidden
+        ? ''
+        : `<div class="${bannerImageFrameClassName}">${self.renderToken(tokens, idx, options)}</div>\n`;
+
 const contentOpenTokenName = `${bannerContentTokenName}_open`;
 const contentCloseTokenName = `${bannerContentTokenName}_close`;
 
@@ -90,5 +97,7 @@ export const bannerPlugin: PluginSimple = (md) => {
         },
     });
     registerLeafBlockDirective(md, 'banner-image', bannerImageHandler);
+    const {rules} = md.renderer;
+    rules[bannerImageTokenName] = renderBannerImage;
     md.core.ruler.push(`${bannerContentTokenName}_hide_empty`, hideEmptyContent);
 };

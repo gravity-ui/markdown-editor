@@ -10,6 +10,7 @@ import {
     bannerImageAttrs,
     bannerImageClassName,
     bannerImageDefaults,
+    bannerImageFrameClassName,
     bannerImageFromAttrs,
     bannerImageTokenName,
     bannerTitleAttrs,
@@ -86,6 +87,10 @@ export const BannerSchemaSpecs: ExtensionAuto = (builder) => {
                 getAttrs: (dom) => bannerImageFromAttrs((name) => dom.getAttribute(name)),
             },
         ],
-        toDOM: (node) => ['img', bannerImageAttrs(node.attrs)],
+        toDOM: (node) => [
+            'div',
+            {class: bannerImageFrameClassName},
+            ['img', bannerImageAttrs(node.attrs)],
+        ],
     }));
 };

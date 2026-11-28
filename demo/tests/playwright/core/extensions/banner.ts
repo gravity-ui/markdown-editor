@@ -12,6 +12,7 @@ export class BannerBlock {
     readonly width: Locator;
     readonly closeButton: Locator;
     readonly options: Locator;
+    readonly images: Locator;
     readonly backgroundPopup: Locator;
     protected readonly page: Page;
     protected readonly expect: Expect;
@@ -28,6 +29,7 @@ export class BannerBlock {
         this.width = this.settings.getByRole('combobox', {name: 'Width', exact: true});
         this.closeButton = this.settings.getByRole('button', {name: 'Close', exact: true});
         this.options = page.getByRole('option');
+        this.images = this.blocks.locator('img.g-md-banner-image-plugin');
         this.backgroundPopup = page.getByRole('dialog', {name: 'Background', exact: true});
     }
 

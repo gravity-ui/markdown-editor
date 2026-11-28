@@ -177,6 +177,13 @@ describe('Banner image Markdown', () => {
         expect(md.render(markup)).toBe(new MarkdownIt().render(markup));
     });
 
+    it('should render the image in the frame of the block', () => {
+        expect(md.render('::banner-image[Team](/team.png)')).toBe(
+            '<div class="g-md-banner-plugin__image"><img class="g-md-banner-image-plugin" data-files-gallery-exclude="true" src="/team.png" alt="Team">\n</div>\n',
+        );
+        expect(md.render(`::banner-image[Team](${scriptUrl})`)).toBe('');
+    });
+
     it('should render decorative images with an empty alternative text', () => {
         const [token] = md.parse('::banner-image{src="/team.png"}', {});
         expect(token.attrGet('alt')).toBe('');

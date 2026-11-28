@@ -27,13 +27,25 @@ $bg-colors: (
 }
 
 .g-md-banner-plugin {
+    --_--padding: var(--g-md-banner-plugin-padding, var(--g-spacing-8, 32px));
+    --_--image-padding: var(--g-md-banner-plugin-image-padding, var(--g-spacing-2, 8px));
+
     // `initial` stops inheritance and selects the fallback of `var()`.
     --_--bg-color: initial;
 
+    position: relative;
+
+    display: grid;
+    align-content: start;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: var(--_--padding);
+
+    box-sizing: border-box;
     max-width: var(--_--width);
     min-height: var(--_--height);
     margin-block: var(--g-md-banner-plugin-margin-block, 0 var(--g-spacing-5, 20px));
     margin-inline: var(--g-md-banner-plugin-margin-inline, 0);
+    padding: var(--_--padding);
 
     border-radius: var(--g-border-radius-2xl, 16px);
     background-color: var(--_--bg-color, transparent);
@@ -72,6 +84,29 @@ $bg-colors: (
         --_--width: none;
     }
 
+    // The text keeps to the first column.
+    > :not(#{&}__image) {
+        grid-column: 1;
+    }
+
+    // The padding of the block ends the text.
+    > :nth-last-child(1 of :not(#{&}__image)) {
+        margin-block-end: 0;
+    }
+
+    // An image takes the right half of the block, and the text the left one.
+    &:has(> #{&}__image) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    &__image {
+        position: absolute;
+        inset-block: 0;
+        inset-inline: 50% 0;
+
+        padding: var(--_--image-padding);
+    }
+
     // Doubled class: the `background` shorthand of `.g-root` resets these in a fixed theme.
     &#{&}_bg-image {
         background-repeat: no-repeat;
@@ -83,8 +118,6 @@ $bg-colors: (
     // The layer blurs the background of the block within the block bounds:
     // nothing overflows the block, and its content is not clipped.
     &#{&}_bg-image-blur {
-        position: relative;
-
         isolation: isolate;
 
         &::before {

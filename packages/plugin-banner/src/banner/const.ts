@@ -61,6 +61,8 @@ export const bannerTitleDefaults: Readonly<BannerTitle> = {size: 2, color: 'auto
 
 export const bannerImageTokenName = 'g_md_banner_image';
 export const bannerImageClassName = 'g-md-banner-image-plugin';
+// The frame places the image in the block.
+export const bannerImageFrameClassName = `${bannerClassName}__image`;
 
 export type BannerImage = {src: string | null; alt: string; title: string | null};
 
